@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-06-15 00:46:51 -0700 (Pn, 15 Bir 2007) $" rcs.revision="$Revision: 1235 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_and_zone_laminate_tables_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="part_and_zone_laminate_tables_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Part_and_zone_laminate_tables_arm">
       <interface kind="use" schema="Composite_constituent_shape_arm"/>
       <interface kind="use" schema="Ply_orientation_specification_arm"/>
@@ -25,17 +25,17 @@
       </entity>
       <entity name="Composite_assembly_sequence_definition">
          <explicit name="components_in_sequence">
-            <aggregate type="BAG" lower="1" upper="?"/>
+            <aggregate lower="1" type="BAG" upper="?"/>
             <typename name="component_class_for_assembly"/>
          </explicit>
       </entity>
       <entity name="Composite_assembly_table" supertypes="Part_laminate_table">
          <explicit name="sequence_groups">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="Composite_assembly_sequence_definition"/>
          </explicit>
       </entity>
-      <entity name="Constituent_part" supertypes="Part_view_definition" super.expression="ONEOF (Ply, Ply_piece, Ply_laminate, Filament_laminate, Processed_core, Composite_assembly)">
+      <entity name="Constituent_part" super.expression="ONEOF (Ply, Ply_piece, Ply_laminate, Filament_laminate, Processed_core, Composite_assembly)" supertypes="Part_view_definition">
          <explicit name="constituent_part_identification">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition" old_name="id"/>
@@ -62,7 +62,7 @@
             <typename name="Shape_description_association"/>
          </explicit>
       </entity>
-      <entity name="Laminate_table" supertypes="Part_view_definition" super.expression="ONEOF (Part_laminate_table, Zone_structural_makeup)">
+      <entity name="Laminate_table" super.expression="ONEOF (Part_laminate_table, Zone_structural_makeup)" supertypes="Part_view_definition">
          <explicit name="basis">
             <typename name="Reinforcement_orientation_basis"/>
          </explicit>
@@ -73,10 +73,10 @@
             <typename name="Surface_with_direction"/>
          </explicit>
       </entity>
-      <entity name="Part_laminate_table" supertypes="Laminate_table" super.expression="ONEOF (Composite_assembly_table, Ply_laminate_table)"/>
+      <entity name="Part_laminate_table" super.expression="ONEOF (Composite_assembly_table, Ply_laminate_table)" supertypes="Laminate_table"/>
       <entity name="Percentage_laminate_table" supertypes="Zone_structural_makeup">
          <explicit name="table_components">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Percentage_ply"/>
          </explicit>
          <explicit name="total_thickness">
@@ -99,7 +99,7 @@
       </entity>
       <entity name="Ply" supertypes="Constituent_part">
          <explicit name="constituents" optional="YES">
-            <aggregate type="LIST" lower="1" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="Ply_piece"/>
          </explicit>
          <explicit name="ply_thickness">
@@ -114,7 +114,7 @@
          <explicit name="shape" optional="YES">
             <typename name="Ply_shape"/>
          </explicit>
-         <derived name="material_orientation_angle" expression="material_orientation.orientations[1]">
+         <derived expression="material_orientation.orientations[1]" name="material_orientation_angle">
             <typename name="Ply_orientation_angle"/>
          </derived>
       </entity>
@@ -128,13 +128,13 @@
       </entity>
       <entity name="Ply_laminate_sequence_definition">
          <explicit name="plies_in_sequence">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Ply"/>
          </explicit>
       </entity>
       <entity name="Ply_laminate_table" supertypes="Part_laminate_table">
          <explicit name="sequence">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="Ply_laminate_sequence_definition"/>
          </explicit>
       </entity>
@@ -153,7 +153,7 @@
       </entity>
       <entity name="Processed_core" supertypes="Constituent_part">
          <explicit name="added_material" optional="YES">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="Ply"/>
          </explicit>
          <explicit name="cell_direction">
@@ -163,13 +163,13 @@
             <typename name="Stock_core"/>
          </explicit>
          <explicit name="made_from_processed_core" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Processed_core"/>
          </explicit>
          <explicit name="shape" optional="YES">
             <typename name="core_shape"/>
          </explicit>
-         <derived name="cell_orientation_angle" expression="cell_direction.orientations[1]">
+         <derived expression="cell_direction.orientations[1]" name="cell_orientation_angle">
             <typename name="Ply_orientation_angle"/>
          </derived>
       </entity>
@@ -188,11 +188,11 @@
       </entity>
       <entity name="Thickness_laminate_table" supertypes="Zone_structural_makeup">
          <explicit name="table_components">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="thickness_laminate_table_component"/>
          </explicit>
       </entity>
-      <entity name="Zone_structural_makeup" supertypes="Laminate_table" super.expression="ONEOF ((Thickness_laminate_table AND Smeared_material), (Percentage_laminate_table AND Smeared_material), Thickness_laminate_table, Percentage_laminate_table, Smeared_material)">
+      <entity name="Zone_structural_makeup" super.expression="ONEOF ((Thickness_laminate_table AND Smeared_material), (Percentage_laminate_table AND Smeared_material), Thickness_laminate_table, Percentage_laminate_table, Smeared_material)" supertypes="Laminate_table">
          <explicit name="boundary" optional="YES">
             <typename name="Zone_structural_makeup_shape_representation"/>
          </explicit>

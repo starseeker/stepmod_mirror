@@ -1,45 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="basic_curve_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="basic_curve_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Basic_curve_arm">
       <interface kind="use" schema="Basic_geometry_arm"/>
       <interface kind="use" schema="External_item_identification_assignment_arm"/>
-      <entity name="Closed_curve" supertypes="Curve" abstract.supertype="NO" abstract.entity="NO">
-         <where label="IP1"/>
-      </entity>
-      <entity name="Composite_curve" supertypes="Curve" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="curve_segment" optional="NO">
-            <aggregate type="LIST" unique="YES" lower="1" upper="?" optional="NO"/>
+      <type name="closed_curve">
+         <select extensible="YES" genericentity="YES" selectitems="Circle Closed_omposite_curve"/>
+      </type>
+      <entity name="Circle" supertypes="Curve"/>
+      <entity name="Closed_omposite_curve" supertypes="Composite_curve"/>
+      <entity name="Composite_curve" supertypes="Curve">
+         <explicit name="curve_segment">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="Composite_curve_segment"/>
          </explicit>
       </entity>
-      <entity name="Composite_curve_segment" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="segment_curve" optional="NO">
+      <entity name="Composite_curve_segment">
+         <explicit name="segment_curve">
             <typename name="Curve"/>
          </explicit>
-         <inverse name="using_curves" entity="Composite_curve" attribute="curve_segment">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="curve_segment" entity="Composite_curve" name="using_curves">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Measurement_path" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="defined_by" optional="NO">
+      <entity name="Measurement_path">
+         <explicit name="defined_by">
             <typename name="Curve"/>
          </explicit>
-         <explicit name="defined_in" optional="NO">
+         <explicit name="defined_in">
             <typename name="Geometric_coordinate_space"/>
          </explicit>
       </entity>
-      <entity name="Trimmed_curve" supertypes="Curve" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="start_point" optional="NO">
+      <entity name="Trimmed_curve" supertypes="Curve">
+         <explicit name="start_point">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="end_point" optional="NO">
+         <explicit name="end_point">
             <typename name="Cartesian_point"/>
          </explicit>
       </entity>
-      <subtype.constraint name="curve_subtypes" entity="Curve" super.expression="ONEOF (Composite_curve, Trimmed_curve)" abstract.supertype="NO"/>
+      <subtype.constraint entity="Curve" name="curve_subtypes" super.expression="ONEOF (Composite_curve, Trimmed_curve)"/>
    </schema>
 </express>

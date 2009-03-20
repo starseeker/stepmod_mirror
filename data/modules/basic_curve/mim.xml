@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="basic_curve_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="basic_curve_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Basic_curve_mim">
       <interface kind="use" schema="Basic_geometry_mim"/>
       <interface kind="use" schema="External_item_identification_assignment_mim"/>
       <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="circle"/>
          <interfaced.item name="trimmed_curve"/>
          <interfaced.item name="line"/>
          <interfaced.item name="composite_curve"/>
@@ -16,7 +17,11 @@
          <interfaced.item name="surface_curve"/>
       </interface>
       <type name="bc_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="trimmed_curve"/>
+         <select basedon="external_identification_item" extensible="YES" genericentity="YES" selectitems="trimmed_curve"/>
+      </type>
+      <type name="closed_curve">
+         <select extensible="YES" genericentity="YES" selectitems="circle composite_curve"/>
+         <where expression="NOT('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(SELF)) OR (SELF\composite_curve.closed_curve = TRUE)" label="WR1"/>
       </type>
    </schema>
 </express>

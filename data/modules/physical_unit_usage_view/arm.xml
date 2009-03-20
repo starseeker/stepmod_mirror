@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="physical_unit_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Physical_unit_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
@@ -15,58 +15,58 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="material_state_change_enumeration">
-         <enumeration items="material_addition material_removal" extensible="NO"/>
+         <enumeration items="material_addition material_removal"/>
       </type>
       <type name="physical_unit">
          <select extensible="YES" genericentity="YES" selectitems="Part_usage_view"/>
       </type>
       <type name="puuv_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Part_feature"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Part_feature"/>
       </type>
       <type name="puuv_groupable_item">
-         <select basedon="groupable_item" selectitems="Part_feature" genericentity="NO" extensible="NO"/>
+         <select basedon="groupable_item" selectitems="Part_feature"/>
       </type>
       <type name="puuv_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Part_feature Part_view_definition"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Part_feature Part_view_definition"/>
       </type>
       <type name="puuv_usage_concept">
-         <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Part_feature"/>
+         <select basedon="usage_concept" extensible="YES" genericentity="YES" selectitems="Part_feature"/>
       </type>
-      <entity name="Connection_zone_in_usage_view" supertypes="Connection_zone" abstract.supertype="NO" abstract.entity="NO">
-         <derived name="associated_definition" expression="containing_shape.described_element">
+      <entity name="Connection_zone_in_usage_view" supertypes="Connection_zone">
+         <derived expression="containing_shape.described_element" name="associated_definition">
             <typename name="Part_usage_view"/>
          </derived>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.element_name)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.element_name)" label="WR1"/>
       </entity>
-      <entity name="Connection_zone_map_identification" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="reference_connection_zone_shape" optional="NO">
+      <entity name="Connection_zone_map_identification">
+         <explicit name="reference_connection_zone_shape">
             <typename name="Usage_view_connection_zone_terminal_shape_relationship"/>
          </explicit>
-         <explicit name="mapped_connection_zone_shape" optional="NO">
+         <explicit name="mapped_connection_zone_shape">
             <typename name="Usage_view_connection_zone_terminal_shape_relationship"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="reference_connection_zone_shape"/>
             <unique.attribute attribute="mapped_connection_zone_shape"/>
          </unique>
-         <where label="WR1" expression="reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape"/>
-         <where label="WR2" expression="reference_connection_zone_shape.associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape.associated_connection_zone_shape_definition"/>
+         <where expression="reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape" label="WR1"/>
+         <where expression="reference_connection_zone_shape.associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape.associated_connection_zone_shape_definition" label="WR2"/>
       </entity>
-      <entity name="Derived_part_view_definition_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="relating_view" optional="NO">
+      <entity name="Derived_part_view_definition_relationship" supertypes="View_definition_relationship">
+         <explicit name="relating_view">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <explicit name="related_view" optional="NO">
+         <explicit name="related_view">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) &gt; 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(gdrse &lt;* get_derived_shape_element(SELF\View_definition_relationship.related_view) |&#10;             (SIZEOF(QUERY(se &lt;* gdrse.derived_from |&#10;              SELF\View_definition_relationship.relating_view &lt;&gt; se.containing_shape.described_element&#10;              )) = 0)&#10;             )) = SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view))"/>
-         <where label="WR3" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+         <where expression="SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) &gt; 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(gdrse &lt;* get_derived_shape_element(SELF\View_definition_relationship.related_view) |&#10;             (SIZEOF(QUERY(se &lt;* gdrse.derived_from |&#10;              SELF\View_definition_relationship.relating_view &lt;&gt; se.containing_shape.described_element&#10;              )) = 0)&#10;             )) = SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view))" label="WR2"/>
+         <where expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)" label="WR3"/>
       </entity>
-      <entity name="Part_feature" supertypes="Shape_feature" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_definition" optional="NO">
+      <entity name="Part_feature" supertypes="Shape_feature">
+         <explicit name="associated_definition">
             <typename name="Part_usage_view"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
@@ -76,25 +76,24 @@
          <explicit name="precedent_feature" optional="YES">
             <typename name="Part_feature"/>
          </explicit>
-         <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         <inverse attribute="associated_usage" entity="Usage_concept_usage_relationship" name="feature_shape">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <inverse name="subsequent_feature" entity="Part_feature" attribute="precedent_feature">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="precedent_feature" entity="Part_feature" name="subsequent_feature">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
-         <where label="WR1" expression="NOT EXISTS(precedent_feature) OR&#10;            (NOT (SIZEOF(subsequent_feature) = 1) OR&#10;            (acyclic_part_feature_precedence_relationship(SELF,&#10;             [subsequent_feature[1]],&#10;             'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE')))"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
-      <where label="IP1"/>
+         <where expression="NOT EXISTS(precedent_feature) OR&#10;            (NOT (SIZEOF(subsequent_feature) = 1) OR&#10;            (acyclic_part_feature_precedence_relationship(SELF,&#10;             [subsequent_feature[1]],&#10;             'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE')))" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR2"/>
       </entity>
-      <entity name="Part_feature_make_from_relationship" supertypes="Shape_element_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_make_from" optional="NO">
+      <entity name="Part_feature_make_from_relationship" supertypes="Shape_element_relationship">
+         <explicit name="associated_make_from">
             <typename name="View_definition_relationship"/>
          </explicit>
-         <explicit name="reusable_feature" optional="NO">
+         <explicit name="reusable_feature">
             <typename name="Part_feature"/>
             <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
          </explicit>
-         <explicit name="resultant_feature" optional="NO">
+         <explicit name="resultant_feature">
             <typename name="Part_feature"/>
             <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
          </explicit>
@@ -102,48 +101,48 @@
             <unique.attribute attribute="reusable_feature"/>
             <unique.attribute attribute="resultant_feature"/>
          </unique>
-         <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
-         <where label="WR2" expression="reusable_feature.associated_definition :&lt;&gt;: resultant_feature.associated_definition"/>
+         <where expression="reusable_feature :&lt;&gt;: resultant_feature" label="WR1"/>
+         <where expression="reusable_feature.associated_definition :&lt;&gt;: resultant_feature.associated_definition" label="WR2"/>
       </entity>
-      <entity name="Part_feature_template_definition" supertypes="Feature_definition_with_connection_area" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="id" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
+      <entity name="Part_feature_template_definition" supertypes="Feature_definition_with_connection_area">
+         <explicit name="id">
+            <builtintype type="STRING"/>
          </explicit>
-         <derived name="surface_conditions" expression="bag_to_set(USEDIN(SELF\Shape_feature_definition.of_shape,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'))">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <derived expression="bag_to_set(USEDIN(SELF\Shape_feature_definition.of_shape,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'))" name="surface_conditions">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Surface_condition"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="id"/>
          </unique>
       </entity>
-      <entity name="Part_feature_template_shape_model" supertypes="Geometric_model" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="NOT (SIZEOF(USEDIN(SELF, '')) &gt; 1) OR &#10;       (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,'') | &#10;       NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',&#10;        'PHYSICAL_UNIT_USAGE_VIEW_ARM.SHAPE_DESCRIPTION_ASSOCIATION'] * TYPEOF(foo))= 1)&#10;        )) &#10;        = 0)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
-         <where label="WR3" expression="((SIZEOF(USEDIN(SELF,&#10;       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0) OR&#10;       (SIZEOF(QUERY(sda &lt;* USEDIN(SELF,&#10;       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION') | &#10;       NOT (('SHAPE_PROPERTY_ASSIGNMENT_ARM.' +'ITEM_SHAPE' IN&#10;       TYPEOF(sda.represented_characteristic)) AND &#10;       ('PHYSICAL_UNIT_USAGE_VIEW_ARM.' +'PART_FEATURE_TEMPLATE_DEFINITION' IN&#10;       TYPEOF(sda.represented_characteristic.described_element)))&#10;       )) = 0))"/>
+      <entity name="Part_feature_template_shape_model" supertypes="Geometric_model">
+         <where expression="NOT (SIZEOF(USEDIN(SELF, '')) &gt; 1) OR &#10;       (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,'') | &#10;       NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',&#10;        'PHYSICAL_UNIT_USAGE_VIEW_ARM.SHAPE_DESCRIPTION_ASSOCIATION'] * TYPEOF(foo))= 1)&#10;        )) &#10;        = 0)" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Representation.description)" label="WR2"/>
+         <where expression="((SIZEOF(USEDIN(SELF,&#10;       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0) OR&#10;       (SIZEOF(QUERY(sda &lt;* USEDIN(SELF,&#10;       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION') | &#10;       NOT (('SHAPE_PROPERTY_ASSIGNMENT_ARM.' +'ITEM_SHAPE' IN&#10;       TYPEOF(sda.represented_characteristic)) AND &#10;       ('PHYSICAL_UNIT_USAGE_VIEW_ARM.' +'PART_FEATURE_TEMPLATE_DEFINITION' IN&#10;       TYPEOF(sda.represented_characteristic.described_element)))&#10;       )) = 0))" label="WR3"/>
       </entity>
-      <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape" abstract.supertype="NO" abstract.entity="NO">
-         <derived name="described_element" expression="SELF">
+      <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape">
+         <derived expression="SELF" name="described_element">
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
       </entity>
-      <entity name="Usage_view_connection_zone_terminal_shape_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associating_terminal_shape" optional="NO">
+      <entity name="Usage_view_connection_zone_terminal_shape_relationship">
+         <explicit name="associating_terminal_shape">
             <typename name="Part_feature_template_shape_model"/>
          </explicit>
-         <explicit name="associated_usage" optional="NO">
+         <explicit name="associated_usage">
             <typename name="Connection_zone_in_usage_view"/>
          </explicit>
-         <explicit name="associated_connection_zone_shape_definition" optional="NO">
+         <explicit name="associated_connection_zone_shape_definition">
             <typename name="Geometric_model"/>
          </explicit>
-         <explicit name="associated_usage_placement" optional="NO">
+         <explicit name="associated_usage_placement">
             <typename name="Axis_placement"/>
          </explicit>
-         <where label="WR1" expression="associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition"/>
+         <where expression="associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition" label="WR1"/>
       </entity>
-      <rule name="unique_assembly_component_relationship" appliesto="Assembly_component_relationship">
+      <rule appliesto="Assembly_component_relationship" name="unique_assembly_component_relationship">
          <algorithm>LOCAL
      gee : SET OF Product_view_definition := [];
      gei : SET OF Product_view_definition := [];
@@ -152,20 +151,20 @@
      gee  := gee + Assembly_component_relationship[i]\Product_occurrence_definition_relationship.related_view;
      gei  := gei + Assembly_component_relationship[i]\Product_occurrence_definition_relationship.relating_view;
    END_REPEAT;</algorithm>
-         <where label="WR1" expression="SIZEOF(gee) = SIZEOF(gei)"/>
+         <where expression="SIZEOF(gee) = SIZEOF(gei)" label="WR1"/>
       </rule>
       <function name="acyclic_part_feature_precedence_relationship">
          <parameter name="relation">
             <typename name="Part_feature"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_feature"/>
          </parameter>
          <parameter name="specific_relation">
-            <builtintype type="STRING" fixed="NO"/>
+            <builtintype type="STRING"/>
          </parameter>
-         <builtintype type="BOOLEAN" fixed="NO"/>
+         <builtintype type="BOOLEAN"/>
          <algorithm>LOCAL
       x : SET OF Part_feature;
     END_LOCAL;
@@ -188,7 +187,7 @@
          <parameter name="input">
             <typename name="Part_view_definition"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Derived_shape_element"/>
          <algorithm>LOCAL
       is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));

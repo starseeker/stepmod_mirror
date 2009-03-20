@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_feature_grouping_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="part_feature_grouping_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Part_feature_grouping_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Part_array_feature" abstract.supertype="YES" supertypes="Part_group_feature" super.expression="ONEOF (Part_linear_array_feature, Part_rectangular_array_feature)"/>
+      <entity abstract.supertype="YES" name="Part_array_feature" super.expression="ONEOF (Part_linear_array_feature, Part_rectangular_array_feature)" supertypes="Part_group_feature"/>
       <entity name="Part_feature_placement_link">
          <explicit name="precedent_element">
             <typename name="Part_feature"/>
@@ -17,13 +17,13 @@
          <explicit name="subsequent_element">
             <typename name="Part_feature"/>
          </explicit>
-         <inverse name="referenced_by" entity="Part_linear_array_feature" attribute="element"/>
-         <where label="WR1" expression="acyclic_part_feature_placement_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_FEATURE_PLACEMENT_LINK')"/>
+         <inverse attribute="element" entity="Part_linear_array_feature" name="referenced_by"/>
+         <where expression="acyclic_part_feature_placement_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_FEATURE_PLACEMENT_LINK')" label="WR1"/>
       </entity>
-      <entity name="Part_group_feature" supertypes="Part_feature Composite_shape_element" super.expression="Part_array_feature"/>
+      <entity name="Part_group_feature" super.expression="Part_array_feature" supertypes="Part_feature Composite_shape_element"/>
       <entity name="Part_linear_array_feature" supertypes="Part_array_feature">
          <explicit name="element">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_feature_placement_link"/>
          </explicit>
          <explicit name="initial_node_positive_x_displacement">
@@ -35,7 +35,7 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
-         <where label="WR1" expression="(1 + SIZEOF(element)) = pfg_get_sz_pf(element)"/>
+         <where expression="(1 + SIZEOF(element)) = pfg_get_sz_pf(element)" label="WR1"/>
       </entity>
       <entity name="Part_linear_array_feature_link">
          <explicit name="precedent_element">
@@ -44,12 +44,12 @@
          <explicit name="subsequent_element">
             <typename name="Part_linear_array_feature"/>
          </explicit>
-         <inverse name="referenced_by" entity="Part_rectangular_array_feature" attribute="element"/>
-         <where label="WR1" expression="acyclic_part_linear_array_feature_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_LINEAR_ARRAY_FEATURE_LINK')"/>
+         <inverse attribute="element" entity="Part_rectangular_array_feature" name="referenced_by"/>
+         <where expression="acyclic_part_linear_array_feature_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_LINEAR_ARRAY_FEATURE_LINK')" label="WR1"/>
       </entity>
       <entity name="Part_rectangular_array_feature" supertypes="Part_array_feature">
          <explicit name="element">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_linear_array_feature_link"/>
          </explicit>
          <explicit name="initial_row_positive_y_displacement">
@@ -61,14 +61,14 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
-         <where label="WR1" expression="(1 + SIZEOF(element)) = pfg_get_sz_plar(element)"/>
+         <where expression="(1 + SIZEOF(element)) = pfg_get_sz_plar(element)" label="WR1"/>
       </entity>
       <function name="acyclic_part_feature_placement_link">
          <parameter name="relation">
             <typename name="Part_feature_placement_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_feature"/>
          </parameter>
          <parameter name="specific_relation">
@@ -98,7 +98,7 @@
             <typename name="Part_linear_array_feature_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_linear_array_feature"/>
          </parameter>
          <parameter name="specific_relation">
@@ -125,7 +125,7 @@
       </function>
       <function name="pfg_get_sz_pf">
          <parameter name="input">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_feature_placement_link"/>
          </parameter>
          <builtintype type="INTEGER"/>
@@ -140,7 +140,7 @@
       </function>
       <function name="pfg_get_sz_plar">
          <parameter name="input">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_linear_array_feature_link"/>
          </parameter>
          <builtintype type="INTEGER"/>

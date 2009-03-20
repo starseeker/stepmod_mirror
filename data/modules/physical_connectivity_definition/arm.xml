@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="physical_connectivity_definition_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Physical_connectivity_definition_arm">
       <interface kind="use" schema="Part_external_reference_arm"/>
       <interface kind="use" schema="Physical_component_feature_arm"/>
@@ -15,13 +15,13 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="pcd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
       </type>
       <type name="pcd_groupable_item">
-         <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="Physical_connectivity_definition Group_relationship"/>
+         <select basedon="groupable_item" extensible="YES" genericentity="YES" selectitems="Physical_connectivity_definition Group_relationship"/>
       </type>
       <type name="pcd_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
       </type>
       <type name="physical_connectivity_definition_domain_enumeration">
          <enumeration extensible="YES" items="electrical thermal optical magnetic"/>
@@ -29,9 +29,9 @@
       <type name="termination_or_junction">
          <select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
       </type>
-      <entity name="Physical_connectivity_definition" supertypes="Shape_element" super.expression="Physical_connectivity_structure_definition">
+      <entity name="Physical_connectivity_definition" super.expression="Physical_connectivity_structure_definition" supertypes="Shape_element">
          <explicit name="associated_terminals">
-            <aggregate type="SET" lower="2" upper="?"/>
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Physical_component_terminal"/>
          </explicit>
          <explicit name="element_name">
@@ -42,8 +42,8 @@
             <typename name="Physical_unit_network_definition"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
-         <inverse name="domain" entity="Physical_connectivity_definition_domain" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="associated_definition" entity="Physical_connectivity_definition_domain" name="domain">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute attribute="element_name"/>
@@ -68,8 +68,8 @@
          <explicit name="purpose">
             <builtintype type="STRING"/>
          </explicit>
-         <inverse name="requirement" entity="Requirement_assignment" attribute="assigned_to">
-            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         <inverse attribute="assigned_to" entity="Requirement_assignment" name="requirement">
+            <inverse.aggregate lower="1" type="SET" upper="1"/>
          </inverse>
       </entity>
       <entity name="Physical_connectivity_element">
@@ -89,7 +89,7 @@
             <unique.attribute attribute="name"/>
             <unique.attribute attribute="connectivity_context"/>
          </unique>
-         <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
+         <where expression="start_terminus &lt;&gt; end_terminus" label="WR1"/>
       </entity>
       <entity name="Physical_connectivity_layout_topology_link" supertypes="Group_relationship">
          <explicit name="subsequent_node">
@@ -100,33 +100,33 @@
             <typename name="Physical_connectivity_layout_topology_node"/>
             <redeclaration entity-ref="Group_relationship" old_name="relating_group"/>
          </explicit>
-         <derived name="relation_type" expression="''">
+         <derived expression="''" name="relation_type">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Group_relationship"/>
          </derived>
-         <where label="WR1" expression="acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], &#10;        'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK')"/>
+         <where expression="acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], &#10;        'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK')" label="WR1"/>
       </entity>
       <entity name="Physical_connectivity_layout_topology_node" supertypes="Group">
          <explicit name="terminal_type">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Group" old_name="name"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF(SELF\Group.elements) = 0)"/>
+         <where expression="(SIZEOF(SELF\Group.elements) = 0)" label="WR1"/>
       </entity>
       <entity name="Physical_connectivity_layout_topology_requirement" supertypes="Predefined_requirement_view_definition Group">
          <explicit name="elements">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Physical_connectivity_layout_topology_link"/>
             <redeclaration entity-ref="Group"/>
          </explicit>
-         <derived name="nodes" expression="pcd_get_pcltn(elements)">
-            <aggregate type="SET" lower="1" upper="?"/>
+         <derived expression="pcd_get_pcltn(elements)" name="nodes">
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Physical_connectivity_layout_topology_node"/>
          </derived>
-         <derived name="tree_structure" expression="(SIZEOF(nodes) = (SIZEOF(elements) + 1))">
+         <derived expression="(SIZEOF(nodes) = (SIZEOF(elements) + 1))" name="tree_structure">
             <builtintype type="LOGICAL"/>
          </derived>
-         <where label="WR1" expression="(tree_structure = TRUE)"/>
+         <where expression="(tree_structure = TRUE)" label="WR1"/>
       </entity>
       <entity name="Physical_connectivity_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
          <explicit name="assigned_requirement">
@@ -147,34 +147,34 @@
          </explicit>
       </entity>
       <entity name="Physical_connectivity_structure_definition" supertypes="Physical_connectivity_definition">
-         <derived name="structural_terminal_nodes" expression="get_pct(structural_element)">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="get_pct(structural_element)" name="structural_terminal_nodes">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Physical_component_terminal"/>
          </derived>
-         <derived name="structural_junction_nodes" expression="get_tj(structural_element)">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="get_tj(structural_element)" name="structural_junction_nodes">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Topological_junction"/>
          </derived>
-         <derived name="tree_structure" expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))">
+         <derived expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))" name="tree_structure">
             <builtintype type="LOGICAL"/>
          </derived>
-         <inverse name="structural_element" entity="Physical_connectivity_element" attribute="connectivity_context">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="connectivity_context" entity="Physical_connectivity_element" name="structural_element">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(stn &lt;* structural_terminal_nodes |&#10;                   NOT(stn IN SELF\Physical_connectivity_definition.associated_terminals)&#10;                   )) = 0"/>
-         <where label="WR2" expression="SIZEOF(structural_terminal_nodes) = &#10;            SIZEOF(SELF\Physical_connectivity_definition.associated_terminals)"/>
+         <where expression="SIZEOF(QUERY(stn &lt;* structural_terminal_nodes |&#10;                   NOT(stn IN SELF\Physical_connectivity_definition.associated_terminals)&#10;                   )) = 0" label="WR1"/>
+         <where expression="SIZEOF(structural_terminal_nodes) = &#10;            SIZEOF(SELF\Physical_connectivity_definition.associated_terminals)" label="WR2"/>
       </entity>
       <entity name="Physical_unit_network_definition" supertypes="Part_design_view">
-         <derived name="terminals" expression="get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')))">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')))" name="terminals">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Component_terminal"/>
          </derived>
-         <derived name="assembly" expression="pcd_get_assemblies(terminals)">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="pcd_get_assemblies(terminals)" name="assembly">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Product_view_definition"/>
          </derived>
-         <where label="WR1" expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)"/>
-         <where label="WR2" expression="SIZEOF(QUERY( ass &lt;* assembly |&#10;      (ass\Product_view_definition.defined_version = SELF\Product_view_definition.defined_version)&#10;           )) &gt; 0"/>
+         <where expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)" label="WR1"/>
+         <where expression="SIZEOF(QUERY( ass &lt;* assembly |&#10;      (ass\Product_view_definition.defined_version = SELF\Product_view_definition.defined_version)&#10;           )) &gt; 0" label="WR2"/>
       </entity>
       <entity name="Topological_junction">
          <explicit name="name">
@@ -193,7 +193,7 @@
             <typename name="Physical_connectivity_layout_topology_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Physical_connectivity_layout_topology_node"/>
          </parameter>
          <parameter name="specific_relation">
@@ -220,10 +220,10 @@
       </function>
       <function name="get_pct">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Physical_connectivity_element"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Physical_component_terminal"/>
          <algorithm>LOCAL
    pct : SET OF Physical_component_terminal := [];
@@ -241,10 +241,10 @@
       </function>
       <function name="get_terminals">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Physical_connectivity_definition"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Component_terminal"/>
          <algorithm>LOCAL
    ct : SET OF Component_terminal := [];
@@ -257,10 +257,10 @@
       </function>
       <function name="get_tj">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Physical_connectivity_element"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Topological_junction"/>
          <algorithm>LOCAL
    tj : SET OF Topological_junction := [];
@@ -278,10 +278,10 @@
       </function>
       <function name="pcd_get_assemblies">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Component_terminal"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
       ac : SET OF Assembly_component := [];
@@ -297,10 +297,10 @@
       </function>
       <function name="pcd_get_pcltn">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Physical_connectivity_layout_topology_link"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Physical_connectivity_layout_topology_node"/>
          <algorithm>LOCAL
    pcltn : SET OF Physical_connectivity_layout_topology_node := [];

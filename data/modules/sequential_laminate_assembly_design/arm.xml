@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="sequential_laminate_assembly_design_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="sequential_laminate_assembly_design_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Sequential_laminate_assembly_design_arm">
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
       <type name="slad_groupable_item">
          <select basedon="groupable_item" selectitems="Group_relationship Interconnect_module_stratum_assembly_relationship"/>
       </type>
       <type name="slad_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Definition_based_part_occurrence"/>
+         <select basedon="material_item_select" extensible="YES" genericentity="YES" selectitems="Definition_based_part_occurrence"/>
       </type>
       <type name="slad_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Derived_laminate_assignment Sequential_laminate_assembly_relationship"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Derived_laminate_assignment Sequential_laminate_assembly_relationship"/>
       </type>
       <type name="stack_or_sub_stack">
          <select selectitems="Design_stack_model Stratum_sub_stack"/>
@@ -22,8 +22,8 @@
          <select selectitems="Interconnect_module_stratum_assembly_relationship Stratum_technology_occurrence"/>
       </type>
       <entity name="Adjacent_stratum_surface_embedded_sequential_laminate_surface_definition" supertypes="Adjacent_stratum_surface_embedded_physical_component_surface_definition">
-         <where label="WR1" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(precedent_item.definition))"/>
-         <where label="WR2" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(subsequent_item.definition))"/>
+         <where expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(precedent_item.definition))" label="WR1"/>
+         <where expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(subsequent_item.definition))" label="WR2"/>
       </entity>
       <entity name="Derived_laminate_assignment">
          <explicit name="oem_requirement">
@@ -41,14 +41,14 @@
       </entity>
       <entity name="Interconnect_module_product_assembly_view_fabrication_joint">
          <explicit name="joined_terminal">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Interconnect_module_component_stratum_based_terminal"/>
          </explicit>
       </entity>
       <entity name="Interconnect_module_stratum_based_terminal" supertypes="Interconnect_module_terminal">
-         <where label="WR1" expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10;                        'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                        'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + &#10;                        'RELATED') | &#10;                        NOT (SIZEOF(['INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10;                            'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10;                         'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                         'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
-         <where label="WR3" expression="SIZEOF(QUERY(sct &lt;* USEDIN(SELF,&#10;          'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.' +&#10;          'STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.DEFINED_PART_FEATURE') |&#10;          'LAND_ARM.LAND' IN TYPEOF(sct.assigned_design_object)&#10;             )) = 1"/>
+         <where expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10;                        'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                        'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + &#10;                        'RELATED') | &#10;                        NOT (SIZEOF(['INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10;                            'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF,&#10;                         'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                         'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1" label="WR2"/>
+         <where expression="SIZEOF(QUERY(sct &lt;* USEDIN(SELF,&#10;          'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.' +&#10;          'STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.DEFINED_PART_FEATURE') |&#10;          'LAND_ARM.LAND' IN TYPEOF(sct.assigned_design_object)&#10;             )) = 1" label="WR3"/>
       </entity>
       <entity name="Sequential_laminate_assembly_relationship" supertypes="Assembled_part_association">
          <explicit name="assembly">
@@ -59,11 +59,11 @@
             <typename name="Sequential_laminate_stackup_component"/>
             <redeclaration entity-ref="Product_occurrence_definition_relationship" old_name="related_view"/>
          </explicit>
-         <where label="WR1" expression="related_view\Definition_based_product_occurrence.derived_from &lt;&gt; relating_view"/>
+         <where expression="related_view\Definition_based_product_occurrence.derived_from &lt;&gt; relating_view" label="WR1"/>
       </entity>
       <entity name="Sequential_laminate_stackup_component" supertypes="Physical_component Single_instance">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(SELF\Definition_based_part_occurrence.derived_from, 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.PART_DESIGN_VIEW.USAGE_VIEW')) &gt; 0"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF\Definition_based_part_occurrence.derived_from, 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.PART_DESIGN_VIEW.USAGE_VIEW')) &gt; 0" label="WR2"/>
       </entity>
       <entity name="Sequential_laminate_stackup_definition" supertypes="Assembly_definition">
          <explicit name="associated_stratum_stack">
@@ -79,7 +79,7 @@
             <typename name="Sequential_laminate_stackup_definition"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+         <where expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)" label="WR1"/>
       </entity>
    </schema>
 </express>

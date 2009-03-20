@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layout_macro_definition_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="layout_macro_definition_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Layout_macro_definition_arm">
       <interface kind="use" schema="Fabrication_joint_arm"/>
       <entity name="Layout_macro_component" supertypes="Printed_component">
@@ -19,8 +19,8 @@
          <explicit name="floor_layout_view">
             <typename name="Layout_macro_floor_plan_template"/>
          </explicit>
-         <where label="WR1" expression="NOT (EXISTS(SELF\Part_design_view.usage_view))"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10; 'GENERIC_PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM')) = 0"/>
+         <where expression="NOT (EXISTS(SELF\Part_design_view.usage_view))" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF,&#10; 'GENERIC_PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM')) = 0" label="WR2"/>
       </entity>
       <entity name="Layout_macro_definition_terminal_to_usage_terminal_assignment">
          <explicit name="defined_template_feature">
@@ -29,19 +29,19 @@
          <explicit name="assigned_design_object">
             <typename name="fabricated_feature_select"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(USEDIN(SELF,&#10; 'LAYOUT_MACRO_DEFINITION_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS')) = 1"/>
+         <where expression="SIZEOF(USEDIN(SELF,&#10; 'LAYOUT_MACRO_DEFINITION_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS')) = 1" label="WR1"/>
       </entity>
       <entity name="Layout_macro_floor_plan_template" supertypes="Printed_part_template">
          <explicit name="access_maps">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Layout_macro_definition_terminal_to_usage_terminal_assignment"/>
          </explicit>
-         <inverse name="macro_definition" entity="Layout_macro_definition" attribute="floor_layout_view">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="floor_layout_view" entity="Layout_macro_definition" name="macro_definition">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\Printed_part_template ||&#10;                                 SELF\Template_definition ||&#10;                                 SELF\Item_shape ||&#10;                                 SELF\Product_view_definition ||&#10;                                 SELF\Layout_macro_floor_plan_template)) = 0"/>
+         <where expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\Printed_part_template ||&#10;                                 SELF\Template_definition ||&#10;                                 SELF\Item_shape ||&#10;                                 SELF\Product_view_definition ||&#10;                                 SELF\Layout_macro_floor_plan_template)) = 0" label="WR1"/>
       </entity>
-      <subtype.constraint name="printed_component_subtypes" entity="Printed_component" super.expression="ONEOF (Layout_macro_component, Printed_connector_component)"/>
-      <subtype.constraint name="printed_part_template_subtypes" entity="Printed_part_template" super.expression="ONEOF (Basic_multi_stratum_printed_part_template, Layout_macro_floor_plan_template, Printed_connector_template, Structured_printed_part_template)"/>
+      <subtype.constraint entity="Printed_component" name="printed_component_subtypes" super.expression="ONEOF (Layout_macro_component, Printed_connector_component)"/>
+      <subtype.constraint entity="Printed_part_template" name="printed_part_template_subtypes" super.expression="ONEOF (Basic_multi_stratum_printed_part_template, Layout_macro_floor_plan_template, Printed_connector_template, Structured_printed_part_template)"/>
    </schema>
 </express>

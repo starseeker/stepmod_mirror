@@ -10,11 +10,18 @@
       <type name="extend_or_chord_2_extend_or_truncate_or_round">
          <enumeration items="truncate chord_2_extend round extend"/>
       </type>
+      <type name="extend_or_truncate">
+         <enumeration items="truncate extend"/>
+      </type>
       <type name="primitive_or_boolean_result_2d">
          <select selectitems="Primitive_2d Boolean_result_2d"/>
       </type>
+      <type name="square_or_round">
+         <enumeration items="square round"/>
+      </type>
       <entity name="Area_with_outer_boundary" supertypes="Primitive_2d"/>
       <entity name="Boolean_result_2d" supertypes="Detailed_geometric_model_element"/>
+      <entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
       <entity name="Csg_2d_model" supertypes="Geometric_model">
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
@@ -22,7 +29,7 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Curve_style_parameters">
+      <entity abstract.supertype="YES" name="Curve_style_parameters" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -32,12 +39,20 @@
          <explicit name="curve_width">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="width_uncertainty">
+         <explicit name="width_uncertainty" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
          </unique>
+      </entity>
+      <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
+         <explicit name="end_extension">
+            <typename name="extend_or_truncate"/>
+         </explicit>
+         <explicit name="end_style">
+            <typename name="square_or_round"/>
+         </explicit>
       </entity>
       <entity name="Path_area_with_parameters" supertypes="Detailed_geometric_model_element">
          <explicit name="centreline">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.11 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: arm.exp,v 1.12 2009/03/12 22:58:18 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5788 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4140
 *) 
@@ -15,10 +15,20 @@ USE FROM Basic_curve_arm; -- ISO/TS 10303-1651
      extend);
   END_TYPE;
 
+ TYPE extend_or_truncate = ENUMERATION OF
+    (truncate,
+     extend);
+  END_TYPE;
+
   TYPE primitive_or_boolean_result_2d = SELECT (
     Primitive_2d, 
     Boolean_result_2d);
   END_TYPE;    
+
+  TYPE square_or_round = ENUMERATION OF
+    (square,
+     round);
+  END_TYPE;
 
   ENTITY Area_with_outer_boundary
     SUBTYPE OF (Primitive_2d);
@@ -34,13 +44,23 @@ USE FROM Basic_curve_arm; -- ISO/TS 10303-1651
   END_ENTITY;
 
   ENTITY Curve_style_parameters
-  	ABSTRACT SUPERTYPE;
+  	ABSTRACT SUPERTYPE OF (ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends));
       name              : STRING;
       corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
       curve_width       : Length_data_element;
-      width_uncertainty : Length_data_element;
+      width_uncertainty : OPTIONAL Length_data_element;
     UNIQUE
       UR1 : name;
+  END_ENTITY;
+  
+  ENTITY Closed_curve_style_parameters
+    SUBTYPE OF (Curve_style_parameters);
+  END_ENTITY;
+
+  ENTITY Curve_style_parameters_with_ends
+    SUBTYPE OF (Curve_style_parameters);
+      end_extension     : extend_or_truncate;
+      end_style         : square_or_round;
   END_ENTITY;
 
   ENTITY Path_area_with_parameters

@@ -1,131 +1,172 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="task_specification_arm schema_instance"/>
-   <schema name="Task_specification_arm">
-      <interface kind="use" schema="State_observed_arm"/>
-      <interface kind="use" schema="Task_element_arm"/>
-      <type name="constraint_context">
-         <select extensible="YES" genericentity="YES" selectitems="Task_element Task_method_version"/>
-      </type>
-      <type name="method_or_method_version">
-         <select selectitems="Task_method Task_method_version"/>
-      </type>
-      <type name="state_or_state_definition_select">
-         <select selectitems="Applied_state_assignment Applied_state_definition_assignment State State_definition"/>
-      </type>
-      <type name="task_classification_item">
-         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Activity_method Activity_method_relationship Applied_activity_method_assignment Task_element_state_relationship Task_method Task_method_state_relationship Task_objective Task_objective_state_relationship"/>
-      </type>
-      <entity name="Element_constraint" supertypes="Task_element_relationship">
-         <explicit name="applies_in" optional="YES">
-            <typename name="constraint_context"/>
-         </explicit>
-      </entity>
-      <entity name="Simultaneous_elements" supertypes="Concurrent_elements"/>
-      <entity name="Task_element_levels" supertypes="Task_element">
-         <explicit name="alternatives">
-            <aggregate type="SET" lower="2" upper="?"/>
-            <typename name="Task_element"/>
-         </explicit>
-      </entity>
-      <entity name="Task_element_state_relationship">
-         <explicit name="state">
-            <typename name="state_or_state_definition_select"/>
-         </explicit>
-         <explicit name="task_element">
-            <typename name="Task_element"/>
-         </explicit>
-      </entity>
-      <entity name="Task_invocation" supertypes="Task_element">
-         <explicit name="task_method">
-            <typename name="method_or_method_version"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method" supertypes="Activity_method">
-         <explicit name="objective">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Task_objective"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_assignment" supertypes="Applied_activity_method_assignment">
-         <explicit name="assigned_activity_method">
-            <typename name="Task_method"/>
-            <redeclaration entity-ref="Applied_activity_method_assignment"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="task_item"/>
-            <redeclaration entity-ref="Applied_activity_method_assignment"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_relationship" supertypes="Activity_method_relationship">
-         <explicit name="relating_method">
-            <typename name="Task_method"/>
-            <redeclaration entity-ref="Activity_method_relationship"/>
-         </explicit>
-         <explicit name="related_method">
-            <typename name="Task_method"/>
-            <redeclaration entity-ref="Activity_method_relationship"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_state_relationship">
-         <explicit name="state">
-            <typename name="state_or_state_definition_select"/>
-         </explicit>
-         <explicit name="task_method">
-            <typename name="Task_method_version"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_version" supertypes="Activity_method">
-         <explicit name="content" optional="YES">
-            <typename name="Task_element"/>
-         </explicit>
-         <explicit name="of_task_method">
-            <typename name="Task_method"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_version_assignment" supertypes="Applied_activity_method_assignment">
-         <explicit name="assigned_task_method">
-            <typename name="Task_method_version"/>
-            <redeclaration entity-ref="Applied_activity_method_assignment" old_name="assigned_activity_method"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="task_item"/>
-            <redeclaration entity-ref="Applied_activity_method_assignment"/>
-         </explicit>
-      </entity>
-      <entity name="Task_method_version_relationship" supertypes="Activity_method_relationship">
-         <explicit name="relating_task_method">
-            <typename name="Task_method_version"/>
-            <redeclaration entity-ref="Activity_method_relationship" old_name="relating_method"/>
-         </explicit>
-         <explicit name="related_task_method">
-            <typename name="Task_method_version"/>
-            <redeclaration entity-ref="Activity_method_relationship" old_name="related_method"/>
-         </explicit>
-      </entity>
-      <entity name="Task_objective">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description">
-            <builtintype type="STRING"/>
-         </explicit>
-      </entity>
-      <entity name="Task_objective_state_relationship">
-         <explicit name="state">
-            <typename name="state_or_state_definition_select"/>
-         </explicit>
-         <explicit name="task_objective">
-            <typename name="Task_objective"/>
-         </explicit>
-      </entity>
-      <subtype.constraint name="restrict_activity_method_relationship" entity="Activity_method_relationship" super.expression="ONEOF (Task_element_relationship, Task_method_relationship, Task_method_version_relationship)"/>
-      <subtype.constraint name="restrict_activity_method_subtypes" entity="Activity_method" super.expression="ONEOF (Task_element, Task_method, Task_method_version)"/>
-      <subtype.constraint name="restrict_task_element_subtypes" entity="Task_element" super.expression="ONEOF (End_task, Exit_loop, Structured_task_element, Task_element_levels, Task_invocation, Task_step)"/>
-   </schema>
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2007/08/02 17:35:11 $" rcs.revision="$Revision: 1.16 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="ap233 arm DIS1.vsd" />
+<schema name="Task_specification_arm">
+<interface kind="use" schema="State_observed_arm">
+</interface>
+<interface kind="use" schema="Task_element_arm">
+</interface>
+<type name="constraint_context">
+<select extensible="YES" genericentity="YES" selectitems="Task_element Task_method_version" />
+<graphic.element page="388" xcoord="240" ycoord="248" />
+</type>
+<type name="method_or_method_version">
+<select selectitems="Task_method Task_method_version" />
+<graphic.element page="387" xcoord="70" ycoord="198" />
+</type>
+<type name="state_or_state_definition_select">
+<select selectitems="Applied_state_assignment Applied_state_definition_assignment State State_definition" />
+<graphic.element page="387" xcoord="453" ycoord="361" />
+</type>
+<type name="task_classification_item">
+<select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Activity_method Activity_method_relationship Applied_activity_method_assignment Task_element_state_relationship Task_method Task_method_state_relationship Task_objective Task_objective_state_relationship" />
+<graphic.element page="389" xcoord="184" ycoord="467" />
+</type>
+<entity name="Advisory_note">
+<explicit name="advisory">
+<typename name="Advisory_task_step" />
+</explicit>
+<explicit name="applies_to">
+<typename name="Task_element" />
+</explicit>
+<graphic.element page="387" xcoord="269" ycoord="120" />
+</entity>
+<entity name="Advisory_task_step" supertypes="Task_step">
+<graphic.element page="387" xcoord="170" ycoord="42" />
+</entity>
+<entity name="Element_constraint" supertypes="Task_element_relationship">
+<explicit name="applies_in" optional="YES">
+<typename name="constraint_context" />
+</explicit>
+<graphic.element page="388" xcoord="396" ycoord="248" />
+</entity>
+<entity name="Simultaneous_elements" supertypes="Concurrent_elements">
+<graphic.element page="387" xcoord="474" ycoord="488" />
+</entity>
+<entity name="Task_element_levels" supertypes="Task_element">
+<explicit name="alternatives">
+<aggregate type="SET" lower="2" upper="?" />
+<typename name="Task_element" />
+</explicit>
+<graphic.element page="387" xcoord="155" ycoord="120" />
+</entity>
+<entity name="Task_element_state_relationship">
+<explicit name="state">
+<typename name="state_or_state_definition_select" />
+</explicit>
+<explicit name="task_element">
+<typename name="Task_element" />
+</explicit>
+<graphic.element page="387" xcoord="279" ycoord="290" />
+</entity>
+<entity name="Task_invocation" supertypes="Task_element">
+<explicit name="task_method">
+<typename name="method_or_method_version" />
+</explicit>
+<graphic.element page="387" xcoord="56" ycoord="120" />
+</entity>
+<entity name="Task_method" supertypes="Activity_method">
+<explicit name="objective">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="Task_objective" />
+</explicit>
+<graphic.element page="387" xcoord="99" ycoord="403" />
+</entity>
+<entity name="Task_method_assignment" supertypes="Applied_activity_method_assignment">
+<explicit name="assigned_activity_method">
+<typename name="Task_method" />
+<redeclaration entity-ref="Applied_activity_method_assignment" />
+</explicit>
+<explicit name="items">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="task_item" />
+<redeclaration entity-ref="Applied_activity_method_assignment" />
+</explicit>
+<graphic.element page="388" xcoord="311" ycoord="35" />
+</entity>
+<entity name="Task_method_relationship" supertypes="Activity_method_relationship">
+<explicit name="relating_method">
+<typename name="Task_method" />
+<redeclaration entity-ref="Activity_method_relationship" />
+</explicit>
+<explicit name="related_method">
+<typename name="Task_method" />
+<redeclaration entity-ref="Activity_method_relationship" />
+</explicit>
+<graphic.element page="388" xcoord="392" ycoord="389" />
+</entity>
+<entity name="Task_method_state_relationship">
+<explicit name="state">
+<typename name="state_or_state_definition_select" />
+</explicit>
+<explicit name="task_method">
+<typename name="Task_method_version" />
+</explicit>
+<graphic.element page="387" xcoord="276" ycoord="361" />
+</entity>
+<entity name="Task_method_version" supertypes="Activity_method">
+<explicit name="content" optional="YES">
+<typename name="Task_element" />
+</explicit>
+<explicit name="of_task_method">
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="387" xcoord="99" ycoord="318" />
+</entity>
+<entity name="Task_method_version_assignment" supertypes="Applied_activity_method_assignment">
+<explicit name="assigned_task_method">
+<typename name="Task_method_version" />
+<redeclaration entity-ref="Applied_activity_method_assignment" old_name="assigned_activity_method" />
+</explicit>
+<explicit name="items">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="task_item" />
+<redeclaration entity-ref="Applied_activity_method_assignment" />
+</explicit>
+<graphic.element page="388" xcoord="321" ycoord="134" />
+</entity>
+<entity name="Task_method_version_relationship" supertypes="Activity_method_relationship">
+<explicit name="relating_task_method">
+<typename name="Task_method_version" />
+<redeclaration entity-ref="Activity_method_relationship" old_name="relating_method" />
+</explicit>
+<explicit name="related_task_method">
+<typename name="Task_method_version" />
+<redeclaration entity-ref="Activity_method_relationship" old_name="related_method" />
+</explicit>
+<graphic.element page="388" xcoord="406" ycoord="191" />
+</entity>
+<entity name="Task_objective">
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="387" xcoord="99" ycoord="474" />
+</entity>
+<entity name="Task_objective_state_relationship">
+<explicit name="state">
+<typename name="state_or_state_definition_select" />
+</explicit>
+<explicit name="task_objective">
+<typename name="Task_objective" />
+</explicit>
+<graphic.element page="387" xcoord="276" ycoord="446" />
+</entity>
+<subtype.constraint name="restrict_activity_method_relationship" entity="Activity_method_relationship" super.expression="ONEOF(Task_element_relationship, Task_method_relationship, Task_method_version_relationship)">
+<graphic.element page="388" xcoord="334" ycoord="467" />
+</subtype.constraint>
+<subtype.constraint name="restrict_activity_method_subtypes" entity="Activity_method" super.expression="ONEOF(Task_element, Task_method, Task_method_version)">
+<graphic.element page="387" xcoord="184" ycoord="581" />
+</subtype.constraint>
+<subtype.constraint name="restrict_task_element_subtypes" entity="Task_element" super.expression="ONEOF(End_task, Exit_loop, Structured_task_element, Task_element_levels, Task_invocation, Task_step)">
+<graphic.element page="387" xcoord="311" ycoord="184" />
+</subtype.constraint>
+<graphic.element page="421" xcoord="99" ycoord="94" />
+</schema>
 </express>

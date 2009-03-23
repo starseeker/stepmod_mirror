@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.18 2009/03/23 11:21:11 robbod Exp $
+ $Id: mim.exp,v 1.19 2009/03/23 11:35:12 robbod Exp $
  ISO TC184/SC4/WG3 new number - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1561
 *) 
@@ -222,6 +222,15 @@ TYPE plcs_state_type_of_item = SELECT BASED_ON state_type_of_item WITH
    structured_message);
 END_TYPE;
 
+
+ENTITY characterized_action_directive
+SUBTYPE OF (action_directive, characterized_object);
+END_ENTITY;
+
+ENTITY characterized_action_method_relationship
+SUBTYPE OF (action_method_relationship, characterized_object);
+END_ENTITY;
+
 ENTITY characterized_assembly_component_usage
 SUBTYPE OF (assembly_component_usage, characterized_object);
 END_ENTITY;
@@ -230,12 +239,10 @@ ENTITY characterized_versioned_action_request
 SUBTYPE OF (characterized_object, versioned_action_request);
 END_ENTITY;
 
-  RULE application_protocol_definition_required FOR (application_context);
-
+RULE application_protocol_definition_required FOR (application_context);
   WHERE
   WR1: SIZEOF(QUERY(ac <* application_context | (SIZEOF(QUERY(apd <* USEDIN(ac, 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | apd.application_interpreted_model_schema_name = 'product_life_cycle_support')) > 0))) > 0;
-
-  END_RULE;
+END_RULE;
 
 
 

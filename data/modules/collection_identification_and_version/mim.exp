@@ -1,66 +1,73 @@
 (*
-$Id: mim.exp,v 1.2 2009/03/19 15:54:20 mikeward Exp $
+$Id: mim.exp,v 1.3 2009/03/23 10:58:21 mikeward Exp $
 ISO TC184/SC4/WG12 N - ISO/WD 10303-xxxx Collection identification and version - EXPRESS MIM
 *) 
 
 
-SCHEMA Collection_identification_and_version_arm;
+SCHEMA Collection_identification_and_version_mim;
 
-USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
+USE FROM group_mim;    -- ISO/TS 10303-1113
 
-USE FROM Product_relationship_arm;    -- ISO/TS 10303-1024
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
 
-USE FROM Product_version_relationship_arm;    -- ISO/TS 10303-1020
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_relationship); 
 
-USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+USE FROM Product_relationship_mim;    -- ISO/TS 10303-1024
+
+USE FROM Product_version_relationship_mim;    -- ISO/TS 10303-1020
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
 
 
-TYPE collection_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE collection_assignment_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
 END_TYPE; 
 
-TYPE collection_member_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE collection_membership_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
 END_TYPE; 
 
-ENTITY Collection
-  SUBTYPE OF (Product);
+ENTITY collection
+  SUBTYPE OF (product);
 END_ENTITY;
 
-ENTITY Collection_assignment;
-  collection : Collection_view_definition;
-  is_assigned_to : collection_assignment_select;
+ENTITY collection_assignment
+  SUBTYPE OF (applied_group_assignment);
 END_ENTITY;
 
-ENTITY Collection_membership;
-  member : collection_member_select;
-  of_collection : Collection_view_definition;
+ENTITY collection_membership
+  SUBTYPE OF (applied_group_assignment);
 END_ENTITY;
 
-ENTITY Collection_relationship
-  SUBTYPE OF (Product_relationship);
-  SELF\Product_relationship.relating_product RENAMED relating_collection : Collection;
-  SELF\Product_relationship.related_product RENAMED related_collection : Collection;
+ENTITY collection_relationship
+  SUBTYPE OF (product_relationship);
+  SELF\product_relationship.relating_product RENAMED relating_collection : collection;
+  SELF\product_relationship.related_product RENAMED related_collection : collection;
 END_ENTITY;
 
-ENTITY Collection_version
-  SUBTYPE OF (Product_version);
-  SELF\Product_version.of_product RENAMED of_collection : Collection;
+ENTITY collection_version
+  SUBTYPE OF (product_definition_formation);
+  SELF\product_definition_formation.of_product RENAMED of_collection : collection;
 END_ENTITY;
 
-ENTITY Collection_version_relationship
-  SUBTYPE OF (Product_version_relationship);
-  SELF\Product_version_relationship.relating_version : Collection_version;
-  SELF\Product_version_relationship.related_version : Collection_version;
+ENTITY collection_version_relationship
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED relating_version : collection_version;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED related_version : collection_version;
 END_ENTITY;
 
-ENTITY Collection_version_sequence_relationship
-  SUBTYPE OF (Collection_version_relationship);
-  SELF\Product_version_relationship.relating_version RENAMED predecessor : Collection_version;
-  SELF\Product_version_relationship.related_version RENAMED successor : Collection_version;
+ENTITY collection_version_sequence_relationship
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED predecessor : collection_version;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED successor : collection_version;
 END_ENTITY;
 
-ENTITY Collection_view_definition
-  SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Collection_version;
+ENTITY collection_view_definition
+  SUBTYPE OF (product_definition);
+  SELF\product_definition.formation RENAMED defined_version : collection_version;
 END_ENTITY;
 
-END_SCHEMA;  -- Collection_identification_and_version_arm
+END_SCHEMA;  -- Collection_identification_and_version_mim

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.296 2009/03/06 18:21:27 thomasrthurman Exp $
+   $Id: arm.exp,v 1.297 2009/03/09 22:51:43 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -8,11 +8,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 
 USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 USE FROM Edge_shape_feature_arm;	-- ISO/TS 10303-1673
-USE FROM Interconnect_physical_requirement_allocation_arm;	-- ISO/TS 10303-1689
 USE FROM Footprint_definition_arm;	-- ISO/TS 10303-1646
 USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
-USE FROM Interconnect_module_connection_routing_arm;
 USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634	
+(*REFERENCE FROM*) USE FROM Land_arm;	-- ISO/TS 10303-1692
+(*REFERENCE FROM*) USE FROM Layered_interconnect_module_with_printed_component_design_arm; -- ISO/TS 10303-1700
 
 REFERENCE FROM Physical_unit_design_view_arm(get_assemblies);  -- ISO/TS 10303-1765
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
@@ -162,8 +162,8 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
   END_TYPE;
 
   TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-    (Stratum_feature_conductive_join,
-     Dielectric_crossover_area,
+    (--Stratum_feature_conductive_join,
+     --Dielectric_crossover_area,
      Layered_interconnect_module_design_view);
   END_TYPE; 
 
@@ -172,9 +172,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
      Stratum);
   END_TYPE;
 
-  TYPE limd_trace_junction_or_via_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON trace_junction_or_via WITH 
-    (Inter_stratum_join_relationship);
-  END_TYPE;
+--  TYPE limd_trace_junction_or_via_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON trace_junction_or_via WITH 
+--    (Inter_stratum_join_relationship);
+--  END_TYPE;
 
   TYPE limd_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
     (Component_termination_passage_template_terminal,
@@ -412,15 +412,6 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
       WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
-  ENTITY Dependent_thermal_isolation_removal_component
-    SUBTYPE OF (Material_removal_structured_component);
-      SELF\Definition_based_product_occurrence.derived_from : Dependent_thermal_isolation_removal_template;
-      associated_land : Land;
-    WHERE
-      WR1 : associated_land\Definition_based_product_occurrence.derived_from :=:
-            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item;
-  END_ENTITY;
-
   ENTITY Derived_stratum
      SUBTYPE OF (Stratum);
        derived_from : design_or_documentation_stratum;
@@ -453,11 +444,6 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
       WR2: NOT(SIZEOF(SELF\Stratum.base_component) = 1) OR 
            (NOT(SELF\Stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose = 
                 predefined_documentation_layer_purpose.soldermask) OR (SIZEOF(get_mrlc_not_for_base(SELF, base_component)) = 0));
-  END_ENTITY;
-
-  ENTITY Electrical_isolation_laminate_component
-    SUBTYPE OF (Material_removal_laminate_component);
-      SELF\Definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
   END_ENTITY;
 
   ENTITY Embedded_physical_component_terminal
@@ -805,7 +791,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
   END_ENTITY;
 
   ENTITY Material_removal_laminate_component
-    SUPERTYPE OF (Electrical_isolation_laminate_component)
+--    SUPERTYPE OF (Electrical_isolation_laminate_component)
     SUBTYPE OF (Laminate_component);
       causal_item                                           : OPTIONAL limd_restriction_basis_item;
       design_intent                                         : SET[1:?] OF stratum_feature_template_component_or_stratum;

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.24 2004/12/10 18:16:27 thendrix Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.25 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -569,8 +569,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.24 2004/12/10 18:16:27 thendrix Exp $
 						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			        		  <xsl:with-param 
 					            name="message" 
-					            select="concat('Error APmapindex3: Unable to locate mapping for select item, entity: ',
-						    $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW ')"/>
+                                                    select="concat('Error APmapindex3: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' entity: ', $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW ')"/>                                                  
 						</xsl:call-template>    				
  					</xsl:otherwise>
 				</xsl:choose>

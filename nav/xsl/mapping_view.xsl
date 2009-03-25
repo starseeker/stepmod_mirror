@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.20 2004/10/06 04:15:18 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -239,10 +239,11 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 
 				<xsl:variable name="this_sel" select="@assertion_to" />
 				<xsl:variable name="this_sel_space" select="concat(' ',@assertion_to,' ')" />
-				
-				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
+                                <xsl:choose>
+                                  <xsl:when test="$this_sel='*'"/>
+                                  <xsl:when test="not($arm_node//type[@name=$this_sel][select]
 				        | $arm_node//typename[@name=$this_sel]
-					| $arm_node//type/select[contains(concat(' ',@selectitems,' '), $this_sel_space)])" >
+					| $arm_node//type/select[contains(concat(' ',@selectitems,' '), $this_sel_space)])">
 					<xsl:call-template name="error_message">
 					  <xsl:with-param name="inline" select="'yes'"/>
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -250,8 +251,8 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 				            name="message" 
 				            select="concat('Error Map27: ',$this_sel,' is not an ARM SELECT type')"/>
 					</xsl:call-template>    
-				
-				</xsl:if>
+                                      </xsl:when>
+                                    </xsl:choose>
 			</xsl:when>
 			<xsl:otherwise>
 
@@ -1185,6 +1186,16 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 					contains('ABCDEFGHIJKLMNOPQRSTUVWXYZ', substring(preceding-sibling::*[2],1,1))" >
 					<!-- matches preceding SUPERTYPE() or SUBTYPE template -->
 				</xsl:when>
+                                <xsl:when test="name(preceding-sibling::*[1]) ='start-paren' and 
+					following-sibling::*[1]='MAPPING_OF'">
+                                  <!-- matches (/MAPPING_OF  -->
+				</xsl:when>
+                                <xsl:when test="name(preceding-sibling::*[1]) ='end-paren' and 
+					name(preceding-sibling::*[3]) ='MAPPING_OF'">
+                                  <!-- matches MAPPING_OF(State_definition)/  -->
+                                  <xsl:message>MAPPING_OF(State_definition)/</xsl:message>
+				</xsl:when>
+                                
 				<xsl:otherwise>
 				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
 					<xsl:call-template name="error_message">
@@ -1193,7 +1204,7 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 				          <xsl:with-param 
 			        	    name="message" 
-				            select="concat('Error Map17: Possible syntax ERROR: ',.)"/>
+				            select="concat('Error Map17: Possible syntax ERROR: ',name(preceding-sibling::*[1]),.,name(following-sibling::*[1]))"/>
 					</xsl:call-template>    
 				</xsl:otherwise>
 			</xsl:choose>
@@ -1280,6 +1291,7 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 
 		</xsl:when>
 
+
 <!--		<xsl:when test="not(preceding-sibling::word) or
 				(not(contains(.,'.'))) and (
 							name(./preceding-sibling::*[name()!='newline'][1])='is-supertype-of' or
@@ -1288,6 +1300,13 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 							name(./following-sibling::*[1])='is-supertype-of'
 							)" >
 -->
+
+
+
+		<xsl:when
+                  test="name(./preceding-sibling::*[1])='start-paren' and  ./preceding-sibling::*[2]='MAPPING_OF'">
+                  !! Check that <xsl:value-of select="."/> is in the ARM and in the extended select !!
+                </xsl:when>
 		<xsl:when test="not(preceding-sibling::word) or
 				(not(contains(.,'.'))) and string-length(translate(.,'1234567890. ',''))>0 " >
 
@@ -1304,6 +1323,27 @@ $Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
 				<xsl:value-of select="$found-ent/ancestor::schema/@name" />
 				<br/>
 			</xsl:when>
+                        <xsl:when test=".='MAPPING_OF'">
+                          <xsl:variable name="mapped_to_ARM_entity_name" select="./following-sibling::*[2]"/>
+                          <xsl:choose>
+                            <xsl:when
+                              test="$arm_node//entity[@name=$mapped_to_ARM_entity_name] 
+                                    | $arm_node//typename[@name=$mapped_to_ARM_entity_name] 
+                                    | $arm_node//type/select[contains(concat(' ',@selectitems,' '),concat(' ',$mapped_to_ARM_entity_name,' '))]
+				 ">
+                            </xsl:when>
+                            <xsl:otherwise>
+                              <xsl:call-template name="error_message">
+                                <xsl:with-param name="inline" select="'yes'"/>
+                                <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+                                <xsl:with-param 
+                                  name="message" 
+                                  select="concat('Error MappingOf01:
+',$mapped_to_ARM_entity_name,' is not an ARM ENTITY type or referenced within the arm ')"/>
+                              </xsl:call-template>    
+                            </xsl:otherwise>
+                          </xsl:choose>
+                        </xsl:when>
 			<xsl:otherwise>
 <!--			!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
 					<xsl:call-template name="error_message">

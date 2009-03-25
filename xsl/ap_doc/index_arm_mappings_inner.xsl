@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.25 2004/12/29 14:29:24 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.26 2009/03/24 15:09:01 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -551,6 +551,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.25 2004/12/29 14:29:24 robbod Exp $
 						<xsl:text> </xsl:text>		
 						
 					</xsl:when>
+
 					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]" >
 						<!-- added to del with attribute names using SELF\ -->
 
@@ -562,6 +563,35 @@ $Id: index_arm_mappings_inner.xsl,v 1.25 2004/12/29 14:29:24 robbod Exp $
 						<xsl:text> </xsl:text>		
 						
 					</xsl:when>
+
+					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to='*']" >
+                                          <!-- added to deal with new mapipping -->
+                                          <xsl:variable name="path"
+                                            select="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to='*']/refpath_extend"/>
+                                          <xsl:variable name="MAPPING_OF" select="concat('(/MAPPING_OF(',$this-item,')/)')"/>
+                                          <xsl:message>
+                                            this-module:<xsl:value-of select="$this-module"/><xsl:value-of select="$this-item"/><xsl:value-of select="$MAPPING_OF"/>
+                                          </xsl:message>
+
+                                          <xsl:choose>
+                                            <xsl:when test="contains($path,$MAPPING_OF)">
+                                              <xsl:message>OK</xsl:message>
+                                            	<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to*" 
+                                            		target="info">map</A>
+                                            	<xsl:text> </xsl:text>	
+                                            </xsl:when>
+                                            <xsl:otherwise>
+                                            	<xsl:call-template name="error_message">
+                                            		<xsl:with-param name="inline" select="'yes'"/>
+                                            		<xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+                                            		<xsl:with-param 
+                                            			name="message" 
+                                            			select="concat('Error APmapindex4: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' entity: ', $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW Expected ',$MAPPING_OF,' in path')"/>                                                  
+                                            	</xsl:call-template>
+                                            </xsl:otherwise>
+                                          </xsl:choose>
+                                        </xsl:when>
+
 					<xsl:otherwise>
 <!--						Mapping NOT found select -->
 						<xsl:call-template name="error_message">

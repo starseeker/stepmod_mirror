@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.35 2009/03/23 13:30:50 robbod Exp $
+ $Id: arm.exp,v 1.36 2009/03/23 20:56:47 robbod Exp $
  ISO TC184/SC4/WG3 N1553 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG3 N1399
 *) 
@@ -136,6 +136,9 @@ END_TYPE;
 
 TYPE plcs_approval_item = SELECT  BASED_ON approval_item WITH
   (Assumption,
+   Assumption_assignment,
+   Assumption_relationship,
+   Item_assumed,
    Identification_relationship);
 END_TYPE;
 
@@ -189,6 +192,18 @@ TYPE plcs_certification_item = SELECT BASED_ON certification_item WITH
    Assembly_component_relationship);
 END_TYPE;
 
+TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
+  (Analysis_assignment,
+   Assembly_component_relationship,
+   Assumption,
+   Assumption_assignment,
+   Assumption_relationship,
+   Identification_relationship,
+   Item_assumed,
+   Product_group_membership,
+   Representation_relationship);
+END_TYPE;
+
 (* TODO: Need to add all entities here *)
 TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WITH
   (Activity, 
@@ -211,18 +226,6 @@ TYPE plcs_collection_assignment_select  = SELECT BASED_ON collection_assignment_
    Project,
    Work_order,
    Work_request);
-END_TYPE;
-
-TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
-  (Analysis_assignment,
-   Assembly_component_relationship,
-   Assumption,
-   Assumption_assignment,
-   Assumption_relationship,
-   Item_assumed,
-   Identification_relationship,
-   Product_group_membership,
-   Representation_relationship);
 END_TYPE;
 
 TYPE plcs_condition_evaluation_item = SELECT BASED_ON condition_evaluation_item WITH
@@ -408,12 +411,14 @@ END_TYPE;
 
 TYPE plcs_documented_element_select = SELECT BASED_ON documented_element_select WITH
   (Assumption,
+   Assumption_assignment, 
    Assumption_relationship,
    Class,
    Condition_assignment,
    Condition_parameter,
    Document_assignment,
    Justification,
+   Item_assumed,
    State_definition_relationship);
 END_TYPE;
 
@@ -502,6 +507,7 @@ END_TYPE;
 TYPE plcs_organization_or_person_in_organization_item  = SELECT BASED_ON organization_or_person_in_organization_item WITH
   (Assumption, 
    Assumption_assignment,
+   Assumption_relationship,
    Item_assumed,   
    Identification_relationship
    );
@@ -548,5 +554,25 @@ END_TYPE;
 TYPE plcs_type_of_person_item_select = SELECT BASED_ON type_of_person_item_select  WITH
   (Analysis_assignment);
 END_TYPE;
+
+
+SUBTYPE_CONSTRAINT plcs_restrict_product_subtypes FOR Product;
+  ONEOF(Analysis,
+	Attachment_slot,
+	Breakdown,
+	Breakdown_element,
+	Collection,
+	Document,
+	Environment_definition,
+	Interface_connector,
+	Interface_specification,
+	Observed_environment,
+	Part,
+	Product_as_individual,
+	Requirement,
+	System);
+END_SUBTYPE_CONSTRAINT;
+
+
 
 END_SCHEMA;

@@ -1,0 +1,128 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- failure_mode_effects_and_criticality_analysis - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+
+
+SCHEMA Failure_mode_effects_and_criticality_analysis_arm;
+
+USE FROM State_definition_arm; -- ISO/TS 10303-1255
+USE FROM Analysis_identification_arm; -- ISO/TS 10303-1476
+
+TYPE failure_cause_select = SELECT (
+  Failure_mode,
+  Failure_cause);
+END_TYPE;
+
+TYPE failure_detection_method_select = SELECT (
+  Failure_mode,
+  Failure_cause_assignment);
+END_TYPE;
+
+TYPE failure_state_select = SELECT (
+  Failure_mode,
+  Failure_effect,
+  Failure_cause,
+  Failure_detection_method);
+END_TYPE;
+
+TYPE failure_mode_select = EXTENSIBLE SELECT ;
+END_TYPE; 
+
+TYPE roll_up_item_select = SELECT (
+  roll_up_relationship,
+  failure_cause_assignment);
+END_TYPE; 
+
+
+ENTITY Failure_mode_effects_and_criticality_analysis_definition
+  SUBTYPE OF (Analysis_discipline_definition);
+END_ENTITY;
+
+ENTITY And_consequential_failure_relationship
+  SUBTYPE OF (Roll_up_relationship);
+END_ENTITY;
+
+ENTITY Failure_cause
+  SUBTYPE OF (State_definition);
+END_ENTITY; 
+
+ENTITY Failure_cause_assignment
+  SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\applied_state_definition_assignment.assigned_to RENAMED cause : failure_cause_select;
+  SELF\applied_state_definition_assignment.described_state_definition RENAMED for_failure : failure_mode;
+DERIVE
+  SELF\applied_state_definition_assignment.role : State_definition_role := State_definition_role('failure cause assignment', ?);
+END_ENTITY; 
+
+ENTITY Failure_detection_method
+  SUBTYPE OF (State_definition);
+END_ENTITY;
+
+ENTITY Failure_detection_method_assignment
+  SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\applied_state_definition_assignment.assigned_to RENAMED target : failure_detection_method_select;
+  SELF\applied_state_definition_assignment.described_state_definition RENAMED related_detection_method : failure_detection_method;
+DERIVE
+  SELF\applied_state_definition_assignment.role : State_definition_role := State_definition_role('failure detection method assignment', ?);
+END_ENTITY;
+
+ENTITY Failure_effect
+  SUBTYPE OF (State_definition);
+END_ENTITY;
+
+ENTITY Failure_effect_assignment
+  SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\applied_state_definition_assignment.assigned_to RENAMED target : failure_effect_select;
+  SELF\applied_state_definition_assignment.described_state_definition RENAMED related_effect : failure_effect;
+DERIVE
+  SELF\applied_state_definition_assignment.role : State_definition_role := State_definition_role('failure effect assignment', ?);
+END_ENTITY; 
+
+TYPE failure_effect_select = SELECT (
+  failure_mode,
+  failure_cause_assignment);
+END_TYPE; 
+
+ENTITY Failure_mode
+  SUBTYPE OF (State_definition);
+  id : STRING;
+END_ENTITY;
+
+ENTITY Failure_mode_assignment
+  SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\applied_state_definition_assignment.assigned_to RENAMED target : failure_mode_select;
+  SELF\applied_state_definition_assignment.described_state_definition RENAMED related_failure : failure_mode;
+DERIVE
+  SELF\applied_state_definition_assignment.role : State_definition_role := State_definition_role('failure mode assignment', ?);
+END_ENTITY; 
+
+ENTITY Failure_state_context
+  SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\applied_state_definition_assignment.assigned_to : Failure_mode_effects_and_criticality_analysis_definition;
+  SELF\applied_state_definition_assignment.described_state_definition : failure_state_select;
+DERIVE
+  SELF\applied_state_definition_assignment.role : State_definition_role := State_definition_role('failure mode assignment', ?);
+END_ENTITY; 
+
+ENTITY Or_consequential_failure_relationship
+  SUBTYPE OF (roll_up_relationship);
+END_ENTITY;
+
+ENTITY Roll_up_relationship
+  SUPERTYPE OF (ONEOF (or_consequential_failure_relationship, xor_consequential_failure_relationship, and_consequential_failure_relationship));
+  included_items : SET [0:?] OF roll_up_item_select;
+END_ENTITY; 
+
+ENTITY Xor_consequential_failure_relationship
+  SUBTYPE OF (roll_up_relationship);
+END_ENTITY; 
+
+SUBTYPE_CONSTRAINT fmeca_state_definition_subtypes FOR State_definition;
+  ONEOF (failure_mode, failure_cause, failure_effect, failure_detection_method);
+END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT fmeca_applied_state_definition_assignment_subtypes FOR Applied_state_definition_assignment;
+  ONEOF (Failure_cause_assignment, Failure_detection_method_assignment, Failure_effect_assignment, Failure_mode_assignment, Failure_state_context);
+END_SUBTYPE_CONSTRAINT; 
+END_SCHEMA;

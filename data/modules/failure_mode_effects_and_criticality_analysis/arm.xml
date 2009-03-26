@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="failure_mode_effects_and_criticality_analysis_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Failure_mode_effects_and_criticality_analysis_arm">
+      <interface kind="use" schema="State_definition_arm"/>
+      <interface kind="use" schema="Analysis_identification_arm"/>
+      <type name="failure_cause_select">
+         <select selectitems="Failure_mode Failure_cause"/>
+      </type>
+      <type name="failure_detection_method_select">
+         <select selectitems="Failure_mode Failure_cause_assignment"/>
+      </type>
+      <type name="failure_effect_select">
+         <select selectitems="Failure_mode Failure_cause_assignment"/>
+      </type>
+      <type name="failure_mode_select">
+         <select extensible="YES"/>
+      </type>
+      <type name="failure_state_select">
+         <select selectitems="Failure_mode Failure_effect Failure_cause Failure_detection_method"/>
+      </type>
+      <type name="roll_up_item_select">
+         <select selectitems="Roll_up_relationship Failure_cause_assignment"/>
+      </type>
+      <entity name="And_consequential_failure_relationship" supertypes="Roll_up_relationship"/>
+      <entity name="Failure_cause" supertypes="State_definition"/>
+      <entity name="Failure_cause_assignment" supertypes="Applied_state_definition_assignment">
+         <explicit name="cause">
+            <typename name="failure_cause_select"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="assigned_to"/>
+         </explicit>
+         <explicit name="for_failure">
+            <typename name="Failure_mode"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="described_state_definition"/>
+         </explicit>
+         <derived expression="State_definition_role('failure cause assignment', ?)" name="role">
+            <typename name="State_definition_role"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Failure_detection_method" supertypes="State_definition"/>
+      <entity name="Failure_detection_method_assignment" supertypes="Applied_state_definition_assignment">
+         <explicit name="target">
+            <typename name="failure_detection_method_select"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="assigned_to"/>
+         </explicit>
+         <explicit name="related_detection_method">
+            <typename name="Failure_detection_method"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="described_state_definition"/>
+         </explicit>
+         <derived expression="State_definition_role('failure detection method assignment', ?)" name="role">
+            <typename name="State_definition_role"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Failure_effect" supertypes="State_definition"/>
+      <entity name="Failure_effect_assignment" supertypes="Applied_state_definition_assignment">
+         <explicit name="target">
+            <typename name="failure_effect_select"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="assigned_to"/>
+         </explicit>
+         <explicit name="related_effect">
+            <typename name="Failure_effect"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="described_state_definition"/>
+         </explicit>
+         <derived expression="State_definition_role('failure effect assignment', ?)" name="role">
+            <typename name="State_definition_role"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Failure_mode" supertypes="State_definition">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Failure_mode_assignment" supertypes="Applied_state_definition_assignment">
+         <explicit name="target">
+            <typename name="failure_mode_select"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="assigned_to"/>
+         </explicit>
+         <explicit name="related_failure">
+            <typename name="Failure_mode"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment" old_name="described_state_definition"/>
+         </explicit>
+         <derived expression="State_definition_role('failure mode assignment', ?)" name="role">
+            <typename name="State_definition_role"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Failure_mode_effects_and_criticality_analysis_definition" supertypes="Analysis_discipline_definition"/>
+      <entity name="Failure_state_context" supertypes="Applied_state_definition_assignment">
+         <explicit name="assigned_to">
+            <typename name="Failure_mode_effects_and_criticality_analysis_definition"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </explicit>
+         <explicit name="described_state_definition">
+            <typename name="failure_state_select"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </explicit>
+         <derived expression="State_definition_role('failure mode assignment', ?)" name="role">
+            <typename name="State_definition_role"/>
+            <redeclaration entity-ref="Applied_state_definition_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Or_consequential_failure_relationship" supertypes="Roll_up_relationship"/>
+      <entity name="Roll_up_relationship" super.expression="ONEOF (Or_consequential_failure_relationship, Xor_consequential_failure_relationship, And_consequential_failure_relationship)">
+         <explicit name="included_items">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="roll_up_item_select"/>
+         </explicit>
+      </entity>
+      <entity name="Xor_consequential_failure_relationship" supertypes="Roll_up_relationship"/>
+      <subtype.constraint entity="State_definition" name="fmeca_state_definition_subtypes" super.expression="ONEOF (Failure_mode, Failure_cause, Failure_effect, Failure_detection_method)"/>
+      <subtype.constraint entity="Applied_state_definition_assignment" name="fmeca_applied_state_definition_assignment_subtypes" super.expression="ONEOF (Failure_cause_assignment, Failure_detection_method_assignment, Failure_effect_assignment, Failure_mode_assignment, Failure_state_context)"/>
+   </schema>
+</express>

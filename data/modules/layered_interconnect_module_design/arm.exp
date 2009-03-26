@@ -62,54 +62,6 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
     (Stratum_feature_template_component, Stratum);
   END_TYPE;
     
-  SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
-    (ONEOF (Physical_component,
-     Laminate_component));
-  END_SUBTYPE_CONSTRAINT;
-	
-  SUBTYPE_CONSTRAINT array_placement_group_subtypes FOR Array_placement_group; 
-    (ONEOF (Laminate_text_string_component,
-     Linear_array_placement_group_component,
-     Rectangular_array_placement_group_component));
-  END_SUBTYPE_CONSTRAINT;
-
-  SUBTYPE_CONSTRAINT component_feature_subtypes FOR Component_feature;     
-    ONEOF (Physical_component_feature,
-           Laminate_component_feature);
-  END_SUBTYPE_CONSTRAINT;
-
-  SUBTYPE_CONSTRAINT component_terminal_subtypes FOR Component_terminal;     
-    ONEOF (Physical_component_terminal,
-           Laminate_component_join_terminal);
-  END_SUBTYPE_CONSTRAINT;
-
-  SUBTYPE_CONSTRAINT inter_stratum_feature_subtypes FOR Inter_stratum_feature;     
-    ONEOF (Cutout,
-           Interconnect_module_edge);
-  END_SUBTYPE_CONSTRAINT;
-
-  SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR Interconnect_module_terminal;     
-    (ONEOF (Interconnect_module_interface_terminal,
-            Interconnect_module_macro_terminal));
-  END_SUBTYPE_CONSTRAINT; 
-
-  SUBTYPE_CONSTRAINT limd_part_view_definition_subtypes FOR Part_view_definition; 
-    (ONEOF (Part_usage_view,
-            Part_design_view,
-            Stratum));
-  END_SUBTYPE_CONSTRAINT; 
-	
-  SUBTYPE_CONSTRAINT limd_template_definition_subtypes FOR Template_definition; 
-    (ONEOF (
-       ONEOF(Printed_part_template, Special_symbol_template) ANDOR  Geometric_template, 
-             Non_conductive_cross_section_template,
-             Part_string_template, 
-             Parametric_template,
-             Part_text_template,
-             Stratum_stack_model,
-             Stratum_sub_stack));
-  END_SUBTYPE_CONSTRAINT;
-
   TYPE material_removal_feature_template_or_parametric_template = SELECT
    (Material_removal_feature_template, Parametric_template);
   END_TYPE;
@@ -199,6 +151,13 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
     (average_surface,
      primary_surface,
      secondary_surface);
+  END_TYPE;
+
+  TYPE terminal_or_inter_stratum_feature = EXTENSIBLE GENERIC_ENTITY SELECT(
+  	Embedded_physical_component_terminal,
+	Inter_stratum_feature,
+    Interconnect_module_terminal,
+    Printed_component_join_terminal);
   END_TYPE;
 
   ENTITY Adjacent_stratum_surface_embedded_physical_component_surface_definition;
@@ -412,6 +371,12 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
       WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
+  ENTITY Dependently_located_layer_connection_point
+    SUBTYPE OF (Layer_connection_point);
+      associated_design_object : terminal_or_inter_stratum_feature;
+      reference_zone           : OPTIONAL Connection_zone_in_design_view;
+  END_ENTITY; 
+
   ENTITY Derived_stratum
      SUBTYPE OF (Stratum);
        derived_from : design_or_documentation_stratum;
@@ -445,6 +410,10 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
            (NOT(SELF\Stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose = 
                 predefined_documentation_layer_purpose.soldermask) OR (SIZEOF(get_mrlc_not_for_base(SELF, base_component)) = 0));
   END_ENTITY;
+
+  ENTITY Explicitly_located_layer_connection_point
+    SUBTYPE OF (Layer_connection_point);
+  END_ENTITY; 
 
   ENTITY Embedded_physical_component_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
@@ -640,6 +609,12 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
       UR1 : connected_probe, inter_stratum_feature;
   END_ENTITY;
 
+  ENTITY Inter_stratum_join_implementation
+    ABSTRACT SUPERTYPE OF (ONEOF (Physical_network_supporting_stratum_feature_conductive_join,
+ 	  Physical_network_supporting_inter_stratum_feature));
+      topological_requirement : Inter_stratum_join_relationship;
+  END_ENTITY; 
+
   ENTITY Intra_stratum_join_relationship
     SUBTYPE OF (Routed_join_relationship);
       points_to_be_connected : SET[2:?] OF Layer_connection_point;
@@ -741,7 +716,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
   END_ENTITY;
 
   ENTITY Layer_connection_point
-    ABSTRACT SUPERTYPE
+    ABSTRACT SUPERTYPE OF (
+      ONEOF (Explicitly_located_layer_connection_point,
+		Dependently_located_layer_connection_point))
     SUBTYPE OF (Shape_element);
       SELF\Shape_element.element_name : STRING;
       location_2d                   : OPTIONAL Cartesian_point;
@@ -903,6 +880,16 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
         [related_group], 
         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_NETWORK_GROUP_ELEMENT_RELATIONSHIP');
  END_ENTITY;
+
+  	ENTITY Physical_network_supporting_inter_stratum_feature
+    	SUBTYPE OF (Plated_inter_stratum_feature,
+ 			Inter_stratum_join_implementation);
+  	END_ENTITY; 
+
+  	ENTITY Physical_network_supporting_stratum_feature_conductive_join
+    	SUBTYPE OF (Stratum_feature_conductive_join,
+		Inter_stratum_join_implementation);
+  	END_ENTITY; 
 
  ENTITY Pre_defined_physical_network_group_element_relationship
    SUBTYPE OF (Physical_network_group_element_relationship);
@@ -1120,6 +1107,17 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
                  )) = 1;
   END_ENTITY;
 
+  	ENTITY Stratum_feature_conductive_join
+    	SUPERTYPE OF (Physical_network_supporting_stratum_feature_conductive_join);
+      	relating_concept : Stratum_feature_template_component;    
+      	related_concept  : Stratum_feature_template_component;
+        resulting_shape        : OPTIONAL Geometric_model;
+      INVERSE
+	    technology_requirement : SET[1:?] OF requirement_assignment FOR assigned_to;
+    WHERE
+      WR1 : related_concept.resident_stratum :<>: relating_concept.resident_stratum;
+	END_ENTITY; 
+
   ENTITY Stratum_feature_template_component
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : stratum_feature_template_or_parametric_template;
@@ -1258,6 +1256,54 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
+
+  SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
+    (ONEOF (Physical_component,
+     Laminate_component));
+  END_SUBTYPE_CONSTRAINT;
+	
+  SUBTYPE_CONSTRAINT array_placement_group_subtypes FOR Array_placement_group; 
+    (ONEOF (Laminate_text_string_component,
+     Linear_array_placement_group_component,
+     Rectangular_array_placement_group_component));
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT component_feature_subtypes FOR Component_feature;     
+    ONEOF (Physical_component_feature,
+           Laminate_component_feature);
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT component_terminal_subtypes FOR Component_terminal;     
+    ONEOF (Physical_component_terminal,
+           Laminate_component_join_terminal);
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT inter_stratum_feature_subtypes FOR Inter_stratum_feature;     
+    ONEOF (Cutout,
+           Interconnect_module_edge);
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR Interconnect_module_terminal;     
+    (ONEOF (Interconnect_module_interface_terminal,
+            Interconnect_module_macro_terminal));
+  END_SUBTYPE_CONSTRAINT; 
+
+  SUBTYPE_CONSTRAINT limd_part_view_definition_subtypes FOR Part_view_definition; 
+    (ONEOF (Part_usage_view,
+            Part_design_view,
+            Stratum));
+  END_SUBTYPE_CONSTRAINT; 
+	
+  SUBTYPE_CONSTRAINT limd_template_definition_subtypes FOR Template_definition; 
+    (ONEOF (
+       ONEOF(Printed_part_template, Special_symbol_template) ANDOR  Geometric_template, 
+             Non_conductive_cross_section_template,
+             Part_string_template, 
+             Parametric_template,
+             Part_text_template,
+             Stratum_stack_model,
+             Stratum_sub_stack));
+  END_SUBTYPE_CONSTRAINT;
 
 RULE limd_unique_stratum FOR (Stratum, Layered_interconnect_module_design_view, Stratum_technology_occurrence);
  LOCAL

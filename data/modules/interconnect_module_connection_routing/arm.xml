@@ -7,26 +7,19 @@
    <schema name="Interconnect_module_connection_routing_arm">
       <interface kind="use" schema="Fabrication_joint_arm"/>
       <interface kind="use" schema="Interconnect_module_with_macros_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <type name="imcr_requirement_assignment_item">
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Stratum_feature_conductive_join Dielectric_crossover_area"/>
+      </type>
       <type name="imcr_termination_or_junction">
          <select basedon="termination_or_junction" extensible="YES" genericentity="YES" selectitems="Inter_stratum_join_relationship Explicitly_located_layer_connection_point"/>
       </type>
       <type name="map_link">
          <select selectitems="Conductive_interconnect_element_terminal_link Passage_terminal_based_fabrication_joint_link"/>
       </type>
-      <type name="terminal_or_inter_stratum_feature">
-         <select selectitems="Embedded_physical_component_terminal Inter_stratum_feature Interconnect_module_macro_component_join_terminal Interconnect_module_terminal Printed_component_join_terminal"/>
-      </type>
       <type name="trace_junction_or_via">
-         <select extensible="YES" selectitems="Explicitly_located_layer_connection_point"/>
+         <select extensible="YES" selectitems="Explicitly_located_layer_connection_point Inter_stratum_join_relationship"/>
       </type>
-      <entity name="Dependently_located_layer_connection_point" supertypes="Layer_connection_point">
-         <explicit name="associated_design_object">
-            <typename name="terminal_or_inter_stratum_feature"/>
-         </explicit>
-         <explicit name="reference_zone" optional="YES">
-            <typename name="Connection_zone_in_design_view"/>
-         </explicit>
-      </entity>
       <entity name="Dielectric_crossover_area">
          <explicit name="relating_concept">
             <typename name="Stratum_feature"/>
@@ -52,7 +45,6 @@
             <typename name="Stratum_embedded_physical_component_join_relationship"/>
          </explicit>
       </entity>
-      <entity name="Explicitly_located_layer_connection_point" supertypes="Layer_connection_point"/>
       <entity name="Indirect_stratum_component_join_implementation" supertypes="Plated_inter_stratum_feature">
          <explicit name="indirect_topological_requirement">
             <typename name="Stratum_embedded_physical_component_join_relationship"/>
@@ -64,11 +56,6 @@
             <unique.attribute attribute="indirect_topological_requirement"/>
             <unique.attribute attribute="implementing_joint"/>
          </unique>
-      </entity>
-      <entity abstract.supertype="YES" name="Inter_stratum_join_implementation" super.expression="ONEOF (Physical_network_supporting_stratum_feature_conductive_join, Physical_network_supporting_inter_stratum_feature)">
-         <explicit name="topological_requirement">
-            <typename name="Inter_stratum_join_relationship"/>
-         </explicit>
       </entity>
       <entity name="Junction_vertex_allocation">
          <explicit name="implementation_point">
@@ -93,23 +80,5 @@
             <unique.attribute attribute="geometric_context_based_definition"/>
          </unique>
       </entity>
-      <entity name="Physical_network_supporting_inter_stratum_feature" supertypes="Plated_inter_stratum_feature Inter_stratum_join_implementation"/>
-      <entity name="Physical_network_supporting_stratum_feature_conductive_join" supertypes="Stratum_feature_conductive_join Inter_stratum_join_implementation"/>
-      <entity name="Stratum_feature_conductive_join" super.expression="Physical_network_supporting_stratum_feature_conductive_join">
-         <explicit name="relating_concept">
-            <typename name="Stratum_feature_template_component"/>
-         </explicit>
-         <explicit name="related_concept">
-            <typename name="Stratum_feature_template_component"/>
-         </explicit>
-         <explicit name="resulting_shape" optional="YES">
-            <typename name="Geometric_model"/>
-         </explicit>
-         <inverse attribute="assigned_to" entity="Requirement_assignment" name="technology_requirement">
-            <inverse.aggregate lower="1" type="SET" upper="?"/>
-         </inverse>
-         <where expression="related_concept.resident_stratum :&lt;&gt;: relating_concept.resident_stratum" label="WR1"/>
-      </entity>
-      <subtype.constraint entity="Layer_connection_point" name="layer_connection_point_subtypes" super.expression="ONEOF (Explicitly_located_layer_connection_point, Dependently_located_layer_connection_point)"/>
    </schema>
 </express>

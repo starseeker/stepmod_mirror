@@ -2,16 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2009/03/20 20:46:33 $" rcs.revision="$Revision: 1.154 $">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="layered_interconnect_module_design_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Edge_shape_feature_arm"/>
-      <interface kind="use" schema="Interconnect_physical_requirement_allocation_arm"/>
       <interface kind="use" schema="Footprint_definition_arm"/>
       <interface kind="use" schema="Physical_connectivity_definition_arm"/>
-      <interface kind="use" schema="Interconnect_module_connection_routing_arm"/>
       <interface kind="use" schema="Assembly_component_placement_requirements_arm"/>
+      <interface kind="use" schema="Land_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_arm"/>
       <interface kind="reference" schema="Physical_unit_design_view_arm">
          <interfaced.item name="get_assemblies"/>
       </interface>
@@ -66,13 +66,10 @@
          <select basedon="physical_feature_or_part_template" extensible="YES" genericentity="YES" selectitems="Part_feature Physical_component_feature Laminate_component"/>
       </type>
       <type name="limd_requirement_assignment_item">
-         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Stratum_feature_conductive_join Dielectric_crossover_area Layered_interconnect_module_design_view"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Layered_interconnect_module_design_view"/>
       </type>
       <type name="limd_restriction_basis_item">
          <select basedon="restriction_basis_item" extensible="YES" selectitems="stratum_concept Stratum"/>
-      </type>
-      <type name="limd_trace_junction_or_via_select">
-         <select basedon="trace_junction_or_via" extensible="YES" genericentity="YES" selectitems="Inter_stratum_join_relationship"/>
       </type>
       <type name="limd_usage_concept">
          <select basedon="usage_concept" extensible="YES" genericentity="YES" selectitems="Component_termination_passage_template_terminal Via_template_terminal"/>
@@ -100,6 +97,9 @@
       </type>
       <type name="stratum_surface_designation">
          <enumeration items="average_surface primary_surface secondary_surface"/>
+      </type>
+      <type name="terminal_or_inter_stratum_feature">
+         <select extensible="YES" genericentity="YES" selectitems="Embedded_physical_component_terminal Inter_stratum_feature Interconnect_module_terminal Printed_component_join_terminal"/>
       </type>
       <entity name="Additive_laminate_text_component" supertypes="Generic_laminate_text_component">
          <explicit name="stratum_feature_implementation">
@@ -337,15 +337,13 @@
          </explicit>
          <where expression="start_vertex :&lt;&gt;: end_vertex" label="WR1"/>
       </entity>
-      <entity name="Dependent_thermal_isolation_removal_component" supertypes="Material_removal_structured_component">
-         <explicit name="derived_from">
-            <typename name="Dependent_thermal_isolation_removal_template"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+      <entity name="Dependently_located_layer_connection_point" supertypes="Layer_connection_point">
+         <explicit name="associated_design_object">
+            <typename name="terminal_or_inter_stratum_feature"/>
          </explicit>
-         <explicit name="associated_land">
-            <typename name="Land"/>
+         <explicit name="reference_zone" optional="YES">
+            <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <where expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item" label="WR1"/>
       </entity>
       <entity name="Derived_stratum" supertypes="Stratum">
          <explicit name="derived_from">
@@ -392,6 +390,7 @@
          </explicit>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
+      <entity name="Explicitly_located_layer_connection_point" supertypes="Layer_connection_point"/>
       <entity name="Externally_defined_physical_network_group" supertypes="Physical_network_group">
          <inverse attribute="item" entity="External_source_identification" name="source"/>
          <where expression="NOT (SELF\Group.membership_meaning IN Pre_defined_physical_network_group_types)" label="WR1"/>
@@ -502,6 +501,11 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <where expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd &lt;* get_assemblies(SELF) |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE_DESIGN_VIEW' IN TYPEOF(pvd)) AND             &#10;              (vertical_extent\Stratum_sub_stack.associated_stackup =&#10;                   pvd\Layered_interconnect_module_design_view.used_stack_model))&#10;                   )) = 0)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Inter_stratum_join_implementation" super.expression="ONEOF (Physical_network_supporting_stratum_feature_conductive_join, Physical_network_supporting_inter_stratum_feature)">
+         <explicit name="topological_requirement">
+            <typename name="Inter_stratum_join_relationship"/>
+         </explicit>
       </entity>
       <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship">
          <explicit name="points_to_be_connected">
@@ -666,7 +670,7 @@
          <where expression="SIZEOF(QUERY(sar &lt;* SELF\Assembly_group_component.components | &#10;            NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.GENERIC_LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view)) )) = 0" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR2"/>
       </entity>
-      <entity abstract.supertype="YES" name="Layer_connection_point" supertypes="Shape_element">
+      <entity abstract.supertype="YES" name="Layer_connection_point" super.expression="ONEOF (Explicitly_located_layer_connection_point, Dependently_located_layer_connection_point)" supertypes="Shape_element">
          <explicit name="element_name">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Shape_element"/>
@@ -761,7 +765,7 @@
       <entity name="Library_reference_view_definition_relationship" supertypes="View_definition_relationship">
          <where expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)" label="WR1"/>
       </entity>
-      <entity name="Material_removal_laminate_component" super.expression="Electrical_isolation_laminate_component" supertypes="Laminate_component">
+      <entity name="Material_removal_laminate_component" supertypes="Laminate_component">
          <explicit name="causal_item" optional="YES">
             <typename name="limd_restriction_basis_item"/>
          </explicit>
@@ -862,6 +866,8 @@
          </explicit>
          <where expression="acyclic_physical_network_group_element_relationship(SELF,&#10;        [related_group], &#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_NETWORK_GROUP_ELEMENT_RELATIONSHIP')" label="WR1"/>
       </entity>
+      <entity name="Physical_network_supporting_inter_stratum_feature" supertypes="Plated_inter_stratum_feature Inter_stratum_join_implementation"/>
+      <entity name="Physical_network_supporting_stratum_feature_conductive_join" supertypes="Stratum_feature_conductive_join Inter_stratum_join_implementation"/>
       <entity name="Plated_cutout" supertypes="Cutout Plated_inter_stratum_feature"/>
       <entity name="Plated_cutout_edge_segment" supertypes="Cutout_edge_segment Plated_inter_stratum_feature">
          <explicit name="composed_cutout">
@@ -1061,6 +1067,21 @@
          <where expression="reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum" label="WR1"/>
          <where expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',&#10;                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1" label="WR2"/>
          <where expression="SIZEOF(QUERY(ds &lt;* extent\Inter_Stratum_extent.included_stratum |&#10;             NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))&#10;                 )) = 1" label="WR3"/>
+      </entity>
+      <entity name="Stratum_feature_conductive_join" super.expression="Physical_network_supporting_stratum_feature_conductive_join">
+         <explicit name="relating_concept">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <explicit name="related_concept">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <explicit name="resulting_shape" optional="YES">
+            <typename name="Geometric_model"/>
+         </explicit>
+         <inverse attribute="assigned_to" entity="Requirement_assignment" name="technology_requirement">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+         <where expression="related_concept.resident_stratum :&lt;&gt;: relating_concept.resident_stratum" label="WR1"/>
       </entity>
       <entity name="Stratum_feature_template_component" supertypes="Laminate_component">
          <explicit name="derived_from">

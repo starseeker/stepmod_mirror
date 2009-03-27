@@ -16,6 +16,9 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="land_physical_template_or_inter_stratum_feature_template">
+         <select selectitems="Land_physical_template Inter_stratum_feature_template"/>
+      </type>
       <type name="lict_ee_product_definition_with_annotation_elements">
          <select basedon="ee_product_definition_with_annotation_elements" extensible="YES" genericentity="YES" selectitems="Structured_template"/>
       </type>
@@ -41,6 +44,12 @@
          <enumeration items="is_fixed must_be_moved_in_design may_be_moved_in_design is_unknown"/>
       </type>
       <entity name="Complex_passage_padstack_definition" supertypes="Stratum_stack_dependent_template Passage_padstack_definition"/>
+      <entity name="Dependent_electrical_isolation_removal_template" supertypes="Electrical_isolation_removal_template">
+         <explicit name="associated_item">
+            <typename name="land_physical_template_or_inter_stratum_feature_template"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY (dtlipd &lt;* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                  NOT(&#10;                     (SIZEOF(QUERY (tlist &lt;* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                             NOT(&#10;                                 (tlist\Template_location_in_structured_template.assembly :=: &#10;                                  dtlipd\Template_location_in_structured_template.assembly) AND&#10;                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 &#10;                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)&#10;                                 )&#10;                      )) = 0)&#10;                      )&#10;             )) = 0" label="WR1"/>
+      </entity>
       <entity name="Dependent_template_location_in_padstack_definition" supertypes="Stratum_specific_template_location">
          <explicit name="reference_location">
             <typename name="location_stratum_technology_occurrence_or_stratum_technology"/>
@@ -55,6 +64,12 @@
          <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(reference_location)) OR&#10;           ((reference_location IN &#10;           SELF\Template_location_in_structured_template.assembly.composing_occurrence) AND&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF&#10;          (SELF\Template_location_in_structured_template.assembly.composing_occurrence)))" label="WR4"/>
          <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(bound_stratum))" label="WR5"/>
          <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR (SIZEOF &#10;           (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',&#10;           'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF&#10;           (SELF\Template_location_in_structured_template.assembly)) = 2)" label="WR6"/>
+      </entity>
+      <entity name="Dependent_thermal_isolation_removal_template" supertypes="Thermal_isolation_removal_template">
+         <explicit name="associated_item">
+            <typename name="Land_physical_template"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY (dtlipd &lt;* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                  NOT(&#10;                     (SIZEOF(QUERY (tlist &lt;* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                             NOT(&#10;                                 (tlist\Template_location_in_structured_template.assembly :=: &#10;                                  dtlipd\Template_location_in_structured_template.assembly) AND&#10;                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 &#10;                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)&#10;                                 )&#10;                      )) = 0)&#10;                      )&#10;             )) = 0" label="WR1"/>
       </entity>
       <entity name="Design_specific_stratum_technology_mapping_relationship" supertypes="Stratum_technology_mapping_relationship">
          <explicit name="scope">
@@ -262,6 +277,13 @@
             <unique.attribute attribute="assembly_shape"/>
          </unique>
          <where expression="assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly" label="WR1"/>
+      </entity>
+      <entity name="Thermal_isolation_removal_template" supertypes="Material_removal_structured_template">
+         <derived expression="get_rvd(SELF, 'thermal requirement')" name="thermal_isolation_spacing_requirement">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))&#10;       )) =0" label="WR1"/>
       </entity>
       <subtype.constraint entity="Geometric_template" name="lict_geometric_template_subtypes" super.expression="ONEOF (Continuous_template, Structured_template)"/>
       <subtype.constraint entity="Stratum_stack_model" name="stratum_stack_model_subtypes" super.expression="ONEOF (Design_stack_model, Library_stack_model)"/>

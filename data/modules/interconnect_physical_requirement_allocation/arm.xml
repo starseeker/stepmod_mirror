@@ -7,36 +7,9 @@
    <schema name="Interconnect_physical_requirement_allocation_arm">
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Integral_shield_arm"/>
-      <interface kind="reference" schema="Requirement_decomposition_arm">
-         <interfaced.item name="get_rvd"/>
-      </interface>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <type name="land_physical_template_or_inter_stratum_feature_template">
-         <select selectitems="Land_physical_template Inter_stratum_feature_template"/>
-      </type>
-      <entity name="Dependent_electrical_isolation_removal_template" supertypes="Electrical_isolation_removal_template">
-         <explicit name="associated_item">
-            <typename name="land_physical_template_or_inter_stratum_feature_template"/>
-         </explicit>
-         <where expression="SIZEOF(QUERY (dtlipd &lt;* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                  NOT(&#10;                     (SIZEOF(QUERY (tlist &lt;* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                             NOT(&#10;                                 (tlist\Template_location_in_structured_template.assembly :=: &#10;                                  dtlipd\Template_location_in_structured_template.assembly) AND&#10;                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 &#10;                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)&#10;                                 )&#10;                      )) = 0)&#10;                      )&#10;             )) = 0" label="WR1"/>
-      </entity>
-      <entity name="Dependent_thermal_isolation_removal_template" supertypes="Thermal_isolation_removal_template">
-         <explicit name="associated_item">
-            <typename name="Land_physical_template"/>
-         </explicit>
-         <where expression="SIZEOF(QUERY (dtlipd &lt;* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                  NOT(&#10;                     (SIZEOF(QUERY (tlist &lt;* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | &#10;                             NOT(&#10;                                 (tlist\Template_location_in_structured_template.assembly :=: &#10;                                  dtlipd\Template_location_in_structured_template.assembly) AND&#10;                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 &#10;                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)&#10;                                 )&#10;                      )) = 0)&#10;                      )&#10;             )) = 0" label="WR1"/>
-      </entity>
-      <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template">
-         <derived expression="get_rvd(SELF, 'electrical requirement')" name="electrical_isolation_spacing_requirement">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Requirement_view_definition"/>
-         </derived>
-         <where expression="SIZEOF(QUERY(eisr &lt;* electrical_isolation_spacing_requirement |&#10;         NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'&#10;        IN TYPEOF(eisr)) )) =0" label="WR1"/>
-         <where expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(s)))) = 0" label="WR2"/>
-         <where expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;        NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0" label="WR3"/>
-      </entity>
       <entity name="Electrical_isolation_requirement" supertypes="Requirement_view_definition">
          <explicit name="effective_voltage_withstand_capacity_requirement" optional="YES">
             <typename name="Value_limit"/>
@@ -59,13 +32,6 @@
             <redeclaration entity-ref="Requirement_assignment" old_name="assigned_requirement"/>
          </explicit>
          <where expression="assigned_requirement_property\Product_view_definition.initial_context\View_definition_context.application_domain = 'electrical'" label="WR1"/>
-      </entity>
-      <entity name="Thermal_isolation_removal_template" supertypes="Material_removal_structured_template">
-         <derived expression="get_rvd(SELF, 'thermal requirement')" name="thermal_isolation_spacing_requirement">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Requirement_view_definition"/>
-         </derived>
-         <where expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))&#10;       )) =0" label="WR1"/>
       </entity>
       <entity name="Thermal_isolation_requirement" supertypes="Requirement_view_definition">
          <explicit name="thermal_bar_width" optional="YES">

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.26 2009/03/24 15:09:01 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -417,7 +417,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.26 2009/03/24 15:09:01 robbod Exp $
 		          <xsl:with-param 
 		            name="message" 
 		            select="concat('WARNING: Missing assertion_to=&#x22;',
-			    $attr-type-name,'&#x22; in mapping')" />
+			    $attr-type-name,'&#x22; in mapping of entity ',$lc-ent,' in module ',$mod-name)" />
 			</xsl:call-template>    	
 
 		</xsl:if>
@@ -565,17 +565,12 @@ $Id: index_arm_mappings_inner.xsl,v 1.26 2009/03/24 15:09:01 robbod Exp $
 					</xsl:when>
 
 					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to='*']" >
-                                          <!-- added to deal with new mapipping -->
+                                          <!-- added to deal with new mapping -->
                                           <xsl:variable name="path"
-                                            select="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to='*']/refpath_extend"/>
+                                            select="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to='*']//refpath_extend"/>
                                           <xsl:variable name="MAPPING_OF" select="concat('(/MAPPING_OF(',$this-item,')/)')"/>
-                                          <xsl:message>
-                                            this-module:<xsl:value-of select="$this-module"/><xsl:value-of select="$this-item"/><xsl:value-of select="$MAPPING_OF"/>
-                                          </xsl:message>
-
                                           <xsl:choose>
                                             <xsl:when test="contains($path,$MAPPING_OF)">
-                                              <xsl:message>OK</xsl:message>
                                             	<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to*" 
                                             		target="info">map</A>
                                             	<xsl:text> </xsl:text>	

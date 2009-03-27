@@ -1,13 +1,13 @@
 (*
-   $Id: arm.exp,v 1.38 2008/09/18 12:47:27 liutkuviene Exp $
+   $Id: arm.exp,v 1.39 2008/12/18 06:55:03 liutkus Exp $
    ISO TC184/SC4/WG12 N5686 - ISO/TS 10303-1692 Land - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4023
 *)
 
 SCHEMA Land_arm;
 
-	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
-
+USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+	
 	SUBTYPE_CONSTRAINT l_laminate_component_interface_terminal_subtypes FOR Laminate_component_interface_terminal; 
 		 (ONEOF (Component_termination_passage_interface_terminal,
 		 Land_interface_terminal));
@@ -29,6 +29,15 @@ SCHEMA Land_arm;
       SELF\Definition_based_product_occurrence.derived_from : Default_attachment_size_based_land_physical_template;
     INVERSE
       external_access_mechanism : SET[1:2] OF land_interface_terminal FOR associated_component;
+  END_ENTITY;
+
+  ENTITY Dependent_thermal_isolation_removal_component
+    SUBTYPE OF (Material_removal_structured_component);
+      SELF\Definition_based_product_occurrence.derived_from : Dependent_thermal_isolation_removal_template;
+      associated_land : Land;
+    WHERE
+      WR1 : associated_land\Definition_based_product_occurrence.derived_from :=:
+            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item;
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_dependent_land

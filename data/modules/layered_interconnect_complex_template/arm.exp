@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2009/02/02 15:23:15 thomasrthurman Exp $
+   $Id: arm.exp,v 1.5 2009/03/06 17:16:23 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5746 - ISO/TS 10303-1716 Layered interconnect complex template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4095
 *)
@@ -13,6 +13,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 REFERENCE FROM Fabrication_technology_arm(get_stack);	-- ISO/TS 10303-1670
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
+  TYPE land_physical_template_or_inter_stratum_feature_template = SELECT
+       (Land_physical_template,
+        Inter_stratum_feature_template);
+  END_TYPE;
+  
   TYPE lict_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
     (Structured_template);
   END_TYPE; 
@@ -87,6 +92,24 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
            (SELF\Template_location_in_structured_template.assembly)) = 2);
   END_ENTITY;
 
+  ENTITY Dependent_thermal_isolation_removal_template
+    SUBTYPE OF (Thermal_isolation_removal_template);
+      associated_item : Land_physical_template;
+    WHERE
+      WR1 : SIZEOF(QUERY (dtlipd <* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                  NOT(
+                     (SIZEOF(QUERY (tlist <* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                             NOT(
+                                 (tlist\Template_location_in_structured_template.assembly :=: 
+                                  dtlipd\Template_location_in_structured_template.assembly) AND
+                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 
+                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)
+                                 )
+                      )) = 0)
+                      )
+             )) = 0;
+  END_ENTITY;
+
   ENTITY Design_specific_stratum_technology_mapping_relationship
       SUBTYPE OF(Stratum_technology_mapping_relationship);
       scope : Library_to_design_stack_model_mapping;
@@ -107,6 +130,24 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       padstacks : SET[0:?] OF Padstack_definition := bag_to_set(QUERY(p <* USEDIN(SELF,
         'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))));
   END_ENTITY;
+
+  ENTITY Dependent_electrical_isolation_removal_template
+    SUBTYPE OF (Electrical_isolation_removal_template);
+      associated_item : land_physical_template_or_inter_stratum_feature_template;
+    WHERE
+      WR1 : SIZEOF(QUERY (dtlipd <* USEDIN(SELF,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                  NOT(
+                     (SIZEOF(QUERY (tlist <* USEDIN(associated_item,'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                             NOT(
+                                 (tlist\Template_location_in_structured_template.assembly :=: 
+                                  dtlipd\Template_location_in_structured_template.assembly) AND
+                                 ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 
+                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)
+                                 )
+                      )) = 0)
+                      )
+             )) = 0;
+        END_ENTITY;
 
   ENTITY Library_to_design_stack_model_mapping 
     SUBTYPE OF (View_definition_relationship);
@@ -330,6 +371,17 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       UR1 : reference_location, assembly_shape;
     WHERE
       WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
+  END_ENTITY;
+
+  ENTITY Thermal_isolation_removal_template
+    SUBTYPE OF (Material_removal_structured_template);
+	DERIVE
+  		thermal_isolation_spacing_requirement: SET[0:?] OF Requirement_view_definition :=
+		  get_rvd(SELF, 'thermal requirement');
+	WHERE
+	  WR1: SIZEOF(QUERY(tisr <* THERMAL_ISOLATION_SPACING_REQUIREMENT |
+       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))
+       )) =0;
   END_ENTITY;
 
   SUBTYPE_CONSTRAINT stratum_stack_model_subtypes FOR Stratum_stack_model;

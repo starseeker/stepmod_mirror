@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.36 2009/03/23 20:56:47 robbod Exp $
+ $Id: arm.exp,v 1.37 2009/03/25 13:07:21 robbod Exp $
  ISO TC184/SC4/WG3 N1553 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG3 N1399
 *) 
@@ -12,8 +12,7 @@ USE FROM Specification_based_configuration_arm;
 USE FROM Group_arm;
 *)
 
-(* AP233 ???
-*)
+(* AP233 ??? *)
 USE FROM Analysis_assignment_arm;    -- ISO/TS 10303-1474
  
 USE FROM Analysis_characterized_arm;    -- ISO/TS 10303-1475
@@ -32,9 +31,7 @@ USE FROM Conditional_effectivity_arm;  -- ISO/TS 10303-??
 
 USE FROM Description_assignment_arm;  -- ISO/TS 10303-1473
 
-USE FROM Decision_support_arm;  -- ISO/TS 10303-1486
-
-USE FROM Extended_task_element_arm;   -- ISO/TS 10303-1479
+(* USE FROM Decision_support_arm;  -- ISO/TS 10303-1486 *)
 
 USE FROM External_analysis_representation_arm;    -- ISO/TS 10303-1784
 
@@ -44,16 +41,23 @@ USE FROM Product_environment_definition_arm;  -- ISO/TS 10303-??
 
 USE FROM Product_environment_observed_arm;  -- ISO/TS 10303-??
 
+USE FROM Property_as_definition_arm;  -- ISO/TS 10303-??
+
 (* USE FROM Risk_management_arm;   -- ISO/TS 10303-1467 *)
 
 USE FROM Same_as_external_item_arm;  -- ISO/TS 10303-??
 
 USE FROM System_view_definition_arm;   -- ISO/TS 10303-1485
 
+USE FROM Verification_and_validation_arm;  -- ISO/TS 10303-1488
+
 
 TYPE plcs_activity_item = SELECT BASED_ON activity_item WITH
   (Assembly_component_relationship, 
-   Product_group_membership);
+   Evidence, 
+   Product_group_membership,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_activity_method_item = SELECT BASED_ON activity_method_item WITH
@@ -81,6 +85,7 @@ TYPE plcs_analysed_item = SELECT BASED_ON analysed_item WITH
    Assigned_property, 
    Condition, 
    Condition_relationship, 
+   Evidence,
    Interface_connection, 
    Interface_connector_occurrence, 
    Interface_definition_connection, 
@@ -124,8 +129,8 @@ TYPE plcs_analysed_item = SELECT BASED_ON analysed_item WITH
    State_assessment, 
    State_definition, 
    State_role, 
-   Task_io, 
    Task_method, 
+   Validation,
    Verification, 
    Verification_relationship, 
    View_definition_context, 
@@ -138,8 +143,12 @@ TYPE plcs_approval_item = SELECT  BASED_ON approval_item WITH
   (Assumption,
    Assumption_assignment,
    Assumption_relationship,
+   Evidence,
    Item_assumed,
-   Identification_relationship);
+   Identification_relationship,
+   Validation,
+   Verification,
+   Verification_relationship);
 END_TYPE;
 
 TYPE plcs_assumed_item = SELECT  BASED_ON assumed_item WITH
@@ -189,19 +198,26 @@ END_TYPE;
 
 TYPE plcs_certification_item = SELECT BASED_ON certification_item WITH
   (Analysis_assignment, 
-   Assembly_component_relationship);
+   Assembly_component_relationship,
+   Evidence);
 END_TYPE;
 
 TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
-  (Analysis_assignment,
+  (Analysis,
+   Analysis_assignment,
+   Analysis_version,
    Assembly_component_relationship,
    Assumption,
    Assumption_assignment,
    Assumption_relationship,
+   Evidence,
    Identification_relationship,
    Item_assumed,
    Product_group_membership,
-   Representation_relationship);
+   Representation_relationship,
+   Validation,
+   Verification,
+   Verification_relationship);
 END_TYPE;
 
 (* TODO: Need to add all entities here *)
@@ -245,12 +261,22 @@ END_TYPE;
 
 TYPE plcs_condition_parameter_item = SELECT BASED_ON condition_parameter_item WITH
   (Assembly_component_relationship,
+   Evidence,
    Independent_property,
    Organization,
    Organization_type,
    Product_configuration,
+   Validation,
+   Verification,
+   Verification_relationship,
    Work_request);
 END_TYPE;
+
+TYPE plcs_contract_item = SELECT BASED_ON contract_item WITH
+  (Validation,
+   Verification);
+END_TYPE;
+
 
 TYPE plcs_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
   (Analysis_assignment,
@@ -258,8 +284,12 @@ TYPE plcs_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
    Assumption,
    Assumption_assignment,
    Assumption_relationship,
+   Evidence,
    Identification_relationship,
-   Item_assumed);
+   Item_assumed,
+   Validation,
+   Verification,
+   Verification_relationship);
 END_TYPE;
 
 (* TODO: Check that this is complete. Are all entities that can be assigned a document here *)
@@ -305,6 +335,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Effectivity_relationship,
    Event,
    Event_relationship,
+   Evidence,
    Experience_instance,
    Experience_type,
    External_source,
@@ -325,7 +356,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Interface_definition_connection,
    Interface_definition_for,
    Intersection,
-   Item_assumed,   
+   Item_assumed,
    Item_shape,
    Justification,
    Justification_assignment,
@@ -401,6 +432,9 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Type_of_person_definition_relationship,
    Uncertainty_qualifier,
    Uncertainty_with_unit,
+   Validation,
+   Verification,
+   Verification_relationship,
    View_definition_context,
    View_definition_relationship,
    Work_order,
@@ -417,9 +451,12 @@ TYPE plcs_documented_element_select = SELECT BASED_ON documented_element_select 
    Condition_assignment,
    Condition_parameter,
    Document_assignment,
-   Justification,
+   Evidence,
    Item_assumed,
-   State_definition_relationship);
+   Justification,
+   State_definition_relationship,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
@@ -430,25 +467,75 @@ TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
    Assumption_relationship,
    Classification_assignment,
    Condition_assignment,
+   Evidence,
    Identification_relationship,
    Independent_property_representation,
    In_zone,
    Item_assumed,
    Qualification_assignment,
    Resource_property_representation,
+   Validation,
+   Verification,
+   Verification_relationship,
    View_definition_usage);
+END_TYPE;
+
+TYPE plcs_evidence_item = SELECT BASED_ON evidence_item WITH
+  (Activity_actual,
+   Activity_method,
+   Activity_relationship,
+   Activity_status,
+   Analysis_assignment,
+   Analysis_version,
+   Applied_activity_assignment,
+   Applied_independent_property,
+   Applied_information_usage_right,
+   Approval_assignment,
+   Assigned_property,
+   Certification_assignment,
+   Classification_assignment,
+   Contract_assignment,
+   Date_or_date_time_assignment,
+   Effectivity_assignment,
+   Event_assignment,
+   Justification_assignment,
+   Justification_relationship,
+   Justification_support_assignment,
+   Organization_or_person_in_organization_assignment,
+   Person_in_organization,
+   Product,
+   Product_version,
+   Product_version_relationship,
+   Product_view_definition,
+   Project_assignment,
+   Representation,
+   Representation_item,
+   Security_classification_assignment,
+   View_definition_relationship);
 END_TYPE;
 
 TYPE plcs_identification_item = SELECT BASED_ON identification_item WITH
   (Activity_relationship,
+   Analysis,
+   Analysis_version,
    Assembly_component_relationship,
    Assumption, 
    Assumption_relationship,
    Class,
+   Evidence,
    Document_definition_relationship,
    External_source_identification,
    Identification_relationship,
-   Type_of_person_definition);
+   Type_of_person_definition,
+   Validation,
+   Verification);
+END_TYPE;
+
+TYPE plcs_information_usage_right_item = SELECT BASED_ON information_usage_right_item WITH
+  (Analysis_assignment,
+   Evidence,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_in_zone_item = SELECT BASED_ON in_zone_item WITH
@@ -466,12 +553,18 @@ TYPE plcs_justification_item = SELECT BASED_ON justification_item WITH
    Applied_state_definition_assignment,
    Assembly_component_relationship,
    Condition_assignment,
-   Property_value_representation);
+   Evidence,
+   Property_value_representation,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_justification_support_item = SELECT BASED_ON justification_support_item WITH
   (Analysis_assignment, 
-   Assembly_component_relationship);
+   Assembly_component_relationship,
+   Evidence,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_location_assignment_select = SELECT BASED_ON location_assignment_select WITH
@@ -483,7 +576,7 @@ TYPE plcs_observed_context = SELECT BASED_ON observed_context WITH
    Assembly_component_relationship);
 END_TYPE;
 
-TYPE plcs_observation_item = SELECT BASED_ON observed_context WITH
+TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
   (Activity, 
    Activity_property, 
    Activity_property_representation,
@@ -505,12 +598,17 @@ TYPE plcs_observation_item = SELECT BASED_ON observed_context WITH
 END_TYPE;
 
 TYPE plcs_organization_or_person_in_organization_item  = SELECT BASED_ON organization_or_person_in_organization_item WITH
-  (Assumption, 
+  (Analysis,
+   Analysis_discipline_definition,
+   Analysis_version,
+   Assumption, 
    Assumption_assignment,
    Assumption_relationship,
+   Evidence,
    Item_assumed,   
-   Identification_relationship
-   );
+   Identification_relationship,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_product_item = SELECT BASED_ON product_item WITH
@@ -526,7 +624,15 @@ TYPE plcs_property_assignment_select = SELECT BASED_ON property_assignment_selec
 END_TYPE;
 
 TYPE plcs_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH
-  (Work_request);
+  (Analysis_discipline_definition,
+   Validation,
+   Verification,
+   Work_request);
+END_TYPE;
+
+TYPE plcs_requirement_source_item = SELECT BASED_ON requirement_source_item WITH
+(Validation,
+ Verification);
 END_TYPE;
 
 TYPE plcs_required_resource_item = SELECT BASED_ON required_resource_item  WITH
@@ -537,8 +643,14 @@ TYPE plcs_resource_assignment_item = SELECT BASED_ON resource_assignment_item  W
   (Analysis_assignment);
 END_TYPE;
 
-TYPE plcs_scheme_entry_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON wd_scheme_entry_item_select WITH 
+TYPE plcs_scheme_entry_item_select = SELECT BASED_ON wd_scheme_entry_item_select WITH 
    (Activity_method);
+END_TYPE;
+
+TYPE plcs_security_classification_item = SELECT BASED_ON security_classification_item WITH
+  (Evidence,
+   Validation,
+   Verification);
 END_TYPE;
 
 TYPE plcs_state_definition_of_item = SELECT BASED_ON state_definition_of_item WITH
@@ -551,10 +663,21 @@ TYPE plcs_state_of_item = SELECT BASED_ON state_of_item WITH
    Approval);
 END_TYPE;
 
+TYPE plcs_string_select = SELECT BASED_ON string_select WITH
+  (Evidence,
+   Validation,
+   Verification);
+END_TYPE;
+
 TYPE plcs_type_of_person_item_select = SELECT BASED_ON type_of_person_item_select  WITH
   (Analysis_assignment);
 END_TYPE;
 
+TYPE plcs_validation_item = SELECT BASED_ON validation_item WITH 
+  (Activity_method,
+   Organization_or_person_in_organization_assignment,
+   State_definition);
+END_TYPE;
 
 SUBTYPE_CONSTRAINT plcs_restrict_product_subtypes FOR Product;
   ONEOF(Analysis,

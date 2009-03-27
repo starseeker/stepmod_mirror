@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.22 2009/03/23 20:56:48 robbod Exp $
+ $Id: mim.exp,v 1.23 2009/03/25 13:07:21 robbod Exp $
  ISO TC184/SC4/WG3 new number - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1561
 *) 
@@ -28,10 +28,6 @@ USE FROM Conditional_effectivity_mim;  -- ISO/TS 10303-??
 
 USE FROM Description_assignment_mim;  -- ISO/TS 10303-1473
 
-USE FROM Decision_support_mim;  -- ISO/TS 10303-1486
-
-USE FROM Extended_task_element_mim;   -- ISO/TS 10303-1479
-
 USE FROM External_analysis_representation_mim;    -- ISO/TS 10303-1784
 
 USE FROM Identification_relationship_mim;  -- ISO/TS 10303-??
@@ -40,24 +36,33 @@ USE FROM Product_environment_definition_mim;  -- ISO/TS 10303-??
 
 USE FROM Product_environment_observed_mim;  -- ISO/TS 10303-??
 
-USE FROM Risk_management_mim;   -- ISO/TS 10303-1467
-
 USE FROM Same_as_external_item_mim;  -- ISO/TS 10303-??
 
 USE FROM System_view_definition_mim;   -- ISO/TS 10303-1485
 
+USE FROM Verification_and_validation_mim;  -- ISO/TS 10303-1488
+
 TYPE plcs_action_items = SELECT BASED_ON action_items WITH
-  (assembly_component_usage,
+  (analysis_assignment,
+   assembly_component_usage,
+   evidence,
+   validation,
+   verification,
    product_group_membership);
 END_TYPE;
 
 TYPE plcs_action_method_items = SELECT BASED_ON action_method_items WITH
-  (assembly_component_usage,
+  (analysis_assignment,
+   assembly_component_usage,
+   evidence,
+   validation,
+   verification,
    product_group_membership);
 END_TYPE;
 
 TYPE plcs_action_request_item = SELECT BASED_ON action_request_item WITH
-  (assembly_component_usage,
+  (analysis_assignment,
+   assembly_component_usage,
    state_observed,
    state_type);
 END_TYPE;
@@ -73,11 +78,11 @@ TYPE plcs_analysed_item = SELECT BASED_ON analysed_item WITH
    alternate_product_relationship, 
    assembly_component_usage_substitute, 
    condition, 
+   evidence,
    interface_connection, 
    interface_connector_occurrence, 
    interface_definition_connection, 
    interface_definition_for, 
-   lessons_learned, 
    observation, 
    observation_consequence, 
    observation_relationship, 
@@ -97,22 +102,12 @@ TYPE plcs_analysed_item = SELECT BASED_ON analysed_item WITH
    property_definition,
    requirement_assignment, 
    resource_property, 
-   risk, 
-   risk_analysis, 
-   risk_assessment, 
-   risk_consequence, 
-   risk_control, 
-   risk_estimation, 
-   risk_evaluation, 
-   risk_perception, 
-   risk_perception_relationship, 
-   risk_relationship, 
-   risk_treatment, 
    state_observed, 
    ascribable_state, 
    state_type, 
    state_observed_role, 
    task_method, 
+   validation,
    verification, 
    verification_relationship, 
    product_definition_context, 
@@ -123,23 +118,62 @@ TYPE plcs_approval_item = SELECT BASED_ON approval_item WITH
   (assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
-   item_assumed);
+   item_assumed,
+   validation,
+   verification);
+END_TYPE;
+
+TYPE plcs_attribute_language_item = SELECT BASED_ON attribute_language_item WITH
+  (evidence,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_certification_item = SELECT BASED_ON certification_item WITH
-  (assembly_component_usage);
+  (analysis_assignment,
+   assembly_component_usage,
+   evidence);
 END_TYPE;
 
 TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
-  (assembly_component_usage,
+  (analysis_assignment,
+   assembly_component_usage,
    assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
    item_assumed,
    product_group_membership,
-   representation_relationship);
+   representation_relationship,
+   validation,
+   verification);
+END_TYPE;
+
+TYPE plcs_collection_assignment_groupable_item = SELECT BASED_ON collection_assignment_groupable_item WITH
+  (action_directive,
+   action_method,
+   executed_action,
+   contract,
+   organization,
+   product,
+   product_concept,
+   product_definition,
+   product_definition_formation,
+   organizational_project,
+   versioned_action_request
+  );
+END_TYPE;
+
+TYPE plcs_collection_membership_groupable_item = SELECT BASED_ON collection_membership_groupable_item WITH
+  (action_method,
+   executed_action,
+   product,
+   product_definition,
+   product_definition_formation
+  );
 END_TYPE;
 
 TYPE plcs_condition_action_method_items = SELECT BASED_ON condition_action_method_items WITH
@@ -147,9 +181,12 @@ TYPE plcs_condition_action_method_items = SELECT BASED_ON condition_action_metho
    assembly_component_usage,
    configuration_item,
    effectivity,
+   evidence,
    general_property,
    organization,
    organization_type,
+   validation,
+   verification,
    versioned_action_request);
 END_TYPE;
 
@@ -157,22 +194,168 @@ TYPE plcs_condition_evaluation_action_items = SELECT BASED_ON condition_evaluati
   (assembly_component_usage);
 END_TYPE;
 
+TYPE plcs_contract_item = SELECT BASED_ON contract_item WITH
+  (validation,
+   verification);
+END_TYPE;
+
 TYPE plcs_date_and_time_item = SELECT BASED_ON date_and_time_item WITH
-  (approval_person_organization,
+  (analysis_assignment,
+   approval_person_organization,
    assumption, 
    assumption_assignment,
+   evidence,
    assumption_relationship,
    identification_assignment_relationship,
-   item_assumed);
+   item_assumed,
+   validation,
+   verification,
+   verification_relationship);
 END_TYPE;
 
 TYPE plcs_date_item = SELECT BASED_ON date_item WITH
-  (approval_person_organization,
+  (analysis_assignment,
+   approval_person_organization,
    assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
-   item_assumed);
+   item_assumed,
+   validation,
+   verification,
+   verification_relationship);
+END_TYPE;
+
+TYPE plcs_description_item = SELECT BASED_ON description_item WITH
+  (action,
+   action_directive,
+   action_method,
+   action_method_relationship,
+   action_property,
+   action_property_representation,
+   action_relationship,
+   action_resource,
+   action_resource_relationship,
+   action_resource_requirement,
+   action_resource_requirement_relationship,
+   alternate_product_relationship,
+   analysis_assignment,
+   applied_action_assignment,
+   applied_action_method_assignment,
+   applied_description_text_assignment,
+   applied_external_identification_assignment,
+   applied_identification_assignment,
+   applied_location_assignment,
+   applied_position_in_organization_assignment,
+   applied_position_in_organization_group_assignment,
+   approval_relationship,
+   ascribable_state,
+   ascribable_state_relationship,
+   assembly_component_usage_substitute,
+   assumption,
+   assumption_assignment,
+   assumption_relationship,
+   attachment_slot_design_to_planned,
+   attachment_slot_design_to_realized,
+   attachment_slot_on_product,
+   attachment_slot_planned_to_realized,
+   breakdown_context,
+   breakdown_element_group_assignment,
+   breakdown_of,
+   certification,
+   characterized_object,
+   class,
+   condition,
+   configuration_item,
+   document_relationship,
+   effectivity,
+   effectivity_relationship,
+   event_occurrence,
+   event_occurrence_relationship,
+   evidence,
+   executed_action,
+   experience,
+   experience_type,
+   external_source,
+   general_property,
+   general_property_relationship,
+   geometric_item_specific_usage,
+   group,
+   identification_assignment_relationship,
+   in_zone,
+   information_right,
+   interface_connection,
+   interface_connector_design_to_planned,
+   interface_connector_design_to_realized,
+   interface_connector_occurrence,
+   interface_connector_planned_to_realized,
+   interface_definition_connection,
+   interface_definition_for,
+   intersection,
+   item_assumed,
+   justification_assignment,
+   justification_group_assignment,
+   justification_item_group_assignment,
+   location,
+   location_relationship,
+   measure_qualification,
+   observation,
+   organization_relationship,
+   organization_type,
+   organizational_project,
+   organizational_project_relationship,
+   person_type,
+   person_type_definition,
+   person_type_definition_relationship,
+   position_in_organization,
+   position_in_organization_assignment,
+   position_in_organization_relationship,
+   position_in_organization_type,
+   position_in_organization_type_assignment,
+   product,
+   product_concept,
+   product_definition,
+   product_definition_context,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_definition_group_assignment,
+   product_definition_relationship,
+   product_definition_shape,
+   product_definition_usage,
+   product_group,
+   product_group_relationship,
+   product_relationship,
+   property_definition,
+   property_definition_representation,
+   qualification_type,
+   qualification_type_relationship,
+   representation,
+   representation_relationship,
+   requirement_assignment,
+   requirement_source,
+   resource_property,
+   resource_property_representation,
+   security_classification,
+   shape_aspect,
+   shape_aspect_relationship,
+   shape_definition_representation,
+   state_observed,
+   state_observed_relationship,
+   state_observed_role,
+   state_type,
+   state_type_relationship,
+   state_type_role,
+   task_objective,
+   time_interval,
+   time_interval_relationship,
+   uncertainty_measure_with_unit,
+   uncertainty_qualifier,
+   validation,
+   verification,
+   verification_relationship,
+   versioned_action_request
+   );
 END_TYPE;
 
 TYPE plcs_document_reference_item = SELECT BASED_ON document_reference_item WITH
@@ -182,9 +365,12 @@ TYPE plcs_document_reference_item = SELECT BASED_ON document_reference_item WITH
    assumption_assignment,
    assumption_relationship,
    class,
+   evidence,
    item_assumed,
    product,
-   state_type_relationship);
+   state_type_relationship,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
@@ -195,12 +381,56 @@ TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
    assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
    item_assumed,
    in_zone,
    product_definition_usage,
    property_definition_representation,
-   resource_property_representation);
+   resource_property_representation,
+   validation,
+   verification,
+   verification_relationship);
+END_TYPE;
+
+TYPE plcs_evidence_item = SELECT BASED_ON evidence_item WITH
+   (action_actual,
+    action_method,
+    action_relationship,
+    action_status,
+    analysis_assignment,
+    applied_action_assignment,
+    applied_approval_assignment,
+    applied_certification_assignment,
+    applied_classification_assignment,
+    applied_contract_assignment,
+    applied_effectivity_assignment,
+    applied_event_occurrence_assignment,
+    applied_organization_assignment,
+    applied_organizational_project_assignment,
+    applied_person_and_organization_assignment,
+    applied_security_classification_assignment,
+    applied_usage_right,
+    date_and_time_assignment,
+    date_assignment,
+    justification_assignment,
+    justification_group_assignment,
+    justification_item_group_assignment,
+    justification_support_assignment,
+    justification_support_item_group_assignment,
+    person,
+    person_and_organization,
+    product,
+    product_definition,
+    product_definition_context,
+    product_definition_formation,
+    product_definition_formation_relationship,
+    product_definition_relationship,
+    product_relationship,
+    property_definition,
+    representation,
+    representation_context,
+    representation_item);
 END_TYPE;
 
 TYPE plcs_identification_item = SELECT BASED_ON identification_item WITH
@@ -210,9 +440,12 @@ TYPE plcs_identification_item = SELECT BASED_ON identification_item WITH
    assumption, 
    assumption_relationship,
    class,
+   evidence,
    identification_assignment_relationship,
    product_definition_relationship,
-   person_type_definition);
+   person_type_definition,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_in_zone_groupable_item = SELECT BASED_ON in_zone_groupable_item WITH
@@ -220,39 +453,77 @@ TYPE plcs_in_zone_groupable_item = SELECT BASED_ON in_zone_groupable_item WITH
    applied_action_method_assignment);
 END_TYPE;
 
+TYPE plcs_ir_usage_item = SELECT BASED_ON ir_usage_item WITH
+  (analysis_assignment,
+   evidence,
+   validation,
+   verification);
+END_TYPE;
+
 TYPE plcs_justification_item = SELECT BASED_ON justification_item WITH
   (applied_action_method_assignment,
    assembly_component_usage,
+   evidence,
    representation,
-   state_type_assignment);
+   state_type_assignment,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_justification_support_item = SELECT BASED_ON justification_support_item WITH
-  (assembly_component_usage);
+  (analysis_assignment, 
+   assembly_component_usage,
+   evidence,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_location_item = SELECT BASED_ON location_item WITH
   (assembly_component_usage);
 END_TYPE;
 
+TYPE plcs_multi_language_attribute_item = SELECT BASED_ON multi_language_attribute_item WITH
+  (evidence,
+   validation,
+   verification);
+END_TYPE;
+
+
 TYPE plcs_observed_context_item = SELECT BASED_ON observed_context_item WITH
-  (assembly_component_usage);
+  (analysis_assignment, 
+   assembly_component_usage);
 END_TYPE;
 
 TYPE plcs_organization_item = SELECT BASED_ON organization_item WITH
   (assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
-   item_assumed);
+   item_assumed,
+   product,
+   product_definition,
+   product_definition_formation,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_person_and_organization_item = SELECT BASED_ON person_and_organization_item WITH
   (assumption, 
    assumption_assignment,
    assumption_relationship,
+   evidence,
    identification_assignment_relationship,
-   item_assumed);
+   item_assumed,
+   product,
+   product_definition,
+   product_definition_formation,
+   validation,
+   verification);
+END_TYPE;
+
+TYPE plcs_person_type_item = SELECT BASED_ON person_type_item WITH
+  (analysis_assignment);
 END_TYPE;
 
 TYPE plcs_product_definition_or_product_definition_relationship = SELECT BASED_ON product_definition_or_product_definition_relationship WITH
@@ -260,7 +531,20 @@ TYPE plcs_product_definition_or_product_definition_relationship = SELECT BASED_O
 END_TYPE;
 
 TYPE plcs_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH
-  (versioned_action_request);
+  (validation,
+   verification,
+   versioned_action_request);
+END_TYPE;
+
+TYPE plcs_requirement_source_item = SELECT BASED_ON requirement_source_item WITH
+  (validation,
+   verification);
+END_TYPE;
+
+TYPE plcs_security_classification_item = SELECT BASED_ON security_classification_item WITH
+  (evidence,
+   validation,
+   verification);
 END_TYPE;
 
 TYPE plcs_state_observed_of_item = SELECT BASED_ON state_observed_of_item WITH
@@ -282,6 +566,13 @@ TYPE plcs_state_type_of_item = SELECT BASED_ON state_type_of_item WITH
    versioned_action_request);
 END_TYPE;
 
+TYPE plcs_groupable_item = SELECT BASED_ON groupable_item WITH
+  (action_method,
+   applied_organization_assignment,
+   applied_person_and_organization_assignment,
+   state_type
+  );
+END_TYPE;
 
 ENTITY characterized_action_directive
 SUBTYPE OF (action_directive, characterized_object);
@@ -294,6 +585,12 @@ END_ENTITY;
 ENTITY characterized_assembly_component_usage
 SUBTYPE OF (assembly_component_usage, characterized_object);
 END_ENTITY;
+
+ENTITY characterized_analysis_assignment
+SUBTYPE OF (analysis_assignment, characterized_object);
+END_ENTITY;
+
+
 
 ENTITY characterized_versioned_action_request
 SUBTYPE OF (characterized_object, versioned_action_request);

@@ -1,6 +1,135 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id: mim.exp,v 1.1 2009/03/04 07:45:03 robbod Exp $
    N - ISO/CD-TS - 10303- product_environment_definition - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Product_environment_definition_mim;
-END_SCHEMA;
+
+USE FROM Activity_method_assignment_mim;    -- ISO/TS 10303-1249
+
+USE FROM Activity_mim;    -- ISO/TS 10303-1047
+
+USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
+
+USE FROM Description_assignment_mim;    -- ISO/TS 10303-1473
+
+USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
+
+USE FROM Foundation_state_definition_mim;    -- ISO/TS 10303-1469
+
+USE FROM group_schema   -- ISO 10303-41
+  (group); 
+
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM Location_assignment_mim;    -- ISO/TS 10303-1277
+
+USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
+
+USE FROM Product_concept_identification_mim;    -- ISO/TS 10303-1060
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_relationship); 
+
+USE FROM Product_group_mim;    -- ISO/TS 10303-1278
+
+USE FROM Product_identification_mim;    -- ISO/WD 10303-1017
+
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object); 
+
+USE FROM Product_version_mim;    -- ISO/TS 10303-1018
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
+
+USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
+
+USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+
+USE FROM Resource_item_mim;    -- ISO/WD 10303-1268
+
+USE FROM State_observed_mim;    -- ISO/TS 10303-1256
+
+
+TYPE end_dfn_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+   (environment_definition, 
+    environment_definition_version, 
+    environment_definition_view, 
+    environment_product_assignment, 
+    environment_view_definition_relationship);
+END_TYPE; 
+
+TYPE env_dfn_description_item = SELECT BASED_ON description_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_identifcation_assignment = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+   (environment_definition, 
+    environment_definition_version, 
+    environment_product_assignment, 
+    environment_view_definition_relationship);
+END_TYPE; 
+
+TYPE env_dfn_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_resource_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_state_defnition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+TYPE env_dfn_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_observed_of_item WITH 
+   (environment_definition_view);
+END_TYPE; 
+
+ENTITY environment_definition
+  SUBTYPE OF (product);
+END_ENTITY;
+
+ENTITY environment_definition_version
+  SUBTYPE OF (product_definition_formation);
+  SELF\product_definition_formation.of_product RENAMED of_environment : environment_definition;
+END_ENTITY;
+
+ENTITY environment_definition_view
+  SUBTYPE OF (characterized_object, product_definition);
+  SELF\product_definition.formation RENAMED defined_environment_version : environment_definition_version;
+END_ENTITY;
+
+ENTITY environment_product_assignment
+  SUBTYPE OF (group);
+END_ENTITY;
+
+ENTITY environment_view_definition_relationship
+  SUBTYPE OF (product_definition_relationship);
+  SELF\product_definition_relationship.relating_product_definition RENAMED relating_environment : environment_definition_view;
+  SELF\product_definition_relationship.related_product_definition RENAMED related_environment : environment_definition_view;
+END_ENTITY;
+
+END_SCHEMA;  -- Product_environment_definition_mim

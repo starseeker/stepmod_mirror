@@ -1,6 +1,157 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- product_environment_observed - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+   $Id: mim.exp,v 1.1 2009/03/04 07:43:10 robbod Exp $
+  ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1401 Product environment observed - EXPRESS MIM
+*)
+
 SCHEMA Product_environment_observed_mim;
-END_SCHEMA;
+
+USE FROM Activity_method_assignment_mim;    -- ISO/TS 10303-1249
+
+USE FROM Activity_mim;    -- ISO/TS 10303-1047
+
+USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
+
+USE FROM Description_assignment_mim;    -- ISO/TS 10303-1473
+
+USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
+
+USE FROM Foundation_state_definition_mim;    -- ISO/TS 10303-1469
+
+USE FROM group_schema   -- ISO 10303-41
+  (group); 
+
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM Location_assignment_mim;    -- ISO/TS 10303-1277
+
+USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
+
+USE FROM Product_concept_identification_mim;    -- ISO/TS 10303-1060
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_definition_relationship,
+   product_relationship); 
+
+USE FROM Product_environment_definition_mim;    -- ISO/CD-TS 10303-1400
+
+USE FROM Product_group_mim;    -- ISO/TS 10303-1278
+
+USE FROM Product_identification_mim;    -- ISO/WD 10303-1017
+
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object); 
+
+USE FROM Product_version_mim;    -- ISO/TS 10303-1018
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
+
+USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
+
+USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+
+USE FROM Resource_item_mim;    -- ISO/WD 10303-1268
+
+USE FROM State_observed_mim;    -- ISO/TS 10303-1256
+
+
+TYPE env_obs_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+   (observed_environment, 
+    observed_environment_product_assignment, 
+    observed_environment_version, 
+    observed_environment_view_definition_relationship);
+END_TYPE; 
+
+TYPE env_obs_description_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON description_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_identification_assignment = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+   (observed_environment, 
+    observed_environment_product_assignment, 
+    observed_environment_version, 
+    observed_environment_view_definition_relationship);
+END_TYPE; 
+
+TYPE env_obs_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_resource_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+TYPE env_obs_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_observed_of_item WITH 
+   (observed_environment_view);
+END_TYPE; 
+
+ENTITY observed_environment
+  SUBTYPE OF (product);
+END_ENTITY;
+
+ENTITY observed_environment_product_assignment
+  SUBTYPE OF (group);
+END_ENTITY;
+
+ENTITY observed_environment_to_definition
+  SUBTYPE OF (product_relationship);
+  SELF\product_relationship.relating_product RENAMED defined_environment : environment_definition;
+  SELF\product_relationship.related_product RENAMED observed_environment : observed_environment;
+END_ENTITY;
+
+ENTITY observed_environment_to_definition_version
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED defined_environment_version : environment_definition_version;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED observed_environment_version : observed_environment_version;
+END_ENTITY;
+
+ENTITY observed_environment_to_definition_view
+  SUBTYPE OF (product_definition_relationship);
+  SELF\product_definition_relationship.relating_product_definition RENAMED defined_environment_view : observed_environment_view;
+  SELF\product_definition_relationship.related_product_definition RENAMED observed_environment_view : environment_definition_view;
+END_ENTITY;
+
+ENTITY observed_environment_version
+  SUBTYPE OF (product_definition_formation);
+  SELF\product_definition_formation.of_product RENAMED of_environment : observed_environment;
+END_ENTITY;
+
+ENTITY observed_environment_view
+  SUBTYPE OF (characterized_object, product_definition);
+  SELF\product_definition.formation RENAMED observed_environment_version : observed_environment_version;
+END_ENTITY;
+
+ENTITY observed_environment_view_definition_relationship
+  SUBTYPE OF (product_definition_relationship);
+  SELF\product_definition_relationship.relating_product_definition RENAMED relating_environment : observed_environment_view;
+  SELF\product_definition_relationship.related_product_definition RENAMED related_environment : observed_environment_view;
+END_ENTITY;
+
+END_SCHEMA;  -- Product_environment_observed_mim

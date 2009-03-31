@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.39 2008/12/18 06:55:03 liutkus Exp $
+   $Id: arm.exp,v 1.40 2009/03/27 09:53:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N5686 - ISO/TS 10303-1692 Land - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4023
 *)
@@ -34,10 +34,23 @@ USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
   ENTITY Dependent_thermal_isolation_removal_component
     SUBTYPE OF (Material_removal_structured_component);
       SELF\Definition_based_product_occurrence.derived_from : Dependent_thermal_isolation_removal_template;
-      associated_land : Land;
+    DERIVE
+      associated_land : Land := land_get_associated_land_for_thermal_removal(SELF);
     WHERE
       WR1 : associated_land\Definition_based_product_occurrence.derived_from :=:
             SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item;
+      WR2 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF));
+  END_ENTITY;
+
+  ENTITY Dependent_electrical_isolation_removal_component
+    SUBTYPE OF (Material_removal_laminate_component);
+      SELF\Definition_based_product_occurrence.derived_from : Dependent_electrical_isolation_removal_template;
+    DERIVE
+      associated_land : Land := land_get_associated_land_for_electrical_removal(SELF);
+    WHERE
+      WR1 : associated_land\Definition_based_product_occurrence.derived_from :=:
+            SELF\Definition_based_product_occurrence.derived_from\Dependent_electrical_isolation_removal_template.associated_item;
+      WR2 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_dependent_land
@@ -102,4 +115,11 @@ END_ENTITY;
       SELF\Definition_based_product_occurrence.derived_from : Default_unsupported_passage_based_land_physical_template;
   END_ENTITY;
 
+  FUNCTION land_get_associated_land_for_electrical_removal(input: Dependent_electrical_isolation_removal_component);
+  RETURN(?);
+  END_FUNCTION;
+  
+  FUNCTION land_get_associated_land_for_thermal_removal(input: Dependent_thermal_isolation_removal_component);
+  RETURN(?);
+  END_FUNCTION;
 END_SCHEMA;

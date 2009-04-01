@@ -1,0 +1,53 @@
+
+SCHEMA datum;
+ENTITY common_datum 
+ SUBTYPE OF (datum );
+ END_ENTITY;
+
+ENTITY datum
+  SUBTYPE OF (shape_aspect);
+  identification               :STRING;
+INVERSE
+  established_by_relationships : SET [1:?] OF shape_aspect_relationship
+                                 FOR related_shape_aspect;
+WHERE
+  WR1:       ('DATUM.COMMON_DATUM' IN TYPEOF(SELF)) XOR
+       ((SIZEOF(QUERY(x <* SELF\datum.established_by_relationships |
+       ('DATUM.DATUM_FEATURE' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) = 1) XOR
+       (SIZEOF(QUERY(x <* SELF\datum.established_by_relationships |
+       ('DATUM.DATUM_TARGET' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) >= 1));
+END_ENTITY;
+
+ENTITY shape_aspect;
+END_ENTITY;
+
+ENTITY shape_aspect_relationship;
+related_shape_aspect : shape_aspect;
+relating_shape_aspect : shape_aspect;
+END_ENTITY;
+
+
+ENTITY datum_feature
+   SUBTYPE OF (shape_aspect);
+INVERSE 
+   feature_basis_relationship : SET [1:?] OF shape_aspect_relationship
+                              FOR relating_shape_aspect;
+WHERE
+   WR1: SIZEOF(QUERY(sar <* SELF\datum_feature.feature_basis_relationship 
+       | ('DATUM.DATUM' IN TYPEOF
+       (sar\shape_aspect_relationship.related_shape_aspect)))) = 1;
+END_ENTITY;
+
+ENTITY datum_target
+  SUBTYPE OF (shape_aspect);
+INVERSE
+  target_basis_relationship : SET [1:?] OF shape_aspect_relationship FOR
+                              relating_shape_aspect;
+WHERE
+   WR1: SIZEOF(QUERY(sar <* SELF\datum_target.target_basis_relationship 
+       | ('DATUM.DATUM' IN TYPEOF
+       (sar\shape_aspect_relationship.related_shape_aspect)))) = 1;
+END_ENTITY;
+
+
+END_SCHEMA;

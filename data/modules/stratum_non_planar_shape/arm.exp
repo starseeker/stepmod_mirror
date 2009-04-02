@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2008/09/18 12:47:28 liutkuviene Exp $
+   $Id: arm.exp,v 1.23 2009/04/02 04:05:26 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5815 - ISO/TS 10303-1748 Stratum non planar shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4191
 *)
@@ -9,13 +9,17 @@ SCHEMA Stratum_non_planar_shape_arm;
 	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
 	USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
-  TYPE stratum_surface_shape_model_select = SELECT
-    (Stratum_surface_shape_model,
-     Stratum_average_surface_shape_model);
-  END_TYPE;
+  TYPE snps_sf_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON limd_sf_shape_select WITH 
+    (Shell_based_surface_model);
+  END_TYPE; 
+
+  TYPE snps_stratum_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON limd_stratum_shape_model_select WITH 
+    (Stratum_average_surface_shape_model,
+     Stratum_surface_shape_model);
+  END_TYPE; 
 
   ENTITY Stratum_average_surface_shape_model
-    SUBTYPE OF (Manifold_surface_shape_representation);
+    SUBTYPE OF (Topologically_contrained_manifold_surface_shape_representation);
       of_surface : Stratum_average_surface;
     UNIQUE
     	UR1 : of_surface;  
@@ -24,23 +28,22 @@ SCHEMA Stratum_non_planar_shape_arm;
       WR2 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
-  ENTITY Stratum_feature_non_planar_2d_shape_model
-    SUBTYPE OF (Manifold_subsurface_model);
-      shape_characterized_component : Stratum_feature;
-      SELF\Manifold_subsurface_model.parent_surface : stratum_surface_shape_model_select;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Representation.name);
-      WR2 : NOT EXISTS(SELF\Representation.description);
-  END_ENTITY;
-
    ENTITY Stratum_surface_shape_model
-    SUBTYPE OF (Manifold_surface_shape_representation);
+    SUBTYPE OF (Topologically_contrained_manifold_surface_shape_representation);
       of_surface : Stratum_surface;
     UNIQUE
     	UR1 : of_surface;  
     WHERE
       WR1 : NOT EXISTS(SELF\Representation.name);
       WR2 : NOT EXISTS(SELF\Representation.description);
+  END_ENTITY;
+
+  ENTITY Topologically_contrained_manifold_surface_shape_representation
+    SUBTYPE OF (Manifold_surface_shape_representation);
+(* IPs
+     IP1: SheLL_based_surface_models that are contained in this representation shall not intersect.
+     IP2: SheLL_based_surface_models that are contained in this representation shall not overlap.
+*)
   END_ENTITY;
 
 END_SCHEMA;

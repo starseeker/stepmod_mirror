@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2009/03/31 14:47:19 thomasrthurman Exp $
+   $Id: arm.exp,v 1.31 2009/03/31 16:58:23 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5695 - ISO/TS 10303-1695 Layered interconnect module 2d design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4032
 *)
@@ -7,22 +7,17 @@ SCHEMA Layered_interconnect_module_2d_design_arm;
 
 USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
 
+  TYPE lim2dd_sf_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON limd_sf_shape_select WITH 
+    (Primitive_2d);
+  END_TYPE; 
+
+  TYPE lim2dd_stratum_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON limd_stratum_shape_model_select WITH 
+    (Stratum_planar_shape_model);
+  END_TYPE; 
+
   ENTITY Located_2d_inter_stratum_extent
     SUBTYPE OF (Inter_stratum_extent);
       location : Cartesian_point;
-  END_ENTITY;
-
-  ENTITY Stratum_feature_planar_shape
-    SUBTYPE OF (Primitive_2d, Geometric_item_specific_usage);
-     SELF\Geometric_item_specific_usage.definition : Stratum_feature;
-    DERIVE
-     SELF\Geometric_item_specific_usage.identified_item : Stratum_feature_planar_shape := SELF;
-     SELF\Geometric_item_specific_usage.used_model : Stratum_planar_shape_model := stratum_shape_model;    
-    INVERSE
-      stratum_shape_model : Stratum_planar_shape_model FOR items;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Geometric_item_specific_usage.description);
-      WR2 : SELF\Geometric_item_specific_usage.name = '';
   END_ENTITY;
 
   ENTITY Stratum_interconnect_module_planar_position;

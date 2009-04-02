@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.304 2009/03/31 17:21:13 thomasrthurman Exp $
+   $Id: arm.exp,v 1.305 2009/04/02 04:25:33 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -1086,7 +1086,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
       SELF\Shape_element.element_name                               : STRING;
       feature_of_size                                               : BOOLEAN;
     INVERSE
-      shape	: SET[0:?] OF Geometric_item_specific_usage FOR definition;
+      shape	: SET[0:?] OF Stratum_feature_usage FOR definition;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, resident_stratum;
     WHERE
@@ -1096,18 +1096,16 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
                   (get_assemblies(ac) <> get_ims(resident_stratum))
                   ))
                   = 0;
-      WR2 : SIZEOF(QUERY(gisu <* shape |
-                  NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LIMD_SF_SHAPE_SELECT' IN TYPEOF(gisu\Geometric_item_specific_usage.identified_item))
-                )) = 0;      
-      WR3 : SIZEOF(QUERY(gisu <* shape |
-                  NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LIMD_STRATUM_SHAPE_MODEL_SELECT' IN TYPEOF(gisu\Geometric_item_specific_usage.used_model))
-                )) = 0;      
-      WR4 : SIZEOF(QUERY(gisu <* shape |
-                 EXISTS(gisu\Geometric_item_specific_usage.description)
-                )) = 0;      
-      WR5 : SIZEOF(QUERY(gisu <* shape |
-                 NOT((gisu\Geometric_item_specific_usage.name) = '')
-                )) = 0;      
+  END_ENTITY;
+  
+  ENTITY Stratum_feature_usage
+    SUBTYPE OF(Geometric_item_specific_usage);
+      SELF\Geometric_item_specific_usage.definition      : Stratum_feature;
+      SELF\Geometric_item_specific_usage.identified_item : limd_sf_shape_select;
+      SELF\Geometric_item_specific_usage.used_model      : limd_stratum_shape_model_select;
+    WHERE
+     WR1 : SELF\Geometric_item_specific_usage.name = '';
+     WR2 : NOT EXISTS(SELF\Geometric_item_specific_usage.description);      
   END_ENTITY;
 
   ENTITY Stratum_feature_based_derived_pattern;

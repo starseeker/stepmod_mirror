@@ -70,6 +70,12 @@
       <type name="limd_restriction_basis_item">
          <select basedon="restriction_basis_item" extensible="YES" selectitems="stratum_concept Stratum"/>
       </type>
+      <type name="limd_sf_shape_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="limd_stratum_shape_model_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
       <type name="limd_usage_concept">
          <select basedon="usage_concept" extensible="YES" genericentity="YES" selectitems="Component_termination_passage_template_terminal Via_template_terminal"/>
       </type>
@@ -577,6 +583,7 @@
       <entity name="Interface_access_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
          <explicit name="accessed_interface">
             <typename name="Laminate_component_interface_terminal"/>
+            <redeclaration entity-ref="Material_removal_laminate_component" old_name="causal_item"/>
          </explicit>
       </entity>
       <entity name="Interface_access_stratum_feature_template_component" supertypes="Stratum_feature_template_component">
@@ -1047,6 +1054,9 @@
          <explicit name="feature_of_size">
             <builtintype type="BOOLEAN"/>
          </explicit>
+         <inverse attribute="definition" entity="Stratum_feature_usage" name="shape">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
          <unique label="UR1">
             <unique.attribute attribute="element_name"/>
             <unique.attribute attribute="resident_stratum"/>
@@ -1104,6 +1114,22 @@
             <typename name="Stratum_feature"/>
             <redeclaration entity-ref="Stratum_feature_template_component"/>
          </derived>
+      </entity>
+      <entity name="Stratum_feature_usage" supertypes="Geometric_item_specific_usage">
+         <explicit name="definition">
+            <typename name="Stratum_feature"/>
+            <redeclaration entity-ref="Geometric_item_specific_usage"/>
+         </explicit>
+         <explicit name="identified_item">
+            <typename name="limd_sf_shape_select"/>
+            <redeclaration entity-ref="Geometric_item_specific_usage"/>
+         </explicit>
+         <explicit name="used_model">
+            <typename name="limd_stratum_shape_model_select"/>
+            <redeclaration entity-ref="Geometric_item_specific_usage"/>
+         </explicit>
+         <where expression="SELF\Geometric_item_specific_usage.name = ''" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Geometric_item_specific_usage.description)" label="WR2"/>
       </entity>
       <entity name="Stratum_surface">
          <explicit name="name">
@@ -1257,6 +1283,7 @@
       <subtype.constraint entity="Inter_stratum_feature" name="inter_stratum_feature_subtypes" super.expression="ONEOF (Cutout, Interconnect_module_edge)"/>
       <subtype.constraint entity="Interconnect_module_terminal" name="interconnect_module_terminal_subtypes" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_macro_terminal)"/>
       <subtype.constraint entity="Part_view_definition" name="limd_part_view_definition_subtypes" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)"/>
+      <subtype.constraint entity="Stratum_feature_template_component" name="limd_stratum_feature_template_component_subtypes" super.expression="ONEOF (Area_component, Conductive_interconnect_element)"/>
       <subtype.constraint entity="Template_definition" name="limd_template_definition_subtypes" super.expression="ONEOF ((ONEOF (Printed_part_template, Special_symbol_template) ANDOR Geometric_template), Non_conductive_cross_section_template, Part_string_template, Parametric_template, Part_text_template, Stratum_stack_model, Stratum_sub_stack)"/>
       <rule appliesto="Stratum Layered_interconnect_module_design_view Stratum_technology_occurrence" name="limd_unique_stratum">
          <algorithm>LOCAL

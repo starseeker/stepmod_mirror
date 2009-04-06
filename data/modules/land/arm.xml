@@ -15,15 +15,28 @@
             <inverse.aggregate lower="1" type="SET" upper="2"/>
          </inverse>
       </entity>
+      <entity name="Dependent_electrical_isolation_removal_component" supertypes="Material_removal_laminate_component">
+         <explicit name="derived_from">
+            <typename name="Dependent_electrical_isolation_removal_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <derived expression="land_get_associated_land_for_electrical_removal(SELF)" name="associated_land">
+            <typename name="Land"/>
+            <redeclaration entity-ref="Material_removal_laminate_component" old_name="causal_item"/>
+         </derived>
+         <where expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_electrical_isolation_removal_template.associated_item" label="WR1"/>
+         <where expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF))" label="WR2"/>
+      </entity>
       <entity name="Dependent_thermal_isolation_removal_component" supertypes="Material_removal_structured_component">
          <explicit name="derived_from">
             <typename name="Dependent_thermal_isolation_removal_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <explicit name="associated_land">
+         <derived expression="land_get_associated_land_for_thermal_removal(SELF)" name="associated_land">
             <typename name="Land"/>
-         </explicit>
+         </derived>
          <where expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item" label="WR1"/>
+         <where expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF))" label="WR2"/>
       </entity>
       <entity abstract.supertype="YES" name="Inter_stratum_feature_dependent_land" super.expression="ONEOF (Plated_passage_dependent_land, Unsupported_passage_dependent_land)" supertypes="Land">
          <explicit name="derived_from">
@@ -45,7 +58,7 @@
          <inverse attribute="associated_component" entity="Land_join_terminal" name="access_mechanism">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) OR&#10;           ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum))" label="WR1"/>
+         <where expression="functional OR&#10;         (SIZEOF(['LAND.LAND_WITH_JOIN_TERMINAL',&#10;                 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT_WITH_STRATUM_FEATURE'] * TYPEOF(SELF)) = 2)" label="WR1"/>
       </entity>
       <entity name="Land_interface_terminal" supertypes="Laminate_component_interface_terminal">
          <explicit name="definition">
@@ -96,5 +109,19 @@
       <subtype.constraint entity="Laminate_component_interface_terminal" name="l_laminate_component_interface_terminal_subtypes" super.expression="ONEOF (Component_termination_passage_interface_terminal, Land_interface_terminal)"/>
       <subtype.constraint entity="Laminate_component_join_terminal" name="l_laminate_component_join_terminal_subtypes" super.expression="ONEOF (Component_termination_passage_join_terminal, Land_join_terminal, Embedded_physical_component_terminal)"/>
       <subtype.constraint entity="Stratum_feature_template_component" name="stratum_feature_template_component_subtypes" super.expression="ONEOF (Area_component, Land)"/>
+      <function name="land_get_associated_land_for_electrical_removal">
+         <parameter name="input">
+            <typename name="Dependent_electrical_isolation_removal_component"/>
+         </parameter>
+         <typename name="Land"/>
+         <algorithm>RETURN(?);</algorithm>
+      </function>
+      <function name="land_get_associated_land_for_thermal_removal">
+         <parameter name="input">
+            <typename name="Dependent_thermal_isolation_removal_component"/>
+         </parameter>
+         <typename name="Land"/>
+         <algorithm>RETURN(?);</algorithm>
+      </function>
    </schema>
 </express>

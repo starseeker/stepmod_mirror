@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.167 2006/11/13 21:45:31 mikeward Exp $
+$Id: common.xsl,v 1.169 2008/04/24 16:33:50 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1750,6 +1750,10 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:value-of select="substring-after($last_section,':mim_lf_express:')"/>
         </xsl:when>
 
+        <xsl:when test="contains($last_section,':arm_lf_express:')">
+          <xsl:value-of select="substring-after($last_section,':arm_lf_express:')"/>
+        </xsl:when>
+
         <xsl:otherwise>
           <xsl:value-of select="$last_section"/>
         </xsl:otherwise>
@@ -1813,6 +1817,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:variable name="arm_mim_ir">
       <xsl:choose>
         <xsl:when test="$nlinkend1='arm'
+                        or $nlinkend1='arm_lf_express'
                         or $nlinkend1='arm_express'
                         or $nlinkend1='mim'
                         or $nlinkend1='mim_lf_express'
@@ -1893,6 +1898,11 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/sys/e_exp_mim_lf',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+        <xsl:when test="$arm_mim_ir='arm_lf_express'">
+          <xsl:value-of
+            select="concat($baselink,'modules/',$module,
+                    '/sys/e_exp_arm_lf',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
@@ -3174,7 +3184,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 	  <xsl:variable name="mod_dir">
 		<xsl:choose>
-		  <xsl:when test="$nlinkend1='arm' or $nlinkend1='mim'">
+		  <xsl:when test="$nlinkend1='arm' or $nlinkend1='mim' 
+		    or $nlinkend1='arm_express' or $nlinkend1='mim_express'
+		    or $nlinkend1='arm_lf_express' or $nlinkend1='mim_lf_express'">
 			<xsl:call-template name="module_directory">
 			  <xsl:with-param name="module" select="$module"/>
 			</xsl:call-template>
@@ -3271,10 +3283,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:when test="$arm_mim_res='mim_lf_express'">
             <xsl:value-of select="concat($mod_dir,'/mim_lf.xml')"/>
           </xsl:when>
-		  <xsl:when test="$arm_mim_res='ir_express' or $arm_mim_res='ir' or $arm_mim_res='resdoc'">     
-            <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
-     
-		  </xsl:when>
+          <xsl:when test="$arm_mim_res='arm_lf_express'">
+            <xsl:value-of select="concat($mod_dir,'/arm_lf.xml')"/>
+          </xsl:when>
+          <xsl:when test="$arm_mim_res='ir_express' or $arm_mim_res='ir' or $arm_mim_res='resdoc'">     
+            <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>     
+          </xsl:when>
           <xsl:when test="$arm_mim_res='reference'">
             <xsl:value-of select="concat('../data/reference/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
@@ -3429,6 +3443,7 @@ is case sensitive.')"/>
     <xsl:choose>
       <xsl:when test="$nlinkend1='arm'
                       or $nlinkend1='arm_express'
+                      or $nlinkend1='arm_lf_express'
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
                       or $nlinkend1='mim_lf_express'">
@@ -3462,6 +3477,7 @@ is case sensitive.')"/>
     <xsl:choose>
       <xsl:when test="$nlinkend1='arm'
                       or $nlinkend1='arm_express'
+                      or $nlinkend1='arm_lf_express'
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
                       or $nlinkend1='mim_lf_express'
@@ -4636,7 +4652,11 @@ is case sensitive.')"/>
   </xsl:choose>
 </xsl:template>
 
-
+<xsl:template match="code">
+  <code>
+    <xsl:apply-templates/>
+  </code>
+</xsl:template>
 </xsl:stylesheet>
 
 

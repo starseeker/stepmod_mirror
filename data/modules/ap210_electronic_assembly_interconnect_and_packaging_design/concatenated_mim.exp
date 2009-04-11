@@ -232,7 +232,7 @@ USE FROM measure_schema(
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.34 2008/09/18 12:46:16 liutkuviene Exp $
+   $Id: mim.exp,v 1.35 2009/03/11 13:03:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N5558 - ISO/TS 10303-1603 Analytical model - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3832
 *)
@@ -244,6 +244,8 @@ USE FROM Model_parameter_mim;	-- ISO/TS 10303-1703
 USE FROM Software_mim;	-- ISO/TS 10303-1746
 USE FROM Document_structure_mim;	-- ISO/TS 10303-1124
 USE FROM Product_view_definition_relationship_mim;	-- ISO/TS 10303-1041	
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
 USE FROM date_time_schema
 	(date_time_role,
@@ -982,7 +984,7 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 
 END_SCHEMA;  
 (*
-   $Id: mim.exp,v 1.89 2008/11/07 23:12:28 thomasrthurman Exp $
+   $Id: mim.exp,v 1.96 2009/03/24 10:12:52 lothartklein Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -1024,6 +1026,9 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim '{ 1 0 10
 	USE FROM Test_requirement_allocation_mim;	-- ISO/TS 10303-1751
 	USE FROM Thermal_network_definition_mim;	-- ISO/TS 10303-1752
 	USE FROM Via_component_mim;	-- ISO/TS 10303-1754
+	USE FROM Interconnect_physical_requirement_allocation_mim; -- ISO/TS 10303-1689
+	
+	REFERENCE FROM support_resource_schema(bag_to_set);
 
 USE FROM geometry_schema(offset_curve_2d);
 
@@ -1284,6 +1289,14 @@ FUNCTION valid_2d_wireframe_edge_curve
 END_FUNCTION;
 
 
+FUNCTION apeaid_is_base(input : area_component) : LOGICAL;
+LOCAL
+ pd : SET OF property_definition := bag_to_set(QUERY(pd <* USEDIN(input,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |
+              pd\property_definition.name = 'is base'));
+END_LOCAL;
+ RETURN(pd[1].description = 'true');
+END_FUNCTION;
+
 -- from SCHEMA Ap210_assembly_physical_design_mim;
 
 	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR packaged_part; 
@@ -1317,6 +1330,25 @@ USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATIO
                 )) > 0)
               )) > 0;
 END_RULE;
+
+RULE area_component_shape_constraint FOR
+    (area_component);
+WHERE
+  WR1:  SIZEOF( QUERY( ac <* area_component |
+            NOT(SIZEOF (QUERY (pdr <* USEDIN(ac,'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+              NOT(NOT(pdr\property_definition_representation.used_representation\representation.id = 'ac2dsm') OR 
+                      ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.SINGLE_AREA_CSG_2D_SHAPE_REPRESENTATION' IN TYPEOF(pdr\property_definition_representation.used_representation)))
+                )) = 0)
+              )) = 0;
+  WR2:  SIZEOF( QUERY( ac <* area_component |
+          NOT(apeaid_is_base(ac)) OR
+            NOT(SIZEOF (QUERY (pdr <* USEDIN(ac,'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+              NOT(NOT(pdr\property_definition_representation.used_representation\representation.id = 'ac2dsm') OR 
+                      ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.SINGLE_BOUNDARY_CSG_2D_SHAPE_REPRESENTATION' IN TYPEOF(pdr\property_definition_representation.used_representation)))
+                )) = 0)
+              )) = 0;              
+END_RULE;
+
 
 RULE cartesian_coordinate_system_constraint FOR
      (global_unit_assigned_context,
@@ -1478,8 +1510,8 @@ USE FROM representation_schema   -- ISO 10303-43
 
 END_SCHEMA; 
 (*
- $Id: mim.exp,v 1.17 2008/09/12 10:32:28 liutkuviene Exp $
-ISO TC184/SC4/WG12 N5285 - ISO/TS 10303-1012 Approval - EXPRESS MIM
+ $Id: mim.exp,v 1.18 2009/02/02 14:11:16 robbod Exp $
+ ISO TC184/SC4/WG12 N5285 - ISO/TS 10303-1012 Approval - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N4968
 *) 
 
@@ -2211,7 +2243,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.9 2006/01/20 08:43:42 liutkuviene Exp $
+   $Id: mim.exp,v 1.10 2009/03/12 22:49:36 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3901 - ISO/TS 10303-1651 Basic curve - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3367
 *)
@@ -2222,7 +2254,8 @@ SCHEMA Basic_curve_mim;
 	USE FROM External_item_identification_assignment_mim;	-- ISO/TS 10303-1128
 
 	USE FROM geometry_schema
-		(trimmed_curve,
+		(circle,
+		trimmed_curve,
 		line,
 		composite_curve,
 		composite_curve_segment,
@@ -2233,9 +2266,16 @@ TYPE bc_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
      (trimmed_curve);
 END_TYPE;
 	
+TYPE closed_curve = EXTENSIBLE GENERIC_ENTITY SELECT 
+     (circle,
+      composite_curve);
+  WHERE
+    WR1: NOT('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(SELF)) OR (SELF\composite_curve.closed_curve = TRUE);    
+END_TYPE;
+	
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.5 2008/09/12 10:48:26 liutkuviene Exp $
+   $Id: mim.exp,v 1.6 2009/03/01 13:21:05 lothartklein Exp $
    ISO TC184/SC4/WG12 N5297 - ISO/TS 10303-1773 Basic data representation - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4664
 *)
@@ -2252,8 +2292,8 @@ USE FROM ISO13584_expressions_schema -- ISO 13584-20
   slash_expression,
   real_literal); 
 
---USE FROM ISO13584_generic_expressions_schema
---  (binary_generic_expression);
+USE FROM ISO13584_generic_expressions_schema
+  (binary_generic_expression);
 
 USE FROM mathematical_functions_schema  -- ISO 10303-50
   (logical_literal);
@@ -2447,16 +2487,17 @@ END_ENTITY;
 
 END_SCHEMA;  -- Certification_mim
 (*
-   $Id: mim.exp,v 1.38 2008/09/25 09:57:43 liutkus Exp $
+   $Id: mim.exp,v 1.39 2009/04/01 12:34:30 lothartklein Exp $
    ISO TC184/SC4/WG12 N5312 - ISO/TS 10303-1654 Characteristic - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4715
 *)
 SCHEMA Characteristic_mim;
-    USE FROM Basic_data_representation_mim;  -- ISO/CD-TS 10303-1773
+    USE FROM Basic_data_representation_mim;  -- ISO/TS 10303-1773
 	USE FROM Document_assignment_mim;	-- ISO/TS 10303-1122
 	USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106
-	USE FROM External_library_mim; -- ISO/CD-TS 10303-1778
+	USE FROM External_library_mim; -- ISO/TS 10303-1778
 	USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
+	USE FROM External_properties_mim;  -- ISO/TS 10303-1129 LK
 
 USE FROM group_schema(group);
 
@@ -2527,7 +2568,7 @@ USE FROM product_property_definition_schema   -- ISO 10303-41
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.18 2008/09/12 11:13:33 liutkuviene Exp $
+   $Id: mim.exp,v 1.19 2009/03/11 13:02:35 lothartklein Exp $
    ISO TC184/SC4/WG12 N5315 - ISO/TS 10303-1655 Chemical substance - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4932
 *)
@@ -2539,6 +2580,8 @@ USE FROM Generic_material_aspects_mim;	-- ISO/TS 10303-1681
 USE FROM Part_view_definition_mim;	-- ISO/TS 10303-1023
 USE FROM Person_organization_assignment_mim; -- ISO/TS 10303-1013
 USE FROM Product_view_definition_relationship_mim; -- ISO/TS 10303-1041
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
 USE FROM material_property_definition_schema
 	(product_material_composition_relationship);
@@ -2759,7 +2802,7 @@ END_ENTITY; -- externally_defined_colour
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.21 2008/09/18 12:47:28 liutkuviene Exp $
+   $Id: mim.exp,v 1.22 2009/04/01 10:43:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5624 - ISO/TS 10303-1657 Component feature - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3919
 *)
@@ -2778,14 +2821,14 @@ END_ENTITY;
 
 ENTITY component_feature_joint
   SUBTYPE OF (shape_aspect_relationship, shape_aspect);
-    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;
     SELF\shape_aspect_relationship.relating_shape_aspect : component_feature;
+    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;    
 END_ENTITY;
 
 ENTITY component_feature_relationship
   SUBTYPE OF (shape_aspect_relationship);
-    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;
     SELF\shape_aspect_relationship.relating_shape_aspect : component_feature;
+    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;    
 WHERE
   WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
        SELF\shape_aspect_relationship.relating_shape_aspect;
@@ -2988,13 +3031,15 @@ SCHEMA Conductivity_material_aspects_mim;
 	
 END_SCHEMA;
 (*
- $Id: mim.exp,v 1.8 2004/10/28 18:27:56 darla Exp $
+ $Id: mim.exp,v 1.9 2009/02/04 15:39:50 robbod Exp $
  ISO TC184/SC4/WG12 N2950 - ISO/TS 10303-1058 Configuration effectivity - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2519
 *) 
 
 
 SCHEMA Configuration_effectivity_mim; 
+
+USE FROM Assembly_structure_mim;    -- ISO/TS 10303-1026
 
 USE FROM Effectivity_mim;    -- ISO/TS 10303-1057
 
@@ -3012,23 +3057,31 @@ END_SCHEMA;  -- Configuration_effectivity_mim
 
 
 (*
- $Id: mim.exp,v 1.5 2004/02/25 16:07:46 robbod Exp $
+ $Id: mim.exp,v 1.6 2009/03/24 14:44:53 robbod Exp $
  ISO TC184/SC4/WG12 N2533 - ISO/TS 10303-1056 Configuration item - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2483
 *) 
 
-
 SCHEMA Configuration_item_mim;
+
+USE FROM configuration_management_schema  -- ISO 10303-44
+  (configuration_design,
+   configuration_item,
+   configuration_item_relationship);
+
+USE FROM Product_concept_identification_mim;   -- ISO/TS 10303-1060
 
 USE FROM Product_version_mim;    -- ISO/TS 10303-1018
 
 USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
 
-USE FROM Product_concept_identification_mim;    -- ISO/TS 10303-1060
+ENTITY configuration_item_hierarchical_relationship
+SUBTYPE OF (configuration_item_relationship);
+END_ENTITY;
 
-USE FROM configuration_management_schema   -- ISO 10303-44
-  (configuration_design,
-   configuration_item); 
+ENTITY configuration_item_revision_sequence
+SUBTYPE OF (configuration_item_relationship);
+END_ENTITY;
 
 
 END_SCHEMA;  -- Configuration_item_mim
@@ -3130,7 +3183,7 @@ USE FROM topology_schema   -- ISO 10303-42
 
 END_SCHEMA;  
 (*
-   $Id: mim.exp,v 1.23 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: mim.exp,v 1.26 2009/04/01 07:07:16 liutkus Exp $
    ISO TC184/SC4/WG12 N5789 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4141
 *) 
@@ -3139,6 +3192,7 @@ END_SCHEMA;
 SCHEMA Constructive_solid_geometry_2d_mim;
 
 USE FROM Area_2d_mim;	-- ISO/TS 10303-1631	
+USE FROM Basic_curve_mim; -- ISO/TS 10303-1651
 
 USE FROM representation_schema(
 compound_representation_item,
@@ -3183,6 +3237,10 @@ USE FROM geometry_schema (composite_curve);
      SELF\boolean_result.second_operand : boolean_operand_2d;
   END_ENTITY;
 
+  ENTITY closed_curve_style_parameters
+    SUBTYPE OF(curve_style_parameters_representation);
+  END_ENTITY;  
+
   ENTITY complex_area
     ABSTRACT SUPERTYPE OF (area_with_outer_boundary)
     SUBTYPE OF (primitive_2d);
@@ -3196,6 +3254,8 @@ USE FROM geometry_schema (composite_curve);
   ENTITY csg_solid_2d
     SUBTYPE OF (csg_solid);
     SELF\csg_solid.tree_root_expression : csg_select_2d;
+   WHERE
+     WR1: valid_csg_2d_primitives(SELF);
   END_ENTITY;
   
   ENTITY csg_2d_shape_representation
@@ -3224,6 +3284,26 @@ USE FROM geometry_schema (composite_curve);
      --  SELF\csg_2d_shape_representation || SELF\representation)) = 0;
   END_ENTITY;
 
+ENTITY curve_style_parameters_representation
+  SUBTYPE OF(representation);
+END_ENTITY;  
+
+ENTITY curve_style_parameters_with_ends
+  SUBTYPE OF(curve_style_parameters_representation);
+END_ENTITY;  
+
+ENTITY path_area_with_parameters
+  SUBTYPE OF (complex_area, mapped_item);
+  WHERE
+    WR1: 'BASIC_CURVE.CURVE' IN TYPEOF(SELF\mapped_item.mapping_target);
+      -- the mapping source must be a curve (open or closed)
+      -- no the mapping target must be a curve (open or closed)
+    --wr2: -- the mapping_source.mapped_representation must be curve_style_parameters_representation;
+    WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CURVE_STYLE_PARAMETERS_REPRESENTATION' IN TYPEOF(SELF\mapped_item.mapping_source\representation_map.mapped_representation);
+    WR3: SELF\mapped_item.mapping_source\representation_map.mapping_origin\representation_item.name = 'curve width';
+              --don't reall care on mapping_source.mapping_origin. Best to make it the line-width
+END_ENTITY;
+
   ENTITY primitive_2d_with_inner_boundary
     SUBTYPE OF (primitive_2d, compound_representation_item);
       SELF\compound_representation_item.item_element RENAMED inner_boundary : compound_inner_area_boundary;
@@ -3231,7 +3311,8 @@ USE FROM geometry_schema (composite_curve);
       WR1: SIZEOF(['GEOMETRIC_MODEL_SCHEMA.CIRCULAR_AREA', 'GEOMETRIC_MODEL_SCHEMA.ELLIPTIC_AREA', 'GEOMETRIC_MODEL_SCHEMA.RECTANGULAR_AREA',
         'GEOMETRIC_MODEL_SCHEMA.POLYGONAL_AREA', 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.COMPLEX_AREA'] * TYPEOF(SELF)) > 0;
       WR2: SIZEOF(QUERY(inner <* inner_boundary |
-        'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PRIMITIVE_2D_WITH_INNER_BOUNDARY' IN TYPEOF(inner))) = 0;      
+        'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PRIMITIVE_2D_WITH_INNER_BOUNDARY' IN TYPEOF(inner))) = 0;
+      WR3: open_path_based_inner_boundary(inner_boundary);
   END_ENTITY;
 
   ENTITY single_area_csg_2d_shape_representation
@@ -3258,6 +3339,48 @@ USE FROM geometry_schema (composite_curve);
   SUBTYPE_CONSTRAINT primitive_2d_subtypes FOR primitive_2d;
     ONEOF (elliptic_area, rectangular_area, polygonal_area, complex_area);
   END_SUBTYPE_CONSTRAINT;
+
+FUNCTION valid_csg_2d_primitives (input : csg_solid_2d) : BOOLEAN;
+CASE TRUE OF
+  ('GEOMETRIC_MODEL_SCHEMA.PRIMITIVE_2D' IN TYPEOF(input\csg_solid_2d.tree_root_expression)) :
+  BEGIN
+    IF (SIZEOF(['GEOMETRIC_MODEL_SCHEMA.CIRCULAR_AREA', 
+       'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.COMPLEX_AREA',
+       'GEOMETRIC_MODEL_SCHEMA.ELLIPTIC_AREA',
+       'GEOMETRIC_MODEL_SCHEMA.POLYGONAL_AREA',
+       'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PRIMITIVE_2D_WITH_INNER_BOUNDARY',
+       'GEOMETRIC_MODEL_SCHEMA.RECTANGULAR_AREA'] * TYPEOF(input\csg_solid_2d.tree_root_expression)) > 0)
+    THEN 
+           RETURN(TRUE);
+    ELSE
+           RETURN(FALSE);
+    END_IF;
+  END;
+
+  ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.BOOLEAN_RESULT_2D' IN TYPEOF(input\csg_solid_2d.tree_root_expression)) : 
+    RETURN (valid_csg_2d_primitives(input\csg_solid_2d.tree_root_expression\boolean_result_2d.first_operand) 
+        AND valid_csg_2d_primitives(input\csg_solid_2d.tree_root_expression\boolean_result_2d.second_operand));
+
+  ('GEOMETRIC_MODEL_SCHEMA.HALF_SPACE_2D' IN TYPEOF(input\csg_solid_2d.tree_root_expression)) : RETURN(TRUE);
+
+  OTHERWISE : RETURN(FALSE);
+END_CASE;
+END_FUNCTION;
+
+
+FUNCTION open_path_based_inner_boundary (input : SET OF primitive_2d) : BOOLEAN;
+  LOCAL
+   pass : BOOLEAN := TRUE;
+  END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(input);
+      IF ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PATH_AREA_WITH_PARAMETERS' IN TYPEOF(input[i]))
+        AND ('BASIC_CURVE_MIM.CLOSED_CURVE' IN TYPEOF(input[i]\mapped_item.mapping_source))
+      THEN
+       pass := FALSE;
+      END_IF;
+  END_REPEAT;
+  RETURN(pass);                  
+END_FUNCTION;
 
 END_SCHEMA;
 (*
@@ -3298,26 +3421,30 @@ END_SCHEMA;
 
 
 (*
- $Id: mim.exp,v 1.6 2004/10/21 15:47:34 darla Exp $
- ISO TC184/SC4/WG12 N1127 - ISO/TS 10303-1062 Contract - EXPRESS MIM
-*)    
-SCHEMA Contract_mim;
-USE FROM contract_schema -- ISO 10303-41
-  (contract);
-USE FROM management_resources_schema -- ISO 10303-41
-  (contract_assignment);
+ $Id: mim.exp,v 1.8 2009/01/29 09:33:02 mikeward Exp $
+ISO/TC184/SC4 WG12N??? - ISO/TS 10303-1062 Contract - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG12 N1127
+*)
 
-   
-TYPE contract_item = EXTENSIBLE SELECT; 
-END_TYPE;
-   
-   
+SCHEMA Contract_mim;
+
+USE FROM contract_schema   -- ISO 10303-41
+  (contract,
+   contract_relationship); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (contract_assignment); 
+
+
+TYPE contract_item = EXTENSIBLE SELECT;
+END_TYPE; 
+
 ENTITY applied_contract_assignment
   SUBTYPE OF (contract_assignment);
-  items : SET [1:?] OF contract_item;
+  items : SET[1:?] OF contract_item;
 END_ENTITY;
 
-END_SCHEMA;
+END_SCHEMA;  -- Contract_mim
 
  
 (*
@@ -4606,7 +4733,7 @@ END_SCHEMA;
 
 
 SCHEMA Edge_shape_feature_mim;
-	USE FROM Layered_3d_shape_mim;	-- ISO/TS 10303-1694
+	USE FROM Layered_2d_shape_mim;	-- ISO/TS 10303-1693
 	USE FROM Characteristic_mim;	-- ISO/TS 10303-1654	
 
 END_SCHEMA;
@@ -4854,7 +4981,7 @@ REFERENCE FROM date_time_schema -- ISO 10303-41
 
 END_SCHEMA; 
 (*
-   $Id: mim.exp,v 1.31 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: mim.exp,v 1.32 2009/04/01 10:41:49 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5639 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3946
 *)
@@ -4903,8 +5030,8 @@ USE FROM shape_tolerance_schema
 
   ENTITY datum_difference
     SUBTYPE OF (shape_aspect,shape_aspect_relationship);
-      SELF\shape_aspect_relationship.related_shape_aspect : datum;
-      SELF\shape_aspect_relationship.relating_shape_aspect : datum;    
+      SELF\shape_aspect_relationship.relating_shape_aspect : datum;
+      SELF\shape_aspect_relationship.related_shape_aspect : datum;    
     WHERE
       WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
         SELF\shape_aspect_relationship.related_shape_aspect;
@@ -5160,17 +5287,15 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.5 2008/09/12 12:19:34 liutkuviene Exp $
+   $Id: mim.exp,v 1.6 2009/04/01 12:33:12 lothartklein Exp $
    ISO TC184/SC4/WG12 N5381 - ISO/TS 10303-1778 External library - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4739
 *)
 SCHEMA External_library_mim;
 
-USE FROM External_properties_mim; -- ISO/CD-TS 10303-1129
+USE FROM External_source_mim;  -- ISO/TS 10303-1331
 
-USE FROM External_source_mim;  -- ISO/CD-TS 10303-1331
-
-USE FROM Plib_class_reference_mim; -- ISO/CD-TS 10303-1291
+USE FROM Plib_class_reference_mim; -- ISO/TS 10303-1291
 
   TYPE el_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (external_source);
@@ -5355,15 +5480,16 @@ USE FROM measure_schema;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.17 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: mim.exp,v 1.18 2009/03/24 09:42:10 lothartklein Exp $
    ISO TC184/SC4/WG12 N5642 - ISO/TS 10303-1668 Fabrication joint - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3952
 *)
 
 
 SCHEMA Fabrication_joint_mim;
-	USE FROM Land_mim;	-- ISO/TS 10303-1692
-	USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
+
+(*REFERENCE FROM*) USE FROM Land_mim;	-- ISO/TS 10303-1692
+USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
 	
 REFERENCE FROM product_property_definition_schema -- ISO 10303-41
   (acyclic_shape_aspect_relationship);
@@ -5747,7 +5873,7 @@ USE FROM Value_with_unit_mim;    -- ISO/TS 10303-1054
 
 END_SCHEMA;  -- Foundation_representation_mim
 (*
-   $Id: mim.exp,v 1.13 2008/09/18 12:47:34 liutkuviene Exp $
+   $Id: mim.exp,v 1.14 2009/03/31 10:14:23 liutkus Exp $
    ISO TC184/SC4/WG12 N5654 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3970
 *)
@@ -5771,6 +5897,10 @@ ENTITY part_connected_terminals_definition
   SUBTYPE OF (shape_aspect);
 UNIQUE
   UR1: SELF\shape_aspect.name;
+END_ENTITY;
+
+ENTITY part_connected_terminals_definition_domain
+  SUBTYPE OF (shape_aspect);
 END_ENTITY;
 
 ENTITY part_connected_terminals_element
@@ -5935,7 +6065,7 @@ END_TYPE;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.7 2008/09/18 12:47:30 liutkuviene Exp $
+   $Id: mim.exp,v 1.8 2009/03/11 13:01:32 lothartklein Exp $
    ISO TC184/SC4/WG12 N5717 - ISO/TS 10303-1705 Functional usage view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4063
 *)
@@ -5944,8 +6074,9 @@ SCHEMA Functional_usage_view_mim;
 USE FROM Analytical_model_mim;	-- ISO/TS 10303-1603
 USE FROM Network_functional_design_view_mim;	-- ISO/TS 10303-1704
 USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032	
-
 USE FROM document_schema(document_type);
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
 USE FROM product_property_definition_schema
 	(shape_aspect,
@@ -6076,7 +6207,7 @@ USE FROM Specified_product_mim;	-- ISO/TS 10303-1104
 
 END_SCHEMA;
 (*
-$Id: mim.exp,v 1.25 2006/05/01 13:53:55 liutkus Exp $
+$Id: mim.exp,v 1.26 2009/04/06 09:29:05 lothartklein Exp $
 ISO TC184/SC4/WG12 N2877 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N1551
 *) 
@@ -6091,6 +6222,9 @@ USE FROM Derived_shape_element_mim;    -- ISO/TS 10303-1130
 USE FROM Elemental_geometric_shape_mim;    -- ISO/TS 10303-1004
 
 USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
+
+USE FROM product_property_definition_schema     -- ISO 10303-41
+  (property_definition);
 
 USE FROM product_property_representation_schema   -- ISO 10303-41
   (property_definition_representation,
@@ -6422,7 +6556,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.4 2006/01/24 10:46:46 liutkuviene Exp $
+   $Id: mim.exp,v 1.5 2009/03/11 13:00:35 lothartklein Exp $
    ISO TC184/SC4/WG12 N4228 - ISO/TS 10303-1761 Information product - EXPRESS MIM
 *)
 
@@ -6430,6 +6564,8 @@ SCHEMA Information_product_mim;
 
 USE FROM Product_view_definition_mim;	--  ISO/TS 10303-1019
 USE FROM File_identification_mim;	--  ISO/TS 10303-1127
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
 END_SCHEMA;
 (*
@@ -6548,15 +6684,21 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.20 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: mim.exp,v 1.24 2009/03/27 17:23:49 lothartklein Exp $
    ISO TC184/SC4/WG12 N5663 - ISO/TS 10303-1684 Interconnect module connection routing - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4000
 *)
 
 
 SCHEMA Interconnect_module_connection_routing_mim;
-	USE FROM Fabrication_joint_mim;	-- ISO/TS 10303-1668
-	USE FROM Interconnect_module_with_macros_mim;	-- ISO/TS 10303-1687
+
+USE FROM Fabrication_joint_mim;	-- ISO/TS 10303-1668
+(*REFERENCE FROM*) USE FROM Interconnect_module_with_macros_mim;	-- ISO/TS 10303-1687
+
+TYPE imcr_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+    (stratum_feature_conductive_join,
+     dielectric_crossover_area);
+END_TYPE; 
 
 ENTITY dielectric_crossover_area
   SUBTYPE OF (shape_aspect, shape_aspect_relationship);
@@ -6570,14 +6712,6 @@ ENTITY indirect_stratum_component_join_implementation
   SUBTYPE OF (plated_inter_stratum_feature);
 END_ENTITY;
 
-ENTITY physical_network_supporting_inter_stratum_feature
-  SUBTYPE OF (plated_inter_stratum_feature);
-END_ENTITY; 
-
-ENTITY stratum_feature_conductive_join
-  SUBTYPE OF (product_definition_relationship);
-END_ENTITY;
-	
 END_SCHEMA;
 
 
@@ -6697,7 +6831,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.22 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: mim.exp,v 1.24 2009/03/27 09:53:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N5678 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4015
 *)
@@ -6706,42 +6840,23 @@ SCHEMA Interconnect_physical_requirement_allocation_mim;
 USE FROM Requirement_view_definition_relationship_mim; -- ISO/TS 10303-1142	
 USE FROM Integral_shield_mim; -- ISO/TS 10303-xxxx	
 
-  TYPE ipra_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-    (thermal_isolation_removal_template);
-  END_TYPE; 
-
-  ENTITY dependent_electrical_isolation_removal_template
-    SUBTYPE OF (electrical_isolation_removal_template);
-  END_ENTITY;
-
-  ENTITY dependent_thermal_isolation_removal_template
-    SUBTYPE OF (thermal_isolation_removal_template);
-  END_ENTITY;
-  
-  ENTITY electrical_isolation_removal_template
-    SUBTYPE OF (material_removal_feature_template);
-  END_ENTITY;
-
   ENTITY interconnect_shield_allocation
     SUBTYPE OF (requirement_assignment);
   END_ENTITY;
 
-  ENTITY thermal_isolation_removal_template
-    SUBTYPE OF (material_removal_structured_template);
-  END_ENTITY;
-	
 END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.25 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: mim.exp,v 1.27 2009/03/27 10:48:02 lothartklein Exp $
    ISO TC184/SC4/WG12 N5681 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4018
 *)
 
 
 SCHEMA Interconnect_placement_requirements_mim;
-USE FROM Land_mim;	-- ISO/TS 10303-1692
+
+USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
 
   SUBTYPE_CONSTRAINT ipr_non_feature_shape_element_subtypes FOR shape_aspect; 
     (ONEOF (
@@ -6752,7 +6867,7 @@ USE FROM Land_mim;	-- ISO/TS 10303-1692
 	 viewing_plane,
 	 seating_plane,
 	 reference_graphic_registration_mark,
-	 template_material_cross_section_boundary,
+--	 template_material_cross_section_boundary,
 	 group_shape_aspect,
 	 mounting_restriction_area,
 	 mounting_restriction_volume));
@@ -6824,7 +6939,7 @@ END_SCHEMA;
 
 
 (*
- $Id: mim.exp,v 1.13 2008/09/13 12:25:15 liutkuviene Exp $
+ $Id: mim.exp,v 1.14 2009/03/14 16:56:37 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N5411 - ISO/TS 10303-1345 Item definition structure - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4844
 *)
@@ -6838,7 +6953,7 @@ USE FROM Part_occurrence_mim; -- ISO/TS 10303-1715
 
 USE FROM Product_structure_mim; -- ISO/TS 10303-1134
 
-REFERENCE FROM Single_part_representation_mim
+REFERENCE FROM Product_categorization_mim
 	(categories_of_product);
 
 
@@ -6878,7 +6993,7 @@ REFERENCE FROM Single_part_representation_mim
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.22 2008/12/09 15:13:29 thomasrthurman Exp $
+   $Id: mim.exp,v 1.26 2009/04/11 15:21:16 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5687 - ISO/TS 10303-1692 Land - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4024
 *)
@@ -6897,6 +7012,14 @@ ENTITY contact_size_dependent_land
   SUBTYPE OF (land);
 END_ENTITY;
 
+ENTITY dependent_electrical_isolation_removal_component
+  SUBTYPE OF (electrical_isolation_laminate_component);
+END_ENTITY;
+
+ENTITY dependent_thermal_isolation_removal_component
+  SUBTYPE OF (thermal_isolation_removal_component);
+END_ENTITY;
+
 ENTITY inter_stratum_feature_dependent_land
   ABSTRACT SUPERTYPE OF (ONEOF (plated_passage_dependent_land,
     unsupported_passage_dependent_land))
@@ -6912,11 +7035,15 @@ END_ENTITY;
 ENTITY land_with_join_terminal
   SUBTYPE OF (land, laminate_component_join_terminal);
   DERIVE
-    SELF\component_feature.of_shape : land := SELF;
+    SELF\shape_aspect.of_shape : land_with_join_terminal := SELF;
 END_ENTITY;
 
 ENTITY plated_passage_dependent_land
   SUBTYPE OF (inter_stratum_feature_dependent_land);
+END_ENTITY;
+
+ENTITY thermal_isolation_removal_component
+  SUBTYPE OF (material_removal_structured_component);
 END_ENTITY;
 
 ENTITY unsupported_passage_dependent_land
@@ -6998,7 +7125,7 @@ USE FROM representation_schema(representation_relationship_with_transformation);
 	
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.2 2008/11/27 21:27:13 liutkus Exp $
+   $Id: mim.exp,v 1.3 2009/03/27 09:53:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N5747 - ISO/TS 10303-1716 Layered interconnect complex template - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4096
 *)
@@ -7010,6 +7137,10 @@ USE FROM Physical_unit_2d_shape_mim; -- ISO/TS 10303-1726
 
 USE FROM product_property_definition_schema (characterized_definition);
 
+  TYPE ipra_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+    (thermal_isolation_removal_template);
+  END_TYPE; 
+
   TYPE lict_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
     (assembly_component_usage,
      structured_template);
@@ -7019,6 +7150,14 @@ USE FROM product_property_definition_schema (characterized_definition);
     SUBTYPE OF (stratum_stack_dependent_template, passage_padstack_definition);
   END_ENTITY;
 
+  ENTITY dependent_electrical_isolation_removal_template
+    SUBTYPE OF (electrical_isolation_removal_template);
+  END_ENTITY;
+
+  ENTITY dependent_thermal_isolation_removal_template
+    SUBTYPE OF (thermal_isolation_removal_template);
+  END_ENTITY;
+  
   ENTITY design_specific_stratum_technology_mapping_relationship
     SUBTYPE OF(stratum_technology_mapping_relationship, property_definition);
       SELF\property_definition.definition RENAMED scope : library_to_design_stack_model_mapping;
@@ -7099,6 +7238,10 @@ USE FROM product_property_definition_schema (characterized_definition);
     ABSTRACT SUPERTYPE OF (ONEOF (single_stratum_structured_template, multi_stratum_structured_template))
     SUBTYPE OF (geometric_template);
   END_ENTITY;
+  
+  ENTITY thermal_isolation_removal_template
+    SUBTYPE OF (material_removal_structured_template);
+  END_ENTITY;
 	
 END_SCHEMA;
 (*
@@ -7129,7 +7272,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.107 2008/12/10 07:01:37 liutkus Exp $
+   $Id: mim.exp,v 1.116 2009/04/06 11:15:04 lothartklein Exp $
    ISO TC184/SC4/WG12 N5702 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4042
 *)
@@ -7138,11 +7281,10 @@ END_SCHEMA;
 SCHEMA Layered_interconnect_module_design_mim;
 USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
 USE FROM Edge_shape_feature_mim;	-- ISO/TS 10303-1673
-USE FROM Interconnect_module_connection_routing_mim;	-- ISO/TS 10303-1684
-USE FROM Interconnect_physical_requirement_allocation_mim;	-- ISO/TS 10303-1689
 USE FROM Footprint_definition_mim;	-- ISO/TS 10303-1646
-USE FROM Physical_connectivity_definition_mim;	-- ISO/TS 10303-1755
 USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634	
+(*REFERENCE FROM*) USE FROM Land_mim;	-- ISO/TS 10303-1692
+(*REFERENCE FROM*) USE FROM Layered_interconnect_module_with_printed_component_design_mim; -- ISO/TS 10303-1700
 	
   SUBTYPE_CONSTRAINT array_placement_group_subtypes FOR array_placement_group; 
     (ONEOF (laminate_text_string_component,
@@ -7192,8 +7334,8 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
   END_SUBTYPE_CONSTRAINT;
 
   TYPE limd_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-    (stratum_feature_conductive_join,
-     dielectric_crossover_area,
+    (-- stratum_feature_conductive_join,
+     -- dielectric_crossover_area,
      layered_interconnect_module_design_view);
   END_TYPE; 
 
@@ -7274,10 +7416,6 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
     WHERE
       WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
         SELF\shape_aspect_relationship.related_shape_aspect;
-  END_ENTITY;
-
-  ENTITY dependent_thermal_isolation_removal_component
-    SUBTYPE OF (material_removal_structured_component);
   END_ENTITY;
 
   ENTITY derived_stratum
@@ -7516,6 +7654,10 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
     SUBTYPE OF (physical_network_group_element_relationship);
   END_ENTITY; 
 
+  ENTITY physical_network_supporting_inter_stratum_feature
+    SUBTYPE OF (plated_inter_stratum_feature);
+  END_ENTITY; 
+
   ENTITY plated_cutout
     SUBTYPE OF (cutout, plated_inter_stratum_feature);
   END_ENTITY;
@@ -7586,12 +7728,23 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
     SUBTYPE OF(characterized_object, property_definition_relationship);
   END_ENTITY;
 
+  ENTITY stratum_feature_conductive_join
+    SUBTYPE OF (product_definition_relationship);
+  END_ENTITY;
+	
   ENTITY stratum_feature_template_component
+    SUPERTYPE OF (ONEOF (area_component,
+            conductive_interconnect_element))
     SUBTYPE OF (laminate_component);
   END_ENTITY;
 
   ENTITY stratum_feature_template_component_with_stratum_feature
-    SUBTYPE OF (stratum_feature_template_component, stratum_feature);
+    SUBTYPE OF (stratum_feature_template_component, stratum_feature, shape_aspect_relationship);
+    DERIVE
+      SELF\shape_aspect_relationship.related_shape_aspect  : stratum_feature_template_component_with_stratum_feature := SELF;
+      SELF\shape_aspect_relationship.relating_shape_aspect : stratum_feature_template_component_with_stratum_feature := SELF;
+    WHERE
+      WR1: SELF\shape_aspect_relationship.name = 'implementation';
   END_ENTITY;
 
   ENTITY stratum_surface
@@ -7646,15 +7799,16 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.25 2008/09/18 12:47:30 liutkuviene Exp $
+   $Id: mim.exp,v 1.27 2009/03/27 11:27:05 lothartklein Exp $
    ISO TC184/SC4/WG12 N5705 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4048
 *)
 
 
 SCHEMA Layered_interconnect_module_with_printed_component_design_mim;
-	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
-	USE FROM Printed_physical_layout_template_mim;	-- ISO/TS 10303-1737
+
+USE FROM Printed_physical_layout_template_mim;	-- ISO/TS 10303-1737
+USE FROM Land_mim;	-- ISO/TS 10303-1692
 	
 	
 TYPE limwpcd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
@@ -7712,7 +7866,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.2 2008/11/27 21:27:13 liutkus Exp $
+   $Id: mim.exp,v 1.5 2009/04/01 07:07:16 liutkus Exp $
    ISO TC184/SC4/WG12 N5753 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4102
 *)
@@ -7744,10 +7898,6 @@ ENTITY blind_passage_template
   SUBTYPE OF (unsupported_passage_template);
 END_ENTITY;
 
-ENTITY closed_curve_style_parameters
-  SUBTYPE OF(curve_style_parameters_representation);
-END_ENTITY;  
-
 ENTITY component_termination_passage_template
   SUBTYPE OF (continuous_template, inter_stratum_feature_template);
 END_ENTITY;
@@ -7762,14 +7912,6 @@ END_ENTITY;
 
 ENTITY countersunk_passage_template
   SUBTYPE OF (unsupported_passage_template);
-END_ENTITY;  
-
-ENTITY curve_style_parameters_representation
-  SUBTYPE OF(representation);
-END_ENTITY;  
-
-ENTITY curve_style_parameters_with_ends
-  SUBTYPE OF(curve_style_parameters_representation);
 END_ENTITY;  
 
 ENTITY default_attachment_size_based_land_physical_template
@@ -7794,6 +7936,10 @@ END_ENTITY;
 
 ENTITY default_unsupported_passage_based_land_physical_template
   SUBTYPE OF (default_passage_based_land_physical_template);
+END_ENTITY;
+
+ENTITY electrical_isolation_removal_template
+  SUBTYPE OF (material_removal_feature_template);
 END_ENTITY;
 
 ENTITY inter_stratum_feature_edge_segment_template
@@ -7865,19 +8011,6 @@ END_ENTITY;
 
 ENTITY planar_closed_path_shape_representation_with_parameters
     SUBTYPE OF (planar_path_shape_representation_with_parameters);
-END_ENTITY;
-
-ENTITY path_area_with_parameters
-  SUBTYPE OF (complex_area, mapped_item);
-(* TODO  
-  WHERE
-    wr1: "xxx.curve" IN TYPEOF SELF/mapped_item.mapping_source;
-      -- the mapping source must be a curve (open or closed)
-  wr2: -- the mapping_source.mapped_representation must be
-curve_style_parameters_representation;
-  wrx: - don't reall care on mapping_source.mapping_origin. Best to make it the
-line-width
-*)
 END_ENTITY;
 
 ENTITY single_stratum_continuous_template
@@ -8225,7 +8358,7 @@ USE FROM aic_mechanical_design_shaded_presentation; -- ISO 10303-518
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.35 2008/12/15 03:36:53 thomasrthurman Exp $
+   $Id: mim.exp,v 1.36 2009/03/11 13:07:31 lothartklein Exp $
    ISO TC184/SC4/WG12 N5711 - ISO/TS 10303-1703 Model parameter - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4057
 *)
@@ -8236,6 +8369,8 @@ USE FROM Characteristic_mim;	-- ISO/TS 10303-1654
 USE FROM Classification_with_attributes_mim;	-- ISO/TS 10303-1111
 USE FROM Independent_property_representation_mim;	-- ISO/TS 10303-1038
 USE FROM Group_mim;	-- ISO/TS 10303-1113	
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
 USE FROM product_property_definition_schema(characterized_definition);  -- ISO 10303-41
 
@@ -8728,7 +8863,7 @@ USE FROM Product_version_mim;    -- ISO/TS 10303-1018
 END_SCHEMA;  -- Part_and_version_identification_mim
 
 (*
- $Id: mim.exp,v 1.8 2008/09/13 12:27:38 liutkuviene Exp $
+ $Id: mim.exp,v 1.9 2009/03/11 13:04:59 lothartklein Exp $
  ISO TC184/SC4/WG12 N5441 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4772
 *)
@@ -8744,6 +8879,10 @@ USE FROM Shape_property_assignment_mim; -- ISO/CD-TS 10303-1032
 USE FROM Stock_material_mim; -- ISO/CD-TS 10303-1771
 
 USE FROM product_structure_schema (next_assembly_usage_occurrence);
+
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
+
 
   ENTITY composite_assembly_definition
     SUBTYPE OF (product_definition);
@@ -9074,7 +9213,7 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
 
 END_SCHEMA;
 (*
- $Id: mim.exp,v 1.16 2008/09/13 12:26:54 liutkuviene Exp $
+ $Id: mim.exp,v 1.17 2009/03/14 16:56:37 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N5444 - ISO/TS 10303-1115 Part collection - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4983
 *)
@@ -9083,7 +9222,7 @@ SCHEMA Part_collection_mim;
 
 USE FROM Product_occurrence_mim;
 
-REFERENCE FROM Single_part_representation_mim
+REFERENCE FROM Product_categorization_mim
 	(categories_of_product);
 
 
@@ -9405,7 +9544,7 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.1 2008/10/10 08:03:37 liutkuviene Exp $
+   $Id: mim.exp,v 1.2 2009/03/11 12:59:09 lothartklein Exp $
    ISO TC184/SC4/WG12 N5762 - ISO/TS 10303-1722 Part template - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4114
 *)
@@ -9415,6 +9554,8 @@ SCHEMA Part_template_mim;
 USE FROM Analytical_model_mim;	-- ISO/TS 10303-1603
 USE FROM Feature_and_connection_zone_mim;	-- ISO/TS 10303-1671
 USE FROM Application_context_schema(application_context_element);
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
 
   TYPE plt_groupable_item = SELECT BASED_ON groupable_item WITH 
     (representation_item);
@@ -9441,6 +9582,7 @@ END_SCHEMA;
 
 SCHEMA Part_template_3d_shape_mim;
 	USE FROM Edge_shape_feature_mim;	-- ISO/TS 10303-1673
+	USE FROM Layered_3d_shape_mim;	-- ISO/TS 10303-1694
 	USE FROM Layered_interconnect_simple_template_mim;	-- ISO/TS 10303-1718
 
 ENTITY edge_segment_cross_section
@@ -9816,7 +9958,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.11 2008/09/18 12:47:30 liutkuviene Exp $
+   $Id: mim.exp,v 1.12 2009/04/02 18:15:44 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5777 - ISO/TS 10303-1727 Physical unit 3d shape - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4129
 *)
@@ -9824,7 +9966,10 @@ END_SCHEMA;
 SCHEMA Physical_unit_3d_shape_mim;
 USE FROM Non_feature_shape_element_mim;	-- ISO/TS 10303-1706
 USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
-	
+
+USE FROM geometric_model_schema  -- ISO 10303-42 
+      (solid_model);
+    	
   TYPE pu3ds_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (shape_representation);
   END_TYPE;
@@ -9832,14 +9977,14 @@ USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.32 2008/12/12 12:54:27 liutkus Exp $
+   $Id: mim.exp,v 1.33 2009/03/24 09:35:47 lothartklein Exp $
    ISO TC184/SC4/WG12 N4132 - ISO/TS 10303-1728 Physical unit design view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3568
 *)
 
 SCHEMA Physical_unit_design_view_mim;
 
-USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+(*REFERENCE FROM*) USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
 USE FROM Part_template_mim;	-- ISO/TS 10303-1722
 USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
 USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
@@ -9989,7 +10134,7 @@ USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.32 2008/09/18 12:47:27 liutkuviene Exp $
+   $Id: mim.exp,v 1.33 2008/12/01 12:04:05 liutkus Exp $
    ISO TC184/SC4/WG12 N5792 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4144
 *)
@@ -10011,7 +10156,8 @@ USE FROM material_property_definition_schema(property_definition_relationship);
   END_TYPE; 
 
   TYPE puuv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-    (shape_aspect);
+    (product_definition,
+    shape_aspect);
   END_TYPE;
 
   TYPE puuv_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
@@ -10074,9 +10220,9 @@ END_SCHEMA;
 
 SCHEMA Picture_representation_mim;
 
-USE FROM Binary_representation_mim; -- ISO/CD-TS 10303-1369
-
-USE FROM Presentation_hierarchy_mim; -- ISO/CD-TS 10303-1330
+USE FROM Binary_representation_mim; -- ISO/TS 10303-1369
+USE FROM External_item_identification_assignment_mim; -- ISO/TS 10303-1128
+USE FROM Presentation_hierarchy_mim; -- ISO/TS 10303-1330
 
 USE FROM presentation_organization_schema 
   (presentation_area, 
@@ -10717,8 +10863,8 @@ END_SCHEMA;
 
 
 (*
- $Id: mim.exp,v 1.5 2004/10/29 16:40:18 thendrix Exp $
-ISO TC184/SC4/WG12 N1100 - ISO/TS 10303-1016 Product categorization - EXPRESS MIM
+ $Id: mim.exp,v 1.7 2009/03/12 15:15:35 philsp Exp $
+ISO TC184/SC4/WG12 Nnnnn - ISO/TS 10303-1016 Product categorization - EXPRESS MIM
 *) 
 
 
@@ -10730,10 +10876,26 @@ USE FROM basic_attribute_schema   -- ISO 10303-41
 
 USE FROM product_definition_schema   -- ISO 10303-41
   (product_category,
-   product_category_relationship); 
+   product_category_relationship,
+   product_related_product_category); 
 
+USE FROM Product_identification_mim;    -- ISO 10303-1017
+
+  FUNCTION categories_of_product (obj : product) : SET OF STRING; 
+    LOCAL
+      category_assignments: BAG OF product_category;
+      categories: SET OF STRING:=[];
+    END_LOCAL;
+    category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+      categories := categories + category_assignments[i].name;
+    END_REPEAT;
+    RETURN(categories);
+  END_FUNCTION; 
 
 END_SCHEMA;  -- Product_categorization_mim
+
+
 (*
  $Id: mim.exp,v 1.24 2008/09/13 12:26:51 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5477 - ISO/TS 10303-1103 Product class - EXPRESS MIM
@@ -11191,19 +11353,16 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
 
 END_SCHEMA;
 (*
-$Id: mim.exp,v 1.9 2005/06/02 20:42:28 thendrix Exp $
+$Id: mim.exp,v 1.10 2009/02/27 11:20:34 dmprice Exp $
 ISO TC184/SC4/WG12 N2926 - ISO/TS 10303-1017 Product identification - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N1103
 *) 
 
 
-SCHEMA Product_identification_mim; 
-
-USE FROM Product_categorization_mim;    -- ISO/TS 10303-1016
+SCHEMA Product_identification_mim;
 
 USE FROM product_definition_schema   -- ISO 10303-41
-  (product,
-   product_related_product_category); 
+  (product); 
 
 
 END_SCHEMA;  -- Product_identification_mim
@@ -11424,7 +11583,7 @@ USE FROM product_structure_schema -- ISO 10303-44
   (product_definition_usage);
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.11 2006/04/14 10:29:09 liutkus Exp $
+   $Id: mim.exp,v 1.12 2009/03/11 12:58:01 lothartklein Exp $
    ISO TC184/SC4/WG12 N4165 - ISO/TS 10303-1739 Production rule - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3589
 *)
@@ -11438,7 +11597,9 @@ SCHEMA Production_rule_mim;
     USE FROM Product_identification_mim;
    	USE FROM Activity_mim; -- ISO/TS 10303-1047
 	
-	USE FROM product_definition_schema(product_definition_relationship);
+	USE FROM product_definition_schema  --  ISO 10303-41
+	  (product_definition_relationship,
+	   product_related_product_category);
 	
 	USE FROM representation_schema(representation_item_relationship);
 	
@@ -11746,7 +11907,7 @@ END_RULE;
 
 END_SCHEMA;
 (*
- $Id: mim.exp,v 1.14 2008/09/13 12:26:51 liutkuviene Exp $
+ $Id: mim.exp,v 1.16 2009/03/19 16:02:47 philsp Exp $
  ISO TC184/SC4/WG12 N5486 - ISO/TS 10303-1233 Requirement assignment - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4971
 *) 
@@ -11755,7 +11916,8 @@ END_SCHEMA;
 SCHEMA Requirement_assignment_mim;
 
 USE FROM group_schema   -- ISO 10303-41
-  (group); 
+  (group,
+   group_relationship);
 
 USE FROM management_resources_schema   -- ISO 10303-41
   (group_assignment); 
@@ -11769,47 +11931,68 @@ USE FROM product_property_definition_schema   -- ISO 10303-41
 USE FROM Requirement_view_definition_mim;    -- ISO/TS 10303-1141
 
 
-  TYPE requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE; 
+TYPE requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-  TYPE requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE; 
+TYPE requirement_satisfaction_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+  (requirement_assigned_item);
+END_TYPE;
 
-  ENTITY assigned_requirement
-    SUBTYPE OF (group_assignment);
-      SELF\group_assignment.assigned_group : requirement_assignment;
-      items : SET[1:1] OF product_definition;
-  END_ENTITY;
+TYPE requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-  ENTITY requirement_assigned_object
-    SUBTYPE OF (group_assignment);
-      SELF\group_assignment.assigned_group : requirement_assignment;
-      items : SET[1:1] OF requirement_assigned_item;
-  END_ENTITY;
+ENTITY assigned_requirement
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : requirement_assignment;
+  items : SET [1 : 1] OF product_definition;
+END_ENTITY;
 
-  ENTITY requirement_assignment
-    SUBTYPE OF (characterized_object, group);
-  END_ENTITY;
+ENTITY requirement_assigned_object
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : requirement_assignment;
+  items : SET [1 : 1] OF requirement_assigned_item;
+END_ENTITY;
 
-  ENTITY requirement_source
-    SUBTYPE OF (group);
-  END_ENTITY;
+ENTITY requirement_assignment
+SUBTYPE OF (characterized_object, group);
+END_ENTITY;
 
-  ENTITY source_for_requirement
-    SUBTYPE OF (group_assignment);
-      SELF\group_assignment.assigned_group : requirement_source;
-      items : SET[1:1] OF requirement_source_item;
-  END_ENTITY;
+ENTITY requirement_source
+SUBTYPE OF (group);
+END_ENTITY;
 
-  ENTITY sourced_requirement
-    SUBTYPE OF (group_assignment);
-      SELF\group_assignment.assigned_group : requirement_source;
-      items : SET[1:1] OF product_definition;
-  END_ENTITY;
+ENTITY satisfied_requirement
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : satisfies_requirement;
+  items : SET [1 : 1] OF product_definition;
+END_ENTITY;
+
+ENTITY satisfies_requirement
+SUBTYPE OF (group);
+END_ENTITY;
+
+ENTITY satisfying_item
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : satisfies_requirement;
+  items : SET [1 : 1] OF requirement_satisfaction_item;
+END_ENTITY;
+
+ENTITY source_for_requirement
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : requirement_source;
+  items : SET [1 : 1] OF requirement_source_item;
+END_ENTITY;
+
+ENTITY sourced_requirement
+SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : requirement_source;
+  items : SET [1 : 1] OF product_definition;
+END_ENTITY;
 
 END_SCHEMA;
+
 (*
-   $Id: mim.exp,v 1.30 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: mim.exp,v 1.31 2009/03/10 05:03:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5807 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4168
 *)
@@ -11821,6 +12004,7 @@ SCHEMA Requirement_decomposition_mim;
 	USE FROM Elemental_geometric_shape_mim;	-- ISO/TS 10303-1004
 	USE FROM Functional_specification_mim;	-- ISO/TS 10303-1679
 	USE FROM Production_rule_mim;	-- ISO/TS 10303-1739
+	USE FROM Requirement_view_definition_relationship_mim;  -- ISO/TS 10303-1142
 	
 	USE FROM Material_property_definition_schema(property_definition_relationship);	
 
@@ -11856,14 +12040,6 @@ ENTITY predefined_requirement_view_definition
   SUBTYPE OF (product_definition);
 END_ENTITY;
 
-ENTITY requirement_view_definition_relationship
-  SUBTYPE OF (product_definition_relationship);
-END_ENTITY;
-
-ENTITY requirement_definition
- SUBTYPE OF (product_definition);
-END_ENTITY;
-	
 END_SCHEMA;
 
 
@@ -11912,21 +12088,17 @@ USE FROM Requirement_identification_and_version_mim;    -- ISO/TS 10303-1140
 END_SCHEMA;  -- Requirement_view_definition_mim
 
 
-(* 
- $Id: mim.exp,v 1.7 2004/11/19 21:37:40 robbod Exp $
- ISO TC184/SC4/WG12 N3137 - ISO/TS 10303-1142 Requirement view definition relationship - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG12 N2358
-*) 
-
-
 SCHEMA Requirement_view_definition_relationship_mim;
 
-USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
+USE FROM Product_view_definition_relationship_mim;
 
-USE FROM Requirement_view_definition_mim;    -- ISO/TS 10303-1141
+USE FROM Requirement_view_definition_mim;
 
+ENTITY requirement_view_definition_relationship
+SUBTYPE OF (product_definition_relationship);
+END_ENTITY;
 
-END_SCHEMA;  -- Requirement_view_definition_relationship_mim
+END_SCHEMA;
 
 (*
  $Id: mim.exp,v 1.9 2004/10/22 15:22:41 darla Exp $
@@ -12086,7 +12258,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-	$Id: mim.exp,v 1.19 2008/09/13 12:26:51 liutkuviene Exp $
+	$Id: mim.exp,v 1.20 2009/04/06 08:28:12 lothartklein Exp $
 	ISO TC184/SC4/WG12 N5495 - ISO/TS 10303-1032 Shape property assignment - EXPRESS MIM
 	Supersedes ISO TC184/SC4/WG12 N4808
 *)
@@ -12094,11 +12266,11 @@ END_SCHEMA;
 
 SCHEMA Shape_property_assignment_mim;
 
-USE FROM Assembly_structure_mim; -- ISO/TS 10303-1026
+(*REFERENCE FROM*) USE FROM Assembly_structure_mim; -- ISO/TS 10303-1026
 
 USE FROM Characterizable_object_mim;  -- ISO/TS 10303-1765
 
-USE FROM External_model_mim; -- ISO/TS 10303-1033
+(*REFERENCE FROM*) USE FROM External_model_mim; -- ISO/TS 10303-1033
 
 USE FROM Product_view_definition_relationship_mim; -- ISO/TS 10303-1041
 
@@ -12176,69 +12348,45 @@ END_ENTITY;
 END_SCHEMA;
 
 
-(*
-$Id: mim.exp,v 1.12 2008/01/20 18:42:45 thomasrthurman Exp $
-ISO TC184/SC4/WG12 N2544 - ISO/TS 10303-1133 Single part representation - EXPRESS MIM
-Supersedes ISO TC184/SC4/WG12 N1668
-*) 
-
-
 SCHEMA Single_part_representation_mim;
 
-USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
+USE FROM Document_assignment_mim;
 
-USE FROM Extended_measure_representation_mim;    -- ISO/TS 10303-1106
+USE FROM Extended_measure_representation_mim;
 
-USE FROM External_model_mim;    -- ISO/TS 10303-1033
+USE FROM Part_view_definition_mim;
 
-USE FROM Part_and_version_identification_mim;    -- ISO/TS 10303-1022
+USE FROM Person_organization_assignment_mim;
 
-USE FROM Part_view_definition_mim;    -- ISO/TS 10303-1023
+USE FROM Property_assignment_mim;
 
-USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
+USE FROM Shape_property_assignment_mim;
 
-USE FROM Product_categorization_mim;    -- ISO/TS 10303-1016
+REFERENCE FROM Product_categorization_mim
+	(categories_of_product);
 
-USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+TYPE spr_document_reference_item = SELECT BASED_ON document_reference_item WITH
+  (product,
+   product_definition,
+   product_definition_formation);
+END_TYPE;
 
-USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032
+TYPE spr_organization_item = EXTENSIBLE SELECT BASED_ON organization_item WITH
+  (product,
+   product_definition,
+   product_definition_formation);
+END_TYPE;
 
+TYPE spr_person_and_organization_item = EXTENSIBLE SELECT BASED_ON person_and_organization_item WITH
+  (product,
+   product_definition,
+   product_definition_formation);
+END_TYPE;
 
-TYPE spr_document_reference_item = SELECT BASED_ON document_reference_item WITH 
-   (product, 
-    product_definition, 
-    product_definition_formation);
-END_TYPE; 
+END_SCHEMA;
 
-TYPE spr_organization_item = EXTENSIBLE SELECT BASED_ON organization_item WITH 
-   (product, 
-    product_definition, 
-    product_definition_formation);
-END_TYPE; 
-
-TYPE spr_person_and_organization_item = EXTENSIBLE SELECT BASED_ON person_and_organization_item WITH 
-   (product, 
-    product_definition, 
-    product_definition_formation);
-END_TYPE; 
-
-FUNCTION categories_of_product
- (obj : product) : SET OF STRING; 
-LOCAL
-category_assignments: BAG OF product_category;
-categories: SET OF STRING:=[];
-i: INTEGER;
-END_LOCAL;
-category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-categories := categories + category_assignments[i].name;
-END_REPEAT;
-RETURN(categories);
-      END_FUNCTION; 
-
-END_SCHEMA;  -- Single_part_representation_mim
 (*
-   $Id: mim.exp,v 1.8 2006/01/20 08:43:40 liutkuviene Exp $
+   $Id: mim.exp,v 1.9 2009/03/11 12:56:49 lothartklein Exp $
    ISO TC184/SC4/WG12 N4186 - ISO/TS 10303-1746 Software - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3610
 *)
@@ -12248,6 +12396,8 @@ SCHEMA Software_mim;
 	USE FROM Document_definition_mim;	-- ISO/TS 10303-1123
 	USE FROM Product_identification_mim;	-- ISO/TS 10303-1017
 	USE FROM Information_product_mim;	-- ISO/TS 10303-xxxx
+    USE FROM product_definition_schema     --  ISO 10303-41
+      (product_related_product_category); 
 END_SCHEMA;
 
 (*
@@ -12598,7 +12748,7 @@ USE FROM product_property_definition_schema(
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.6 2008/09/13 12:26:54 liutkuviene Exp $
+   $Id: mim.exp,v 1.8 2009/03/11 13:06:18 lothartklein Exp $
    ISO TC184/SC4/WG12 N5510 - ISO/TS 10303-1771 Stock material - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4820
 *)
@@ -12616,6 +12766,10 @@ USE FROM Specification_document_mim; -- ISO/TS 10303-1747
 USE FROM Part_view_definition_mim; -- ISO/TS 10303-1023
 
 USE FROM product_structure_schema (make_from_usage_option);
+
+USE FROM product_definition_schema     --  ISO 10303-41
+    (product_related_product_category); 
+
 
   TYPE sm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
     (product_definition);
@@ -12644,10 +12798,11 @@ USE FROM product_structure_schema (make_from_usage_option);
       REPEAT j:= LOINDEX (make_from_usage_option) TO 
                  HIINDEX (make_from_usage_option);
 
-        IF (product_related_product_category[kp].products[i] = 
-          make_from_usage_option[j]\product_definition_relationship.relating_product_definition.formation.of_product) THEN
+          rp := make_from_usage_option[j].related_product_definition.
+                formation.of_product;
 
-          rp := make_from_usage_option[j]\product_definition_relationship.related_product_definition.formation.of_product;
+        IF (product_related_product_category[kp].products[i] = rp) THEN
+
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
 
@@ -12746,7 +12901,7 @@ END_SCHEMA;
 
 
 (*
- $Id: mim.exp,v 1.19 2008/09/13 12:26:52 liutkuviene Exp $
+ $Id: mim.exp,v 1.20 2009/03/20 21:49:43 lothartklein Exp $
  ISO TC184/SC4/WG12 N5516 - ISO/TS 10303-1110 Surface conditions - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4956
 *)
@@ -12773,7 +12928,7 @@ USE FROM product_property_definition_schema(
 USE FROM product_property_representation_schema(
 	property_definition_representation);
 
-REFERENCE FROM Single_part_representation_mim
+REFERENCE FROM Product_categorization_mim
 	(categories_of_product);
 
 
@@ -18454,7 +18609,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-$Id: document_schema.exp,v 1.8 2008/04/21 20:42:59 darla Exp $
+$Id: document_schema.exp,v 1.10 2009/01/09 21:23:07 darla Exp $
 
 2008-02-07
 ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
@@ -36511,14 +36666,13 @@ REFERENCE FROM support_resource_schema
        WR1: acyclic_representation_relationship(SELF,
          [SELF\representation_relationship.rep_2],
          'REPRESENTATION_SCHEMA.'+'REPRESENTATION');
-       WR2: NOT('REPRESENTATION_SCHEMA.'+'DEFINITIONAL_REPRESENTATION_RELATIONSHIP_WITH_SAME_CONTEXT' 
-         IN TYPEOF(SELF)) XOR
-         (SELF\representation_relationship.rep_1.context_of_items = 
-          SELF\representation_relationship.rep_2.context_of_items);
   END_ENTITY;  
 
   ENTITY definitional_representation_relationship_with_same_context
     SUBTYPE OF (definitional_representation_relationship);
+     WHERE
+       WR1: SELF\representation_relationship.rep_1.context_of_items :=: 
+            SELF\representation_relationship.rep_2.context_of_items;
   END_ENTITY;  
 
   ENTITY founded_item;
@@ -36886,17 +37040,11 @@ INVERSE
   established_by_relationships : SET [1:?] OF shape_aspect_relationship
                                  FOR related_shape_aspect;
 WHERE
-  WR1: ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE' IN TYPEOF(SELF)) OR
-       NOT
+  WR1: ('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM' IN TYPEOF(SELF)) XOR
+       ((SIZEOF(QUERY(x <* SELF\datum.established_by_relationships |
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) = 1) XOR
        (SIZEOF(QUERY(x <* SELF\datum.established_by_relationships |
-       (SIZEOF(TYPEOF(x\shape_aspect_relationship.relating_shape_aspect) * 
-       ['SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE', 
-       'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET']) = 1)
-       XOR
-       (SIZEOF(TYPEOF(x\shape_aspect_relationship.relating_shape_aspect) * 
-       ['SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE', 
-       'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET']) >= 1)
-       )) = 0);
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) >= 1));
 END_ENTITY;
 
 ENTITY datum_feature

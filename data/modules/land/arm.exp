@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.46 2009/04/03 14:06:12 thomasrthurman Exp $
+   $Id: arm.exp,v 1.47 2009/04/03 15:28:23 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5686 - ISO/TS 10303-1692 Land - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4023
 *)
@@ -32,19 +32,25 @@ USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
   END_ENTITY;
 
   ENTITY Dependent_thermal_isolation_removal_component
-    SUBTYPE OF (Material_removal_structured_component);
-      SELF\Definition_based_product_occurrence.derived_from : Dependent_thermal_isolation_removal_template;
+    SUBTYPE OF (Thermal_isolation_removal_component);
+      SELF\Thermal_isolation_removal_component.derived_from : Dependent_thermal_isolation_removal_template;
     DERIVE
       associated_land : Land := land_get_associated_land_for_thermal_removal(SELF);
     WHERE
       WR1 : associated_land\Definition_based_product_occurrence.derived_from :=:
-            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item;
-      WR2 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF));
+            SELF\Thermal_isolation_removal_component.derived_from\Dependent_thermal_isolation_removal_template.associated_item;
+  END_ENTITY;
+
+  ENTITY Thermal_isolation_removal_component
+    SUBTYPE OF (Material_removal_structured_component);
+      SELF\Definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
+    WHERE
+      WR1 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_MATERIAL_REMOVAL_LAMINATE_COMPONENT' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Dependent_electrical_isolation_removal_component
-    SUBTYPE OF (Material_removal_laminate_component);
-      SELF\Definition_based_product_occurrence.derived_from : Dependent_electrical_isolation_removal_template;
+    SUBTYPE OF (Electrical_isolation_laminate_component);
+      SELF\Electrical_isolation_laminate_component.derived_from : Dependent_electrical_isolation_removal_template;
     DERIVE
       SELF\Material_removal_laminate_component.causal_item RENAMED associated_land : Land := land_get_associated_land_for_electrical_removal(SELF);
     WHERE
@@ -118,7 +124,94 @@ USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
   RETURN(?);
   END_FUNCTION;
   
-  FUNCTION land_get_associated_land_for_thermal_removal(input: Dependent_thermal_isolation_removal_component) : Land;
-  RETURN(?);
+  FUNCTION land_get_associated_land_for_thermal_removal (
+               input : Dependent_thermal_isolation_removal_component) : Land;
+  --limitation of component_mrlc is that only first member is checked to see what stratum it is for.
+  --should not be a problem as related mrlc shall be for only one stratum.
+  LOCAL
+   assembly_relationships_for_associated_structure : SET OF Structured_layout_component_sub_assembly_relationship := [];
+   assembly_relationship : SET OF Structured_layout_component_sub_assembly_relationship :=
+           bag_to_set(USEDIN(input, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP.RELATED_VIEW'));
+   associated_structure : Structured_layout_component;
+   component_mrlc : SET OF Material_removal_laminate_component := [];
+   component_relationship : SET OF Structured_layout_component_sub_assembly_relationship :=
+           bag_to_set(USEDIN(input, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP.RELATING_VIEW'));
+   first_location : Template_location_in_structured_template := assembly_relationship[1]\Structured_layout_component_sub_assembly_relationship.first_location;
+   resident_stratum : stratum;
+   resident_sftc : Stratum_feature_template_component;
+  END_LOCAL;
+  --determine resident_stratum;
+  --critical to just use resident stratum as the individual isolation features might be against different stratum features (different power areas).
+   REPEAT i := 1 TO SIZEOF(component_relationship) BY 1;
+     component_mrlc := component_mrlc + component_relationship[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+   END_REPEAT;
+  CASE TRUE OF
+    ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(component_mrlc[1]\Material_removal_laminate_component.design_intent[1])) : 
+     resident_stratum := component_mrlc[1]\Material_removal_laminate_component.design_intent[1];
+  
+    ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT' IN TYPEOF(component_mrlc[1]\Material_removal_laminate_component.design_intent[1])) :
+    BEGIN
+     resident_sftc := component_mrlc[1]\Material_removal_laminate_component.design_intent[1];
+     CASE TRUE OF
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
+       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum;
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
+       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
+       OTHERWISE :
+        RETURN(?);
+     END_CASE;
+    END;
+    OTHERWISE :
+     RETURN(?);
+  END_CASE;
+  --determine first_location;
+  --if there is more than one assembly_relationship return UNKNOWN;
+   IF SIZEOF(assembly_relationship) <> 1 THEN RETURN(?);
+   END_IF;
+   
+  --determine associated_land;
+  --associated land is on same stratum;
+  
+     associated_structure := assembly_relationship[1]\Structured_layout_component_sub_assembly_relationship.relating_view;
+     assembly_relationships_for_associated_structure := 
+                     bag_to_set(USEDIN(associated_structure, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP.RELATING_VIEW')) - assembly_relationship;
+  --this assembly relationship is excluded since we are querying for other relationships
+  
+  CASE TRUE OF
+    ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(associated_structure)) :
+  --if part of footprint then associated_land has same first_location;
+    BEGIN   
+     REPEAT i := 1 TO SIZEOF(assembly_relationships_for_associated_structure) BY 1;
+      IF ((first_location :=: assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.first_location) AND
+         ('LAND_ARM.LAND' IN TYPEOF(assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view)) AND
+         (assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view\Stratum_feature_template_component.resident_stratum
+              :=: resident_stratum))
+      THEN
+          RETURN(assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view);
+      END_IF;
+     END_REPEAT;
+    --if no land is found return UNKNOWN.
+     RETURN(?);
+    END;
+    
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(associated_structure)) :
+    BEGIN
+     REPEAT i := 1 TO SIZEOF(assembly_relationships_for_associated_structure) BY 1;
+      IF (('LAND_ARM.LAND' IN TYPEOF(assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view)) AND
+          (assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view\Stratum_feature_template_component.resident_stratum
+               :=: resident_stratum))
+      THEN
+          RETURN(assembly_relationships_for_associated_structure[i]\Structured_layout_component_sub_assembly_relationship.related_view);
+       END_IF;
+     END_REPEAT;
+    --if no land is found return UNKNOWN.
+     RETURN(?);
+    END;
+    
+    OTHERWISE :
+    --if no land is found return UNKNOWN.
+     RETURN(?);
+  END_CASE;
   END_FUNCTION;
+
 END_SCHEMA;

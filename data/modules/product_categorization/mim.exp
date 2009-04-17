@@ -1,6 +1,6 @@
 (*
- $Id: mim.exp,v 1.6 2009/02/27 11:12:42 dmprice Exp $
-ISO TC184/SC4/WG12 Nnnnn - ISO/TS 10303-1016 Product categorization - EXPRESS MIM
+$Id: mim.exp,v 1.7 2009/03/12 15:15:35 philsp Exp $
+ISO TC184/SC4/WG12 N6057 - ISO/WD 10303-1016 Product categorization - EXPRESS MIM
 *) 
 
 
@@ -15,19 +15,21 @@ USE FROM product_definition_schema   -- ISO 10303-41
    product_category_relationship,
    product_related_product_category); 
 
-USE FROM Product_identification_mim;    -- ISO 10303-1017
+USE FROM Product_identification_mim;    -- ISO/WD 10303-1017
 
-  FUNCTION categories_of_product (obj : product) : SET OF STRING; 
-    LOCAL
-      category_assignments: BAG OF product_category;
-      categories: SET OF STRING:=[];
-    END_LOCAL;
-    category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-      categories := categories + category_assignments[i].name;
-    END_REPEAT;
-    RETURN(categories);
-  END_FUNCTION; 
+
+FUNCTION categories_of_product
+ (obj : product) : SET OF STRING; 
+LOCAL
+  category_assignments: BAG OF product_category;
+  categories: SET OF STRING:=[];
+END_LOCAL;
+category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+  categories := categories + category_assignments[i].name;
+END_REPEAT;
+RETURN(categories);
+      END_FUNCTION; 
 
 END_SCHEMA;  -- Product_categorization_mim
 

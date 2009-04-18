@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.95 2009/03/11 12:36:49 lothartklein Exp $
+   $Id: mim.exp,v 1.96 2009/03/24 10:12:52 lothartklein Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -45,8 +45,8 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim '{ 1 0 10
 	
 	REFERENCE FROM support_resource_schema(bag_to_set);
 
-USE FROM geometry_schema(offset_curve_2d);
-
+    USE FROM geometry_schema(offset_curve_2d);
+    
 SUBTYPE_CONSTRAINT aeaiapd_component_terminal_subtypes FOR physical_component_terminal;         
   (ONEOF(assembly_module_macro_component_join_terminal,
         interconnect_module_macro_component_join_terminal));
@@ -337,11 +337,14 @@ RULE application_protocol_definition_required FOR
     (application_context);
 WHERE
   WR1:  SIZEOF( QUERY( ac <* application_context |
-              (SIZEOF (QUERY (apd <*
-USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION')
-|
-                apd.application_interpreted_model_schema_name =
-'electronic_assembly_interconnect_and_packaging_design'
+              (SIZEOF (QUERY (apd <* USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
+                (apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design')
+                AND
+                (apd.application_protocol_year = 2009)
+                AND
+                (apd.status = 'International Standard RC1')
+                AND
+                (ac\application_context.description = 'configuration controlled design and usage of electronic products, assemblies, interconnects, and packaging')                            
                 )) > 0)
               )) > 0;
 END_RULE;

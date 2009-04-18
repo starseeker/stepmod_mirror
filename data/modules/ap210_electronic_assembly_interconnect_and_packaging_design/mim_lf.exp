@@ -19432,17 +19432,6 @@ END_RULE;
       WR1:  dkuhr;
   END_RULE;
 
-  RULE Ap210_electronic_assembly_interconnect_and_packaging_design_mim_dot_application_protocol_definition_required  FOR 
-      (application_context); 
-    WHERE 
-      WR1:  SIZEOF( QUERY( ac <* application_context | 
-              (SIZEOF (QUERY (apd <* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | 
-                apd.application_interpreted_model_schema_name = 'ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies' 
-                )) > 0) 
-              )) > 0;    
- 
-  END_RULE; 
-
 RULE restrict_classification_assignments FOR (applied_classification_assignment);
 WHERE
 WR1: SIZEOF(QUERY(aia <* applied_classification_assignment | 
@@ -19676,11 +19665,14 @@ RULE application_protocol_definition_required FOR
     (application_context);
 WHERE
   WR1:  SIZEOF( QUERY( ac <* application_context |
-              (SIZEOF (QUERY (apd <*
-USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION')
-|
-                apd.application_interpreted_model_schema_name =
-'electronic_assembly_interconnect_and_packaging_design'
+              (SIZEOF (QUERY (apd <* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
+                (apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design')
+                AND
+                (apd.application_protocol_year = 2009)
+                AND
+                (apd.status = 'International Standard RC0')
+                AND
+                (ac\application_context.description = 'configuration controlled design and usage of electronic products, assemblies, interconnects, and packaging')                            
                 )) > 0)
               )) > 0;
 END_RULE;

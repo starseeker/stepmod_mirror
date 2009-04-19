@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="edge_shape_feature_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="edge_shape_feature_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Edge_shape_feature_arm">
-      <interface kind="use" schema="Layered_3d_shape_arm"/>
+      <interface kind="use" schema="Layered_2d_shape_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
       <type name="board_side">
          <enumeration items="primary secondary"/>
@@ -17,15 +17,14 @@
          <explicit name="bevel_angle">
             <typename name="Tolerance_characteristic"/>
          </explicit>
-         <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        (SIZEOF(QUERY(it &lt;* bevel_angle\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        (SIZEOF(QUERY(it &lt;* bevel_angle\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))&#10;           )) = 1)"/>
+         <where expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        (SIZEOF(QUERY(it &lt;* bevel_angle\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))&#10;         )) = 0)" label="WR1"/>
+         <where expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        (SIZEOF(QUERY(it &lt;* bevel_angle\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))&#10;           )) = 1)" label="WR2"/>
       </entity>
-      <entity name="Edge_shape_model" abstract.supertype="YES" supertypes="Planar_shape_model" super.expression="ONEOF (Bevel_edge_feature_shape_model, Step_edge_feature_shape_model, Radius_edge_feature_shape_model)">
+      <entity abstract.supertype="YES" name="Edge_shape_model" super.expression="ONEOF (Bevel_edge_feature_shape_model, Step_edge_feature_shape_model, Radius_edge_feature_shape_model)" supertypes="Planar_shape_model">
          <explicit name="applied_surface">
             <typename name="board_side"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(escss &lt;* USEDIN(SELF,&#10; 'LAYERED_3D_SHAPE_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT') | NOT ('PART_TEMPLATE_3D_SHAPE_ARM.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss)))) = 0"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
+         <where expression="NOT EXISTS(SELF\Representation.name)" label="WR1"/>
       </entity>
       <entity name="Radius_edge_feature_shape_model" supertypes="Edge_shape_model">
          <explicit name="radius_length">

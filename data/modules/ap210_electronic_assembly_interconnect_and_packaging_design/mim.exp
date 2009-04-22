@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.96 2009/03/24 10:12:52 lothartklein Exp $
+   $Id: mim.exp,v 1.97 2009/04/18 21:18:40 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -46,18 +46,18 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim '{ 1 0 10
 	REFERENCE FROM support_resource_schema(bag_to_set);
 
     USE FROM geometry_schema(offset_curve_2d);
-    
+
 SUBTYPE_CONSTRAINT aeaiapd_component_terminal_subtypes FOR physical_component_terminal;         
   (ONEOF(assembly_module_macro_component_join_terminal,
         interconnect_module_macro_component_join_terminal));
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT part_terminal_subtypes FOR shape_aspect; 
-ONEOF (minimally_defined_bare_die_terminal, -- *lam*
- assembly_module_terminal, -- *lam*
- cable_terminal, -- *lam*
- interconnect_module_terminal, -- *layered interconnect*
- packaged_part_terminal); -- *lam*
+  ONEOF (minimally_defined_bare_die_terminal, -- *lam*
+         assembly_module_terminal, -- *lam*
+         cable_terminal, -- *lam*
+         interconnect_module_terminal, -- *layered interconnect*
+         packaged_part_terminal); -- *lam*
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT physical_unit_subtypes FOR physical_unit;         
@@ -75,6 +75,32 @@ SUBTYPE_CONSTRAINT aeaiapd_shape_definition_3d_intersection_subtypes FOR shape_d
               pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship));
 END_SUBTYPE_CONSTRAINT;        
 
+	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR packaged_part; 
+	    (ONEOF (minimally_defined_connector, 
+	 	packaged_connector)); 
+	END_SUBTYPE_CONSTRAINT;
+
+	SUBTYPE_CONSTRAINT ap210_apd_physical_component_subtypes FOR physical_component;         
+	    ONEOF (packaged_component,
+	    cable_component,
+		routed_physical_component);    
+	END_SUBTYPE_CONSTRAINT;
+
+	(** It most likely should be in Assembly_module_design_view CC *)
+	SUBTYPE_CONSTRAINT part_usage_view_subtypes FOR physical_unit;  
+	    ONEOF (package,
+		 bare_die,
+		 cable_usage_view,
+		 packaged_part);
+	END_SUBTYPE_CONSTRAINT;
+
+    SUBTYPE_CONSTRAINT aidfm_shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;  
+	  (ONEOF (edge_segment_cross_section,
+	  pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
+	  pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
+	  pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
+    END_SUBTYPE_CONSTRAINT;  
+	
 TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
      (action,
       alternate_product_relationship,
@@ -102,7 +128,6 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
       document,
       document_usage_constraint,
       externally_defined_item,
---      fill_area_style_colour,
       fill_area_style_hatching,
       fill_area_style_tiles,
       func,
@@ -312,39 +337,12 @@ END_LOCAL;
  RETURN(pd[1].description = 'true');
 END_FUNCTION;
 
--- from SCHEMA Ap210_assembly_physical_design_mim;
-
-	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR packaged_part; 
-	    (ONEOF (minimally_defined_connector, 
-	 	packaged_connector)); 
-	END_SUBTYPE_CONSTRAINT;
-
-	SUBTYPE_CONSTRAINT ap210_apd_physical_component_subtypes FOR physical_component;         
-	    ONEOF (packaged_component,
-	    cable_component,
-		routed_physical_component);    
-	END_SUBTYPE_CONSTRAINT;
-
-	(** It most likely should be in Assembly_module_design_view CC *)
-	SUBTYPE_CONSTRAINT part_usage_view_subtypes FOR physical_unit;  
-	    ONEOF (package,
-		 bare_die,
-		 cable_usage_view,
-		 packaged_part);
-	END_SUBTYPE_CONSTRAINT;
-
 RULE application_protocol_definition_required FOR
     (application_context);
 WHERE
   WR1:  SIZEOF( QUERY( ac <* application_context |
               (SIZEOF (QUERY (apd <* USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
                 (apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design')
-                AND
-                (apd.application_protocol_year = 2009)
-                AND
-                (apd.status = 'International Standard RC1')
-                AND
-                (ac\application_context.description = 'configuration controlled design and usage of electronic products, assemblies, interconnects, and packaging')                            
                 )) > 0)
               )) > 0;
 END_RULE;
@@ -475,13 +473,6 @@ WHERE
               )) = 0;
 END_RULE;
 
- SUBTYPE_CONSTRAINT aidfm_shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;  
-	 (ONEOF (edge_segment_cross_section,
-	 pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
-	 pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
-	 pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
- END_SUBTYPE_CONSTRAINT;  
-	
 END_SCHEMA;
 
 

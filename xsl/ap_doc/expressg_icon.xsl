@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.3 2003/06/16 16:41:27 robbod Exp $
+$Id: expressg_icon.xsl,v 1.4 2003/07/31 09:51:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -23,8 +23,30 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/16 16:41:27 robbod Exp $
     <xsl:param name="object"/>
     <xsl:param name="expressg"/>
 
+    <xsl:if test="count($expressg/expg_nodes/object[@object=$object]) > 1">
+      <xsl:variable name="error_msg">
+        Error MIMEXPG E1: The object <xsl:value-of select="$object"/> is referenced differently
+        (<xsl:value-of select="count($expressg/expg_nodes/object[@object=$object])"/> times)
+        in the MIM EXPRESS-G files. This indicates an error.
+        Search ALL mimexpg*.xml files for the following:
+      <xsl:for-each select="$expressg/expg_nodes/object[@object=$object]">
+          <xsl:value-of select="concat(./@schema,'.',./@object,' 
+            ')"/>
+         
+      </xsl:for-each>
+        Note - you may have to correct the case of the schema name in the search
+      </xsl:variable>
+   <xsl:call-template name="error_message">
+        <xsl:with-param name="inline" select="'yes'"/>
+        <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+        <xsl:with-param 
+          name="message" 
+          select="$error_msg"/>
+      </xsl:call-template>  
+    </xsl:if>
+
     <xsl:apply-templates
-      select="$expressg/expg_nodes/object[@object=$object]" mode="get_href"/>
+      select="$expressg/expg_nodes/object[@object=$object][1]" mode="get_href"/>
   </xsl:template>
 
   <xsl:template match="object" mode="get_href">
@@ -80,6 +102,9 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/16 16:41:27 robbod Exp $
           <xsl:attribute name="file">
             <xsl:value-of select="$file"/>
           </xsl:attribute>
+          <xsl:attribute name="schema">
+            <xsl:value-of select="$schema"/>
+          </xsl:attribute>
           <xsl:attribute name="object">
             <xsl:value-of select="$object"/>
           </xsl:attribute>
@@ -115,7 +140,6 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/16 16:41:27 robbod Exp $
             <xsl:with-param name="expressg" select="$expressg"/>
           </xsl:call-template>
         </xsl:variable>
-
         <xsl:choose>
           <xsl:when test="string-length($href_expg)=0">
             <xsl:variable name="error_msg"

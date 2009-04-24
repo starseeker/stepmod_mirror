@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.169 2008/04/24 16:33:50 darla Exp $
+$Id: common.xsl,v 1.170 2009/04/08 21:33:44 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1339,11 +1339,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   <xsl:template name="error_message">
     <xsl:param name="message"/>
     <xsl:param name="inline" select="'yes'"/>
+    <xsl:param name="linebreakchar" select="'#'"/>
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
 
     <xsl:message>
-      <xsl:value-of select="translate($message,'#','&#010;')"/>
+      <xsl:value-of select="translate($message,$linebreakchar,'&#010;')"/>
     </xsl:message>
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.99 2009/04/23 09:54:39 liutkuviene Exp $
+   $Id: mim.exp,v 1.100 2009/04/23 21:51:13 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N6277 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1997
 *)
@@ -82,9 +82,17 @@ END_SUBTYPE_CONSTRAINT;
 	END_SUBTYPE_CONSTRAINT;
 
 	SUBTYPE_CONSTRAINT ap210_apd_physical_component_subtypes FOR physical_component;         
-	    ONEOF (packaged_component,
+	    ONEOF (
+        assembly_module_component,
+        assembly_module_macro_component,
+        bare_die_component,
 	    cable_component,
-		routed_physical_component);    
+        interconnect_module_component,
+        interconnect_module_macro_component, 
+	    packaged_component,
+        routed_interconnect_component, 
+		routed_physical_component,
+        sequential_laminate_stackup_component);    
 	END_SUBTYPE_CONSTRAINT;
 
 	(** It most likely should be in Assembly_module_design_view CC *)
@@ -95,13 +103,6 @@ END_SUBTYPE_CONSTRAINT;
 		 packaged_part);
 	END_SUBTYPE_CONSTRAINT;
 
-    SUBTYPE_CONSTRAINT aidfm_shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;  
-	  (ONEOF (edge_segment_cross_section,
-	  pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
-	  pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
-	  pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
-    END_SUBTYPE_CONSTRAINT;  
-	
 TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
      (action,
       alternate_product_relationship,

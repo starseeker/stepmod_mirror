@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.26 2004/02/05 14:41:36 robbod Exp $
+$Id: imgfile.xsl,v 1.27 2009/04/24 16:03:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -29,114 +29,137 @@ $Id: imgfile.xsl,v 1.26 2004/02/05 14:41:36 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
+
     <xsl:variable name="module_file" select="concat($module_dir,'/module.xml')"/>
     <xsl:variable name="module" select="@module"/>
     <xsl:variable name="self" select="."/>
-    <xsl:variable name="module_xml" select="document($module_file)/module"/>
 
-
-
-    <!-- if a file is specified then can deduce the figure title -->
-    <xsl:variable name="fig_title">
-      <xsl:choose>
-        <xsl:when test="./@file">
-          <xsl:apply-templates select="$module_xml/*/express-g/imgfile" mode="title">
-            <xsl:with-param name="file" select="@file"/>
-          </xsl:apply-templates>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="@title"/>
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>
     </xsl:variable>
 
-    <HTML>
-      <HEAD>
-        <TITLE>
-          <xsl:apply-templates select="$module_xml" mode="title"/>
-        </TITLE>
-        <xsl:apply-templates select="$module_xml" mode="meta_data"/>
-      </HEAD>
+    <xsl:choose>
+      <xsl:when test="$module_ok='true'">
+        <xsl:variable name="module_xml" select="document($module_file)/module"/>
 
-      <xsl:element name="body">
-        <xsl:if test="$output_background='YES'">
-          <xsl:attribute name="background">
-            <xsl:value-of select="concat('../../../images/',$background_image)"/>
-          </xsl:attribute>
-          <!-- can only use this for Internet explorer, so not valid HTML
+        <!-- if a file is specified then can deduce the figure title -->
+        <xsl:variable name="fig_title">
+          <xsl:choose>
+            <xsl:when test="./@file">
+              <xsl:apply-templates select="$module_xml/*/express-g/imgfile" mode="title">
+                <xsl:with-param name="file" select="@file"/>
+              </xsl:apply-templates>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="@title"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
+        <HTML>
+          <HEAD>
+            <TITLE>
+              <xsl:apply-templates select="$module_xml" mode="title"/>
+            </TITLE>
+            <xsl:apply-templates select="$module_xml" mode="meta_data"/>
+          </HEAD>
+
+          <xsl:element name="body">
+            <xsl:if test="$output_background='YES'">
+              <xsl:attribute name="background">
+                <xsl:value-of select="concat('../../../images/',$background_image)"/>
+              </xsl:attribute>
+              <!-- can only use this for Internet explorer, so not valid HTML
           <xsl:attribute name="bgproperties" >
             <xsl:value-of select="'fixed'" />
             </xsl:attribute> -->
-        </xsl:if>
-        <xsl:choose>
-          <xsl:when test="@module">
-            <xsl:apply-templates select="$module_xml" mode="TOCmultiplePage">
-              <xsl:with-param name="module_root" select="'.'"/>
-            </xsl:apply-templates>
-
-            <!-- display navigation arrows -->
+            </xsl:if>
             <xsl:choose>
-              <xsl:when test="./@file">
-                <xsl:apply-templates select="document($module_file)/module/*/express-g/imgfile"
-                  mode="nav_arrows">
-                  <xsl:with-param name="file" select="@file"/>
+              <xsl:when test="@module">
+                <xsl:apply-templates select="$module_xml" mode="TOCmultiplePage">
+                  <xsl:with-param name="module_root" select="'.'"/>
                 </xsl:apply-templates>
+
+                <!-- display navigation arrows -->
+                <xsl:choose>
+                  <xsl:when test="./@file">
+                    <xsl:apply-templates select="document($module_file)/module/*/express-g/imgfile"
+                      mode="nav_arrows">
+                      <xsl:with-param name="file" select="@file"/>
+                    </xsl:apply-templates>
+                  </xsl:when>
+                  <xsl:otherwise> To enable navigation, add file parameter to expressg file
+                      <xsl:call-template name="error_message">
+                      <xsl:with-param name="inline" select="'no'"/>
+                      <xsl:with-param name="message">
+                        <xsl:value-of
+                          select="'Warning IM2: To enable navigation, add file parameter to expressg file'"
+                        />
+                      </xsl:with-param>
+                      <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
+
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
+
+                <xsl:apply-templates select="//img.area" mode="error_check"/>
+
+                <!-- now display the image -->
+                <xsl:apply-templates select="img">
+                  <xsl:with-param name="alt" select="$fig_title"/>
+                </xsl:apply-templates>
+                <div align="center">
+                  <br/>
+                  <br/>
+                  <b>
+                    <xsl:value-of select="$fig_title"/>
+                  </b>
+                  <br/>
+                </div>
               </xsl:when>
-              <xsl:otherwise> To enable navigation, add file parameter to expressg file
-                  <xsl:call-template name="error_message">
-                  <xsl:with-param name="inline" select="'no'"/>
+              <xsl:otherwise>
+                <xsl:call-template name="error_message">
                   <xsl:with-param name="message">
-                    <xsl:value-of
-                      select="'Warning IM2: To enable navigation, add file parameter to expressg file'"
-                    />
+                    <xsl:value-of select="'Error IM1: Error in image file - module not specified'"/>
                   </xsl:with-param>
                   <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
-
                 </xsl:call-template>
+                <xsl:apply-templates select="img"/>
+                <div align="center">
+                  <br/>
+                  <br/>
+                  <b>
+                    <xsl:value-of select="@title"/>
+                  </b>
+                  <br/>
+                </div>
               </xsl:otherwise>
             </xsl:choose>
 
-            <xsl:apply-templates select="//img.area" mode="error_check"/>
-
-            <!-- now display the image -->
-            <xsl:apply-templates select="img">
-              <xsl:with-param name="alt" select="$fig_title"/>
-            </xsl:apply-templates>
-            <div align="center">
-              <br/>
-              <br/>
-              <b>
-                <xsl:value-of select="$fig_title"/>
-              </b>
-              <br/>
-            </div>
-          </xsl:when>
-          <xsl:otherwise>
+            <br/>
+            <br/>
+            <p>&#169; ISO <xsl:value-of select="$module_xml/@publication.year"/> &#8212; All
+              rights reserved</p>
+          </xsl:element>
+        </HTML>
+      </xsl:when>
+      
+      <xsl:otherwise>
+        <HTML>
+          <BODY>
             <xsl:call-template name="error_message">
               <xsl:with-param name="message">
-                <xsl:value-of select="'Error IM1: Error in image file - module not specified'"/>
-              </xsl:with-param>
+                <xsl:value-of
+                  select="concat('Error: image map M3: The module ',$module,' referenced in image map file')"
+                /> does not exist.')"/></xsl:with-param>
               <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
-
             </xsl:call-template>
-            <xsl:apply-templates select="img"/>
-            <div align="center">
-              <br/>
-              <br/>
-              <b>
-                <xsl:value-of select="@title"/>
-              </b>
-              <br/>
-            </div>
-          </xsl:otherwise>
-        </xsl:choose>
-
-        <br/>
-        <br/>
-        <p>&#169; ISO <xsl:value-of select="$module_xml/@publication.year"/> &#8212; All
-          rights reserved</p>
-      </xsl:element>
-    </HTML>
+          </BODY>
+        </HTML>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="imgfile" mode="title">
@@ -290,7 +313,7 @@ $Id: imgfile.xsl,v 1.26 2004/02/05 14:41:36 robbod Exp $
       <xsl:variable name="imgfile" select="/imgfile.content/@file"/>
       <xsl:variable name="href_file_path"
         select="concat('../data/modules/',$module,'/',normalize-space(substring-before(@href,'#')))"/>
-
+     
       <xsl:variable name="express_xml">
         <xsl:choose>
           <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
@@ -306,20 +329,76 @@ $Id: imgfile.xsl,v 1.26 2004/02/05 14:41:36 robbod Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-
-      <xsl:if test="not(document(string($express_xml))//schema/node()[translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$refed_object])">
-
-        <xsl:variable name="error_msg"> Error: image map M1 <xsl:value-of
-            select="concat($module,'/',$imgfile)"/> references: <xsl:value-of select="@href"/> which
-          does not exist. Reading <xsl:value-of select="$express_xml"/>
-        </xsl:variable>
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="inline" select="'yes'"/>
-          <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
-          <xsl:with-param name="message" select="$error_msg"/>
-          <xsl:with-param name="linebreakchar" select="'%'"/>
+      
+      <xsl:message>[[<xsl:value-of select="$express_xml"/></xsl:message>
+      <xsl:variable name="referenced_schema">
+        <xsl:variable name="tmp_path">
+          <xsl:choose>
+            <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
+              <xsl:value-of select="substring-before($href_file_path,'/sys/5_mim.xml')"/>
+            </xsl:when>
+            <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
+              <xsl:value-of select="substring-before($href_file_path,'/sys/4_info_reqs.xml')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="substring-before($href_file_path,'.xml')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>        
+        <xsl:call-template name="get_last_section">
+          <xsl:with-param name="path" select="$tmp_path"/>
+          <xsl:with-param name="divider" select="'/'"/>
         </xsl:call-template>
-      </xsl:if>
+      </xsl:variable> 
+      <xsl:message>{{<xsl:value-of select="$referenced_schema"/></xsl:message>
+      
+      <xsl:variable name="schema_ok">
+        <xsl:choose>
+          <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
+            <xsl:call-template name="check_module_exists">
+              <xsl:with-param name="module" select="$referenced_schema"/>
+            </xsl:call-template>            
+          </xsl:when>
+          <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">            
+            <xsl:call-template name="check_module_exists">
+              <xsl:with-param name="module" select="$referenced_schema"/>
+            </xsl:call-template>            
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="check_resource_exists">
+              <xsl:with-param name="schema" select="$referenced_schema"/>
+            </xsl:call-template>            
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:message>=<xsl:value-of select="$schema_ok"/></xsl:message>
+      <xsl:choose>
+        <xsl:when test="$schema_ok='true'">
+          <xsl:if
+            test="not(document(string($express_xml))//schema/node()[translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$refed_object])">
+            <xsl:variable name="error_msg">Error: image map M1 <xsl:value-of
+                select="concat($module,'/',$imgfile)"/> references: <xsl:value-of select="@href"/>
+              which does not exist. Reading <xsl:value-of select="$express_xml"/>
+            </xsl:variable>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="inline" select="'yes'"/>
+              <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
+              <xsl:with-param name="message" select="$error_msg"/>
+              <xsl:with-param name="linebreakchar" select="'%'"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error: image map M2: The module',$module,'/',$imgfile)"
+              /> references: <xsl:value-of select="@href"/>. The schema <xsl:value-of select="$referenced_schema"/> does not exist. Reading
+                <xsl:value-of select="$express_xml"/>does not exist.')"/> </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+
+
     </xsl:if>
 
   </xsl:template>

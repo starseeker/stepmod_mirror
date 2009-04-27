@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.27 2009/04/24 16:03:04 robbod Exp $
+$Id: imgfile.xsl,v 1.28 2009/04/26 06:14:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -330,7 +330,6 @@ $Id: imgfile.xsl,v 1.27 2009/04/24 16:03:04 robbod Exp $
         </xsl:choose>
       </xsl:variable>
       
-      <xsl:message>[[<xsl:value-of select="$express_xml"/></xsl:message>
       <xsl:variable name="referenced_schema">
         <xsl:variable name="tmp_path">
           <xsl:choose>
@@ -350,7 +349,6 @@ $Id: imgfile.xsl,v 1.27 2009/04/24 16:03:04 robbod Exp $
           <xsl:with-param name="divider" select="'/'"/>
         </xsl:call-template>
       </xsl:variable> 
-      <xsl:message>{{<xsl:value-of select="$referenced_schema"/></xsl:message>
       
       <xsl:variable name="schema_ok">
         <xsl:choose>
@@ -371,7 +369,6 @@ $Id: imgfile.xsl,v 1.27 2009/04/24 16:03:04 robbod Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <xsl:message>=<xsl:value-of select="$schema_ok"/></xsl:message>
       <xsl:choose>
         <xsl:when test="$schema_ok='true'">
           <xsl:if

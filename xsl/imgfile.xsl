@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.28 2009/04/26 06:14:52 robbod Exp $
+$Id: imgfile.xsl,v 1.29 2009/04/27 08:23:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -308,95 +308,109 @@ $Id: imgfile.xsl,v 1.28 2009/04/26 06:14:52 robbod Exp $
     <xsl:variable name="refed_object"
       select="translate($urefed_object,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
     
-    <xsl:if test="string-length($refed_object) > 0">
-      <xsl:variable name="module" select="/imgfile.content/@module"/>
-      <xsl:variable name="imgfile" select="/imgfile.content/@file"/>
-      <xsl:variable name="href_file_path"
-        select="concat('../data/modules/',$module,'/',normalize-space(substring-before(@href,'#')))"/>
-     
-      <xsl:variable name="express_xml">
-        <xsl:choose>
-          <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
-            <xsl:value-of
-              select="concat(substring-before($href_file_path,'/sys/5_mim.xml'),'/mim.xml')"/>
-          </xsl:when>
-          <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
-            <xsl:value-of
-              select="concat(substring-before($href_file_path,'/sys/4_info_reqs.xml'),'/arm.xml')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$href_file_path"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      
-      <xsl:variable name="referenced_schema">
-        <xsl:variable name="tmp_path">
-          <xsl:choose>
-            <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
-              <xsl:value-of select="substring-before($href_file_path,'/sys/5_mim.xml')"/>
-            </xsl:when>
-            <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
-              <xsl:value-of select="substring-before($href_file_path,'/sys/4_info_reqs.xml')"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="substring-before($href_file_path,'.xml')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>        
-        <xsl:call-template name="get_last_section">
-          <xsl:with-param name="path" select="$tmp_path"/>
-          <xsl:with-param name="divider" select="'/'"/>
-        </xsl:call-template>
-      </xsl:variable> 
-      
-      <xsl:variable name="schema_ok">
-        <xsl:choose>
-          <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
-            <xsl:call-template name="check_module_exists">
-              <xsl:with-param name="module" select="$referenced_schema"/>
-            </xsl:call-template>            
-          </xsl:when>
-          <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">            
-            <xsl:call-template name="check_module_exists">
-              <xsl:with-param name="module" select="$referenced_schema"/>
-            </xsl:call-template>            
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:call-template name="check_resource_exists">
-              <xsl:with-param name="schema" select="$referenced_schema"/>
-            </xsl:call-template>            
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:choose>
-        <xsl:when test="$schema_ok='true'">
-          <xsl:if
-            test="not(document(string($express_xml))//schema/node()[translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$refed_object])">
-            <xsl:variable name="error_msg">Error: image map M1 <xsl:value-of
-                select="concat($module,'/',$imgfile)"/> references: <xsl:value-of select="@href"/>
-              which does not exist. Reading <xsl:value-of select="$express_xml"/>
+        <xsl:if test="string-length($refed_object) > 0">
+            <xsl:variable name="module" select="/imgfile.content/@module"/>
+            <xsl:variable name="imgfile" select="/imgfile.content/@file"/>
+            <xsl:variable name="href_file_path"
+                select="concat('../data/modules/',$module,'/',normalize-space(substring-before(@href,'#')))"/>
+
+            <xsl:variable name="express_xml">
+                <xsl:choose>
+                    <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
+                        <xsl:value-of
+                            select="concat(substring-before($href_file_path,'/sys/5_mim.xml'),'/mim.xml')"
+                        />
+                    </xsl:when>
+                    <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
+                        <xsl:value-of
+                            select="concat(substring-before($href_file_path,'/sys/4_info_reqs.xml'),'/arm.xml')"
+                        />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$href_file_path"/>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:variable>
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="inline" select="'yes'"/>
-              <xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
-              <xsl:with-param name="message" select="$error_msg"/>
-              <xsl:with-param name="linebreakchar" select="'%'"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error: image map M2: The module',$module,'/',$imgfile)"
-              /> references: <xsl:value-of select="@href"/>. The schema <xsl:value-of select="$referenced_schema"/> does not exist. Reading
-                <xsl:value-of select="$express_xml"/>does not exist.')"/> </xsl:with-param>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
+
+            <xsl:variable name="referenced_schema">
+                <xsl:variable name="tmp_path">
+                    <xsl:choose>
+                        <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
+                            <xsl:value-of
+                                select="substring-before($href_file_path,'/sys/5_mim.xml')"/>
+                        </xsl:when>
+                        <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
+                            <xsl:value-of
+                                select="substring-before($href_file_path,'/sys/4_info_reqs.xml')"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="substring-before($href_file_path,'.xml')"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </xsl:variable>
+                <xsl:call-template name="get_last_section">
+                    <xsl:with-param name="path" select="$tmp_path"/>
+                    <xsl:with-param name="divider" select="'/'"/>
+                </xsl:call-template>
+            </xsl:variable>
+
+            <xsl:variable name="schema_ok">
+                <xsl:choose>
+                    <xsl:when test="starts-with(@href,'./sys/5_mim.xml')">
+                        <xsl:value-of select="'true'"/>
+                    </xsl:when>
+                    <xsl:when test="starts-with(@href,'./sys/4_info_reqs.xml')">
+                        <xsl:value-of select="'true'"/>
+                    </xsl:when>
+                    <xsl:when test="contains($href_file_path,'/sys/5_mim.xml')">
+                        <xsl:call-template name="check_module_exists">
+                            <xsl:with-param name="module" select="$referenced_schema"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="contains($href_file_path,'/sys/4_info_reqs.xml')">
+                        <xsl:call-template name="check_module_exists">
+                            <xsl:with-param name="module" select="$referenced_schema"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="check_resource_exists">
+                            <xsl:with-param name="schema" select="$referenced_schema"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:choose>
+                <xsl:when test="$schema_ok='true'">
+                    <xsl:if
+                        test="not(document(string($express_xml))//schema/node()[translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$refed_object])">
+                        <xsl:variable name="error_msg">Error: image map M1 <xsl:value-of
+                                select="concat($module,'/',$imgfile)"/> references: <xsl:value-of
+                                select="@href"/> which does not exist. Reading <xsl:value-of
+                                select="$express_xml"/>
+                        </xsl:variable>
+                        <xsl:call-template name="error_message">
+                            <xsl:with-param name="inline" select="'yes'"/>
+                            <xsl:with-param name="warning_gif"
+                                select="'../../../images/warning.gif'"/>
+                            <xsl:with-param name="message" select="$error_msg"/>
+                            <xsl:with-param name="linebreakchar" select="'%'"/>
+                        </xsl:call-template>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="error_message">
+                        <xsl:with-param name="message">
+                            <xsl:value-of
+                                select="concat('Error: image map M2: The module',$module,'/',$imgfile)"
+                            /> references: <xsl:value-of select="@href"/>. The schema <xsl:value-of
+                                select="$referenced_schema"/> does not exist. Reading <xsl:value-of
+                                select="$express_xml"/>does not exist.')"/> </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:otherwise>
+            </xsl:choose>
 
 
-    </xsl:if>
+        </xsl:if>
 
   </xsl:template>
 

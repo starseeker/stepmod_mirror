@@ -7,4 +7,6 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "$MODULE"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 cscript //nologo checkModuleBatch.wsf $MODULE
-echo "end: $MODULE\n"
+echo "end: $MODULE"
+echo ""
+

@@ -1,36 +1,44 @@
+(*
+$Id: arm.exp,v 1.13 2009/04/29 09:39:17 mikeward Exp $
+ISO TC184/SC4/WG12 N6601 - ISO/TS 10303-1488 Verification and validation - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N5938
+*) 
+
+
 SCHEMA Verification_and_validation_arm;
 
-USE FROM Requirement_assignment_arm;
+USE FROM Requirement_assignment_arm;    -- ISO/CD-TS 10303-1233
 
-TYPE evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT 
-  (Validation,
-   Verification);
-END_TYPE;
 
-TYPE evidence_support_item = SELECT 
-  (Validation,
-   Verification);
-END_TYPE;
+TYPE evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Validation, 
+    Verification);
+END_TYPE; 
 
-TYPE validation_item = EXTENSIBLE GENERIC_ENTITY SELECT 
-  (Product_version);
-END_TYPE;
+TYPE evidence_support_item = SELECT
+   (Validation, 
+    Verification);
+END_TYPE; 
+
+TYPE validation_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Product_version);
+END_TYPE; 
 
 ENTITY Evidence;
   supports : evidence_support_item;
-  items : SET [1 : ?] OF evidence_item;
+  items : SET[1:?] OF evidence_item;
 END_ENTITY;
 
 ENTITY Validation;
   validates : validation_item;
 INVERSE
-  validated_by : SET [0 : ?] OF Evidence FOR supports;
+  validated_by : SET[0:?] OF Evidence FOR supports;
 END_ENTITY;
 
 ENTITY Verification;
   verifies : Requirement_satisfied_by;
 INVERSE
-  verified_by : SET [0 : ?] OF Evidence FOR supports;
+  verified_by : SET[0:?] OF Evidence FOR supports;
 END_ENTITY;
 
 ENTITY Verification_relationship;
@@ -38,5 +46,5 @@ ENTITY Verification_relationship;
   related : Verification;
 END_ENTITY;
 
-END_SCHEMA;
+END_SCHEMA;  -- Verification_and_validation_arm
 

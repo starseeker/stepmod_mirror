@@ -1,0 +1,47 @@
+<project name="Part1000" default="part1000" basedir="../../data/collections/part1000">
+    <description>Part 1000</description>
+  <!-- set global properties for this build -->
+  <property environment="env"/>
+  <property name="saxon" location="${env.SAXON_HOME}"/>
+  <property name="saxon_jar" location="${saxon}/saxon9.jar"/>
+  <property name="xslt_classpath" value="${saxon_jar};."/>
+  <property name="step1000_dir" location="${env.STEP1000_ROOT}"/>
+  <property name="xslt_dir" location="../../../xsl/part1000"/>
+  <property name="target_dir" location="${step1000_dir}/data/collections/part1000"/>
+
+  <macrodef name="xslt1">
+    <attribute name="in"/>
+    <attribute name="out"/>
+    <attribute name="style"/>
+    <sequential>
+      <exec executable="java">
+        <arg value="-classpath"/>
+        <arg value="${xslt_classpath}"/>
+	<arg value="net.sf.saxon.Transform"/>
+        <arg value="-o"/>
+        <arg value="@{out}"/>
+        <arg value="@{in}"/>
+        <arg value="@{style}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+  </target>
+
+  <target name="part1000" depends="init" description="create the files">
+    <xslt1 in="docs.xml" out="${target_dir}/sys/index_by_name_inner.htm" style="${xslt_dir}/by_name.xsl"/>
+    <xslt1 in="docs.xml" out="${target_dir}/sys/index_by_number_inner.htm" style="${xslt_dir}/by_number.xsl"/>
+    <xslt1 in="docs.xml" out="${target_dir}/sys/4_modules.htm" style="${xslt_dir}/modules.xsl"/>
+    <copy todir="${target_dir}">
+      <fileset dir="." includes="**/*.htm"/>
+    </copy>
+  </target>
+
+  <target name="clean" description="clean up">
+  </target>
+</project>
+

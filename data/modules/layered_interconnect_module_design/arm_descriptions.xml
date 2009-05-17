@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2009/04/24 10:52:40 $" rcs.revision="$Revision: 1.219 $">
+<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2009/05/07 17:26:34 $" rcs.revision="$Revision: 1.220 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Layered_interconnect_module_design_arm
    <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm"/>
@@ -971,19 +971,19 @@ of <b>Internal_stratum_accesses</b>.
 		<express_ref linkend="Constructive_solid_geometry_2d:arm:Constructive_solid_geometry_2d_arm.Curve_style_parameters_with_ends.end_extension">Curve_style_parameters_with_ends.end_extension</express_ref> 
 		value is truncate for the first trace.   
 		The source CAD resolution is 10 nanometres and uses 32 bit integer math.  
-		The post-processor author determines by examination of the source CAD system specification that the 
+		The pre-processor author determines by examination of the source CAD system specification that the correct value for
 		<express_ref linkend="representation_schema:ir_express:representation_schema.global_uncertainty_assigned_context.uncertainty"/> 
-		is 10 nanometres and precision is not a concern in that the post-processor uses double precision arithmetic. 
-		The post-processor application evaluates the example data set and concludes that the first trace 
+		is 10 nanometres. Precision is not a concern in that the pre-processor uses double precision arithmetic. 
+		The pre-processor application evaluates the source data set and concludes that the first trace 
 		does intersect the second trace and creates an 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship"/>.
-		The post-processor converts the traces into two members of 
+		The pre-processor converts the traces into two members of 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_with_pre_defined_transitions"/>.
-		The post-processor converts the terminal points of the traces into members of 
+		The pre-processor converts the terminus points of the traces into members of 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal"/> 
 		and 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Explicitly_located_layer_connection_point"/>.
-		The post-processor then provides 
+		The pre-processor then populates the aggregate attribute of the previously created member of  
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship"/> 
 		that collects the relevant 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Layer_connection_point">Layer_connection_points</express_ref>.
@@ -1424,9 +1424,15 @@ The combination of <b>name</b> and <b>net</b> shall be unique within a populatio
 <!-- +++++++++++ Library_reference_view_definition_relationship +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Library_reference_view_definition_relationship">
 <p>
-	An <b>Library_reference_view_definition_relationship</b> is a type of 
-	<express_ref linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship"/>.
+	A <b>Library_reference_view_definition_relationship</b> is a type of 
+	<express_ref linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship"/>
+	that is provided to relate a definition in a design context to a definition in a library context, when the 
+	design context definition is not identical to the library context definition but is a derivation.
 </p>
+<example>
+   A design layer may be related to a layer in a library stackup model, and relating the two instance with a member of this
+   Application Object will make the relationship explicit.
+</example>
 </ext_description>
 
 <!-- WR1 -->
@@ -3562,7 +3568,8 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 	 
 	A <b>Footprint_occurrence</b> is specifically provided to eliminate redundant location information for 
 	<express_ref linkend="Land:arm:Land_arm.Land">Lands</express_ref> 
-	on different layers and at different x,y locations and other layered concepts that are typically grouped to support the placement of a component in the assembly.
+	and other layered concepts that are typically grouped to support the placement of a component in the assembly when those layered concepts are
+	on different layers and at different x,y locations.
 
 		A <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/> 
 		shall be used to relate a 
@@ -3572,9 +3579,18 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 		is not a 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component"/>.
 	
+	In the case that the information required by 
+	<express_ref linkend="Footprint_definition:arm:Footprint_definition_arm.Part_feature_based_template_location"/> 
+is unavailable, a pre-processor shall populate members of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/>
+	to compose the 		<b>Footprint_occurrence</b>
+	and shall follow the requirements in 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence_sub_assembly_relationship"/>
+ for attributes other than the
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence_sub_assembly_relationship.terminal_location"/>.	
 </p>
 	<note number="1">
-	This Application Object is provided for high density array footprint occurrences.
+	This Application Object provides a generic capability and is not limited to high density surface mount applications.
 	</note>
 	<note number="2">
 		This Application Object should not be used to relate 
@@ -3611,20 +3627,28 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 <p>
 	A <b>Footprint_occurrence_sub_assembly_relationship</b> is a type of 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/>.
-	A <b>Footprint_occurrence_sub_assembly_relationship</b> is an association that specifies a subassembly constraint among two or more 
-	<express_ref linkend="Land:arm:Land_arm.Land"/> 
-	that is aggregated into an 
+	A <b>Footprint_occurrence_sub_assembly_relationship</b> helps compose a 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>.  
 	A <b>Footprint_occurrence_sub_assembly_relationship</b> does not directly reference the Application Object that is the definition for the 
-	<express_ref linkend="Land:arm:Land_arm.Land"/>.  
+	item to be included in the aggregation.  
 	Instead, it uses an indexing mechanism provided by <b>terminal_location</b> and <b>sub_assembly_reference_designation</b> to locate the padstack in the  
 	<express_ref linkend="Footprint_definition:arm:Footprint_definition_arm.Footprint_definition"/> 
-	and the land template location in that  
-	<express_ref linkend="Layered_interconnect_complex_template:arm:Layered_interconnect_complex_template_arm.Padstack_definition"/>.  
+	and the template location in that  
+	<express_ref linkend="Layered_interconnect_complex_template:arm:Layered_interconnect_complex_template_arm.Padstack_definition"/>, respectively.  
 	The <b>Footprint_occurrence_sub_assembly_relationship</b> relies on the fact that there is no more than one shape for the 
-	<express_ref linkend="Land:arm:Land_arm.Land"/> 
-	and that that shape is referenced by the path through the 
+item and that that shape is referenced by the path through the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>.
+Because a <b>Footprint_occurrence_sub_assembly_relationship</b> requires population of 
+	<express_ref linkend="Footprint_definition:arm:Footprint_definition_arm.Part_feature_based_template_location"/> 
+it is not always possible to compose a 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/> from source data. 
+In the case that the information required by 
+	<express_ref linkend="Footprint_definition:arm:Footprint_definition_arm.Part_feature_based_template_location"/> 
+is unavailable, a pre-processor shall populate members of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/>
+	to compose the 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>
+	and shall follow the requirements in this Application Object for attributes other than the
+			<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence_sub_assembly_relationship.terminal_location"/>.
 </p>
 	<example number="1">
 		A  <express_ref linkend="Land:arm:Land_arm.Land"/> 
@@ -3638,7 +3662,8 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 		<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> 
 		between the  
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/> 
-		and the Pcb establishes the required association.
+		and the Pcb establishes the required association. Pre-processor implementations are expected to not populate duplicate assembly relationships in order to
+		reduce potential confusion in post-processor development.
 	</example>
 </ext_description>
 
@@ -3651,19 +3676,17 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 </p>
 	<example number="2">
 	In a planar design the <b>terminal_location</b> is a representation of the 
-	location in an x-y plane.
+	location in an x-y plane of the definition of the 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>. 
 	</example>
 </ext_description>
 
 <!-- relating_view -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Footprint_occurrence_sub_assembly_relationship.relating_view">
-	the first instance of the 
+	the instance of the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/> 
-	which is the aggregation of two or more 
-	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component"/> 
-	specified by 
-	<express_ref linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.related_view"/> 
-	for the <b>Footprint_occurrence_sub_assembly_relationship</b>. 
+	which is being composed
+	by the <b>Footprint_occurrence_sub_assembly_relationship</b>. 
 </ext_description>
 
 <!-- related_view -->
@@ -3672,15 +3695,19 @@ accurate alignment of one item with another. Another type of  <express_ref linke
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/> 
 	shall be redeclared as the
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component"/> 
-	for the <b>Footprint_occurrence_sub_assembly_relationship</b>. 
+	for the <b>Footprint_occurrence_sub_assembly_relationship</b>. The <b>related_view</b> specifies thet item that is helping to compose
+	the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>. 	 
 </ext_description>
 
 <!-- sub_assembly_reference_designation -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Footprint_occurrence_sub_assembly_relationship.sub_assembly_reference_designation">
 <p>
-	specifies a role of the 
+	specifies the role of the 
 	<express_ref linkend="Layered_interconnect_complex_template:arm:Layered_interconnect_complex_template_arm.Template_location_in_structured_template"/>
-	for the <b>Footprint_occurrence_sub_assembly_relationship</b>. 
+	for the <b>Footprint_occurrence_sub_assembly_relationship</b>.  The <b>sub_assembly_reference_designation</b> is the second item in the two item
+	index
+	used to locate the source definition.
 </p>
 	<example number="3">
 	In the case of a <express_ref linkend="Land:arm:Land_arm.Land"/> being assembled into a 
@@ -4364,7 +4391,7 @@ shall be of type <express_ref linkend="Layered_interconnect_module_design:arm:La
 	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Product_occurrence_definition_relationship"/>
 	shall be redeclared as the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component"/>
-	for the <b>Structured_layout_component_sub_assembly_relationship</b>.
+	that is being composed for the <b>Structured_layout_component_sub_assembly_relationship</b>.
 </ext_description>
 
 <!-- related_view -->
@@ -4373,28 +4400,33 @@ shall be of type <express_ref linkend="Layered_interconnect_module_design:arm:La
 	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Product_occurrence_definition_relationship"/>
 	shall be redeclared as the  
 	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component"/>
-	for the <b>Structured_layout_component_sub_assembly_relationship</b>.
+	that is helping with the composition for the <b>Structured_layout_component_sub_assembly_relationship</b>.
 </ext_description>
 
 <!-- first_location -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.first_location">
-	specifies a role of the
+	specifies one role of the
 	<express_ref linkend="Layered_interconnect_complex_template:arm:Layered_interconnect_complex_template_arm.Template_location_in_structured_template"/>
-	for the <b>Structured_layout_component_sub_assembly_relationship</b>.
+	for the <b>Structured_layout_component_sub_assembly_relationship</b>. The <b>first_location</b> is intended to be the x,y location
+	if one of the two locations is an x,y location.
 </ext_description>
 
 <!-- second_location -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.second_location">
-	specifies a role of the
+	specifies one role of the
 	<express_ref linkend="Layered_interconnect_complex_template:arm:Layered_interconnect_complex_template_arm.Template_location_in_structured_template"/>
-	for the <b>Structured_layout_component_sub_assembly_relationship</b>. The value of this attribute need not be specified.
+	for the <b>Structured_layout_component_sub_assembly_relationship</b>. The <b>second_location</b> is intended to be a location within
+	the secondary level assembly structure of the main structured template.
+	The value of this attribute need not be specified.
 </ext_description>
 
 <!-- overriding_shape -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.overriding_shape">
-	specifies a role of the
+	specifies the role of the
 	<express_ref linkend="Part_template_shape_with_parameters:arm:Part_template_shape_with_parameters_arm.Part_template_shape_model"/>
-	for the <b>Structured_layout_component_sub_assembly_relationship</b>. The value of this attribute need not be specified.
+	for the <b>Structured_layout_component_sub_assembly_relationship</b>. In this case, the <b>overriding_shape</b> is used in place
+	of the original shape.
+	The value of this attribute need not be specified.
 </ext_description>
 
 <!-- design_specific_placement -->
@@ -4508,7 +4540,8 @@ shall be of type <express_ref linkend="Layered_interconnect_module_design:arm:La
 	A <b>Structured_layout_component_sub_assembly_relationship_with_component</b> is a type of
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/>
 	and a type of
-	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component"/>.
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component"/>. Pre-processor implementations are encouraged
+	to use this Application Object in the case of complex surface mount components.
 </ext_description>
 
 <!-- related_view -->

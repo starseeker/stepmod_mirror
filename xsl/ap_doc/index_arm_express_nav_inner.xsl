@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_inner.xsl,v 1.7 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.8 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -378,6 +378,8 @@ $Id: index_arm_express_nav_inner.xsl,v 1.7 2004/02/05 17:51:07 robbod Exp $
   <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)"/>
   <xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)"/>
 
+  <xsl:variable name="lf_ref" select="translate(concat($ap_top_module,'_arm_lf.',@name),$UPPER,$LOWER)"/>
+
   <xsl:variable name="typ-name" select="@name"/>
   <xsl:variable name="typ-name-spaced" select="concat(' ',@name,' ')"/>
   
@@ -399,6 +401,10 @@ $Id: index_arm_express_nav_inner.xsl,v 1.7 2004/02/05 17:51:07 robbod Exp $
         <TD ALIGN="LEFT">
           <small>
             <xsl:if test="$used-in-explicit">
+              <xsl:if test="./select[@extensible='YES']">
+                SELECT <a HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_arm_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info">population</a><br/>
+              </xsl:if>
               USED BY (ATTRIBUTE):
               <br/>
               <xsl:for-each select="$used-in-explicit">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.7 2004/11/29 09:35:51 robbod Exp $
+$Id: frame_index.xsl,v 1.8 2004/12/29 14:29:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -34,10 +34,20 @@ $Id: frame_index.xsl,v 1.7 2004/11/29 09:35:51 robbod Exp $
       </head>
       <body>
         <h2>Navigation Indices</h2>
-	<a href="./index_apdoc{$FILE_EXT}" target="info">Application Protocol Index</a><br/>
-        <a href="index_arm_modules{$FILE_EXT}">Module ARMs</a><br/>
-        <a href="index_mim_modules{$FILE_EXT}">Module MIMs</a><br/>
-        <a href="index_resources{$FILE_EXT}">Resource schemas</a><br/>
+        <a href="./index_apdoc{$FILE_EXT}" target="info">Application Protocol Index</a><br/>
+        Module ARMs<br/>
+        &#160;&#160;&#160;&#160;<a href="index_arm_modules{$FILE_EXT}">alphabetical</a>
+        <br/>
+        &#160;&#160;&#160;&#160;<a href="index_arm_modules_inner_part{$FILE_EXT}">part</a><br/>
+        
+        Module MIMs<br/>
+        &#160;&#160;&#160;&#160;<a href="index_mim_modules{$FILE_EXT}">alphabetical</a>
+        <br/>
+        &#160;&#160;&#160;&#160;<a href="index_mim_modules_inner_part{$FILE_EXT}">part</a><br/>
+        Resource schemas<br/>
+        &#160;&#160;&#160;&#160;<a href="index_resources{$FILE_EXT}">alphabetical</a>
+        <br/>
+        &#160;&#160;&#160;&#160;<a href="index_resources_inner_part{$FILE_EXT}">part</a><br/>
         <a href="index_arm_express{$FILE_EXT}">ARM EXPRESS</a><br/>
         <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
         <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_inner.xsl,v 1.9 2004/02/05 17:51:07 robbod Exp $
+$Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -65,7 +65,6 @@ $Id: index_resources_inner.xsl,v 1.9 2004/02/05 17:51:07 robbod Exp $
 
 <xsl:template match="/" mode="mim-resources" >
     <small>
-
 	<xsl:variable name="top_module_file" 
 	    select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
 

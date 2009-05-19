@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_top.xsl,v 1.11 2004/11/27 18:05:33 robbod Exp $
+$Id: index_resources_top.xsl,v 1.12 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -140,7 +140,7 @@ $Id: index_resources_top.xsl,v 1.11 2004/11/27 18:05:33 robbod Exp $
 	<xsl:param name="called-schemas" />
 
           <!--	<h3>Resource schemas</h3> -->
-          <b>Resource schemas</b>
+          <b>Resource schemas</b><br/>
 	
 
 	<xsl:variable name="schema-names">

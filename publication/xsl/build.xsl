@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.29 2006/09/06 14:06:41 darla Exp $
+<!--  $Id: build.xsl,v 1.30 2008/12/19 16:40:30 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -972,6 +972,11 @@ Purpose: To build the initial ANT publication file.
 	  <xsl:attribute name="name">APDOCINDEXARMMODULESINNER</xsl:attribute>
 	  <xsl:attribute name="value">${APDIR}/sys/index_arm_modules_inner.xml</xsl:attribute>
 	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">APDOCINDEXARMMODULESINNERPART</xsl:attribute>
+  		<xsl:attribute name="value">${APDIR}/sys/index_arm_modules_inner_part.xml</xsl:attribute>
+  	</xsl:element>
 
 	<xsl:element name="property">
 	  <xsl:attribute name="name">APDOCINDEXARMMODULESTOP</xsl:attribute>
@@ -1002,6 +1007,11 @@ Purpose: To build the initial ANT publication file.
 	  <xsl:attribute name="name">APDOCINDEXMIMMODULESINNER</xsl:attribute>
 	  <xsl:attribute name="value">${APDIR}/sys/index_mim_modules_inner.xml</xsl:attribute>
 	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">APDOCINDEXMIMMODULESINNERPART</xsl:attribute>
+  		<xsl:attribute name="value">${APDIR}/sys/index_mim_modules_inner_part.xml</xsl:attribute>
+  	</xsl:element>
 
 	<xsl:element name="property">
 	  <xsl:attribute name="name">APDOCINDEXMIMMODULESTOP</xsl:attribute>
@@ -1017,7 +1027,12 @@ Purpose: To build the initial ANT publication file.
 	  <xsl:attribute name="name">APDOCINDEXRESOURCESINNER</xsl:attribute>
 	  <xsl:attribute name="value">${APDIR}/sys/index_resources_inner.xml</xsl:attribute>
 	</xsl:element>
-
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">APDOCINDEXRESOURCESINNERPART</xsl:attribute>
+  		<xsl:attribute name="value">${APDIR}/sys/index_resources_inner_part.xml</xsl:attribute>
+  	</xsl:element>
+  	
 	<xsl:element name="property">
 	  <xsl:attribute name="name">APDOCINDEXRESOURCESTOP</xsl:attribute>
 	  <xsl:attribute name="value">${APDIR}/sys/index_resources_top.xml</xsl:attribute>
@@ -1403,7 +1418,7 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:attribute>
 		</xsl:element>
 	  </dependset>
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="in">
 		  <xsl:value-of select="'${PUBSRCDIR}/sys/normref_check.xml'"/>
 		</xsl:attribute>
@@ -1475,7 +1490,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </dependset>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="in">
 		  <xsl:value-of select="'${PUBSRCDIR}/sys/publication_summary.xml'"/>
 		</xsl:attribute>
@@ -1503,7 +1518,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="in">
 		  <xsl:value-of select="'${PUBSRCDIR}/publication_index.xml'"/>
 		</xsl:attribute>
@@ -2092,7 +2107,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </dependset>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${CONTENTSXML}'"/>
 		</xsl:attribute>
@@ -2104,7 +2119,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${SCOPEXML}'"/>
 		</xsl:attribute>
@@ -2116,7 +2131,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${REFSXML}'"/>
 		</xsl:attribute>
@@ -2128,7 +2143,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DEFSXML}'"/>
 		</xsl:attribute>
@@ -2140,7 +2155,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${INFOREQSXML}'"/>
 		</xsl:attribute>
@@ -2152,7 +2167,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${MAINXML}'"/>
 		</xsl:attribute>
@@ -2164,7 +2179,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${MAPPINGXML}'"/>
 		</xsl:attribute>
@@ -2176,7 +2191,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${MIMXML}'"/>
 		</xsl:attribute>
@@ -2188,7 +2203,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${INDEXXML}'"/>
 		</xsl:attribute>
@@ -2200,7 +2215,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${ABSTRACTXML}'"/>
 		</xsl:attribute>
@@ -2212,7 +2227,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${ASHORTNAMESXML}'"/>
 		</xsl:attribute>
@@ -2224,7 +2239,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${BOBJREGXML}'"/>
 		</xsl:attribute>
@@ -2236,7 +2251,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${BIBLIOXML}'"/>
 		</xsl:attribute>
@@ -2248,7 +2263,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${MODINDEXXML}'"/>
 		</xsl:attribute>
@@ -2260,7 +2275,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${CARMEXPGXML}'"/>
 		</xsl:attribute>
@@ -2272,7 +2287,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${COVERXML}'"/>
 		</xsl:attribute>
@@ -2303,7 +2318,7 @@ Purpose: To build the initial ANT publication file.
 		   </xsl:element> -->
 
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${ISOCOVERXML}'"/>
 		</xsl:attribute>
@@ -2334,7 +2349,7 @@ Purpose: To build the initial ANT publication file.
 	  </xsl:element> 
 
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMIMEXPGXML}'"/>
 		</xsl:attribute>
@@ -2346,7 +2361,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${EEXPXML}'"/>
 		</xsl:attribute>
@@ -2358,7 +2373,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${EEXPARMXML}'"/>
 		</xsl:attribute>
@@ -2378,7 +2393,7 @@ Purpose: To build the initial ANT publication file.
 	  </xsl:variable>
 
 	  <xsl:if test="string-length($longforms)>0">
-		<xsl:element name="style">
+		<xsl:element name="xslt">
 		  <xsl:attribute name="includes">
 			<xsl:value-of select="'${EEXPARMLFXML}'"/>
 		  </xsl:attribute>
@@ -2390,7 +2405,7 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:apply-templates>
 		</xsl:element>
 	  </xsl:if>
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${EEXPMIMXML}'"/>
 		</xsl:attribute>
@@ -2403,7 +2418,7 @@ Purpose: To build the initial ANT publication file.
 	  </xsl:element>
 
 	  <xsl:if test="string-length($longforms)>0">
-		<xsl:element name="style">
+		<xsl:element name="xslt">
 		  <xsl:attribute name="includes">
 			<xsl:value-of select="'${EEXPMIMLFXML}'"/>
 		  </xsl:attribute>
@@ -2416,7 +2431,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </xsl:if>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${FGUIDEXML}'"/>
 		</xsl:attribute>
@@ -2428,7 +2443,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${FOREWORDXML}'"/>
 		</xsl:attribute>
@@ -2440,7 +2455,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${INTRODUCTIONXML}'"/>
 		</xsl:attribute>
@@ -2452,7 +2467,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML},${ARMLFEXPXML}, ${MIMLFEXPXML}'"/>
 		</xsl:attribute>
@@ -2464,7 +2479,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${ARMEXPGXML},${MIMEXPGXML}'"/>
 		</xsl:attribute>
@@ -2550,7 +2565,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </dependset>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${RESOURCESXML}'"/>
 		</xsl:attribute>
@@ -2673,7 +2688,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </dependset>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODCONTENTSXML}'"/>
 		</xsl:attribute>
@@ -2685,7 +2700,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODSCOPEXML}'"/>
 		</xsl:attribute>
@@ -2697,7 +2712,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODREFSXML}'"/>
 		</xsl:attribute>
@@ -2709,7 +2724,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODDEFSXML}'"/>
 		</xsl:attribute>
@@ -2721,7 +2736,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODINFOREQSXML}'"/>
 		</xsl:attribute>
@@ -2733,7 +2748,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODMAINXML}'"/>
 		</xsl:attribute>
@@ -2745,7 +2760,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODMAPPINGXML}'"/>
 		</xsl:attribute>
@@ -2757,7 +2772,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODMIMXML}'"/>
 		</xsl:attribute>
@@ -2769,7 +2784,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODINDEXXML}'"/>
 		</xsl:attribute>
@@ -2783,7 +2798,7 @@ Purpose: To build the initial ANT publication file.
 
 
 	  <!-- RBN - ISO do not want the abstract in the module
-		   <xsl:element name="style">
+		   <xsl:element name="xslt">
 		   <xsl:attribute name="includes">
 		   <xsl:value-of select="'${DMODABSTRACTXML}'"/>
 		   </xsl:attribute>
@@ -2795,7 +2810,7 @@ Purpose: To build the initial ANT publication file.
 		   </xsl:apply-templates>
 		   </xsl:element> -->
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
 		</xsl:attribute>
@@ -2807,7 +2822,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODBOBJREGXML}'"/>
 		</xsl:attribute>
@@ -2819,7 +2834,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODBIBLIOXML}'"/>
 		</xsl:attribute>
@@ -2831,7 +2846,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODMODINDEXXML}'"/>
 		</xsl:attribute>
@@ -2843,7 +2858,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
 		</xsl:attribute>
@@ -2855,7 +2870,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODCOVERXML}'"/>
 		</xsl:attribute>
@@ -2887,7 +2902,7 @@ Purpose: To build the initial ANT publication file.
 		   </xsl:element> -->   
 
 	  <!-- generate the ISO cover page  -->
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODISOCOVERXML}'"/>
 		</xsl:attribute>
@@ -2909,7 +2924,7 @@ Purpose: To build the initial ANT publication file.
 		<mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
 	  </xsl:element> 
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
 		</xsl:attribute>
@@ -2921,7 +2936,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODEEXPXML}'"/>
 		</xsl:attribute>
@@ -2933,7 +2948,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODEEXPARMXML}'"/>
 		</xsl:attribute>
@@ -2945,7 +2960,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
 		</xsl:attribute>
@@ -2961,7 +2976,7 @@ Purpose: To build the initial ANT publication file.
 	  <!-- RBN the test need to be run on the dependent modules -->       
 	  <xsl:if test="string-length($dlongforms)>0">
 
-		<xsl:element name="style">
+		<xsl:element name="xslt">
 		  <xsl:attribute name="includes">
 			<xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
 		  </xsl:attribute>
@@ -2978,7 +2993,7 @@ Purpose: To build the initial ANT publication file.
 
 		<!-- RBN the test need to be run on the dependent modules       
 			 <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
-		<xsl:element name="style">
+		<xsl:element name="xslt">
 		  <xsl:attribute name="includes">
 			<xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
 		  </xsl:attribute>
@@ -2995,7 +3010,7 @@ Purpose: To build the initial ANT publication file.
 
 	  </xsl:if>  
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODFGUIDEXML}'"/>
 		</xsl:attribute>
@@ -3007,7 +3022,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODFOREWORDXML}'"/>
 		</xsl:attribute>
@@ -3019,7 +3034,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
 		</xsl:attribute>
@@ -3031,7 +3046,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
 		</xsl:attribute>
@@ -3043,7 +3058,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
 		</xsl:attribute>
@@ -3055,7 +3070,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
 		</xsl:attribute>
@@ -3425,7 +3440,7 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:element>
 		</dependset>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCSHOMEXML}'"/>
 		 </xsl:attribute>
@@ -3437,7 +3452,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFRAMEAPTITLEXML}'"/>
 		 </xsl:attribute>
@@ -3449,7 +3464,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFRAMECONTENTTITLEXML}'"/>
 		 </xsl:attribute>
@@ -3461,7 +3476,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFRAMEINDEXXML}'"/>
 		 </xsl:attribute>
@@ -3473,7 +3488,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFRAMETOCXML}'"/>
 		 </xsl:attribute>
@@ -3485,7 +3500,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFRAMETOCSHORTXML}'"/>
 		 </xsl:attribute>
@@ -3497,7 +3512,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCHELPXML}'"/>
 		 </xsl:attribute>
@@ -3509,7 +3524,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCSAAMIDEFXML}'"/>
 		 </xsl:attribute>
@@ -3521,7 +3536,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCSDATAPLANXML}'"/>
 		 </xsl:attribute>
@@ -3533,7 +3548,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCSCOPEXML}'"/>
 		 </xsl:attribute>
@@ -3545,7 +3560,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCREFSXML}'"/>
 		 </xsl:attribute>
@@ -3557,7 +3572,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCDEFSXML}'"/>
 		 </xsl:attribute>
@@ -3569,7 +3584,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINFOREQSXML}'"/>
 		 </xsl:attribute>
@@ -3581,7 +3596,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCMAINXML}'"/>
 		 </xsl:attribute>
@@ -3593,7 +3608,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCCCSXML}'"/>
 		 </xsl:attribute>
@@ -3605,7 +3620,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCCCSARMTABLEXML}'"/>
 		 </xsl:attribute>
@@ -3617,7 +3632,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCCCSMIMTABLEXML}'"/>
 		 </xsl:attribute>
@@ -3629,7 +3644,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCABSTRACT}'"/>
 		 </xsl:attribute>
@@ -3641,7 +3656,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXAAM}'"/>
 		 </xsl:attribute>
@@ -3653,7 +3668,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXARMEXPGXML}'"/>
 		 </xsl:attribute>
@@ -3665,7 +3680,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXMIMEXPGXML}'"/>
 		 </xsl:attribute>
@@ -3677,7 +3692,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXCHANGESXML}'"/>
 		 </xsl:attribute>
@@ -3689,7 +3704,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXCOMP}'"/>
 		 </xsl:attribute>
@@ -3701,7 +3716,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXEXPLFXML}'"/>
 		 </xsl:attribute>
@@ -3713,7 +3728,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXGUIDEXML}'"/>
 		 </xsl:attribute>
@@ -3725,7 +3740,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXIMPMETHXML}'"/>
 		 </xsl:attribute>
@@ -3737,7 +3752,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXOBJREGXML}'"/>
 		 </xsl:attribute>
@@ -3749,7 +3764,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXPICSXML}'"/>
 		 </xsl:attribute>
@@ -3761,7 +3776,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXSHORTNAMESXML}'"/>
 		 </xsl:attribute>
@@ -3773,7 +3788,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCANNEXTECHDISCXML}'"/>
 		 </xsl:attribute>
@@ -3785,7 +3800,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCBIBLIOXML}'"/>
 		 </xsl:attribute>
@@ -3797,7 +3812,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCCONTENTSXML}'"/>
 		 </xsl:attribute>
@@ -3809,7 +3824,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXAPDOCXML}'"/>
 		 </xsl:attribute>
@@ -3821,7 +3836,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCCOVERXML}'"/>
 		 </xsl:attribute>
@@ -3846,7 +3861,7 @@ Purpose: To build the initial ANT publication file.
 	   -->
 
 	   <!-- generate the ISO cover page  -->
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCISOCOVERXML}'"/>
 		 </xsl:attribute>
@@ -3868,7 +3883,7 @@ Purpose: To build the initial ANT publication file.
 		 <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
 	   </xsl:element> 
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCFOREWORDXML}'"/>
 		 </xsl:attribute>
@@ -3880,7 +3895,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${INDEXARMEXPRESSNAVXML}'"/>
 		 </xsl:attribute>
@@ -3892,7 +3907,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${INDEXARMEXPRESSNAVINNERXML}'"/>
 		 </xsl:attribute>
@@ -3904,7 +3919,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${INDEXARMEXPRESSNAVTOPXML}'"/>
 		 </xsl:attribute>
@@ -3916,7 +3931,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMEXPRESSXML}'"/>
 		 </xsl:attribute>
@@ -3928,7 +3943,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMEXPRESSINNERXML}'"/>
 		 </xsl:attribute>
@@ -3940,7 +3955,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMEXPRESSTOPXML}'"/>
 		 </xsl:attribute>
@@ -3952,7 +3967,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMAPPINGSXML}'"/>
 		 </xsl:attribute>
@@ -3964,7 +3979,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMAPPINGSINNERXML}'"/>
 		 </xsl:attribute>
@@ -3976,7 +3991,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMAPPINGSTOP}'"/>
 		 </xsl:attribute>
@@ -3988,7 +4003,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMODULES}'"/>
 		 </xsl:attribute>
@@ -4000,7 +4015,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMODULESINNER}'"/>
 		 </xsl:attribute>
@@ -4011,8 +4026,20 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:with-param name="menu" select="$menu"/>
 		 </xsl:apply-templates>
 	   </xsl:element>
+	  	<xsl:element name="xslt">
+	  		<xsl:attribute name="includes">
+	  			<xsl:value-of select="'${APDOCINDEXARMMODULESINNERPART}'"/>
+	  		</xsl:attribute>
+	  		<xsl:attribute name="style">
+	  			<xsl:value-of select="'${APXSL}/index_arm_modules_inner_part.xsl'"/>
+	  		</xsl:attribute>
+	  		<xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+	  			<xsl:with-param name="menu" select="$menu"/>
+	  		</xsl:apply-templates>
+	  	</xsl:element>
+	  	
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXARMMODULESTOP}'"/>
 		 </xsl:attribute>
@@ -4024,7 +4051,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMEXPRESS}'"/>
 		 </xsl:attribute>
@@ -4036,7 +4063,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMEXPRESSINNERXML}'"/>
 		 </xsl:attribute>
@@ -4048,7 +4075,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMEXPRESSTOP}'"/>
 		 </xsl:attribute>
@@ -4060,7 +4087,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMMODULES}'"/>
 		 </xsl:attribute>
@@ -4072,7 +4099,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMMODULESINNER}'"/>
 		 </xsl:attribute>
@@ -4083,8 +4110,19 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:with-param name="menu" select="$menu"/>
 		 </xsl:apply-templates>
 	   </xsl:element>
+	  	<xsl:element name="xslt">
+	  		<xsl:attribute name="includes">
+	  			<xsl:value-of select="'${APDOCINDEXMIMMODULESINNERPART}'"/>
+	  		</xsl:attribute>
+	  		<xsl:attribute name="style">
+	  			<xsl:value-of select="'${APXSL}/index_mim_modules_inner_part.xsl'"/>
+	  		</xsl:attribute>
+	  		<xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+	  			<xsl:with-param name="menu" select="$menu"/>
+	  		</xsl:apply-templates>
+	  	</xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXMIMMODULESTOP}'"/>
 		 </xsl:attribute>
@@ -4096,7 +4134,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXRESOURCES}'"/>
 		 </xsl:attribute>
@@ -4108,7 +4146,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXRESOURCESINNER}'"/>
 		 </xsl:attribute>
@@ -4119,8 +4157,20 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:with-param name="menu" select="$menu"/>
 		 </xsl:apply-templates>
 	   </xsl:element>
+	  	
+	  	<xsl:element name="xslt">
+	  		<xsl:attribute name="includes">
+	  			<xsl:value-of select="'${APDOCINDEXRESOURCESINNERPART}'"/>
+	  		</xsl:attribute>
+	  		<xsl:attribute name="style">
+	  			<xsl:value-of select="'${APXSL}/index_resources_inner_part.xsl'"/>
+	  		</xsl:attribute>
+	  		<xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+	  			<xsl:with-param name="menu" select="$menu"/>
+	  		</xsl:apply-templates>
+	  	</xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINDEXRESOURCESTOP}'"/>
 		 </xsl:attribute>
@@ -4132,7 +4182,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:apply-templates>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${APDOCINTRODUCTION}'"/>
 		 </xsl:attribute>
@@ -4266,7 +4316,7 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:element>
 	   </dependset>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCINDEXXML}'"/>
 		 </xsl:attribute>
@@ -4276,7 +4326,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCABSTRACTXML}'"/>
 		 </xsl:attribute>
@@ -4286,7 +4336,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCCONTENTSXML}'"/>
 		 </xsl:attribute>
@@ -4296,7 +4346,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>      
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCSCOPEXML}'"/>
 		 </xsl:attribute>
@@ -4306,7 +4356,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCRESDOCINDEXXML}'"/>
 		 </xsl:attribute>
@@ -4316,7 +4366,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCREFSXML}'"/>
 		 </xsl:attribute>
@@ -4326,7 +4376,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCDEFSXML}'"/>
 		 </xsl:attribute>
@@ -4336,7 +4386,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCSCHEMAXML}'"/>
 		 </xsl:attribute>
@@ -4346,7 +4396,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCCEXPSCHEMAXML}'"/>
 		 </xsl:attribute>
@@ -4356,7 +4406,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCCEXPXML}'"/>
 		 </xsl:attribute>
@@ -4366,7 +4416,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCDEXPGXML}'"/>
 		 </xsl:attribute>
@@ -4377,7 +4427,7 @@ Purpose: To build the initial ANT publication file.
 	   </xsl:element>
 
 	   <!--
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCMAINXML}'"/>
 		 </xsl:attribute>
@@ -4387,7 +4437,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 	   -->
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCASHORTNAMESXML}'"/>
 		 </xsl:attribute>
@@ -4397,7 +4447,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCBOBJREGXML}'"/>
 		 </xsl:attribute>
@@ -4407,7 +4457,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCTECHDISCUSSIONXML}'"/>
 		 </xsl:attribute>
@@ -4417,7 +4467,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCEXAMPLESXML}'"/>
 		 </xsl:attribute>
@@ -4427,7 +4477,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCADDSCOPEXML}'"/>
 		 </xsl:attribute>
@@ -4437,7 +4487,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>      
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCBIBLIOXML}'"/>
 		 </xsl:attribute>
@@ -4447,7 +4497,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCCOVERXML}'"/>
 		 </xsl:attribute>
@@ -4469,7 +4519,7 @@ Purpose: To build the initial ANT publication file.
 	   </xsl:element> 
  -->
 	   <!-- generate the ISO cover page  -->
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCISOCOVERXML}'"/>
 		 </xsl:attribute>
@@ -4491,7 +4541,7 @@ Purpose: To build the initial ANT publication file.
 
 
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCFOREWORDXML}'"/>
 		 </xsl:attribute>
@@ -4501,7 +4551,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCINTRODUCTIONXML}'"/>
 		 </xsl:attribute>
@@ -4511,7 +4561,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	   <xsl:element name="style">
+	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCSCHEMADIAGXML}'"/>
 		 </xsl:attribute>
@@ -4521,7 +4571,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>
 
-	  <xsl:element name="style">
+	  <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
 		   <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
 		 </xsl:attribute>
@@ -4643,7 +4693,7 @@ Purpose: To build the initial ANT publication file.
 	 <xsl:apply-templates select="." mode="pub_record_style"/>
 
 	 <!-- the readme -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
 	   </xsl:attribute>
@@ -4672,7 +4722,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:element>
 
 	 <!-- the frontpage redirected to application_protocol cover page -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
 	   </xsl:attribute>
@@ -4797,7 +4847,7 @@ Purpose: To build the initial ANT publication file.
 	 <xsl:apply-templates select="." mode="pub_record_style"/>
 
 	 <!-- the readme -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/modules/',@name,'/module.xml')"/>
 	   </xsl:attribute>
@@ -4826,7 +4876,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:element>
 
 	 <!-- the frontpage redirected to module cover page -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/modules/',@name,'/module.xml')"/>
 	   </xsl:attribute>
@@ -4946,7 +4996,7 @@ Purpose: To build the initial ANT publication file.
 	 <xsl:apply-templates select="." mode="pub_record_style"/>
 
 	 <!-- the readme -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
 	   </xsl:attribute>
@@ -4975,7 +5025,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:element>
 
 	 <!-- the frontpage redirected to resource cover page -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
 	   </xsl:attribute>
@@ -5187,7 +5237,7 @@ Purpose: To build the initial ANT publication file.
 	 <xsl:param name="express_dir"/>
 
 	 <!-- the readme -->
-	 <xsl:element name="style">
+	 <xsl:element name="xslt">
 	   <xsl:attribute name="in">
 		 <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
 	   </xsl:attribute>
@@ -5984,7 +6034,7 @@ Purpose: To build the initial ANT publication file.
       </xsl:attribute>
     </xsl:element>
 
-    <xsl:element name="style">
+    <xsl:element name="xslt">
       <xsl:attribute name="force">yes</xsl:attribute>
       <xsl:attribute name="in">
         <xsl:value-of select="concat('data/modules/',@name,'/module.xml')"/>
@@ -6107,7 +6157,7 @@ Purpose: To build the initial ANT publication file.
       </xsl:attribute>
     </xsl:element>
 
-    <xsl:element name="style">
+    <xsl:element name="xslt">
       <xsl:attribute name="in">
         <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
       </xsl:attribute>
@@ -6233,7 +6283,7 @@ Purpose: To build the initial ANT publication file.
     </xsl:element>
 
 
-    <xsl:element name="style">
+    <xsl:element name="xslt">
       <xsl:attribute name="in">
         <xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
       </xsl:attribute>
@@ -6314,7 +6364,7 @@ Purpose: To build the initial ANT publication file.
       </xsl:attribute>
     </xsl:element>
 
-    <xsl:element name="style">
+    <xsl:element name="xslt">
       <xsl:attribute name="in">
         <xsl:value-of select="concat('data/resources/',$res_name,'/',$res_name,'.xml')"/>
       </xsl:attribute>

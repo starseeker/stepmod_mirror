@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_g_exp.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
+$Id: sect_annex_guide.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -26,7 +26,7 @@ $Id: sect_g_exp.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
     
     <xsl:call-template name="annex_header">
       <xsl:with-param name="annex_no" select="$annex_letter"/>
-      <xsl:with-param name="heading" select="'Application protocol implementation guide'"/>
+      <xsl:with-param name="heading" select="'Application protocol implementation and usage guide'"/>
       <xsl:with-param name="aname" select="'annexh'"/>
     </xsl:call-template>
     <xsl:apply-templates select="usage_guide"/>

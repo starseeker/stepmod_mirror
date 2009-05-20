@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
+$Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -593,7 +593,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
           </xsl:attribute>
         </xsl:element>
       </dependset>
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="in">
           <xsl:value-of select="'${BALLOTDIR}/normref_check.xml'"/>
         </xsl:attribute>
@@ -666,7 +666,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
           </xsl:element>
         </dependset>
         
-        <xsl:element name="style">
+        <xsl:element name="xslt">
           <xsl:attribute name="in">
             <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
           </xsl:attribute>
@@ -2294,7 +2294,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </dependset>
       
-     <xsl:element name="style">
+     <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCABSTRACTXML}'"/>
         </xsl:attribute>
@@ -2335,7 +2335,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
  
 
-     <xsl:element name="style">
+     <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCCONTENTSXML}'"/>
         </xsl:attribute>
@@ -2375,7 +2375,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCINDEXXML}'"/>
         </xsl:attribute>
@@ -2432,7 +2432,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
       
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCSCOPEXML}'"/>
         </xsl:attribute>
@@ -2473,7 +2473,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
       
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCREFSXML}'"/>
         </xsl:attribute>
@@ -2513,7 +2513,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCDEFSXML}'"/>
         </xsl:attribute>
@@ -2553,7 +2553,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCSCHEMAXML}'"/>
         </xsl:attribute>
@@ -2593,7 +2593,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCCEXPSCHEMAXML}'"/>
         </xsl:attribute>
@@ -2633,7 +2633,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCCEXPXML}'"/>
         </xsl:attribute>
@@ -2673,7 +2673,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCDEXPGXML}'"/>
         </xsl:attribute>
@@ -2713,7 +2713,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCASHORTNAMESXML}'"/>
         </xsl:attribute>
@@ -2753,7 +2753,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCBOBJREGXML}'"/>
         </xsl:attribute>
@@ -2793,7 +2793,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCRESOURCESEXPGXML}'"/>
         </xsl:attribute>
@@ -2833,7 +2833,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCTECHDISCUSSIONXML}'"/>
         </xsl:attribute>
@@ -2874,7 +2874,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCEXAMPLESXML}'"/>
         </xsl:attribute>
@@ -2914,7 +2914,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCADDSCOPEXML}'"/>
         </xsl:attribute>
@@ -2955,7 +2955,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
       
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCBIBLIOXML}'"/>
         </xsl:attribute>
@@ -2995,7 +2995,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCCOVERXML}'"/>
         </xsl:attribute>
@@ -3036,7 +3036,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCFOREWORDXML}'"/>
         </xsl:attribute>
@@ -3077,7 +3077,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
       
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCINTRODUCTIONXML}'"/>
         </xsl:attribute>
@@ -3117,7 +3117,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCSCHEMADIAGXML}'"/>
         </xsl:attribute>
@@ -3299,7 +3299,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </dependset>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCSHOMEXML}'"/>
         </xsl:attribute>
@@ -3330,7 +3330,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFRAMEAPTITLEXML}'"/>
         </xsl:attribute>
@@ -3410,7 +3410,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFRAMECONTENTTITLEXML}'"/>
         </xsl:attribute>
@@ -3490,7 +3490,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFRAMEINDEXXML}'"/>
         </xsl:attribute>
@@ -3570,7 +3570,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFRAMETOCXML}'"/>
         </xsl:attribute>
@@ -3650,7 +3650,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFRAMETOCSHORTXML}'"/>
         </xsl:attribute>
@@ -3730,7 +3730,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCHELPXML}'"/>
         </xsl:attribute>
@@ -3810,7 +3810,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCSAAMIDEFXML}'"/>
         </xsl:attribute>
@@ -3850,7 +3850,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCSDATAPLANXML}'"/>
         </xsl:attribute>
@@ -3891,7 +3891,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCSCOPEXML}'"/>
         </xsl:attribute>
@@ -3963,7 +3963,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCREFSXML}'"/>
         </xsl:attribute>
@@ -4035,7 +4035,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCDEFSXML}'"/>
         </xsl:attribute>
@@ -4107,7 +4107,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINFOREQSXML}'"/>
         </xsl:attribute>
@@ -4179,7 +4179,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCMAINXML}'"/>
         </xsl:attribute>
@@ -4251,7 +4251,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCCSXML}'"/>
         </xsl:attribute>
@@ -4323,7 +4323,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCCSARMTABLEXML}'"/>
         </xsl:attribute>
@@ -4395,7 +4395,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCCSMIMTABLEXML}'"/>
         </xsl:attribute>
@@ -4467,7 +4467,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCABSTRACT}'"/>
         </xsl:attribute>
@@ -4539,7 +4539,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXAAM}'"/>
         </xsl:attribute>
@@ -4611,7 +4611,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXARMEXPGXML}'"/>
         </xsl:attribute>
@@ -4683,7 +4683,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXMIMEXPGXML}'"/>
         </xsl:attribute>
@@ -4755,7 +4755,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXCHANGESXML}'"/>
         </xsl:attribute>
@@ -4827,7 +4827,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXCOMP}'"/>
         </xsl:attribute>
@@ -4899,7 +4899,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXEXPLFXML}'"/>
         </xsl:attribute>
@@ -4971,7 +4971,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-       <xsl:element name="style">
+       <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXGUIDEXML}'"/>
         </xsl:attribute>
@@ -5043,7 +5043,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXIMPMETHXML}'"/>
         </xsl:attribute>
@@ -5123,7 +5123,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-       <xsl:element name="style">
+       <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXOBJREGXML}'"/>
         </xsl:attribute>
@@ -5203,7 +5203,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXPICSXML}'"/>
         </xsl:attribute>
@@ -5283,7 +5283,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXSHORTNAMESXML}'"/>
         </xsl:attribute>
@@ -5363,7 +5363,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXTECHDISCXML}'"/>
         </xsl:attribute>
@@ -5443,7 +5443,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCBIBLIOXML}'"/>
         </xsl:attribute>
@@ -5523,7 +5523,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCONTENTSXML}'"/>
         </xsl:attribute>
@@ -5604,7 +5604,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXAPDOCXML}'"/>
         </xsl:attribute>
@@ -5685,7 +5685,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCOVERXML}'"/>
         </xsl:attribute>
@@ -5773,7 +5773,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCFOREWORDXML}'"/>
         </xsl:attribute>
@@ -5853,7 +5853,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXARMEXPRESSNAVXML}'"/>
         </xsl:attribute>
@@ -5933,7 +5933,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXARMEXPRESSNAVINNERXML}'"/>
         </xsl:attribute>
@@ -6014,7 +6014,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXARMEXPRESSNAVTOPXML}'"/>
         </xsl:attribute>
@@ -6094,7 +6094,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMEXPRESSXML}'"/>
         </xsl:attribute>
@@ -6174,7 +6174,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMEXPRESSINNERXML}'"/>
         </xsl:attribute>
@@ -6254,7 +6254,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMEXPRESSTOPXML}'"/>
         </xsl:attribute>
@@ -6334,7 +6334,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMAPPINGSXML}'"/>
         </xsl:attribute>
@@ -6414,7 +6414,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMAPPINGSINNERXML}'"/>
         </xsl:attribute>
@@ -6494,7 +6494,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMAPPINGSTOP}'"/>
         </xsl:attribute>
@@ -6574,7 +6574,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMODULES}'"/>
         </xsl:attribute>
@@ -6654,7 +6654,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMODULESINNER}'"/>
         </xsl:attribute>
@@ -6734,7 +6734,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMODULESINNERPART}'"/>
         </xsl:attribute>
@@ -6814,7 +6814,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMMODULESTOP}'"/>
         </xsl:attribute>
@@ -6894,7 +6894,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMEXPRESS}'"/>
         </xsl:attribute>
@@ -6974,7 +6974,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMEXPRESSINNERXML}'"/>
         </xsl:attribute>
@@ -7055,7 +7055,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
       </xsl:element>
 
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMEXPRESSTOP}'"/>
         </xsl:attribute>
@@ -7135,7 +7135,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULES}'"/>
         </xsl:attribute>
@@ -7215,7 +7215,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULESINNER}'"/>
         </xsl:attribute>
@@ -7295,7 +7295,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULESINNERPART}'"/>
         </xsl:attribute>
@@ -7375,7 +7375,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULESTOP}'"/>
         </xsl:attribute>
@@ -7455,7 +7455,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXRESOURCES}'"/>
         </xsl:attribute>
@@ -7535,7 +7535,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXRESOURCESINNER}'"/>
         </xsl:attribute>
@@ -7615,7 +7615,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXRESOURCESINNERPART}'"/>
         </xsl:attribute>
@@ -7695,7 +7695,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+        <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXRESOURCESTOP}'"/>
         </xsl:attribute>
@@ -7775,7 +7775,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINTRODUCTION}'"/>
         </xsl:attribute>
@@ -7953,7 +7953,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </dependset>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCRESOURCESCHEMAXML}'"/>
         </xsl:attribute>
@@ -8102,7 +8102,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </dependset>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DRESOURCESXML}'"/>
         </xsl:attribute>
@@ -8310,7 +8310,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </dependset>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${CONTENTSXML}'"/>
         </xsl:attribute>
@@ -8322,7 +8322,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SCOPEXML}'"/>
         </xsl:attribute>
@@ -8334,7 +8334,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${REFSXML}'"/>
         </xsl:attribute>
@@ -8346,7 +8346,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DEFSXML}'"/>
         </xsl:attribute>
@@ -8358,7 +8358,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INFOREQSXML}'"/>
         </xsl:attribute>
@@ -8370,7 +8370,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAINXML}'"/>
         </xsl:attribute>
@@ -8382,7 +8382,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAPPINGXML}'"/>
         </xsl:attribute>
@@ -8394,7 +8394,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${REFDATAXML}'"/>
         </xsl:attribute>
@@ -8406,7 +8406,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MIMXML}'"/>
         </xsl:attribute>
@@ -8418,7 +8418,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXXML}'"/>
         </xsl:attribute>
@@ -8430,7 +8430,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ABSTRACTXML}'"/>
         </xsl:attribute>
@@ -8442,7 +8442,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ASHORTNAMESXML}'"/>
         </xsl:attribute>
@@ -8454,7 +8454,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BOBJREGXML}'"/>
         </xsl:attribute>
@@ -8466,7 +8466,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BIBLIOXML}'"/>
         </xsl:attribute>
@@ -8478,7 +8478,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MODINDEXXML}'"/>
         </xsl:attribute>
@@ -8490,7 +8490,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${CARMEXPGXML}'"/>
         </xsl:attribute>
@@ -8502,7 +8502,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${COVERXML}'"/>
         </xsl:attribute>
@@ -8530,7 +8530,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:element>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMIMEXPGXML}'"/>
         </xsl:attribute>
@@ -8542,7 +8542,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPXML}'"/>
         </xsl:attribute>
@@ -8554,7 +8554,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMXML}'"/>
         </xsl:attribute>
@@ -8566,7 +8566,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMLFXML}'"/>
         </xsl:attribute>
@@ -8578,7 +8578,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMXML}'"/>
         </xsl:attribute>
@@ -8590,7 +8590,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMLFXML}'"/>
         </xsl:attribute>
@@ -8602,7 +8602,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FGUIDEXML}'"/>
         </xsl:attribute>
@@ -8614,7 +8614,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FOREWORDXML}'"/>
         </xsl:attribute>
@@ -8626,7 +8626,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INTRODUCTIONXML}'"/>
         </xsl:attribute>
@@ -8638,7 +8638,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML}'"/>
         </xsl:attribute>
@@ -8650,7 +8650,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPGXML},${MIMEXPGXML}'"/>
         </xsl:attribute>
@@ -8662,7 +8662,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
         </xsl:apply-templates>
       </xsl:element>
 
-      <xsl:element name="style">
+      <xsl:element name="xslt">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
         </xsl:attribute>
@@ -8857,7 +8857,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
           </dependset>
           
 
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODREFDATXML}'"/>
             </xsl:attribute>
@@ -8869,7 +8869,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
 
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODCONTENTSXML}'"/>
             </xsl:attribute>
@@ -8882,7 +8882,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
           </xsl:element>
 
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODSCOPEXML}'"/>
             </xsl:attribute>
@@ -8894,7 +8894,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODREFSXML}'"/>
             </xsl:attribute>
@@ -8906,7 +8906,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODDEFSXML}'"/>
             </xsl:attribute>
@@ -8918,7 +8918,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODINFOREQSXML}'"/>
             </xsl:attribute>
@@ -8930,7 +8930,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODMAINXML}'"/>
             </xsl:attribute>
@@ -8942,7 +8942,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODMAPPINGXML}'"/>
             </xsl:attribute>
@@ -8954,7 +8954,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODMIMXML}'"/>
             </xsl:attribute>
@@ -8966,7 +8966,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODINDEXXML}'"/>
             </xsl:attribute>
@@ -8978,7 +8978,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODABSTRACTXML}'"/>
             </xsl:attribute>
@@ -8990,7 +8990,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
             </xsl:attribute>
@@ -9002,7 +9002,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODBOBJREGXML}'"/>
             </xsl:attribute>
@@ -9014,7 +9014,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODBIBLIOXML}'"/>
             </xsl:attribute>
@@ -9026,7 +9026,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODMODINDEXXML}'"/>
             </xsl:attribute>
@@ -9038,7 +9038,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
             </xsl:attribute>
@@ -9050,7 +9050,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODCOVERXML}'"/>
             </xsl:attribute>
@@ -9070,7 +9070,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:element>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
             </xsl:attribute>
@@ -9082,7 +9082,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODEEXPXML}'"/>
             </xsl:attribute>
@@ -9094,7 +9094,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODEEXPARMXML}'"/>
             </xsl:attribute>
@@ -9106,7 +9106,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
             </xsl:attribute>
@@ -9118,7 +9118,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
             </xsl:attribute>
@@ -9130,7 +9130,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
             </xsl:attribute>
@@ -9142,7 +9142,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODFGUIDEXML}'"/>
             </xsl:attribute>
@@ -9154,7 +9154,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODFOREWORDXML}'"/>
             </xsl:attribute>
@@ -9166,7 +9166,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
             </xsl:attribute>
@@ -9178,7 +9178,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
             </xsl:attribute>
@@ -9190,7 +9190,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
             </xsl:attribute>
@@ -9202,7 +9202,7 @@ $Id: build_apdocs.xsl,v 1.45 2009/03/13 20:27:37 robbod Exp $
             </xsl:apply-templates>
           </xsl:element>
           
-          <xsl:element name="style">
+          <xsl:element name="xslt">
             <xsl:attribute name="includes">
               <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
             </xsl:attribute>

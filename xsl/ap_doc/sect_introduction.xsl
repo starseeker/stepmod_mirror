@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.20 2008/04/15 13:33:07 darla Exp $
+     $Id: sect_introduction.xsl,v 1.21 2008/04/23 20:52:04 darla Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -319,7 +319,7 @@ Detailed description of the changes is provided in Annex
         <xsl:value-of select="$note"/>
         <a href="./annex_changes{$FILE_EXT}">
           <xsl:value-of select="$al_changes"/>
-        </a>
+        </a>.
     </p>
   </xsl:template>
 

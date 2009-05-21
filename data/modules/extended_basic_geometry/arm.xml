@@ -1,17 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-04-18 01:44:15 -0700 (Tr, 18 Bal 2007) $" rcs.revision="$Revision: 440 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_basic_geometry_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="extended_basic_geometry_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Extended_basic_geometry_arm">
       <interface kind="use" schema="Basic_geometry_arm"/>
-      <interface kind="reference" schema="Characterizable_object_arm">
-         <interfaced.item name="bag_to_set"/>
-      </interface>
-      <entity name="Definitional_representation_relationship" supertypes="Representation_relationship">
-         <where label="WR1" expression="acyclic_representation_relationship(SELF,&#10;       [SELF\representation_relationship.rep_2],&#10;       'FOUNDATION_REPRESENTATION_ARM.'+&#10;       'REPRESENTATION')"/>
-      </entity>
+      <interface kind="use" schema="Geometric_model_relationship_arm"/>
       <entity name="Detailed_geometric_model_element_relationship">
          <explicit name="item_1">
             <typename name="Detailed_geometric_model_element"/>
@@ -19,20 +14,9 @@
          <explicit name="item_2">
             <typename name="Detailed_geometric_model_element"/>
          </explicit>
-         <where label="WR1" expression="item_1 &lt;&gt; item_2"/>
+         <where expression="item_1 &lt;&gt; item_2" label="WR1"/>
       </entity>
       <entity name="Geometric_model_element_relationship" supertypes="Detailed_geometric_model_element_relationship Detailed_geometric_model_element"/>
-      <entity name="Geometric_model_relationship" supertypes="Representation_relationship">
-         <explicit name="rep_1">
-            <typename name="Geometric_model"/>
-            <redeclaration entity-ref="Representation_relationship"/>
-         </explicit>
-         <explicit name="rep_2">
-            <typename name="Geometric_model"/>
-            <redeclaration entity-ref="Representation_relationship"/>
-         </explicit>
-         <where label="WR1" expression="rep_1 &lt;&gt; rep_2"/>
-      </entity>
       <entity name="Vector" supertypes="Detailed_geometric_model_element">
          <explicit name="orientation">
             <typename name="Direction"/>
@@ -40,35 +24,8 @@
          <explicit name="magnitude">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="magnitude &gt;= 0.0"/>
+         <where expression="magnitude &gt;= 0.0" label="WR1"/>
       </entity>
-      <subtype.constraint name="alternate_extended_geometry_items" entity="Detailed_geometric_model_element" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Point_on_curve, Point_on_surface, Surface, Vector)"/>
-      <function name="acyclic_representation_relationship">
-         <parameter name="relation">
-            <typename name="Representation_relationship"/>
-         </parameter>
-         <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Representation"/>
-         </parameter>
-         <parameter name="specific_relation">
-            <builtintype type="STRING"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-      x : SET OF representation_relationship;
-    END_LOCAL;
-
-    IF relation.rep_1 IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(r &lt;* bag_to_set(USEDIN(relation.rep_1, 'FOUNDATION_REPRESENTATION_ARM.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);</algorithm>
-      </function>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="alternate_extended_geometry_items" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Point_on_curve, Point_on_surface, Surface, Vector)"/>
    </schema>
 </express>

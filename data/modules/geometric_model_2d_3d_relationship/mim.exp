@@ -1,0 +1,26 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   Nxxxx - ISO/TS - 10303- geometric_model_2d_3d_relationship - EXPRESS MIM*)
+
+SCHEMA Geometric_model_2d_3d_relationship_mim;
+
+USE FROM Contextual_shape_positioning_mim;          -- ISO/TS 10303-1027
+USE FROM Geometric_model_relationship_mim;          -- ISO/TS 10303-1403
+
+ENTITY geometric_relationship_with_2d_3d_placement_transformation
+ SUBTYPE OF(shape_representation_relationship,
+            representation_relationship_with_transformation);
+ SELF\representation_relationship_with_transformation.transformation_operator : axis_placement_2d_3d_mapping;          
+ WHERE
+  WR1: acyclic_representation_relationship(SELF,
+       [SELF\representation_relationship.rep_2],
+        'REPRESENTATION_SCHEMA.'+'REPRESENTATION');
+END_ENTITY;
+
+ENTITY axis_placement_2d_3d_mapping
+  SUBTYPE OF (item_defined_transfrmation);
+   SELF\item_defined_transformation.transform_item_1 : axis2_placement_2d;
+   SELF\item_defined_transformation.transform_item_2 : axis2_placement_3d;
+END_ENTITY;
+
+END_SCHEMA;

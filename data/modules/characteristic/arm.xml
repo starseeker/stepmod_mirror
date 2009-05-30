@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="characteristic_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Characteristic_arm">
       <interface kind="use" schema="Basic_data_representation_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
       <interface kind="use" schema="External_library_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="External_properties_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
@@ -17,166 +18,163 @@
          <interfaced.item name="pre_defined_type_qualifiers"/>
       </interface>
       <type name="c_documented_element_select">
-         <select extensible="YES" basedon="documented_element_select" selectitems="Property_value_representation" genericentity="NO"/>
+         <select basedon="documented_element_select" extensible="YES" selectitems="Property_value_representation"/>
       </type>
       <type name="characteristic">
-         <select selectitems="String_representation_item Numerical_item_with_unit Value_list Value_set" genericentity="NO" extensible="NO"/>
+         <select selectitems="String_representation_item Numerical_item_with_unit Value_list Value_set"/>
       </type>
       <type name="characteristic_data_table_cell">
-         <select selectitems="Null_representation_item String_representation_item Numerical_item_with_unit Value_list Value_set" genericentity="NO" extensible="NO"/>
+         <select selectitems="Null_representation_item String_representation_item Numerical_item_with_unit Value_list Value_set"/>
       </type>
       <type name="range_class">
-         <enumeration items="closed lower_open upper_open open" extensible="NO"/>
+         <enumeration items="closed lower_open upper_open open"/>
       </type>
       <type name="scalar_or_coordinated_characteristics">
-         <select selectitems="Property_value_representation characteristic" genericentity="NO" extensible="NO"/>
+         <select selectitems="Property_value_representation characteristic"/>
       </type>
-      <entity name="Characteristic_data_column_header" supertypes="Independent_property" abstract.supertype="NO" abstract.entity="NO">
-         <inverse name="table_header_usage" entity="Characteristic_data_table_header_decomposition" attribute="related"/>
-      <where label="IP1"/>
+      <entity name="Characteristic_data_column_header" supertypes="Independent_property">
+         <inverse attribute="related" entity="Characteristic_data_table_header_decomposition" name="table_header_usage"/>
       </entity>
-      <entity name="Characteristic_data_column_header_link" supertypes="Independent_property_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="precedent" optional="NO">
+      <entity name="Characteristic_data_column_header_link" supertypes="Independent_property_relationship">
+         <explicit name="precedent">
             <typename name="Characteristic_data_column_header"/>
             <redeclaration entity-ref="Independent_property_relationship" old_name="relating"/>
          </explicit>
-         <explicit name="subsequent" optional="NO">
+         <explicit name="subsequent">
             <typename name="Characteristic_data_column_header"/>
             <redeclaration entity-ref="Independent_property_relationship" old_name="related"/>
          </explicit>
-         <derived name="relation_type" expression="'sequence'">
-            <builtintype type="STRING" fixed="NO"/>
+         <derived expression="'sequence'" name="relation_type">
+            <builtintype type="STRING"/>
             <redeclaration entity-ref="Independent_property_relationship"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="precedent"/>
             <unique.attribute attribute="subsequent"/>
          </unique>
-         <where label="WR1" expression="subsequent &lt;&gt; precedent"/>
+         <where expression="subsequent &lt;&gt; precedent" label="WR1"/>
       </entity>
-      <entity name="Characteristic_data_table" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="property_value" optional="NO">
-            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+      <entity name="Characteristic_data_table" supertypes="Representation_item">
+         <explicit name="property_value">
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="Characteristic_data_table_row"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))&#10;                  )) = 0"/>
+         <where expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))&#10;                  )) = 0" label="WR1"/>
       </entity>
-      <entity name="Characteristic_data_table_header" supertypes="Independent_property" abstract.supertype="NO" abstract.entity="NO">
-         <inverse name="column" entity="Characteristic_data_table_header_decomposition" attribute="relating">
-            <inverse.aggregate type="SET" lower="2" upper="?"/>
+      <entity name="Characteristic_data_table_header" supertypes="Independent_property">
+         <inverse attribute="relating" entity="Characteristic_data_table_header_decomposition" name="column">
+            <inverse.aggregate lower="2" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Characteristic_data_table_header_decomposition" supertypes="Independent_property_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="relating" optional="NO">
+      <entity name="Characteristic_data_table_header_decomposition" supertypes="Independent_property_relationship">
+         <explicit name="relating">
             <typename name="Characteristic_data_table_header"/>
             <redeclaration entity-ref="Independent_property_relationship"/>
          </explicit>
-         <explicit name="related" optional="NO">
+         <explicit name="related">
             <typename name="Characteristic_data_column_header"/>
             <redeclaration entity-ref="Independent_property_relationship"/>
          </explicit>
-         <derived name="relation_type" expression="'decomposition'">
-            <builtintype type="STRING" fixed="NO"/>
+         <derived expression="'decomposition'" name="relation_type">
+            <builtintype type="STRING"/>
             <redeclaration entity-ref="Independent_property_relationship"/>
          </derived>
       </entity>
-      <entity name="Characteristic_data_table_representation" supertypes="Property_value_representation" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+      <entity name="Characteristic_data_table_representation" supertypes="Property_value_representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Characteristic_data_table"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity name="Characteristic_data_table_row" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="cell" optional="NO">
-            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+      <entity name="Characteristic_data_table_row" supertypes="Representation_item">
+         <explicit name="cell">
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="characteristic_data_table_cell"/>
          </explicit>
       </entity>
-      <entity name="Externally_defined_type_qualifier" supertypes="Type_qualifier" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="external_source" optional="NO">
+      <entity name="Externally_defined_type_qualifier" supertypes="Type_qualifier">
+         <explicit name="external_source">
             <typename name="External_source"/>
          </explicit>
-         <where label="WR1" expression="NOT(name IN pre_defined_type_qualifiers)"/>
+         <where expression="NOT(name IN pre_defined_type_qualifiers)" label="WR1"/>
       </entity>
-      <entity name="Length_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;         )) = 0)"/>
-         <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
-         <where label="WR3" expression="NOT('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
-         <where label="WR4" expression="NOT EXISTS(SELF\Representation.description)"/>
-         <where label="WR5" expression="NOT('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))&#10;         )) = 0)"/>
+      <entity name="Length_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <where expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;         )) = 0)" label="WR1"/>
+         <where expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)" label="WR2"/>
+         <where expression="NOT('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)" label="WR3"/>
+         <where expression="NOT EXISTS(SELF\Representation.description)" label="WR4"/>
+         <where expression="NOT('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))&#10;         )) = 0)" label="WR5"/>
       </entity>
-      <entity name="Maximum_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+      <entity name="Maximum_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Value_limit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'maximum'"/>
+         <where expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'maximum'" label="WR1"/>
       </entity>
-      <entity name="Minimum_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+      <entity name="Minimum_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Value_limit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'minimum'"/>
+         <where expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'minimum'" label="WR1"/>
       </entity>
-      <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+      <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Qualified_numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SELF\Representation.items[1]\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'nominal'"/>
+         <where expression="SELF\Representation.items[1]\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'nominal'" label="WR1"/>
       </entity>
-      <entity name="Null_representation_item" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Plus_minus_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+      <entity name="Null_representation_item" supertypes="Representation_item"/>
+      <entity name="Plus_minus_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Value_with_tolerances"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity name="Range_characteristic" supertypes="Property_value_representation" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="2" upper="2" unique="NO" optional="NO"/>
+      <entity name="Range_characteristic" supertypes="Property_value_representation">
+         <explicit name="items">
+            <aggregate lower="2" type="SET" upper="2"/>
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <explicit name="range_type" optional="NO">
+         <explicit name="range_type">
             <typename name="range_class"/>
          </explicit>
-         <where label="WR1" expression="TYPEOF(SELF\Representation.items[1]) =&#10;          TYPEOF(SELF\Representation.items[2])"/>
-         <where label="WR2" expression="TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =&#10;          TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit)"/>
-         <where label="WR3" expression="valid_range(SELF\Representation.items[1],&#10;                      SELF\Representation.items[2])"/>
+         <where expression="TYPEOF(SELF\Representation.items[1]) =&#10;          TYPEOF(SELF\Representation.items[2])" label="WR1"/>
+         <where expression="TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =&#10;          TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit)" label="WR2"/>
+         <where expression="valid_range(SELF\Representation.items[1],&#10;                      SELF\Representation.items[2])" label="WR3"/>
       </entity>
-      <entity name="Statistical_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="2" upper="?" unique="NO" optional="NO"/>
+      <entity name="Statistical_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-      <where label="IP1"/>
-         <where label="IP2"/>
       </entity>
-      <entity name="Symmetrical_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="2" upper="2" unique="NO" optional="NO"/>
+      <entity name="Symmetrical_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate lower="2" type="SET" upper="2"/>
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION_ARM.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
+         <where expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION_ARM.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1" label="WR1"/>
       </entity>
-      <entity name="Text_representation_item" supertypes="String_representation_item" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Tolerance_characteristic" abstract.supertype="YES" supertypes="Property_value_representation" super.expression="ONEOF (Minimum_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Maximum_tolerance_characteristic, Plus_minus_tolerance_characteristic, Nominal_tolerance_characteristic) ANDOR Length_tolerance_characteristic" abstract.entity="NO">
-         <where label="WR1" expression="SELF\Representation.context_of_items\Representation_context.id = 'tolerance values'"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
+      <entity name="Text_representation_item" supertypes="String_representation_item"/>
+      <entity abstract.supertype="YES" name="Tolerance_characteristic" super.expression="ONEOF (Minimum_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Maximum_tolerance_characteristic, Plus_minus_tolerance_characteristic, Nominal_tolerance_characteristic) ANDOR Length_tolerance_characteristic" supertypes="Property_value_representation">
+         <where expression="SELF\Representation.context_of_items\Representation_context.id = 'tolerance values'" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Representation.name)" label="WR2"/>
       </entity>
-      <subtype.constraint name="exclusive_property_value_representation_characteristic" entity="Property_value_representation" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)" abstract.supertype="NO"/>
-      <subtype.constraint name="type_qualifier_subtypes" entity="Type_qualifier" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)" abstract.supertype="NO"/>
-      <subtype.constraint name="independent_property_subtypes" entity="Independent_property" super.expression="ONEOF (Characteristic_data_table_header, Characteristic_data_column_header)" abstract.supertype="NO"/>
-      <subtype.constraint name="c_representation_item_subtypes" entity="Representation_item" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)" abstract.supertype="NO"/>
+      <subtype.constraint entity="Property_value_representation" name="exclusive_property_value_representation_characteristic" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)"/>
+      <subtype.constraint entity="Type_qualifier" name="type_qualifier_subtypes" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)"/>
+      <subtype.constraint entity="Independent_property" name="independent_property_subtypes" super.expression="ONEOF (Characteristic_data_table_header, Characteristic_data_column_header)"/>
+      <subtype.constraint entity="Representation_item" name="c_representation_item_subtypes" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)"/>
       <function name="valid_range">
          <parameter name="input1">
             <typename name="Numerical_item_with_unit"/>
@@ -184,7 +182,7 @@
          <parameter name="input2">
             <typename name="Numerical_item_with_unit"/>
          </parameter>
-         <builtintype type="BOOLEAN" fixed="NO"/>
+         <builtintype type="BOOLEAN"/>
          <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>

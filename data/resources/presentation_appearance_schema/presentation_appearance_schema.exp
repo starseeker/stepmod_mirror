@@ -56,15 +56,13 @@ REFERENCE FROM presentation_resource_schema
      character_glyph_symbol_stroke,
      colour);
 
-REFERENCE FROM product_property_representation_schema
-    (shape_representation_relationship);
-
 REFERENCE FROM representation_schema
     (founded_item,
      mapped_item,
      representation,
      representation_item,
      representation_map,
+     representation_relationship,
      using_representations);
 
 REFERENCE FROM support_resource_schema
@@ -257,7 +255,7 @@ REFERENCE FROM support_resource_schema
      presentation_set,
      representation,
      representation_item,
-     shape_representation_relationship);
+     representation_relationship);
   END_TYPE;
 
   TYPE surface_side = ENUMERATION OF
@@ -370,15 +368,12 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF(over_riding_styled_item);
       style_context : LIST[1:?] OF style_context_select;
     WHERE
-      WR1: (SIZEOF(QUERY( sc <* SELF.style_context |
-       'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN
-         TYPEOF(sc))) = 1) OR
-        (SIZEOF(QUERY( sc <* SELF.style_context |
-       'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN
-         TYPEOF(sc))) = SIZEOF(style_context)) OR
-         (SIZEOF(QUERY( sc <* SELF.style_context |
-       'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION_RELATIONSHIP' IN
-         TYPEOF(sc))) = SIZEOF(style_context));
+      WR1: 
+(SIZEOF(QUERY(sc <* SELF.style_context | 'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(sc)))= 1) OR
+(SIZEOF(QUERY(sc <* SELF.style_context |
+     ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(sc))
+  OR ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(sc)) ))
+  = SIZEOF(style_context));     
   END_ENTITY;
 
   ENTITY curve_style

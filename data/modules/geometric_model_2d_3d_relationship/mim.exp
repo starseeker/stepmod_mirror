@@ -8,6 +8,7 @@ SCHEMA Geometric_model_2d_3d_relationship_mim;
 USE FROM Contextual_shape_positioning_mim;          -- ISO/TS 10303-1027
 USE FROM Geometric_model_relationship_mim;          -- ISO/TS 10303-1403
 REFERENCE FROM support_resource_schema (bag_to_set); -- ISO 10303-41
+REFERENCE FROM representation_schema (acyclic_representation_relationship); -- ISO 10303-43
 
 ENTITY coordinated_geometric_relationship_with_2d_3d_placement_transformation
  SUBTYPE OF(shape_representation_relationship,
@@ -17,7 +18,7 @@ ENTITY coordinated_geometric_relationship_with_2d_3d_placement_transformation
   WR1: acyclic_representation_relationship(SELF,
        [SELF\representation_relationship.rep_2],
         'REPRESENTATION_SCHEMA.'+'REPRESENTATION');
-  WR2: NOT('REPRESENTATION_SCHEMA.DEFINITIONAL_REPRESENTATION_RELATIONSHIP IN TYPEOF(SELF));
+  WR2: NOT('REPRESENTATION_SCHEMA.DEFINITIONAL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(SELF));
 END_ENTITY;
 
 ENTITY axis_placement_2d_3d_mapping
@@ -25,23 +26,5 @@ ENTITY axis_placement_2d_3d_mapping
    SELF\item_defined_transformation.transform_item_1 : axis2_placement_2d;
    SELF\item_defined_transformation.transform_item_2 : axis2_placement_3d;
 END_ENTITY;
-
-FUNCTION acyclic_representation_relationship
-  (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
-  LOCAL
-    x : SET OF representation_relationship;
-  END_LOCAL;
-
-  IF relation.rep_1 IN relatives THEN
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY(r <* bag_to_set(USEDIN(relation.rep_1, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
-      RETURN (FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN (TRUE);
-END_FUNCTION; 
 
 END_SCHEMA;

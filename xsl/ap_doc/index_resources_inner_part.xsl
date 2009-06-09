@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
+$Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -132,14 +132,14 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 				</xsl:for-each>
 			</resources>
 		</xsl:variable>
-		
 		<xsl:choose>
 			<xsl:when test="function-available('msxsl:node-set')">
 				<xsl:variable name="resource-node-set" select="msxsl:node-set($resources)"/>
 				<xsl:for-each select="$resource-node-set//resource">
 					<xsl:sort select="@reference"/>
-					<a href="../../../modules/{@name}/sys/1_scope{$FILE_EXT}" target="info">
-						<xsl:value-of select="concat(@reference,' - ',@name)"/>
+                                        <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_RESOURCES,@name)"/>
+					<a href="{$mod-dir}/{@name}{$FILE_EXT}" TARGET="info">
+                                          <xsl:value-of select="concat(@reference,' - ',@name)"/>
 					</a>
 					<br/>
 				</xsl:for-each>
@@ -148,8 +148,9 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 				<xsl:variable name="resource-node-set" select="exslt:node-set($resources)"/>
 				<xsl:for-each select="$resource-node-set//resource">
 					<xsl:sort select="@reference"/>
-					<a href="../../../modules/{@name}/sys/1_scope{$FILE_EXT}" target="info">
-						<xsl:value-of select="concat(@reference,' - ',@name)"/>
+                                        <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_RESOURCES,@name)"/>
+					<a href="{$mod-dir}/{@name}{$FILE_EXT}" TARGET="info">
+                                          <xsl:value-of select="concat(@reference,' - ',@name)"/>
 					</a>
 					<br/>
 				</xsl:for-each>

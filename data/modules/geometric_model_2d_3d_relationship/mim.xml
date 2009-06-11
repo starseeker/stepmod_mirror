@@ -10,6 +10,9 @@
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="acyclic_representation_relationship"/>
+      </interface>
       <entity name="axis_placement_2d_3d_mapping" supertypes="item_defined_transformation">
          <explicit name="transform_item_1">
             <typename name="axis2_placement_2d"/>
@@ -20,39 +23,13 @@
             <redeclaration entity-ref="item_defined_transformation"/>
          </explicit>
       </entity>
-      <entity name="geometric_relationship_with_2d_3d_placement_transformation" supertypes="shape_representation_relationship representation_relationship_with_transformation">
+      <entity name="coordinated_geometric_relationship_with_2d_3d_placement_transformation" supertypes="shape_representation_relationship representation_relationship_with_transformation">
          <explicit name="transformation_operator">
             <typename name="axis_placement_2d_3d_mapping"/>
             <redeclaration entity-ref="representation_relationship_with_transformation"/>
          </explicit>
          <where expression="acyclic_representation_relationship(SELF,&#10;       [SELF\representation_relationship.rep_2],&#10;        'REPRESENTATION_SCHEMA.'+'REPRESENTATION')" label="WR1"/>
+         <where expression="NOT('REPRESENTATION_SCHEMA.DEFINITIONAL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(SELF))" label="WR2"/>
       </entity>
-      <function name="acyclic_representation_relationship">
-         <parameter name="relation">
-            <typename name="representation_relationship"/>
-         </parameter>
-         <parameter name="relatives">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="representation"/>
-         </parameter>
-         <parameter name="specific_relation">
-            <builtintype type="STRING"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    x : SET OF representation_relationship;
-  END_LOCAL;
-
-  IF relation.rep_1 IN relatives THEN
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY(r &lt;* bag_to_set(USEDIN(relation.rep_1, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
-      RETURN (FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN (TRUE);</algorithm>
-      </function>
    </schema>
 </express>

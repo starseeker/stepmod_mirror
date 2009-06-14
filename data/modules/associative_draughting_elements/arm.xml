@@ -2,31 +2,31 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="associative_draughting_elements_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Associative_draughting_elements_arm">
       <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Draughting_element_arm"/>
       <type name="annotation_occurrence_associativity_item">
-         <select selectitems="Fill_area Leader Projection_curve"/>
+         <select extensible="NO" genericentity="NO" selectitems="Fill_area Leader Projection_curve"/>
       </type>
       <type name="draughting_model_element_select">
          <select extensible="YES" genericentity="YES" selectitems="Annotation_element Axis_placement Draughting_callout Styled_model_replication"/>
       </type>
       <type name="draughting_model_item_association_select">
-         <select selectitems="Annotation_element Draughting_callout"/>
+         <select extensible="NO" genericentity="NO" selectitems="Annotation_element Draughting_callout"/>
       </type>
-      <entity name="Annotation_occurrence_associativity">
-         <explicit name="relating_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Annotation_occurrence_associativity">
+         <explicit name="relating_element" optional="NO">
             <typename name="Annotation_element"/>
          </explicit>
-         <explicit name="related_element">
+         <explicit name="related_element" optional="NO">
             <typename name="annotation_occurrence_associativity_item"/>
          </explicit>
       </entity>
-      <entity name="Draughting_model" supertypes="Styled_model">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Draughting_model" supertypes="Styled_model">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="draughting_model_element_select"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
@@ -34,22 +34,20 @@
             <unique.attribute attribute="name" entity-ref="Representation"/>
          </unique>
       </entity>
-      <entity name="Draughting_model_item_association">
-         <explicit name="name">
-            <builtintype type="STRING"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Draughting_model_item_association">
+         <explicit name="name" optional="NO">
+            <builtintype fixed="NO" type="STRING"/>
          </explicit>
-         <explicit name="definition">
+         <explicit name="definition" optional="NO">
             <typename name="shape_select"/>
          </explicit>
-         <explicit name="identified_item">
+         <explicit name="identified_item" optional="NO">
             <typename name="draughting_model_item_association_select"/>
          </explicit>
-         <explicit name="used_model">
+         <explicit name="used_model" optional="NO">
             <typename name="Draughting_model"/>
          </explicit>
-         <where expression="(NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(identified_item)) OR&#10;&#9;       ('GEOMETRIC_TOLERANCE_ARM.'+'DATUM_TARGET' IN TYPEOF(definition)))" label="WR1"/>
-         <where expression="(NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'GEOMETRIC_TOLERANCE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;&#9;       ('GEOMETRIC_TOLERANCE_ARM.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(definition)))" label="WR2"/>
-         <where expression="(NOT('DIMENSION_TOLERANCE_ARM.'+'SIZE_DIMENSION' IN TYPEOF(definition)) OR&#10;&#9;        (('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DIMENSION_CALLOUT' IN TYPEOF(identified_item)) OR&#10;&#9;        ('DRAUGHTING_ELEMENT_ARM.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(identified_item)) OR&#10;&#9;        ('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(identified_item))))" label="WR3"/>
+      <where label="IP1"/>
       </entity>
    </schema>
 </express>

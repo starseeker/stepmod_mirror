@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="constructive_solid_geometry_2d_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Constructive_solid_geometry_2d_mim">
       <interface kind="use" schema="Area_2d_mim"/>
@@ -20,45 +20,46 @@
          <interfaced.item name="composite_curve"/>
       </interface>
       <type name="boolean_operand_2d">
-         <select selectitems="primitive_2d boolean_result_2d half_space_2d"/>
+         <select extensible="NO" genericentity="NO" selectitems="primitive_2d boolean_result_2d half_space_2d"/>
       </type>
       <type name="compound_inner_area_boundary">
-         <select selectitems="set_inner_area_boundary"/>
+         <select extensible="NO" genericentity="NO" selectitems="set_inner_area_boundary"/>
       </type>
       <type name="csg_2d_area_select">
-         <select selectitems="axis2_placement_2d csg_primitive_solid_2d"/>
+         <select extensible="NO" genericentity="NO" selectitems="axis2_placement_2d csg_primitive_solid_2d"/>
       </type>
       <type name="csg_2d_shape_select">
-         <select selectitems="mapped_item axis2_placement_2d csg_solid_2d"/>
+         <select extensible="NO" genericentity="NO" selectitems="mapped_item axis2_placement_2d csg_solid_2d"/>
       </type>
       <type name="csg_select_2d">
-         <select selectitems="primitive_2d boolean_result_2d"/>
+         <select extensible="NO" genericentity="NO" selectitems="primitive_2d boolean_result_2d"/>
       </type>
       <type name="set_inner_area_boundary">
-         <aggregate lower="1" type="SET" upper="?"/>
+         <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
          <typename name="primitive_2d"/>
       </type>
-      <entity name="area_with_outer_boundary" supertypes="complex_area half_space_2d">
-         <explicit name="base_curve">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="area_with_outer_boundary" supertypes="complex_area half_space_2d">
+         <explicit name="base_curve" optional="NO">
             <typename name="composite_curve"/>
             <redeclaration entity-ref="half_space_2d"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      <entity name="boolean_result_2d" supertypes="boolean_result">
-         <explicit name="first_operand">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="boolean_result_2d" supertypes="boolean_result">
+         <explicit name="first_operand" optional="NO">
             <typename name="boolean_operand_2d"/>
             <redeclaration entity-ref="boolean_result"/>
          </explicit>
-         <explicit name="second_operand">
+         <explicit name="second_operand" optional="NO">
             <typename name="boolean_operand_2d"/>
             <redeclaration entity-ref="boolean_result"/>
          </explicit>
       </entity>
-      <entity name="closed_curve_style_parameters" supertypes="curve_style_parameters_representation"/>
-      <entity abstract.supertype="YES" name="complex_area" super.expression="area_with_outer_boundary" supertypes="primitive_2d"/>
-      <entity name="csg_2d_shape_representation" supertypes="shape_representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="closed_curve_style_parameters" supertypes="curve_style_parameters_representation"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="complex_area" super.expression="area_with_outer_boundary" supertypes="primitive_2d"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="csg_2d_shape_representation" supertypes="shape_representation">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="csg_2d_shape_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
@@ -66,28 +67,28 @@
          <where expression="SIZEOF(QUERY ( it &lt;* SELF.items | &#10;       (SIZEOF(['CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_SOLID']&#10;  &#9;   * TYPEOF(it)) = 1) &#10;  &#9;   OR &#10;&#9;   (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' &#10;&#9;   IN TYPEOF(it)) AND&#10;&#9;   ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.' +&#10;&#9;   'CSG_2D_SHAPE_REPRESENTATION' &#10;&#9;   IN TYPEOF(it\mapped_item.mapping_source.mapped_representation))) &#10;       )) &gt;= 1" label="WR2"/>
          <where expression="SIZEOF(QUERY ( it &lt;* SELF.items | &#10;       (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' &#10;       IN TYPEOF(it)) AND (NOT (( &#10;       'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.' +&#10;       'CSG_2D_SHAPE_REPRESENTATION') &#10;       IN TYPEOF(it\mapped_item.mapping_source.mapped_representation)))) )) = 0" label="WR3"/>
       </entity>
-      <entity name="csg_primitive_solid_2d" supertypes="csg_solid_2d">
-         <explicit name="tree_root_expression">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="csg_primitive_solid_2d" supertypes="csg_solid_2d">
+         <explicit name="tree_root_expression" optional="NO">
             <typename name="primitive_2d"/>
             <redeclaration entity-ref="csg_solid"/>
          </explicit>
       </entity>
-      <entity name="csg_solid_2d" supertypes="csg_solid">
-         <explicit name="tree_root_expression">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="csg_solid_2d" supertypes="csg_solid">
+         <explicit name="tree_root_expression" optional="NO">
             <typename name="csg_select_2d"/>
             <redeclaration entity-ref="csg_solid"/>
          </explicit>
          <where expression="valid_csg_2d_primitives(SELF)" label="WR1"/>
       </entity>
-      <entity name="curve_style_parameters_representation" supertypes="representation"/>
-      <entity name="curve_style_parameters_with_ends" supertypes="curve_style_parameters_representation"/>
-      <entity name="path_area_with_parameters" supertypes="complex_area mapped_item">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="curve_style_parameters_representation" supertypes="representation"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="curve_style_parameters_with_ends" supertypes="curve_style_parameters_representation"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="path_area_with_parameters" supertypes="complex_area mapped_item">
          <where expression="'BASIC_CURVE.CURVE' IN TYPEOF(SELF\mapped_item.mapping_target)" label="WR1"/>
          <where expression="'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CURVE_STYLE_PARAMETERS_REPRESENTATION' IN TYPEOF(SELF\mapped_item.mapping_source\representation_map.mapped_representation)" label="WR2"/>
          <where expression="SELF\mapped_item.mapping_source\representation_map.mapping_origin\representation_item.name = 'curve width'" label="WR3"/>
       </entity>
-      <entity name="primitive_2d_with_inner_boundary" supertypes="primitive_2d compound_representation_item">
-         <explicit name="inner_boundary">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="primitive_2d_with_inner_boundary" supertypes="primitive_2d compound_representation_item">
+         <explicit name="inner_boundary" optional="NO">
             <typename name="compound_inner_area_boundary"/>
             <redeclaration entity-ref="compound_representation_item" old_name="item_element"/>
          </explicit>
@@ -95,25 +96,25 @@
          <where expression="SIZEOF(QUERY(inner &lt;* inner_boundary |&#10;        'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PRIMITIVE_2D_WITH_INNER_BOUNDARY' IN TYPEOF(inner))) = 0" label="WR2"/>
          <where expression="open_path_based_inner_boundary(inner_boundary)" label="WR3"/>
       </entity>
-      <entity name="single_area_csg_2d_shape_representation" supertypes="csg_2d_shape_representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="single_area_csg_2d_shape_representation" supertypes="csg_2d_shape_representation">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="csg_2d_area_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
          <where expression="SIZEOF (QUERY (it &lt;* SELF.items| &#10;     ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' &#10;     IN TYPEOF(it)) )) = 0" label="WR1"/>
          <where expression="SIZEOF (QUERY (it &lt;* SELF.items| &#10;     ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_SOLID_2D' &#10;     IN TYPEOF(it)) )) = 1" label="WR2"/>
       </entity>
-      <entity name="single_boundary_csg_2d_shape_representation" supertypes="single_area_csg_2d_shape_representation">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="single_boundary_csg_2d_shape_representation" supertypes="single_area_csg_2d_shape_representation">
          <where expression="SIZEOF(QUERY ( it &lt;* SELF.items |&#10;        (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_PRIMITIVE_SOLID_2D' IN TYPEOF(it))&#10;        AND (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PRIMITIVE_2D_WITH_INNER_BOUNDARY') IN&#10;        TYPEOF(it\csg_primitive_solid_2d.tree_root_expression))) )) = 0" label="WR1"/>
       </entity>
-      <subtype.constraint entity="primitive_2d" name="primitive_2d_subtypes" super.expression="ONEOF (elliptic_area, rectangular_area, polygonal_area, complex_area)"/>
+      <subtype.constraint abstract.supertype="NO" entity="primitive_2d" name="primitive_2d_subtypes" super.expression="ONEOF (elliptic_area, rectangular_area, polygonal_area, complex_area)"/>
       <function name="open_path_based_inner_boundary">
          <parameter name="input">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="primitive_2d"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
    pass : BOOLEAN := TRUE;
   END_LOCAL;
@@ -130,7 +131,7 @@
          <parameter name="input">
             <typename name="csg_solid_2d"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>CASE TRUE OF
   ('GEOMETRIC_MODEL_SCHEMA.PRIMITIVE_2D' IN TYPEOF(input\csg_solid_2d.tree_root_expression)) :
   BEGIN

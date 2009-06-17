@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.63 2005/08/12 23:44:15 thendrix Exp $
+     $Id: express_code.xsl,v 1.64 2006/11/07 15:24:07 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -912,8 +912,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 -->
 <br/>
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
-	<xsl:value-of select="@name"/></b></A>
-  <xsl:text> FOR </xsl:text>
+	<xsl:value-of select="@name"/></b></A>&#160;FOR<xsl:text> </xsl:text>
   <xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@entity"/>
     <xsl:with-param name="object_used_in_schema_name" 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_apdoc.xsl,v 1.6 2004/12/29 07:51:12 robbod Exp $
+	$Id: sect_index_apdoc.xsl,v 1.7 2004/12/30 16:32:28 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -220,8 +220,10 @@
     <xsl:variable name="object_href" select="@object_href"/>
     <xsl:variable name="clause_no" select="@clause_no"/>
     <xsl:variable name="element" select="name()"/>
+<!--    <xsl:variable name="position"
+      select="count(following-sibling::*[name()=$element ])"/>-->
     <xsl:variable name="position"
-      select="count(following-sibling::*[name()=$element])"/>
+      select="count(following-sibling::*[name()=$element and @clause_no != $clause_no and $object_href != @object_href])"/>
 
     <xsl:if test="count(preceding-sibling::*[name() = $element][@clause_no=$clause_no])=0">
       <!-- only output if new clause no -->

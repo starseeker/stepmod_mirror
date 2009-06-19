@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.64 2006/11/07 15:24:07 mikeward Exp $
+     $Id: express_code.xsl,v 1.65 2009/06/17 09:07:51 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -577,7 +577,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
     </xsl:call-template>
     <xsl:choose>
       <xsl:when test="@old_name">
-        <xsl:value-of select="concat('.',@old_name,' RENAMED ')"/>        
+        <xsl:value-of select="concat('.',@old_name,'&#160;RENAMED&#160;')"/>        
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>.</xsl:text>
@@ -826,10 +826,13 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
     </xsl:variable>
     
     <br/>
+      <!--
     <A NAME="{$aname}">RULE 
     <b>
       <xsl:value-of select="@name"/>
     </b></A><xsl:text> FOR </xsl:text>
+    -->
+    <A NAME="{$aname}">RULE&#160;<b><xsl:value-of select="@name"/></b></A>&#160;FOR<xsl:text> </xsl:text>
     <br/>
       (<xsl:call-template name="process_FOR_arguments">
           <xsl:with-param name="args" select="@appliesto"/>

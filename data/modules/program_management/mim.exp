@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.22 2009/01/07 18:40:45 abhpf Exp $
+   $Id: mim.exp,v 1.23 2009/02/27 19:25:46 abhpf Exp $
    ISO TC184/SC4/WG3 N2492 - ISO/TS 10303-1466 Program management - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N2304
 *)
@@ -9,7 +9,7 @@ SCHEMA Program_management_mim;
 USE FROM Issue_management_mim;
 
 USE FROM product_property_definition_schema
-  (characterized_object);
+(characterized_object);
 
 USE FROM Probability_distribution_mim;
 
@@ -18,12 +18,20 @@ USE FROM Project_management_mim;
 USE FROM Risk_management_mim;
 
 USE FROM state_type_schema
-  (state_type_role);
+(state_type_role);
 
 
 TYPE prgm_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH
-	(event_probability,
-	local_time,
+	(action_method_relationship,
+	applied_action_method_assignment,
+	assumption,
+	assumption_assignment,
+	assumption_relationship,
+	compound_representation_item,
+	configuration_item_relationship,
+	item_assumed,
+	representation,
+	representation_relationship,
 	risk,
 	risk_analysis,
 	risk_assessment,
@@ -35,15 +43,12 @@ TYPE prgm_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items 
 	risk_evaluation,
 	risk_identification,
 	risk_impact_assignment,
-	risk_measure,
 	risk_perception,
-	risk_perception_context,
 	risk_perception_formation,
 	risk_perception_relationship,
 	risk_perception_source_assignment,
 	risk_relationship,
-	risk_treatment,
-	state_type_role);
+	risk_treatment);
 END_TYPE;
 
 TYPE prgm_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH
@@ -53,29 +58,20 @@ TYPE prgm_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action
 	risk_analysis,
 	risk_assessment,
 	risk_communication,
-	risk_consequence,
 	risk_control,
 	risk_estimation,
 	risk_evaluation,
-	risk_identification,
+	risk_impact,
 	risk_impact_assignment,
-	risk_measure,
 	risk_perception,
 	risk_perception_context,
-	risk_perception_source_assignment,
 	risk_treatment);
 END_TYPE;
 
 TYPE prgm_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_request_item WITH
-	(issue,
-	lessons_learned,
+	(lessons_learned,
 	risk,
 	risk_perception_source_assignment);
-END_TYPE;
-
-TYPE prgm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
-	(issue,
-	risk);
 END_TYPE;
 
 TYPE prgm_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_classification_item WITH
@@ -87,54 +83,185 @@ TYPE prgm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certifi
 	(lessons_learned);
 END_TYPE;
 
-TYPE prgm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
-	(disposition,
-	event_probability,
-	issue,
-	issue_consequence,
+TYPE prgm_collection_membership_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON collection_membership_groupable_item WITH
+	(action,
+	action_directive,
+	action_method,
+	action_method_assignment,
+	action_method_relationship,
+	action_property,
+	action_property_representation,
+	action_relationship,
+	action_request_solution,
+	action_request_status,
+	action_resource,
+	action_resource_relationship,
+	action_resource_requirement,
+	action_resource_requirement_relationship,
+	action_status,
+	address,
+	applied_action_assignment,
+	applied_action_method_assignment,
+	applied_action_request_assignment,
+	applied_approval_assignment,
+	applied_attribute_classification_assignment,
+	applied_certification_assignment,
+	applied_classification_assignment,
+	applied_contract_assignment,
+	applied_document_reference, applied_document_usage_constraint_assignment,
+	applied_effectivity_assignment,
+	applied_event_occurrence_assignment,
+	applied_experience_assignment,
+	applied_external_identification_assignment,
+	applied_identification_assignment,
+	applied_location_assignment,
+	applied_location_representation_assignment,
+	applied_name_assignment,
+	applied_organization_assignment, applied_person_and_organization_assignment,
+	applied_organization_type_assignment,
+	applied_organizational_project_assignment,
+	applied_person_type_assignment,
+	applied_person_type_definition_assignment,
+	applied_position_in_organization_assignment,
+	applied_position_in_organization_group_assignment,
+	applied_position_in_organization_type_assignment,
+	applied_qualification_type_assignment,
+	applied_security_classification_assignment,
+	applied_usage_right,
+	approval,
+	approval_person_organization,
+	approval_relationship,
+	approval_status,
+	ascribable_state,
+	ascribable_state_relationship,
+	assumption,
+	assumption_assignment,
+	assumption_relationship,
+	attribute_language_assignment,
+	breakdown_context,
+	breakdown_of,
+	calendar_date,
+	certification,
+	class,
+	collection_assignment,
+	collection_membership,
+	compound_representation_item,
+	condition,
+	configuration_design,
+	configuration_item,
+	configuration_item_relationship,
+	contract,
+	contract_relationship,
+	coordinated_universal_time_offset,
+	date_and_time,
+	date_assignment, date_and_time_assignment,
+	derived_unit_element,
+	document_file,
+	document_relationship,
+	effectivity,
+	effectivity_relationship,
+	event_occurrence,
+	event_occurrence_relationship,
+	executed_action,
+	experience,
+	experience_type,
+	experience_type_relationship,
+	external_source,
+	general_property,
+	general_property_relationship,
+	group,
+	identification_assignment_relationship,
+	information_right,
+	information_usage_right,
+	item_assumed,
+	justification_group_assignment, justification_item_group_assignment, justification_assignment,
+	justification_support_item_group_assignment, justification_support_assignment,
+	language,
+	local_time,
+	location,
+	location_relationship,
 	measure_representation_item,
-	probability_generator,
-	risk,
-	risk_consequence,
-	risk_impact_assignment,
-	risk_perception,
-	risk_perception_relationship,
-	risk_relationship);
+	measure_with_unit,
+	multi_language_attribute_assignment,
+	named_unit, derived_unit,
+	observation,
+	observation_consequence,
+	observation_relationship,
+	organization,
+	organization_relationship,
+	organization_type,
+	organizational_project,
+	organizational_project_relationship,
+	person,
+	person_and_organization,
+	person_and_organization_address, organizational_address,
+	person_type,
+	person_type_definition,
+	person_type_definition_relationship,
+	position_in_organization,
+	position_in_organization_assignment,
+	position_in_organization_relationship,
+	position_in_organization_type,
+	position_in_organization_type_assignment,
+	product,
+	product_concept,
+	product_concept_context,
+	product_definition,
+	product_definition_context,
+	product_definition_formation,
+	product_definition_formation_relationship,
+	product_definition_group_assignment, breakdown_element_group_assignment, product_definition_usage,
+	product_definition_relationship,
+	product_design_to_individual,
+	product_design_version_to_individual,
+	product_design_view_to_individual,
+	product_group,
+	product_group_membership,
+	product_group_relationship,
+	product_planned_to_realized,
+	product_relationship,
+	property_definition,
+	property_definition_representation,
+	qualification_type,
+	qualification_type_relationship,
+	representation,
+	representation_context,
+	representation_item,
+	representation_relationship,
+	resource_property,
+	resource_property_representation,
+	same_as_external_item_assignment,
+	security_classification,
+	selected_item_assignment,
+	state_observed,
+	state_observed_assignment,
+	state_observed_relationship,
+	state_observed_role,
+	state_type,
+	state_type_assignment,
+	state_type_relationship,
+	state_type_role,
+	task_objective,
+	time_interval,
+	time_interval_relationship,
+	usage_association,
+	versioned_action_request);
 END_TYPE;
 
-TYPE prgm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH
-	(issue,
-	risk_analysis,
+TYPE prgm_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(issue);
+END_TYPE;
+
+TYPE prgm_condition_evaluation_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_action_items WITH
+	(risk_analysis,
+	risk_impact_assignment);
+END_TYPE;
+
+TYPE prgm_contract_item = EXTENSIBLE SELECT BASED_ON contract_item WITH
+	(risk_analysis,
 	risk_control,
-	risk_measure,
-	risk_perception_source_assignment);
-END_TYPE;
-
-TYPE prgm_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH
-	(issue);
-END_TYPE;
-
-TYPE prgm_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
-	(issue);
-END_TYPE;
-
-TYPE prgm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH
-	(probability_generator,
-	risk_analysis,
-	risk_measure,
-	selected_item);
-END_TYPE;
-
-TYPE prgm_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH
-	(issue,
-	issue_consequence,
-	risk_measure,
-	risk_perception_source_assignment);
-END_TYPE;
-
-TYPE prgm_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_occurrence_item WITH
-	(issue,
-	risk);
+	risk_perception_source_assignment,
+	risk_treatment);
 END_TYPE;
 
 TYPE prgm_experience_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON experience_item WITH
@@ -150,52 +277,82 @@ TYPE prgm_experience_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON exper
 	risk_assessment);
 END_TYPE;
 
-TYPE prgm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
-	(disposition,
-	event_probability,
-	probability_generator,
-	risk,
-	risk_analysis,
-	risk_consequence,
-	risk_identification,
-	risk_impact_assignment,
-	risk_measure,
-	risk_perception_source_assignment);
+TYPE prgm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH
+	(probability_generator);
 END_TYPE;
 
-TYPE prgm_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH
-	(event_probability,
-	issue,
-	issue_consequence,
-	risk,
-	risk_measure);
-END_TYPE;
-
-TYPE prgm_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH
+TYPE prgm_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH
 	(issue,
-	risk,
-	risk_measure,
+	issue_consequence,
+	risk_perception_source_assignment,
 	risk_treatment);
 END_TYPE;
 
-TYPE prgm_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH
-	(risk_analysis,
-	risk_consequence);
+TYPE prgm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
+	(probability_generator);
+END_TYPE;
+
+TYPE prgm_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH
+	(action_directive,
+	action_method,
+	action_property,
+	action_resource,
+	action_resource_requirement,
+	applied_action_method_assignment,
+	applied_certification_assignment,
+	applied_external_identification_assignment,
+	applied_security_classification_assignment,
+	applied_usage_right,
+	certification,
+	configuration_item,
+	contract,
+	contract_relationship,
+	document_file,
+	document_relationship,
+	information_right,
+	information_usage_right,
+	issue,
+	issue_consequence,
+	organization,
+	organizational_project,
+	person_and_organization,
+	product,
+	product_as_individual,
+	product_as_individual_view,
+	product_as_planned,
+	product_as_realized,
+	product_definition,
+	product_definition_formation,
+	product_definition_formation_relationship,
+	product_definition_group_assignment, breakdown_element_group_assignment, breakdown_element_realization,
+	product_definition_relationship,
+	product_definition_usage,
+	property_definition,
+	representation_item,
+	risk,
+	risk_treatment,
+	security_classification,
+	task_element,
+	task_method,
+	task_objective,
+	usage_association);
+END_TYPE;
+
+TYPE prgm_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH
+	(issue);
 END_TYPE;
 
 TYPE prgm_location_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_item WITH
-	(risk_measure);
+	(risk_treatment);
 END_TYPE;
 
 TYPE prgm_location_representation_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_representation_item WITH
 	(lessons_learned,
-	organization_type,
 	risk,
 	risk_assessment,
 	risk_attitude,
 	risk_consequence,
 	risk_estimation,
-	risk_measure,
 	risk_treatment);
 END_TYPE;
 
@@ -220,69 +377,24 @@ TYPE prgm_observed_context_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON obse
 	risk_estimation,
 	risk_evaluation,
 	risk_impact_assignment,
-	risk_measure,
 	risk_perception,
 	risk_perception_context,
 	risk_perception_source_assignment,
-	risk_treatment);
-END_TYPE;
-
-TYPE prgm_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH
-	(event_probability,
-	issue_consequence,
-	risk,
-	risk_analysis,
-	risk_assessment,
-	risk_attitude,
-	risk_communication,
-	risk_consequence,
-	risk_control,
-	risk_estimation,
-	risk_evaluation,
-	risk_identification,
-	risk_impact_assignment,
-	risk_measure,
-	risk_perception,
-	risk_perception_context,
-	risk_perception_relationship,
-	risk_perception_source_assignment,
-	risk_relationship,
-	risk_treatment);
-END_TYPE;
-
-TYPE prgm_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH
-	(event_probability,
-	issue_consequence,
-	risk,
-	risk_analysis,
-	risk_assessment,
-	risk_attitude,
-	risk_communication,
-	risk_consequence,
-	risk_control,
-	risk_estimation,
-	risk_evaluation,
-	risk_identification,
-	risk_impact_assignment,
-	risk_measure,
-	risk_perception,
-	risk_perception_context,
-	risk_perception_relationship,
-	risk_perception_source_assignment,
-	risk_relationship,
 	risk_treatment);
 END_TYPE;
 
 TYPE prgm_person_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_type_item WITH
 	(risk_analysis,
 	risk_impact_assignment,
-	risk_measure);
+	risk_treatment);
 END_TYPE;
 
 TYPE prgm_position_in_organization_group_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_in_organization_group_item WITH
 	(issue_consequence,
 	risk_impact_assignment,
-	risk_perception_source_assignment);
+	risk_perception_source_assignment,
+	state_observed,
+	versioned_action_request);
 END_TYPE;
 
 TYPE prgm_position_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_in_organization_item WITH
@@ -307,31 +419,7 @@ TYPE prgm_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item 
 	risk_impact_assignment,
 	risk_perception_context,
 	risk_perception_source_assignment,
-	risk_relationship,
-	risk_treatment);
-END_TYPE;
-
-TYPE prgm_risk_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_event_occurrence_item WITH
-	(action,
-	action_method,
-	action_property,
-	action_resource,
-	action_resource_requirement,
-	applied_action_assignment,
-	applied_action_method_assignment,
-	applied_contract_assignment,
-	applied_organizational_project_assignment,
-	contract,
-	contract_relationship,
-	organizational_project,
-	product_concept_context,
-	product_definition_relationship,
-	resource_property,
-	risk_impact_assignment,
-	state_observed,
-	state_observed_assignment,
-	state_observed_relationship,
-	task_objective);
+	risk_relationship);
 END_TYPE;
 
 TYPE prgm_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impact_item WITH
@@ -343,8 +431,6 @@ TYPE prgm_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impa
 	action_resource_requirement,
 	applied_action_method_assignment,
 	applied_organizational_project_assignment,
-	ascribable_state,
-	ascribable_state_relationship,
 	breakdown_context,
 	breakdown_of,
 	group,
@@ -352,132 +438,88 @@ TYPE prgm_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impa
 	issue_consequence,
 	organizational_project,
 	product_concept_context,
-	product_definition_formation_relationship,
-	product_definition_relationship,
 	resource_property,
-	state_observed,
-	state_observed_assignment,
-	state_observed_relationship,
 	task_objective);
 END_TYPE;
 
 TYPE prgm_risk_perception_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_perception_source_item WITH
-	(action_method,
-	action_relationship,
+	(action,
+	action_directive,
+	action_method,
+	action_method_assignment,
+	action_property,
 	action_resource,
 	action_resource_relationship,
-	applied_document_reference,
-	applied_document_usage_constraint_assignment,
-	applied_organization_assignment,
-	applied_person_and_organization_assignment,
-	approval,
-	approval_person_organization,
-	condition,
-	document_file,
-	event_occurrence,
-	event_occurrence_relationship,
-	general_property,
-	general_property_relationship,
-	justification_assignment,
-	justification_group_assignment,
-	justification_item_group_assignment,
-	justification_support_assignment,
-	justification_support_item_group_assignment,
-	organization,
-	person,
-	person_and_organization,
-	product,
-	product_definition,
-	product_definition_formation,
-	product_relationship,
-	property_definition,
-	representation,
-	representation_item,
-	state_type,
-	state_type_relationship);
+	action_resource_requirement,
+	applied_action_assignment,
+	applied_action_method_assignment,
+	applied_certification_assignment,
+	applied_contract_assignment,
+	applied_effectivity_assignment,
+	applied_experience_assignment,
+	applied_organizational_project_assignment,
+	applied_person_type_assignment,
+	applied_person_type_definition_assignment,
+	applied_position_in_organization_assignment,
+	applied_position_in_organization_group_assignment,
+	applied_position_in_organization_type_assignment,
+	applied_qualification_type_assignment,
+	breakdown_context,
+	breakdown_of,
+	contract,
+	contract_relationship,
+	experience,
+	group,
+	information_right,
+	information_usage_right,
+	observation,
+	observation_consequence,
+	observation_relationship,
+	organizational_project,
+	organizational_project_relationship,
+	person_type,
+	person_type_definition,
+	person_type_definition_relationship,
+	position_in_organization,
+	position_in_organization_assignment,
+	position_in_organization_relationship,
+	position_in_organization_type,
+	position_in_organization_type_assignment,
+	product_concept,
+	product_concept_context,
+	product_design_to_individual,
+	product_design_version_to_individual,
+	product_group,
+	product_group_relationship,
+	product_planned_to_realized,
+	qualification_type,
+	resource_property,
+	selected_item,
+	selected_item_assignment,
+	task_objective);
 END_TYPE;
 
 TYPE prgm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH
 	(risk_communication,
-	risk_consequence,
-	risk_measure);
+	risk_impact,
+	risk_treatment);
 END_TYPE;
 
 TYPE prgm_state_observed_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_observed_of_item WITH
 	(risk_analysis,
 	risk_attitude,
 	risk_communication,
-	risk_consequence,
 	risk_control,
 	risk_evaluation,
+	risk_impact,
 	risk_impact_assignment,
-	risk_measure,
-	risk_perception);
+	risk_perception,
+	risk_treatment);
 END_TYPE;
 
 TYPE prgm_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH
-	(lessons_learned,
-	representation,
-	risk,
-	risk_attitude,
-	risk_consequence,
-	risk_control,
-	risk_impact_assignment,
-	risk_measure,
-	risk_perception_context);
+	(representation);
 END_TYPE;
-
-ENTITY prgm_characterizable_risk
-   SUBTYPE OF (characterized_object, risk);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_analysis
-   SUBTYPE OF (characterized_object, risk_analysis);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_assessment
-   SUBTYPE OF (characterized_object, risk_assessment);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_consequence
-   SUBTYPE OF (characterized_object, risk_consequence);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_control
-   SUBTYPE OF (characterized_object, risk_control);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_estimation
-   SUBTYPE OF (characterized_object, risk_estimation);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_evaluation
-   SUBTYPE OF (characterized_object, risk_evaluation);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_impact_assignment
-   SUBTYPE OF (characterized_object, risk_impact_assignment);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_perception
-   SUBTYPE OF (characterized_object, risk_perception);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_perception_context
-   SUBTYPE OF (characterized_object, risk_perception_context);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_perception_source_assignment
-   SUBTYPE OF (characterized_object, risk_perception_source_assignment);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_relationship
-   SUBTYPE OF (characterized_object, risk_relationship);
-END_ENTITY;
-
-ENTITY prgm_characterizable_risk_treatment
-   SUBTYPE OF (characterized_object, risk_treatment);
-END_ENTITY;
 
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.17 2008/11/24 17:59:12 abhpf Exp $ 
+   $Id: mim.exp,v 1.18 2009/02/27 19:24:36 abhpf Exp $ 
    ISO TC184/SC4/WG3 N2482 - ISO/TS 10303-1453 Function based behaviour - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N2288
 *)
@@ -7,6 +7,8 @@
 SCHEMA Function_based_behaviour_mim;
 
 USE FROM Behaviour_description_assignment_mim;
+
+USE FROM Collection_identification_and_version_mim;
 
 USE FROM Expression_assignment_mim;
 
@@ -18,58 +20,92 @@ USE FROM Required_resource_mim;
 
 USE FROM Resource_property_assignment_mim;
 
+USE FROM Same_as_external_item_mim;
+
 USE FROM Textual_expression_representation_mim;
 
 USE FROM Function_based_behaviour_representation_mim;
 
 USE FROM Condition_mim  
-	(condition); 
-  
+(condition); 
+
 USE FROM External_item_identification_assignment_mim  
-	(applied_external_identification_assignment); 
+(applied_external_identification_assignment); 
 
 USE FROM File_identification_mim  
-	(document_file); 
-  
+(document_file); 
+
 USE FROM Task_element_mim  
-	(task_element,
-	task_element_relationship,
-	task_step); 
+(task_element,
+task_element_relationship,
+task_step); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (identification_assignment_relationship); 
 
 TYPE fbb_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH
 	(action_method,
-	action_method_relationship,	
 	action_method_assignment_relationship,
 	action_resource,
-	action_resource_relationship,	
 	action_resource_requirement,
-	action_resource_requirement_relationship,
 	applied_action_method_assignment,
-	applied_classification_assignment,
-	applied_identification_assignment,
 	condition,
 	document_file,
 	group,
-	parameter_value_select,
 	product,
 	product_definition,
 	product_definition_formation,
 	product_definition_formation_relationship,
 	property_definition,
-	property_definition_representation,
-	representation,
 	resource_property,
-	resource_property_representation,
 	task_element,
-	task_element_relationship,
 	task_step);
 END_TYPE;
 
-TYPE fbb_expression_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON expression_assignment_item WITH
-	(condition);
+TYPE fbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+	(action_method,
+	action_method_relationship,
+	applied_action_method_assignment,
+	applied_expression_assignment,
+	applied_external_identification_assignment,
+	applied_identification_assignment,
+	class,
+	context_dependent_unit,
+	conversion_based_unit,
+	derived_unit,
+	descriptive_representation_item,
+	document_file,
+	expression,
+	external_class_library,
+	general_property,
+	general_property_relationship,
+	identification_assignment_relationship,
+	measure_with_unit,
+	named_unit, 
+	product,
+	product_definition,
+	product_definition_context,
+	product_definition_formation,
+	product_definition_formation_relationship,
+	product_relationship,
+	property_definition,
+	property_definition_representation,
+	representation,
+	representation_item,
+	representation_relationship,
+	resource_property,
+	resource_property_representation,
+	uncertainty_measure_with_unit);
 END_TYPE;
 
-TYPE fbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+TYPE fbb_collection_assignment_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON collection_assignment_groupable_item WITH
+	(action_method,
+	product,
+	product_definition,
+	product_definition_formation);
+END_TYPE;
+
+TYPE fbb_collection_membership_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON collection_membership_groupable_item WITH
 	(action_method,
 	action_method_relationship,
 	action_resource,
@@ -77,29 +113,66 @@ TYPE fbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classif
 	action_resource_requirement,
 	action_resource_requirement_relationship,
 	applied_action_method_assignment,
+	applied_classification_assignment,
 	applied_external_identification_assignment,
 	applied_identification_assignment,
+	applied_name_assignment,
 	class,
-	context_dependent_unit,
-	conversion_based_unit,
-	derived_unit,
+	collection_assignment,
+	collection_membership,
+	condition,
+	derived_unit_element,
 	document_file,
-	external_class_library,
+	external_source,
 	general_property,
 	general_property_relationship,
+	identification_assignment_relationship,
 	measure_with_unit,
-	named_unit,
+	named_unit, derived_unit,
 	product,
 	product_definition,
 	product_definition_context,
 	product_definition_formation,
 	product_definition_formation_relationship,
+	product_relationship,
+	property_definition,
+	property_definition_representation,
 	representation,
 	representation_context,
 	representation_item,
+	representation_relationship,
 	resource_property,
 	resource_property_representation,
-	uncertainty_measure_with_unit);
+	same_as_external_item_assignment);
+END_TYPE;
+
+TYPE fbb_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(action_method,
+	action_method_relationship,
+	action_resource,
+	action_resource_relationship,
+	action_resource_requirement,
+	action_resource_requirement_relationship,
+	applied_action_method_assignment,
+	applied_classification_assignment,
+	applied_expression_assignment,
+	applied_identification_assignment,
+	expression,
+	general_property,
+	parameter_value_select,
+	product,
+	product_definition,
+	product_definition_formation,
+	property_definition,
+	property_definition_representation,
+	representation,
+	resource_property,
+	resource_property_representation,
+	task_element_relationship);
+END_TYPE;
+
+TYPE fbb_expression_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON expression_assignment_item WITH
+	(condition);
 END_TYPE;
 
 TYPE fbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
@@ -110,71 +183,162 @@ TYPE fbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identif
 	action_resource_requirement_relationship,
 	applied_action_method_assignment,
 	applied_external_identification_assignment,
+	class,
 	condition,
 	document_file,
 	external_class_library,
+	general_model_parameter,
 	general_property,
 	general_property_relationship,
+	identification_assignment_relationship,
 	product,
 	product_definition,
+	product_definition_context,
 	product_definition_formation,
+	product_definition_formation_relationship,
+	product_relationship,
+	property_definition,
 	representation,
+	representation_item,
 	resource_property,
 	task_element,
 	task_element_relationship,
 	task_step);
 END_TYPE;
 
-	ENTITY fbb_characterized_applied_action_method_assignment
-	  SUBTYPE OF (characterized_object, applied_action_method_assignment);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_generic_expression	
-	  SUBTYPE OF (characterized_object, generic_expression);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_general_property
-	  SUBTYPE OF (characterized_object, general_property);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_general_property_relationship
-	  SUBTYPE OF (characterized_object, general_property_relationship);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_product
-	  SUBTYPE OF (characterized_object, product);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_product_definition_formation
-	  SUBTYPE OF (characterized_object, product_definition_formation);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_product_definition_formation_relationship
-	  SUBTYPE OF (characterized_object, product_definition_formation_relationship);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_property_definition
-	  SUBTYPE OF (characterized_object, property_definition);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_property_definition_representation
-	  SUBTYPE OF (characterized_object, property_definition_representation);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_representation
-	  SUBTYPE OF (characterized_object, representation);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_representation_context
-	  SUBTYPE OF (characterized_object, representation_context);
-	END_ENTITY;
-	
-	ENTITY fbb_characterized_representation_item
-	  SUBTYPE OF (characterized_object, representation_item);
-	END_ENTITY;
-	
-	TYPE functional_groupable_item = SELECT BASED_ON groupable_item WITH
-	  (functional_model);
-	END_TYPE;
+TYPE fbb_same_as_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON same_as_item WITH
+	(action_method,
+	action_resource,
+	action_resource_requirement,
+	applied_action_method_assignment,
+	applied_external_identification_assignment,
+	condition,
+	derived_unit_element,
+	external_source,
+	general_property,
+	measure_with_unit,
+	named_unit, derived_unit,
+	product,
+	product_definition,
+	product_definition_context,
+	product_definition_formation,
+	representation_context,
+	resource_property);
+END_TYPE;
+
+TYPE functional_behaviour_model_groupable_item = SELECT BASED_ON behaviour_model_groupable_item WITH
+	(functional_model);
+END_TYPE;
+
+(*TYPE fbb_characterized_definition = SELECT BASED_ON characterized_definition WITH
+	(action_method,
+	action_method_assignment_relationship,
+	action_method_relationship,
+	action_resource_requirement,
+	applied_action_method_assignment,
+	document_file,
+	general_property,
+	general_property_relationship,
+	generic_expression,
+	product,
+	product_definition,
+	product_definition_formation,
+	product_definition_formation_relationship,
+	property_definition,
+	property_definition_representation,
+	representation,
+	representation_context,
+	representation_item,
+	resource_property);
+END_TYPE;
+
+TYPE fbb_characterized_resource_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_resource_definition WITH
+	(action_resource,
+	action_resource_relationship,
+	action_resource_requirement,
+	applied_action_method_assignment);
+END_TYPE;*)
+
+ENTITY fbb_characterized_action_method_assignment_relationship
+SUBTYPE OF (characterized_object, action_method_assignment_relationship);
+END_ENTITY;
+
+ENTITY fbb_characterized_action_method_relationship
+SUBTYPE OF (characterized_object, action_method_relationship);
+END_ENTITY;
+
+ENTITY fbb_characterized_action_resource
+SUBTYPE OF (characterized_object, action_resource);
+END_ENTITY;
+
+ENTITY fbb_characterized_action_resource_relationship
+SUBTYPE OF (characterized_object, action_resource_relationship);
+END_ENTITY;
+
+ENTITY fbb_characterized_action_resource_requirement
+SUBTYPE OF (characterized_object, action_resource_requirement);
+END_ENTITY;
+
+ENTITY fbb_characterized_applied_action_method_assignment
+SUBTYPE OF (characterized_object, applied_action_method_assignment);
+END_ENTITY;
+
+ENTITY fbb_characterized_document_file
+SUBTYPE OF (characterized_object, document_file);
+END_ENTITY;
+
+ENTITY fbb_characterized_general_property
+SUBTYPE OF (characterized_object, general_property);
+END_ENTITY;
+
+ENTITY fbb_characterized_general_property_relationship
+SUBTYPE OF (characterized_object, general_property_relationship);
+END_ENTITY;
+
+ENTITY fbb_characterized_generic_expression
+SUBTYPE OF (characterized_object, generic_expression);
+END_ENTITY;
+
+ENTITY fbb_characterized_product
+SUBTYPE OF (characterized_object, product);
+END_ENTITY;
+
+ENTITY fbb_characterized_product_definition
+SUBTYPE OF (characterized_object, product_definition);
+END_ENTITY;
+
+ENTITY fbb_characterized_product_definition_formation
+SUBTYPE OF (characterized_object, product_definition_formation);
+END_ENTITY;
+
+ENTITY fbb_characterized_product_definition_formation_relationship
+SUBTYPE OF (characterized_object, product_definition_formation_relationship);
+END_ENTITY;
+
+ENTITY fbb_characterized_property_definition
+SUBTYPE OF (characterized_object, property_definition);
+END_ENTITY;
+
+ENTITY fbb_characterized_property_definition_representation
+SUBTYPE OF (characterized_object, property_definition_representation);
+END_ENTITY;
+
+ENTITY fbb_characterized_representation
+SUBTYPE OF (characterized_object, representation);
+END_ENTITY;
+
+ENTITY fbb_characterized_representation_context
+SUBTYPE OF (characterized_object, representation_context);
+END_ENTITY;
+
+ENTITY fbb_characterized_representation_item
+SUBTYPE OF (characterized_object, representation_item);
+END_ENTITY;
+
+ENTITY fbb_characterized_resource_property
+SUBTYPE OF (characterized_object, resource_property);
+END_ENTITY;
+
 
 END_SCHEMA;
+

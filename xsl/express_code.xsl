@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.65 2009/06/17 09:07:51 robbod Exp $
+     $Id: express_code.xsl,v 1.66 2009/06/19 18:57:37 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -412,7 +412,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
     <xsl:if test="@basedon">
       WITH 
     </xsl:if><br/>
-    &#160;&#160;&#160;(<xsl:call-template name="link_list">
+    &#160;&#160;&#160;(<xsl:call-template name="link_list_sorted">
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
@@ -422,6 +422,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
       select="../../@name"/>
     <xsl:with-param name="clause" select="'annexe'"/>
   </xsl:call-template>)</xsl:if></xsl:template>
+
 
 
 <xsl:template match="enumeration" mode="underlying">
@@ -543,7 +544,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
     <br/>
-&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
+&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list_sorted">
     <xsl:with-param name="list" select="@supertypes"/>
     <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -929,7 +930,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 
   <xsl:if test="@totalover and 
                 (string-length(@totalover)!=0)">
-      &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list">
+    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list_sorted">
     <xsl:with-param name="list" select="@totalover"/>
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'"/>

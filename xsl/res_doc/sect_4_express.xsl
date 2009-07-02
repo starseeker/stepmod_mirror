@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.27 2006/02/28 01:06:30 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.28 2006/03/11 01:22:50 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -761,7 +761,7 @@
     <xsl:if test="@basedon">
       WITH 
     </xsl:if><br/>
-    &#160;&#160;&#160;(<xsl:call-template name="link_list">
+    &#160;&#160;&#160;(<xsl:call-template name="link_list_sorted">
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
@@ -1083,7 +1083,7 @@
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
 <br/>
-&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
+    &#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list_sorted">
       <xsl:with-param name="list" select="@supertypes"/>
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -1690,7 +1690,7 @@
 
   <xsl:if test="@totalover and 
                 (string-length(@totalover)!=0)">
-      &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list">
+    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list_sorted">
     <xsl:with-param name="list" select="@totalover"/>
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'"/>
@@ -1763,7 +1763,7 @@
             </xsl:call-template>
           </b>
           shall not be simultaneously of type 
-          <xsl:call-template name="link_list">
+          <xsl:call-template name="link_list_sorted">
             <xsl:with-param name="list" select="$sc_list"/>
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -1789,7 +1789,7 @@
             </xsl:call-template>
           </b>
           shall not be simultaneously of type 
-          <xsl:call-template name="link_list">
+          <xsl:call-template name="link_list_sorted">
             <xsl:with-param name="list" select="$sc_list"/>
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -3216,7 +3216,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
               type
             </xsl:otherwise>
           </xsl:choose>
-          <xsl:call-template name="link_list">
+          <xsl:call-template name="link_list_sorted">
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="list" select="@selectitems"/>
             <xsl:with-param name="object_used_in_schema_name"
@@ -3259,7 +3259,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
               type
             </xsl:otherwise>
           </xsl:choose>
-          <xsl:call-template name="link_list">
+          <xsl:call-template name="link_list_sorted">
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="list" select="@selectitems"/>
             <xsl:with-param name="object_used_in_schema_name"

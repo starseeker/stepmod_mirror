@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.6 2003/04/14 17:48:48 thendrix Exp $
+     $Id: express_link.xsl,v 1.7 2004/11/29 19:41:51 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -641,7 +641,51 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   </xsl:choose>
 </xsl:template>
 
-
+  <!-- Recurse through a list of select items and output the list as a
+    sorted  set of  URLS.
+    
+    The clause parameter can be used to specify what express should be
+    referenced. either:
+    section for referencing ARM and MIM express in section 4 and 5
+    annexe for referencing ARM and MIM express in Annex E
+    
+    prefix and suffix are the prefixes and suffixes to be added to each
+    object in the list
+  -->
+  <xsl:template name="link_list_sorted">
+    <xsl:param name="list"/>
+    <xsl:param name="object_used_in_schema_name"/>
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="bold"/>
+    <!-- if linebreak = yes then output a line break after the suffix -->
+    <xsl:param name="linebreak" select="'no'"/>
+    <!-- If yes then output prefix on first object -->
+    <xsl:param name="first_prefix" select="'yes'"/>
+    <xsl:param name="clause" select="section"/>
+    <xsl:param name="and_for_last_pair" select="'no'"/>
+    
+    <xsl:variable name="sorted_list">
+      <xsl:call-template name="sort_list">
+        <xsl:with-param name="list" select="$list"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:call-template name="link_list">
+      <xsl:with-param name="list" select="$sorted_list"/>
+      <xsl:with-param name="object_used_in_schema_name" select="$object_used_in_schema_name"/>
+      <xsl:with-param name="prefix" select="$prefix"/>
+      <xsl:with-param name="suffix" select="$suffix"/>
+      <xsl:with-param name="bold" select="$bold"/>
+      <!-- if linebreak = yes then output a line break after the suffix -->
+      <xsl:with-param name="linebreak" select="$linebreak"/>
+      <!-- If yes then output prefix on first object -->
+      <xsl:with-param name="first_prefix" select="$first_prefix"/>
+      <xsl:with-param name="clause" select="$clause"/>
+      <xsl:with-param name="and_for_last_pair" select="$and_for_last_pair"/>
+    </xsl:call-template>  
+  </xsl:template>
+  
 <!-- 
      Recurse through a list of select items and output the list as a set of
      URLS.

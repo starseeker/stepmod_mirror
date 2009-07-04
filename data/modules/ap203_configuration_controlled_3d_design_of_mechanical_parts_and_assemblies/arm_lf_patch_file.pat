@@ -1,6 +1,5 @@
 *** ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.lfepm_500030206.exp	Fri Jul  3 13:19:50 2009
---- patched_ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.lfepm_500030206.exp	Fri Jul  3 13:17:42 2009
-***************
+--- patched_ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.lfepm_500030206.exp	Sat Jul  4 12:05:59 2009
 ***************
 *** 3850,3912 ****
         multiplication_matrix : ARRAY[1:3] OF Direction;
@@ -389,3 +388,52 @@
     ENTITY Surface_related_curve_appearance 
        ABSTRACT SUPERTYPE OF (ONEOF (
                           BOUNDARY_CURVE_APPEARANCE,
+***************
+*** 8255,8277 ****
+  pv.of_product) ) ) ) =0 ;
+  END_RULE; 
+  
+  (* E2: SUBTYPE_CONSTRAINT dd_detailed_geometric_model_element_subtypes FOR DETAILED_GEOMETRIC_MODEL_ELEMENT; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT assembly_component_relationship_constraint FOR ASSEMBLY_COMPONENT_RELATIONSHIP; *)
+  -- generated from SUBTYPE_CONSTRAINT assembly_component_relationship_constraint
+  
+  RULE total_over_assembly_component_relationship_constraint FOR( ASSEMBLY_COMPONENT_RELATIONSHIP);
+  WHERE
+!   wr1 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0;
+!   wr2 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
+!   wr3 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
+  END_RULE;
+  
+  (* E2: SUBTYPE_CONSTRAINT curve_subtypes FOR CURVE; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT currency_subtypes FOR CURRENCY; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT external_source_subtypes FOR EXTERNAL_SOURCE; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT pdpdms_activity_relationship_subtypes FOR ACTIVITY_RELATIONSHIP; *)
+  
+--- 8233,8255 ----
+  pv.of_product) ) ) ) =0 ;
+  END_RULE; 
+  
+  (* E2: SUBTYPE_CONSTRAINT dd_detailed_geometric_model_element_subtypes FOR DETAILED_GEOMETRIC_MODEL_ELEMENT; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT assembly_component_relationship_constraint FOR ASSEMBLY_COMPONENT_RELATIONSHIP; *)
+  -- generated from SUBTYPE_CONSTRAINT assembly_component_relationship_constraint
+  
+  RULE total_over_assembly_component_relationship_constraint FOR( ASSEMBLY_COMPONENT_RELATIONSHIP);
+  WHERE
+!   wr1 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0;
+!   wr2 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
+!   wr3 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
+  END_RULE;
+  
+  (* E2: SUBTYPE_CONSTRAINT curve_subtypes FOR CURVE; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT currency_subtypes FOR CURRENCY; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT external_source_subtypes FOR EXTERNAL_SOURCE; *)
+  
+  (* E2: SUBTYPE_CONSTRAINT pdpdms_activity_relationship_subtypes FOR ACTIVITY_RELATIONSHIP; *)
+  

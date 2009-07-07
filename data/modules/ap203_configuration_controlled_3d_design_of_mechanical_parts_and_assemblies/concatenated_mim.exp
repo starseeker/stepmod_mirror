@@ -5806,7 +5806,7 @@ END_SCHEMA;
 
 
 (*
-$Id: mim.exp,v 1.9 2009/04/29 20:15:37 mikeward Exp $
+$Id: mim.exp,v 1.10 2009/07/03 17:40:48 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N6057 - ISO/CD-TS 10303-1016 Product categorization - EXPRESS MIM
 *) 
 
@@ -18752,10 +18752,13 @@ SCHEMA management_resources_schema;
 
 END_SCHEMA;
 (*
-$Id: material_property_definition_schema.exp,v 1.2 2008/06/25 14:58:10 darla Exp $ 
-ISO TC184/SC4/WG12 N5100 - ISO/IS 10303-45 Material properties - EXPRESS
+$Id: material_property_definition_schema.exp,v 1.3 2009/06/29 14:25:37 thomasrthurman Exp $ 
+ISO TC184/SC4/WG12 N6751 - ISO/IS 10303-45 Material properties - EXPRESS
 *)
-
+(*
+Supersedes ISO TC184/SC4/WG12 N5100 - ISO/IS 10303-45 Material properties - EXPRESS
+changes to material_designation as per SEDS #1423.
+*)
 
 SCHEMA material_property_definition_schema;
 
@@ -18793,10 +18796,6 @@ END_TYPE;
 ENTITY material_designation; 
   name       		: label;
   definitions 	: SET [1:?] OF characterized_definition;
-WHERE
-  WR1: SIZEOF (QUERY(temp <* SELF\material_designation.definitions |
-        ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
-         'CHARACTERIZED_OBJECT' IN TYPEOF(temp)))) = 0;
 END_ENTITY;
 
 ENTITY material_designation_characterization;
@@ -25932,14 +25931,14 @@ FUNCTION values_space_of(expr : generic_expression) : maths_space;
 END_FUNCTION;  -- values_space_of
 END_SCHEMA;  -- mathematical_functions_schema
 (*
-$Id: measure_schema.exp,v 1.17 2008/04/15 21:58:47 darla Exp $
+$Id: measure_schema.exp,v 1.18 2009/07/03 14:24:13 thomasrthurman Exp $
 
 2008-02-07
-ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
+ISO TC184/SC4/WG12 N6753 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 (*
-Supersedes ISO TC184/SC4/WG12 N2887 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
-changes to date_time schema and to measure_schema as per TC1 - WG12 N4834.
+Supersedes ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
+changes to measure_schema as per TC2 - WG12 N6752.
 *)
 
 
@@ -26234,9 +26233,8 @@ END_ENTITY;
     SUBTYPE OF (named_unit);
      name : label;
      conversion_factor : measure_with_unit;
-   DERIVE
-     SELF\named_unit.dimensions : dimensional_exponents := 
-    derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component);
+   WHERE
+     WR1: SELF\named_unit.dimensions = derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component);
   END_ENTITY;
 
   ENTITY derived_unit

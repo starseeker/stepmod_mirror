@@ -1,3 +1,13 @@
+note note note note;
+hand edits of mim_lf.exp after this patch file created.
+remove these hand edits before running patch!
+added to geometric_rep_item:
+              camera_model,
+              camera_model_d3_multi_clipping_intersection,
+              camera_model_d3_multi_clipping_union,
+              light_source))
+see bug #3048
+
 *** electronic_assembly_interconnect_and_packaging_design_mim.lfepm_500030206.exp	Fri Jun 26 22:58:12 2009
 --- patched_electronic_assembly_interconnect_and_packaging_design_mim.lfepm_500030206.exp	Tue Jul  7 17:14:47 2009
 ***************

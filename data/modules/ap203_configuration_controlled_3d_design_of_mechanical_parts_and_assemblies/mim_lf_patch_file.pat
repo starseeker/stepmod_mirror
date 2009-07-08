@@ -1,3 +1,14 @@
+note note note note;
+hand edits of mim_lf.exp after this patch file created.
+remove these hand edits before running patch!
+added to geometric_rep_item:
+              camera_model,
+              camera_model_d3_multi_clipping_intersection,
+              camera_model_d3_multi_clipping_union,
+              light_source))
+see bug #3048
+
+
 *** ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim.lfepm_500030206.exp	Fri Jul  3 13:20:02 2009
 --- patched_ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim.lfepm_500030206.exp	Tue Jul  7 11:43:53 2009
 ***************

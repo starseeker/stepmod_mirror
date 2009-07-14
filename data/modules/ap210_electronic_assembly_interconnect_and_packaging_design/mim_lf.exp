@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.103 2009/06/15 07:59:43 liutkuviene Exp $
+   $Id: mim_lf.exp,v 1.32 2009/07/10 19:55:47 lothartklein Exp $
    ISO TC184/SC4/WG3 N2601 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM LF
    Supersedes ISO TC184/SC4/WG3 N1707
 *)
@@ -2560,11 +2560,11 @@ ENTITY analytical_model_vector_port
 	SUBTYPE OF (analytical_model_port, compound_representation_item);
 END_ENTITY;
 
-
+--tt
 ENTITY analytical_representation
 	SUBTYPE OF (representation);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\representation.name;
 END_ENTITY;
 
 
@@ -3028,11 +3028,11 @@ ENTITY array_placement_group
 	SUBTYPE OF (assembly_group_component);
 END_ENTITY;
 
-
+--tt
 ENTITY assembly_bond_definition
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\shape_aspect.name;
 END_ENTITY;
 
 
@@ -3635,11 +3635,11 @@ ENTITY buried_via
 	SUBTYPE OF (via);
 END_ENTITY;
 
-
+--tt
 ENTITY bus_element_link
 	SUBTYPE OF (product_definition, product_definition_relationship);
 UNIQUE
-	UR1 : related_product_definition, relating_product_definition;
+	UR1 : SELF\product_definition_relationship.related_product_definition, SELF\product_definition_relationship.relating_product_definition;
 WHERE
 	WR1 : SELF\product_definition_relationship.related_product_definition :<>:
        SELF\product_definition_relationship.relating_product_definition;
@@ -4296,11 +4296,11 @@ DERIVE
 	SELF\role_association.item_with_role : component_material_relationship_assignment := SELF;
 END_ENTITY;
 
-
+--tt
 ENTITY component_mating_constraint_condition
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name, of_shape;
+	UR1 : SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
 END_ENTITY;
 
 
@@ -4615,7 +4615,7 @@ ENTITY configuration_effectivity
 	SUBTYPE OF (product_definition_effectivity);
 	configuration : configuration_design;
 UNIQUE
-	UR1 : configuration, usage, id;
+	UR1 : configuration, SELF\product_definition_effectivity.usage, SELF\effectivity.id;
 WHERE
 	WR1 : 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_USAGE' IN
         TYPEOF (SELF\product_definition_effectivity.usage);
@@ -4733,11 +4733,11 @@ ENTITY connection_zone_based_fabrication_joint
 	SUBTYPE OF (fabrication_joint);
 END_ENTITY;
 
-
+--tt
 ENTITY connection_zone_interface_plane_relationship
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\shape_aspect_relationship.name;
 END_ENTITY;
 
 
@@ -4750,12 +4750,12 @@ WHERE
         SELF\representation_relationship.rep_1;
 END_ENTITY;
 
-
+--tt
 ENTITY connector_based_interconnect_definition
 	SUBTYPE OF (property_definition);
 	SELF\property_definition.definition : physical_unit_interconnect_definition;
 UNIQUE
-	UR1 : name, definition;
+	UR1 : SELF\property_definition.name, definition;
 END_ENTITY;
 
 
@@ -4778,7 +4778,7 @@ WHERE
 	WR2 : NOT('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' + 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF));
 END_ENTITY;
 
-
+--tt
 ENTITY contact_ratio_representation
 	SUBTYPE OF (representation);
 WHERE
@@ -4793,21 +4793,20 @@ WHERE
         'contact ratio reference' ) ) =1 ) AND ( SIZEOF ( QUERY (
         pdr <* USEDIN ( SELF ,
         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
-        'USED_REPRESENTATION' ) | ( pdr. name =
+        'USED_REPRESENTATION' ) | ( pdr.name =
         'contact ratio reference' ) AND ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+
-        'PRODUCT_DEFINITION' IN TYPEOF ( pdr.
-        definition.definition ) ) ) ) =1 );
+        'PRODUCT_DEFINITION' IN TYPEOF ( pdr\property_definition_representation.definition\property_definition.definition ) ) ) ) =1 );
 	WR3 : ( SIZEOF ( USEDIN ( SELF ,
         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
         'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr
         <* USEDIN ( SELF ,
         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
         'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa <* USEDIN (
-        pdr. definition ,
+        pdr.definition ,
         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+'GENERAL_PROPERTY_ASSOCIATION.'+
         'DERIVED_DEFINITION' ) | ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+
-        'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND
-        ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )
+        'GENERAL_PROPERTY' IN TYPEOF ( gpa.base_definition ) ) AND
+        ( gpa.base_definition.name ='surface_condition' ) ) ) =1 )
         ) =1 );
 END_ENTITY;
 
@@ -5557,12 +5556,12 @@ ENTITY design_stack_model
 	SUBTYPE OF (stratum_stack_model);
 END_ENTITY;
 
-
+--tt
 ENTITY device_terminal_map
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 	SELF\shape_aspect_relationship.relating_shape_aspect : packaged_part_terminal;
 UNIQUE
-	UR1 : related_shape_aspect, relating_shape_aspect;
+	UR1 : SELF\shape_aspect_relationship.related_shape_aspect, relating_shape_aspect;
 END_ENTITY;
 
 
@@ -5875,11 +5874,11 @@ WHERE
                drt.name IN ['digital','physical'])) = 1;
 END_ENTITY;
 
-
+--tt
 ENTITY document_identifier
 	SUBTYPE OF (group);
 UNIQUE
-	UR1 : name, description;
+	UR1 : SELF\group.name, SELF\group.description;
 END_ENTITY;
 
 
@@ -6211,12 +6210,12 @@ WHERE
                 (prim.name = 'primary') )) = 1))) = 0;
 END_ENTITY;
 
-
+--tt
 ENTITY draughting_model
 	SUBTYPE OF (representation);
 	SELF\representation.items : SET [1:?] OF draughting_model_item_select;
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\representation.name;
 WHERE
 	WR1 : SIZEOF (QUERY (mi <* QUERY (it <* SELF.items |
          ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.MAPPED_ITEM' IN TYPEOF(it))) |
@@ -6312,11 +6311,11 @@ WHERE
 	WR5 : SIZEOF (SELF.context_of_items.representations_in_context) = 1;
 END_ENTITY;
 
-
+--tt
 ENTITY draughting_symbol_representation
 	SUBTYPE OF (symbol_representation);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\representation.name;
 WHERE
 	WR1 : SIZEOF (QUERY (item <* SELF\representation.items |
          NOT (SIZEOF (TYPEOF (item) *
@@ -6415,12 +6414,12 @@ WHERE
        IN TYPEOF (SELF\representation_relationship.rep_2);
 END_ENTITY;
 
-
+--tt
 ENTITY drawing_sheet_revision_usage
 	SUBTYPE OF (area_in_set);
 	sheet_number : identifier;
 UNIQUE
-	UR1 : sheet_number, in_set;
+	UR1 : sheet_number, SELF\area_in_set.in_set;
 WHERE
 	WR1 : ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.DRAWING_SHEET_REVISION' IN 
                   TYPEOF(SELF\area_in_set.area)) 
@@ -6809,11 +6808,11 @@ ENTITY equivalent_sub_stack_definition
 	SUBTYPE OF (product_definition);
 END_ENTITY;
 
-
+--tt
 ENTITY evaluated_characteristic
 	SUBTYPE OF (representation, representation_relationship);
 UNIQUE
-	UR1 : rep_1, rep_2;
+  UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
 WHERE
 	WR1 : SELF\representation_relationship.rep_1 <> 
        SELF\representation_relationship.rep_2;
@@ -7495,11 +7494,11 @@ ENTITY functional_specification_definition
 	SUBTYPE OF (functional_unit);
 END_ENTITY;
 
-
+--tt
 ENTITY functional_terminal_group
 	SUBTYPE OF (group);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\group.name;
 END_ENTITY;
 
 
@@ -8472,11 +8471,11 @@ WHERE
 	WR1 : SELF\group.name <> '';
 END_ENTITY;
 
-
+--tt
 ENTITY layer_connection_point
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name, of_shape;
+	UR1 : SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
 END_ENTITY;
 
 
@@ -8535,12 +8534,12 @@ ENTITY layout_macro_definition
 	SUBTYPE OF (layered_interconnect_module_design_view);
 END_ENTITY;
 
-
+--tt
 ENTITY layout_macro_definition_terminal_to_usage_terminal_assignment
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 	SELF\shape_aspect_relationship.related_shape_aspect : printed_part_template_terminal;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\shape_aspect_relationship.name;
 END_ENTITY;
 
 
@@ -8882,11 +8881,11 @@ ENTITY make_from_feature_relationship
 	SUBTYPE OF (component_feature_relationship);
 END_ENTITY;
 
-
+--tt
 ENTITY make_from_functional_unit_terminal_definition_relationship
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 UNIQUE
-	UR1 : relating_shape_aspect, related_shape_aspect;
+	UR1 : SELF\shape_aspect_relationship.relating_shape_aspect, SELF\shape_aspect_relationship.related_shape_aspect;
 WHERE
 	WR1 : relating_shape_aspect.of_shape :<>: 
         related_shape_aspect.of_shape;
@@ -8908,7 +8907,7 @@ END_ENTITY;
 ENTITY make_from_part_feature_relationship
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 UNIQUE
-	UR1 : relating_shape_aspect, related_shape_aspect;
+	UR1 : SELF\shape_aspect_relationship.relating_shape_aspect, SELF\shape_aspect_relationship.related_shape_aspect;
 WHERE
 	WR1 : SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;
@@ -9274,11 +9273,11 @@ ENTITY material_electrical_conductivity_category
 	SUBTYPE OF (group);
 END_ENTITY;
 
-
+--tt
 ENTITY material_property
 	SUBTYPE OF (property_definition);
 UNIQUE
-	UR1 : name, definition;
+  UR1: SELF\property_definition.name, SELF\property_definition.definition;
 WHERE
 	WR1 : ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.CHARACTERIZED_OBJECT' IN
           TYPEOF(SELF\property_definition.definition)) OR
@@ -11002,11 +11001,11 @@ ENTITY parametric_template
 	SUBTYPE OF (part_template_definition);
 END_ENTITY;
 
-
+--tt
 ENTITY part_connected_terminals_definition
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\shape_aspect.name;
 END_ENTITY;
 
 
@@ -11131,13 +11130,13 @@ ENTITY passage_padstack_definition
 	SUBTYPE OF (padstack_definition);
 END_ENTITY;
 
-
+--tt
 ENTITY passage_technology
 	SUBTYPE OF (characterized_object, product_definition_shape);
 DERIVE
 	SELF\property_definition.definition : characterized_definition := SELF;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\characterized_object.name;
 END_ENTITY;
 
 
@@ -11308,11 +11307,11 @@ ENTITY physical_component_terminal
 	SUBTYPE OF (component_terminal, physical_component_feature);
 END_ENTITY;
 
-
+--tt
 ENTITY physical_connectivity_definition
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name, of_shape;
+	UR1 : SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
 END_ENTITY;
 
 
@@ -12068,11 +12067,11 @@ ENTITY printed_connector_template
 	SUBTYPE OF (printed_part_template);
 END_ENTITY;
 
-
+--tt
 ENTITY printed_connector_template_terminal_relationship
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 UNIQUE
-	UR1 : relating_shape_aspect, related_shape_aspect;
+  UR1: SELF\shape_aspect_relationship.relating_shape_aspect, SELF\shape_aspect_relationship.related_shape_aspect;
 WHERE
 	WR1 : SELF\shape_aspect_relationship.relating_shape_aspect :<>:
         SELF\shape_aspect_relationship.related_shape_aspect;
@@ -12094,11 +12093,11 @@ ENTITY printed_part_template
 	SUBTYPE OF (part_template_definition);
 END_ENTITY;
 
-
+--tt
 ENTITY printed_part_template_connected_terminals_definition
 	SUBTYPE OF (shape_aspect);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\shape_aspect.name;
 END_ENTITY;
 
 
@@ -12226,7 +12225,7 @@ ENTITY product_concept_feature_association;
 	feature : product_concept_feature;
 END_ENTITY;
 
-
+--tt
 ENTITY product_concept_feature_category
 	SUBTYPE OF (group);
 WHERE
@@ -12237,17 +12236,17 @@ WHERE
      								('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) 
      								AND
     								(
-    									( aga.role.name <> 'specification category member' ) 
+    									( aga\group_assignment.role.name <> 'specification category member' ) 
     									OR 
     									( SIZEOF(QUERY 
     															( 
-    																i <* aga.items 
+    																i <* aga\applied_group_assignment.items 
     																| 
     																('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+ 'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) 
     																AND 
     																NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i))
     															)
-    													) <> SIZEOF (aga.items)
+    													) <> SIZEOF (aga\applied_group_assignment.items)
     									)
     								) 
        						) 
@@ -12377,11 +12376,11 @@ ENTITY product_definition_relationship;
 	related_product_definition : product_definition;
 END_ENTITY;
 
-
+--tt
 ENTITY product_definition_shape
 	SUBTYPE OF (property_definition);
 UNIQUE
-	UR1 : definition;
+  UR1: SELF\property_definition.definition;
 WHERE
 	WR1 : SIZEOF(['AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.CHARACTERIZED_PRODUCT_DEFINITION', 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.CHARACTERIZED_OBJECT'] * TYPEOF(SELF\property_definition.definition)) > 0;
 END_ENTITY;
@@ -12398,12 +12397,14 @@ WHERE
 	WR2 : SIZEOF(USEDIN(SELF, 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
 END_ENTITY;
 
-
+--tt
 ENTITY product_definition_usage
 	SUPERTYPE OF (ONEOF (make_from_usage_option, assembly_component_usage))
 	SUBTYPE OF (product_definition_relationship);
 UNIQUE
-	UR1 : id, relating_product_definition, related_product_definition;
+    UR1: SELF\product_definition_relationship.id, 
+         SELF\product_definition_relationship.relating_product_definition, 
+         SELF\product_definition_relationship.related_product_definition;
 WHERE
 	WR1 : acyclic_product_definition_relationship
          (SELF,
@@ -13104,12 +13105,12 @@ ENTITY satisfying_item
 	SELF\group_assignment.assigned_group : satisfies_requirement;
 END_ENTITY;
 
-
+--tt
 ENTITY scalar_terminal_definition_link
 	SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 	SELF\shape_aspect_relationship.relating_shape_aspect : functional_unit_terminal_definition;
 UNIQUE
-	UR1 : related_shape_aspect, relating_shape_aspect;
+  UR1: SELF\shape_aspect_relationship.related_shape_aspect, relating_shape_aspect;
 WHERE
 	WR1 : SELF\shape_aspect_relationship.related_shape_aspect :<>:
         SELF\shape_aspect_relationship.relating_shape_aspect;
@@ -13251,23 +13252,24 @@ WHERE
 	WR1 : SIZEOF(USEDIN(SELF, 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
 
-
+--tt
 ENTITY shape_definition_3d_intersection
 	SUPERTYPE OF (ONEOF (edge_segment_cross_section, pre_defined_parallel_datum_axis_symbol_3d_2d_relationship, pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship, pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship))
 	SUBTYPE OF (representation, shape_representation_relationship, representation_relationship_with_transformation);
 	SELF\representation_relationship_with_transformation.transformation_operator : item_defined_transformation;
 UNIQUE
-	UR1 : rep_1, rep_2;
+	UR1 : SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
 WHERE
 	WR1 : SELF\representation_relationship.rep_1 :<>: SELF\representation_relationship.rep_2;
 END_ENTITY;
 
-
+--tt
 ENTITY shape_definition_representation
 	SUBTYPE OF (property_definition_representation);
 WHERE
-	WR1 : ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF.definition)) OR ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SHAPE_DEFINITION' IN TYPEOF(SELF.definition.definition));
-	WR2 : 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SHAPE_REPRESENTATION' IN TYPEOF(SELF.used_representation);
+	WR1 : ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF\property_definition_representation.definition)) OR 
+	('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SHAPE_DEFINITION' IN TYPEOF(SELF\property_definition_representation.definition\property_definition.definition));
+	WR2 : 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SHAPE_REPRESENTATION' IN TYPEOF(SELF\property_definition_representation.used_representation);
 END_ENTITY;
 
 
@@ -14134,14 +14136,14 @@ WHERE
 	WR1 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF));
 END_ENTITY;
 
-
+--tt
 ENTITY stratum
 	SUPERTYPE OF (ONEOF (documentation_layer_stratum, design_layer_stratum))
 	SUBTYPE OF (product_definition, product_definition_shape);
 DERIVE
 	SELF\property_definition.definition : stratum := SELF;
 UNIQUE
-	UR1 : id, formation;
+  UR1: SELF\product_definition.id, SELF\product_definition.formation;
 WHERE
 	WR1 : SIZEOF (USEDIN (SELF, 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
 	WR2 : NOT EXISTS(SELF\property_definition.description);
@@ -14219,13 +14221,13 @@ DERIVE
 	associated_technology : stratum_technology := SELF\shape_aspect.of_shape;
 END_ENTITY;
 
-
+--tt
 ENTITY stratum_technology
 	SUBTYPE OF (characterized_object, product_definition_shape);
 DERIVE
 	SELF\property_definition.definition : characterized_definition := SELF;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\characterized_object.name;
 END_ENTITY;
 
 
@@ -18907,7 +18909,7 @@ FUNCTION normalise
       IF 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.VECTOR' IN TYPEOF(arg) THEN
         BEGIN
               v := dummy_gri || direction(arg\vector.orientation.direction_ratios);
-          IF arg.magnitude = 0.0 THEN
+          IF arg\vector.magnitude = 0.0 THEN
             RETURN(?);
           ELSE
            vec := dummy_gri || vector (v, 1.0);
@@ -19037,7 +19039,7 @@ FUNCTION scalar_times_vector
      ELSE
       IF 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.VECTOR' IN TYPEOF (vec) THEN
         v   := dummy_gri || direction(vec\vector.orientation.direction_ratios);
-        mag := scalar * vec.magnitude;
+        mag := scalar * vec\vector.magnitude;
       ELSE
         v   := dummy_gri || direction(vec.direction_ratios);
         mag := scalar;
@@ -19930,14 +19932,14 @@ FUNCTION vector_difference
      ELSE
       BEGIN
         IF 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.VECTOR' IN TYPEOF(arg1) THEN
-          mag1 := arg1.magnitude;
+          mag1 := arg1\vector.magnitude;
           vec1 := arg1\vector.orientation;
         ELSE
           mag1 := 1.0;
           vec1 := arg1;
         END_IF;
         IF 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.VECTOR' IN TYPEOF(arg2) THEN
-          mag2 := arg2.magnitude;
+          mag2 := arg2\vector.magnitude;
           vec2 := arg2\vector.orientation;
         ELSE
           mag2 := 1.0;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.100 2009/06/15 07:59:43 liutkuviene Exp $
+   $Id: arm_lf.exp,v 1.32 2009/07/10 19:55:48 lothartklein Exp $
    ISO TC184/SC4/WG3 N2599 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM LF
    Supersedes ISO TC184/SC4/WG3 N1706
 *)
@@ -3426,7 +3426,7 @@ END_ENTITY;
 ENTITY Analytical_model
 	SUBTYPE OF (Information_product);
 UNIQUE
-	UR1 : id;
+  UR1: SELF\Product.id;
 END_ENTITY;
 
 
@@ -3435,7 +3435,7 @@ ENTITY Analytical_model_application
 	model_parameter_assignment : OPTIONAL SET [1:?] OF Parameter_assignment;
 	model_representation : Analytical_model_definition;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\Representation.name;
 END_ENTITY;
 
 
@@ -3471,7 +3471,7 @@ ENTITY Analytical_model_parameter
 DERIVE
 	accessed_analytical_model : Analytical_model_definition := SELF\Assigned_property.described_element;
 UNIQUE
-	UR1 : id, accessed_analytical_model;
+  UR1: SELF\Assigned_property.id, accessed_analytical_model;
 END_ENTITY;
 
 
@@ -7362,7 +7362,7 @@ ENTITY Draughting_model
 	SUBTYPE OF (Styled_model);
 	SELF\Representation.items : SET [1:?] OF draughting_model_element_select;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\Representation.name;
 END_ENTITY;
 
 
@@ -8233,8 +8233,8 @@ WHERE
                 shape_characterized_definition[1]\Footprint_definition.reference_package);
 	WR10 : NOT EXISTS(reference_seating_plane_placement) OR ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PHYSICAL_UNIT_3D_SHAPE_MODEL' IN 
                 TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape));
-	WR11 : NOT (EXISTS(reference_seating_plane_placement) AND ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)));
-	WR12 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)) OR
+	WR11 : NOT (EXISTS(reference_seating_plane_placement) AND ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF(reference_shape)));
+	WR12 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF(reference_shape)) OR
                  (SELF\Geometric_model.context_of_items = reference_shape\Geometric_model.context_of_items);
 END_ENTITY;
 
@@ -8345,7 +8345,7 @@ END_ENTITY;
 ENTITY Functional_product
 	SUBTYPE OF (Information_product);
 UNIQUE
-	UR1 : id;
+  UR1: SELF\Product.id;
 END_ENTITY;
 
 
@@ -10890,7 +10890,7 @@ END_ENTITY;
 ENTITY Next_assembly_usage_occurrence_relationship
 	SUBTYPE OF (Next_assembly_usage);
 UNIQUE
-	UR1 : relating_view, location_indicator;
+  UR1: SELF\Product_occurrence_definition_relationship.relating_view, SELF\Assembly_component_relationship.location_indicator;
 END_ENTITY;
 
 
@@ -11898,7 +11898,7 @@ END_ENTITY;
 ENTITY Part_terminal_external_reference
 	SUBTYPE OF (Shape_element);
 UNIQUE
-	UR1 : containing_shape, element_name;
+  UR1: SELF\Shape_element.containing_shape, SELF\Shape_element.element_name;
 WHERE
 	WR1 : SIZEOF(['AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PART_VIEW_DEFINITION', 'PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_DEFINITION'] *
         TYPEOF(SELF\Shape_element.containing_shape\Item_shape.described_element)) <> 0;
@@ -11951,7 +11951,7 @@ ENTITY Partial_document_with_structured_text_representation_assignment
 	SUBTYPE OF (Partial_document_assignment);
 	structured_portion : string_representation_item_select;
 UNIQUE
-	UR1 : document_portion, assigned_document;
+  UR1: SELF\Partial_document_assignment.document_portion, SELF\Document_assignment.assigned_document;
 END_ENTITY;
 
 
@@ -12017,7 +12017,7 @@ INVERSE
 	deposition_material: SET [0:1] OF Passage_deposition_material_identification FOR items;
 	fill_material: SET [0:1] OF Passage_filling_material_identification FOR items;
 UNIQUE
-	UR1 : name;
+  UR1: SELF\Characterizable_object.name;
 WHERE
 	WR1 : NOT (SIZEOF(deposition_material) = 1) OR
             ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
@@ -14746,7 +14746,7 @@ ENTITY Shape_element_constituent_relationship
 	SUPERTYPE OF (Shape_element_composing_relationship)
 	SUBTYPE OF (Shape_element_relationship);
 UNIQUE
-	UR1 : related, relating;
+  UR1: SELF\Shape_element_relationship.related, SELF\Shape_element_relationship.relating;
 WHERE
 	WR1 : SELF\Shape_element_relationship.related <> SELF\Shape_element_relationship.relating;
 	WR2 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
@@ -14757,7 +14757,7 @@ ENTITY Shape_element_deriving_relationship
 	SUBTYPE OF (Shape_element_relationship);
 	SELF\Shape_element_relationship.relating : Derived_non_feature_shape_element;
 UNIQUE
-	UR1 : related, relating;
+  UR1: SELF\Shape_element_relationship.related, relating;
 END_ENTITY;
 
 
@@ -14789,7 +14789,7 @@ ENTITY Shape_feature
 DERIVE
 	surface_conditions : SET [0:?] OF Surface_condition := facz_get_sc(SELF);
 UNIQUE
-	UR1 : element_name, containing_shape;
+  UR1: element_name, SELF\Shape_element.containing_shape;
 END_ENTITY;
 
 
@@ -15003,7 +15003,7 @@ END_ENTITY;
 ENTITY Software
 	SUBTYPE OF (Information_product);
 UNIQUE
-	UR1 : id;
+  UR1: SELF\Product.id;
 END_ENTITY;
 
 
@@ -16022,8 +16022,8 @@ END_ENTITY;
 ENTITY Stratum_technology_occurrence_swap_relationship
 	SUBTYPE OF (Stratum_technology_occurrence_relationship);
 UNIQUE
-	UR2 : sto_2, scope;
-	UR1 : sto_1, scope;
+  UR1: SELF\Stratum_technology_occurrence_relationship.sto_1, SELF\Stratum_technology_occurrence_relationship.scope;
+  UR2: SELF\Stratum_technology_occurrence_relationship.sto_2, SELF\Stratum_technology_occurrence_relationship.scope;
 WHERE
 	WR1 : SELF\Stratum_technology_occurrence_relationship.sto_1 <> SELF\Stratum_technology_occurrence_relationship.sto_2;
 	WR2 : (SELF\Stratum_technology_occurrence_relationship.sto_1 IN SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_occurrence) AND
@@ -16238,7 +16238,7 @@ ENTITY Substance
 	SUPERTYPE OF (ONEOF (Chemical_element, Chemical_compound, Physical_particle))
 	SUBTYPE OF (Product);
 UNIQUE
-	UR1 : id;
+	UR1 : SELF\Product.id;
 END_ENTITY;
 
 
@@ -16400,7 +16400,7 @@ END_ENTITY;
 ENTITY Symbol
 	SUBTYPE OF (Representation_item);
 UNIQUE
-	UR1 : name;
+	UR1 : SELF\Representation_item.name;
 END_ENTITY;
 
 
@@ -16527,7 +16527,7 @@ END_ENTITY;
 ENTITY Template
 	SUBTYPE OF (Product);
 UNIQUE
-	UR1 : id;
+	UR1 : SELF\Product.id;
 END_ENTITY;
 
 
@@ -16579,7 +16579,7 @@ ENTITY Template_material_cross_section_boundary
 	SUBTYPE OF (Non_feature_shape_element);
 	associated_definition : Printed_part_template_material;
 UNIQUE
-	UR1 : associated_definition, element_name;
+  UR1: associated_definition, SELF\Non_feature_shape_element.element_name;
 WHERE
 	WR1 : SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right'];
 END_ENTITY;

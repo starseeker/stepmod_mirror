@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.9 2005/07/22 22:43:54 thendrix Exp $
+$Id: part1000_publication_summary.xsl,v 1.1 2009/07/15 14:07:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -28,7 +28,7 @@ $Id: publication_summary.xsl,v 1.9 2005/07/22 22:43:54 thendrix Exp $
        file attribute -->
   <xsl:template match="/">
     <xsl:variable name="publication_index" 
-      select="concat('../publication_p1000/',./publication/@directory,'/publication_index.xml')"/>
+      select="concat('../part1000/',./publication/@directory,'/publication_index.xml')"/>
     <xsl:apply-templates select="document($publication_index)/part1000.publication_index"/>
   </xsl:template>
 

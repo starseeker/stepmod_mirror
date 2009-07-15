@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.31 2009/05/20 13:40:10 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.1 2009/07/15 14:07:49 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -73,13 +73,13 @@ Purpose: To build the initial ANT publication file.
 			<xsl:apply-templates select="." mode="target_variables"/>
 			<xsl:apply-templates select="." mode="target_init"/>
 			<xsl:apply-templates select="." mode="target_isoindex"/>
-			<xsl:apply-templates select="." mode="target_normref_check"/>
 			<xsl:apply-templates select="." mode="target_zip"/>
 		  <xsl:apply-templates select="." mode="target_resources"/>
 		  <xsl:if test="./modules/module">		  	
 		  	<xsl:apply-templates select="." mode="target_isomodules"/>	 
 			<xsl:apply-templates select="." mode="target_publish_isomodules"/>
 		  </xsl:if>
+			
 		  <xsl:if test="./application_protocols/ap_doc">
 			<xsl:apply-templates select="." mode="target_isoapdocs"/>
 			<xsl:apply-templates select="." mode="target_publish_isoapdocs"/>
@@ -88,8 +88,9 @@ Purpose: To build the initial ANT publication file.
 			<xsl:apply-templates select="." mode="target_isoresdocs"/>
 			<xsl:apply-templates select="." mode="target_publish_isoresdocs"/>
 		  </xsl:if>
+			
 		  <xsl:apply-templates select="." mode="target_all"/>
-		  <xsl:apply-templates select="." mode="target_mergePart100"/>
+		  <xsl:apply-templates select="." mode="target_mergePart1000"/>
 		</project>
 	  </xsl:otherwise>
 	</xsl:choose>
@@ -179,14 +180,14 @@ Purpose: To build the initial ANT publication file.
 	  <xsl:element name="property">
 		<xsl:attribute name="name">ISOMENU</xsl:attribute>
 		<xsl:attribute name="value">
-		  <xsl:value-of select="concat('./publication/publication_p1000/',@name,'/menubar_iso.xml')"/>
+		  <xsl:value-of select="concat('./publication/part1000/',@name,'/menubar_iso.xml')"/>
 		</xsl:attribute>
 	  </xsl:element>
 
 	  <xsl:element name="property">
 		<xsl:attribute name="name">PUBSRCDIR</xsl:attribute>
 		<xsl:attribute name="value">
-		  <xsl:value-of select="concat('publication/publication_p1000/',@name)"/>
+		  <xsl:value-of select="concat('publication/part1000/',@name)"/>
 		</xsl:attribute>
 	  </xsl:element>
 	  <xsl:element name="property">
@@ -1372,79 +1373,6 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:attribute>
 	</xsl:element>
-  </xsl:template>
-
-
-  <!-- generate the target "normref_check" -->
-  <!-- Note - that this target should be included in isoindex, but left out
-	   as not all publication packages have a normref_check file yet -->
-  <xsl:template match="part1000.publication_index" mode="target_normref_check">
-	<xsl:text>
-	</xsl:text>
-	<target name="normref_check" depends="init" 
-			description="Create normative reference check">
-	  <dependset>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${PUBSRCDTD}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.dtd, **/*.ent'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${STEPMODSTYLES}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.xsl'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${PUBSRCDIR}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.xml'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="targetfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'.'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'${PUBSRCDIR}/*.htm*'"/>
-		  </xsl:attribute>
-		</xsl:element>
-	  </dependset>
-	  <xsl:element name="xslt">
-		<xsl:attribute name="in">
-		  <xsl:value-of select="'${PUBSRCDIR}/sys/normref_check.xml'"/>
-		</xsl:attribute>
-		<xsl:attribute name="out">
-		  <xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
-		</xsl:attribute>
-		<xsl:attribute name="destdir">
-		  <xsl:value-of select="'${PUBDIR}'"/>
-		</xsl:attribute>
-		<xsl:attribute name="extension">
-		  <xsl:value-of select="'.htm'"/>
-		</xsl:attribute>
-		<xsl:attribute name="style">
-		  <xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/normref_check.xsl'"/>
-		</xsl:attribute>
-		<param name="output_type" expression="HTM"/>
-		<param name="stepmodhome" expression="."/>
-		<xsl:element name="param">
-		  <xsl:attribute name="name">
-			<xsl:value-of select="'date'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="expression">
-			<xsl:value-of select="'${DATE}'"/>
-		  </xsl:attribute>
-		</xsl:element>
-	  </xsl:element>
-	</target>
   </xsl:template>
 
 
@@ -4844,7 +4772,7 @@ Purpose: To build the initial ANT publication file.
 
    </xsl:template>
 	
-	<xsl:template match="module" mode="target_mergePart100">
+	<xsl:template match="module" mode="target_mergePart1000">
 		<xsl:element name="delete">
 			<xsl:attribute name="dir">
 				<xsl:value-of select="concat('${part1000ModulesTarget}',@name)"/>
@@ -5113,17 +5041,17 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:variable>
 	 <xsl:element name="target">
 	   <xsl:attribute name="name">all</xsl:attribute>
-	   <xsl:attribute name="depends"><xsl:value-of select="$target"/>, normref_check, zip</xsl:attribute>
+	   <xsl:attribute name="depends"><xsl:value-of select="$target"/>, zip</xsl:attribute>
 	   <xsl:attribute name="description">Generate the HTML for ISO publication</xsl:attribute>
 	 </xsl:element>
    </xsl:template>
 	
 	<!-- generate the target "all" -->
-	<xsl:template match="part1000.publication_index" mode="target_mergePart100">
+	<xsl:template match="part1000.publication_index" mode="target_mergePart1000">
 		<xsl:text>
 		</xsl:text>
 		<xsl:element name="target">
-			<xsl:attribute name="name">mergePart100</xsl:attribute> 
+			<xsl:attribute name="name">mergePart1000</xsl:attribute> 
 			<xsl:attribute name="depends">resources, isomodules</xsl:attribute>
 			<xsl:attribute name="description">Merge the published modules and resources into part1000</xsl:attribute>
 			
@@ -5139,7 +5067,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:attribute name="name">part1000ResourcesTarget</xsl:attribute>
 				<xsl:attribute name="value">${part1000target}/data/resources/</xsl:attribute>
 			</xsl:element>
-			<xsl:apply-templates select="modules/module" mode="target_mergePart100"/>	
+			<xsl:apply-templates select="modules/module" mode="target_mergePart1000"/>	
 			
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">${part1000ResourcesTarget}</xsl:attribute>
@@ -6311,9 +6239,8 @@ Purpose: To build the initial ANT publication file.
       <xsl:attribute name="name">zip</xsl:attribute>
       <xsl:attribute name="depends">isoindex</xsl:attribute>
       <xsl:attribute name="description">zip the results.</xsl:attribute>
-
-
       <xsl:element name="zip">
+      	<!-- 
         <xsl:attribute name="zipfile">
           <xsl:choose>
           	<xsl:when test="contains(@sc4.working_group,'WG')">
@@ -6323,7 +6250,11 @@ Purpose: To build the initial ANT publication file.
           	<xsl:value-of select="concat('${PUBDIR}/WG',@sc4.working_group,'N',@wg.number.publication_set,'_${DATE}.zip')"/>            
           </xsl:otherwise>
         </xsl:choose>
-        </xsl:attribute>
+        </xsl:attribute> -->
+      	<xsl:attribute name="zipfile">
+      		<xsl:value-of select="concat('${PUBDIR}/',@name,'_${DATE}.zip')"/>
+      	</xsl:attribute>
+      	
         <xsl:attribute name="basedir">
           <xsl:value-of select="'${PUBDIR}/'"/>
         </xsl:attribute>

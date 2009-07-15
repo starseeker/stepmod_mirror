@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.66 2009/06/19 18:57:37 robbod Exp $
+     $Id: express_code.xsl,v 1.67 2009/07/02 09:20:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -42,16 +42,30 @@
     <a name="{$aname}">SCHEMA <b><xsl:value-of select="@name"/></b>;</a>
     <br/><br/>
   </code>
-  <xsl:apply-templates select="./interface" mode="code"/>
-  <xsl:apply-templates select="./constant" mode="code"/>
-  <xsl:apply-templates select="./type" mode="code"/>
-  <xsl:apply-templates select="./entity" mode="code"/>
+  <xsl:apply-templates select="./interface" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="./constant" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="./type" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="./entity" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
   <xsl:apply-templates select="./subtype.constraint" mode="code">
     <xsl:sort select="@name"/>
   </xsl:apply-templates>
-  <xsl:apply-templates select="./rule" mode="code"/>
-  <xsl:apply-templates select="./function" mode="code"/>
-  <xsl:apply-templates select="./procedure" mode="code"/>
+  <xsl:apply-templates select="./rule" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="./function" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="./procedure" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
   <code>
     <br/>
     END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>

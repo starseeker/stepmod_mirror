@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.16 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_express_inner.xsl,v 1.17 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -76,7 +76,8 @@ $Id: index_arm_express_inner.xsl,v 1.16 2004/02/05 17:51:07 robbod Exp $
 	<xsl:variable name="arm_schemas" >
 		<xsl:call-template name="depends-on-recurse-no-list-x">
 			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
-			<xsl:with-param name="done" select="concat(' ',$schema-name,' ')" />
+			<!-- make sure that the top schema is added -->
+			<!-- <xsl:with-param name="done" select="concat(' ',$schema-name,' ')" /> -->			
 		</xsl:call-template>
 	</xsl:variable>
 

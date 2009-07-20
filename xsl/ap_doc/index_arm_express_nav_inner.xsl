@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_inner.xsl,v 1.8 2004/12/29 14:29:24 robbod Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.9 2009/05/19 00:16:42 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -66,98 +66,97 @@ $Id: index_arm_express_nav_inner.xsl,v 1.8 2004/12/29 14:29:24 robbod Exp $
 </HTML>
 </xsl:template>
 
-<xsl:template match="/" mode="arm_express" >
-	<xsl:variable name="top_module_node"
-	    select="document($top_module_file)/express"/>
+	<xsl:template match="/" mode="arm_express">
+		<xsl:variable name="top_module_node" select="document($top_module_file)/express"/>
 
-	<xsl:variable name="schema-name"
-	    select="$top_module_node//schema/@name"/>
+		<xsl:variable name="schema-name" select="$top_module_node//schema/@name"/>
 
-			
-	<xsl:variable name="arm_schemas" >
-		<xsl:call-template name="depends-on-recurse-no-list-x">
-			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
-			<xsl:with-param name="done" select="concat(' ',$schema-name,' ')" />
-		</xsl:call-template>
-	</xsl:variable>
 
-      <xsl:choose>
-	<xsl:when test="function-available('msxsl:node-set')">
-          <xsl:variable name="schemas-node-set" select="msxsl:node-set($arm_schemas)" />
-		<xsl:variable name="dep-schemas3">
-			<xsl:for-each select="$schemas-node-set//x" >
-				<xsl:sort /> <!-- added sort here which is not in the saxon version below -->
-				<xsl:copy-of select="document(.)" />
-			</xsl:for-each> 
+		<xsl:variable name="arm_schemas">
+			<xsl:call-template name="depends-on-recurse-no-list-x">
+				<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
+				<!-- make sure that the top schema is added -->
+				<!-- <xsl:with-param name="done" select="concat(' ',$schema-name,' ')" /> -->
+			</xsl:call-template>
 		</xsl:variable>
 
-          <!-- collect up all the expressg refs into a node-set -->
-          <xsl:variable name="arm_expressg">
-            <expg_nodes>
-              <xsl:for-each select="msxsl:node-set($schemas-node-set)//x">
-                  <xsl:variable name="module" 
-                    select="substring-after(substring-before(.,'/arm.xml'),'modules')"/>
-                  <xsl:variable name="module_xml" 
-                    select="concat('../../data/modules',$module,'/module.xml')"/>
-                  <xsl:apply-templates 
-                  select="document($module_xml)/module/arm/express-g/imgfile" mode="mk_node"/>
-              </xsl:for-each> 
-            </expg_nodes>
-          </xsl:variable>
+		
+		<xsl:choose>
+			<xsl:when test="function-available('msxsl:node-set')">
+				<xsl:variable name="schemas-node-set" select="msxsl:node-set($arm_schemas)"/>
+				<xsl:variable name="dep-schemas3">
+					<xsl:for-each select="$schemas-node-set//x">
+						<xsl:sort/>
+						<!-- added sort here which is not in the saxon version below -->
+						<xsl:copy-of select="document(.)"/>
+					</xsl:for-each>
+				</xsl:variable>
 
-		<xsl:variable name="dep-schemas" 
-		  	select="msxsl:node-set($dep-schemas3)" />
-                <xsl:variable name="arm_expressg_nodes" select="msxsl:node-set($arm_expressg)"/>				
+				<!-- collect up all the expressg refs into a node-set -->
+				<xsl:variable name="arm_expressg">
+					<expg_nodes>
+						<xsl:for-each select="msxsl:node-set($schemas-node-set)//x">
+							<xsl:variable name="module"
+								select="substring-after(substring-before(.,'/arm.xml'),'modules')"/>
+							<xsl:variable name="module_xml"
+								select="concat('../../data/modules',$module,'/module.xml')"/>
+							<xsl:apply-templates
+								select="document($module_xml)/module/arm/express-g/imgfile"
+								mode="mk_node"/>
+						</xsl:for-each>
+					</expg_nodes>
+				</xsl:variable>
 
-			<xsl:call-template name="index_arm_express_inner" >
-				<xsl:with-param name="this-schema" select="$top_module_node" />
-				<xsl:with-param name="called-schemas" select="$dep-schemas" />
-				<xsl:with-param name="expressg" select="$arm_expressg_nodes" />
-			</xsl:call-template>
+				<xsl:variable name="dep-schemas" select="msxsl:node-set($dep-schemas3)"/>
+				<xsl:variable name="arm_expressg_nodes" select="msxsl:node-set($arm_expressg)"/>
 
-	</xsl:when>
-
-
-	<xsl:when test="function-available('exslt:node-set')">
-
-		  <xsl:variable name="schemas-node-set2">
-		      <xsl:choose>
-			<xsl:when test="2 > string-length($arm_schemas)" >
-		        </xsl:when>
-		        <xsl:otherwise>
-		          <xsl:copy-of select="exslt:node-set($arm_schemas)"/>
-		        </xsl:otherwise>
-		      </xsl:choose>
-		    </xsl:variable>
-
-          <!-- collect up all the expressg refs into a node-set -->
-          <xsl:variable name="arm_expressg">
-            <expg_nodes>
-              <xsl:for-each select="exslt:node-set($schemas-node-set2)//x">
-                <xsl:variable name="module_xml" 
-                  select="concat(substring-before(.,'arm.xml'),'module.xml')"/>
-                <xsl:apply-templates 
-                  select="document($module_xml)/module/arm/express-g/imgfile" mode="mk_node"/>
-
-              </xsl:for-each>
-            </expg_nodes>
-          </xsl:variable>
-
-		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
-                <xsl:variable name="arm_expressg_nodes" select="exslt:node-set($arm_expressg)"/>
-
-			<xsl:call-template name="index_arm_express_inner" >
-				<xsl:with-param name="this-schema" select="$top_module_node" />
-				<xsl:with-param name="called-schemas" select="$dep-schemas" />
-				<xsl:with-param name="expressg" select="$arm_expressg_nodes" />
-			</xsl:call-template>
-
-
+				<xsl:call-template name="index_arm_express_inner">
+					<xsl:with-param name="this-schema" select="$top_module_node"/>
+					<xsl:with-param name="called-schemas" select="$dep-schemas"/>
+					<xsl:with-param name="expressg" select="$arm_expressg_nodes"/>
+				</xsl:call-template>
 
 			</xsl:when>
 
-			</xsl:choose>
-</xsl:template>
+
+			<xsl:when test="function-available('exslt:node-set')">
+
+				<xsl:variable name="schemas-node-set2">
+					<xsl:choose>
+						<xsl:when test="2 > string-length($arm_schemas)"> </xsl:when>
+						<xsl:otherwise>
+							<xsl:copy-of select="exslt:node-set($arm_schemas)"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+
+				<!-- collect up all the expressg refs into a node-set -->
+				<xsl:variable name="arm_expressg">
+					<expg_nodes>
+						<xsl:for-each select="exslt:node-set($schemas-node-set2)//x">
+							<xsl:variable name="module_xml"
+								select="concat(substring-before(.,'arm.xml'),'module.xml')"/>
+							<xsl:apply-templates
+								select="document($module_xml)/module/arm/express-g/imgfile"
+								mode="mk_node"/>
+
+						</xsl:for-each>
+					</expg_nodes>
+				</xsl:variable>
+
+				<xsl:variable name="dep-schemas"
+				select="document(exslt:node-set($schemas-node-set2)//x)"/>
+				
+				<xsl:variable name="arm_expressg_nodes" select="exslt:node-set($arm_expressg)"/>
+
+				<xsl:call-template name="index_arm_express_inner">
+					<xsl:with-param name="this-schema" select="$top_module_node"/>
+					<xsl:with-param name="called-schemas" select="$dep-schemas"/>
+					<xsl:with-param name="expressg" select="$arm_expressg_nodes"/>
+				</xsl:call-template>
+			</xsl:when>
+		</xsl:choose>
+	</xsl:template>
 
 
 
@@ -165,6 +164,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.8 2004/12/29 14:29:24 robbod Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 	<xsl:param name="expressg"/>		
+	
 	<xsl:if test="$called-schemas//constant" >
 		<br/>
 		<A name="constants"><b>Constants</b></A>

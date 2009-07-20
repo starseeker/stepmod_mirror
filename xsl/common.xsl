@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.170 2009/04/08 21:33:44 robbod Exp $
+$Id: common.xsl,v 1.171 2009/04/24 16:03:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -253,6 +253,17 @@ $Id: common.xsl,v 1.170 2009/04/08 21:33:44 robbod Exp $
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
     <xsl:with-param name="content" select="normalize-space(translate(./@rcs.revision,'$',''))"/>
+  </xsl:call-template>
+  
+  <xsl:variable name="revstring" select="'Revision:'"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'PART1000.module.rcs.revision'"/>
+    <xsl:with-param name="content" select="concat('$',string($revstring),' $')"/>
+  </xsl:call-template>
+  <xsl:variable name="datestring" select="'Date:'"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'PART1000.module.rcs.date'"/>
+    <xsl:with-param name="content" select="concat('$',string($datestring),' $')"/>
   </xsl:call-template>
 
   <!-- now get meta data for arm and mim -->

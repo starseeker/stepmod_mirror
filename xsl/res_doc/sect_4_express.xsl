@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.28 2006/03/11 01:22:50 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.29 2009/07/02 09:20:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1035,20 +1035,9 @@
 </xsl:template>
 
 <xsl:template name="super.expression-code">
-  <!-- check of the expression already ends in () -->
-  <xsl:variable name="open_paren">
-    <xsl:if test="not(starts-with(normalize-space(@super.expression),'('))">
-      <xsl:value-of select="'('"/>
-    </xsl:if>
-  </xsl:variable>
-  <xsl:variable name="close_paren">
-    <xsl:if test="$open_paren='('">
-      <xsl:value-of select="')'"/>
-    </xsl:if>
-  </xsl:variable>
-
+  <!-- Always enclose the expression in parentheses -->
   <xsl:variable name="sup_expr"
-    select="concat($open_paren,@super.expression,$close_paren)"/>
+    select="concat('(',@super.expression,')')"/>
 
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">

@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.16 2004/11/17 23:24:29 thendrix Exp $
+$Id: arm.exp,v 1.17 2005/07/21 18:50:52 thendrix Exp $
 ISO TC184/SC4/WG12 N2876 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1550
 *) 
@@ -48,7 +48,8 @@ ENTITY Cylindricity_tolerance
   SUBTYPE OF (Geometric_tolerance);
 END_ENTITY;
 
-ENTITY Datum;
+ENTITY Datum
+  ABSTRACT SUPERTYPE OF (ONEOF ( Single_datum, Common_datum));
 END_ENTITY;
 
 ENTITY Datum_defined_by_derived_shape
@@ -69,9 +70,11 @@ END_ENTITY;
 ENTITY Datum_reference;
   precedence : INTEGER;
   referenced_datum : Datum;
+  modification : OPTIONAL Tolerance_condition;
 END_ENTITY;
 
-ENTITY Datum_target;
+ENTITY Datum_target
+  ABSTRACT SUPERTYPE OF (ONEOF (Target_area, Placed_target));
   id : STRING;
 END_ENTITY;
 
@@ -160,9 +163,9 @@ ENTITY Roundness_tolerance
 END_ENTITY;
 
 ENTITY Single_datum
+  ABSTRACT SUPERTYPE OF (ONEOF (Datum_defined_by_feature, Datum_defined_by_derived_shape, Datum_defined_by_targets))
   SUBTYPE OF (Datum);
   datum_name : STRING;
-  modification : OPTIONAL Tolerance_condition;
 END_ENTITY;
 
 ENTITY Straightness_tolerance

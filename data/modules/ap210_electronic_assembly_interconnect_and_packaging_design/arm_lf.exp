@@ -1,5 +1,5 @@
 (*
-   $Id: arm_lf.exp,v 1.34 2009/08/01 18:28:45 thomasrthurman Exp $
+   $Id: arm_lf.exp,v 1.35 2009/08/09 18:43:09 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N2599 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM LF
    Supersedes ISO TC184/SC4/WG3 N1706
 *)
@@ -2245,7 +2245,6 @@ END_TYPE;
 
 TYPE picture_representation_element_select = SELECT (
 	Axis_placement_2d,
-	Picture_representation_item,
 	Styled_element);
 END_TYPE;
 
@@ -12625,6 +12624,9 @@ ENTITY Picture_representation
 WHERE
 	WR1 : SIZEOF(QUERY(item <* items | 
         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.'+'PICTURE_REPRESENTATION_ITEM' IN TYPEOF(item))) = 1;
+        WR2: SIZEOF (QUERY (se <* QUERY (item <* SELF.items | ('PICTURE_REPRESENTATION_ARM.STYLED_ELEMENT' IN TYPEOF (item))) 
+         | NOT ('PICTURE_REPRESENTATION_ARM.PICTURE_REPRESENTATION_ITEM' 
+                IN TYPEOF (se\Styled_element.element)) )) = 0;
 END_ENTITY;
 
 

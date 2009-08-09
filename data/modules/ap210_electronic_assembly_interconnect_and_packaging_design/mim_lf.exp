@@ -1,5 +1,5 @@
 (*
-   $Id: mim_lf.exp,v 1.33 2009/07/14 22:18:30 thomasrthurman Exp $
+   $Id: mim_lf.exp,v 1.34 2009/07/14 22:21:17 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N2601 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM LF
    Supersedes ISO TC184/SC4/WG3 N1707
 *)
@@ -1690,7 +1690,6 @@ END_TYPE;
 
 TYPE picture_representation_item_select = SELECT (
 	styled_item,
-	picture_representation_item,
 	planar_box,
 	axis2_placement_2d);
 END_TYPE;
@@ -11452,7 +11451,10 @@ ENTITY picture_representation
 INVERSE
 	size: presentation_size FOR unit;
 WHERE
-	WR1 : SIZEOF(QUERY(items <* SELF\representation.items | 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PICTURE_REPRESENTATION_ITEM' IN TYPEOF(items))) = 1;
+    WR1: SIZEOF(QUERY(item <* items | 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.STYLED_ITEM' IN TYPEOF(item))) = 1;
+    WR2: SIZEOF (QUERY (se <* QUERY (item <* SELF.items | ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.STYLED_ITEM' IN TYPEOF (item))) 
+         | NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PICTURE_REPRESENTATION_ITEM' 
+                IN TYPEOF (se\styled_item.item)) )) = 0;
 END_ENTITY;
 
 

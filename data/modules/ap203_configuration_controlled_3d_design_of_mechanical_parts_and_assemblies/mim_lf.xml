@@ -13,7 +13,7 @@
          <aggregate lower="0" type="SET" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
-      <constant expression="[ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']" name="pre_defined_picture_representation_types">
+      <constant expression="['document_with_class',&#10;       'ordinal_date', &#10;       'product_definition_formation_with_specified_source', &#10;       'week_of_year_and_day_date']" name="deprecated_interfaced_data_types">
          <aggregate lower="0" type="SET" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -23,7 +23,7 @@
       <constant expression="representation_item('')||&#10;                   topological_representation_item()" name="dummy_tri">
          <typename name="topological_representation_item"/>
       </constant>
-      <constant expression="['document_with_class',&#10;       'ordinal_date', &#10;       'product_definition_formation_with_specified_source', &#10;       'week_of_year_and_day_date']" name="deprecated_interfaced_data_types">
+      <constant expression="[ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']" name="pre_defined_picture_representation_types">
          <aggregate lower="0" type="SET" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -513,7 +513,7 @@
          <select selectitems="person organization person_and_organization"/>
       </type>
       <type name="picture_representation_item_select">
-         <select selectitems="styled_item picture_representation_item planar_box axis2_placement_2d"/>
+         <select selectitems="styled_item planar_box axis2_placement_2d"/>
       </type>
       <type name="plane_angle_measure">
          <builtintype type="REAL"/>
@@ -1047,12 +1047,12 @@
          <where expression="(SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 1.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0)" label="WR1"/>
       </entity>
       <entity name="angle_direction_reference" supertypes="representation_item_relationship geometric_representation_item">
-         <explicit name="relating_representation_item">
-            <typename name="orientation_basis_select"/>
-            <redeclaration entity-ref="representation_item_relationship"/>
-         </explicit>
          <explicit name="related_representation_item">
             <typename name="angle_direction_reference_select"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+         <explicit name="relating_representation_item">
+            <typename name="orientation_basis_select"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
          <where expression="((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POINT_PATH' IN TYPEOF(related_representation_item)) AND&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MIN_AND_MAJOR_PLY_ORIENTATION_BASIS' IN TYPEOF(relating_representation_item))) &#10;        OR&#10;&#9;&#9;(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POINT_PATH' IN TYPEOF(related_representation_item)) AND&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.AXIS2_PLACEMENT_3D' IN TYPEOF(relating_representation_item))))" label="WR1"/>
@@ -1240,13 +1240,13 @@
          </explicit>
       </entity>
       <entity name="applied_attribute_classification_assignment" supertypes="attribute_classification_assignment">
-         <explicit name="assigned_class">
-            <typename name="class"/>
-            <redeclaration entity-ref="attribute_classification_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="attribute_classification_item"/>
+         </explicit>
+         <explicit name="assigned_class">
+            <typename name="class"/>
+            <redeclaration entity-ref="attribute_classification_assignment"/>
          </explicit>
       </entity>
       <entity name="applied_certification_assignment" supertypes="certification_assignment">
@@ -1477,13 +1477,13 @@
          <where expression="base :&lt;&gt;: substitute" label="WR2"/>
       </entity>
       <entity name="assigned_requirement" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="requirement_assignment"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="product_definition"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="requirement_assignment"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="atomic_formula" supertypes="compound_representation_item"/>
@@ -1500,13 +1500,13 @@
          </explicit>
       </entity>
       <entity name="attribute_language_assignment" supertypes="attribute_classification_assignment">
-         <explicit name="assigned_class">
-            <typename name="language"/>
-            <redeclaration entity-ref="attribute_classification_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="attribute_language_item"/>
+         </explicit>
+         <explicit name="assigned_class">
+            <typename name="language"/>
+            <redeclaration entity-ref="attribute_classification_assignment"/>
          </explicit>
          <where expression="SELF\attribute_classification_assignment.role.name IN ['primary', 'translated']" label="WR1"/>
          <where expression="SELF\attribute_classification_assignment.attribute_name&lt;&gt; ''" label="WR2"/>
@@ -1583,12 +1583,12 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <derived expression="(SIZEOF(control_points_list) - 1)" name="upper_index_on_control_points">
-            <builtintype type="INTEGER"/>
-         </derived>
          <derived expression="list_to_array(control_points_list,0,&#10;                                             upper_index_on_control_points)" name="control_points">
             <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
+         </derived>
+         <derived expression="(SIZEOF(control_points_list) - 1)" name="upper_index_on_control_points">
+            <builtintype type="INTEGER"/>
          </derived>
          <where expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.QUASI_UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.BEZIER_CURVE' IN TYPEOF(self)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(self))" label="WR1"/>
       </entity>
@@ -1634,16 +1634,16 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
+         <derived expression="make_array_of_array(control_points_list,&#10;                                              0,u_upper,0,v_upper)" name="control_points">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <typename name="cartesian_point"/>
+         </derived>
          <derived expression="SIZEOF(control_points_list) - 1" name="u_upper">
             <builtintype type="INTEGER"/>
          </derived>
          <derived expression="SIZEOF(control_points_list[1]) - 1" name="v_upper">
             <builtintype type="INTEGER"/>
-         </derived>
-         <derived expression="make_array_of_array(control_points_list,&#10;                                              0,u_upper,0,v_upper)" name="control_points">
-            <aggregate lower="0" type="ARRAY" upper="0"/>
-            <aggregate lower="0" type="ARRAY" upper="0"/>
-            <typename name="cartesian_point"/>
          </derived>
          <where expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.QUASI_UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.BEZIER_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.B_SPLINE_SURFACE_WITH_KNOTS' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
@@ -1774,13 +1774,13 @@
       </entity>
       <entity name="breakdown_context" supertypes="product_definition_relationship"/>
       <entity name="breakdown_element_group_assignment" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="product_definition_element_relationship"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="product_definition_or_breakdown_element_usage"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="product_definition_element_relationship"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="breakdown_element_realization" supertypes="characterized_object product_definition_element_relationship"/>
@@ -2176,11 +2176,11 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <derived expression="SIZEOF(segments)" name="n_segments">
-            <builtintype type="INTEGER"/>
-         </derived>
          <derived expression="segments[n_segments].transition &lt;&gt; discontinuous" name="closed_curve">
             <builtintype type="LOGICAL"/>
+         </derived>
+         <derived expression="SIZEOF(segments)" name="n_segments">
+            <builtintype type="INTEGER"/>
          </derived>
          <where expression="((NOT closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments |&#10;                temp.transition = discontinuous)) = 1)) OR&#10;            ((closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments | &#10;                temp.transition = discontinuous)) = 0))" label="WR1"/>
       </entity>
@@ -2309,11 +2309,11 @@
          <explicit name="design">
             <typename name="configuration_design_item"/>
          </explicit>
-         <derived expression="get_name_value (SELF)" name="name">
-            <typename name="label"/>
-         </derived>
          <derived expression="get_description_value (SELF)" name="description">
             <typename name="text"/>
+         </derived>
+         <derived expression="get_name_value (SELF)" name="name">
+            <typename name="label"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="configuration"/>
@@ -2381,13 +2381,13 @@
          <where expression="SIZEOF( QUERY( x &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'EFFECTIVITY_CONTEXT_ASSIGNMENT.ASSIGNED_EFFECTIVITY_ASSIGNMENT') | 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CONFIGURED_EFFECTIVITY_CONTEXT_ASSIGNMENT' IN TYPEOF(x) )) = 1" label="WR8"/>
       </entity>
       <entity name="configured_effectivity_context_assignment" supertypes="effectivity_context_assignment">
-         <explicit name="assigned_effectivity_assignment">
-            <typename name="configured_effectivity_assignment"/>
-            <redeclaration entity-ref="effectivity_context_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="configured_effectivity_context_item"/>
+         </explicit>
+         <explicit name="assigned_effectivity_assignment">
+            <typename name="configured_effectivity_assignment"/>
+            <redeclaration entity-ref="effectivity_context_assignment"/>
          </explicit>
          <where expression="SIZEOF(SELF.items) = 1" label="WR1"/>
       </entity>
@@ -2901,12 +2901,12 @@
          <where expression="'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE' IN TYPEOF&#10;        (SELF\terminator_symbol.annotated_curve)" label="WR1"/>
       </entity>
       <entity name="dimension_curve_terminator_to_projection_curve_associativity" supertypes="annotation_occurrence_associativity">
-         <explicit name="relating_annotation_occurrence">
-            <typename name="dimension_curve_terminator"/>
-            <redeclaration entity-ref="annotation_occurrence_relationship"/>
-         </explicit>
          <explicit name="related_annotation_occurrence">
             <typename name="projection_curve"/>
+            <redeclaration entity-ref="annotation_occurrence_relationship"/>
+         </explicit>
+         <explicit name="relating_annotation_occurrence">
+            <typename name="dimension_curve_terminator"/>
             <redeclaration entity-ref="annotation_occurrence_relationship"/>
          </explicit>
       </entity>
@@ -3021,13 +3021,13 @@
          </unique>
       </entity>
       <entity name="document_identifier_assignment" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="document_identifier"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="document_identifier_assigned_item"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="document_identifier"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="document_product_association">
@@ -3197,12 +3197,12 @@
             <typename name="shape_definition"/>
             <redeclaration entity-ref="item_identified_representation_usage"/>
          </explicit>
-         <explicit name="used_representation">
-            <typename name="draughting_model"/>
-            <redeclaration entity-ref="item_identified_representation_usage"/>
-         </explicit>
          <explicit name="identified_item">
             <typename name="draughting_model_item_association_select"/>
+            <redeclaration entity-ref="item_identified_representation_usage"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="draughting_model"/>
             <redeclaration entity-ref="item_identified_representation_usage"/>
          </explicit>
       </entity>
@@ -3350,11 +3350,11 @@
          <explicit name="id">
             <typename name="identifier"/>
          </explicit>
-         <derived expression="get_name_value(SELF)" name="name">
-            <typename name="label"/>
-         </derived>
          <derived expression="get_description_value(SELF)" name="description">
             <typename name="text"/>
+         </derived>
+         <derived expression="get_name_value(SELF)" name="name">
+            <typename name="label"/>
          </derived>
          <where expression="SIZEOF(USEDIN(SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1" label="WR1"/>
          <where expression="SIZEOF(USEDIN(SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR2"/>
@@ -3521,12 +3521,12 @@
          </explicit>
       </entity>
       <entity name="explicit_procedural_geometric_representation_item_relationship" supertypes="explicit_procedural_representation_item_relationship">
-         <explicit name="relating_representation_item">
-            <typename name="procedural_shape_representation_sequence"/>
-            <redeclaration entity-ref="representation_item_relationship"/>
-         </explicit>
          <explicit name="related_representation_item">
             <typename name="geometric_representation_item"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+         <explicit name="relating_representation_item">
+            <typename name="procedural_shape_representation_sequence"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
          <where expression="NOT (&#10;    'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROCEDURAL_SHAPE_REPRESENTATION_SEQUENCE'&#10;    IN TYPEOF(&#10;      SELF\representation_item_relationship.related_representation_item))" label="WR1"/>
@@ -3918,21 +3918,21 @@
             <typename name="geometric_item_specific_usage_select"/>
             <redeclaration entity-ref="item_identified_representation_usage"/>
          </explicit>
-         <explicit name="used_representation">
-            <typename name="shape_representation"/>
-            <redeclaration entity-ref="item_identified_representation_usage"/>
-         </explicit>
          <explicit name="identified_item">
             <typename name="geometric_representation_item"/>
             <redeclaration entity-ref="item_identified_representation_usage"/>
          </explicit>
+         <explicit name="used_representation">
+            <typename name="shape_representation"/>
+            <redeclaration entity-ref="item_identified_representation_usage"/>
+         </explicit>
       </entity>
       <entity name="geometric_model_element_relationship" supertypes="geometric_representation_item representation_item_relationship">
-         <explicit name="relating_representation_item">
+         <explicit name="related_representation_item">
             <typename name="geometric_representation_item"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
-         <explicit name="related_representation_item">
+         <explicit name="relating_representation_item">
             <typename name="geometric_representation_item"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
@@ -4094,14 +4094,14 @@
          <where expression="( SIZEOF ( USEDIN ( SELF ,&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'PROPERTY_DEFINITION_REPRESENTATION.'+&#10;        'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr&#10;        &lt;* USEDIN ( SELF ,&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'PROPERTY_DEFINITION_REPRESENTATION.'+&#10;        'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (&#10;        pdr. definition ,&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'GENERAL_PROPERTY_ASSOCIATION.'+&#10;        'DERIVED_DEFINITION' ) | ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;        'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND&#10;        ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )&#10;        ) =1 )" label="WR6"/>
       </entity>
       <entity name="hidden_element_over_riding_styled_item" supertypes="context_dependent_over_riding_styled_item">
+         <explicit name="item">
+            <typename name="camera_image"/>
+            <redeclaration entity-ref="styled_item"/>
+         </explicit>
          <explicit name="style_context">
             <aggregate lower="1" type="LIST" upper="1"/>
             <typename name="presentation_view"/>
             <redeclaration entity-ref="context_dependent_over_riding_styled_item"/>
-         </explicit>
-         <explicit name="item">
-            <typename name="camera_image"/>
-            <redeclaration entity-ref="styled_item"/>
          </explicit>
          <inverse attribute="items" entity="presentation_view" name="container">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
@@ -4193,13 +4193,13 @@
          <where expression="associated_surface(SELF\surface_curve.associated_geometry[1]) &lt;&gt;&#10;             associated_surface(SELF\surface_curve.associated_geometry[2])" label="WR2"/>
       </entity>
       <entity name="interval_expression" supertypes="boolean_expression multiple_arity_generic_expression">
-         <derived expression="SELF\multiple_arity_generic_expression.operands[1]" name="interval_low">
+         <derived expression="SELF\multiple_arity_generic_expression.operands[3]" name="interval_high">
             <typename name="generic_expression"/>
          </derived>
          <derived expression="SELF\multiple_arity_generic_expression.operands[2]" name="interval_item">
             <typename name="generic_expression"/>
          </derived>
-         <derived expression="SELF\multiple_arity_generic_expression.operands[3]" name="interval_high">
+         <derived expression="SELF\multiple_arity_generic_expression.operands[1]" name="interval_low">
             <typename name="generic_expression"/>
          </derived>
          <where expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.EXPRESSION' &#10;&#9;&#9;&#9;&#9;IN TYPEOF(interval_low))&#10;&#9;&#9;AND ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.EXPRESSION' &#10;&#9;&#9;&#9;&#9;IN TYPEOF(interval_item) )&#10;&#9;&#9;AND ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.EXPRESSION' &#10;&#9;&#9;&#9;&#9;IN TYPEOF(interval_high))" label="WR1"/>
@@ -4606,11 +4606,11 @@
          <where expression="SIZEOF (QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STYLED_ITEM'&#10;        IN TYPEOF (it)) |&#10;        NOT (SIZEOF (QUERY (psa &lt;* si\styled_item.styles |&#10;        NOT (SIZEOF (QUERY (ssu &lt;* QUERY (pss &lt;* psa.styles |&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.SURFACE_STYLE_USAGE'&#10;        IN TYPEOF (pss)) |&#10;        NOT (SIZEOF (QUERY (ssre &lt;* QUERY (sses &lt;*&#10;        ssu\surface_style_usage.style\surface_side_style.styles |&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;        'SURFACE_STYLE_RENDERING' IN TYPEOF (sses)) |&#10;        NOT&#10;        (SIZEOF (['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COLOUR_RGB',&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;        'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF&#10;        (ssre\surface_style_rendering.surface_colour)) = 1)))&#10;        = 0))) = 0))) = 0))) = 0" label="WR16"/>
       </entity>
       <entity name="min_and_major_ply_orientation_basis" supertypes="representation_item_relationship geometric_representation_item">
-         <explicit name="relating_representation_item">
+         <explicit name="related_representation_item">
             <typename name="axis2_placement_3d"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
-         <explicit name="related_representation_item">
+         <explicit name="relating_representation_item">
             <typename name="axis2_placement_3d"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
@@ -4905,11 +4905,11 @@
          <explicit name="orientation">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_start,&#10;                                            SELF.edge_element.edge_end)" name="edge_start">
+         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_end,&#10;                                            SELF.edge_element.edge_start)" name="edge_end">
             <typename name="vertex"/>
             <redeclaration entity-ref="edge"/>
          </derived>
-         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_end,&#10;                                            SELF.edge_element.edge_start)" name="edge_end">
+         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_start,&#10;                                            SELF.edge_element.edge_end)" name="edge_start">
             <typename name="vertex"/>
             <redeclaration entity-ref="edge"/>
          </derived>
@@ -5052,11 +5052,11 @@
          <explicit name="the_organization">
             <typename name="organization"/>
          </explicit>
-         <derived expression="get_name_value(SELF)" name="name">
-            <typename name="label"/>
-         </derived>
          <derived expression="get_description_value(SELF)" name="description">
             <typename name="text"/>
+         </derived>
+         <derived expression="get_name_value(SELF)" name="name">
+            <typename name="label"/>
          </derived>
          <where expression="SIZEOF(USEDIN(SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1" label="WR1"/>
          <where expression="SIZEOF(USEDIN(SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR2"/>
@@ -5109,7 +5109,8 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
          <inverse attribute="unit" entity="presentation_size" name="size"/>
-         <where expression="SIZEOF(QUERY(items &lt;* SELF\representation.items | 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PICTURE_REPRESENTATION_ITEM' IN TYPEOF(items))) = 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(item &lt;* items | 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STYLED_ITEM' IN TYPEOF(item))) = 1" label="WR1"/>
+         <where expression="SIZEOF (QUERY (se &lt;* QUERY (item &lt;* SELF.items | ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STYLED_ITEM' IN TYPEOF (item))) &#10;         | NOT ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PICTURE_REPRESENTATION_ITEM' &#10;                IN TYPEOF (se\styled_item.item)) )) = 0" label="WR2"/>
       </entity>
       <entity abstract.supertype="YES" name="picture_representation_item" super.expression="ONEOF (externally_defined_picture_representation_item, predefined_picture_representation_item)" supertypes="bytes_representation_item"/>
       <entity name="placed_datum_target_feature" supertypes="datum_target">
@@ -5480,13 +5481,13 @@
          <where expression="SIZEOF(QUERY&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;aga &lt;* USEDIN( SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;|&#10;     &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) &#10;     &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;AND&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;(&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( aga.role.name &lt;&gt; 'specification category member' ) &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;OR &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( SIZEOF(QUERY &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;i &lt;* aga.items &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+ 'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;AND &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;NOT ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i))&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) &lt;&gt; SIZEOF (aga.items)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) &#10;       &#9;&#9;&#9;&#9;&#9;&#9;) &#10;       &#9;&#9;&#9;&#9;) =0" label="WR1"/>
       </entity>
       <entity name="product_concept_feature_category_usage" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="product_concept_feature_category"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="category_usage_item"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="product_concept_feature_category"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
          <where expression="SELF.role.name IN [ 'mandatory category usage', 'optional category usage' ]" label="WR1"/>
       </entity>
@@ -5596,13 +5597,13 @@
          </explicit>
       </entity>
       <entity name="product_definition_group_assignment" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="product_definition_element_relationship"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="product_definition_or_product_definition_relationship"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="product_definition_element_relationship"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="product_definition_occurrence_relationship">
@@ -5918,11 +5919,11 @@
          <explicit name="context_of_items">
             <typename name="representation_context"/>
          </explicit>
-         <derived expression="get_id_value (SELF)" name="id">
-            <typename name="identifier"/>
-         </derived>
          <derived expression="get_description_value (SELF)" name="description">
             <typename name="text"/>
+         </derived>
+         <derived expression="get_id_value (SELF)" name="id">
+            <typename name="identifier"/>
          </derived>
          <where expression="SIZEOF (USEDIN (SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                                 'ID_ATTRIBUTE.IDENTIFIED_ITEM'))&#10;         &lt;= 1" label="WR1"/>
          <where expression="SIZEOF (USEDIN (SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                                 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))&#10;         &lt;= 1" label="WR2"/>
@@ -5991,13 +5992,13 @@
          <where expression="SELF\representation_relationship.rep_1.context_of_items&#10;           :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items" label="WR1"/>
       </entity>
       <entity name="requirement_assigned_object" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="requirement_assignment"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="requirement_assigned_item"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="requirement_assignment"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="requirement_assignment" supertypes="characterized_object group"/>
@@ -6086,12 +6087,12 @@
          </explicit>
       </entity>
       <entity name="right_to_usage_association" supertypes="action_method_relationship">
-         <explicit name="relating_method">
-            <typename name="information_usage_right"/>
-            <redeclaration entity-ref="action_method_relationship"/>
-         </explicit>
          <explicit name="related_method">
             <typename name="information_right"/>
+            <redeclaration entity-ref="action_method_relationship"/>
+         </explicit>
+         <explicit name="relating_method">
+            <typename name="information_usage_right"/>
             <redeclaration entity-ref="action_method_relationship"/>
          </explicit>
          <derived expression="SELF\action_method_relationship.related_method" name="right_applied">
@@ -6153,24 +6154,24 @@
          </explicit>
       </entity>
       <entity name="satisfied_requirement" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="satisfies_requirement"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="product_definition"/>
          </explicit>
-      </entity>
-      <entity name="satisfies_requirement" supertypes="group"/>
-      <entity name="satisfying_item" supertypes="group_assignment">
          <explicit name="assigned_group">
             <typename name="satisfies_requirement"/>
             <redeclaration entity-ref="group_assignment"/>
          </explicit>
+      </entity>
+      <entity name="satisfies_requirement" supertypes="group"/>
+      <entity name="satisfying_item" supertypes="group_assignment">
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="requirement_satisfaction_item"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="satisfies_requirement"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="scalar_variable" supertypes="abstract_variable"/>
@@ -6722,23 +6723,23 @@
          <where expression="NOT((point_list[1] = point_list[HIINDEX(point_list)]) AND NOT &#10;         (radius_list[1] = radius_list[HIINDEX(radius_list)]))" label="WR3"/>
       </entity>
       <entity name="source_for_requirement" supertypes="group_assignment">
-         <explicit name="assigned_group">
-            <typename name="requirement_source"/>
-            <redeclaration entity-ref="group_assignment"/>
-         </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="requirement_source_item"/>
          </explicit>
-      </entity>
-      <entity name="sourced_requirement" supertypes="group_assignment">
          <explicit name="assigned_group">
             <typename name="requirement_source"/>
             <redeclaration entity-ref="group_assignment"/>
          </explicit>
+      </entity>
+      <entity name="sourced_requirement" supertypes="group_assignment">
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="product_definition"/>
+         </explicit>
+         <explicit name="assigned_group">
+            <typename name="requirement_source"/>
+            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="specification_definition" supertypes="product_definition"/>
@@ -7339,10 +7340,10 @@
          <explicit name="upper_bound">
             <typename name="measure_with_unit"/>
          </explicit>
-         <derived expression="upper_bound\measure_with_unit.value_component" name="ubvc">
+         <derived expression="lower_bound\measure_with_unit.value_component" name="lbvc">
             <builtintype type="REAL"/>
          </derived>
-         <derived expression="lower_bound\measure_with_unit.value_component" name="lbvc">
+         <derived expression="upper_bound\measure_with_unit.value_component" name="ubvc">
             <builtintype type="REAL"/>
          </derived>
          <where expression="ubvc &gt; lbvc" label="WR1"/>
@@ -7491,11 +7492,11 @@
       <entity name="uniform_resource_identifier" supertypes="descriptive_representation_item"/>
       <entity name="uniform_surface" supertypes="b_spline_surface"/>
       <entity name="usage_association" supertypes="action_method_relationship">
-         <explicit name="relating_method">
+         <explicit name="related_method">
             <typename name="information_usage_right"/>
             <redeclaration entity-ref="action_method_relationship"/>
          </explicit>
-         <explicit name="related_method">
+         <explicit name="relating_method">
             <typename name="information_usage_right"/>
             <redeclaration entity-ref="action_method_relationship"/>
          </explicit>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.1 2009/07/15 14:07:49 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.2 2009/07/15 16:33:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -110,7 +110,9 @@ $Id: part1000_publication_summary.xsl,v 1.1 2009/07/15 14:07:49 robbod Exp $
       <td><b>Year of<br/>publication</b></td>
       <td><b>CVS file revisions</b></td>
       </tr>
-      <xsl:apply-templates select="./module" mode="table_row"/>
+      <xsl:apply-templates select="./module" mode="table_row">
+        <xsl:sort select="@name"/>
+      </xsl:apply-templates>
     </table>
   </xsl:template>
 

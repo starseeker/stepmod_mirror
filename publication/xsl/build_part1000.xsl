@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.2 2009/07/15 16:33:54 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.3 2009/07/20 16:24:32 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -2390,10 +2390,16 @@ Purpose: To build the initial ANT publication file.
 					</xsl:attribute>
 				</xsl:element>
 				<!-- as the express file is copied, replace the CVS Id with aSTEPmod Id
-						so that subversion can take over the Id tag -->
-				<filterchain>
-					<replaceregex pattern="\$Id: (.*) \$"
-						replace=" Part1000: $Id: $&#010;  STEPmod.CVS.Id: \1" flags="m"/>
+					so that subversion can take over the Id tag -->
+				<xsl:variable name="escDollar" select="'\$'"/>
+				<xsl:variable name="dollar" select="'$'"/>
+				<xsl:variable name="pattern" select="concat($escDollar,'Id: (.*) ',$escDollar)"/>
+				<xsl:variable name="replace" select="concat('Part1000: ',$dollar,'Id: ',$dollar,'&#xA; STEPmod.CVS.Id: \1')"/>
+				<filterchain>				
+					<replaceregex 
+						pattern="{$pattern}" 
+						replace="{$replace}" 
+						flags="s"/>	
 				</filterchain>
 			</xsl:element>
 
@@ -4755,7 +4761,8 @@ Purpose: To build the initial ANT publication file.
 		<!-- generate the publication record -->
 		<xsl:apply-templates select="." mode="pub_record_style"/>
 
-		<xsl:apply-templates select="." mode="copy_express"/>
+<!-- RBN 
+		<xsl:apply-templates select="." mode="copy_express"/> -->
 
 	</xsl:template>
 

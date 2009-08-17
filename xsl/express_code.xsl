@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.68 2009/07/15 14:49:42 robbod Exp $
+     $Id: express_code.xsl,v 1.69 2009/07/28 10:45:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -393,7 +393,12 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 </xsl:template>
 
 <xsl:template match="builtintype" mode="underlying">
-	<xsl:value-of select="@type" />
+  <xsl:choose>
+    <xsl:when test="@type='GENERICENTITY'">GENERIC_ENTITY</xsl:when>
+    <xsl:otherwise>  
+      <xsl:value-of select="@type"/>
+    </xsl:otherwise>
+  </xsl:choose>  
 	<xsl:variable name="type_label" select="@typelabel"/>
 	<xsl:if test="$type_label">
 		<xsl:value-of select="concat( ' : ', $type_label)"/>

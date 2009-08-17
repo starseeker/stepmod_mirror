@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.29 2009/07/02 09:20:55 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.30 2009/07/28 10:45:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -734,7 +734,12 @@
 
 
 <xsl:template match="builtintype" mode="underlying">
-  <xsl:value-of select="@type" />
+  <xsl:choose>
+    <xsl:when test="@type='GENERICENTITY'">GENERIC_ENTITY</xsl:when>
+    <xsl:otherwise>  
+      <xsl:value-of select="@type"/>
+    </xsl:otherwise>
+  </xsl:choose> 
 </xsl:template>
 
 

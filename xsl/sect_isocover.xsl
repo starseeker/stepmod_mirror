@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.13 2005/07/11 17:46:00 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.14 2006/02/28 01:06:30 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -253,6 +253,8 @@ $Id: sect_isocover.xsl,v 1.13 2005/07/11 17:46:00 thendrix Exp $
                 <xsl:choose>
                   <xsl:when test="$ERROR_CHECK_ISOCOVER='YES'">
                     <xsl:call-template name="error_message">
+                      
+                      <xsl:with-param name="inline" select="'no'"/>
                       <xsl:with-param 
                         name="message" 
                         select="concat('Error PD: No publication date
@@ -261,10 +263,11 @@ $Id: sect_isocover.xsl,v 1.13 2005/07/11 17:46:00 thendrix Exp $
                     <div align="center" style="margin-top:50pt">
                       <span style="font-size:12; font-family:sans-serif;">
                         <b>
-                          <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.year)"/>
+                          <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;@to_be_published@')"/>
                         </b>
                       </span>
                     </div>
+                    
                 </xsl:when>
                 <xsl:otherwise>
                     <div align="center" style="margin-top:50pt">

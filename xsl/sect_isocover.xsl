@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.14 2006/02/28 01:06:30 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.15 2009/08/18 05:50:38 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -257,7 +257,7 @@ $Id: sect_isocover.xsl,v 1.14 2006/02/28 01:06:30 thendrix Exp $
                       <xsl:with-param name="inline" select="'no'"/>
                       <xsl:with-param 
                         name="message" 
-                        select="concat('Error PD: No publication date
+                        select="concat('Warning PD: No publication date
 (@publication.date) provided for ',@name,' using @publication.year)')"/>
                     </xsl:call-template>
                     <div align="center" style="margin-top:50pt">

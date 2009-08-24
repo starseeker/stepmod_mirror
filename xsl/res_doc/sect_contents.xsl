@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
+$Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -321,8 +321,7 @@ $Id: sect_contents.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
    <!--   <xsl:apply-templates 
      select="./schema//imgfile" mode="expressg_figure"/> -->
 
-<xsl:apply-templates 
-     select="./schema//express-g" mode="expressg_figure"/>
+   <xsl:apply-templates select="./schema//express-g" mode="expressg_figure"/>
 
    <!-- collect up the figures from the remaining annexes --> 
    <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
@@ -432,9 +431,19 @@ $Id: sect_contents.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
 
    <xsl:variable name="schema_name" select="@name"/>
 
-     <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
-     <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/></A>
-     <br/>
+    <xsl:choose>
+      <xsl:when test="$doctype='aic'">
+        <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
+          <xsl:value-of select="concat($clause_no,' ','EXPRESS short listing')"/>
+        </A>
+      </xsl:when>
+      <xsl:otherwise>
+        <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
+          <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/>
+        </A>
+      </xsl:otherwise>
+    </xsl:choose>
+    <br/> 
 
    &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
            <xsl:value-of select="concat(string($clause_no),'.1 Introduction')"/>

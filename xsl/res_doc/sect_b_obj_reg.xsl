@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.5 2004/11/05 01:00:58 thendrix Exp $
+$Id: sect_b_obj_reg.xsl,v 1.6 2006/11/09 14:26:01 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,9 +40,17 @@ $Id: sect_b_obj_reg.xsl,v 1.5 2004/11/05 01:00:58 thendrix Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable
-    name="object_reg" 
-    select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
+  <xsl:variable name="object_reg">
+    <xsl:choose>
+	  <xsl:when test="@object.reg.version"> 
+	    <xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@object.reg.version,')')"/> 
+	  </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <h2>
     <a name="b1">
       B.1 Document Identification 

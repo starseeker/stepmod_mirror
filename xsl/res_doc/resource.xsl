@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.67 2008/11/14 13:45:48 darla Exp $
+$Id: resource.xsl,v 1.68 2008/12/16 15:44:32 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1313,7 +1313,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       <xsl:when test="$doctype='aic'">
 	<xsl:call-template name="clause_header">
 	  <xsl:with-param name="heading" 
-			  select="concat((number($schema_no)+3),' ','EXPRESS Short litsing')"/>
+			  select="concat((number($schema_no)+3),' ','EXPRESS short listing')"/>
 	  <xsl:with-param name="aname" select="concat('schema','$schema_no+3')"/>
 	</xsl:call-template>
       </xsl:when>

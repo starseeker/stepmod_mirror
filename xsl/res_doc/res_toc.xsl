@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.23 2006/03/14 17:50:24 thendrix Exp $
+$Id: res_toc.xsl,v 1.24 2008/08/25 20:14:26 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -59,13 +59,21 @@ $Id: res_toc.xsl,v 1.23 2006/03/14 17:50:24 thendrix Exp $
   <!--  <xsl:variable name="clauseno" select="3+position()"/> -->
   <xsl:variable name="clauseno" select="$schema_no"/>
 
-        <!-- Output a Schema clause TOC 
-NEED TO FIX up the hrefs -->
+        <!-- Output a Schema clause TOC -->
+        <xsl:choose>
+          <xsl:when test="$doctype='aic'">
+            <A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}">
+              <xsl:value-of select="concat($clauseno,' ', 'EXPRESS short listing')"/>
+            </A>
+          </xsl:when>
+          <xsl:otherwise>
+            <A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}">
+              <xsl:value-of select="concat($clauseno,' ', $resource_display_name)"/>
+            </A>
+          </xsl:otherwise>
+        </xsl:choose>
 
-        <A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}">
-          <xsl:value-of select="concat($clauseno,' ', $resource_display_name)"/>
-
-</A><BR/>
+        <BR/>
         <small>
           &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#intro">
           <xsl:value-of select="concat($clauseno,'.1 Introduction')"/>
@@ -461,10 +469,10 @@ NEED TO FIX up the hrefs -->
       <xsl:if test="$col1 &gt; 0 ">
         <br/>
         <xsl:for-each select="./schema[position() &lt;= $col1 ]">          
-        <xsl:call-template name="schema_section">
-          <xsl:with-param name="schema_no" select="position()+ 3" />
-          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
-        </xsl:call-template>
+          <xsl:call-template name="schema_section">
+            <xsl:with-param name="schema_no" select="position()+ 3" />
+            <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+          </xsl:call-template>
         </xsl:for-each>
      </xsl:if>
  

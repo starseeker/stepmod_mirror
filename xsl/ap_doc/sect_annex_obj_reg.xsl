@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_obj_reg.xsl,v 1.5 2005/05/17 19:16:44 thendrix Exp $
+$Id: sect_annex_obj_reg.xsl,v 1.6 2005/11/09 23:23:40 thendrix Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -41,16 +41,17 @@ $Id: sect_annex_obj_reg.xsl,v 1.5 2005/05/17 19:16:44 thendrix Exp $
     <xsl:variable name="module_xml" select="document(concat($ap_module_dir,'/module.xml'))"/>		
 -->
 
-<!--    <xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@iso.version,')')"/> -->
-     <xsl:variable name="object_reg">
-       <xsl:choose>
-	 <xsl:when test="@iso.version"> <xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@iso.version,')')"/>
- </xsl:when>
- <xsl:otherwise>
-<xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
- </xsl:otherwise>
-      </xsl:choose>
-     </xsl:variable>
+  <xsl:variable name="object_reg">
+    <xsl:choose>
+	  <xsl:when test="@object.reg.version"> 
+	    <xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@object.reg.version,')')"/> 
+	  </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of  select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
 <!--
     <h2>
       <a name="e1">

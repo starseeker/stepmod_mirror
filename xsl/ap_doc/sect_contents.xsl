@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.47 2008/11/14 15:17:05 darla Exp $
+$Id: sect_contents.xsl,v 1.48 2008/12/16 15:39:31 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -614,6 +614,7 @@ $Id: sect_contents.xsl,v 1.47 2008/11/14 15:17:05 darla Exp $
     <xsl:value-of select="$clause_hdr"/>
   </a>
   <br/>
+  <!-- 
   <a name="cc_arm_table">
 	<a href="6_ccs_arm_table{$FILE_EXT}">          
       Table 1 &#8212; Conformance class(es) and option(s) ARM elements
@@ -625,7 +626,7 @@ $Id: sect_contents.xsl,v 1.47 2008/11/14 15:17:05 darla Exp $
       Table 2 &#8212; Conformance class(es) and option(s) MIM elements
     </a>  
   </a>
-  <br/>
+  <br/> -->
 </xsl:template>
 
 <xsl:template match="idef0" mode="toc">

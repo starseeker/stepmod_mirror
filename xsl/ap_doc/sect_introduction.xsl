@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.21 2008/04/23 20:52:04 darla Exp $
+     $Id: sect_introduction.xsl,v 1.22 2009/05/20 15:36:20 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -187,8 +187,9 @@
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
       that is referenced in Clause 
       <a href="5_main{$FILE_EXT}">5</a>.
-      This interpretation shows the correspondence
-      between the information requirements and the MIM.  The short listing of
+      This interpretation shows the correspondence between the 
+      information requirements and the module interpreted model (MIM).  
+      The short listing of
       the MIM that specifies the interface to the integrated resources  is
       included by reference from the AP module.   The expanded listing of the
       MIM that is referenced in Annex 

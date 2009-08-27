@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.19 2008/04/15 17:38:38 darla Exp $
+$Id: sect_3_defs.xsl,v 1.21 2008/04/24 16:34:48 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -78,7 +78,8 @@ $Id: sect_3_defs.xsl,v 1.19 2008/04/15 17:38:38 darla Exp $
   </xsl:variable>
 
   <!-- output any definitions defined in this ap -->
-  <xsl:if test="./definition">
+<!-- abf this section heading needs to print regardless. There are default defs included
+  <xsl:if test="./definition"> -->
     <!-- output the section head first -->
     <xsl:call-template name="output_module_term_section">
       <xsl:with-param name="module" select="."/>
@@ -88,17 +89,18 @@ $Id: sect_3_defs.xsl,v 1.19 2008/04/15 17:38:38 darla Exp $
     For the purposes of this part of ISO 10303, -->
     For the purposes of this document, 
     the following terms and definitions apply:
-  </xsl:if>
+ <!-- abf </xsl:if> -->
 
   <!-- increment the section number depending on whether a definition
-       section has been output -->
+       section has been output 
+abf changed so that section number is incremented regardless of whether there are locally defined definitions.  default definitions are included and require a header and incremented section number -->
   <xsl:variable name="def_section1">
     <xsl:choose>
       <xsl:when test="/application_protocol/definition">
         <xsl:value-of select="$def_section+1"/>
-      </xsl:when>
+      </xsl:when> 
       <xsl:otherwise>
-        <xsl:value-of select="$def_section"/>
+        <xsl:value-of select="$def_section+1"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

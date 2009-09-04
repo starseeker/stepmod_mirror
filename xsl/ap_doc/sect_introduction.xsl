@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.22 2009/05/20 15:36:20 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.23 2009/08/27 12:50:19 abf Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -299,11 +299,11 @@
 	    <xsl:with-param name="message"
           select="'Warning APdoc Intro_note: purpose is informative, so no need for notes'"/>
       </xsl:call-template>
-          NOTE&#160;1&#160;&#160;Detailed description of the changes is provided in Annex
+          NOTE&#160;1&#160;&#160;A detailed description of the changes is provided in Annex
         </xsl:when>
         <xsl:otherwise>
-<!--          NOTE&#160;&#160;Detailed description of the changes is provided in Annex-->
-Detailed description of the changes is provided in Annex
+          <!--          NOTE&#160;&#160;A detailed description of the changes is provided in Annex-->
+A detailed description of the changes is provided in Annex
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

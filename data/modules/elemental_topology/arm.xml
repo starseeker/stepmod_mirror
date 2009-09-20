@@ -1,33 +1,120 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/18 15:56:18 robbod Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  rcs.date="$Date: 2002/02/18 15:56:18 $"
-  rcs.revision="$Revision: 1.4 $"
-  description.file="arm_descriptions.xml"
->
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.6"
-    source="../data/modules/elemental_topology/arm.exp"/>
-
-  <schema name="Elemental_topology_arm">
-    <interface
-      kind="use"
-      schema="Foundation_representation_arm">
-    </interface>
-
-    <entity
-      name="Detailed_topological_model_element"
-      abstract.supertype="YES"
-      supertypes="Representation_item">
-    </entity>
-
-  </schema>
-
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="elemental_topology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Elemental_topology_arm">
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <entity name="Closed_shell" supertypes="Connected_face_set"/>
+      <entity name="Connected_edge_set" supertypes="Detailed_topological_model_element">
+         <explicit name="connected_edges">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Edge"/>
+         </explicit>
+      </entity>
+      <entity name="Connected_face_set" super.expression="ONEOF (Closed_shell, Open_shell)" supertypes="Detailed_topological_model_element">
+         <explicit name="connected_faces">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Face"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Detailed_topological_model_element" super.expression="ONEOF (Connected_edge_set, Connected_face_set, Edge, Face, Face_bound, Vertex, (Loop ANDOR Path))" supertypes="Representation_item"/>
+      <entity name="Edge" supertypes="Detailed_topological_model_element">
+         <explicit name="edge_start">
+            <typename name="Vertex"/>
+         </explicit>
+         <explicit name="edge_end">
+            <typename name="Vertex"/>
+         </explicit>
+      </entity>
+      <entity name="Edge_loop" supertypes="Loop Path">
+         <derived expression="SIZEOF(SELF\Path.edge_list)" name="ne">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <where expression="(SELF\Path.edge_list[1].edge_start) :=:&#xA;       (SELF\Path.edge_list[ne].edge_end)" label="WR1"/>
+      </entity>
+      <entity name="Face" supertypes="Detailed_topological_model_element">
+         <explicit name="bounds">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Face_bound"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(temp &lt;* bounds | 'ELEMENTAL_TOPOLOGY_ARM.FACE_OUTER_BOUND' IN&#xA;                                               TYPEOF(temp))) &lt;= 1" label="WR1"/>
+      </entity>
+      <entity name="Face_bound" supertypes="Detailed_topological_model_element">
+         <explicit name="bound">
+            <typename name="Loop"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Face_outer_bound" supertypes="Face_bound"/>
+      <entity name="Loop" super.expression="ONEOF (Vertex_loop, Edge_loop)" supertypes="Detailed_topological_model_element"/>
+      <entity name="Open_shell" supertypes="Connected_face_set"/>
+      <entity name="Oriented_edge" supertypes="Edge">
+         <explicit name="edge_definition">
+            <typename name="Edge"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF/edge.edge_start,&#xA;                                            SELF/edge.edge_end)" name="edge_start">
+            <typename name="Vertex"/>
+            <redeclaration entity-ref="Edge"/>
+         </derived>
+         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF/edge.edge_end,&#xA;                                            SELF/edge.edge_start)" name="edge_end">
+            <typename name="Vertex"/>
+            <redeclaration entity-ref="Edge"/>
+         </derived>
+         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (SELF.edge_definition))" label="WR1"/>
+      </entity>
+      <entity name="Path" supertypes="Detailed_topological_model_element">
+         <explicit name="edge_list">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="Oriented_edge"/>
+         </explicit>
+         <where expression="path_aligned(SELF)" label="WR1"/>
+      </entity>
+      <entity name="Vertex" supertypes="Detailed_topological_model_element"/>
+      <entity name="Vertex_loop" supertypes="Loop">
+         <explicit name="loop_vertex">
+            <typename name="Vertex"/>
+         </explicit>
+      </entity>
+      <function name="boolean_choice">
+         <parameter name="b">
+            <builtintype type="BOOLEAN"/>
+         </parameter>
+         <parameter name="choice1">
+            <builtintype type="GENERIC" typelabel="item"/>
+         </parameter>
+         <parameter name="choice2">
+            <builtintype type="GENERIC" typelabel="item"/>
+         </parameter>
+         <builtintype type="GENERIC" typelabel="item"/>
+         <algorithm>IF b THEN
+       RETURN (choice1);
+     ELSE
+       RETURN (choice2);
+     END_IF;</algorithm>
+      </function>
+      <function name="path_aligned">
+         <parameter name="a_path">
+            <typename name="Path"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+     n : INTEGER;
+     p : LOGICAL := TRUE;
+   END_LOCAL;
+     
+     n := SIZEOF (a_path.edge_list);
+     REPEAT i := 2 TO n;
+       p := p AND (a_path.edge_list[i-1].edge_end :=:
+                   a_path.edge_list[i].edge_start);
+     END_REPEAT;
+     
+     RETURN (p);</algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,8 +1,9 @@
 (*
-$Id: arm.exp,v 1.2 2005/06/01 21:11:59 thendrix Exp $
-ISO TC184/SC4/WG12 N6561 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N674
+$Id: arm.exp,v 1.3 2009/04/30 08:38:56 liutkuviene Exp $
+ISO TC184/SC4/WG12 N6xxx - ISO/TS 10303-1005 Elemental topology version 2 - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N6561
 *)
+(* Last update -  24 Aug 2009 *)
    
 SCHEMA Elemental_topology_arm;
 
@@ -10,12 +11,127 @@ SCHEMA Elemental_topology_arm;
 USE FROM Foundation_representation_arm;
 
    
+ENTITY Connected_edge_set
+  SUBTYPE OF (Detailed_topological_model_element);
+  connected_edges : SET [1:?] OF Edge;
+END_ENTITY;
+
+ENTITY Connected_face_set
+  SUPERTYPE OF (ONEOF (Closed_shell, Open_shell))
+  SUBTYPE OF (Detailed_topological_model_element);
+  connected_faces : SET [1:?] OF Face;
+END_ENTITY;
+
+
+ENTITY Closed_shell 
+  SUBTYPE OF (Connected_face_set);
+END_ENTITY;
+ 
+ENTITY Open_shell
+  SUBTYPE OF (Connected_face_set);
+END_ENTITY;
+ 
 ENTITY Detailed_topological_model_element
-  ABSTRACT SUPERTYPE
+  ABSTRACT SUPERTYPE OF (ONEOF(Connected_edge_set, Connected_face_set,
+      Edge, Face, Face_bound, Vertex, (Loop ANDOR Path)))
   SUBTYPE OF (Representation_item);
 END_ENTITY;
 
-   
+ENTITY Edge
+  SUBTYPE OF (Detailed_topological_model_element);
+  edge_start : Vertex;
+  edge_end   : Vertex;
+END_ENTITY;
+
+ENTITY Edge_loop
+  SUBTYPE OF (Loop,Path);
+DERIVE
+  ne : INTEGER := SIZEOF(SELF\Path.edge_list);
+WHERE
+  WR1: (SELF\Path.edge_list[1].edge_start) :=:
+       (SELF\Path.edge_list[ne].edge_end);
+END_ENTITY;
+
+ENTITY Face
+  SUBTYPE OF (Detailed_topological_model_element);
+  bounds : SET[1:?] OF face_bound;
+WHERE
+  WR1: SIZEOF(QUERY(temp <* bounds | 'ELEMENTAL_TOPOLOGY_ARM.FACE_OUTER_BOUND' IN
+                                               TYPEOF(temp))) <= 1;
+END_ENTITY;
+
+ ENTITY Face_bound
+  SUBTYPE OF(Detailed_topological_model_element);
+  bound       :  Loop;
+  orientation :  BOOLEAN;
+END_ENTITY;
+
+ENTITY Face_outer_bound
+  SUBTYPE OF (Face_bound);
+END_ENTITY;
+
+ENTITY Loop
+  SUPERTYPE OF (ONEOF(Vertex_loop, Edge_loop))
+  SUBTYPE OF (Detailed_topological_model_element);
+END_ENTITY;
+
+ENTITY Oriented_edge
+  SUBTYPE OF (Edge);
+  edge_definition : Edge;
+  orientation  : BOOLEAN;
+DERIVE
+   SELF\Edge.edge_start : Vertex := boolean_choice (SELF.orientation,
+                                            SELF/edge.edge_start,
+                                            SELF/edge.edge_end);
+   SELF\Edge.edge_end   : Vertex := boolean_choice (SELF.orientation,
+                                            SELF/edge.edge_end,
+                                            SELF/edge.edge_start);
+WHERE
+  WR1: NOT ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (SELF.edge_definition));
+END_ENTITY;
+
+ENTITY Path
+  SUBTYPE OF (Detailed_topological_model_element);
+  edge_list  : LIST [1:?] OF UNIQUE Oriented_edge;
+WHERE
+  WR1: path_aligned(SELF);
+END_ENTITY;
+
+ENTITY Vertex
+  SUBTYPE OF (Detailed_topological_model_element);
+END_ENTITY;
+
+ENTITY Vertex_loop
+  SUBTYPE OF (Loop);
+  loop_vertex : vertex;
+END_ENTITY;
+
+
+FUNCTION boolean_choice (b : boolean;
+            choice1, choice2 : generic : item)  : generic : item;
+ 
+     IF b THEN
+       RETURN (choice1);
+     ELSE
+       RETURN (choice2);
+     END_IF;
+   END_FUNCTION;
+
+FUNCTION path_aligned(a_path : Path) : LOGICAL;
+   LOCAL
+     n : INTEGER;
+     p : LOGICAL := TRUE;
+   END_LOCAL;
+     
+     n := SIZEOF (a_path.edge_list);
+     REPEAT i := 2 TO n;
+       p := p AND (a_path.edge_list[i-1].edge_end :=:
+                   a_path.edge_list[i].edge_start);
+     END_REPEAT;
+     
+     RETURN (p);
+ END_FUNCTION;
+
 END_SCHEMA;
 
-(* Last update -  15 Aug 2001 *)
+

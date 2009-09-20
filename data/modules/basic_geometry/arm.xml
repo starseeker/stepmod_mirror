@@ -1,17 +1,90 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="basic_geometry_arm schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="basic_geometry_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Basic_geometry_arm">
       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
       <type name="point_select">
          <select extensible="YES" genericentity="YES" selectitems="Cartesian_point Point_on_curve Point_on_surface"/>
       </type>
-      <entity name="Curve" supertypes="Detailed_geometric_model_element"/>
-      <entity name="Line" supertypes="Curve"/>
-      <entity name="Plane" supertypes="Surface"/>
+      <entity name="Circle" supertypes="Conic">
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="radius &gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="Conic" super.expression="ONEOF (Circle, Ellipse, Hyperbola, Parabola)" supertypes="Curve">
+         <explicit name="position">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Conical_surface" supertypes="Surface">
+         <explicit name="position">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="semi_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="radius &gt;= 0.0" label="WR1"/>
+      </entity>
+      <entity name="Curve" super.expression="ONEOF (Conic, Line)" supertypes="Detailed_geometric_model_element"/>
+      <entity name="Cylindrical_surface" supertypes="Surface">
+         <explicit name="position">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="radius &gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="Ellipse" supertypes="Conic">
+         <explicit name="first_semi_axis">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="second_semi_axis">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="first_semi_axis &gt; 0.0" label="WR1"/>
+         <where expression="first_semi_axis &gt; 0.0" label="WR2"/>
+      </entity>
+      <entity name="Extruded_surface" supertypes="Swept_surface">
+         <explicit name="extrusion_axis">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity name="Hyperbola" supertypes="Conic">
+         <explicit name="semi_axis">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="imaginary_semi_axis">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="semi_axis &gt; 0.0" label="WR1"/>
+         <where expression="imaginary_semi_axis &gt; 0.0" label="WR2"/>
+      </entity>
+      <entity name="Line" supertypes="Curve">
+         <explicit name="point">
+            <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="line_direction">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity name="Parabola" supertypes="Conic">
+         <explicit name="focal_distance">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="focal_distance &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="Plane" supertypes="Surface">
+         <explicit name="position">
+            <typename name="Axis_placement_3d"/>
+         </explicit>
+      </entity>
       <entity name="Point_on_curve" supertypes="Detailed_geometric_model_element">
          <explicit name="supporting_curve">
             <typename name="Curve"/>
@@ -22,7 +95,42 @@
             <typename name="Surface"/>
          </explicit>
       </entity>
-      <entity name="Surface" supertypes="Detailed_geometric_model_element"/>
-      <subtype.constraint name="alternate_geometry_items" entity="Detailed_geometric_model_element" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Point_on_curve, Point_on_surface, Surface)"/>
+      <entity name="Spherical_surface" supertypes="Surface">
+         <explicit name="position">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="radius &gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="Surface" super.expression="ONEOF (Conical_surface, Cylindrical_surface, Plane, Spherical_surface, Swept_surface, Toroidal_surface)" supertypes="Detailed_geometric_model_element"/>
+      <entity name="Surface_of_revolution" supertypes="Swept_surface">
+         <explicit name="axis_direction">
+            <typename name="Direction"/>
+         </explicit>
+         <explicit name="axis_point">
+            <typename name="Cartesian_point"/>
+         </explicit>
+      </entity>
+      <entity name="Swept_surface" super.expression="ONEOF (Extruded_surface, Surface_of_revolution)" supertypes="Surface">
+         <explicit name="swept_curve">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Toroidal_surface" supertypes="Surface">
+         <explicit name="position">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="minor_radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="radius &gt; 0.0" label="WR1"/>
+         <where expression="minor_radius &gt; 0.0" label="WR2"/>
+      </entity>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="alternate_geometry_items" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Point_on_curve, Point_on_surface, Surface)"/>
    </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
-$Id: product_property_representation_schema.exp,v 1.6 2008/04/15 21:40:17 darla Exp $
+$Id: product_property_representation_schema.exp,v 1.7 2008/04/21 20:39:42 darla Exp $
 
 2008-02-07
 ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
@@ -41,8 +41,96 @@ SCHEMA product_property_representation_schema;
     used_representation : representation;
     identified_item : representation_item;
   WHERE
-    WR1: SELF.used_representation IN using_representations(SELF.identified_item);
+    WR1: SELF\item_identified_representation_usage.used_representation IN using_representations(SELF\item_identified_representation_usage.identified_item);
   END_ENTITY;
+
+ENTITY item_identified_representation_usage_with_path
+     SUBTYPE OF (item_identified_representation_usage);
+           nodes : LIST [2:?] OF UNIQUE representation;
+            path : LIST [1:?] OF UNIQUE chained_representation_arc;
+     DERIVE
+            root : representation := nodes[1];
+    SELF\item_identified_representation_usage.used_representation RENAMED leaf : representation := nodes[HIINDEX(nodes)];
+   directed_path : LIST [1:?] OF representation_relationship := get_directed_path(nodes, path);
+         rep_rel : LIST [0:?] OF representation_relationship := QUERY(rr <* path | 'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(rr));
+              mi : LIST [0:?] OF mapped_item := QUERY(mi <* path | 'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(mi));
+              rc : LIST [0:?] OF representation_context := QUERY(rc <* path | 'REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(rc)); 
+    WHERE
+      WR1 : root :=: directed_path[1]\representation_relationship.rep_1;
+      WR2 : leaf :=: directed_path[HIINDEX(path)]\representation_relationship.rep_2;
+      WR3 : SIZEOF(nodes) :=: SIZEOF(path) + 1;
+      WR5: (SIZEOF(QUERY(path_element <* directed_path |(root :=: path_element\representation_relationship.rep_1))) +
+            SIZEOF(QUERY(path_element <* directed_path |(root :=: path_element\representation_relationship.rep_2)))) = 1;
+      WR6: (SIZEOF(QUERY(path_element <* directed_path |(leaf :=: path_element\representation_relationship.rep_1))) +
+            SIZEOF(QUERY(path_element <* directed_path |(leaf :=: path_element\representation_relationship.rep_2)))) = 1;
+      WR7: (SIZEOF(QUERY(path_element <* directed_path |(root :<>: path_element\representation_relationship.rep_1))) +
+            SIZEOF(QUERY(path_element <* directed_path |(root :<>: path_element\representation_relationship.rep_2))) + 
+            SIZEOF(QUERY(path_element <* directed_path |(leaf :<>: path_element\representation_relationship.rep_1))) +
+            SIZEOF(QUERY(path_element <* directed_path |(leaf :<>: path_element\representation_relationship.rep_2)))) = 2;
+      WR8: NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(path[1])) OR
+            (root IN using_representations(path[1]));
+      WR9: SIZEOF(QUERY(pt <* path | NOT
+        (NOT(pt IN rep_rel) OR ((pt\representation_relationship.rep_1 IN nodes) AND
+          (pt\representation_relationship.rep_2 IN nodes))))) = 0;
+      WR10 : SIZEOF(QUERY(pt <* path | NOT
+        (NOT(pt IN mi) OR (pt\mapped_item.mapping_source\representation_map.mapped_representation IN nodes)))) = 0;
+      WR11 : SIZEOF(QUERY(pt <* path | NOT
+        (NOT(pt IN rc) OR 
+          (SIZEOF(QUERY(temp <* nodes | 
+            (temp\representation.context_of_items :=: pt))) = 2)
+        ))) = 0;
+      WR12 : SIZEOF(path) = SIZEOF(directed_path);
+END_ENTITY;
+ 
+TYPE chained_representation_arc = SELECT (mapped_item, representation_context, representation_relationship);
+END_TYPE;
+
+FUNCTION get_directed_path ( nodes : LIST OF representation;
+                            path  : LIST OF chained_representation_arc) : LIST OF representation_relationship;
+LOCAL
+ directed_path : LIST OF representation_relationship := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(path);
+ CASE TRUE OF
+  ('REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(path[i])) :
+  BEGIN
+   IF ((nodes[i]\representation.context_of_items   :=: path[i]) AND 
+       (nodes[i+1]\representation.context_of_items :=: path[i])) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(path[i])) :
+  BEGIN
+   IF (((nodes[i]   :=: path[i]\representation_relationship.rep_1) AND
+        (nodes[i+1] :=: path[i]\representation_relationship.rep_2)) OR
+       ((nodes[i]   :=: path[i]\representation_relationship.rep_2) AND
+        (nodes[i+1] :=: path[i]\representation_relationship.rep_1))) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(path[i])) :
+  BEGIN
+   IF ((nodes[i] IN using_representations(path[i])) AND 
+       (nodes[i+1] :=: path[i]\mapped_item.mapping_source\representation_map.mapped_representation)) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  OTHERWISE : RETURN(?);
+ END_CASE;
+END_REPEAT;
+RETURN(directed_path);
+END_FUNCTION;
+
 
   ENTITY property_definition_representation;
     definition : represented_definition;

@@ -1,125 +1,238 @@
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 10303-41" description.file="descriptions.xml">
-	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="product_property_representation_schema_v008.vsd"/>
-	<schema name="product_property_representation_schema">
-		<interface kind="reference" schema="basic_attribute_schema">
-			<interfaced.item name="description_attribute"/>
-			<interfaced.item name="get_description_value"/>
-			<interfaced.item name="get_name_value"/>
-			<interfaced.item name="name_attribute"/>
-		</interface>
-		<interface kind="reference" schema="material_property_definition_schema">
-			<interfaced.item name="property_definition_relationship"/>
-		</interface>
-		<interface kind="reference" schema="product_definition_schema">
-			<interfaced.item name="product_definition"/>
-			<interfaced.item name="product_definition_relationship"/>
-		</interface>
-		<interface kind="reference" schema="product_property_definition_schema">
-			<interfaced.item name="characterized_definition"/>
-			<interfaced.item name="general_property"/>
-			<interfaced.item name="product_definition_shape"/>
-			<interfaced.item name="property_definition"/>
-			<interfaced.item name="shape_aspect"/>
-			<interfaced.item name="shape_aspect_relationship"/>
-		</interface>
-		<interface kind="reference" schema="representation_schema">
-			<interfaced.item name="representation"/>
-			<interfaced.item name="representation_item"/>
-			<interfaced.item name="representation_relationship"/>
-			<interfaced.item name="using_representations"/>
-		</interface>
-		<interface kind="reference" schema="support_resource_schema">
-			<interfaced.item name="bag_to_set"/>
-			<interfaced.item name="label"/>
-			<interfaced.item name="text"/>
-		</interface>
-		<type name="represented_definition">
-			<select selectitems="general_property property_definition property_definition_relationship shape_aspect shape_aspect_relationship"/>
-			<graphic.element page="2" xcoord="312" ycoord="333"/>
-		</type>
-		<entity name="context_dependent_shape_representation">
-			<explicit name="representation_relation">
-				<typename name="shape_representation_relationship"/>
-			</explicit>
-			<explicit name="represented_product_relation">
-				<typename name="product_definition_shape"/>
-			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<derived name="name" expression="get_name_value (SELF)">
-				<typename name="label"/>
-			</derived>
-			<where label="WR1" expression="'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF (SELF.represented_product_relation.definition)"/>
-			<where label="WR2" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-			<where label="WR3" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1"/>
-			<graphic.element page="9" xcoord="155" ycoord="134"/>
-		</entity>
-		<entity name="item_identified_representation_usage">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<explicit name="definition">
-				<typename name="represented_definition"/>
-			</explicit>
-			<explicit name="used_representation">
-				<typename name="representation"/>
-			</explicit>
-			<explicit name="identified_item">
-				<typename name="representation_item"/>
-			</explicit>
-			<where label="WR1" expression="SELF.used_representation IN using_representations(SELF.identified_item)"/>
-			<graphic.element page="9" xcoord="155" ycoord="432"/>
-		</entity>
-		<entity name="property_definition_representation">
-			<explicit name="definition">
-				<typename name="represented_definition"/>
-			</explicit>
-			<explicit name="used_representation">
-				<typename name="representation"/>
-			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<derived name="name" expression="get_name_value (SELF)">
-				<typename name="label"/>
-			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-			<where label="WR2" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1"/>
-			<graphic.element page="2" xcoord="312" ycoord="397"/>
-		</entity>
-		<entity name="shape_definition_representation" supertypes="property_definition_representation">
-			<where label="WR1" expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (SELF.definition)) OR ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN TYPEOF (SELF.definition.definition))"/>
-			<where label="WR2" expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(SELF.used_representation)"/>
-			<graphic.element page="2" xcoord="503" ycoord="397"/>
-		</entity>
-		<entity name="shape_representation" supertypes="representation">
-			<graphic.element page="2" xcoord="503" ycoord="467"/>
-		</entity>
-		<entity name="shape_representation_relationship" supertypes="representation_relationship">
-			<where label="WR1" expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))"/>
-			<graphic.element page="9" xcoord="155" ycoord="205"/>
-		</entity>
-		<function name="relatives_of_product_definitions">
-			<parameter name="definition_set">
-				<aggregate type="SET"/>
-				<typename name="product_definition"/>
-			</parameter>
-			<parameter name="relation_subtype">
-				<builtintype type="STRING"/>
-			</parameter>
-			<aggregate type="SET"/>
-			<typename name="product_definition"/>
-			<algorithm>
-FUNCTION local_relatives_of_product_definitions (definition_set : SET OF product_definition; total_definitions : SET OF product_definition; relation_subtype : STRING):SET OF product_definition;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="product_property_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="product_property_representation_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="description_attribute"/>
+         <interfaced.item name="get_description_value"/>
+         <interfaced.item name="get_name_value"/>
+         <interfaced.item name="name_attribute"/>
+      </interface>
+      <interface kind="reference" schema="material_property_definition_schema">
+         <interfaced.item name="property_definition_relationship"/>
+      </interface>
+      <interface kind="reference" schema="product_definition_schema">
+         <interfaced.item name="product_definition"/>
+         <interfaced.item name="product_definition_relationship"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_definition"/>
+         <interfaced.item name="general_property"/>
+         <interfaced.item name="product_definition_shape"/>
+         <interfaced.item name="property_definition"/>
+         <interfaced.item name="shape_aspect"/>
+         <interfaced.item name="shape_aspect_relationship"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="using_representations"/>
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation_context"/>
+         <interfaced.item name="representation_map"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <type name="chained_representation_arc">
+         <select selectitems="mapped_item representation_context representation_relationship"/>
+      </type>
+      <type name="represented_definition">
+         <select selectitems="general_property property_definition property_definition_relationship shape_aspect shape_aspect_relationship"/>
+      </type>
+      <entity name="context_dependent_shape_representation">
+         <explicit name="representation_relation">
+            <typename name="shape_representation_relationship"/>
+         </explicit>
+         <explicit name="represented_product_relation">
+            <typename name="product_definition_shape"/>
+         </explicit>
+         <derived expression="get_description_value(SELF)" name="description">
+            <typename name="text"/>
+         </derived>
+         <derived expression="get_name_value(SELF)" name="name">
+            <typename name="label"/>
+         </derived>
+         <where expression="'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF.represented_product_relation.definition)" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR2"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1" label="WR3"/>
+      </entity>
+      <entity name="item_identified_representation_usage">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="represented_definition"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="representation"/>
+         </explicit>
+         <explicit name="identified_item">
+            <typename name="representation_item"/>
+         </explicit>
+         <where expression="SELF\item_identified_representation_usage.used_representation IN using_representations(SELF\item_identified_representation_usage.identified_item)" label="WR1"/>
+      </entity>
+      <entity name="item_identified_representation_usage_with_path" supertypes="item_identified_representation_usage">
+         <explicit name="nodes">
+            <aggregate lower="2" type="LIST" unique="YES" upper="?"/>
+            <typename name="representation"/>
+         </explicit>
+         <explicit name="path">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="chained_representation_arc"/>
+         </explicit>
+         <derived expression="nodes[1]" name="root">
+            <typename name="representation"/>
+         </derived>
+         <derived expression="nodes[HIINDEX(nodes)]" name="leaf">
+            <typename name="representation"/>
+            <redeclaration entity-ref="item_identified_representation_usage" old_name="used_representation"/>
+         </derived>
+         <derived expression="get_directed_path(nodes, path)" name="directed_path">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="representation_relationship"/>
+         </derived>
+         <derived expression="QUERY(rr &lt;* path | 'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(rr))" name="rep_rel">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="representation_relationship"/>
+         </derived>
+         <derived expression="QUERY(mi &lt;* path | 'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(mi))" name="mi">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="mapped_item"/>
+         </derived>
+         <derived expression="QUERY(rc &lt;* path | 'REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(rc))" name="rc">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="representation_context"/>
+         </derived>
+         <where expression="root :=: directed_path[1]\representation_relationship.rep_1" label="WR1"/>
+         <where expression="leaf :=: directed_path[HIINDEX(path)]\representation_relationship.rep_2" label="WR2"/>
+         <where expression="SIZEOF(nodes) :=: SIZEOF(path) + 1" label="WR3"/>
+         <where expression="(SIZEOF(QUERY(path_element &lt;* directed_path |(root :=: path_element\representation_relationship.rep_1))) +&#xA;            SIZEOF(QUERY(path_element &lt;* directed_path |(root :=: path_element\representation_relationship.rep_2)))) = 1" label="WR5"/>
+         <where expression="(SIZEOF(QUERY(path_element &lt;* directed_path |(leaf :=: path_element\representation_relationship.rep_1))) +&#xA;            SIZEOF(QUERY(path_element &lt;* directed_path |(leaf :=: path_element\representation_relationship.rep_2)))) = 1" label="WR6"/>
+         <where expression="(SIZEOF(QUERY(path_element &lt;* directed_path |(root :&lt;&gt;: path_element\representation_relationship.rep_1))) +&#xA;            SIZEOF(QUERY(path_element &lt;* directed_path |(root :&lt;&gt;: path_element\representation_relationship.rep_2))) + &#xA;            SIZEOF(QUERY(path_element &lt;* directed_path |(leaf :&lt;&gt;: path_element\representation_relationship.rep_1))) +&#xA;            SIZEOF(QUERY(path_element &lt;* directed_path |(leaf :&lt;&gt;: path_element\representation_relationship.rep_2)))) = 2" label="WR7"/>
+         <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(path[1])) OR&#xA;            (root IN using_representations(path[1]))" label="WR8"/>
+         <where expression="SIZEOF(QUERY(pt &lt;* path | NOT&#xA;        (NOT(pt IN rep_rel) OR ((pt\representation_relationship.rep_1 IN nodes) AND&#xA;          (pt\representation_relationship.rep_2 IN nodes))))) = 0" label="WR9"/>
+         <where expression="SIZEOF(QUERY(pt &lt;* path | NOT&#xA;        (NOT(pt IN mi) OR (pt\mapped_item.mapping_source\representation_map.mapped_representation IN nodes)))) = 0" label="WR10"/>
+         <where expression="SIZEOF(QUERY(pt &lt;* path | NOT&#xA;        (NOT(pt IN rc) OR &#xA;          (SIZEOF(QUERY(temp &lt;* nodes | &#xA;            (temp\representation.context_of_items :=: pt))) = 2)&#xA;        ))) = 0" label="WR11"/>
+         <where expression="SIZEOF(path) = SIZEOF(directed_path)" label="WR12"/>
+      </entity>
+      <entity name="property_definition_representation">
+         <explicit name="definition">
+            <typename name="represented_definition"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="representation"/>
+         </explicit>
+         <derived expression="get_description_value(SELF)" name="description">
+            <typename name="text"/>
+         </derived>
+         <derived expression="get_name_value(SELF)" name="name">
+            <typename name="label"/>
+         </derived>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1" label="WR2"/>
+      </entity>
+      <entity name="shape_definition_representation" supertypes="property_definition_representation">
+         <where expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF.definition)) OR ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN TYPEOF(SELF.definition.definition))" label="WR1"/>
+         <where expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(SELF.used_representation)" label="WR2"/>
+      </entity>
+      <entity name="shape_representation" supertypes="representation"/>
+      <entity name="shape_representation_relationship" supertypes="representation_relationship">
+         <where expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))" label="WR1"/>
+      </entity>
+      <function name="get_directed_path">
+         <parameter name="nodes">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="representation"/>
+         </parameter>
+         <parameter name="path">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="chained_representation_arc"/>
+         </parameter>
+         <aggregate lower="0" type="LIST" upper="?"/>
+         <typename name="representation_relationship"/>
+         <algorithm>LOCAL
+ directed_path : LIST OF representation_relationship := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(path);
+ CASE TRUE OF
+  ('REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(path[i])) :
+  BEGIN
+   IF ((nodes[i]\representation.context_of_items   :=: path[i]) AND 
+       (nodes[i+1]\representation.context_of_items :=: path[i])) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(path[i])) :
+  BEGIN
+   IF (((nodes[i]   :=: path[i]\representation_relationship.rep_1) AND
+        (nodes[i+1] :=: path[i]\representation_relationship.rep_2)) OR
+       ((nodes[i]   :=: path[i]\representation_relationship.rep_2) AND
+        (nodes[i+1] :=: path[i]\representation_relationship.rep_1))) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(path[i])) :
+  BEGIN
+   IF ((nodes[i] IN using_representations(path[i])) AND 
+       (nodes[i+1] :=: path[i]\mapped_item.mapping_source\representation_map.mapped_representation)) THEN
+     directed_path[i] := representation_relationship('','',nodes[i],nodes[i+1]);
+   ELSE
+     RETURN(?); 
+   END_IF;
+  END;
+
+  OTHERWISE : RETURN(?);
+ END_CASE;
+END_REPEAT;
+RETURN(directed_path);</algorithm>
+      </function>
+      <function name="get_property_definition_representations">
+         <parameter name="c_def_instance">
+            <typename name="characterized_definition"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="property_definition_representation"/>
+         <algorithm>LOCAL
+      pd_set : SET OF property_definition := [];
+      pdr_set : SET OF property_definition_representation := [];
+    END_LOCAL;
+
+    pd_set := bag_to_set(USEDIN(c_def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+    IF (SIZEOF(pd_set) &lt; 1) THEN
+      RETURN (pdr_set);
+    END_IF;
+    REPEAT i := 1 TO HIINDEX(pd_set);
+      pdr_set := pdr_set + bag_to_set(USEDIN(pd_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+    END_REPEAT;
+    RETURN (pdr_set);</algorithm>
+      </function>
+      <function name="relatives_of_product_definitions">
+         <parameter name="definition_set">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="product_definition"/>
+         </parameter>
+         <parameter name="relation_subtype">
+            <builtintype type="STRING"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="product_definition"/>
+         <algorithm>FUNCTION local_relatives_of_product_definitions (definition_set : SET OF product_definition; total_definitions : SET OF product_definition; relation_subtype : STRING):SET OF product_definition;
       LOCAL
         local_def : SET OF product_definition := [];
         local_pdr : SET OF product_definition_relationship := [];
@@ -140,18 +253,16 @@ FUNCTION local_relatives_of_product_definitions (definition_set : SET OF product
       END_IF;
     END_FUNCTION;
 
-    RETURN (local_relatives_of_product_definitions(definition_set, definition_set, relation_subtype));
-			</algorithm>
-		</function>
-		<function name="relatives_of_shape_representations">
-			<parameter name="shape_representation_set">
-				<aggregate type="SET"/>
-				<typename name="shape_representation"/>
-			</parameter>
-			<aggregate type="SET"/>
-			<typename name="shape_representation"/>
-			<algorithm>
- FUNCTION local_relatives_of_shape_representations (shape_representation_set : SET OF shape_representation; total_reps : SET OF shape_representation):SET OF shape_representation;
+    RETURN (local_relatives_of_product_definitions(definition_set, definition_set, relation_subtype));</algorithm>
+      </function>
+      <function name="relatives_of_shape_representations">
+         <parameter name="shape_representation_set">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="shape_representation"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="shape_representation"/>
+         <algorithm>FUNCTION local_relatives_of_shape_representations (shape_representation_set : SET OF shape_representation; total_reps : SET OF shape_representation):SET OF shape_representation;
       LOCAL
         local_shape_rep : SET OF shape_representation := [];
         local_srr : SET OF shape_representation_relationship := [];
@@ -174,31 +285,7 @@ FUNCTION local_relatives_of_product_definitions (definition_set : SET OF product
       END_IF;
     END_FUNCTION;
 
-    RETURN (local_relatives_of_shape_representations(shape_representation_set, shape_representation_set));      
-			</algorithm>
-		</function>
-		<function name="get_property_definition_representations">
-			<parameter name="c_def_instance">
-				<typename name="characterized_definition"/>
-			</parameter>
-			<aggregate type="SET"/>
-			<typename name="property_definition_representation"/>
-			<algorithm>
-LOCAL
-      pd_set : SET OF property_definition := [];
-      pdr_set : SET OF property_definition_representation := [];
-    END_LOCAL;
-
-    pd_set := bag_to_set(USEDIN(c_def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
-    IF (SIZEOF(pd_set) &lt; 1) THEN
-      RETURN (pdr_set);
-    END_IF;
-    REPEAT i := 1 TO HIINDEX(pd_set);
-      pdr_set := pdr_set + bag_to_set(USEDIN(pd_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
-    END_REPEAT;
-    RETURN (pdr_set);
-		      </algorithm>
-		</function>
-		<graphic.element page="1" xcoord="284" ycoord="220"/>
-	</schema>
+    RETURN (local_relatives_of_shape_representations(shape_representation_set, shape_representation_set));</algorithm>
+      </function>
+   </schema>
 </express>

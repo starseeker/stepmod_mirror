@@ -1,0 +1,112 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- product_data_quality_criteria - EXPRESS ARM
+   Draft by H. Hiraoka 09-09-30
+   Modified by F. Tanaka 09-10-03
+*)
+
+SCHEMA Product_data_quality_criteria_arm;
+
+  USE FROM Foundation_representation_arm;
+
+  USE FROM Product_data_quality_inspection_result_arm;
+
+  REFERENCE FROM Characterizable_object_arm
+    (bag_to_set);
+
+  TYPE detailed_report_type = ENUMERATION OF
+    (MEASURED_ELEMENT,
+     INFERIOR_QUALITY_ELEMENT);
+  END_TYPE;
+
+  TYPE summary_report_type = ENUMERATION OF
+    (UNSPECIFIED,
+     CONCLUSION_ONLY,
+     NUMBER_OF_QUALITY_DEFECTS,
+     NUMBER_OF_INSPECTIONS_AND_CONCLUSION,
+     FULL_STATISTICS);
+  END_TYPE;
+
+  TYPE preferred_ordering = ENUMERATION OF
+    (EXTREMITY_ORDER,
+     DETECTED_ORDER);
+  END_TYPE;
+
+  ENTITY Data_quality_criteria_representation
+    SUBTYPE OF(Representation);
+    WHERE
+      WR1 :  SIZEOF( QUERY( q <* SELF\representation.items|
+                                'PRODUCT_DATA_QUALITY_CRITERIA_ARM.' +
+                                'DATA_QUALITY_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY Data_quality_criterion
+    SUBTYPE OF(Representation_item);
+    WHERE
+      WR1 : SIZEOF(QUERY(q <*
+              bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+               'DATA_QUALITY_INSPECTION_RESULT_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_measurement_requirement
+    SUBTYPE OF(Representation_item);
+    WHERE
+      WR1 : SIZEOF(QUERY(q <*
+              bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+               'DATA_QUALITY_INSPECTION_RESULT_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_criterion_measurement_association;
+      relating_representation_item : Data_quality_criterion;
+      related_representation_item  : Data_quality_measurement_requirement;
+  END_ENTITY;
+
+  ENTITY Data_quality_assessment_specification;
+      description : STRING;
+  END_ENTITY;
+
+  ENTITY Data_quality_criterion_assessment_association;
+      criterion                : Data_quality_criterion;
+      assessment_specification : Data_quality_assessment_specification;
+  END_ENTITY;
+
+  ENTITY Data_quality_assessment_measurement_association;
+      assessment_specification : Data_quality_criterion_assessment_association;
+      measurement_requirement  : Data_quality_criterion_measurement_association;
+    WHERE
+      WR1 : SELF.measurement_requirement.relating_representation_item :=:
+            SELF.assessment_specification.criterion;
+  END_ENTITY;
+
+  ENTITY Data_quality_report_request
+    ABSTRACT SUPERTYPE OF (ONEOF(summary_report_request, detailed_report_request));
+      description                 : STRING;
+      criterion_of_report_request : Data_quality_criterion;
+  END_ENTITY;
+
+  ENTITY Summary_report_request
+    SUBTYPE OF(data_quality_report_request);
+      summary_report_request_type : summary_report_type;
+  END_ENTITY;
+
+  ENTITY Detailed_report_request
+    SUBTYPE OF(data_quality_report_request);
+      detailed_report_request_type : detailed_report_type;
+      report_sequence              : preferred_ordering;
+  END_ENTITY;
+
+  ENTITY Detailed_report_request_with_number_of_data
+    SUBTYPE OF(detailed_report_request);
+      number_of_data : INTEGER;
+    WHERE
+      WR1 : SELF\detailed_report_request.detailed_report_request_type
+            <> INFERIOR_QUALITY_ELEMENT;
+  END_ENTITY;
+
+END_SCHEMA;

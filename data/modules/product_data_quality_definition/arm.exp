@@ -1,0 +1,62 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- product_data_quality_definition - EXPRESS ARM
+   Draft by H. Hiraoka 09-09-30
+   Modified by F. Tanaka 09-10-03
+*)
+
+SCHEMA Product_data_quality_definition_arm;
+
+  USE FROM Product_data_quality_criteria_arm;
+
+  USE FROM Product_data_quality_inspection_result_arm;
+
+  USE FROM Product_view_definition_arm;
+
+  USE FROM Date_time_assignment_arm;
+
+  USE FROM Person_organization_assignment_arm;
+
+  TYPE used_quality_representation_select = SELECT
+    (Data_quality_criteria_representation,
+     Data_quality_inspection_result_representation);
+  END_TYPE;
+
+  TYPE pdq_date_or_date_time_item = SELECT BASED_ON Date_or_date_time_item WITH
+    (Data_quality_definition);
+  END_TYPE;
+
+  TYPE pqd_organization_or_person_in_organization_item = SELECT BASED_ON Organization_or_person_in_organization_item WITH
+    (Data_quality_definition);
+  END_TYPE;
+
+  ENTITY Data_quality_definition;
+      description : STRING;
+  END_ENTITY;
+
+  ENTITY Data_quality_definition_representation_relationship;
+      description         : STRING;
+      definition          : Data_quality_definition;
+      used_representation : used_quality_representation_select;
+  END_ENTITY;
+
+  ENTITY Product_data_and_data_quality_relationship;
+      description  : STRING;
+      product_data : Product_view_definition;
+      data_quality : Data_quality_definition;
+  END_ENTITY;
+
+  ENTITY Software_for_data_quality_check;
+      description      : STRING;
+      software_name    : STRING;
+      software_version : STRING;
+      data_quality     : Data_quality_definition_representation_relationship;
+  END_ENTITY;
+
+  ENTITY Data_quality_definition_relationship;
+      description                      : STRING;
+      relating_data_quality_definition : Data_quality_definition;
+      related_data_quality_definition  : Data_quality_definition;
+  END_ENTITY;
+
+END_SCHEMA;

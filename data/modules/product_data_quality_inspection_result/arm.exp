@@ -1,0 +1,145 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- product_data_quality_inspection_result - EXPRESS ARM
+   Draft by H. Hiraoka 09-09-30
+   Modified by F. Tanaka 09-10-03
+*)
+
+SCHEMA Product_data_quality_inspection_result_arm;
+
+  USE FROM Foundation_representation_arm;
+
+  USE FROM Product_data_quality_criteria_arm;
+
+  USE FROM Product_data_quality_definition_arm;
+
+  USE FROM Product_view_definition_arm;
+
+  REFERENCE FROM Characterizable_object_arm
+    (bag_to_set);
+
+  TYPE statistical_value_type = ENUMERATION OF
+    (NUMBER_OF_INSPECTED_INSTANCES,
+     NUMBER_OF_QUALITY_DEFECTS);
+  END_TYPE;
+
+  ENTITY Data_quality_inspection_result_representation
+    SUBTYPE OF(Representation);
+      criteria_inspected : Data_quality_criteria_representation;
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                                'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.' +
+                                'DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+      WR2 : SIZEOF(inspected_product_view_definition(SELF)) > 0;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_result
+    SUBTYPE OF(Representation_item);
+      criterion_inspected : Data_quality_criterion;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+                          |'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+                           'DATA_QUALITY_CRITERIA_REPRESENTATION'
+                           IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_result_with_judgement
+    SUBTYPE OF(Data_quality_inspection_result);
+      judgement : BOOLEAN;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_report
+    SUPERTYPE OF (ONEOF(Data_quality_inspection_criterion_report, Data_quality_inspection_instance_report))
+    SUBTYPE OF(Representation_item);
+      inspection_result : data_quality_inspection_result;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+                          |'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+                           'DATA_QUALITY_CRITERIA_REPRESENTATION'
+                           IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_criterion_report
+    SUBTYPE OF(Data_quality_inspection_report);
+      statistical_values : SET [1:2] OF data_quality_inspection_criterion_report_item;
+    WHERE
+      WR1 : SIZEOF(QUERY(i1<*bag_to_set(USEDIN(
+              SELF\data_quality_inspection_report.
+              inspection_result.criterion_inspected,
+              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+              'DATA_QUALITY_REPORT_REQUEST.CRITERION_OF_REPORT_REQUEST'))|
+              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+              'SUMMARY_REPORT_REQUEST'
+            IN TYPEOF(i1)))>0;
+      WR2 : (SIZEOF(SELF.statistical_values) = 1 ) OR 
+            (SELF.statistical_values[1].value_type <>
+             SELF.statistical_values[2].value_type);
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_criterion_report_item
+    SUBTYPE OF(Representation_item);
+      statistical_value : INTEGER;
+      value_type        : statistical_value_type;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+                          |'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+                           'DATA_QUALITY_CRITERIA_REPRESENTATION'
+                           IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_instance_report
+    SUBTYPE OF(Data_quality_inspection_report);
+      inspected_instances : LIST [1:?] OF data_quality_inspection_instance_report_item;
+    WHERE
+      WR1 : SIZEOF(QUERY(i1<*bag_to_set(USEDIN(
+              SELF\data_quality_inspection_report.
+              inspection_result.criterion_inspected,
+              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+              'DATA_QUALITY_REPORT_REQUEST.CRITERION_OF_REPORT_REQUEST'))|
+              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+              'DETAILED_REPORT_REQUEST'
+            IN TYPEOF(i1)))>0;
+  END_ENTITY;
+
+  ENTITY Data_quality_inspection_instance_report_item
+    SUBTYPE OF(Representation_item);
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+                          |'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+                           'DATA_QUALITY_CRITERIA_REPRESENTATION'
+                           IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY Data_quality_report_measurement_association;
+      related_representation_item  : Data_quality_inspection_report;
+      relating_representation_item : Data_quality_measurement_requirement;
+  END_ENTITY;
+
+  FUNCTION inspected_product_view_definition
+    (dqir:Data_quality_inspection_result_representation)
+    :BAG OF Product_view_definition;
+    LOCAL
+      dqdr :BAG OF Data_quality_definition_representation_relationship:= [];
+      pdqdr :BAG OF Product_data_and_data_quality_relationship:= [];
+      pd   :BAG OF Product_view_definition:= [];
+    END_LOCAL;
+    dqdr := USEDIN(dqir,'PRODUCT_DATA_QUALITY_DEFINITION_ARM.'
+                       +'DATA_QUALITY_DEFINITION_REPRESENTATION_RELATIONSHIP.'
+                       +'USED_REPRESENTATION');
+    REPEAT i:= 1 TO SIZEOF(dqdr);
+      pdqdr := USEDIN(dqdr[i].definition,
+                      'PRODUCT_DATA_QUALITY_DEFINITION_ARM.'
+                     +'PRODUCT_DATA_AND_DATA_QUALITY_RELATIONSHIP.'
+                     +'DATA_QUALITY');
+      REPEAT j:= 1 TO SIZEOF(pdqdr);
+        pd := pd + pdqdr[j].product_data; 
+      END_REPEAT;
+    END_REPEAT;
+    RETURN(pd);
+  END_FUNCTION;
+
+END_SCHEMA;

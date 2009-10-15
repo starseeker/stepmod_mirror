@@ -1,7 +1,7 @@
 (*
-$Id: product_property_representation_schema.exp,v 1.15 2009/10/14 22:22:02 thomasrthurman Exp $
+$Id: product_property_representation_schema.exp,v 1.16 2009/10/14 22:26:49 thomasrthurman Exp $
 
-2009-10-14
+2009-10-15
 ISO TC184/SC4/WG12 N6753 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 (*
@@ -35,9 +35,6 @@ SCHEMA product_property_representation_schema;
               SELF\item_identified_representation_usage.used_representation RENAMED leaf 
                             : representation := nodes[HIINDEX(nodes)];
               directed_link : LIST [1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
-                    rep_rel : LIST [0:?] OF representation_relationship := QUERY(rr <* undirected_link | 'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(rr));
-                         mi : LIST [0:?] OF mapped_item := QUERY(mi <* undirected_link | 'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(mi));
-                         rc : LIST [0:?] OF representation_context := QUERY(rc <* undirected_link | 'REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(rc)); 
     WHERE
       WR1 : root :=: directed_link[1]\representation_relationship.rep_1;
       WR2 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
@@ -52,19 +49,7 @@ SCHEMA product_property_representation_schema;
              SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_2)))) = 2;
       WR7 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
                 (root IN using_representations(undirected_link[1]));
-      WR8 : SIZEOF(QUERY(pt <* undirected_link | NOT
-              (NOT(pt IN rep_rel) OR 
-                   ((pt\representation_relationship.rep_1 IN nodes) AND (pt\representation_relationship.rep_2 IN nodes)))
-                  )) = 0;
-      WR9 : SIZEOF(QUERY(pt <* undirected_link | NOT
-              (NOT(pt IN mi) OR 
-                   (pt\mapped_item.mapping_source\representation_map.mapped_representation IN nodes))
-                  )) = 0;
-      WR10 : SIZEOF(QUERY(pt <* undirected_link | NOT
-              (NOT(pt IN rc) OR 
-                   (SIZEOF(QUERY(temp <* nodes | (temp\representation.context_of_items :=: pt))) = 2))
-                  )) = 0;
-      WR11 : SIZEOF(undirected_link) = SIZEOF(directed_link);
+      WR8 : SIZEOF(undirected_link) = SIZEOF(directed_link);
   END_ENTITY;
  
   ENTITY context_dependent_shape_representation;

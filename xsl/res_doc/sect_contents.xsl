@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -332,6 +332,7 @@ $Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
    <xsl:if test="count(schema)>0" >
      <xsl:for-each select="./schema">          
        <xsl:call-template name="toc_schema_figure_section">
+         <xsl:with-param name="clause_no" select="position()+3" />
          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
        </xsl:call-template>
      </xsl:for-each>
@@ -368,6 +369,8 @@ $Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
 
 
  <xsl:template match="table|figure" mode="toc">
+   <xsl:param name="clause_no" />
+
    <xsl:variable name="number">
      <xsl:choose>
        <xsl:when test="@number">
@@ -393,11 +396,46 @@ $Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
      </xsl:call-template>
    </xsl:variable>
 
-     <a href="{$href}">      
-     <xsl:value-of 
-       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
-     </a>
-     <br/>
+  <xsl:choose>
+    <xsl:when test="name(..) = 'ext_description' and $clause_no = '4'">
+        <a href="4_schema.xml{$href}">      
+<!--    <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption, ' IF ', $href)"/> -->
+        <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+        </a>
+        <br/>
+    </xsl:when>
+    <xsl:when test="name(..) = 'ext_description' and $clause_no = '5'">
+        <a href="5_schema.xml{$href}">      
+        <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+        </a>
+        <br/>
+    </xsl:when>
+    <xsl:when test="name(..) = 'ext_description' and $clause_no = '6'">
+        <a href="6_schema.xml{$href}">      
+        <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+        </a>
+        <br/>
+    </xsl:when>
+    <xsl:when test="name(..) = 'ext_description' and $clause_no = '7'">
+        <a href="7_schema.xml{$href}">      
+        <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+        </a>
+        <br/>
+    </xsl:when>
+    <xsl:otherwise>
+      <a href="{$href}">      
+      <xsl:value-of 
+         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+      </a>
+      <br/>
+    </xsl:otherwise>
+  </xsl:choose>
+
 
  </xsl:template>
 
@@ -412,6 +450,7 @@ $Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
 
  
  <xsl:template name="toc_schema_figure_section" > 
+   <xsl:param name="clause_no" />
 
    <xsl:variable name="resource_dir">
      <xsl:call-template name="resource_directory">
@@ -422,6 +461,7 @@ $Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
    <xsl:variable name="express_desc_xml" select="concat($resource_dir,'/descriptions.xml')"/>
    <xsl:apply-templates select=".//figure" mode="toc"/>
    <xsl:apply-templates select="document($express_desc_xml)//figure" mode="toc">
+         <xsl:with-param name="clause_no" select="$clause_no" />
     <xsl:sort select="@number" data-type="number" />
    </xsl:apply-templates>
 

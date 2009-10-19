@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
+$Id: sect_contents.xsl,v 1.27 2009/08/24 10:32:54 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -300,6 +300,17 @@ $Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
  <!-- list an index the tables and figures -->
  <xsl:template match="resource" mode="contents_tables_figures">
 
+   <xsl:variable name="resdoc_root">
+     <xsl:choose>
+       <xsl:when test="contains(@file,'schema_diag')">
+         <xsl:value-of select="'.'"/>                  
+       </xsl:when>
+       <xsl:otherwise>
+         <xsl:value-of select="$resdoc_dir"/>                  
+       </xsl:otherwise>
+     </xsl:choose>           
+   </xsl:variable>
+
    <xsl:variable name="resdoc_dir">
      <xsl:call-template name="resdoc_directory">
        <xsl:with-param name="resdoc" select="@name"/>
@@ -318,6 +329,14 @@ $Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
    <xsl:apply-templates select="./outscope//figure" mode="toc"/>
    <!-- collect up the EXPRESS-G figures from the schemas -->
 
+   <xsl:if test="count(schema)>0" >
+     <xsl:for-each select="./schema">          
+       <xsl:call-template name="toc_schema_figure_section">
+         <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+       </xsl:call-template>
+     </xsl:for-each>
+   </xsl:if>
+
    <!--   <xsl:apply-templates 
      select="./schema//imgfile" mode="expressg_figure"/> -->
 
@@ -327,8 +346,6 @@ $Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
    <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
    <xsl:apply-templates select="./examples//figure" mode="toc"/>
    <xsl:apply-templates select="./add_scope//figure" mode="toc"/>
-
-
 
    <h2>Tables</h2>
 
@@ -346,8 +363,6 @@ $Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
    <xsl:apply-templates select="./tech_discussion//table" mode="toc"/>
    <xsl:apply-templates select="./example//table" mode="toc"/>
    <xsl:apply-templates select="./add_scope//table" mode="toc"/>
-
-
 
 </xsl:template>
 
@@ -384,22 +399,34 @@ $Id: sect_contents.xsl,v 1.26 2008/08/25 20:14:26 abf Exp $
      </a>
      <br/>
 
-
  </xsl:template>
 
+
  <xsl:template match="shortnames" mode="toc">
-
-
        <a href="a_short_names{$FILE_EXT}">      
       <xsl:value-of 
          select="'Table A.1 Short names of entities'" />
      </a>
      <br/>
-   
+ </xsl:template>
 
+ 
+ <xsl:template name="toc_schema_figure_section" > 
+
+   <xsl:variable name="resource_dir">
+     <xsl:call-template name="resource_directory">
+       <xsl:with-param name="resource" select="@name"/>
+     </xsl:call-template>
+   </xsl:variable>
+
+   <xsl:variable name="express_desc_xml" select="concat($resource_dir,'/descriptions.xml')"/>
+   <xsl:apply-templates select=".//figure" mode="toc"/>
+   <xsl:apply-templates select="document($express_desc_xml)//figure" mode="toc">
+    <xsl:sort select="@number" data-type="number" />
+   </xsl:apply-templates>
 
  </xsl:template>
- 
+
 
  <xsl:template name="toc_schema_section" > 
    <xsl:param name="clause_no" />

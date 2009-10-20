@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.29 2009/10/19 21:11:38 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.30 2009/10/20 08:22:18 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -240,7 +240,7 @@ $Id: sect_contents.xsl,v 1.29 2009/10/19 21:11:38 lothartklein Exp $
 
          </xsl:when>
 
-         <xsl:when test="contains(@file,'schemaexpg')">
+         <xsl:when test="contains(@file,'expg')"> <!-- was 'schemaexpg', but this didn't work for AICs -->
            <xsl:variable name="schname" select="substring-before(@file,'expg')" />
              
              <xsl:variable name="total-no" >
@@ -293,35 +293,6 @@ $Id: sect_contents.xsl,v 1.29 2009/10/19 21:11:38 lothartklein Exp $
 
            </xsl:when>
            
-           <xsl:otherwise>
-             <xsl:variable name="figtext" >
-               <xsl:if test="string-length(@title) > 3" >
-                 <xsl:value-of 
-                   select="concat('Figure ',$number, 
-                         ' &#8212; ',@title)" />
-               </xsl:if>       
-             </xsl:variable>
-             <xsl:variable name="expg_path">
-               <xsl:value-of select="substring-before($file,'.xml')"/>
-             </xsl:variable>
-
-             <xsl:variable name="schema_url">
-               <xsl:choose>
-                 <xsl:when test="$FILE_EXT='.xml'">
-                   <xsl:value-of select="concat('../',$expg_path,'.xml')"/>
-                 </xsl:when>
-                 <xsl:otherwise>
-                   <xsl:value-of select="concat('../',$expg_path,'.htm')"/>
-                 </xsl:otherwise>
-               </xsl:choose>
-             </xsl:variable>
-        
-             <xsl:variable name="href" select="$schema_url"/>
-           
-             <a href="{$href}"><xsl:value-of select="$figtext"/> XXX YYY ZZZ </a>
-             <xsl:value-of select="concat(' IF ', $href, ' ZZ ', $file, ' ZZ ', $number)"/>              
-             <br/>
-           </xsl:otherwise>
          </xsl:choose>
        </xsl:template>
 

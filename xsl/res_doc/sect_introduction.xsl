@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.10 2008/01/30 21:39:41 darla Exp $
+$Id: sect_introduction.xsl,v 1.11 2008/05/21 20:50:25 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -54,53 +54,44 @@ $Id: sect_introduction.xsl,v 1.10 2008/01/30 21:39:41 darla Exp $
   <xsl:choose>
     <xsl:when test="$doctype='igr' or $doctype='iar'">
       <xsl:choose>
-	<xsl:when test="count(../schema)>1">
-	  <p>This part of ISO 10303 is a member of the 
-	  
-
-	  <xsl:apply-templates select="ancestor::resource" mode="intro_type"/>
-
-	  series. 
-
-
-	  Major subdivisions of this part of ISO 10303 are: 
-	  </p>
-	  <ul>
-	    <xsl:for-each select="../schema"> 
-	      <li>
-		<xsl:choose>
-		  <xsl:when test="position()!=last()">
-		    <xsl:value-of select="concat(@name,';')"/>
-		  </xsl:when>
-		  <xsl:otherwise>
-		    <xsl:value-of select="concat(@name,'.')"/>        
-		  </xsl:otherwise>
-		</xsl:choose>
-	      </li>
-	    </xsl:for-each>
-
-	  </ul>
-	</xsl:when>
-
-	<xsl:otherwise>
-
-	  <p>This part of ISO 10303 is a member of the integrated resource series. This part of ISO 10303 specifies the 
-	  <xsl:value-of select="../schema[1]/@name" />.</p>
-	</xsl:otherwise>
+        <xsl:when test="count(../schema)>1">
+	      <p> Major subdivisions of this part of ISO 10303 are:</p>
+	      <ul>
+	        <xsl:for-each select="../schema"> 
+	          <li>
+                <xsl:choose>
+                  <xsl:when test="position()!=last()">
+                    <xsl:value-of select="concat(@name,';')"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="concat(@name,'.')"/>        
+                  </xsl:otherwise>
+                </xsl:choose>
+               </li>
+              </xsl:for-each>
+	        </ul>
+          </xsl:when>
+        <xsl:otherwise>
+          <p>
+            This part of ISO 10303 specifies the 
+            <xsl:value-of select="../schema[1]/@name" />.
+          </p>
+        </xsl:otherwise>
       </xsl:choose>
-
 
       <!-- output any issues -->
       <xsl:apply-templates select=".." mode="output_clause_issue">
-	<xsl:with-param name="clause" select="'purpose'"/>
+        <xsl:with-param name="clause" select="'purpose'"/>
       </xsl:apply-templates>
-<!-- output explicit text from the purpose tag -->
+
+      <!-- output explicit text from the purpose tag -->
       <xsl:apply-templates/>
 
       <!-- prepare variables to output list of used schemas and parts -->
-      
-      <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of ISO 10303 are illustrated in Figure 1 using the EXPRESS-G notation. 
-      EXPRESS-G is defined in ISO 10303-11.  
+      <p>
+        The relationships of the schemas in this part of ISO 10303 to other schemas 
+        that define the integrated resources of ISO 10303 are illustrated in Figure 1 
+        using the EXPRESS-G notation. EXPRESS-G is defined in ISO 10303-11.  
       </p>
       <xsl:variable name="used" >
 	<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />
@@ -132,9 +123,12 @@ $Id: sect_introduction.xsl,v 1.10 2008/01/30 21:39:41 darla Exp $
     </xsl:when>
 
     <xsl:when test="$doctype='aic'">
-
-      An application interpreted construct (AIC) provides a logical grouping of interpreted constructs that supports a specific functionality for the usage of product data across multiple application contexts. An interpreted construct is a common interpretation of the integrated resources that supports shared information requirements among application protocols.
-<!-- output explicit text from the purpose tag -->. 
+      An application interpreted construct (AIC) provides a logical grouping of 
+      interpreted constructs that supports a specific functionality for the 
+      usage of product data across multiple application contexts. 
+      An interpreted construct is a common interpretation of the integrated resources 
+      that supports shared information requirements among application protocols.
+<!-- output explicit text from the purpose tag --> 
       <xsl:apply-templates/>
 
     </xsl:when>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.29 2009/10/19 21:11:38 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -292,6 +292,36 @@ $Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
                <br/>
 
            </xsl:when>
+           
+           <xsl:otherwise>
+             <xsl:variable name="figtext" >
+               <xsl:if test="string-length(@title) > 3" >
+                 <xsl:value-of 
+                   select="concat('Figure ',$number, 
+                         ' &#8212; ',@title)" />
+               </xsl:if>       
+             </xsl:variable>
+             <xsl:variable name="expg_path">
+               <xsl:value-of select="substring-before($file,'.xml')"/>
+             </xsl:variable>
+
+             <xsl:variable name="schema_url">
+               <xsl:choose>
+                 <xsl:when test="$FILE_EXT='.xml'">
+                   <xsl:value-of select="concat('../',$expg_path,'.xml')"/>
+                 </xsl:when>
+                 <xsl:otherwise>
+                   <xsl:value-of select="concat('../',$expg_path,'.htm')"/>
+                 </xsl:otherwise>
+               </xsl:choose>
+             </xsl:variable>
+        
+             <xsl:variable name="href" select="$schema_url"/>
+           
+             <a href="{$href}"><xsl:value-of select="$figtext"/> XXX YYY ZZZ </a>
+             <xsl:value-of select="concat(' IF ', $href, ' ZZ ', $file, ' ZZ ', $number)"/>              
+             <br/>
+           </xsl:otherwise>
          </xsl:choose>
        </xsl:template>
 
@@ -327,8 +357,8 @@ $Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
 
    <xsl:apply-templates select="./inscope//figure" mode="toc"/>
    <xsl:apply-templates select="./outscope//figure" mode="toc"/>
-   <!-- collect up the EXPRESS-G figures from the schemas -->
 
+   <!-- collect figures from express introduction and ext_descriptions -->
    <xsl:if test="count(schema)>0" >
      <xsl:for-each select="./schema">          
        <xsl:call-template name="toc_schema_figure_section">
@@ -338,9 +368,7 @@ $Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
      </xsl:for-each>
    </xsl:if>
 
-   <!--   <xsl:apply-templates 
-     select="./schema//imgfile" mode="expressg_figure"/> -->
-
+   <!-- collect up the EXPRESS-G figures from the schemas -->
    <xsl:apply-templates select="./schema//express-g" mode="expressg_figure"/>
 
    <!-- collect up the figures from the remaining annexes --> 
@@ -397,31 +425,10 @@ $Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
    </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="name(..) = 'ext_description' and $clause_no = '4'">
-        <a href="4_schema.xml{$href}">      
+    <xsl:when test="name(..) = 'ext_description'">
+        <a href="{$clause_no}_schema.xml{$href}">      
 <!--    <xsl:value-of 
          select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption, ' IF ', $href)"/> -->
-        <xsl:value-of 
-         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
-        </a>
-        <br/>
-    </xsl:when>
-    <xsl:when test="name(..) = 'ext_description' and $clause_no = '5'">
-        <a href="5_schema.xml{$href}">      
-        <xsl:value-of 
-         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
-        </a>
-        <br/>
-    </xsl:when>
-    <xsl:when test="name(..) = 'ext_description' and $clause_no = '6'">
-        <a href="6_schema.xml{$href}">      
-        <xsl:value-of 
-         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
-        </a>
-        <br/>
-    </xsl:when>
-    <xsl:when test="name(..) = 'ext_description' and $clause_no = '7'">
-        <a href="7_schema.xml{$href}">      
         <xsl:value-of 
          select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
         </a>
@@ -435,7 +442,6 @@ $Id: sect_contents.xsl,v 1.28 2009/10/19 18:31:24 lothartklein Exp $
       <br/>
     </xsl:otherwise>
   </xsl:choose>
-
 
  </xsl:template>
 

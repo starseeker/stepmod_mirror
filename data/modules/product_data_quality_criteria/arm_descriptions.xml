@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="product_data_quality_criteria" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2009/10/14 09:37:39 $" rcs.revision="$Revision: 1.1 $">
+<ext_descriptions module_directory="product_data_quality_criteria" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2009/10/24 03:48:55 $" rcs.revision="$Revision: 1.2 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Product_data_quality_criteria_arm
    <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm"/>
@@ -343,7 +343,10 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Data_quality_measurement_requirement">
         A <b>Data_quality_measurement_requirement</b> is a type of
-        <express_ref linkend="module:arm:Module_arm.Representation_item" />
+        <express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation_item" />.
+        A <b>Data_quality_measurement_requirement</b> represents 
+        requirements on acceptable measurement for testing whether 
+        the criterion on data quality is satisfied (quality defect exists) or not.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -353,15 +356,24 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Data_quality_measurement_requirement.wr:WR1">
-</ext_description><!-- 
+An instance of this entity shall not be used as an item of the 
+<express_ref linkend="product_data_quality_inspection_result:arm:Product_data_quality_inspection_result_arm.Data_quality_inspection_result_representation"/>
+.</ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Data_quality_report_request  
    <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Data_quality_report_request"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Data_quality_report_request">
-        A <b>Data_quality_report_request</b> is a
-      </ext_description>
+A <b>Data_quality_report_request</b> represents the specification of a report
+to be generated as a result of inspection for a 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Data_quality_criterion"/>
+. It is either a 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Summary_report_request"/>
+requiring a summarized report or a 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Detailed_report_request"/>
+requiring a report on the details of the inspection result.
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Data_quality_report_request  Attribute: description 
@@ -378,6 +390,8 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Data_quality_report_request.criterion_of_report_request">
+a <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Data_quality_criterion"/>
+ concerned
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Detailed_report_request  
@@ -386,7 +400,21 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request">
         A <b>Detailed_report_request</b> is a type of
-        <express_ref linkend="module:arm:Module_arm.Data_quality_report_request" />
+        <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Data_quality_report_request" />.
+        A <b>Detailed_report_request requests</b> a detailed inspection report on the
+        criterion concerned. In order to control the volume of the report and report
+        sequence, two attributes are provided.
+       <example>
+       What entity instance caused quality defect and what is the measured value
+       calculated will be a typical detailed report that may be used for improving
+       the product model concerned.
+       </example>
+       <note>
+       <express_ref linkend="product_data_quality_inspection_result:arm:Product_data_quality_inspection_result_arm.Data_quality_inspection_instance_report"/>
+       defined in <express_ref linkend="product_data_quality_inspection_result:arm:Product_data_quality_inspection_result_arm"/>
+       shall be instantiated as the detailed report corresponding
+       to the specification defined in this entity.
+       </note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -395,7 +423,12 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request.detailed_report_request_type">
-</ext_description>
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.detailed_report_type"/>
+to select either 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.detailed_report_type.MEASURED_ELEMENT"/>
+or 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.detailed_report_type.INFERIOR_QUALITY_ELEMENT"/>
+.</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Detailed_report_request  Attribute: report_sequence 
@@ -403,7 +436,11 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request.report_sequence">
-</ext_description><!-- 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.preferred_ordering"/>
+to select either 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.preferred_ordering.EXTREMITY_ORDER"/>
+ or <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.preferred_ordering.DETECTED_ORDER"/>
+.</ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Detailed_report_request_with_number_of_data  
    <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Detailed_report_request_with_number_of_data"/>
@@ -411,7 +448,8 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request_with_number_of_data">
         A <b>Detailed_report_request_with_number_of_data</b> is a type of
-        <express_ref linkend="module:arm:Module_arm.Detailed_report_request" />
+        <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Detailed_report_request" />
+        that controls maximum number of instances reported.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -420,6 +458,7 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request_with_number_of_data.number_of_data">
+an INTEGER value to control maximum number of instances reported.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -429,6 +468,12 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Detailed_report_request_with_number_of_data.wr:WR1">
+The value of the attribute
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Detailed_report_request.detailed_report_request_type" />of the supertype 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Detailed_report_request" />
+shall not be 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.detailed_report_type.INFERIOR_QUALITY_ELEMENT" /> 
+.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Product_data_quality_criteria_arm  Entity: Summary_report_request  
@@ -437,7 +482,13 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Summary_report_request">
         A <b>Summary_report_request</b> is a type of
-        <express_ref linkend="module:arm:Module_arm.Data_quality_report_request" />
+        <express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.Data_quality_report_request" />.
+        A <b>Summary_report_request</b> requests a summarized inspection report on the
+        criterion concerned. An entity 
+<express_ref linkend="product_data_quality_inspection_result:arm:Product_data_quality_inspection_result_arm.Data_quality_inspection_criterion_report"/>
+        as defined in 
+<express_ref linkend="product_data_quality_inspection_result:arm:Product_data_quality_inspection_result_arm."/>
+        shall be instantiated as a summarized report.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -446,5 +497,16 @@ associated to the <express_ref linkend="product_data_quality_criteria:arm:Produc
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Product_data_quality_criteria_arm.Summary_report_request.summary_report_request_type">
-</ext_description>
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type"/>
+to select one of 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type.UNSPECIFIED"/>
+, 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type.CONCLUSION_ONLY"/>
+, 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type.NUMBER_OF_QUALITY_DEFECTS"/>
+, 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type.NUMBER_OF_INSPECTIONS_AND_CONCLUSION"/>
+and 
+<express_ref linkend="product_data_quality_criteria:arm:Product_data_quality_criteria_arm.summary_report_type.FULL_STATISTICS"/>
+.</ext_description>
 </ext_descriptions>

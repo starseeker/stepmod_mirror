@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.32 2009/10/31 12:03:49 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.33 2009/10/31 13:44:35 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -397,11 +397,19 @@ $Id: sect_contents.xsl,v 1.32 2009/10/31 12:03:49 lothartklein Exp $
 
   <xsl:choose>
     <xsl:when test="name(..) = 'ext_description' or name(../..) = 'ext_description'">
-        <a href="{$clause_no}_schema.xml{$href}">      
-        <xsl:value-of 
-         select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
-        </a>
-        <br/>
+      <xsl:choose>
+        <xsl:when test="$FILE_EXT='.xml'">
+          <a href="{$clause_no}_schema.xml{$href}">      
+            <xsl:value-of select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+          </a>
+        </xsl:when>
+        <xsl:otherwise>
+          <a href="{$clause_no}_schema.htm{$href}">      
+            <xsl:value-of select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+          </a>
+        </xsl:otherwise>
+      </xsl:choose>
+      <br/>
     </xsl:when>
     <xsl:otherwise>
       <a href="{$href}">      

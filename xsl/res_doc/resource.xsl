@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.68 2008/12/16 15:44:32 darla Exp $
+$Id: resource.xsl,v 1.69 2009/08/24 10:21:22 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -3436,21 +3436,6 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
 
   <xsl:template match="bibliography">
-    <!-- output the defaults -->
-    <xsl:apply-templates 
-	select="document('../../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>
-
-    <!-- 
-	 count how many bitiem.incs are in
-	 ../data/basic/bibliography_default.xml 
-	 and start the numbering of the bibitem from there
-    -->
-    <xsl:variable name="bibitem_inc_cnt" 
-		  select="count(document('../../data/basic/bibliography_default.xml')/bibliography/bibitem.inc)"/>
-    <xsl:apply-templates select="./bibitem">
-      <xsl:with-param name="number_start" select="$bibitem_inc_cnt"/>
-    </xsl:apply-templates>
-
     <!-- 
 	 count how many bitiem.incs are in the current document add that to
 	 the default bibitem.inc and bibitem in current document and start
@@ -3460,7 +3445,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 		  select="count(./bibitem)"/>
 
     <xsl:apply-templates select="./bibitem.inc">
-      <xsl:with-param name="number_start" select="$bibitem_cnt+1"/>
+      <xsl:with-param name="number_start" select="$bibitem_cnt"/>
     </xsl:apply-templates>
   </xsl:template>
 

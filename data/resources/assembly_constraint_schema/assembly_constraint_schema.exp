@@ -1,4 +1,6 @@
 (* Copied from  TC184/SC4/WG12 N2649 *)
+
+
 SCHEMA assembly_constraint_schema;
 
 REFERENCE FROM assembly_feature_relationship_schema; -- ISO 10303-109
@@ -11,8 +13,6 @@ REFERENCE FROM product_definition_schema; -- 10303-41
 REFERENCE FROM product_structure_schema; -- ISO 10303-44
 REFERENCE FROM representation_schema; -- ISO 10303-43
 REFERENCE FROM support_resource_schema; -- 10303-41
-
-REFERENCE FROM product_property_representation_schema; -- 10303-41, added by LK
 
 ENTITY assembly_geometric_constraint
   ABSTRACT SUPERTYPE OF (ONEOF
@@ -33,10 +33,8 @@ ENTITY binary_assembly_constraint
             tangent_assembly_constraint))
   SUBTYPE OF (assembly_geometric_constraint,
             representation_relationship_with_transformation);
-SELF\representation_relationship.rep_1:  
-representative_shape_representation;
-SELF\representation_relationship.rep_2: 
-representative_shape_representation;
+SELF\representation_relationship.rep_1: representative_shape_representation;
+SELF\representation_relationship.rep_2: representative_shape_representation;
 WHERE
 WR1: (SELF\explicit_constraint.constrained_elements[1]
       \geometric_representation_item.dim = 3) AND
@@ -68,15 +66,19 @@ END_ENTITY;-- binary_assembly_constraint
 ENTITY fixed_constituent_assembly_constraint
 SUBTYPE OF (assembly_geometric_constraint,
             fixed_element_geometric_constraint);
+    fixed_constituent: representative_shape_representation;
 WHERE
 WR1: SELF\explicit_constraint.constrained_elements[1]
      \geometric_representation_item.dim = 3;
 WR2: (assembly_leaf (using_product_definition_of_shape_representation
-      (SELF\representation_relationship.rep_2\shape_representation)[1]));
+     (fixed_constituent)[1]));
 WR3: (SIZEOF(SELF\explicit_constraint.constrained_elements) = 1) AND
      (SIZEOF(SELF\explicit_constraint.reference_elements) = 0);
-
+WR4: fixed_constituent IN (using_representations(SELF\explicit_constraint.constrained_elements[1]
+\representation_item) + using_representation_with_mapping
+(SELF\explicit_constraint.constrained_elements[1]\representation_item));
 END_ENTITY;-- fixed_constituent_assembly_constraint
+
 
 ENTITY parallel_assembly_constraint
   SUBTYPE OF (binary_assembly_constraint,
@@ -87,8 +89,6 @@ ENTITY  parallel_assembly_constraint_with_dimension
   SUBTYPE OF (parallel_assembly_constraint,
               pgc_with_dimension);
 END_ENTITY;-- parallel_assembly_constraint_with_dimension
-
-
 
 ENTITY surface_distance_assembly_constraint_with_dimension
   SUBTYPE OF (binary_assembly_constraint,

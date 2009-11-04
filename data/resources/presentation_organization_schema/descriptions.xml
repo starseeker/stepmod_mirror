@@ -3,7 +3,7 @@
 	type="text/xsl"
 	href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="presentation_organization_schema" schema_file="presentation_organization_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2008/06/06 13:06:45 $" rcs.revision="$Revision: 1.17 $" >
+<ext_descriptions module_directory="presentation_organization_schema" schema_file="presentation_organization_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2008/06/11 11:33:55 $" rcs.revision="$Revision: 1.18 $" >
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Schema: presentation_organization_schema
@@ -40,7 +40,7 @@ TYPE: central_or_parallel
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_model"/>. 
 	The types are either a parallel projection onto the viewing plane or a central projection from
 	the <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.view_volume.projection_point"/> 
-	to the viewing plane. 
+	to the viewing plane. See Figures 11 and 12.
 </ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -106,6 +106,16 @@ ENTITY: presentation_representation
 	The reference to geometry and annotation is made indirectly by building a
 	hierarchy of <b>presentation_representation</b>s. Lower levels of this
 	hierarchy are constrained to contain only geometry or annotation.
+	A <b>presentation_representation</b> may be either a 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.area_dependent_annotation_representation"/>
+	or a 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_area"/>
+	or a
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_view"/>	
+	or a 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.product_data_representation_view"/>
+	or a
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.view_dependent_annotation_representation"/>.	
 </ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -196,7 +206,9 @@ ENTITY: presentation_area
 	A <b>presentation_area</b> is a type of 
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_representation"/>.
 	A <b>presentation_area</b> represents a picture that can contain other pictures and can itself be contained in another picture which is also
-	a <b>presentation_area</b>. The size of the <b>presentation_area</b> is defined  by the
+	a <b>presentation_area</b>. 
+	<p>
+	The size of the <b>presentation_area</b> is defined  by the
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_size"/>
 	entity.  Every <b>presentation_area</b> is either given a size directly by its use in a 
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_size"/> entity, 
@@ -204,11 +216,15 @@ ENTITY: presentation_area
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.area_in_set"/> entities.  
 	Clipping of a picture based on the <b>presentation_area</b> size is executed by the system that creates an actual display based on the presentation information.  If a
 	<b>presentation_area</b> is contained within another <b>presentation_area</b>, then	the boundaries of the containing <b>presentation_area</b> are also used to
-	clip the contained <b>presentation_area</b>. A background colour may be specified through the use of a <b>presentation_area</b>
+	clip the contained <b>presentation_area</b>. 
+	</p>
+	<p>
+	A background colour may be specified through the use of a <b>presentation_area</b>
 	in the <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.background_colour"/> entity.  
 	Only one
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.background_colour"/> 
 	entity shall use any <b>presentation_area</b>.
+	</p>
 </ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -242,9 +258,9 @@ Subobject: presentation_area.wr:WR1
 	A <b>presentation_area</b> shall be contained in a
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_set"/> 
 	through participation in 
-	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.area_in_set.area"/>, 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.area_in_set.area">area_in_set.area</express_ref>, 
 	where the <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.area_in_set"/> 
-	participates in <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_size.unit"/>, 
+	participates in <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_size.unit">presentation_size.unit</express_ref>, 
 	or, non-exclusively, a <b>presentation_area</b> shall get its size directly from a 
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_size"/>.
 </p>
@@ -808,6 +824,17 @@ ENTITY: graphical_transformation
 	to define the transformation between related 
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.presentation_representation"/>s.
 	The transformation is defined as follows.
+	<p>
+		The 
+		<b>transform_item_1</b>.<express_ref linkend="geometry_schema:ir_express:geometry_schema.placement.location"/> 
+		is transformed into the 
+		<b>transform_item_2</b>.<express_ref linkend="geometry_schema:ir_express:geometry_schema.placement.location">placement.location</express_ref>. 
+		Additionally the x axis defined by <b>transform_item_1</b>.p[1] is mapped to the x axis
+		<b>transform_item_2</b>.<express_ref linkend="presentation_resource_schema:ir_express:presentation_resource_schema.presentation_scaled_placement.placement"/>.p[1]. 
+		A similar mapping is performed for the y axes <b>transform_item_1</b>.p[2] 
+		and <b>transform_item_2</b>.<express_ref linkend="presentation_resource_schema:ir_express:presentation_resource_schema.presentation_scaled_placement.placement"/>.p[2]. 
+		Finally the scaling specified by <b>transform_item_2</b>.<express_ref linkend="presentation_resource_schema:ir_express:presentation_resource_schema.presentation_scaled_placement.scaling"/> is applied.
+	</p>
 	<note>
 		Figure 7 shows the mechanism of graphical transformation.
 	</note>
@@ -824,11 +851,9 @@ Subobject: graphical_transformation.transform_item_1
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <ext_description linkend="presentation_organization_schema.graphical_transformation.transform_item_1">
 <p>
-	an attribute inherited from the
-	<express_ref linkend="representation_schema:ir_express:representation_schema.item_defined_transformation"/>
-	shall be redeclared as the
+	an 
 	<express_ref linkend="geometry_schema:ir_express:geometry_schema.axis2_placement_2d"/>
-	for the <b>graphical_transformation</b>.
+	specifying the starting point of the transformation.
 </p>
 </ext_description>
 
@@ -837,11 +862,9 @@ Subobject: graphical_transformation.transform_item_2
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <ext_description linkend="presentation_organization_schema.graphical_transformation.transform_item_2">
 <p>
-	an attribute inherited from the
-	<express_ref linkend="representation_schema:ir_express:representation_schema.item_defined_transformation"/>
-	shall be redeclared as the
+	a
 	<express_ref linkend="presentation_resource_schema:ir_express:presentation_resource_schema.presentation_scaled_placement"/>
-	for the <b>graphical_transformation</b>.
+	specifying the ending point of the transformation.
 </p>
 </ext_description>
 
@@ -941,12 +964,12 @@ Subobject: camera_model_d2.view_window_clipping
     performed. A value of FALSE indicates that no clipping against the
     <b>view_window</b> is performed.
     </p>
-    <note number="1"><b>view_window_clipping</b> has a value of FALSE, the
+    <note number="1">If <b>view_window_clipping</b> has a value of FALSE, the
 	    two-dimensional projection may extend beyond the boundaries of the
 	    <express_ref linkend="representation_schema:ir_express:representation_schema.mapped_item.mapping_target"/> specified by the <express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_image"/>.
     </note>
     <note number="2">
-    	ping is performed prior to projection.
+    	Clipping is performed prior to projection.
   	</note>
 	
 </ext_description>
@@ -1014,6 +1037,9 @@ ENTITY: camera_model_d3
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_model"/>.
 	A <b>camera_model_d3</b> contains the information needed to create the projection from a three-dimensional representation to a two-dimensional
 	picture of that representation. 
+	See
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.view_volume"/>
+	for details of the projection.
 </ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1064,10 +1090,16 @@ ENTITY: view_volume
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.product_data_representation_view"/>.
 	This volume is either a truncated pyramid or a parallelepiped. The contents of this volume are projected onto the
 	rectangle defined by the <b>view_window</b> which is then mapped onto the viewport.
-	If the type of projection is parallel, the projection is made parallel to the line from the <b>projection_point</b> to the
-	geometric centre of the <b>view_window</b>, and the <b>view_volume</b> is a parallelepiped. If the type of projection is central, the projection is
-	made along lines emanating from a <b>projection_point</b> and intersecting with the <b>view_window</b>, and the <b>view_volume</b> is a truncated
-	pyramid. See figure 12 for the definition of the parallelepiped and figure 11 for the definition of the truncated pyramid.
+	<p>
+	If the type of projection is 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.central_or_parallel.parallel"/>, 
+	the projection is made parallel to the line from the <b>projection_point</b> to the
+	geometric centre of the <b>view_window</b>, and the <b>view_volume</b> is a parallelepiped. If the type of projection is 
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.central_or_parallel.central"/>, 
+	the projection is 	made along lines emanating from a <b>projection_point</b> and intersecting with the <b>view_window</b>, 
+	and the <b>view_volume</b> is a truncated pyramid. 
+	See figure 12 for the definition of the parallelepiped and figure 11 for the definition of the truncated pyramid.
+	</p>
 	<note>
 		Since <b>view_volume</b> is not a subtype of 
 		<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_item"/> 
@@ -1564,6 +1596,10 @@ ENTITY: camera_image
 <ext_description linkend="presentation_organization_schema.camera_image">
 	A <b>camera_image</b> is a type of 
 	<express_ref linkend="representation_schema:ir_express:representation_schema.mapped_item"/>.
+	A <b>camera_image</b> may be either a
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_image_2d_with_scale"/>
+	or a
+	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_image_3d_with_scale"/>.
 	A <b>camera_image</b> is the result of projecting two- or three-dimensional
 	geometry where the projection transformation is the mapping of the
 	<express_ref linkend="presentation_organization_schema:ir_express:presentation_organization_schema.camera_model"/> 

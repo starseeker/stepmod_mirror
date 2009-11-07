@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.70 2009/11/01 10:43:48 lothartklein Exp $
+$Id: resource.xsl,v 1.71 2009/11/07 14:03:26 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1380,8 +1380,9 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     <xsl:if test="$express_xml/express/schema/interface">
       <a name="interfaces"/>
     </xsl:if>
-    <xsl:apply-templates 
-	select="$express_xml/express/schema/interface"/>
+    <xsl:apply-templates select="$express_xml/express/schema/interface">
+      <xsl:with-param name="doctype" select="$doctype"/>
+    </xsl:apply-templates>
 
     <!-- output the intro and fundamental contants.! -->
     <xsl:call-template name="clause_header">

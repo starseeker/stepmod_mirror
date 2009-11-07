@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.31 2009/08/17 14:43:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.32 2009/11/07 11:58:10 lothartklein Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -171,6 +171,7 @@
          Templates
        +++++++++++++++++++ -->
 <xsl:template match="interface">
+  <xsl:param name="doctype"/>
   <xsl:variable name="schema_name" select="../@name"/>      
   <xsl:if test="position()=1">
     <xsl:variable name="clause_number">
@@ -259,6 +260,7 @@
   <xsl:if test="position()=last()">
     <xsl:call-template name="interface_notes">
       <xsl:with-param name="schema_node" select=".."/>
+      <xsl:with-param name="doctype" select="$doctype"/>
     </xsl:call-template>
   </xsl:if>
 </xsl:template>
@@ -351,6 +353,7 @@
 <!-- output a note detailing the interface -->
 <xsl:template name="interface_notes">
   <xsl:param name="schema_node"/>
+  <xsl:param name="doctype"/>
     <p class="note">
       <small>
         NOTE&#160;1&#160;&#160;
@@ -394,6 +397,27 @@
       </small>
     </p>
 
+	<xsl:choose>
+		<xsl:when test="$doctype='aic'">
+			<p class="note">
+				<small>
+					NOTE&#160;3&#160;&#160;
+					There may be subtypes and items of select lists that appear in
+					the integrated resources that are
+					not imported into the AIC. Constructs are eliminated from the subtype
+					tree or select list through the use of
+					the implicit interface rules of ISO 10303-11. References to eliminated
+					constructs are outside the scope of the
+					AIC. In some cases, all items of the select list are eliminated. Because
+					AICs are intended to be implemented
+					in the context of an application protocol, the items of the select
+					list will be defined by the scope of the
+					application protocol
+      			</small>
+			</p>
+		</xsl:when>
+	</xsl:choose>
+	
 </xsl:template>
 
 <xsl:template match="interfaced.item">

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
+$Id: express_description.xsl,v 1.6 2004/10/11 16:21:13 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -21,7 +21,6 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
 
 <!-- Output the description for an Express object, but first check that it
      is valid -->
-
 <xsl:template match="description" mode="exp_description">
   <xsl:param name="inline_aname"/>
   <xsl:param name="inline_name"/>
@@ -39,6 +38,7 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+
 
 <!-- check that the description is valid. If not, output a warning -->
 <xsl:template match="description|ext_description" mode="validate_external_description">
@@ -86,12 +86,12 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
   <!-- if an entity, the name of an attribute 
        Optional exclusive parameter -->
   <xsl:param name="attribute" select="''"/>
-  
+
   <!-- if an entity, the name of an attribute 
        Optional parameter -->
   <xsl:param name="optional" select="''"/>
 
-
+  
   <!-- if an entity, the name of a where rule 
        Optional exclusive parameter -->
   <xsl:param name="where" select="''"/>
@@ -102,7 +102,6 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
 
   <!-- if an entity, the node
        Optional exclusive parameter -->
-
   <xsl:param name="supertypes" select="''"/>
 
   <!-- if outputting a definition that should include the name of the thing
@@ -111,7 +110,6 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
        then include these attributes -->
   <xsl:param name="inline_name" select="''"/>
   <xsl:param name="inline_aname" select="''"/>
-
 
   <xsl:variable name="description_file"
     select="/express/@description.file"/>
@@ -164,6 +162,7 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
       <xsl:apply-templates select="$description" mode="flatten_description"/>
     </xsl:variable>
 
+
     <xsl:if test="string-length($object/description)>0 and /express/@description.file">
       <xsl:variable name="arm_mim_file" select="concat(substring-before($description_file,'_'),'.xml')"/>
       <xsl:call-template name="error_message">
@@ -178,7 +177,7 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
       <xsl:variable name="attr_start_char"
         select="substring(normalize-space($description),1,1)"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-
+      
       <xsl:if test="contains($UPPER,$attr_start_char)">
         <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -187,7 +186,6 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
                     definition should be lower case. It is: ',$attr_start_char)"/>
         </xsl:call-template>
       </xsl:if>
-
     </xsl:if>
 
     <!-- this test is not commmitted, as it does not apply to all projects
@@ -197,8 +195,6 @@ $Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
             name="message" 
             select="concat('Warning Schem1: Description is provided for schema','')"/>
         </xsl:call-template>        
-
-
     </xsl:if>
  -->
 
@@ -232,7 +228,7 @@ and
             not($descriptions/ext_description[@linkend =  $candidate-express-ref])">
 
 
-            <xsl:call-template name="error_message">
+          <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
                 select="concat('Warning Ent7: bold text &quot;', . , '&quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
@@ -270,6 +266,7 @@ and
         </xsl:variable>
         <xsl:variable name="phrase" select="normalize-space($raw_phrase)"/>
         <!--        <xsl:variable name="phrase" select="normalize-space($description/text())"/> -->
+
         <xsl:variable name="first_word"
           select="substring-before($phrase,' ')"/>
         <xsl:variable name="second_word"
@@ -367,8 +364,7 @@ and
               select="concat('Warning Ent9 ' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
           </xsl:call-template>     
         </xsl:if>
-
-
+      
         <!-- if the attribute is a relating or related attribute check that
              the phrase contains an instance -->             
         <xsl:if test="string-length($attribute)>0 and
@@ -421,6 +417,7 @@ and
       </xsl:if>
       
 
+      
       <xsl:if test="contains(substring-before(normalize-space($description/text()[position()=1]),' '),'is')">
         <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -428,27 +425,20 @@ and
             select="concat('Warning Ent9:' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
         </xsl:call-template>        
       </xsl:if>
-
-
-
     </xsl:if>
-
-
-<!-- if an entity , that is 
-if 
-    not a type rule function procedure constant 
-and only one dot in string (hence not an attribute) 
-and  string is more than the schema name ( hence not the  schema ) 
-  ....  
-
--->
+    
+    <!-- if an entity , that is 
+         if 
+         not a type rule function procedure constant 
+         and only one dot in string (hence not an attribute) 
+         and  string is more than the schema name ( hence not the  schema ) 
+         ....  
+         -->
 
     <xsl:if test="string-length($type)=0 and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
-
-
-      <xsl:if test="string-length($rule)=0 and string-length($function)=0 and not(contains(substring(normalize-space($description//text()),1),'A'))">
+      <xsl:if test="string-length($rule)=0 and string-length($function)=0 and not(contains(substring(normalize-space($flat_description),1),'A'))">
         
-      <xsl:call-template name="error_message">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('Warning Ent1: ',$description/@linkend,  '. Description of entity should start with A or An')"/>
@@ -507,33 +497,33 @@ and  string is more than the schema name ( hence not the  schema )
       </xsl:if>
 -->
 
-<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type of '))" >
-        
+      <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type of '))">
         <xsl:call-template name="error_message">
-          <xsl:with-param  name="message" >
-            <xsl:value-of select="concat('Warning Ent6: ',$description/@linkend, ' check for')" />
-
+          <xsl:with-param  name="message">
+            <xsl:value-of select="concat('Warning Ent6: ',$description/@linkend, ' check for')"/>
+            
 &quot;              <xsl:value-of select="concat(' is a type of ', $supertypes,'.')" /> 
       &quot; . Supertype(s) should be tagged as express_ref    </xsl:with-param>
         </xsl:call-template>        
         
       </xsl:if>
+
     </xsl:if>
 
-    <xsl:variable name="d" select="$description" />
+    <xsl:variable name="d" select="$description"/>
     <xsl:variable name="p" select="$d//text()"/>
-    <xsl:variable name="q" select="$d//b/text()" />
-    <xsl:variable name="q1" select="$d//express_ref/text()" />
-    <xsl:variable name="q2" select="$q | $q1" />
+    <xsl:variable name="q" select="$d//b/text()"/>
+    <xsl:variable name="q1" select="$d//express_ref/text()"/>
+    <xsl:variable name="q2" select="$q | $q1"/>
             
-    <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />
-      <!-- <xsl:call-template name="chktxt">
-           <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
-           </xsl:call-template>
-           -->           
-     <xsl:apply-templates select="$tnodes" mode="chktxt" />
-                 
-     
+    <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]"/>
+    <!-- <xsl:call-template name="chktxt">
+         <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
+         </xsl:call-template>
+         -->
+    <xsl:apply-templates select="$tnodes" mode="chktxt"/>
+    
+
     <xsl:choose>
       <!-- the name is to be included in the first line of the definition -->
       <xsl:when test="string-length($inline_name)>0">
@@ -673,7 +663,7 @@ and  string is more than the schema name ( hence not the  schema )
 </xsl:template>
 
 <xsl:template match="ext_description">
-  <xsl:apply-templates />
+  <xsl:apply-templates/>
 </xsl:template>
 
 

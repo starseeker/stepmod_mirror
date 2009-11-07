@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.13 2009/07/28 10:45:22 robbod Exp $
+     $Id: express_code.xsl,v 1.14 2009/08/17 14:43:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -427,31 +427,31 @@ data/resources/',$resource,'/',$resource,'.xml.')"/>
 
 <xsl:template match="entity" mode="code">
   <code>
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <br/>
-  <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
-  <xsl:call-template name="abstract.entity"/>
-  <xsl:call-template name="super.expression-code"/>
-  <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>  
-  <br/>
-  <xsl:apply-templates select="./explicit" mode="code"/>
-  <xsl:apply-templates select="./derived" mode="code"/>
-  <xsl:apply-templates select="./inverse" mode="code"/>
-  <xsl:apply-templates select="./unique" mode="code"/>
-  <xsl:apply-templates select="./where[@expression]" mode="code"/>
-  <!--   <xsl:call-template name="output_where_formal"/> -->
-  END_ENTITY;<br/>
-</code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <br/>
+    <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
+    <xsl:call-template name="abstract.entity"/>
+    <xsl:call-template name="super.expression-code"/>
+    <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>  
+    <br/>
+    <xsl:apply-templates select="./explicit" mode="code"/>
+    <xsl:apply-templates select="./derived" mode="code"/>
+    <xsl:apply-templates select="./inverse" mode="code"/>
+    <xsl:apply-templates select="./unique" mode="code"/>
+    <xsl:apply-templates select="./where[@expression]" mode="code"/>
+    <!-- <xsl:call-template name="output_where_formal"/> -->
+    END_ENTITY;<br/>
+  </code>
 </xsl:template>
 
 
@@ -581,7 +581,14 @@ data/resources/',$resource,'/',$resource,'.xml.')"/>
 </xsl:template>
 
 <xsl:template match="inverse.aggregate" mode="code">
-  <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">

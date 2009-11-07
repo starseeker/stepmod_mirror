@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.30 2009/07/28 10:45:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.31 2009/08/17 14:43:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1186,10 +1186,14 @@
 </xsl:template>
 
 <xsl:template match="inverse.aggregate" mode="code">
-  <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
-  <xsl:if test="@unique='YES'">
-    UNIQUE
-  </xsl:if>
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">
@@ -1378,7 +1382,10 @@
       <xsl:with-param name="section3" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <!--
+  
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
@@ -1391,7 +1398,10 @@
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
+
   <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">

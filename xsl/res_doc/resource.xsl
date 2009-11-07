@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.69 2009/08/24 10:21:22 lothartklein Exp $
+$Id: resource.xsl,v 1.70 2009/11/01 10:43:48 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1576,13 +1576,13 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	l2:<xsl:value-of select="$normref_list2"/>:l2
 	</xsl:message>
     -->
+
     <!-- get all normrefs that define terms for which abbreviations are
 	 provided.
 	 Get the abbreviation.inc from abbreviations_default.xml, 
 	 get the referenced abbreviation from abbreviations.xml
 	 then get the normref in which the term is defined
     -->
-
     <xsl:variable name="normref_list3">
       <xsl:choose>
 	<xsl:when test="not($doctype='aic')">
@@ -2993,62 +2993,51 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
   </xsl:template>
 
-  <!-- build a list of normrefs that are used by the resource and have terms
-       defined in them 
-       The list comprises:
-       All default normrefs listed in ../data/basic/normrefs.xml
-       All normrefs explicitly included in the resource by normref.inc
-  -->
-  <xsl:template name="normrefs_terms_list">
-    <xsl:param name="current_resource"/>
+	<!--
+		build a list of normrefs that are used by the resource and have terms
+		defined in them The list comprises: All default normrefs listed in
+		../data/basic/normrefs.xml All normrefs explicitly included in the
+		resource by normref.inc
+	-->
+	<xsl:template name="normrefs_terms_list">
+		<xsl:param name="current_resource" />
 
-    <xsl:variable name="doctype">
-      <xsl:apply-templates select="$current_resource" mode="doctype"/>
-    </xsl:variable>
+		<xsl:variable name="doctype">
+			<xsl:apply-templates select="$current_resource"
+				mode="doctype" />
+		</xsl:variable>
 
-    <!-- get all default normrefs listed in ../data/basic/normrefs.xml -->
-    <xsl:variable name="normref_list1">
-      <xsl:choose>
-	<xsl:when test="not($doctype='aic')">
-	  <xsl:call-template name="get_normref_term">
-	    <xsl:with-param 
-		name="normref_nodes" 
-		select="document('../../data/basic/normrefs_resdoc_default.xml')/normrefs/normref.inc"/>
-	    <xsl:with-param 
-		name="normref_list" 
-		select="''"/>
-	  </xsl:call-template>
-	</xsl:when>
-	<xsl:when test="$doctype='aic'">
-	  <xsl:call-template name="get_normref_term">
-	    <xsl:with-param 
-		name="normref_nodes" 
-		select="document('../../data/basic/normrefs_aic_default.xml')/normrefs/normref.inc"/>
-	    <xsl:with-param 
-		name="normref_list" 
-		select="''"/>
-	  </xsl:call-template>
-	</xsl:when>
-      </xsl:choose>
-    </xsl:variable>
+		<!-- get all normrefs explicitly included in the resource by normref.inc -->
+		<xsl:variable name="normref_list1">
+			<xsl:call-template name="get_normref_term">
+				<xsl:with-param name="normref_nodes" select="/resource/normrefs/normref.inc" />
+				<xsl:with-param name="normref_list" select="''" />
+			</xsl:call-template>
+		</xsl:variable>
 
-    <!-- get all normrefs explicitly included in the resource by normref.inc -->
-    <xsl:variable name="normref_list2">
-      <xsl:call-template name="get_normref_term">
-	<xsl:with-param 
-	    name="normref_nodes" 
-	    select="/resource/normrefs/normref.inc"/>
-	<xsl:with-param 
-	    name="normref_list" 
-	    select="$normref_list1"/>
-      </xsl:call-template>    
-    </xsl:variable>
+		<!-- get all default normrefs listed in ../data/basic/normrefs.xml -->
+		<xsl:variable name="normref_list2">
+			<xsl:choose>
+				<xsl:when test="not($doctype='aic')">
+					<xsl:call-template name="get_normref_term">
+						<xsl:with-param name="normref_nodes"
+							select="document('../../data/basic/normrefs_resdoc_default.xml')/normrefs/normref.inc" />
+						<xsl:with-param name="normref_list" select="$normref_list1" />
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:when test="$doctype='aic'">
+					<xsl:call-template name="get_normref_term">
+						<xsl:with-param name="normref_nodes"
+							select="document('../../data/basic/normrefs_aic_default.xml')/normrefs/normref.inc" />
+						<xsl:with-param name="normref_list" select="$normref_list1" />
+					</xsl:call-template>
+				</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
 
+		<xsl:value-of select="concat($normref_list2,',')" />
 
-
-    <xsl:value-of select="concat($normref_list2,',')"/>
-
-  </xsl:template>
+	</xsl:template>
 
 
   <!-- given a list of normref nodes, add the ids of the normrefs to the

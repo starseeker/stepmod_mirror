@@ -1,0 +1,440 @@
+(*
+ $Id: arm.exp,v 1.2 2007/04/17 12:54:48 giedrius Exp $
+ ISO TC184/SC4/WG12 N4pc2 - ISO/CD-TS 10303-1pc1 Explicit constraints - EXPRESS ARM
+*)
+
+
+SCHEMA Geometric_constraints_arm;
+
+USE FROM Basic_geometry_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Primitive_solids_arm;
+
+USE FROM Explicit_constraints_arm;
+
+USE FROM Foundation_representation_arm;
+
+USE FROM Swept_solid_arm;
+
+USE FROM Value_with_unit_arm;
+
+TYPE axial_geometry_element = EXTENSIBLE GENERIC_ENTITY SELECT
+  (Circle,
+   Circular_cone,
+   Circular_cylinder,
+   Conical_surface,
+   Cylindrical_surface,
+   Line,
+   Plane,
+   point_select,
+   Solid_of_revolution,
+   Sphere,
+   Spherical_surface,
+   Surface_of_revolution,
+   Toroidal_surface,
+   Torus);
+END_TYPE;
+
+TYPE curve_or_surface = SELECT
+  (Curve,
+   Surface);
+END_TYPE;
+
+TYPE geometric_constraint_element = EXTENSIBLE GENERIC_ENTITY SELECT
+  (point_select,
+   Curve,
+   Surface,
+   Direction);
+END_TYPE;
+
+TYPE linear_geometry_element = EXTENSIBLE GENERIC_ENTITY SELECT
+  (Line,
+   Plane,
+   Direction);
+END_TYPE;
+
+TYPE parallel_offset_type = ENUMERATION OF
+  (curve_2d_offset,
+   curve_3d_offset,
+   surface_offset);
+END_TYPE;
+
+TYPE point_curve_or_surface = SELECT
+  (Curve,
+   point_select,
+   Surface);
+END_TYPE;
+
+TYPE radial_geometry_element = SELECT
+  (Circle,
+   Cylindrical_surface,
+   Conical_surface,
+   Spherical_surface,
+   Circular_cylinder,
+   Circular_cone,
+   Sphere);
+END_TYPE;
+
+
+TYPE swept_surface_or_solid = EXTENSIBLE GENERIC_ENTITY SELECT
+  (Swept_surface,
+   Swept_solid);
+   END_TYPE;
+
+TYPE tangent_contact_type = ENUMERATION OF
+  (point_contact,
+   curve_contact,
+   surface_contact);
+END_TYPE;
+
+TYPE transition_code =ENUMERATION OF
+  (discontinuous,
+   continuous,
+   cont_same_gradient,
+   cont_same_gradient_same_curvature);
+ END_TYPE;  
+   
+
+
+ENTITY Angle_geometric_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF linear_geometry_element;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:1] OF linear_geometry_element;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) = 1) OR
+    (('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_ANGLE_CONSTRAINT' 
+    IN TYPEOF(SELF)) AND 
+    (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2));
+END_ENTITY;
+
+ENTITY Coaxial_constraint 
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF axial_geometry_element;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:1] OF axial_geometry_element;
+WHERE
+  WR1: SIZEOF(QUERY(q <* SELF\Explicit_constraint.reference_elements | 
+    SIZEOF(TYPEOF(q) * ['GEOMETRIC_CONSTRAINTS_ARM.POINT','GEOMETRIC_CONSTRAINTS_ARM.PLANE',
+    'GEOMETRIC_CONSTRAINTS_ARM.SPHERICAL_SURFACE','GEOMETRIC_CONSTRAINTS_ARM.SPHERE']) 
+    > 0)) = 0;
+END_ENTITY; 
+
+ENTITY Curve_distance_constraint
+  SUBTYPE OF (Defined_constraint,  Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:2] OF Curve;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:4] OF point_curve_or_surface;
+  near_points : SET[0:4] OF Near_point_relationship;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0) OR
+    (('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_CURVE_DISTANCE_CONSTRAINT'
+    IN TYPEOF(SELF)) 
+    AND (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2));
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\Explicit_constraint.reference_elements);
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q.relating_item
+    IN SELF\Explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY Curve_length_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF Curve;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY Curve_segment;
+  transition   : transition_code;
+  same_sense   : BOOLEAN;
+  parent_curve : Curve; 
+END_ENTITY;
+
+ENTITY Curve_segment_set
+  SUBTYPE OF (Detailed_geometric_model_element);
+  segments : SET[1:?] OF Curve_segment;
+END_ENTITY;
+
+ENTITY Curve_smoothness_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:1] OF Curve_segment_set;
+  smoothness : transition_code;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY Dimensioned_angle_constraint
+  SUBTYPE OF (Angle_geometric_constraint);
+  angle_value : plane_angle_measure;
+END_ENTITY;
+
+ENTITY Dimensioned_curve_distance_constraint
+  SUBTYPE OF (Curve_distance_constraint);
+  distance : length_measure;
+WHERE
+   WR1 : distance >= 0.0;
+END_ENTITY;
+
+
+ENTITY Dimensioned_curve_length_constraint
+  SUBTYPE OF (Curve_length_constraint);
+  curve_length : length_measure;
+WHERE
+   WR1 : curve_length > 0.0;
+END_ENTITY;
+
+
+ENTITY Dimensioned_parallel_constraint
+  SUBTYPE OF (Parallel_constraint);
+  distance : length_measure;
+  negative_direction : BOOLEAN;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) = 1)
+    OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2);
+  WR2: SIZEOF(QUERY(q <* (SELF\Explicit_constraint.reference_elements +
+    SELF\Explicit_constraint.constrained_elements) | SIZEOF(TYPEOF(q) *
+    ['EXPLICIT_CONSTRAINT.DIRECTION']) > 0)) = 0;
+  WR3: distance >= 0.0;
+END_ENTITY; 
+
+ENTITY Dimensioned_parallel_offset_constraint 
+  SUBTYPE OF (Parallel_offset_constraint); 
+  offset_value : length_measure; 
+  offset_direction_constrained : BOOLEAN; 
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) = 1)
+    OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2);
+  WR2: (NOT (offset_direction_constrained = TRUE)
+    AND ((offset_type = curve_2d_offset) 
+    OR (offset_type = surface_offset))); 
+   WR3 : offset_value > 0.0;
+END_ENTITY; 
+
+ENTITY Dimensioned_point_distance_constraint
+  SUBTYPE OF (Point_distance_constraint);
+  distance : length_measure;
+WHERE
+   WR1 : distance >= 0.0;
+END_ENTITY;
+
+ENTITY Dimensioned_radial_constraint
+  SUBTYPE OF (Radius_geometric_constraint);
+  radius_value : length_measure;
+WHERE
+   WR1 : radius_value > 0.0;
+END_ENTITY;
+
+ENTITY Dimensioned_surface_distance_constraint
+  SUBTYPE OF (Surface_distance_constraint);
+  distance : length_measure;
+WHERE
+   WR1 : distance >= 0.0;
+END_ENTITY;
+
+ENTITY Fixed_element_geometric_constraint 
+  SUBTYPE OF (Defined_constraint,   Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF geometric_constraint_element;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+END_ENTITY; 
+
+ENTITY Incidence_geometric_constraint
+  SUBTYPE OF (Defined_constraint,   Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF geometric_constraint_element;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET [0:?] OF geometric_constraint_element;
+  near_points : SET[0:?] OF Near_point_relationship;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0)
+    OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2);
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\Explicit_constraint.reference_elements); 
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q.relating_item
+    IN SELF\Explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY Near_point_relationship;
+  relating_item : curve_or_surface;
+  ref_point : point_select;
+END_ENTITY;
+
+ENTITY Parallel_constraint 
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF linear_geometry_element; 
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:1] OF linear_geometry_element;
+END_ENTITY; 
+
+ENTITY Parallel_offset_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF curve_or_surface;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:1] OF curve_or_surface;
+  offset_type : parallel_offset_type;   
+WHERE
+  WR1: NOT(((offset_type = curve_2d_offset) 
+    OR (offset_type = curve_3d_offset)) AND 
+    (SIZEOF(QUERY( q <* (SELF\Explicit_constraint.constrained_elements 
+    + SELF\Explicit_constraint.reference_elements) |
+    'GEOMETRIC_CONSTRAINTS_ARM.SURFACE' IN TYPEOF(q))) > 0));
+  WR2: NOT((offset_type = surface_offset) AND (SIZEOF(QUERY( q <* 
+    (SELF\Explicit_constraint.constrained_elements +
+    SELF\Explicit_constraint.reference_elements) | 
+    'GEOMETRIC_CONSTRAINTS_ARM.CURVE' IN TYPEOF(q))) > 0));
+END_ENTITY;
+
+ENTITY Perpendicular_geometric_constraint 
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF linear_geometry_element;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:2] OF linear_geometry_element;
+WHERE   
+  WR1: NOT ((SIZEOF(SELF\Explicit_constraint.reference_elements) = 2) AND 
+    NOT ((SIZEOF(QUERY(q <* SELF\Explicit_constraint.constrained_elements + 
+    SELF\Explicit_constraint.reference_elements | 
+    'GEOMETRIC_CONSTRAINTS_ARM.LINE' IN TYPEOF(q))) =
+    SIZEOF(SELF\Explicit_constraint.reference_elements + 
+    SELF\Explicit_constraint.constrained_elements)) XOR 
+    (SIZEOF(QUERY(q <* SELF\Explicit_constraint.constrained_elements + 
+    SELF\Explicit_constraint.reference_elements | 
+    'GEOMETRIC_CONSTRAINTS_ARM.PLANE' IN TYPEOF(q))) =
+    SIZEOF(SELF\Explicit_constraint.reference_elements + 
+    SELF\Explicit_constraint.constrained_elements))));
+  WR2: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0) OR
+    (SIZEOF(SELF\Explicit_constraint.constrained_elements) IN [2,3]);
+  WR3: NOT ((SIZEOF(SELF\Explicit_constraint.reference_elements) = 0) AND 
+    (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 3)) AND NOT  
+    ((SIZEOF(QUERY(q <* SELF\Explicit_constraint.constrained_elements | 
+    'GEOMETRIC_CONSTRAINTS_ARM.LINE' IN TYPEOF(q))) = 3) XOR
+    (SIZEOF(QUERY(q <* SELF\Explicit_constraint.constrained_elements | 
+    'GEOMETRIC_CONSTRAINTS_ARM.PLANE' IN TYPEOF(q))) = 3));
+END_ENTITY; 
+
+ENTITY Point_distance_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:?] OF point_select;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:4] OF point_curve_or_surface;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0) OR
+    (('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.DIMENSIONED_POINT_DISTANCE_CONSTRAINT' 
+    IN TYPEOF(SELF)) AND 
+    (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2));
+END_ENTITY;
+
+ENTITY Radius_geometric_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF radial_geometry_element;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY Skew_line_distance_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:2] OF Line;
+  SELF\Explicit_constraint.reference_elements   : SET[0:1] OF Line;
+  distance : length_measure;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.constrained_elements +
+    SELF\Explicit_constraint.reference_elements) = 2;
+  WR2 : distance >= 0.0;
+END_ENTITY;
+
+
+ENTITY Surface_distance_constraint
+  SUBTYPE OF (Defined_constraint,   Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:2] OF Surface;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:4] OF point_curve_or_surface;
+  near_points : SET[0:4] OF Near_point_relationship;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0) OR 
+    (('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_SURFACE_DISTANCE_CONSTRAINT' 
+    IN TYPEOF(SELF)) 
+    AND (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2));
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\Explicit_constraint.reference_elements);
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q.relating_item
+    IN SELF\Explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY Surface_patch;
+   parent_surface :  Surface;
+   u_transition   :  transition_code;
+   v_transition   :  transition_code;
+   u_sense        :  BOOLEAN;
+   v_sense        :  BOOLEAN;
+END_ENTITY;
+
+ENTITY Surface_patch_set
+  SUBTYPE OF (Detailed_geometric_model_element);
+  patches : SET[1:?] OF Surface_patch;
+END_ENTITY;
+
+ENTITY Surface_smoothness_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET [1:1] OF surface_patch_set;
+  u_smoothness : transition_code;
+  v_smoothness : transition_code;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY Swept_curve_surface_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:?] OF Surface;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[1:1] OF swept_surface_or_solid;
+END_ENTITY;
+
+ENTITY Swept_point_curve_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : SET[1:?] OF Curve;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[1:1] OF Swept_solid;
+END_ENTITY;
+
+ENTITY Symmetry_geometric_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[2:2] OF Detailed_geometric_model_element;
+  mirror_element : linear_geometry_element;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
+  WR2: SIZEOF(TYPEOF(mirror_element) * 
+    ['GEOMETRIC_CONSTRAINTS_ARM.DIRECTION']) = 0;
+ END_ENTITY;
+
+ENTITY Tangent_constraint
+  SUBTYPE OF (Defined_constraint, Detailed_geometric_model_element);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF curve_or_surface;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:?] OF curve_or_surface;
+  near_points         : SET[0:?] OF Near_point_relationship;
+  tangent_contact     : tangent_contact_type;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.reference_elements) > 0) OR 
+    (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2);
+  WR2: SIZEOF(QUERY(q <* near_points | NOT
+    (q.relating_item
+    IN SELF\Explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+END_SCHEMA; -- Geometric_constraints_arm

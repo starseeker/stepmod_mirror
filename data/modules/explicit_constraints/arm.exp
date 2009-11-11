@@ -1,0 +1,83 @@
+(*
+ $Id: arm.exp,v 1.2 2007/04/17 12:54:48 giedrius Exp $
+ ISO TC184/SC4/WG12 N4pc2 - ISO/CD-TS 10303-1pc1 Explicit constraints - EXPRESS ARM
+*)
+
+
+SCHEMA Explicit_constraints_arm;
+
+USE FROM Foundation_representation_arm;
+
+USE FROM Parameterization_and_variational_representation_arm;
+
+TYPE constraint_group_member = SELECT
+  (Explicit_constraint,
+   Simultaneous_constraint_group);
+END_TYPE;
+
+TYPE variational_parameter_select = SELECT
+     (Bound_variational_parameter,
+      Unbound_variational_parameter);
+END_TYPE;
+
+ENTITY Boolean_expression
+    SUBTYPE OF(Expression);
+END_ENTITY;    
+
+ENTITY Defined_constraint 
+  ABSTRACT SUPERTYPE OF (Equal_parameter_constraint)
+  SUBTYPE OF (Explicit_constraint);
+END_ENTITY; 
+
+ENTITY Equal_parameter_constraint
+  SUBTYPE OF (Defined_constraint);
+  SELF\Explicit_constraint.constrained_elements : 
+    SET[1:?] OF variational_parameter_select;
+  SELF\Explicit_constraint.reference_elements   : 
+    SET[0:1] OF variational_parameter_select;
+WHERE
+  WR1: SIZEOF(SELF\Explicit_constraint.constrained_elements +
+    SELF\Explicit_constraint.reference_elements) >= 2;
+END_ENTITY;
+
+ENTITY Explicit_constraint
+  ABSTRACT SUPERTYPE OF (ONEOF(Defined_constraint,
+                               Free_form_assignment,
+                               Free_form_relation))
+  SUBTYPE OF (Variational_representation_item); 
+  description : OPTIONAL STRING;
+  constrained_elements : SET[1:?] OF Representation_item;
+  reference_elements   : SET[0:?] OF Representation_item;
+WHERE
+  WR1: SIZEOF(constrained_elements * reference_elements) = 0;
+END_ENTITY;
+
+ENTITY Expression
+ABSTRACT SUPERTYPE;
+END_ENTITY;
+
+ENTITY Free_form_assignment
+  SUBTYPE OF (Explicit_constraint);
+   SELF\Explicit_constraint.constrained_elements : 
+     SET[1:?] OF variational_parameter_select;
+   SELF\Explicit_constraint.reference_elements   : 
+    SET[1:?] OF variational_parameter_select;
+   constraining_expression : Expression;
+END_ENTITY; 
+
+
+ENTITY Free_form_relation
+  SUBTYPE OF (Explicit_constraint);
+    SELF\Explicit_constraint.constrained_elements : 
+      SET[1:?] OF variational_parameter_select;
+    SELF\Explicit_constraint.reference_elements   : 
+      SET[0:?] OF variational_parameter_select;
+   constraining_expression : Boolean_expression;
+END_ENTITY; 
+
+ENTITY Simultaneous_constraint_group
+  SUBTYPE OF (Variational_representation_item);
+  constraint_group : SET[2:?] OF constraint_group_member;
+END_ENTITY;
+
+END_SCHEMA; -- Explicit_constraint_schema_arm

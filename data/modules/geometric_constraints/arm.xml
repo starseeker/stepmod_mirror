@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date: 2007/03/21 11:10:23 $" rcs.revision="$Revision: 1.1 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="geometric_constraints_arm schema_instance"/>
+   <schema name="Geometric_constraints_arm">
+      <interface kind="use" schema="Basic_geometry_arm"/>
+       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Explicit_constraints_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="use" schema="Primitive_solids_arm"/>
+      <interface kind="use" schema="Swept_solid_arm"/>
+     <interface kind="use" schema="Value_with_unit_arm"/>
+             
+     
+    <type name="axial_geometry_element">
+      <select extensible="YES" genericentity="YES" 
+        selectitems="Circle Circular_cone Circular_cylinder Conical_surface Cylindrical_surface Line Plane point_select  Solid_of_revolution Sphere  Spherical_surface  Surface_of_revolution Toroidal_surface Torus">
+      </select>
+    </type>
+ 
+        <type name="curve_or_surface">
+              <select
+                selectitems="Curve Surface">
+              </select>
+            </type>
+
+    
+     <type name="geometric_constraint_element">
+ 
+    <select extensible="YES" genericentity="YES" 
+       selectitems="point_select Curve Surface Direction">
+            </select>
+    </type>
+      
+    <type name="linear_geometry_element">
+        <select extensible="YES" genericentity="YES" 
+          selectitems="Line Plane Direction">
+        </select>
+      </type>
+
+  
+     <type name="parallel_offset_type">
+      <enumeration
+        items="curve_2d_offset curve_3d_offset surface_offset">
+      </enumeration>
+    </type>
+ 
+ <type name="point_curve_or_surface">
+          <select
+            selectitems="point_select Curve Surface">
+          </select>
+        </type>
+    
+      <type name="radial_geometry_element">
+      <select  
+        selectitems="Circle Cylindrical_surface Conical_surface Spherical_surface Circular_cylinder Circular_cone Sphere">
+      </select>
+    </type>
+
+    
+    <type name="swept_surface_or_solid">
+      <select extensible="YES" genericentity="YES" 
+        selectitems="Swept_surface Swept_solid">
+      </select>
+    </type>
+
+   <type name="tangent_contact_type">
+      <enumeration
+        items="point_contact curve_contact surface_contact">
+      </enumeration>
+    </type>
+
+    
+<type name="transition_code">
+      <enumeration
+        items="discontinuous continuous cont_same_gradient cont_same_curvature">
+      </enumeration>
+    </type>
+     
+<entity
+ name="Angle_geometric_constraint"
+ supertypes="Defined_constraint Detailed_geometric_model_element">
+ <explicit
+   name="constrained_elements">
+   <aggregate
+     type="SET"
+     lower="1"
+     upper="?"/>
+   <typename
+     name="linear_geometry_element"/>
+   <redeclaration
+     entity-ref="Explicit_constraint"/>
+   </explicit>
+   <explicit
+     name="reference_elements">
+     <aggregate
+       type="SET"
+       lower="0"
+       upper="1"/>
+     <typename
+       name="linear_geometry_element"/>
+     <redeclaration
+       entity-ref="Explicit_constraint"/>
+     </explicit>
+     <where
+       label="WR1"
+       expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) = 1) OR(('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_ANGLE_CONSTRAINT' IN TYPEOF(SELF)) AND(SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2))">
+     </where>
+   </entity>
+
+  <entity
+     name="Coaxial_constraint"
+     supertypes="Defined_constraint Detailed_geometric_model_element">
+     <explicit
+       name="constrained_elements">
+       <aggregate
+         type="SET"
+         lower="1"
+         upper="?"/>
+       <typename
+         name="axial_geometry_element"/>
+       <redeclaration
+         entity-ref="Explicit_constraint"/>
+       </explicit>
+       <explicit
+         name="reference_elements">
+         <aggregate
+           type="SET"
+           lower="0"
+           upper="1"/>
+         <typename
+           name="axial_geometry_element"/>
+         <redeclaration
+           entity-ref="Explicit_constraint"/>
+         </explicit>
+         <where
+           label="WR1"
+           expression="SIZEOF(QUERY(q &lt;* SELF\Explicit_constraint.reference_elements | SIZEOF(TYPEOF(q) * ['GEOMETRIC_CONSTRAINTS_ARM.POINT','GEOMETRY_SCHEMA.PLANE','GEOMETRIC_CONSTRAINTS_ARM.SPHERICAL_SURFACE','GEOMETRIC_CONSTRAINTS_ARM.SPHERE'])&gt; 0)) = 0">
+         </where>
+       </entity>
+
+    <entity
+       name="Curve_distance_constraint"
+       supertypes="Defined_constraint Detailed_geometric_model_element">
+       <explicit
+         name="constrained_elements">
+         <aggregate
+           type="SET"
+           lower="1"
+           upper="2"/>
+         <typename
+           name="Curve"/>
+         <redeclaration
+           entity-ref="Explicit_constraint"/>
+         </explicit>
+         <explicit
+           name="reference_elements">
+           <aggregate
+             type="SET"
+             lower="0"
+             upper="4"/>
+           <typename
+             name="point_curve_or_surface"/>
+           <redeclaration
+             entity-ref="Explicit_constraint"/>
+           </explicit>
+           <explicit
+             name="near_points">
+             <aggregate
+               type="SET"
+               lower="0"
+               upper="4"/>
+             <typename
+               name="Near_point_relationship"/>
+           </explicit>
+           <where
+             label="WR1"
+             expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR(('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_CURVE_DISTANCE_CONSTRAINT' IN TYPEOF(SELF)) AND (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2))">
+           </where>
+           <where
+             label="WR2"
+             expression="SIZEOF(near_points) &lt;= SIZEOF(SELF\Explicit_constraint.reference_elements)">
+           </where>
+           <where
+             label="WR3"
+             expression="SIZEOF(QUERY(q &lt;* near_points | NOT(q.relating_item IN SELF\Explicit_constraint.reference_elements))) = 0">
+           </where>
+         </entity>
+
+ <entity
+       name="Curve_length_constraint"
+       supertypes="Defined_constraint Detailed_geometric_model_element">
+       <explicit
+         name="constrained_elements">
+         <aggregate
+           type="SET"
+           lower="1"
+           upper="?"/>
+         <typename
+           name="Curve"/>
+         <redeclaration
+           entity-ref="Explicit_constraint"/>
+         </explicit>
+         <where
+           label="WR1"
+           expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+         </where>
+       </entity>
+   
+   <entity
+       name="Curve_segment"  >
+     <explicit
+       name="transition">
+      <typename name="transition_code"/>
+      </explicit>
+     <explicit
+            name="same_sense">
+           <builtintype type="BOOLEAN"/>
+      </explicit>
+     <explicit
+            name="parent_curve">
+           <typename name="Curve"/>
+      </explicit>
+     </entity> 
+     
+  <entity
+     name="Curve_segment_set"
+     supertypes="Detailed_geometric_model_element">
+     <explicit
+       name="segments">
+       <aggregate
+         type="SET"
+         lower="1"
+         upper="?"/>
+       <typename
+         name="Curve_segment"/>
+     </explicit>
+   </entity>
+   
+ <entity
+      name="Curve_smoothness_constraint"
+      supertypes="Defined_constraint Detailed_geometric_model_element">
+      <explicit
+        name="constrained_elements">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="1"/>
+        <typename
+          name="Curve_segment_set"/>
+        <redeclaration
+          entity-ref="Explicit_constraint"/>
+        </explicit>
+        <explicit
+          name="smoothness">
+          <typename
+            name="transition_code"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+        </where>
+      </entity>
+    
+    <entity
+     name="Dimensioned_angle_constraint"
+     supertypes="Angle_geometric_constraint">
+     <explicit
+       name="angle_value">
+       <typename
+         name="plane_angle_measure"/>
+     </explicit>
+   </entity>
+
+      <entity
+           name="Dimensioned_curve_distance_constraint"
+           supertypes="Curve_distance_constraint">
+           <explicit
+             name="distance">
+             <typename
+               name="length_measure"/>
+           </explicit>
+         <where
+           label="WR1"
+           expression="distance &gt;= 0.0" >
+        </where>
+     </entity>
+
+       <entity
+           name="Dimensioned_curve_length_constraint"
+           supertypes="Curve_length_constraint">
+           <explicit
+             name="length">
+             <typename
+               name="length_measure"/>
+           </explicit>
+                <where
+                   label="WR1"
+                  expression="distance &gt; 0.0" >
+                </where>
+         </entity>
+ 
+  <entity
+                name="Dimensioned_parallel_constraint"
+                supertypes="Parallel_constraint">
+                <explicit
+                  name="distance">
+                  <typename
+                    name="length_measure"/>
+                </explicit>
+                <explicit
+                  name="negative_direction">
+                  <builtintype
+                    type="BOOLEAN"/>
+                </explicit>
+                <where
+                  label="WR1"
+                  expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) = 1) OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2)">
+                </where>
+                <where
+                  label="WR2"
+                  expression="SIZEOF(QUERY(q &lt;* (SELF\Explicit_constraint.reference_elements + SELF\Explicit_constraint.constrained_elements) | SIZEOF(TYPEOF(q) *['GEOMETRY_SCHEMA.DIRECTION', 'GEOMETRY_SCHEMA.VECTOR']) &gt; 0)) = 0">
+                </where>
+              <where
+	                        label="WR3"
+	                        expression="distance &gt;= 0.0" >
+                </where>
+              
+              </entity>
+  
+   <entity
+       name="Dimensioned_parallel_offset_constraint"
+       supertypes="Parallel_offset_constraint">
+       <explicit
+         name="offset_value">
+         <typename
+           name="length_measure"/>
+       </explicit>
+       <explicit
+         name="offset_direction_constrained">
+         <builtintype
+           type="BOOLEAN"/>
+       </explicit>
+       <where
+         label="WR1"
+         expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) = 1) OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2)">
+       </where>
+       <where
+         label="WR2"
+         expression="(NOT (offset_direction_constrained = TRUE) AND ((offset_type = curve_2d_offset) OR (offset_type = surface_offset)))">
+       </where>
+         <where
+            label="WR3"
+             expression="distance &gt; 0.0" >
+          </where>
+      </entity>
+
+<entity
+      name="Dimensioned_point_distance_constraint"
+      supertypes="Point_distance_constraint">
+      <explicit
+        name="distance">
+        <typename
+          name="length_measure"/>
+      </explicit>
+   <where
+                  label="WR1"
+                  expression="distance &gt;= 0.0" >
+   </where>
+ </entity>
+ 
+  <entity
+     name="Dimensioned_radial_constraint"
+     supertypes="Radius_geometric_constraint">
+     <explicit
+       name="radius_value">
+       <typename
+         name="length_measure"/>
+      </explicit>
+              <where
+                 label="WR1"
+                expression="radius_value &gt; 0.0" >
+              </where>
+     </entity>
+
+     <entity
+          name="Dimensioned_surface_distance_constraint"
+          supertypes="Surface_distance_constraint">
+          <explicit
+            name="distance">
+            <typename
+              name="length_measure"/>
+          </explicit>
+           <where
+             label="WR1"
+             expression="distance &gt;= 0.0" >
+         </where>
+       </entity>  
+   
+  <entity
+          name="Fixed_element_geometric_constraint"
+          supertypes="Defined_constraint Detailed_geometric_model_element">
+          <explicit
+            name="constrained_elements">
+            <aggregate
+              type="SET"
+              lower="1"
+              upper="?"/>
+            <typename
+              name="geometric_constraint_element"/>
+            <redeclaration
+              entity-ref="Explicit_constraint"/>
+            </explicit>
+            <where
+              label="WR1"
+              expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+            </where>
+          </entity>  
+  
+   <entity
+        name="Incidence_geometric_constraint"
+        supertypes="Defined_constraint Detailed_geometric_model_element">
+        <explicit
+          name="constrained_elements">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="geometric_constraint_element"/>
+          <redeclaration
+            entity-ref="Explicit_constraint"/>
+          </explicit>
+          <explicit
+            name="reference_elements">
+            <aggregate
+              type="SET"
+              lower="0"
+              upper="?"/>
+            <typename
+              name="geometric_constraint_element"/>
+            <redeclaration
+              entity-ref="Explicit_constraint"/>
+            </explicit>
+            <explicit
+              name="near_points">
+              <aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+              <typename
+                name="Near_point_relationship"/>
+            </explicit>
+            <where
+              label="WR1"
+              expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2)">
+            </where>
+            <where
+              label="WR2"
+              expression="SIZEOF(near_points) &lt;= SIZEOF(SELF\Explicit_constraint.reference_elements)">
+            </where>
+            <where
+              label="WR3"
+              expression="SIZEOF(QUERY(q &lt;* near_points | NOT(q.relating_item IN SELF\Explicit_constraint.reference_elements))) = 0">
+            </where>
+          </entity>
+
+<entity
+   name="Near_point_relationship"
+   >
+   <explicit
+     name="relating_item">
+     <typename
+       name="curve_or_surface"/>
+      </explicit>
+     <explicit
+       name="ref_point">
+       <typename
+         name="point_select"/>
+        </explicit>
+     </entity>
+
+     <entity
+            name="Parallel_constraint"
+            supertypes="Defined_constraint Detailed_geometric_model_element">
+            <explicit
+              name="constrained_elements">
+              <aggregate
+                type="SET"
+                lower="1"
+                upper="?"/>
+              <typename
+                name="linear_geometry_element"/>
+              <redeclaration
+                entity-ref="Explicit_constraint"/>
+              </explicit>
+              <explicit
+                name="reference_elements">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="1"/>
+                <typename
+                  name="linear_geometry_element"/>
+                <redeclaration
+                  entity-ref="Explicit_constraint"/>
+                </explicit>
+              </entity>
+  
+  <entity
+    name="Parallel_offset_constraint"
+    supertypes="Defined_constraint, Detailed_geometric_model_element">
+    <explicit
+      name="constrained_elements">
+      <aggregate
+        type="SET"
+        lower="1"
+        upper="?"/>
+      <typename
+        name="curve_or_surface"/>
+      <redeclaration
+        entity-ref="Explicit_constraint"/>
+      </explicit>
+      <explicit
+        name="reference_elements">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+        <typename
+          name="curve_or_surface"/>
+        <redeclaration
+          entity-ref="Explicit_constraint"/>
+        </explicit>
+        <explicit
+          name="offset_type">
+          <typename
+            name="parallel_offset_type"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="NOT(((offset_type = curve_2d_offset) OR (offset_type = curve_3d_offset)) AND(SIZEOF(QUERY(q &lt;* (SELF\Explicit_constraint.constrained_elements+ SELF\Explicit_constraint.reference_elements) |'GEOMETRIC_CONSTRAINTS_ARM.SURFACE' IN TYPEOF(q))) &gt; 0))">
+        </where>
+        <where
+          label="WR2"
+          expression="NOT((offset_type = surface_offset) AND (SIZEOF(QUERY(q &lt;*(SELF\Explicit_constraint.constrained_elements + SELF\Explicit_constraint.reference_elements) |'GEOMETRIC_CONSTRAINTS_ARM.CURVE' IN TYPEOF(q))) &gt; 0))">
+        </where>
+      </entity>
+  
+ <entity
+   name="Perpendicular_geometric_constraint"
+   supertypes="Defined_constraint Detailed_geometric_model_element">
+   <explicit
+     name="constrained_elements">
+     <aggregate
+       type="SET"
+       lower="1"
+       upper="?"/>
+     <typename
+       name="linear_geometry_element"/>
+     <redeclaration
+       entity-ref="Explicit_constraint"/>
+     </explicit>
+     <explicit
+       name="reference_elements">
+       <aggregate
+         type="SET"
+         lower="0"
+         upper="2"/>
+       <typename
+         name="linear_geometry_element"/>
+       <redeclaration
+         entity-ref="Explicit_constraint"/>
+       </explicit>
+       <where
+         label="WR1"
+         expression="NOT ((SIZEOF(SELF\Explicit_constraint.reference_elements) = 2) AND NOT ((SIZEOF(QUERY(q &lt;* SELF\Explicit_constraint.constrained_elements + SELF\Explicit_constraint.reference_elements |'GEOMETRIC_CONSTRAINTS_ARM.LINE' IN TYPEOF(q))) = SIZEOF(SELF\Explicit_constraint.reference_elements + SELF\Explicit_constraint.constrained_elements)) XOR(SIZEOF(QUERY(q &lt;* SELF\Explicit_constraint.constrained_elements + SELF\Explicit_constraint.reference_elements |'GEOMETRIC_CONSTRAINTS_ARM.PLANE' IN TYPEOF(q))) = SIZEOF(SELF\Explicit_constraint.reference_elements + SELF\Explicit_constraint.constrained_elements))))">
+       </where>
+       <where
+         label="WR2"
+         expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR(SIZEOF(SELF\Explicit_constraint.constrained_elements) IN [2,3])">
+       </where>
+       <where
+         label="WR3"
+         expression="NOT ((SIZEOF(SELF\Explicit_constraint.reference_elements) = 0) AND(SIZEOF(SELF\Explicit_constraint.constrained_elements) = 3)) AND NOT((SIZEOF(QUERY(q &lt;* SELF\Explicit_constraint.constrained_elements |'GEOMETRIC_CONSTRAINTS_ARM.LINE' IN TYPEOF(q))) = 3) XOR(SIZEOF(QUERY(q &lt;* SELF\Explicit_constraint.constrained_elements |'GEOMETRIC_CONSTRAINTS_ARM.PLANE' IN TYPEOF(q))) = 3))">
+       </where>
+     </entity>
+
+<entity
+  name="Point_distance_constraint"
+  supertypes="Defined_constraint Detailed_geometric_model_element">
+  <explicit
+    name="constrained_elements">
+    <aggregate
+      type="SET"
+      lower="1"
+      upper="?"/>
+    <typename
+      name="point_select"/>
+    <redeclaration
+      entity-ref="Explicit_constraint"/>
+    </explicit>
+    <explicit
+      name="reference_elements">
+      <aggregate
+        type="SET"
+        lower="0"
+        upper="4"/>
+      <typename
+        name="point_curve_or_surface"/>
+      <redeclaration
+        entity-ref="Explicit_constraint"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR(('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.DIMENSIONED_POINT_DISTANCE_CONSTRAINT' IN TYPEOF(SELF)) AND(SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2))">
+      </where>
+    </entity>
+
+<entity
+   name="Radius_geometric_constraint"
+   supertypes="Defined_constraint Detailed_geometric_model_element">
+   <explicit
+     name="constrained_elements">
+     <aggregate
+       type="SET"
+       lower="1"
+       upper="?"/>
+     <typename
+       name="radial_geometry_constraint_element"/>
+     <redeclaration
+       entity-ref="Explicit_constraint"/>
+     </explicit>
+     <where
+       label="WR1"
+       expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+     </where>
+   </entity>
+
+
+  <entity
+  name="Skew_line_distance_constraint"
+  supertypes="Defined_constraint Detailed_geometric_model_element">
+  <explicit
+    name="constrained_elements">
+    <aggregate
+      type="SET"
+      lower="1"
+      upper="2"/>
+    <typename
+      name="Line"/>
+    <redeclaration
+      entity-ref="Explicit_constraint"/>
+    </explicit>
+    <explicit
+      name="reference_elements">
+      <aggregate
+        type="SET"
+        lower="0"
+        upper="1"/>
+      <typename
+        name="Line"/>
+      <redeclaration
+        entity-ref="Explicit_constraint"/>
+      </explicit>
+      <explicit
+        name="distance">
+        <typename
+          name="length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(SELF\Explicit_constraint.constrained_elements + SELF\Explicit_constraint.reference_elements) = 2">
+      </where>
+      <where
+             label="WR2"
+             expression="distance &gt;= 0.0" >
+     </where>
+   </entity>
+ 
+   <entity
+         name="Surface_distance_constraint"
+            supertypes="Defined_constraint Detailed_geometric_model_element">
+          <explicit
+            name="constrained_elements">
+            <aggregate
+                type="SET"
+                lower="1"
+                upper="2"/>
+               <typename
+                   name="Surface"/>
+                 <redeclaration
+                 entity-ref="Explicit_constraint"/>
+              </explicit>
+               <explicit
+           name="reference_elements">
+           <aggregate
+             type="SET"
+             lower="0"
+             upper="4"/>
+           <typename
+             name="point_curve_or_surface"/>
+           <redeclaration
+             entity-ref="Explicit_constraint"/>
+           </explicit>
+           <explicit
+             name="near_points">
+                                      <aggregate
+                     type="SET"
+                     lower="0"
+                     upper="4"/>
+                   <typename
+                     name="Near_point_relationship"/>
+                 </explicit>
+                 <where
+                   label="WR1"
+                   expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR(('GEOMETRIC_CONSTRAINTS_ARM.DIMENSIONED_SURFACE_DISTANCE_CONSTRAINT' IN TYPEOF(SELF)) AND (SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2))">
+                 </where>
+                 <where
+                   label="WR2"
+                   expression="SIZEOF(near_points) &lt;= SIZEOF(SELF\Explicit_constraint.reference_elements)">
+                 </where>
+                 <where
+                   label="WR3"
+                   expression="SIZEOF(QUERY(q &lt;* near_points | NOT(q.relating_item IN SELF\Explicit_constraint.reference_elements))) = 0">
+                 </where>
+               </entity>
+     
+     <entity
+            name="Surface_patch"  >
+          <explicit
+                 name="parent_surface">
+                <typename name="Surface"/>
+           </explicit>
+           <explicit
+            name="u_transition">
+           <typename name="transition_code"/>
+           </explicit>
+         <explicit
+	             name="v_transition">
+	            <typename name="transition_code"/>
+           </explicit>
+         <explicit
+                 name="u_sense">
+                <builtintype type="BOOLEAN"/>
+        </explicit>
+        <explicit
+                 name="v_sense">
+                <builtintype type="BOOLEAN"/>
+           </explicit>
+            
+       </entity> 
+     
+   <entity
+     name="Surface_patch_set"
+     supertypes="Detailed_geometric_model_element">
+     <explicit
+       name="patches">
+       <aggregate
+         type="SET"
+         lower="1"
+         upper="?"/>
+       <typename
+         name="Surface_patch"/>
+     </explicit>
+   </entity>
+
+  <entity
+    name="Surface_smoothness_constraint"
+    supertypes="Defined_constraint Detailed_geometric_model_element">
+    <explicit
+      name="constrained_elements">
+      <aggregate
+        type="SET"
+        lower="1"
+        upper="1"/>
+      <typename
+        name="Surface_patch_set"/>
+      <redeclaration
+        entity-ref="Explicit_constraint"/>
+      </explicit>
+      <explicit
+        name="u_smoothness">
+        <typename
+          name="transition_code"/>
+      </explicit>
+      <explicit
+        name="v_smoothness">
+        <typename
+          name="transition_code"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+      </where>
+    </entity>     
+              
+
+    <entity
+      name="Swept_curve_surface_constraint"
+      supertypes="Defined_constraint Detailed_geometric_model_element">
+      <explicit
+        name="constrained_elements">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="Surface"/>
+        <redeclaration
+          entity-ref="Explicit_constraint"/>
+        </explicit>
+        <explicit
+          name="reference_elements">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="1"/>
+          <typename
+            name="swept_surface_or_solid"/>
+          <redeclaration
+            entity-ref="Explicit_constraint"/>
+          </explicit>
+        </entity>
+
+        <entity
+        name="Swept_point_curve_constraint"
+        supertypes="Defined_constraint Detailed_geometric_model_element">
+        <explicit
+          name="constrained_elements">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="Curve"/>
+          <redeclaration
+            entity-ref="Explicit_constraint"/>
+          </explicit>
+          <explicit
+            name="reference_elements">
+            <aggregate
+              type="SET"
+              lower="1"
+              upper="1"/>
+            <typename
+              name="Swept_solid"/>
+            <redeclaration
+              entity-ref="Explicit_constraint"/>
+            </explicit>
+          </entity>
+
+
+   <entity
+       name="Symmetry_geometric_constraint"
+       supertypes="Defined_constraint Detailed_geometric_model_element">
+       <explicit
+         name="constrained_elements">
+         <aggregate
+           type="SET"
+           lower="2"
+           upper="2"/>
+         <typename
+           name="Detailed_geometric_model_element"/>
+         <redeclaration
+           entity-ref="Explicit_constraint"/>
+         </explicit>
+         <explicit
+           name="mirror_element">
+           <typename
+             name="linear_geometry_element"/>
+         </explicit>
+         <where
+           label="WR1"
+           expression="SIZEOF(SELF\Explicit_constraint.reference_elements) = 0">
+         </where>
+         <where
+           label="WR2"
+           expression="SIZEOF(TYPEOF(mirror_element) *['GEOMETRIC_CONSTRAINTS_ARM.DIRECTION']) = 0">
+         </where>
+        </entity>
+
+ <entity
+  name="Tangent_constraint"
+  supertypes="Defined_constraint Detailed_geometric_model_element">
+  <explicit
+    name="constrained_elements">
+    <aggregate
+      type="SET"
+      lower="1"
+      upper="?"/>
+    <typename
+      name="curve_or_surface"/>
+    <redeclaration
+      entity-ref="Explicit_constraint"/>
+    </explicit>
+    <explicit
+      name="reference_elements">
+      <aggregate
+        type="SET"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="curve_or_surface"/>
+      <redeclaration
+        entity-ref="Explicit_constraint"/>
+      </explicit>
+      <explicit
+        name="near_points">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+        <typename
+          name="Near_point_relationship"/>
+      </explicit>
+      <explicit
+        name="tangent_contact">
+        <typename
+          name="tangent_contact_type"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(SIZEOF(SELF\Explicit_constraint.reference_elements) &gt; 0) OR(SIZEOF(SELF\Explicit_constraint.constrained_elements) = 2)">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(QUERY(q &lt;* near_points | NOT(q\representation_item_relationship.relating_representation_item IN SELF\Explicit_constraint.reference_elements))) = 0">
+      </where>
+    </entity>
+
+
+   </schema>
+</express>

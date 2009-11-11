@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date: 2007/03/21 10:46:47 $" rcs.revision="$Revision: 1.1 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="parameterization_and_variational_representation_arm schema_instance"/>
+   <schema name="Parameterization_and_variational_representation_arm">
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="use" schema="Maths_space_arm"/>
+      <interface kind="use" schema="Maths_value_arm"/>
+      
+      <type name="attribute_identifier">
+            <builtintype
+              type="STRING">
+            </builtintype>
+            <where
+              label="WR1"
+              expression="validate_attribute_id(SELF)">
+            </where>
+          </type>
+
+   
+     <entity name="Auxiliary_geometric_representation_item" supertypes="Detailed_geometric_model_element Variational_representation_item">
+      </entity>
+  
+ 
+  <entity name="Bound_parameter_environment">
+       <explicit name="syntactic_representation">
+            <typename name="Bound_variational_parameter"/>
+        </explicit>    
+        <explicit name="semantics">
+	            <typename name="Instance_attribute_reference"/>
+        </explicit>  
+   </entity>     
+        
+        
+ <entity name="Bound_variational_parameter" supertypes="Variational_representation_item Maths_variable">
+       <explicit name="interpretation">
+            <typename name="Bound_parameter_environment"/>
+        </explicit>    
+        <explicit
+	        name="parameter_description"
+	        optional="YES">
+	     <builtintype type="STRING"/>
+         </explicit>  
+   <derived
+           name="Maths_variable.name"
+           expression="Representation_item.name">
+           <builtintype type="STRING"/>
+      </derived>
+   <inverse name="interpretation" entity="Bound_parameter_environment" attribute="syntactic_representation">
+ </inverse>
+   
+   </entity>     
+         
+  <entity name="Fixed_instance_attribute_set" supertypes="Variational_representation_item">
+         <explicit name="fixed_attributes">
+              <typename name="Bound_variational_parameter"/>
+          <aggregate
+	            type="SET"
+	            lower="1"
+	            upper="?"/>
+	          <typename name="Instance_attribute_reference"/>
+           </explicit>    
+          <where
+	                label="WR1"
+	                expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | 
+      SIZEOF(QUERY(r &lt;* q.items |
+      'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' 
+      IN TYPEOF(r))) &gt; 1)) = 0">
+            </where>
+   </entity> 
+  
+  <entity name="Generated_finite_numeric_space" supertypes="Maths_space">
+         <explicit name="start_value">
+              <builtintype  type="NUMBER"/> 
+          </explicit>    
+         <explicit name="increment_value">
+              <builtintype  type="NUMBER"/> 
+          </explicit>    
+         <explicit name="increments">
+              <typename name="maths_integer"/>
+          </explicit>    
+          
+     <derived
+             name="members"
+             expression="make_numeric_set(start_value, increment_value, increment_number)">
+             aggregate
+	         type="SET"
+	         lower="2"
+	         upper="?"/>
+	         <builtintype  type="NUMBER"/> 
+        </derived>
+   </entity>     
+    
+ <entity name="Instance_attribute_reference" >
+        <explicit name="attribute_name">
+             <typename name="attribute_identifier"/>
+         </explicit>    
+         <explicit name="owning_instance">
+ 	            <typename name="Representation_item"/>
+         </explicit>  
+   </entity> 
+ 
+ <entity name="Maths_variable" >
+         <explicit name="name">
+  	     <builtintype type="STRING"/> 
+          </explicit> 
+          <explicit name="values_space">
+              <typename name="Maths_space"/>
+          </explicit>    
+           
+   </entity> 
+ 
+ 
+ <entity name="Unbound_parameter_environment">
+          <explicit name="syntactic_representation">
+               <typename name="Unbound_variational_parameter"/>
+           </explicit>    
+           <explicit name="semantics">
+   	     <typename name="Unbound_model_parameter_semantics"/>
+           </explicit>  
+   </entity> 
+ 
+ <entity name="Unbound_variational_parameter_semantics" />
+    
+  
+  <entity name="Unbound_variational_parameter" supertypes="Variational_representation_item Maths_variable">
+            <explicit  name="parameter_description"    optional="YES">
+	     <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="parameter_current_value">
+     	     <typename name="maths_value"/>
+             </explicit>  
+       <derived
+              name="Maths_variable.name"
+              expression="Representation_item.name">
+              <builtintype type="STRING"/>
+      </derived>
+     <inverse name="interpretation" entity="Unbound_parameter_environment" attribute="syntactic_representation">
+    </inverse>
+   
+   </entity> 
+  
+ <entity
+       name="Variational_current_representation_relationship"
+       supertypes="Representation_relationship">
+       <explicit
+         name="rep_1">
+         <typename
+           name="Variational_representation"/>
+         <redeclaration
+           entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit
+           name="current_result">
+           <typename
+             name="Representation"/>
+         </explicit>
+         <unique
+           label="UR1">
+           <unique.attribute
+             attribute="current_result"/>
+         </unique>
+         <where
+           label="WR1"
+           expression="QUERY(q &lt;* SELF\Representation_relationship.rep_1.items | NOT('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' IN TYPEOF(q))) = SELF\Representation_relationship.rep_2.items">
+         </where>
+         <where
+           label="WR2"
+           expression="SELF\Representation_relationship.rep_1.context_of_items :=: SELF\representation_relationship.rep_2.context_of_items">
+         </where>
+         <where
+           label="WR3"
+           expression="SIZEOF(QUERY(q &lt;* SELF\Representation_relationship.rep_2.items |'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' IN TYPEOF(q))) = 0">
+         </where>
+         
+         <where
+           label="WR4"
+           expression="current_result :=: SELF\Representation_relationship.rep_2">
+         </where>
+       </entity>
+
+ 
+ <entity
+       name="Variational_representation"
+       supertypes="Representation">
+       <inverse
+         name="cm_link"
+         entity="Variational_current_representation_relationship"
+         attribute="rep_1">
+       </inverse>
+       <where
+         label="WR1"
+         expression="SIZEOF(QUERY(q &lt;* SELF\Representation.items |'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' IN TYPEOF(q))) &gt; 0">
+       </where>
+       
+    </entity>
+ 
+ <entity
+       name="Variational_representation_item"
+       abstract.supertype="YES"
+       super.expression="(Auxiliary_geometric_representation_item Bound_variational_parameter Unbound_variational_parameter)"
+       supertypes="Representation_item">
+       <where
+         label="WR1"
+         expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | NOT ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION' IN TYPEOF(q)))) = 0">
+       </where>
+       <where
+         label="WR2"
+         expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | NOT (SELF IN q.items))) = 0">
+       </where>
+    </entity>
+
+ <function
+         name="make_numeric_set">
+         <parameter
+           name="start">
+           <builtintype
+             type="NUMBER"/>
+         </parameter>
+         <parameter
+           name="delta">
+           <builtintype
+             type="NUMBER"/>
+         </parameter>
+         <parameter name="incs">
+          <typename   name="maths_integer"/>
+           </parameter>
+         
+        <aggregate
+		            type="SET"
+		            lower="2"
+		            upper="?"/>
+	          <builtintype
+             type="NUMBER"/> 
+        <algorithm>
+      LOCAL
+      i : INTEGER;
+      numeric_set : SET[2:?] OF maths_number := [start, (start + delta)];
+    END_LOCAL;
+  
+    IF incs > 1 THEN REPEAT i := 2 TO incs;
+                       numeric_set := numeric_set + (start + (i*delta));
+                     END_REPEAT;
+    END_IF;
+    RETURN(numeric_set);
+  END_FUNCTION;
+       </algorithm>
+          </function>
+
+   <function       name="validate_attribute_id">
+            <parameter  name="attid">
+              <typename   name="attribute_identifier"/>
+            </parameter>
+            <builtintype  type="BOOLEAN"/>
+            <algorithm>
+CONSTANT
+letters : SET[52:52] OF STRING :=
+['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+'q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
+'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
+'W','X','Y','Z'];
+numbers_etc : SET[15:15] OF STRING :=
+['0','1','2','3','4','5','6','7','8','9','_','[',']','.','\'];
+valid_chars : SET[67:67] OF STRING := letters + numbers_etc;
+END_CONSTANT;
+LOCAL
+id_length : INTEGER := LENGTH(attid);
+id_valid : BOOLEAN := TRUE;
+i : INTEGER;
+END_LOCAL;
+IF NOT (attid[1] IN letters) THEN
+id_valid := FALSE;
+END_IF;
+REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
+IF NOT (attid[i] IN valid_chars) THEN
+id_valid := FALSE;
+END_IF;
+END_REPEAT;
+RETURN(id_valid);
+</algorithm>
+</function>
+
+        </schema>
+
+      </express>
+

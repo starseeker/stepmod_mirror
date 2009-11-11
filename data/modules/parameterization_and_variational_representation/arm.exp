@@ -1,0 +1,287 @@
+(*
+ $Id: arm.exp,v 1.2 2007/04/17 12:17:56 giedrius Exp $
+ ISO TC184/SC4/WG12 N4xxx - ISO/CD-TS 10303-1pc1 Parameterization and variational representation - EXPRESS ARM
+*)
+
+SCHEMA Parameterization_and_variational_representation_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Foundation_representation_arm;
+REFERENCE FROM Foundation_representation_arm;
+
+USE FROM Maths_space_arm;
+
+USE FROM Maths_value_arm;
+
+TYPE attribute_identifier = STRING;
+    WHERE
+      WR1: validate_attribute_id(SELF);
+ END_TYPE;
+ 
+
+ENTITY Auxiliary_geometric_representation_item
+  SUBTYPE OF (Detailed_geometric_model_element, 
+              Variational_representation_item);
+END_ENTITY;
+
+
+ENTITY Bound_parameter_environment;
+   syntactic_representation : Bound_variational_parameter;
+   semantics : Instance_attribute_reference;
+END_ENTITY; 
+
+ENTITY Bound_variational_parameter
+ SUBTYPE OF (Variational_representation_item, Maths_variable);
+   parameter_description : OPTIONAL STRING; 
+ DERIVE
+   SELF\Maths_variable.name : STRING := SELF\Representation_item.name;
+ INVERSE
+    interpretation : Bound_parameter_environment for syntactic_representation;
+ END_ENTITY; 
+
+ENTITY Fixed_instance_attribute_set
+  SUBTYPE OF (Variational_representation_item);
+  fixed_attributes : SET[1:?] OF Instance_attribute_reference;
+WHERE
+  WR1: SIZEOF(QUERY(q <* using_representations(SELF) | 
+    SIZEOF(QUERY(r <* q.items |
+    'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' 
+    IN TYPEOF(r))) > 1)) = 0;
+END_ENTITY;
+
+ENTITY Generated_finite_numeric_space
+  SUBTYPE OF (Maths_space);
+  start_value      : NUMBER;
+  increment_value  : NUMBER;
+  increments : maths_integer;
+DERIVE
+  members : SET [2:?] OF NUMBER 
+    := make_numeric_set(start_value, increment_value, increments); 
+WHERE
+  WR1: increment_value <> 0.0;
+  WR2: increments > 0;
+END_ENTITY;
+
+
+ENTITY Instance_attribute_reference;
+  attribute_name  : attribute_identifier;
+  owning_instance : Representation_item;
+END_ENTITY; 
+
+ENTITY Maths_variable;
+  name         : STRING;
+  values_space : Maths_space;
+END_ENTITY;
+
+ENTITY Unbound_parameter_environment;
+     syntactic_representation : Unbound_variational_parameter;
+     semantics : Unbound_variational_parameter_semantics;
+END_ENTITY; 
+
+
+
+ENTITY Unbound_variational_parameter_semantics;
+END_ENTITY;
+
+
+ENTITY Unbound_variational_parameter
+  SUBTYPE OF (Variational_representation_item, Maths_variable);
+   parameter_description : OPTIONAL STRING; 
+   parameter_current_value : maths_value;
+DERIVE
+  SELF\Maths_variable.name : STRING := SELF\Representation_item.name;
+INVERSE
+   interpretation : Unbound_parameter_environment for syntactic_representation;
+END_ENTITY; 
+
+ENTITY Variational_current_representation_relationship
+  SUBTYPE OF (Representation_relationship);
+  SELF\Representation_relationship.rep_1 
+                 : Variational_representation;
+  current_result : Representation;
+UNIQUE
+  UR1: current_result;
+WHERE
+  WR1: QUERY(q <* SELF\Representation_relationship.rep_1.items | NOT
+    ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM'
+    IN TYPEOF(q))) = SELF\Representation_relationship.rep_2.items;
+  WR2: SELF\Representation_relationship.rep_1.context_of_items :=:
+    SELF\Representation_relationship.rep_2.context_of_items;
+  WR3: SIZEOF(QUERY(q <* SELF\Representation_relationship.rep_2.items |
+    'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' 
+    IN TYPEOF(q))) = 0;
+  WR4: current_result :=: SELF\Representation_relationship.rep_2;
+END_ENTITY;
+
+
+ENTITY Variational_representation 
+  SUBTYPE OF (Representation);
+INVERSE
+  cm_link : Variational_current_representation_relationship FOR rep_1;
+WHERE
+  WR1: SIZEOF(QUERY(q <* SELF\representation.items | 
+    'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' 
+    IN TYPEOF(q))) > 0;
+(* replace WR2 by note to remove complex references to other schemas in ARM
+WR2: SIZEOF(QUERY(q <* (SELF\representation.items - 
+    cm_link.rep_2.items) | invalidate_vrep_item(q))) = 0;  *)
+END_ENTITY;
+
+ENTITY Variational_representation_item
+  ABSTRACT SUPERTYPE OF (ONEOF(Auxiliary_geometric_representation_item, Bound_variational_parameter, 
+  Unbound_variational_parameter))
+  SUBTYPE OF (Representation_item);
+WHERE
+  WR1: SIZEOF(QUERY(q <* using_representations(SELF) |
+    NOT ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION'  
+    IN TYPEOF(q)))) = 0;
+  WR2: SIZEOF(QUERY(q <* using_representations(SELF) |
+    NOT (SELF IN q.items))) = 0; 
+END_ENTITY;
+
+
+
+
+(*
+FUNCTION invalidate_vrep_item(item : variational_representation_item) 
+                                   : BOOLEAN;
+
+  LOCAL
+    reps    : SET[1:?] OF representation := using_representations(item);
+    svri    : SET[1:?] OF variational_representation_item;
+    iar     : instance_attribute_reference;
+    i       : INTEGER;
+    n       : INTEGER := HIINDEX(reps);
+  END_LOCAL;
+
+  IF ('PARAMETERIZATION_SCHEMA.BOUND_MODEL_PARAMETER' IN TYPEOF(item))
+  THEN
+    IF 'PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' 
+      IN TYPEOF(item\generic_variable.interpretation.semantics)
+    THEN
+      BEGIN
+        iar := item\generic_variable.interpretation.semantics;
+        IF (reps <> using_representations(iar.owning_instance))
+        THEN
+          RETURN(TRUE);
+        END_IF;
+      END;
+    ELSE RETURN(TRUE); -- parameter not attached to an instance attribute
+    END_IF;
+  END_IF;
+
+  IF ('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER' IN TYPEOF(item))
+  THEN
+    BEGIN 
+      REPEAT i := 1 TO n;
+        svri := QUERY(q <* reps[i].items | 
+          'EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(q));
+        IF SIZEOF(QUERY(r <* svri | 
+          item IN (r.reference_elements + r.constrained_elements))) = 0
+        THEN 
+          RETURN(TRUE);
+        END_IF;
+      END_REPEAT;
+    END;
+  END_IF;
+
+  IF ('PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' 
+    IN TYPEOF(item))
+  THEN
+    REPEAT i := 1 TO SIZEOF(item.fixed_attributes);
+      IF (reps <> using_representations(item.fixed_attributes[i]))
+      THEN
+        RETURN(TRUE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+
+  IF ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(item))
+  THEN
+    IF SIZEOF(QUERY(q <* 
+      (item.reference_elements + item.constrained_elements) |
+      reps <> using_representations(q))) > 0
+    THEN
+      RETURN(TRUE);
+    END_IF;
+  END_IF;
+
+  IF ('VARIATIONAL_REPRESENTATION_SCHEMA.AUXILIARY_GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item))
+  THEN
+    BEGIN 
+      REPEAT i := 1 TO n;
+        svri := QUERY(q <* reps[i].items | 
+          'EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.EXPLICIT_GEOMETRIC_CONSTRAINT' IN TYPEOF(q));
+        IF SIZEOF(QUERY(r <* svri | 
+          item IN r.reference_elements)) = 0
+        THEN
+          RETURN(TRUE);
+        END_IF;
+      END_REPEAT;
+    END;
+  END_IF;
+
+  RETURN(FALSE); -- no invalid cases have been found
+
+END_FUNCTION;
+
+*)
+
+FUNCTION make_numeric_set(start, delta : NUMBER; 
+                          incs         : maths_integer) 
+                                       : SET [2:?] OF NUMBER;
+
+  LOCAL
+    i : INTEGER;
+    numeric_set : SET[2:?] OF NUMBER := [start, (start + delta)];
+  END_LOCAL;
+
+  IF incs > 1 THEN REPEAT i := 2 TO incs;
+                     numeric_set := numeric_set + (start + (i*delta));
+                   END_REPEAT;
+  END_IF;
+  RETURN(numeric_set);
+END_FUNCTION;
+
+FUNCTION validate_attribute_id(attid : attribute_identifier) : BOOLEAN;
+
+  CONSTANT
+    letters      : SET[52:52] OF STRING := 
+      ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+       'q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
+       'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
+       'W','X','Y','Z'];
+    numbers_etc  : SET[15:15] OF STRING := 
+      ['0','1','2','3','4','5','6','7','8','9','_','[',']','.','\'];
+    valid_chars  : SET[67:67] OF STRING := letters + numbers_etc;
+  END_CONSTANT;
+
+  LOCAL
+    id_length : INTEGER := LENGTH(attid);
+    id_valid  : BOOLEAN := TRUE;
+    i         : INTEGER;
+  END_LOCAL;
+
+  -- check that indentifier starts with a letter
+
+  IF NOT (attid[1] IN letters) THEN 
+    id_valid := FALSE; 
+  END_IF;
+  
+  -- check that no invalid characters occur subsequently
+
+  REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
+    IF NOT (attid[i] IN valid_chars) THEN 
+      id_valid := FALSE;
+    END_IF;
+  END_REPEAT;
+  RETURN(id_valid);
+
+END_FUNCTION;
+
+
+
+
+END_SCHEMA;
+

@@ -1,0 +1,151 @@
+(*
+ 
+ ISO TC184/SC4/WG12 N4pc5 - ISO/CD-TS 10303-1pc1 Sketch - EXPRESS ARM
+*)
+
+
+SCHEMA Sketch_arm;
+
+USE FROM Basic_geometry_arm;
+USE FROM Elemental_geometric_shape_arm;
+USE FROM Geometric_constraints_arm;
+
+--USE FROM Elementary_geometry_arm;
+
+
+USE FROM Foundation_representation_arm;
+
+USE FROM Parameterization_and_variational_representation_arm;
+
+USE FROM Topologically_bounded_surface_arm;
+
+TYPE planar_curve_select = EXTENSIBLE SELECT
+  (Line,
+   Conic);
+END_TYPE;
+
+TYPE sketch_basis_select = EXTENSIBLE SELECT
+  (planar_curve_select,
+   Advanced_face);
+END_TYPE;
+
+TYPE sketch_element_select = EXTENSIBLE SELECT
+  (point_select,
+   Curve);
+WHERE
+  WR1: 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.DETAILED_GEOMETRIC_MODEL_ELEMENT' IN TYPEOF(SELF);
+END_TYPE;
+
+
+
+TYPE sketch_type_select = SELECT
+  (Sketch_2d_representation,
+   Positioned_sketch,
+   Subsketch);
+END_TYPE;
+
+TYPE surface_or_solid_model = EXTENSIBLE SELECT;
+END_TYPE;
+
+
+TYPE curves_or_area = ENUMERATION OF
+  (curves, area);
+END_TYPE;
+
+ENTITY Implicit_explicit_sketch_relationship;
+    implicit_sketch :  Repositioned_sketch_2d_in_3d; 
+    explicit_sketch :  Positioned_sketch;
+END_ENTITY;
+
+ENTITY Implicit_planar_intersection_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  external_surface : Surface;
+END_ENTITY;
+
+
+
+ENTITY Implicit_planar_intersection_point
+    SUBTYPE OF (Auxiliary_geometric_representation_item);
+    using_sketch   : Positioned_sketch;
+    computed_representation  : Cartesian_point;
+    external_curve : Curve;
+END_ENTITY;
+
+ENTITY Implicit_planar_model_intersection_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  intersected_model : surface_or_solid_model;
+END_ENTITY;
+
+
+ENTITY Implicit_planar_projected_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  external_curve       : Curve;
+  projection_direction : Direction;
+END_ENTITY;
+
+
+ENTITY Implicit_planar_projection_point
+    SUBTYPE OF (Auxiliary_geometric_representation_item);
+    using_sketch   : Positioned_sketch;
+    computed_representation  : Cartesian_point;
+    external_point       : point_select;
+    projection_direction : Direction;
+END_ENTITY;
+
+
+
+ENTITY Implicit_planar_silhouette_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  silhouetted_model : surface_or_solid_model;
+  view_direction    : Direction;
+END_ENTITY;
+
+
+
+ENTITY Positioned_sketch
+  SUBTYPE OF (Detailed_geometric_model_element);
+  sketch_basis       : sketch_basis_select;
+  auxiliary_elements : 
+    SET[0:?] OF Auxiliary_geometric_representation_item;
+END_ENTITY;
+
+ENTITY Repositioned_sketch_2d_in_3d
+  SUBTYPE OF (Detailed_geometric_model_element);
+     source : Sketch_2d_representation;
+     mapping_origin : Axis_placement;
+     mapping_target : Axis_placement;
+   WHERE
+    WR1: mapping_origin.dim = 2;
+    WR2: mapping_target.dim = 3;
+ END_ENTITY;
+
+ENTITY Rigid_subsketch
+  SUBTYPE OF (Subsketch); 
+END_ENTITY;
+
+
+ENTITY Sketch_2d_representation
+  SUBTYPE OF (Geometric_model);
+  sketch_2d_semantics  : curves_or_area; 
+  SELF\representation.items : SET[1:?] OF sketch_element_select;
+WHERE
+  WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimimension_count  = 2;
+END_ENTITY;
+
+
+ENTITY Subsketch
+  SUBTYPE OF (Detailed_geometric_model_element);
+  subsketch_elements : SET[1:?] OF sketch_element_select; 
+  owning_sketch      : sketch_type_select;
+END_ENTITY;
+
+
+END_SCHEMA; -- sketch_schema

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="sketch_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Sketch_arm">
+      <interface kind="use" schema="Basic_geometry_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Geometric_constraints_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="use" schema="Parameterization_and_variational_representation_arm"/>
+      <interface kind="use" schema="Topologically_bounded_surface_arm"/>
+      <type name="curves_or_area">
+         <enumeration items="curves area"/>
+      </type>
+      <type name="planar_curve_select">
+         <select extensible="YES" selectitems="Line Conic"/>
+      </type>
+      <type name="sketch_basis_select">
+         <select extensible="YES" selectitems="planar_curve_select Advanced_face"/>
+      </type>
+      <type name="sketch_element_select">
+         <select extensible="YES" selectitems="point_select Curve"/>
+         <where expression="'ELEMENTAL_GEOMETRIC_SHAPE_ARM.DETAILED_GEOMETRIC_MODEL_ELEMENT' IN TYPEOF(SELF)" label="WR1"/>
+      </type>
+      <type name="sketch_type_select">
+         <select selectitems="Sketch_2d_representation Positioned_sketch Subsketch"/>
+      </type>
+      <type name="surface_or_solid_model">
+         <select extensible="YES"/>
+      </type>
+      <entity name="Implicit_explicit_sketch_relationship">
+         <explicit name="implicit_sketch">
+            <typename name="Repositioned_sketch_2d_in_3d"/>
+         </explicit>
+         <explicit name="explicit_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_intersection_curve" supertypes="Curve Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="external_surface">
+            <typename name="Surface"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_intersection_point" supertypes="Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="external_curve">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_model_intersection_curve" supertypes="Curve Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="intersected_model">
+            <typename name="surface_or_solid_model"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_projected_curve" supertypes="Curve Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="external_curve">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="projection_direction">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_projection_point" supertypes="Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="external_point">
+            <typename name="point_select"/>
+         </explicit>
+         <explicit name="projection_direction">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity name="Implicit_planar_silhouette_curve" supertypes="Curve Auxiliary_geometric_representation_item">
+         <explicit name="using_sketch">
+            <typename name="Positioned_sketch"/>
+         </explicit>
+         <explicit name="computed_representation">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="silhouetted_model">
+            <typename name="surface_or_solid_model"/>
+         </explicit>
+         <explicit name="view_direction">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity name="Positioned_sketch" supertypes="Detailed_geometric_model_element">
+         <explicit name="sketch_basis">
+            <typename name="sketch_basis_select"/>
+         </explicit>
+         <explicit name="auxiliary_elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Auxiliary_geometric_representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="Repositioned_sketch_2d_in_3d" supertypes="Detailed_geometric_model_element">
+         <explicit name="source">
+            <typename name="Sketch_2d_representation"/>
+         </explicit>
+         <explicit name="mapping_origin">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="mapping_target">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <where expression="mapping_origin.dim = 2" label="WR1"/>
+         <where expression="mapping_target.dim = 3" label="WR2"/>
+      </entity>
+      <entity name="Rigid_subsketch" supertypes="Subsketch"/>
+      <entity name="Sketch_2d_representation" supertypes="Geometric_model">
+         <explicit name="sketch_2d_semantics">
+            <typename name="curves_or_area"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="sketch_element_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimimension_count  = 2" label="WR1"/>
+      </entity>
+      <entity name="Subsketch" supertypes="Detailed_geometric_model_element">
+         <explicit name="subsketch_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="sketch_element_select"/>
+         </explicit>
+         <explicit name="owning_sketch">
+            <typename name="sketch_type_select"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

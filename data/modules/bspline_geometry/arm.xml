@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2009/09/07 22:40:06 $" rcs.revision="$Revision: 1.11 $"
+  description.file="arm_descriptions.xml"
+>
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="bspline_geometry_arm_v005.vsd" />
+<schema name="Bspline_geometry_arm">
+
+ <interface kind="use" schema="Basic_geometry_arm"/>
+
+<type name="knot_specification">
+         <enumeration items="bezier quasi_uniform uniform"/>
+      </type>
+
+<type name="parameter_value">
+         <builtintype type="REAL"/>
+      </type>
+
+   <entity name="B_spline_curve" supertypes="Curve" super.expression="
+   ONEOF(Curve_with_explicit_knots, Curve_with_implicit_knots) 
+          ANDOR Rational_b_spline_curve">
+         <explicit name="degree">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="control_points">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="Cartesian_point"/>
+         </explicit>
+         
+         <explicit name="closed_curve">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+       <where label="WR1" expression="('BSPLINE_GEOMETRY_ARM.CURVE_WITH_EXPLICIT_KNOTS' IN TYPEOF(self)) OR&#10;        ('BSPLINE_GEOMETRY_ARM.CURVE_WITH_IMPLICIT_KNOTS' IN TYPEOF(self))"/>
+        
+      </entity>
+
+<entity name="B_spline_surface" supertypes="Surface" super.expression="ONEOF(Surface_with_explicit_knots,
+      Surface_with_implicit_knots) 
+          ANDOR Rational_b_spline_surface">
+         <explicit name="u_degree">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="v_degree">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="control_points_list">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="Cartesian_point"/>
+         </explicit>
+          <explicit name="u_closed">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <explicit name="v_closed">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <where label="WR1" expression="('BSPLINE_GEOMETRY_ARM.SURFACE_WITH_EXPLICIT_KNOTS' IN TYPEOF(self)) OR&#10;        ('BSPLINE_GEOMETRY_ARM.SURFACE_WITH_IMPLICIT_KNOTS' IN TYPEOF(self))"/>
+       
+      </entity>
+
+<entity name="Curve_with_explicit_knots" supertypes="B_spline_curve">
+         <explicit name="knot_multiplicities">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="knot_values">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="parameter_value"/>
+         </explicit>
+          <where label="WR1" expression="SIZEOF(knot_multiplicities) = SIZEOF(knot_values)"/>
+      </entity>
+
+<entity name="Curve_with_implicit_knots" supertypes="B_spline_curve">
+         <explicit name="knot_type">
+            <typename name="knot_specification"/>
+         </explicit>
+       
+      </entity>
+
+<entity name="Rational_b_spline_curve" supertypes="B_spline_curve">
+         <explicit name="weight_values">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <builtintype type="REAL"/>
+         </explicit>
+          <where label="WR1" expression="SIZEOF(weights_data) = SIZEOF(SELF\B_spline_curve.&#10;                                           control_points)"/>
+         <where label="WR2" expression="positive_curve_weights(SELF)"/>
+    
+    </entity>
+   
+   <entity name="Rational_b_spline_surface" supertypes="B_spline_surface">
+         <explicit name="weight_values">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         
+         <where label="WR1" expression="(SIZEOF(weight_values) =&#10;                     SIZEOF(SELF\B_spline_surface.control_points))&#10;           AND (SIZEOF(weight_values[1]) =&#10;                  SIZEOF(SELF\B_spline_surface.control_points[1]))"/>
+         <where label="WR2" expression="positive_surface_weights(SELF)"/>
+      </entity>
+
+<entity name="Surface_with_explicit_knots" supertypes="B_spline_surface">
+         <explicit name="u_multiplicities">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="v_multiplicities">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="u_knot_values">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="v_knot_values">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="parameter_value"/>
+         </explicit>
+         
+         <where label="WR1" expression="SIZEOF(u_knot_multiplicities) = SIZEOF(u_knot_values)"/>
+         <where label="WR2" expression="SIZEOF(v_knot_multiplicities) = SIZEOF(v_knot_values)"/>
+     </entity>
+
+<entity name="Surface_with_implicit_knots" supertypes="B_spline_surface">
+         <explicit name="knot_type">
+            <typename name="knot_specification"/>
+         </explicit>
+       
+      </entity>
+  <function name="positive_curve_weights">
+         <parameter name="bsc">
+            <typename name="Rational_b_spline_curve"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+     result : BOOLEAN := TRUE;
+   END_LOCAL;
+
+   REPEAT i := 1 TO SIZEOF(bsc.weight_values);
+     IF b.weight_values[i] &lt;= 0.0  THEN
+       result := FALSE;
+       RETURN(result);
+     END_IF;
+   END_REPEAT;
+   RETURN(result);
+   </algorithm>
+      </function>
+
+<function name="positive_surface_weights">
+         <parameter name="bss">
+            <typename name="Rational_b_spline_surface"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>
+         LOCAL
+           result : BOOLEAN := TRUE;
+         END_LOCAL]  
+      REPEAT i := 1 TO SIZEOF(bss.weights_values);
+           REPEAT j := 0 TO SIZEOF(bss.weights_values[1]);
+             IF (bss.weights[i][j] &lt;= 0.0)  THEN
+               result := FALSE;
+               RETURN(result);
+             END_IF;
+           END_REPEAT;
+         END_REPEAT;
+   RETURN(result);
+   </algorithm>
+      </function>
+
+</schema>
+
+</express>

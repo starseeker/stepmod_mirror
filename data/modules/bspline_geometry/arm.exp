@@ -1,0 +1,130 @@
+(*
+ $Id: arm.exp,v 1.11 2004/10/28 18:02:36 darla Exp $
+ ISO TC184/SC4/WG12 N2bs2 - ISO/TS 10303-1bsg Bspline_geometry - EXPRESS ARM
+*)
+
+
+SCHEMA Bspline_geometry_arm; 
+
+
+USE FROM Basic_geometry_arm; -- ISO 10303-1652
+
+TYPE knot_specification = ENUMERATION OF
+  (bezier,
+   quasi_uniform,
+   uniform);
+ END_TYPE;  
+
+TYPE parameter_value = REAL;
+END_TYPE;
+
+ENTITY B_spline_curve
+  ABSTRACT SUPERTYPE OF (ONEOF(Curve_with_explicit_knots, Curve_with_implicit_knots) 
+          ANDOR Rational_b_spline_curve)
+  SUBTYPE OF (Curve);        
+  degree : INTEGER;
+  control_points : LIST [2:?] OF Cartesian_point;
+  closed : LOGICAL;
+ WHERE
+  WR1 : ('BSPLINE_GEOMETRY_ARM.CURVE_WITH_EXPLICIT_KNOTS' IN TYPEOF(self)) OR
+        ('BSPLINE_GEOMETRY_ARM.CURVE_WITH_IMPLICIT_KNOTS' IN TYPEOF(self));
+END_ENTITY;
+
+ENTITY B_spline_surface
+  ABSTRACT SUPERTYPE OF (ONEOF(Surface_with_explicit_knots, Surface_with_implicit_knots) 
+          ANDOR Rational_b_spline_surface)
+  SUBTYPE OF (Surface);        
+  u_degree : INTEGER;
+  v_degree : INTEGER;
+  control_points : LIST [2:?] OF LIST [2:?] OF Cartesian_point;
+  u_closed : LOGICAL;
+  v_closed : LOGICAL;
+ WHERE
+  WR1 : ('BSPLINE_GEOMETRY_ARM.SURFACE_WITH_EXPLICIT_KNOTS' IN TYPEOF(self)) OR
+        ('BSPLINE_GEOMETRY_ARM.SURFACE_WITH_IMPLICIT_KNOTS' IN TYPEOF(self));
+
+END_ENTITY;
+
+
+ENTITY Curve_with_explicit_knots
+ SUBTYPE OF (B_spline_curve);
+   knot_multiplicities : LIST [2:?] OF INTEGER;
+   knot_values : LIST [2:?] OF parameter_value;
+ WHERE
+  WR1: SIZEOF(knot_multiplicities) = SIZEOF(knot_values);
+END_ENTITY;
+
+ENTITY Curve_with_implicit_knots
+ SUBTYPE OF (B_spline_curve);
+   knot_type : knot_specification;
+ END_ENTITY;
+
+ENTITY Rational_b_spline_curve
+ SUBTYPE OF (B_spline_curve);
+  weight_values : LIST [2:?]  OF REAL;
+ WHERE 
+    WR1: SIZEOF(weight_values) = SIZEOF(SELF\B_spline_curve.control_points);
+    WR2: positive_curve_weights(SELF);
+END_ENTITY;
+
+ENTITY Rational_b_spline_surface
+ SUBTYPE OF (B_spline_surface);
+  weight_values : LIST [2:?] OF LIST [2:?] OF REAL;
+ WHERE 
+    WR1: (SIZEOF(weight_values) =
+                     SIZEOF(SELF\B_spline_surface.control_points))
+           AND (SIZEOF(weight_values[1]) =
+                  SIZEOF(SELF\B_spline_surface.control_points[1]));
+     WR2: positive_surface_weights(SELF);
+END_ENTITY;
+
+
+
+ENTITY Surface_with_explicit_knots
+ SUBTYPE OF (B_spline_surface);
+   u_knot_multiplicities : LIST [2:?] OF INTEGER;
+   u_knot_values : LIST [2:?] OF parameter_value;
+   v_knot_multiplicities : LIST [2:?] OF INTEGER;
+   v_knot_values : LIST [2:?] OF parameter_value;
+  WHERE
+  WR1: SIZEOF(u_knot_multiplicities) = SIZEOF(u_knot_values);
+  WR2: SIZEOF(v_knot_multiplicities) = SIZEOF(v_knot_values);
+ END_ENTITY;
+
+ENTITY Surface_with_implicit_knots
+ SUBTYPE OF (B_spline_surface);
+   knot_type : knot_specification;
+ END_ENTITY;
+
+FUNCTION positive_curve_weights(bsc: Rational_b_spline_curve) : BOOLEAN;
+   LOCAL
+     result : BOOLEAN := TRUE;
+   END_LOCAL;
+
+   REPEAT i := 1 TO SIZEOF(bsc.weight_values);
+     IF bsc.weight_values[i] <= 0.0  THEN
+       result := FALSE;
+       RETURN(result);
+     END_IF;
+   END_REPEAT;
+   RETURN(result);
+ END_FUNCTION;
+
+FUNCTION positive_surface_weights(bss: Rational_b_spline_surface) : BOOLEAN;
+   LOCAL
+     result        : BOOLEAN := TRUE;
+   END_LOCAL;
+   
+   REPEAT i := 1 TO SIZEOF(bss.weights_values);
+     REPEAT j := 0 TO SIZEOF(bss.weights_values[1]);
+       IF (bss.weights[i][j] <= 0.0)  THEN
+         result := FALSE;
+         RETURN(result);
+       END_IF;
+     END_REPEAT;
+   END_REPEAT;
+   RETURN(result);
+ END_FUNCTION;
+
+END_SCHEMA;  -- Bspline_geometry_arm
+

@@ -5,14 +5,13 @@
    <application name="JSDAI" owner="LKSoft" source="elemental_topology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Elemental_topology_arm">
       <interface kind="use" schema="Foundation_representation_arm"/>
-      <entity name="Closed_shell" supertypes="Connected_face_set"/>
       <entity name="Connected_edge_set" supertypes="Detailed_topological_model_element">
          <explicit name="connected_edges">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Edge"/>
          </explicit>
       </entity>
-      <entity name="Connected_face_set" super.expression="ONEOF (Closed_shell, Open_shell)" supertypes="Detailed_topological_model_element">
+      <entity name="Connected_face_set" supertypes="Detailed_topological_model_element">
          <explicit name="connected_faces">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Face"/>
@@ -31,7 +30,7 @@
          <derived expression="SIZEOF(SELF\Path.edge_list)" name="ne">
             <builtintype type="INTEGER"/>
          </derived>
-         <where expression="(SELF\Path.edge_list[1].edge_start) :=:&#xA;       (SELF\Path.edge_list[ne].edge_end)" label="WR1"/>
+         <where expression="(SELF\Path.edge_list[1].edge_start) :=:&#xA;        (SELF\Path.edge_list[ne].edge_end)" label="WR1"/>
       </entity>
       <entity name="Face" supertypes="Detailed_topological_model_element">
          <explicit name="bounds">
@@ -50,7 +49,6 @@
       </entity>
       <entity name="Face_outer_bound" supertypes="Face_bound"/>
       <entity name="Loop" super.expression="ONEOF (Vertex_loop, Edge_loop)" supertypes="Detailed_topological_model_element"/>
-      <entity name="Open_shell" supertypes="Connected_face_set"/>
       <entity name="Oriented_edge" supertypes="Edge">
          <explicit name="edge_definition">
             <typename name="Edge"/>
@@ -58,11 +56,11 @@
          <explicit name="orientation">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF/edge.edge_start,&#xA;                                            SELF/edge.edge_end)" name="edge_start">
+         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF.edge_edge_definition.edge_start,&#xA;                                            SELF.edge_definition.edge_end)" name="edge_start">
             <typename name="Vertex"/>
             <redeclaration entity-ref="Edge"/>
          </derived>
-         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF/edge.edge_end,&#xA;                                            SELF/edge.edge_start)" name="edge_end">
+         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF.edge_definition.edge_end,&#xA;                                            SELF.edge_definition.edge_start)" name="edge_end">
             <typename name="Vertex"/>
             <redeclaration entity-ref="Edge"/>
          </derived>

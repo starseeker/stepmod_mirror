@@ -1,0 +1,109 @@
+(*
+ $id
+ ISO TC184/SC4/WG12 N4xxx - ISO/TS 10303-1af2 Assembly constraint- EXPRESS ARM
+*)
+
+
+SCHEMA Assembly_constraints_arm;
+
+USE FROM Assembly_feature_relationship_arm; -- ISO/CD-TS 10303-1af1
+USE FROM Geometric_constraints_arm; -- ISO/CD-TS 10303-1pc3
+USE FROM Explicit_constraints_arm; -- ISO/CD-TS 10303-1pc2
+USE FROM Foundation_representation_arm;  -- ISO/TS 10303-1006
+USE FROM Contextual_shape_positioning_arm; -- ISO/TS 10303-1027
+
+ENTITY Binary_assembly_constraint
+  ABSTRACT SUPERTYPE OF (ONEOF
+           (Parallel_assembly_constraint,
+            Dimensioned_surface_distance_assembly_constraint,
+            Dimensioned_angle_assembly_constraint,
+            Perpendicular_assembly_constraint,
+            Incidence_assembly_constraint,
+            Coaxial_assembly_constraint,
+            Tangent_assembly_constraint))
+  SUBTYPE OF (Explicit_constraint,
+            Geometric_model_relationship_with_transformation);
+SELF\Representation_relationship.rep_1:  
+Representative_geometric_model;
+SELF\Representation_relationship.rep_2: 
+Representative_geometric_model;
+WHERE
+  WR1: (SIZEOF(SELF\Explicit_constraint.constrained_elements)=1) AND
+     (SIZEOF(SELF\Explicit_constraint.reference_elements)=1);
+END_ENTITY;-- Binary_assembly_constraint
+
+ENTITY Coaxial_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Coaxial_constraint);
+END_ENTITY;-- Coaxial_assembly_constraint
+
+
+ENTITY Dimensioned_angle_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Dimensioned_angle_constraint);
+END_ENTITY;-- Dimensioned_angle_assembly_constraint
+
+
+
+ENTITY  Dimensioned_parallel_assembly_constraint
+  SUBTYPE OF (Parallel_assembly_constraint,
+              Dimensioned_parallel_constraint);
+END_ENTITY;-- Dimensioned_parallel_assembly_constraint
+
+ENTITY Dimensioned_surface_distance_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Dimensioned_surface_distance_constraint);
+END_ENTITY;-- Dimensioned_surface_distance_assembly_constraint
+
+
+ENTITY Fixed_constituent_assembly_constraint
+SUBTYPE OF (Fixed_element_geometric_constraint);
+  fixed_constituent : Representative_geometric_model;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.constrained_elements) = 1;
+END_ENTITY;-- fixed_constituent_assembly_constraint
+
+
+ENTITY Incidence_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Incidence_geometric_constraint);
+END_ENTITY;-- Incidence_assembly_constraint
+
+
+
+ENTITY Parallel_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Parallel_constraint);
+END_ENTITY;-- Parallel_assembly_constraint
+
+
+ENTITY Perpendicular_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Perpendicular_geometric_constraint);
+END_ENTITY;-- Perpendicular_assembly_constraint
+
+ENTITY Tangent_assembly_constraint
+  SUBTYPE OF (Binary_assembly_constraint,
+              Tangent_constraint);
+END_ENTITY;-- Tangent_assembly_constraint
+
+
+(* omit function
+FUNCTION assembly_leaf
+  (item: product_definition) : BOOLEAN;
+LOCAL
+  local_relation: SET OF assembly_component_usage := [];
+  local_relation2: BAG OF assembly_component_usage := [];
+END_LOCAL;
+-- extraction of related assembly_component_relationships --
+local_relation2 := local_relation2 + (USEDIN (item, 
+    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.'+ 
+    'RELATING_PRODUCT_DEFINITION'));
+local_relation := bag_to_set (local_relation2);
+IF (SIZEOF (local_relation) = 0) THEN RETURN (TRUE);
+  ELSE RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+*)
+
+END_SCHEMA; -- Assembly_constraint_mim

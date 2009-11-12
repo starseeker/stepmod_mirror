@@ -1,0 +1,46 @@
+(*
+  $Id: arm.exp,v 1.2 2009 LMR $
+  ISO TC184/SC4/WG12 N4xxx - ISO/CD-TS 10303-1af1 Assembly feature relationship - EXPRESS ARM
+*)
+
+SCHEMA Assembly_feature_relationship_arm;
+
+USE FROM Contextual_shape_positioning_arm;  -- ISO 10303-1pc3
+
+USE FROM Foundation_representation_arm;  -- ISO 10303-1006
+
+USE FROM Kinematic_motion_representation_arm; -- ISO 10303-1xxx
+ 
+USE FROM Kinematic_structure_arm;  -- ISO 10303-1xxy
+
+USE FROM Shape_property_assignment_arm;  -- ISO 10303-1xxy
+
+
+ENTITY Constrained_kinematic_motion_representation
+  SUBTYPE OF (Geometric_relationship_with_placement_transformation);
+  SELF\Representation_relationship.rep_1 : Representative_geometric_model;
+  SELF\Representation_relationship.rep_2 : Representative_geometric_model;
+END_ENTITY;
+
+ENTITY Free_kinematic_motion_representation
+  SUBTYPE OF (Geometric_model_relationship_with_transformation);
+  SELF\Representation_relationship.rep_1 : Representative_geometric_model;
+  SELF\Representation_relationship.rep_2 : Representative_geometric_model;
+--  motion : Kinematic_path; just to get it compilable
+END_ENTITY;
+
+ENTITY Representative_geometric_model
+  SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+ENTITY Shape_element_relationship_representation_association;
+  represented_shape_element_relationship : Shape_element_relationship;
+  representing_representation_relationship : Representation_relationship;
+WHERE
+  WR1: ('REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\ representation_relationship.rep_1)) AND('REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\ representation_relationship.rep_2));
+END_ENTITY;
+
+END_SCHEMA;  -- Assembly_feature_relationship_arm
+
+
+

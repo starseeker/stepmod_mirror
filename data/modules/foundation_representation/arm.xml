@@ -1,77 +1,158 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date: 2006/02/24 14:07:12 $" rcs.revision="$Revision: 1.3 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="foundation_representation_arm schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="foundation_representation_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Foundation_representation_arm">
+      <interface kind="use" schema="Support_resource_arm"/>
       <interface kind="use" schema="Value_with_unit_arm"/>
-      <entity name="Numerical_representation_context" supertypes="Representation_context" abstract.supertype="NO" abstract.entity="NO">
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <entity name="Numerical_representation_context" supertypes="Representation_context">
          <explicit name="units" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Unit"/>
          </explicit>
          <explicit name="accuracies" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Uncertainty_with_unit"/>
          </explicit>
       </entity>
-      <entity name="Representation" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Representation">
          <explicit name="id" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="identifier"/>
          </explicit>
          <explicit name="name" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="text"/>
          </explicit>
-         <explicit name="context_of_items" optional="NO">
+         <explicit name="context_of_items">
             <typename name="Representation_context"/>
          </explicit>
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Representation_item"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(name) OR (TYPEOF(SELF\Representation) &lt;&gt; TYPEOF(SELF))"/>
+         <where expression="EXISTS(name) OR (TYPEOF(SELF\Representation) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
       </entity>
-      <entity name="Representation_context" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="id" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
+      <entity name="Representation_context">
+         <explicit name="id">
+            <typename name="identifier"/>
          </explicit>
-         <explicit name="kind" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
+         <explicit name="kind">
+            <typename name="text"/>
          </explicit>
-         <inverse name="representations_in_context" entity="Representation" attribute="context_of_items">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="context_of_items" entity="Representation" name="representations_in_context">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Representation_item" abstract.supertype="YES" abstract.entity="NO">
+      <entity abstract.supertype="YES" name="Representation_item">
          <explicit name="name" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="label"/>
          </explicit>
-      <where label="IP1"/>
       </entity>
-      <entity name="Representation_relationship" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Representation_relationship">
          <explicit name="relation_type" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <typename name="text"/>
          </explicit>
-         <explicit name="rep_1" optional="NO">
+         <explicit name="rep_1">
             <typename name="Representation"/>
          </explicit>
-         <explicit name="rep_2" optional="NO">
+         <explicit name="rep_2">
             <typename name="Representation"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(relation_type) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))"/>
-         <where label="WR2" expression="EXISTS(description) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))"/>
+         <where expression="EXISTS(relation_type) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
+         <where expression="EXISTS(description) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))" label="WR2"/>
       </entity>
-      <entity name="String_representation_item" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="string_value" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
+      <entity name="String_representation_item" supertypes="Representation_item">
+         <explicit name="string_value">
+            <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <function name="using_items">
+         <parameter name="item">
+            <typename name="Representation_item"/>
+         </parameter>
+         <parameter name="checked_items">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Representation_item"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Representation_item"/>
+         <algorithm>LOCAL
+      new_check_items    : SET OF Representation_item;
+      result_items       : SET OF Representation_item;
+      next_items         : SET OF Representation_item;
+    END_LOCAL;
+    result_items := [];
+    new_check_items := checked_items + item;
+    -- Find the set of representation_items or founded_items
+    -- in which item is used directly.
+    next_items := QUERY(z &lt;* bag_to_set( USEDIN(item , '')) |
+      ('FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM' IN TYPEOF(z)));
+    -- If the set of next_items is not empty;
+    IF SIZEOF(next_items) &gt; 0 THEN
+      -- For each element in the set, find the using_items recursively
+      REPEAT i := 1 TO HIINDEX(next_items);
+        -- Check for loop in data model, i.e. one of the next_items
+        -- occurred earlier in the set of check_items;
+        IF NOT(next_items[i] IN new_check_items) THEN
+          result_items := result_items + next_items[i] +
+                          using_items(next_items[i],new_check_items);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    -- return the set of representation_items or founded_items
+    -- in which the input item is used directly and indirectly.
+    RETURN (result_items);</algorithm>
+      </function>
+      <function name="using_representations">
+         <parameter name="item">
+            <typename name="Representation_item"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Representation"/>
+         <algorithm>LOCAL
+      results            : SET OF Representation;
+      result_bag         : BAG OF Representation;
+      intermediate_items : SET OF Representation_item;
+    END_LOCAL;
+    -- Find the representations in which the item is used and add to the
+    -- results set.
+    results := [];
+    result_bag := USEDIN(item,'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS');
+    IF SIZEOF(result_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(result_bag);
+        results := results + result_bag[i];
+      END_REPEAT;
+    END_IF;
+    -- Find all representation_items or founded_items
+    -- by which item is referenced directly or indirectly.
+    intermediate_items := using_items(item,[]);
+    -- If the set of intermediate items is not empty;
+    IF SIZEOF(intermediate_items) &gt; 0 THEN
+      -- For each element in the set, add the
+      -- representations of that element.
+      REPEAT i := 1 TO HIINDEX(intermediate_items);
+        result_bag := USEDIN(intermediate_items[i],
+                      'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS');
+        IF SIZEOF(result_bag) &gt; 0 THEN
+          REPEAT j := 1 TO HIINDEX(result_bag);
+            results := results + result_bag[j];
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    -- Return the set of representation in which the input item is
+    -- used directly and indirectly (through intervening
+    -- representation_items or founded items).
+    RETURN (results);</algorithm>
+      </function>
    </schema>
 </express>

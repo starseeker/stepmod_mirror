@@ -1,0 +1,247 @@
+SCHEMA kinematic_state_schema;
+
+REFERENCE FROM kinematic_structure_schema;
+
+REFERENCE FROM geometry_schema
+    (axis2_placement_3d,
+     cartesian_transformation_operator_3d,
+     curve,
+     direction,
+     geometric_representation_context,
+     geometric_representation_item,
+     normalise,
+     point,
+     point_on_curve,
+     point_on_surface,
+     surface,
+     rectangular_trimmed_surface,
+     trimmed_curve);
+
+REFERENCE FROM measure_schema
+    (conversion_based_unit,
+     global_unit_assigned_context,
+     length_measure,
+     plane_angle_measure,
+     si_prefix,
+     si_unit,
+     si_unit_name,
+     unit);
+
+REFERENCE FROM representation_schema
+    (functionally_defined_transformation,
+     item_defined_transformation,
+     representation,
+     representation_context,
+     representation_item,
+     representation_relationship,
+     representation_relationship_with_transformation);
+
+ENTITY mechanism_state_representation -- LK
+  SUBTYPE OF (representation);
+  SELF\representation.context_of_items : geometric_representation_context;
+  SELF\representation.items : SET[1:1] OF pair_value; 
+END_ENTITY;
+
+ENTITY mechanism_to_state_relationship
+	SUBTYPE OF (representation_relationship);
+	SELF\representation_relationship.rep_1 : mechanism_representation;
+	SELF\representation_relationship.rep_2 : mechanism_state_representation;
+END_ENTITY;
+
+ENTITY initial_state;
+  applies_to_mechanism : mechanism;
+  pair_values          : SET [1 : ?] OF pair_value;
+WHERE
+  WR1: SIZEOF (QUERY (joint <* applies_to_mechanism.structure_definition.joints |
+               SIZEOF (QUERY (init_val <* pair_values |
+                       init_val.applies_to_pair.joint :=: joint)) <> 1)) = 0;
+END_ENTITY;
+
+ENTITY pair_value
+  ABSTRACT SUPERTYPE OF ( ONEOF (
+	sliding_surface_pair_value,
+	rolling_surface_pair_value,
+	revolute_pair_value,
+	prismatic_pair_value,
+	screw_pair_value,
+	cylindrical_pair_value,
+	spherical_pair_value,
+	sliding_curve_pair_value,
+	rolling_curve_pair_value,
+	gear_pair_value,
+	rack_and_pinion_pair_value,
+	universal_pair_value,
+	planar_pair_value,
+	unconstrained_pair_value,
+	point_on_surface_pair_value,
+	point_on_planar_curve_pair_value
+  ))
+  SUBTYPE OF (geometric_representation_item);
+  applies_to_pair : kinematic_pair;
+END_ENTITY;
+
+ENTITY sliding_surface_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : sliding_surface_pair;
+  actual_point_on_surface_1       : point_on_surface;
+  actual_point_on_surface_2       : point_on_surface;
+  actual_rotation                 : plane_angle_measure;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
+       actual_point_on_surface_1.basis_surface;
+  WR2: SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:
+       actual_point_on_surface_2.basis_surface;
+END_ENTITY;
+
+ENTITY rolling_surface_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : rolling_surface_pair;
+  actual_point_on_surface         : point_on_surface;
+  actual_rotation                 : plane_angle_measure;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
+       actual_point_on_surface.basis_surface;
+END_ENTITY;
+
+ENTITY revolute_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : revolute_pair;
+  actual_rotation                 : plane_angle_measure ;
+END_ENTITY;
+
+ENTITY prismatic_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : prismatic_pair;
+  actual_translation              : length_measure;
+END_ENTITY;
+
+ENTITY screw_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : screw_pair;
+  actual_rotation                 : plane_angle_measure;
+DERIVE
+  actual_translation              : length_measure
+                                  := SELF\pair_value.applies_to_pair\
+                                     screw_pair.pitch *
+                                     plane_angle_for_pair_in_radian
+                                      (SELF\pair_value.applies_to_pair,
+                                       actual_rotation) / (2 * PI);
+END_ENTITY;
+
+ENTITY cylindrical_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : cylindrical_pair;
+  actual_translation              : length_measure;
+  actual_rotation                 : plane_angle_measure;
+END_ENTITY;
+
+ENTITY spherical_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : spherical_pair;
+  input_orientation               : spatial_rotation;
+DERIVE
+  actual_orientation              : ypr_rotation
+                                  := convert_spatial_to_ypr_rotation
+                                     (SELF\pair_value.applies_to_pair,
+                                      input_orientation);
+END_ENTITY;
+
+
+ENTITY sliding_curve_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : sliding_curve_pair;
+  actual_point_on_curve_1         : point_on_curve;
+  actual_point_on_curve_2         : point_on_curve;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
+       actual_point_on_curve_1.basis_curve;
+  WR2: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:
+       actual_point_on_curve_2.basis_curve;
+END_ENTITY;
+
+ENTITY rolling_curve_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : rolling_curve_pair;
+  actual_point_on_curve_1         : point_on_curve;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
+       actual_point_on_curve_1.basis_curve;
+END_ENTITY;
+
+ENTITY gear_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : gear_pair;
+  actual_rotation_1               : plane_angle_measure;
+DERIVE
+  actual_rotation_2               : plane_angle_measure
+                                  := - actual_rotation_1 *
+                                     SELF\pair_value.applies_to_pair\
+                                     gear_pair.gear_ratio;
+END_ENTITY;
+
+ENTITY rack_and_pinion_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : rack_and_pinion_pair;
+  actual_displacement             : length_measure;
+DERIVE
+  actual_rotation : plane_angle_measure
+                  := convert_plane_angle_for_pair_from_radian
+                     (SELF\pair_value.applies_to_pair,
+                      (- actual_displacement /
+                       SELF\pair_value.applies_to_pair\
+                       rack_and_pinion_pair.pinion_radius));
+END_ENTITY;
+
+ENTITY universal_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : universal_pair;
+  first_rotation_angle            : plane_angle_measure;
+  second_rotation_angle           : plane_angle_measure;
+END_ENTITY;
+
+ENTITY planar_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : planar_pair;
+  actual_rotation                 : plane_angle_measure;
+  actual_translation_x            : length_measure;
+  actual_translation_y            : length_measure;
+END_ENTITY;
+
+ENTITY unconstrained_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : unconstrained_pair;
+  actual_placement                : axis2_placement_3d;
+END_ENTITY;
+
+ENTITY point_on_surface_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : point_on_surface_pair;
+  actual_point_on_surface         : point_on_surface;
+  input_orientation               : spatial_rotation;
+DERIVE
+  actual_orientation              : ypr_rotation
+                                  := convert_spatial_to_ypr_rotation
+                                     (SELF\pair_value.applies_to_pair,
+                                      input_orientation);
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\point_on_surface_pair.pair_surface :=:
+       actual_point_on_surface.basis_surface;
+END_ENTITY;
+
+ENTITY point_on_planar_curve_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : point_on_planar_curve_pair;
+  actual_point_on_curve           : point_on_curve;
+  input_orientation               : spatial_rotation;
+DERIVE
+  actual_orientation              : ypr_rotation
+                                  := convert_spatial_to_ypr_rotation
+                                     (SELF\pair_value.applies_to_pair,
+                                      input_orientation);
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve
+       :=: actual_point_on_curve.basis_curve;
+END_ENTITY;
+
+END_SCHEMA;
+

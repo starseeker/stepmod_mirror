@@ -1,13 +1,7 @@
 
 SCHEMA kinematic_structure_schema;
 
-REFERENCE FROM topology_schema -- LK
-    (connected_edge_set,
-     edge,
-     edge_loop,
-     oriented_edge,
-     path,
-     vertex);
+REFERENCE FROM kinematic_topology_schema; --LK
 
 REFERENCE FROM geometry_schema
     (axis2_placement_3d,
@@ -94,8 +88,13 @@ TYPE kinematic_frame_background = SELECT
    surface);
 END_TYPE;
 
+ENTITY mechanism_representation -- LK
+  SUBTYPE OF (representation);
+  SELF\representation.items : SET[1:1] OF simple_pair_range; 
+END_ENTITY;
+
 ENTITY rotation_about_direction
-  SUBTYPE OF (representation_item); -- LK
+  SUBTYPE OF (geometric_representation_item); -- LK
   direction_of_axis : direction;
   rotation_angle    : plane_angle_measure;
 WHERE
@@ -135,7 +134,7 @@ WHERE
 END_ENTITY;
 
 ENTITY mechanism;
-  structure_definition : kinematic_structure;
+  structure_definition : kinematic_topology_structure;
   base                 : kinematic_link;
   containing_property  : kinematic_property_definition;
 WHERE
@@ -165,40 +164,6 @@ WHERE
   WR3: SELF\representation_relationship_with_transformation.
          transformation_operator IN
        SELF\representation_relationship.rep_1.items;
-END_ENTITY;
-
-ENTITY initial_state;
-  applies_to_mechanism : mechanism;
-  pair_values          : SET [1 : ?] OF pair_value;
-WHERE
-  WR1: SIZEOF (QUERY (joint <* applies_to_mechanism.structure_definition.joints |
-               SIZEOF (QUERY (init_val <* pair_values |
-                       init_val.applies_to_pair.joint :=: joint)) <> 1)) = 0;
-END_ENTITY;
-
-ENTITY kinematic_structure
-  SUBTYPE OF (connected_edge_set);
-  SELF\connected_edge_set.ces_edges RENAMED joints : SET [1 : ?] OF kinematic_joint;
-END_ENTITY;
-
-ENTITY kinematic_joint 
-  SUBTYPE OF (edge); -- LK
-  SELF\edge.edge_start RENAMED first_link  : kinematic_link; -- LK
-  SELF\edge.edge_end RENAMED second_link : kinematic_link;  -- LK
-INVERSE
-  structure   : kinematic_structure FOR joints;
-WHERE
-  WR1: first_link :<>: second_link;
-END_ENTITY;
-
-ENTITY kinematic_link
-  SUBTYPE OF (vertex); -- LK
-WHERE
-  WR1: SIZEOF (USEDIN (SELF,
-                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.FIRST_LINK') +
-               USEDIN (SELF,
-                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.SECOND_LINK')) > 0;
-  WR2: unique_link_usage (SELF);
 END_ENTITY;
 
 ENTITY kinematic_link_representation_relation;
@@ -287,8 +252,8 @@ ENTITY kinematic_pair
   ABSTRACT SUPERTYPE
   SUBTYPE OF (item_defined_transformation);
   joint : kinematic_joint;
-  SELF\item_defined_transformation.transform_item_1 RENAMED pair_placement_in_first_link_context : rigid_placement;
-  SELF\item_defined_transformation.transform_item_2 RENAMED pair_placement_in_second_link_context : rigid_placement;
+  SELF\item_defined_transformation.transform_item_1 : rigid_placement;
+  SELF\item_defined_transformation.transform_item_2 : rigid_placement;
 (* LK
 DERIVE
   pair_placement_in_first_link_context
@@ -302,9 +267,9 @@ UNIQUE
   UR1: joint;
 WHERE
   WR1: coordinated_pair_link_representation
-         (joint.first_link, pair_placement_in_first_link_context);
+         (joint.first_link, transform_item_1);
   WR2: coordinated_pair_link_representation
-         (joint.second_link, pair_placement_in_second_link_context);
+         (joint.second_link, transform_item_2);
 END_ENTITY;
 
 ENTITY pair_actuator;
@@ -314,26 +279,10 @@ UNIQUE
   UR1: actuated_pair;
 END_ENTITY;
 
-ENTITY pair_value
-  ABSTRACT SUPERTYPE
-  SUBTYPE OF (geometric_representation_item);
-  applies_to_pair : kinematic_pair;
-END_ENTITY;
-
 ENTITY simple_pair_range
-  ABSTRACT SUPERTYPE
+-- LK  ABSTRACT SUPERTYPE
   SUBTYPE OF (geometric_representation_item);
   applies_to_pair : kinematic_pair;
-END_ENTITY;
-
-ENTITY revolute_pair
-  SUBTYPE OF (kinematic_pair);
-END_ENTITY;
-
-ENTITY revolute_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : revolute_pair;
-  actual_rotation                 : plane_angle_measure ;
 END_ENTITY;
 
 ENTITY revolute_pair_range
@@ -351,16 +300,6 @@ WHERE
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
 END_ENTITY;
 
-ENTITY prismatic_pair
-  SUBTYPE OF ( kinematic_pair);
-END_ENTITY;
-
-ENTITY prismatic_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : prismatic_pair;
-  actual_translation              : length_measure;
-END_ENTITY;
-
 ENTITY prismatic_pair_range
   SUBTYPE OF (simple_pair_range);
   SELF\simple_pair_range.applies_to_pair : prismatic_pair;
@@ -376,22 +315,17 @@ WHERE
        (lower_limit_actual_translation < upper_limit_actual_translation);
 END_ENTITY;
 
+ENTITY revolute_pair
+  SUBTYPE OF (kinematic_pair);
+END_ENTITY;
+
+ENTITY prismatic_pair
+  SUBTYPE OF ( kinematic_pair);
+END_ENTITY;
+
 ENTITY screw_pair
   SUBTYPE OF (kinematic_pair);
   pitch : length_measure;
-END_ENTITY;
-
-ENTITY screw_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : screw_pair;
-  actual_rotation                 : plane_angle_measure;
-DERIVE
-  actual_translation              : length_measure
-                                  := SELF\pair_value.applies_to_pair\
-                                     screw_pair.pitch *
-                                     plane_angle_for_pair_in_radian
-                                      (SELF\pair_value.applies_to_pair,
-                                       actual_rotation) / (2 * PI);
 END_ENTITY;
 
 ENTITY screw_pair_range
@@ -411,13 +345,6 @@ END_ENTITY;
 
 ENTITY cylindrical_pair
   SUBTYPE OF (kinematic_pair);
-END_ENTITY;
-
-ENTITY cylindrical_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : cylindrical_pair;
-  actual_translation              : length_measure;
-  actual_rotation                 : plane_angle_measure;
 END_ENTITY;
 
 ENTITY cylindrical_pair_range
@@ -446,17 +373,6 @@ END_ENTITY;
 
 ENTITY spherical_pair
   SUBTYPE OF (kinematic_pair);
-END_ENTITY;
-
-ENTITY spherical_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : spherical_pair;
-  input_orientation               : spatial_rotation;
-DERIVE
-  actual_orientation              : ypr_rotation
-                                  := convert_spatial_to_ypr_rotation
-                                     (SELF\pair_value.applies_to_pair,
-                                      input_orientation);
 END_ENTITY;
 
 ENTITY spherical_pair_range
@@ -502,13 +418,6 @@ WHERE
        > 0.0;
 END_ENTITY;
 
-ENTITY universal_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : universal_pair;
-  first_rotation_angle            : plane_angle_measure;
-  second_rotation_angle           : plane_angle_measure;
-END_ENTITY;
-
 ENTITY universal_pair_range
   SUBTYPE OF (simple_pair_range);
   SELF\simple_pair_range.applies_to_pair : universal_pair;
@@ -535,14 +444,6 @@ END_ENTITY;
 
 ENTITY planar_pair
   SUBTYPE OF (kinematic_pair);
-END_ENTITY;
-
-ENTITY planar_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : planar_pair;
-  actual_rotation                 : plane_angle_measure;
-  actual_translation_x            : length_measure;
-  actual_translation_y            : length_measure;
 END_ENTITY;
 
 ENTITY planar_pair_range
@@ -582,12 +483,6 @@ ENTITY unconstrained_pair
   SUBTYPE OF (kinematic_pair);
 END_ENTITY;
 
-ENTITY unconstrained_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : unconstrained_pair;
-  actual_placement                : axis2_placement_3d;
-END_ENTITY;
-
 ENTITY fully_constrained_pair
   SUBTYPE OF (kinematic_pair);
 END_ENTITY;
@@ -599,21 +494,6 @@ WHERE
   WR1: frame_associated_to_background
          (SELF\kinematic_pair.pair_placement_in_first_link_context,
          pair_surface);
-END_ENTITY;
-
-ENTITY point_on_surface_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : point_on_surface_pair;
-  actual_point_on_surface         : point_on_surface;
-  input_orientation               : spatial_rotation;
-DERIVE
-  actual_orientation              : ypr_rotation
-                                  := convert_spatial_to_ypr_rotation
-                                     (SELF\pair_value.applies_to_pair,
-                                      input_orientation);
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\point_on_surface_pair.pair_surface :=:
-       actual_point_on_surface.basis_surface;
 END_ENTITY;
 
 ENTITY point_on_surface_pair_range
@@ -691,31 +571,8 @@ ENTITY sliding_surface_pair
   SUBTYPE OF (surface_pair);
 END_ENTITY;
 
-ENTITY sliding_surface_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : sliding_surface_pair;
-  actual_point_on_surface_1       : point_on_surface;
-  actual_point_on_surface_2       : point_on_surface;
-  actual_rotation                 : plane_angle_measure;
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
-       actual_point_on_surface_1.basis_surface;
-  WR2: SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:
-       actual_point_on_surface_2.basis_surface;
-END_ENTITY;
-
 ENTITY rolling_surface_pair
   SUBTYPE OF (surface_pair);
-END_ENTITY;
-
-ENTITY rolling_surface_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : rolling_surface_pair;
-  actual_point_on_surface         : point_on_surface;
-  actual_rotation                 : plane_angle_measure;
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
-       actual_point_on_surface.basis_surface;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair
@@ -726,21 +583,6 @@ WHERE
   WR1: frame_associated_to_background
          (SELF\kinematic_pair.pair_placement_in_first_link_context,
          pair_curve);
-END_ENTITY;
-
-ENTITY point_on_planar_curve_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : point_on_planar_curve_pair;
-  actual_point_on_curve           : point_on_curve;
-  input_orientation               : spatial_rotation;
-DERIVE
-  actual_orientation              : ypr_rotation
-                                  := convert_spatial_to_ypr_rotation
-                                     (SELF\pair_value.applies_to_pair,
-                                      input_orientation);
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve
-       :=: actual_point_on_curve.basis_curve;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair_range
@@ -810,29 +652,8 @@ ENTITY sliding_curve_pair
   SUBTYPE OF (planar_curve_pair);
 END_ENTITY;
 
-ENTITY sliding_curve_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : sliding_curve_pair;
-  actual_point_on_curve_1         : point_on_curve;
-  actual_point_on_curve_2         : point_on_curve;
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
-       actual_point_on_curve_1.basis_curve;
-  WR2: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:
-       actual_point_on_curve_2.basis_curve;
-END_ENTITY;
-
 ENTITY rolling_curve_pair
   SUBTYPE OF (planar_curve_pair);
-END_ENTITY;
-
-ENTITY rolling_curve_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : rolling_curve_pair;
-  actual_point_on_curve_1         : point_on_curve;
-WHERE
-  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
-       actual_point_on_curve_1.basis_curve;
 END_ENTITY;
 
 ENTITY gear_pair
@@ -842,17 +663,6 @@ ENTITY gear_pair
   bevel              : plane_angle_measure;
   helical_angle      : plane_angle_measure;
   gear_ratio         : REAL;
-END_ENTITY;
-
-ENTITY gear_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : gear_pair;
-  actual_rotation_1               : plane_angle_measure;
-DERIVE
-  actual_rotation_2               : plane_angle_measure
-                                  := - actual_rotation_1 *
-                                     SELF\pair_value.applies_to_pair\
-                                     gear_pair.gear_ratio;
 END_ENTITY;
 
 ENTITY gear_pair_range
@@ -876,19 +686,6 @@ ENTITY rack_and_pinion_pair
   pinion_radius : length_measure;
 END_ENTITY;
 
-ENTITY rack_and_pinion_pair_value
-  SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : rack_and_pinion_pair;
-  actual_displacement             : length_measure;
-DERIVE
-  actual_rotation : plane_angle_measure
-                  := convert_plane_angle_for_pair_from_radian
-                     (SELF\pair_value.applies_to_pair,
-                      (- actual_displacement /
-                       SELF\pair_value.applies_to_pair\
-                       rack_and_pinion_pair.pinion_radius));
-END_ENTITY;
-
 ENTITY rack_and_pinion_pair_range
   SUBTYPE OF (simple_pair_range);
   SELF\simple_pair_range.applies_to_pair : rack_and_pinion_pair;
@@ -904,78 +701,12 @@ WHERE
        (lower_limit_rack_displacement < upper_limit_rack_displacement);
 END_ENTITY;
 
-ENTITY connected_edge_sub_set -- LK new for p42
-  SUBTYPE OF (connected_edge_set);
-  parent_edge_set : connected_edge_set;
-END_ENTITY; 
-
-ENTITY kinematic_substructure
-  SUPERTYPE OF (ONEOF (kinematic_tree_structure,
-                       kinematic_network_structure))
-  SUBTYPE OF (connected_edge_sub_set); -- LK;
-  SELF\connected_edge_sub_set.parent_edge_set RENAMED parent_structure : kinematic_structure; -- LK
-END_ENTITY;
-
-ENTITY kinematic_network_structure
-  SUBTYPE OF (kinematic_substructure);
-END_ENTITY;
-
-ENTITY kinematic_tree_structure
-  SUBTYPE OF (kinematic_substructure);
-END_ENTITY;
-
-ENTITY kinematic_loop
-  SUBTYPE OF (edge_loop); -- LK
-  network : kinematic_network_structure; -- LK, is this really needed, maybe to remove because we have now edge_list
-  SELF\path.edge_list : LIST [1:?] OF UNIQUE oriented_joint; -- LK new
-(* LK, requires further investigation
+ENTITY homokinetic_pair
+  SUBTYPE OF (universal_pair);
 WHERE
- WR1 : SIZEOF(USEDIN(SELF,
-   'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')) > 0;
- WR2 : SIZEOF (QUERY( relation_1 <* USEDIN(SELF,
-    'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP') |
-         SIZEOF (QUERY (relation_2 <*  (USEDIN(SELF, 
-         'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')
-              - relation_1) |
-              NOT(connected_in_simple_loop (relation_1, relation_2))
-         )) > 0 
-       )) = 0;
-*)
+  WR1:  NOT EXISTS(SELF.input_skew_angle);       
 END_ENTITY;
 
-(* LK no longer used
-ENTITY joint_logical_relationship;
-  loop                             : kinematic_loop;
-  previous_joint_logical_structure : oriented_joint;
-  next_joint_logical_structure     : oriented_joint;
-UNIQUE
-  UR1: loop, previous_joint_logical_structure;
-  UR2: loop, next_joint_logical_structure;
-WHERE
-  WR1: previous_joint_logical_structure.exit_link :=:
-       next_joint_logical_structure.advent_link;
-END_ENTITY;
-*)
-
-ENTITY oriented_joint
-  SUBTYPE OF (oriented_edge); -- LK
-  SELF\oriented_edge.edge_element RENAMED joint : kinematic_joint;
-  -- orientation : BOOLEAN; -- LK, already in oriented_edge
-DERIVE
-  advent_link : kinematic_link
-              := assign_directed_link (joint, orientation);
-  exit_link   : kinematic_link
-              := assign_directed_link (joint, NOT (orientation));
-END_ENTITY;
-
-ENTITY oriented_joint_in_tree
-  SUBTYPE OF (oriented_joint);
-  parent_structure : kinematic_tree_structure;
-END_ENTITY;
-
-ENTITY advent_oriented_joint
-  SUBTYPE OF (oriented_joint);
-END_ENTITY;
 
 FUNCTION ypr_index (ypr : ypr_enumeration) : INTEGER;
   CASE ypr OF
@@ -1059,7 +790,7 @@ FUNCTION unique_link_usage (link : kinematic_link) : BOOLEAN;
   LOCAL
     mechs  : SET OF mechanism;
     joints : SET OF kinematic_joint;
-    struct : kinematic_structure;
+    struct : kinematic_topology_structure;
   END_LOCAL;
   joints := bag_to_set
               (USEDIN (link,
@@ -1515,15 +1246,6 @@ FUNCTION convert_spatial_to_ypr_rotation (pair     : kinematic_pair;
 
 END_FUNCTION;
 
-FUNCTION assign_directed_link
-   (joint : kinematic_joint; orientation : BOOLEAN ) : kinematic_link;
-   IF (orientation) THEN
-      RETURN (joint.first_link);
-   ELSE
-      RETURN (joint.second_link);
-   END_IF;
-END_FUNCTION;
-
 (* LK, maybe no longer used, see kinematic_loop.wr2
 FUNCTION connected_in_simple_loop
    (relation_1 : joint_logical_relationship;
@@ -1556,5 +1278,18 @@ FUNCTION connected_in_simple_loop
   END_IF;
 END_FUNCTION;
 *)
+
+SUBTYPE_CONSTRAINT kss_geometric_representation_item_subtypes FOR geometric_representation_item;
+  ONEOF (kinematic_frame_based_transformation,
+         rotation_about_direction,
+         su_parameters);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
+  ONEOF (kinematic_frame_background_representation,
+         kinematic_link_representation,
+         kinematic_ground_representation);
+END_SUBTYPE_CONSTRAINT;
+
 
 END_SCHEMA;         -- end kinematic_structure_schema

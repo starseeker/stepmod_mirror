@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_topology_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="kinematic_topology_schema">
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation"/>
+      </interface>
+      <interface kind="reference" schema="topology_schema">
+         <interfaced.item name="connected_edge_set"/>
+         <interfaced.item name="edge"/>
+         <interfaced.item name="edge_loop"/>
+         <interfaced.item name="oriented_edge"/>
+         <interfaced.item name="path"/>
+         <interfaced.item name="vertex"/>
+      </interface>
+      <entity name="advent_oriented_joint" supertypes="oriented_joint"/>
+      <entity name="kinematic_joint" supertypes="edge">
+         <explicit name="edge_start">
+            <typename name="kinematic_link"/>
+            <redeclaration entity-ref="edge"/>
+         </explicit>
+         <explicit name="edge_end">
+            <typename name="kinematic_link"/>
+            <redeclaration entity-ref="edge"/>
+         </explicit>
+         <where expression="edge_start :&lt;&gt;: edge_end" label="WR1"/>
+      </entity>
+      <entity name="kinematic_link" supertypes="vertex">
+         <where expression="SIZEOF (USEDIN (SELF,&#xA;                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.FIRST_LINK') +&#xA;               USEDIN (SELF,&#xA;                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.SECOND_LINK')) &gt; 0" label="WR1"/>
+      </entity>
+      <entity name="kinematic_loop" supertypes="edge_loop">
+         <explicit name="network">
+            <typename name="kinematic_topology_network_structure"/>
+         </explicit>
+         <explicit name="edge_list">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="oriented_joint"/>
+            <redeclaration entity-ref="path"/>
+         </explicit>
+      </entity>
+      <entity name="kinematic_topology_network_structure" supertypes="kinematic_topology_substructure"/>
+      <entity name="kinematic_topology_representation" supertypes="representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="kinematic_topology_structure"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
+      <entity name="kinematic_topology_structure" supertypes="connected_edge_set">
+         <explicit name="ces_edges">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="kinematic_joint"/>
+            <redeclaration entity-ref="connected_edge_set"/>
+         </explicit>
+         <inverse attribute="items" entity="kinematic_topology_representation" name="owning_representation"/>
+      </entity>
+      <entity name="kinematic_topology_substructure" super.expression="ONEOF (kinematic_topology_tree_structure, kinematic_topology_network_structure)" supertypes="kinematic_topology_structure">
+         <explicit name="parent_edge_set">
+            <typename name="kinematic_topology_structure"/>
+         </explicit>
+      </entity>
+      <entity name="kinematic_topology_tree_structure" supertypes="kinematic_topology_substructure"/>
+      <entity name="oriented_joint" supertypes="oriented_edge">
+         <explicit name="edge_element">
+            <typename name="kinematic_joint"/>
+            <redeclaration entity-ref="oriented_edge"/>
+         </explicit>
+      </entity>
+      <entity name="oriented_joint_in_tree" supertypes="oriented_joint">
+         <explicit name="parent_structure">
+            <typename name="kinematic_topology_tree_structure"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

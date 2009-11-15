@@ -1,41 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="specification_document_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
       <interface kind="use" schema="Configuration_item_arm"/>
       <interface kind="use" schema="Tagged_text_representation_arm"/>
-      <interface kind="reference" schema="Characterizable_object_arm">
+      <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="sd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
       </type>
-      <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_document_definition">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+      <entity name="Design_specification" super.expression="Interface_specification_document_definition" supertypes="Specification_definition">
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <entity name="Fabrication_technology_specification" supertypes="Process_specification"/>
       <entity name="Interface_specification_document_definition" supertypes="Design_specification"/>
       <entity name="Language_reference_manual" supertypes="Specification_definition">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <entity name="Material_specification" supertypes="Specification_definition">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <entity name="Partial_document_with_structured_text_representation_assignment" supertypes="Partial_document_assignment">
          <explicit name="structured_portion">
             <typename name="string_representation_item_select"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Partial_document_assignment" attribute="document_portion"/>
-            <unique.attribute entity-ref="Document_assignment" attribute="assigned_document"/>
+            <unique.attribute attribute="document_portion" entity-ref="Partial_document_assignment"/>
+            <unique.attribute attribute="assigned_document" entity-ref="Document_assignment"/>
          </unique>
       </entity>
       <entity name="Process_specification" supertypes="Specification_definition">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <entity name="Specification_allocation" supertypes="Document_assignment">
          <explicit name="allocated_specification">
@@ -43,16 +42,16 @@
             <redeclaration entity-ref="Document_assignment" old_name="assigned_document"/>
          </explicit>
       </entity>
-      <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') ))">
-            <aggregate type="SET" lower="0" upper="?"/>
+      <entity name="Specification_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)" supertypes="Document_definition">
+         <derived expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#xA;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#xA;                         (temp.role = 'document source') ))" name="source">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
-         <where label="WR1" expression="EXISTS (source) AND (SIZEOF(source) = 1)"/>
+         <where expression="EXISTS (source) AND (SIZEOF(source) = 1)" label="WR1"/>
       </entity>
       <entity name="Surface_finish_specification" supertypes="Material_specification"/>
       <entity name="Test_specification" supertypes="Specification_definition">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <function name="get_document_definition">
          <parameter name="input">
@@ -64,7 +63,7 @@
          <parameter name="type_name">
             <builtintype type="STRING"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Document_definition"/>
          <algorithm>LOCAL
       dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base

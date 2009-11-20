@@ -1,21 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date: 2007-03-27 02:19:59 -0700 (An, 27 Kov 2007) $" rcs.revision="$Revision: 139 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fill_area_style_arm schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="fill_area_style_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Fill_area_style_arm">
       <interface kind="use" schema="Basic_curve_arm"/>
       <interface kind="use" schema="Styled_curve_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <interface kind="use" schema="Extended_basic_geometry_arm"/>
-      <type name="fill_area_style_select">
-         <select extensible="YES" genericentity="YES" selectitems="Hatch_style Tile_style"/>
-      </type>
       <entity name="Externally_defined_hatch_style" supertypes="Hatch_style"/>
       <entity name="Externally_defined_tile_style" supertypes="Tile_style"/>
-      <entity name="Hatch_style" abstract.supertype="YES" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Externally_defined_hatch_style, User_defined_hatch_style)"/>
-      <entity name="Tile_style" abstract.supertype="YES" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Externally_defined_tile_style, User_defined_tile_style)"/>
+      <entity abstract.supertype="YES" name="Hatch_style" super.expression="ONEOF (Externally_defined_hatch_style, User_defined_hatch_style)" supertypes="Detailed_geometric_model_element"/>
+      <entity name="Solid_fill_area_style">
+         <explicit name="fill_colour">
+            <typename name="Colour"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Tile_style" super.expression="ONEOF (Externally_defined_tile_style, User_defined_tile_style)" supertypes="Detailed_geometric_model_element"/>
       <entity name="User_defined_hatch_style" supertypes="Hatch_style">
          <explicit name="hatch_line_appearance">
             <typename name="Curve_appearance"/>
@@ -32,7 +33,7 @@
          <explicit name="hatch_line_angle">
             <typename name="Angle_data_element"/>
          </explicit>
-         <where label="WR1" expression="'STYLED_CURVE_ARM.SOLID_CURVE_FONT' IN TYPEOF(SELF.hatch_line_appearance.font)"/>
+         <where expression="'STYLED_CURVE_ARM.SOLID_CURVE_FONT' IN TYPEOF(SELF.hatch_line_appearance.font)" label="WR1"/>
       </entity>
       <entity name="User_defined_tile_style" supertypes="Tile_style">
          <explicit name="first_direction_repeat_factor">
@@ -45,5 +46,6 @@
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="fas_detailed_geometric_model_element_subtypes" super.expression="ONEOF (Hatch_style, Tile_style)"/>
    </schema>
 </express>

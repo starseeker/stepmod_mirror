@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.27 2009/08/10 15:38:20 lothartklein Exp $
+$Id: mim.exp,v 1.28 2009/11/22 08:03:37 lothartklein Exp $
 ISO TC184/SC4/WG12 N6757 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N2877
 *) 
@@ -85,37 +85,27 @@ END_REPEAT;
 RETURN (pdr_set);      
 END_FUNCTION; 
 
-FUNCTION valid_datum_target_parameters
- (pdf : placed_datum_target_feature) : BOOLEAN; 
-LOCAL
+FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOOLEAN; 
+  LOCAL
+    rep_set : SET OF representation := [] ;
+    parameter_representations: SET OF representation;
+  END_LOCAL;
 
-rep_set : SET OF representation := [] ;
+  REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
+    rep_set := rep_set + pdf.representation_associations[i].used_representation;
+  END_REPEAT;
+  parameter_representations := QUERY(rep <* rep_set | ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF(rep)));
 
-parameter_representations: SET OF representation;
-END_LOCAL;
-
-
-REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
-rep_set := rep_set + pdf.representation_associations[i].used_representation;
-END_REPEAT;
- 
-parameter_representations := QUERY(rep <* rep_set |
-('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN
-TYPEOF(rep)));
-
-
-IF (SIZEOF( QUERY( srwp <* parameter_representations |
+  IF (SIZEOF( QUERY( srwp <* parameter_representations |
           (SIZEOF( QUERY( i <* srwp.items |
           (i.name='orientation') AND
           ('GEOMETRY_SCHEMA.PLACEMENT' IN TYPEOF(i)))) = 1))) <> 1) THEN
-   RETURN(FALSE);
-END_IF;
-
-CASE pdf\shape_aspect.description OF
-'point': RETURN(SIZEOF(QUERY( srwp <* parameter_representations |
+    RETURN(FALSE);
+  END_IF;
+  CASE pdf\shape_aspect.description OF
+    'point': RETURN(SIZEOF(QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items) = 1))) = 1);
-
-'circle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+    'circle', 'circular curve': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items) = 2))) = 1) AND
              (SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
@@ -123,15 +113,13 @@ CASE pdf\shape_aspect.description OF
                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
 		   'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1));
-
-'line': RETURN(SIZEOF( QUERY( srwp <* parameter_representations |
+    'line': RETURN(SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
                 (i.name='target length') AND
                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
 		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1);
-
-'rectangle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+    'rectangle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items)= 3))) = 1) AND
              (SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
@@ -145,8 +133,8 @@ CASE pdf\shape_aspect.description OF
                  (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
  		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                   ) = 2))) = 1) )) = 1));
-OTHERWISE : RETURN(FALSE);
-END_CASE;
-   END_FUNCTION; 
+    OTHERWISE : RETURN(FALSE);
+  END_CASE;
+END_FUNCTION; 
 
 END_SCHEMA;  -- Geometric_tolerance_mim

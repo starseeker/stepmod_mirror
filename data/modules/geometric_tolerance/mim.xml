@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
 <express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="geometric_tolerance_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Geometric_tolerance_mim">
@@ -36,7 +35,7 @@
             <aggregate lower="0" type="SET" upper="?"/>
             <typename name="property_definition_representation"/>
          </derived>
-         <where expression="SELF.description IN ['point','line','rectangle','circle', 'circular line']" label="WR1"/>
+         <where expression="SELF.description IN ['point','line','rectangle','circle','circular curve']" label="WR1"/>
          <where expression="SIZEOF (QUERY (pdr &lt;* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1" label="WR2"/>
          <where expression="valid_datum_target_parameters(SELF)" label="WR3"/>
       </entity>
@@ -75,34 +74,25 @@ RETURN (pdr_set);</algorithm>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>LOCAL
+    rep_set : SET OF representation := [] ;
+    parameter_representations: SET OF representation;
+  END_LOCAL;
 
-rep_set : SET OF representation := [] ;
+  REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
+    rep_set := rep_set + pdf.representation_associations[i].used_representation;
+  END_REPEAT;
+  parameter_representations := QUERY(rep &lt;* rep_set | ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF(rep)));
 
-parameter_representations: SET OF representation;
-END_LOCAL;
-
-
-REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
-rep_set := rep_set + pdf.representation_associations[i].used_representation;
-END_REPEAT;
- 
-parameter_representations := QUERY(rep &lt;* rep_set |
-('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN
-TYPEOF(rep)));
-
-
-IF (SIZEOF( QUERY( srwp &lt;* parameter_representations |
+  IF (SIZEOF( QUERY( srwp &lt;* parameter_representations |
           (SIZEOF( QUERY( i &lt;* srwp.items |
           (i.name='orientation') AND
           ('GEOMETRY_SCHEMA.PLACEMENT' IN TYPEOF(i)))) = 1))) &lt;&gt; 1) THEN
-   RETURN(FALSE);
-END_IF;
-
-CASE pdf\shape_aspect.description OF
-'point': RETURN(SIZEOF(QUERY( srwp &lt;* parameter_representations |
+    RETURN(FALSE);
+  END_IF;
+  CASE pdf\shape_aspect.description OF
+    'point': RETURN(SIZEOF(QUERY( srwp &lt;* parameter_representations |
               (SIZEOF(srwp.items) = 1))) = 1);
-
-'circle': RETURN((SIZEOF( QUERY( srwp &lt;* parameter_representations |
+    'circle', 'circular curve': RETURN((SIZEOF( QUERY( srwp &lt;* parameter_representations |
               (SIZEOF(srwp.items) = 2))) = 1) AND
              (SIZEOF( QUERY( srwp &lt;* parameter_representations |
               (SIZEOF( QUERY( i &lt;* srwp.items |
@@ -110,15 +100,13 @@ CASE pdf\shape_aspect.description OF
                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
 		   'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1));
-
-'line': RETURN(SIZEOF( QUERY( srwp &lt;* parameter_representations |
+    'line': RETURN(SIZEOF( QUERY( srwp &lt;* parameter_representations |
               (SIZEOF( QUERY( i &lt;* srwp.items |
                 (i.name='target length') AND
                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
 		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1);
-
-'rectangle': RETURN((SIZEOF( QUERY( srwp &lt;* parameter_representations |
+    'rectangle': RETURN((SIZEOF( QUERY( srwp &lt;* parameter_representations |
               (SIZEOF(srwp.items)= 3))) = 1) AND
              (SIZEOF( QUERY( srwp &lt;* parameter_representations |
               (SIZEOF( QUERY( i &lt;* srwp.items |
@@ -132,8 +120,8 @@ CASE pdf\shape_aspect.description OF
                  (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
  		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                   ) = 2))) = 1) )) = 1));
-OTHERWISE : RETURN(FALSE);
-END_CASE;</algorithm>
+    OTHERWISE : RETURN(FALSE);
+  END_CASE;</algorithm>
       </function>
    </schema>
 </express>

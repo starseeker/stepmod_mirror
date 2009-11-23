@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.11 2008/09/12 10:23:02 liutkuviene Exp $
+ $Id: arm.exp,v 1.12 2009/11/23 17:37:38 lothartklein Exp $
  ISO TC184/SC4/WG12 N5272 - ISO/TS 10303-1514 Advanced boundary representation - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4651
 *)
@@ -7,10 +7,30 @@
 SCHEMA Advanced_boundary_representation_arm;
 
 USE FROM Topologically_bounded_surface_arm; --ISO/TS 10303-1511:2004
+USE FROM Solid_model_arm;
 
-  ENTITY Advanced_brep_shape_representation
-	SUBTYPE OF (Geometric_model);
-  END_ENTITY;
-  
+TYPE advanced_brep_shape_representation_item = SELECT (
+  Axis_placement_3d,
+  Geometric_placement_operation,
+  Manifold_solid_brep);
+END_TYPE;
+
+ENTITY Advanced_brep_shape_representation
+  SUBTYPE OF (Geometric_model);
+  SELF\Representation.items : SET [1:?] of
+advanced_brep_shape_representation_item;
+END_ENTITY;
+
+ENTITY Closed_shell
+  SUBTYPE OF (Connected_face_set);
+  SELF\Connected_face_set.connected_faces : SET[1:?] OF Advanced_face;
+END_ENTITY;
+
+ENTITY Manifold_solid_brep 
+  SUBTYPE OF (Solid_model);
+  outer : Closed_shell;
+  voids : OPTIONAL SET[1:?] OF Closed_shell;
+END_ENTITY;
+
 END_SCHEMA;
 

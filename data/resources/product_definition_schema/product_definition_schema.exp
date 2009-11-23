@@ -1,14 +1,12 @@
-
 (*
-$Id: product_definition_schema.exp,v 1.6 2008/04/21 20:26:22 darla Exp $
-
-2008-02-07
-ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
+2009-11-14
+ISO TC184/SC4/WG12 N6753 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 (*
-Supersedes ISO TC184/SC4/WG12 N2887 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
-changes to date_time schema and to measure_schema as per TC1 - WG12 N4884.
+Supersedes ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
+changes to product_property_representation_schema and to measure_schema as per TC2 - WG12 N6752.
 *)
+
 
 
 
@@ -207,6 +205,19 @@ SCHEMA product_definition_schema;
     RETURN (TRUE);
   END_FUNCTION;
 
+  FUNCTION categories_of_product
+   (obj : product) : SET OF STRING; 
+  LOCAL
+    category_assignments: BAG OF product_category;
+    categories: SET OF STRING:=[];
+  END_LOCAL;
+    category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+      categories := categories + category_assignments[i].name;
+    END_REPEAT;
+    RETURN(categories);
+  END_FUNCTION; 
+
   FUNCTION get_product_definitions (c_def_instance : product):SET OF product_definition;
     LOCAL
       pd_set : SET OF product_definition_formation := [];
@@ -222,18 +233,5 @@ SCHEMA product_definition_schema;
     END_REPEAT;
     RETURN (pdr_set);
   END_FUNCTION;
-  
-  FUNCTION categories_of_product
-   (obj : product) : SET OF STRING; 
-  LOCAL
-    category_assignments: BAG OF product_category;
-    categories: SET OF STRING:=[];
-  END_LOCAL;
-    category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-      categories := categories + category_assignments[i].name;
-    END_REPEAT;
-    RETURN(categories);
-  END_FUNCTION; 
 
 END_SCHEMA;

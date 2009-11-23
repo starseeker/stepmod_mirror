@@ -1,109 +1,122 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date: 2007-03-27 02:19:59 -0700 (An, 27 Kov 2007) $" rcs.revision="$Revision: 139 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="elemental_geometric_shape_arm schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="elemental_geometric_shape_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Elemental_geometric_shape_arm">
       <interface kind="use" schema="Foundation_representation_arm"/>
       <interface kind="use" schema="Identification_assignment_arm"/>
       <type name="cartesian_transformation">
-         <select selectitems="Cartesian_transformation_2d Cartesian_transformation_3d" genericentity="NO" extensible="NO"/>
+         <select selectitems="Cartesian_transformation_2d Cartesian_transformation_3d"/>
       </type>
-      <type name="geometric_mapping_target">
-         <select selectitems="Axis_placement cartesian_transformation" genericentity="NO" extensible="NO"/>
+      <type name="template_definition_select">
+         <select extensible="YES" selectitems="Geometric_model"/>
       </type>
-      <entity name="Axis_placement" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Axis_placement_2d, Axis_placement_3d)" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="origin" optional="NO">
+      <entity name="Axis_placement" super.expression="ONEOF (Axis_placement_2d, Axis_placement_3d)" supertypes="Detailed_geometric_model_element">
+         <explicit name="origin">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="x_axis" optional="NO">
+         <explicit name="x_axis">
             <typename name="Direction"/>
          </explicit>
-         <explicit name="y_axis" optional="NO">
+         <explicit name="y_axis">
             <typename name="Direction"/>
          </explicit>
-         <derived name="dim" expression="SIZEOF(origin.coordinates)">
-            <builtintype type="INTEGER" fixed="NO"/>
+         <derived expression="SIZEOF(origin.coordinates)" name="dim">
+            <builtintype type="INTEGER"/>
          </derived>
-         <where label="WR1" expression="dim &gt;1"/>
-         <where label="WR2" expression="dim = SIZEOF(x_axis.coordinates)"/>
-         <where label="WR3" expression="dim = SIZEOF(y_axis.coordinates)"/>
-      <where label="IP1"/>
+         <where expression="dim &gt;1" label="WR1"/>
+         <where expression="dim = SIZEOF(x_axis.coordinates)" label="WR2"/>
+         <where expression="dim = SIZEOF(y_axis.coordinates)" label="WR3"/>
       </entity>
-      <entity name="Axis_placement_2d" supertypes="Axis_placement" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Axis_placement_3d" supertypes="Axis_placement" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Axis_placement_mapping" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="source" optional="NO">
+      <entity name="Axis_placement_2d" supertypes="Axis_placement"/>
+      <entity name="Axis_placement_3d" supertypes="Axis_placement"/>
+      <entity name="Axis_placement_mapping">
+         <explicit name="source">
             <typename name="Axis_placement"/>
          </explicit>
-         <explicit name="target" optional="NO">
+         <explicit name="target">
             <typename name="Axis_placement"/>
          </explicit>
-         <where label="WR1" expression="source\Axis_placement.dim = target\Axis_placement.dim"/>
+         <where expression="source\Axis_placement.dim = target\Axis_placement.dim" label="WR1"/>
       </entity>
-      <entity name="Cartesian_point" supertypes="Detailed_geometric_model_element" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="coordinates" optional="NO">
-            <aggregate type="LIST" lower="1" upper="3" unique="NO" optional="NO"/>
+      <entity name="Cartesian_point" supertypes="Detailed_geometric_model_element">
+         <explicit name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <entity name="Cartesian_transformation_2d" supertypes="Detailed_geometric_model_element" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="multiplication_matrix" optional="NO">
-            <aggregate type="ARRAY" lower="1" upper="2" unique="NO" optional="NO"/>
+      <entity name="Cartesian_transformation_2d" supertypes="Detailed_geometric_model_element">
+         <explicit name="multiplication_matrix">
+            <aggregate lower="1" type="ARRAY" upper="2"/>
             <typename name="Direction"/>
          </explicit>
-         <explicit name="translation" optional="NO">
+         <explicit name="translation">
             <typename name="Cartesian_point"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(multiplication_matrix[1]\Direction.coordinates)=2"/>
-         <where label="WR2" expression="SIZEOF(multiplication_matrix[2]\Direction.coordinates)=2"/>
-         <where label="WR3" expression="SIZEOF(translation.coordinates)=2"/>
+         <where expression="SIZEOF(multiplication_matrix[1]\Direction.coordinates)=2" label="WR1"/>
+         <where expression="SIZEOF(multiplication_matrix[2]\Direction.coordinates)=2" label="WR2"/>
+         <where expression="SIZEOF(translation.coordinates)=2" label="WR3"/>
       </entity>
-      <entity name="Cartesian_transformation_3d" supertypes="Detailed_geometric_model_element" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="multiplication_matrix" optional="NO">
-            <aggregate type="ARRAY" lower="1" upper="3" unique="NO" optional="NO"/>
+      <entity name="Cartesian_transformation_3d" supertypes="Detailed_geometric_model_element">
+         <explicit name="multiplication_matrix">
+            <aggregate lower="1" type="ARRAY" upper="3"/>
             <typename name="Direction"/>
          </explicit>
-         <explicit name="translation" optional="NO">
+         <explicit name="translation">
             <typename name="Cartesian_point"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(multiplication_matrix[1]\Direction.coordinates)=3"/>
-         <where label="WR2" expression="SIZEOF(multiplication_matrix[2]\Direction.coordinates)=3"/>
-         <where label="WR3" expression="SIZEOF(multiplication_matrix[3]\Direction.coordinates)=3"/>
-         <where label="WR4" expression="SIZEOF(translation.coordinates)=3"/>
+         <where expression="SIZEOF(multiplication_matrix[1]\Direction.coordinates)=3" label="WR1"/>
+         <where expression="SIZEOF(multiplication_matrix[2]\Direction.coordinates)=3" label="WR2"/>
+         <where expression="SIZEOF(multiplication_matrix[3]\Direction.coordinates)=3" label="WR3"/>
+         <where expression="SIZEOF(translation.coordinates)=3" label="WR4"/>
       </entity>
-      <entity name="Detailed_geometric_model_element" abstract.supertype="YES" supertypes="Representation_item" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d)" abstract.entity="NO">
-         <where label="IP1"/>
-         <where label="IP2"/>
-      </entity>
-      <entity name="Direction" supertypes="Detailed_geometric_model_element" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="coordinates" optional="NO">
-            <aggregate type="LIST" lower="2" upper="3" unique="NO" optional="NO"/>
+      <entity abstract.supertype="YES" name="Detailed_geometric_model_element" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Geometric_placement_operation)" supertypes="Representation_item"/>
+      <entity name="Direction" supertypes="Detailed_geometric_model_element">
+         <explicit name="coordinates">
+            <aggregate lower="2" type="LIST" upper="3"/>
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <entity name="Geometric_coordinate_space" supertypes="Numerical_representation_context" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="dimension_count" optional="NO">
-            <builtintype type="INTEGER" fixed="NO"/>
+      <entity name="Geometric_coordinate_space" supertypes="Numerical_representation_context">
+         <explicit name="dimension_count">
+            <builtintype type="INTEGER"/>
          </explicit>
-         <where label="WR1" expression="dimension_count &gt;0"/>
+         <where expression="dimension_count &gt;0" label="WR1"/>
       </entity>
-      <entity name="Geometric_model" supertypes="Representation" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Geometric_model" supertypes="Representation">
          <explicit name="version_id" optional="YES">
-            <builtintype type="STRING" fixed="NO"/>
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="model_extent" optional="YES">
             <typename name="length_measure"/>
          </explicit>
-         <explicit name="context_of_items" optional="NO">
+         <explicit name="context_of_items">
             <typename name="Geometric_coordinate_space"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <explicit name="items" optional="NO">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Detailed_geometric_model_element"/>
             <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity name="Geometric_operator_transformation" supertypes="Geometric_placement_operation">
+         <explicit name="target">
+            <typename name="cartesian_transformation"/>
+         </explicit>
+      </entity>
+      <entity name="Geometric_placement" supertypes="Geometric_placement_operation">
+         <explicit name="target">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Geometric_placement_operation" super.expression="ONEOF (Geometric_placement, Geometric_operator_transformation)" supertypes="Detailed_geometric_model_element">
+         <explicit name="source">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="template_definition">
+            <typename name="template_definition_select"/>
          </explicit>
       </entity>
    </schema>

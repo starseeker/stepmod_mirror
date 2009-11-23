@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.15 2008/09/15 11:59:37 liutkuviene Exp $
+	$Id: arm.exp,v 1.16 2009/06/11 10:36:43 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N6695 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N5537
 *)
@@ -15,10 +15,8 @@ USE FROM Identification_assignment_arm; -- ISO 10303-1021
 	Cartesian_transformation_3d);
   END_TYPE;
 
-  TYPE geometric_mapping_target = SELECT (
-    Axis_placement, 
-    cartesian_transformation);
-  END_TYPE;
+  TYPE template_definition_select = EXTENSIBLE SELECT (Geometric_model);
+  END_TYPE; 
 
   ENTITY Axis_placement
     SUPERTYPE OF (ONEOF (Axis_placement_2d,
@@ -77,11 +75,13 @@ USE FROM Identification_assignment_arm; -- ISO 10303-1021
   END_ENTITY;
 
   ENTITY Detailed_geometric_model_element
-    ABSTRACT SUPERTYPE OF (ONEOF(Cartesian_point, 
+    ABSTRACT SUPERTYPE OF (ONEOF(
+      Cartesian_point, 
       Direction, 
       Axis_placement, 
       Cartesian_transformation_2d,
-	  Cartesian_transformation_3d))
+	  Cartesian_transformation_3d,
+	  Geometric_placement_operation))
     SUBTYPE OF (Representation_item);
   END_ENTITY;
 
@@ -104,7 +104,25 @@ USE FROM Identification_assignment_arm; -- ISO 10303-1021
       SELF\Representation.context_of_items : Geometric_coordinate_space;
       SELF\Representation.items            : SET[1:?] OF Detailed_geometric_model_element;
   END_ENTITY;
-   
+  
+  ENTITY Geometric_placement
+    SUBTYPE OF (Geometric_placement_operation);
+      target : Axis_placement;
+  END_ENTITY; 
+
+  ENTITY Geometric_placement_operation
+    ABSTRACT SUPERTYPE OF ( ONEOF (Geometric_placement,
+      Geometric_operator_transformation))
+    SUBTYPE OF (Detailed_geometric_model_element);
+      source : Axis_placement;  
+      template_definition : template_definition_select;
+  END_ENTITY; 
+
+  ENTITY Geometric_operator_transformation
+    SUBTYPE OF (Geometric_placement_operation);
+      target : cartesian_transformation;
+  END_ENTITY; 
+
 END_SCHEMA;
 
 

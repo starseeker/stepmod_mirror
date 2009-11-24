@@ -1,13 +1,9 @@
 (*
-$Id: arm.exp,v 1.15 2009/08/19 12:17:09 raygoult Exp $
+$Id: arm.exp,v 1.16 2009/11/11 15:59:28 lothartklein Exp $
 ISO TC184/SC4/WG12 N6xxx - ISO/TS 10303-1652 Basic geometry version 2 - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6114
 *) 
-(* Additions and changes :
-Added: Circle, Conic, Conical_surface, Cylindrical_surface, Ellipse, Extruded_surface, Hyperbola, Parabola, 
-   Spherical_surface,    Surface_of_revolution, Swept_surface, Toroidal_surface.
-Added attributes to: Line, Plane        
-*)
+
 SCHEMA Basic_geometry_arm;
 
 USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
@@ -22,24 +18,24 @@ END_TYPE;
 ENTITY Circle
    SUBTYPE OF (Conic);
    radius   : length_measure;
- WHERE
+WHERE
    WR1: radius > 0.0;
- END_ENTITY;
+END_ENTITY;
 
 ENTITY Conic
    SUPERTYPE OF (ONEOF(Circle, Ellipse, Hyperbola, Parabola))
    SUBTYPE OF (Curve);
    position: Axis_placement;
- END_ENTITY;
+END_ENTITY;
 
  ENTITY  Conical_surface
    SUBTYPE OF (Surface);
-   position : Axis_placement;
+   position : Axis_placement_3d;
    radius     : length_measure;
    semi_angle : plane_angle_measure;
- WHERE
+WHERE
    WR1: radius >= 0.0;
- END_ENTITY;
+END_ENTITY;
 
 
 ENTITY Curve
@@ -49,34 +45,34 @@ END_ENTITY;
 
 ENTITY Cylindrical_surface
    SUBTYPE OF (Surface);
-    position : Axis_placement;
+    position : Axis_placement_3d;
    radius : length_measure;
- WHERE
+WHERE
    WR1: radius > 0.0;
- END_ENTITY;
+END_ENTITY;
 
- ENTITY Ellipse
+ENTITY Ellipse
    SUBTYPE OF(Conic);
    first_semi_axis: length_measure;
    second_semi_axis: length_measure;
- WHERE
+WHERE
    WR1: first_semi_axis > 0.0;
    WR2: first_semi_axis > 0.0;
- END_ENTITY;
+END_ENTITY;
  
- ENTITY Extruded_surface
+ENTITY Extruded_surface
    SUBTYPE OF (Swept_surface);
    extrusion_axis      : Direction;
- END_ENTITY;
+END_ENTITY;
 
 ENTITY Hyperbola
    SUBTYPE OF(Conic);
    semi_axis: length_measure;
    imaginary_semi_axis: length_measure;
- WHERE
+WHERE
    WR1: semi_axis > 0.0;
    WR2: imaginary_semi_axis > 0.0;
- END_ENTITY;
+END_ENTITY;
 
 
 ENTITY Line
@@ -88,9 +84,9 @@ END_ENTITY;
 ENTITY Parabola
    SUBTYPE OF(Conic);
    focal_distance: length_measure;
- WHERE
+WHERE
    WR1: focal_distance <> 0.0;
- END_ENTITY;
+END_ENTITY;
 
 ENTITY Plane
   SUBTYPE OF (Surface);
@@ -109,14 +105,14 @@ END_ENTITY;
 
 ENTITY Spherical_surface
    SUBTYPE OF (Surface);
-   position : Axis_placement;
+   position : Axis_placement_3d;
    radius   : length_measure;
- WHERE
+WHERE
     WR1: radius > 0.0;
- END_ENTITY;
+END_ENTITY;
  
  
- ENTITY Surface
+ENTITY Surface
   SUPERTYPE OF (ONEOF(Conical_surface, Cylindrical_surface, Plane, Spherical_surface, Swept_surface, Toroidal_surface))
   SUBTYPE OF (Detailed_geometric_model_element);
 END_ENTITY;
@@ -125,27 +121,25 @@ ENTITY Surface_of_revolution
   SUBTYPE OF (Swept_surface);
       axis_direction : Direction;
       axis_point :     Cartesian_point;
- END_ENTITY;
+END_ENTITY;
 
 ENTITY Swept_surface
    SUPERTYPE OF (ONEOF(Extruded_surface, Surface_of_revolution))
    SUBTYPE OF (Surface);
    swept_curve : Curve;
- END_ENTITY;
+END_ENTITY;
 
 
 ENTITY Toroidal_surface
    SUBTYPE OF (Surface);
-   position : Axis_placement;
+   position : Axis_placement_3d;
    radius : length_measure;
    minor_radius : length_measure;
- WHERE
+WHERE
     WR1: radius > 0.0;
     WR2: minor_radius > 0.0;
- END_ENTITY;
+END_ENTITY;
  
-
-
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
   ONEOF (Cartesian_point,
          Direction,

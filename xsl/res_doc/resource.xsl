@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.71 2009/11/07 14:03:26 lothartklein Exp $
+$Id: resource.xsl,v 1.72 2009/11/07 20:27:21 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1356,7 +1356,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="clause_intro_1">The following Express declaration begins the </xsl:variable>
+    <xsl:variable name="clause_intro_1">The following EXPRESS declaration begins the </xsl:variable>
     <xsl:variable name="clause_intro_2"> and identifies the necessary external references.
     </xsl:variable>
     <xsl:value-of select="$clause_intro_1"/>

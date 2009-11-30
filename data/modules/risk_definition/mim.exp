@@ -1,0 +1,37 @@
+(*
+ISO TC184/SC4/WG12 N0000 - ISO/TS 10303-1786 Risk definition - EXPRESS MIM
+*) 
+
+
+SCHEMA Risk_definition_mim;
+
+USE FROM Event_assignment_mim;    -- ISO/TS 10303-1364
+
+USE FROM Probability_mim;    -- ISO/TS 10303-1252
+
+USE FROM Product_relationship_mim;    -- ISO/TS 10303-1024
+
+USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
+
+USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+
+USE FROM risk_schema;    -- ISO 10303-58
+
+REFERENCE FROM product_property_definition_schema;    -- ISO 10303-41
+
+
+TYPE risk_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_occurrence_item WITH 
+   (risk_perception);
+END_TYPE; 
+
+ENTITY risk_event
+  SUBTYPE OF (applied_event_occurrence_assignment);
+  associated_risk : risk_perception;
+DERIVE
+  SELF\applied_event_occurrence_assignment.items : SET[1:?] OF risk_perception := [associated_risk];
+WHERE
+  WR1: SELF\event_occurrence_assignment.role.name = 'risk of event';
+END_ENTITY;
+
+END_SCHEMA;  -- Risk_definition_mim
+

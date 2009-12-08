@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" reference="ISO 10303-108" rcs.date="$Date: 2007/04/27 14:04:57 $" rcs.revision="$Revision: 1.2 $" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="sketch_schema schema_instance"/>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express
+  SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-108">
+   <application name="JSDAI" owner="LKSoft" source="sketch_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="sketch_schema">
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="shape_representation"/>
@@ -35,15 +34,15 @@
       </type>
       <type name="planar_curve_select">
          <select selectitems="line conic trimmed_curve pcurve surface_curve"/>
-         <where label="WR1" expression="SELF\geometric_representation_item.dim = 3"/>
-         <where label="WR2" expression="check_curve_planarity(SELF)"/>
+         <where expression="SELF\geometric_representation_item.dim = 3" label="WR1"/>
+         <where expression="check_curve_planarity(SELF)" label="WR2"/>
       </type>
       <type name="sketch_basis_select">
          <select selectitems="planar_curve_select curve_bounded_surface face_surface"/>
       </type>
       <type name="sketch_element_select">
          <select extensible="YES" selectitems="point curve"/>
-         <where label="WR1" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(SELF)"/>
+         <where expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(SELF)" label="WR1"/>
       </type>
       <type name="sketch_type_select">
          <select selectitems="neutral_sketch_representation positioned_sketch subsketch"/>
@@ -60,7 +59,7 @@
             <typename name="positioned_sketch"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* using_representations(&#10;    SELF\representation_item_relationship.related_representation_item) |&#10;    item_in_context(&#10;    SELF\representation_item_relationship.relating_representation_item,&#10;    q.context_of_items))) &gt; 0"/>
+         <where expression="SIZEOF(QUERY(q &lt;* using_representations(&#xA;    SELF\representation_item_relationship.related_representation_item) |&#xA;    item_in_context(&#xA;    SELF\representation_item_relationship.relating_representation_item,&#xA;    q.context_of_items))) &gt; 0" label="WR1"/>
       </entity>
       <entity name="implicit_intersection_curve" supertypes="implicit_planar_curve">
          <explicit name="external_surface">
@@ -72,17 +71,17 @@
             <typename name="surface_or_solid_model"/>
          </explicit>
       </entity>
-      <entity name="implicit_planar_curve" abstract.supertype="YES" supertypes="curve auxiliary_geometric_representation_item" super.expression="ONEOF (implicit_intersection_curve, implicit_projected_curve, implicit_model_intersection_curve, implicit_silhouette_curve)">
+      <entity abstract.supertype="YES" name="implicit_planar_curve" super.expression="ONEOF (implicit_intersection_curve, implicit_projected_curve, implicit_model_intersection_curve, implicit_silhouette_curve)" supertypes="curve auxiliary_geometric_representation_item">
          <explicit name="using_sketch">
             <typename name="positioned_sketch"/>
          </explicit>
          <explicit name="computed_representation">
             <typename name="curve"/>
          </explicit>
-         <derived name="curve_plane" expression="get_plane_of_implicit_geometry(using_sketch)">
+         <derived expression="get_plane_of_implicit_geometry(using_sketch)" name="curve_plane">
             <typename name="plane"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(TYPEOF(computed_representation) * &#10;    ['SKETCH_SCHEMA.IMPLICIT_PLANAR_CURVE',&#10;     'GEOMETRY_SCHEMA.CURVE_REPLICA']) = 0"/>
+         <where expression="SIZEOF(TYPEOF(computed_representation) * &#xA;    ['SKETCH_SCHEMA.IMPLICIT_PLANAR_CURVE',&#xA;     'GEOMETRY_SCHEMA.CURVE_REPLICA']) = 0" label="WR1"/>
       </entity>
       <entity name="implicit_planar_intersection_point" supertypes="implicit_point_on_plane">
          <explicit name="external_curve">
@@ -97,18 +96,18 @@
             <typename name="direction"/>
          </explicit>
       </entity>
-      <entity name="implicit_point_on_plane" abstract.supertype="YES" supertypes="point auxiliary_geometric_representation_item" super.expression="ONEOF (implicit_planar_intersection_point, implicit_planar_projection_point)">
+      <entity abstract.supertype="YES" name="implicit_point_on_plane" super.expression="ONEOF (implicit_planar_intersection_point, implicit_planar_projection_point)" supertypes="point auxiliary_geometric_representation_item">
          <explicit name="using_sketch">
             <typename name="positioned_sketch"/>
          </explicit>
          <explicit name="computed_representation">
             <typename name="cartesian_point"/>
          </explicit>
-         <derived name="plane_of_point" expression="get_plane_of_implicit_geometry(using_sketch)">
+         <derived expression="get_plane_of_implicit_geometry(using_sketch)" name="plane_of_point">
             <typename name="plane"/>
          </derived>
-         <where label="WR1" expression="(plane_of_point\elementary_surface.position.location = &#10;    computed_representation) XOR&#10;    (dot_product(plane_of_point\elementary_surface.position.p[3],&#10;    get_relative_direction_2points&#10;    (plane_of_point\elementary_surface.position.location, &#10;    computed_representation)) = 0)"/>
-         <where label="WR2" expression="SIZEOF(TYPEOF(computed_representation) * &#10;    ['SKETCH_SCHEMA.IMPLICIT_POINT_ON_PLANE',&#10;     'GEOMETRY_SCHEMA.POINT_REPLICA']) = 0"/>
+         <where expression="(plane_of_point\elementary_surface.position.location = &#xA;    computed_representation) XOR&#xA;    (dot_product(plane_of_point\elementary_surface.position.p[3],&#xA;    get_relative_direction_2points&#xA;    (plane_of_point\elementary_surface.position.location, &#xA;    computed_representation)) = 0)" label="WR1"/>
+         <where expression="SIZEOF(TYPEOF(computed_representation) * &#xA;    ['SKETCH_SCHEMA.IMPLICIT_POINT_ON_PLANE',&#xA;     'GEOMETRY_SCHEMA.POINT_REPLICA']) = 0" label="WR2"/>
       </entity>
       <entity name="implicit_projected_curve" supertypes="implicit_planar_curve">
          <explicit name="external_curve">
@@ -131,43 +130,43 @@
             <typename name="curves_or_area"/>
          </explicit>
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="sketch_element_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* SELF\representation.items | q.dim &lt;&gt; 2)) = 0"/>
+         <where expression="SIZEOF(QUERY(q &lt;* SELF\representation.items | q.dim &lt;&gt; 2)) = 0" label="WR1"/>
       </entity>
       <entity name="positioned_sketch" supertypes="geometric_representation_item">
          <explicit name="sketch_basis">
             <typename name="sketch_basis_select"/>
          </explicit>
          <explicit name="auxiliary_elements">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="auxiliary_geometric_representation_item"/>
          </explicit>
-         <where label="WR1" expression="NOT (('GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE' IN &#10;    TYPEOF(sketch_basis)) AND NOT ('GEOMETRY_SCHEMA.PLANE' IN&#10;    TYPEOF(sketch_basis.basis_surface)))"/>
-         <where label="WR2" expression="NOT (('TOPOLOGY_SCHEMA.FACE_SURFACE' IN TYPEOF(sketch_basis)) AND&#10;    NOT ('GEOMETRY_SCHEMA.PLANE' IN TYPEOF(sketch_basis.face_geometry)))"/>
-         <where label="WR3" expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | (SIZEOF(TYPEOF(q) * &#10;    ['GEOMETRY_SCHEMA.POINT','GEOMETRY_SCHEMA.CURVE']) = 0))) = 0"/>
-         <where label="WR4" expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | &#10;    q\geometric_representation_item.dim &lt;&gt; 3)) = 0"/>
+         <where expression="NOT (('GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE' IN &#xA;    TYPEOF(sketch_basis)) AND NOT ('GEOMETRY_SCHEMA.PLANE' IN&#xA;    TYPEOF(sketch_basis\curve_bounded_surface.basis_surface)))" label="WR1"/>
+         <where expression="NOT (('TOPOLOGY_SCHEMA.FACE_SURFACE' IN TYPEOF(sketch_basis)) AND&#xA;    NOT ('GEOMETRY_SCHEMA.PLANE' IN TYPEOF(sketch_basis\face_surface.face_geometry)))" label="WR2"/>
+         <where expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | (SIZEOF(TYPEOF(q) * &#xA;    ['GEOMETRY_SCHEMA.POINT','GEOMETRY_SCHEMA.CURVE']) = 0))) = 0" label="WR3"/>
+         <where expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | &#xA;    q\geometric_representation_item.dim &lt;&gt; 3)) = 0" label="WR4"/>
       </entity>
       <entity name="repositioned_neutral_sketch" supertypes="mapped_item geometric_representation_item">
-         <derived name="map" expression="SELF\mapped_item.mapping_source">
+         <derived expression="SELF\mapped_item.mapping_source" name="map">
             <typename name="representation_map"/>
          </derived>
-         <where label="WR1" expression="'SKETCH_SCHEMA.NEUTRAL_SKETCH_REPRESENTATION'&#10;    IN TYPEOF(map.mapped_representation)"/>
-         <where label="WR2" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN &#10;    TYPEOF(map.mapping_origin)"/>
-         <where label="WR3" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN &#10;    TYPEOF(SELF\mapped_item.mapping_target)"/>
+         <where expression="'SKETCH_SCHEMA.NEUTRAL_SKETCH_REPRESENTATION'&#xA;    IN TYPEOF(map.mapped_representation)" label="WR1"/>
+         <where expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN &#xA;    TYPEOF(map.mapping_origin)" label="WR2"/>
+         <where expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN &#xA;    TYPEOF(SELF\mapped_item.mapping_target)" label="WR3"/>
       </entity>
       <entity name="rigid_subsketch" supertypes="subsketch"/>
       <entity name="subsketch" supertypes="geometric_representation_item">
          <explicit name="subsketch_elements">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="sketch_element_select"/>
          </explicit>
          <explicit name="owning_sketch">
             <typename name="sketch_type_select"/>
          </explicit>
-         <where label="WR1" expression="(('SKETCH_SCHEMA.NEUTRAL_SKETCH_REPRESENTATION' &#10;    IN TYPEOF(owning_sketch)) AND (SIZEOF(QUERY(q &lt;* &#10;    subsketch_elements | NOT (owning_sketch IN &#10;    using_representations(q)))) = 0))&#10;    XOR&#10;    ((SIZEOF(TYPEOF(owning_sketch) *&#10;     ['SKETCH_SCHEMA.POSITIONED_SKETCH','SKETCH_SCHEMA.SUBSKETCH']) = 1)&#10;    AND &#10;    (SIZEOF(QUERY(q &lt;* subsketch_elements |&#10;     NOT (owning_sketch IN using_items(q,[])))) = 0))"/>
+         <where expression="(('SKETCH_SCHEMA.NEUTRAL_SKETCH_REPRESENTATION' &#xA;    IN TYPEOF(owning_sketch)) AND (SIZEOF(QUERY(q &lt;* &#xA;    subsketch_elements | NOT (owning_sketch IN &#xA;    using_representations(q)))) = 0))&#xA;    XOR&#xA;    ((SIZEOF(TYPEOF(owning_sketch) *&#xA;     ['SKETCH_SCHEMA.POSITIONED_SKETCH','SKETCH_SCHEMA.SUBSKETCH']) = 1)&#xA;    AND &#xA;    (SIZEOF(QUERY(q &lt;* subsketch_elements |&#xA;     NOT (owning_sketch IN using_items(q,[])))) = 0))" label="WR1"/>
       </entity>
       <function name="check_curve_planarity">
          <parameter name="checked_curve">

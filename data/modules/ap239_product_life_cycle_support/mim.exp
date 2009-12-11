@@ -1,13 +1,13 @@
 (*
- $Id: mim.exp,v 1.30 2009/05/21 16:44:46 robbod Exp $
- ISO TC184/SC4/WG3 N2566 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG3 N1561
+ $Id: mim.exp,v 1.31 2009/08/11 07:42:17 robbod Exp $
+ISO TC184/SC4/WG3 N2566 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG3 N1561
 *) 
 
 
 SCHEMA Ap239_product_life_cycle_support_mim;
 
-USE FROM Analysis_assignment_mim;    -- ISO/WD 10303-1474
+USE FROM Analysis_assignment_mim;    -- ISO/TS 10303-1474
 
 USE FROM Analysis_characterized_mim;    -- ISO/TS 10303-1475
 
@@ -23,27 +23,27 @@ USE FROM application_context_schema   -- ISO 10303-41
   (application_context,
    application_protocol_definition); 
 
-USE FROM Collection_identification_and_version_mim;    -- ISO/WD 10303-1396
+USE FROM Collection_identification_and_version_mim;    -- ISO/TS 10303-1396
 
-USE FROM Conditional_effectivity_mim;    -- ISO/WD 10303-1397
+USE FROM Conditional_effectivity_mim;    -- ISO/TS 10303-1397
 
 USE FROM Description_assignment_mim;    -- ISO/TS 10303-1473
 
 USE FROM External_analysis_representation_mim;    -- ISO/TS 10303-1784
 
-USE FROM Identification_relationship_mim;    -- ISO/WD 10303-1398
+USE FROM Identification_relationship_mim;    -- ISO/TS 10303-1398
 
-USE FROM Product_environment_definition_mim;    -- ISO/WD 10303-1400
+USE FROM Product_environment_definition_mim;    -- ISO/TS 10303-1400
 
-USE FROM Product_environment_observed_mim;    -- ISO/CD-TS 10303-1401
+USE FROM Product_environment_observed_mim;    -- ISO/TS 10303-1401
 
-USE FROM Property_as_definition_mim;    -- ISO/CD-TS 10303-1399
+USE FROM Property_as_definition_mim;    -- ISO/TS 10303-1399
 
-USE FROM Same_as_external_item_mim;    -- ISO/WD 10303-1402
+USE FROM Same_as_external_item_mim;    -- ISO/TS 10303-1402
 
 USE FROM System_view_definition_mim;    -- ISO/TS 10303-1485
 
-USE FROM Verification_and_validation_mim;    -- ISO/CD-TS 10303-1488
+USE FROM Verification_and_validation_mim;    -- ISO/TS 10303-1488
 
 
 TYPE plcs_action_items = SELECT BASED_ON action_items WITH 
@@ -56,9 +56,11 @@ TYPE plcs_action_items = SELECT BASED_ON action_items WITH
 END_TYPE; 
 
 TYPE plcs_action_method_items = SELECT BASED_ON action_method_items WITH 
-   (analysis_assignment, 
+   (action_method, 
+    analysis_assignment, 
     assembly_component_usage, 
     evidence, 
+    observed_environment_view, 
     product_group_membership, 
     validation, 
     verification);
@@ -266,7 +268,7 @@ TYPE plcs_collection_membership_groupable_item = SELECT BASED_ON collection_memb
     effectivity_relationship, 
     envelope, 
     envelope_relationship, 
-    environment_product_assignment, 
+    environment_assignment, 
     event_occurrence, 
     event_occurrence_relationship, 
     evidence, 
@@ -308,7 +310,7 @@ TYPE plcs_collection_membership_groupable_item = SELECT BASED_ON collection_memb
     observation, 
     observation_consequence, 
     observation_relationship, 
-    observed_environment_product_assignment, 
+    observed_environment_assignment, 
     observed_environment_to_definition, 
     observed_environment_to_definition_version, 
     observed_environment_to_definition_view, 
@@ -419,6 +421,7 @@ END_TYPE;
 
 TYPE plcs_date_and_time_item = SELECT BASED_ON date_and_time_item WITH 
    (analysis_assignment, 
+    applied_description_text_assignment, 
     approval_person_organization, 
     assumption, 
     assumption_assignment, 
@@ -426,6 +429,7 @@ TYPE plcs_date_and_time_item = SELECT BASED_ON date_and_time_item WITH
     evidence, 
     identification_assignment_relationship, 
     item_assumed, 
+    observed_environment_view, 
     validation, 
     verification, 
     verification_relationship);
@@ -433,6 +437,7 @@ END_TYPE;
 
 TYPE plcs_date_item = SELECT BASED_ON date_item WITH 
    (analysis_assignment, 
+    applied_description_text_assignment, 
     approval_person_organization, 
     assumption, 
     assumption_assignment, 
@@ -440,6 +445,7 @@ TYPE plcs_date_item = SELECT BASED_ON date_item WITH
     evidence, 
     identification_assignment_relationship, 
     item_assumed, 
+    observed_environment_view, 
     validation, 
     verification, 
     verification_relationship);
@@ -577,13 +583,16 @@ END_TYPE;
 
 TYPE plcs_document_reference_item = SELECT BASED_ON document_reference_item WITH 
    (applied_action_method_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     assumption, 
     assumption_assignment, 
     assumption_relationship, 
     class, 
+    environment_definition_view, 
     evidence, 
     item_assumed, 
+    observed_environment_view, 
     product, 
     state_type_relationship, 
     validation, 
@@ -836,7 +845,7 @@ TYPE plcs_observation_item = SELECT BASED_ON action_items WITH
     effectivity_relationship, 
     envelope, 
     envelope_relationship, 
-    environment_product_assignment, 
+    environment_ssignment, 
     event_occurrence, 
     event_occurrence_relationship, 
     evidence, 
@@ -878,7 +887,7 @@ TYPE plcs_observation_item = SELECT BASED_ON action_items WITH
     observation, 
     observation_consequence, 
     observation_relationship, 
-    observed_environment_product_assignment, 
+    observed_environment_assignment, 
     observed_environment_to_definition, 
     observed_environment_to_definition_version, 
     observed_environment_to_definition_view, 
@@ -973,9 +982,11 @@ TYPE plcs_organization_item = SELECT BASED_ON organization_item WITH
    (assumption, 
     assumption_assignment, 
     assumption_relationship, 
+    environment_definition_view, 
     evidence, 
     identification_assignment_relationship, 
     item_assumed, 
+    observed_environment_view, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -987,9 +998,11 @@ TYPE plcs_person_and_organization_item = SELECT BASED_ON person_and_organization
    (assumption, 
     assumption_assignment, 
     assumption_relationship, 
+    environment_definition_view, 
     evidence, 
     identification_assignment_relationship, 
     item_assumed, 
+    observed_environment_view, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -1003,6 +1016,13 @@ END_TYPE;
 
 TYPE plcs_product_definition_or_product_definition_relationship = SELECT BASED_ON product_definition_or_product_definition_relationship WITH 
    (assembly_component_usage);
+END_TYPE; 
+
+TYPE plcs_product_select = SELECT BASED_ON product_select WITH 
+   (product, 
+    product_concept, 
+    product_definition_formation, 
+    product_group);
 END_TYPE; 
 
 TYPE plcs_representation_proxy_select = SELECT BASED_ON representation_proxy_select WITH 

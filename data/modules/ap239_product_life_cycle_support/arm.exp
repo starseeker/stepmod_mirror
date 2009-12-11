@@ -1,7 +1,7 @@
 (*
- $Id: arm.exp,v 1.46 2009/08/11 07:42:17 robbod Exp $
- ISO TC184/SC4/WG3 N2564 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG3 N1553
+$Id: arm.exp,v 1.47 2009/11/16 18:06:05 lothartklein Exp $
+ISO TC184/SC4/WG3 N2564 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG3 N1553
 *) 
 
 
@@ -44,6 +44,7 @@ USE FROM Verification_and_validation_arm;    -- ISO/TS 10303-1488
 
 TYPE plcs_activity_item = SELECT BASED_ON activity_item WITH 
    (Assembly_component_relationship, 
+    Environment_definition_view, 
     Evidence, 
     Product_group_membership, 
     Validation, 
@@ -198,7 +199,12 @@ END_TYPE;
 TYPE plcs_collection_assignment_select = SELECT BASED_ON collection_assignment_select WITH 
    (Activity, 
     Activity_method, 
+    Analysis, 
+    Assumption, 
     Contract, 
+    Environment_definition, 
+    Evidence, 
+    Observation, 
     Organization, 
     Product, 
     Product_concept, 
@@ -206,6 +212,9 @@ TYPE plcs_collection_assignment_select = SELECT BASED_ON collection_assignment_s
     Product_version, 
     Product_view_definition, 
     Project, 
+    System, 
+    Validation, 
+    Verification, 
     Work_order, 
     Work_request);
 END_TYPE; 
@@ -254,7 +263,7 @@ TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WI
     Calendar_date, 
     Certification, 
     Certification_assignment, 
---     Characterizable_object, 
+    Characterizable_object, 
     Class, 
     Classification_assignment, 
     Collection_assignment, 
@@ -285,7 +294,7 @@ TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WI
     Effectivity_relationship, 
     Envelope, 
     Envelope_relationship, 
-    Environment_product_assignment, 
+    Environment_assignment, 
     Event, 
     Event_assignment, 
     Event_relationship, 
@@ -342,7 +351,7 @@ TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WI
     Observation_assignment, 
     Observation_consequence, 
     Observation_relationship, 
-    Observed_environment_product_assignment, 
+    Observed_environment_assignment, 
     Observed_environment_to_definition, 
     Observed_environment_to_definition_version, 
     Observed_environment_to_definition_view, 
@@ -509,6 +518,7 @@ TYPE plcs_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
     Assumption, 
     Assumption_assignment, 
     Assumption_relationship, 
+    Description_text_assignment, 
     Evidence, 
     Identification_relationship, 
     Item_assumed, 
@@ -542,7 +552,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
     Breakdown_context, 
     Breakdown_of, 
     Certification, 
---     Characterizable_object, 
+    Characterizable_object, 
     Class, 
     Condition, 
     Condition_assignment, 
@@ -557,6 +567,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
     Document_definition_relationship, 
     Effectivity, 
     Effectivity_relationship, 
+    Environment_definition_view, 
     Event, 
     Event_relationship, 
     Evidence, 
@@ -674,7 +685,9 @@ TYPE plcs_documented_element_select = SELECT BASED_ON documented_element_select 
     Class, 
     Condition_assignment, 
     Condition_parameter, 
+    Description_text_assignment, 
     Document_assignment, 
+    Environment_definition_view, 
     Evidence, 
     Item_assumed, 
     Justification, 
@@ -702,6 +715,18 @@ TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
     Verification, 
     Verification_relationship, 
     View_definition_usage);
+END_TYPE; 
+
+TYPE plcs_environment_item = SELECT BASED_ON environment_item WITH 
+   (Activity, 
+    Activity_method, 
+    Environment_definition_view, 
+    Organization, 
+    Organization_type, 
+    Product, 
+    Product_concept, 
+    Product_group, 
+    Product_version);
 END_TYPE; 
 
 TYPE plcs_evidence_item = SELECT BASED_ON evidence_item WITH 
@@ -791,7 +816,8 @@ TYPE plcs_justification_support_item = SELECT BASED_ON justification_support_ite
 END_TYPE; 
 
 TYPE plcs_location_assignment_select = SELECT BASED_ON location_assignment_select WITH 
-   (Assembly_component_relationship);
+   (Assembly_component_relationship, 
+    Environment_definition_view);
 END_TYPE; 
 
 TYPE plcs_message_content_item = SELECT BASED_ON message_content_item WITH 
@@ -866,7 +892,7 @@ TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
     Calendar_date, 
     Certification, 
     Certification_assignment, 
---    Characterizable_object, 
+    Characterizable_object, 
     Class, 
     Classification_assignment, 
     Collection_assignment, 
@@ -897,7 +923,7 @@ TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
     Effectivity_relationship, 
     Envelope, 
     Envelope_relationship, 
-    Environment_product_assignment, 
+    Environment_assignment, 
     Event, 
     Event_assignment, 
     Event_relationship, 
@@ -954,7 +980,7 @@ TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
     Observation_assignment, 
     Observation_consequence, 
     Observation_relationship, 
-    Observed_environment_product_assignment, 
+    Observed_environment_assignment, 
     Observed_environment_to_definition, 
     Observed_environment_to_definition_version, 
     Observed_environment_to_definition_view, 
@@ -1094,6 +1120,7 @@ TYPE plcs_organization_or_person_in_organization_item = SELECT BASED_ON organiza
     Assumption, 
     Assumption_assignment, 
     Assumption_relationship, 
+    Environment_definition_view, 
     Evidence, 
     Identification_relationship, 
     Item_assumed, 
@@ -1109,6 +1136,7 @@ TYPE plcs_property_assignment_select = SELECT BASED_ON property_assignment_selec
    (Activity_method_relationship, 
     Analysis_assignment, 
     Assembly_component_relationship, 
+    Environment_definition_view, 
     Work_order, 
     Work_request);
 END_TYPE; 
@@ -1138,7 +1166,8 @@ TYPE plcs_requirement_source_item = SELECT BASED_ON requirement_source_item WITH
 END_TYPE; 
 
 TYPE plcs_resource_assignment_item = SELECT BASED_ON resource_assignment_item WITH 
-   (Analysis_assignment);
+   (Analysis_assignment, 
+    Environment_definition_view);
 END_TYPE; 
 
 TYPE plcs_same_as_item = SELECT BASED_ON same_as_item WITH 
@@ -1154,7 +1183,7 @@ TYPE plcs_same_as_item = SELECT BASED_ON same_as_item WITH
     Breakdown_context, 
     Calendar_date, 
     Certification, 
---    Characterizable_object, 
+    Characterizable_object, 
     Condition, 
     Condition_evaluation, 
     Condition_evaluation_parameter, 
@@ -1243,12 +1272,15 @@ END_TYPE;
 
 TYPE plcs_state_definition_of_item = SELECT BASED_ON state_definition_of_item WITH 
    (Approval, 
+    Environment_definition_view, 
     Message);
 END_TYPE; 
 
 TYPE plcs_state_of_item = SELECT BASED_ON state_of_item WITH 
    (Applied_activity_method_assignment, 
-    Approval);
+    Approval, 
+    Environment_definition_view, 
+    Observed_environment_view);
 END_TYPE; 
 
 TYPE plcs_string_select = SELECT BASED_ON string_select WITH 

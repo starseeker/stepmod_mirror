@@ -1,5 +1,4 @@
 (*
-$Id: arm.exp,v 1.48 2009/12/11 12:11:37 mikeward Exp $
 ISO TC184/SC4/WG3 N2564 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG3 N1553
 *) 
@@ -10,10 +9,6 @@ SCHEMA Ap239_product_life_cycle_support_arm;
 USE FROM Analysis_assignment_arm;    -- ISO/TS 10303-1474
 
 USE FROM Analysis_characterized_arm;    -- ISO/TS 10303-1475
-
-USE FROM Analysis_identification_arm;    -- ISO/TS 10303-1476
-
-USE FROM Analysis_representation_arm;    -- ISO/TS 10303-1785
 
 USE FROM Ap239_activity_recording_arm;    -- ISO/TS 10303-1287
 
@@ -34,6 +29,8 @@ USE FROM Product_environment_definition_arm;    -- ISO/TS 10303-1400
 USE FROM Product_environment_observed_arm;    -- ISO/TS 10303-1401
 
 USE FROM Property_as_definition_arm;    -- ISO/TS 10303-1399
+
+USE FROM Risk_management_arm;    -- ISO/WD 10303-1467
 
 USE FROM Same_as_external_item_arm;    -- ISO/TS 10303-1402
 
@@ -450,7 +447,9 @@ TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WI
     Task_objective, 
     Task_objective_state_relationship, 
     Time_interval, 
+    Time_interval_assignment,
     Time_interval_relationship, 
+    Time_interval_role, 
     Time_offset, 
     Type_of_person, 
     Type_of_person_assignment, 
@@ -753,6 +752,7 @@ TYPE plcs_evidence_item = SELECT BASED_ON evidence_item WITH
     Project_assignment, 
     Representation, 
     Representation_item, 
+    Risk_impact_assignment, 
     Security_classification_assignment, 
     View_definition_relationship);
 END_TYPE; 
@@ -1052,6 +1052,8 @@ TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
     Resource_item_relationship, 
     Resource_property, 
     Resource_property_representation, 
+    Risk_impact_assignment, 
+    Risk_perception_source_assignment, 
     Same_as_external_item, 
     Same_membership, 
     Security_classification, 
@@ -1075,7 +1077,9 @@ TYPE plcs_observation_item = SELECT BASED_ON observation_item WITH
     Task_objective, 
     Task_objective_state_relationship, 
     Time_interval, 
+    Time_interval_assignment, 
     Time_interval_relationship, 
+    Time_interval_role, 
     Time_offset, 
     Type_of_person, 
     Type_of_person_assignment, 
@@ -1281,6 +1285,21 @@ TYPE plcs_string_select = SELECT BASED_ON string_select WITH
     Verification);
 END_TYPE; 
 
+TYPE plcs_time_interval_item = SELECT BASED_ON time_interval_item WITH 
+   (Analysis_assignment, 
+    Approving_person_organization, 
+    Assumption, 
+    Assumption_assignment, 
+    Assumption_relationship, 
+    Description_text_assignment, 
+    Evidence, 
+    Identification_relationship, 
+    Item_assumed, 
+    Validation, 
+    Verification, 
+    Verification_relationship);
+END_TYPE; 
+
 TYPE plcs_type_of_person_item_select = SELECT BASED_ON type_of_person_item_select WITH 
    (Analysis_assignment);
 END_TYPE; 
@@ -1310,8 +1329,8 @@ SUBTYPE_CONSTRAINT plcs_restrict_product_subtypes FOR Product;
          Part,
          Product_as_individual,
          Requirement,
+         Risk,
          System);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Ap239_product_life_cycle_support_arm
-

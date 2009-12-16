@@ -1,110 +1,29 @@
 (*
- $Id: mim.exp,v 1.29 2009/04/29 15:56:56 robbod Exp $
- ISO TC184/SC4/WG12 N3011 - ISO/TS 10303-1289 AP239 management resource information - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG12 N2313
+ISO TC184/SC4/WG12 N6855 - ISO/TS 10303-1289 AP239 management resource information - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG12 N3011
 *) 
+
 
 SCHEMA Ap239_management_resource_information_mim;
 
-USE FROM Alias_identification_mim;    -- ISO/TS 10303-1025
-
-USE FROM Approval_mim;    -- ISO/TS 10303-1012
-
-USE FROM approval_schema   -- ISO 10303-41
-  (approval,
-   approval_person_organization,
-   approval_relationship,
-   approval_role,
-   approval_status); 
-
 USE FROM Attribute_classification_mim;    -- ISO/TS 10303-1246
-
-USE FROM basic_attribute_schema   -- ISO 10303-41
-  (name_attribute,
-   object_role,
-   role_association,
-   role_select); 
-
-USE FROM Certification_mim;    -- ISO/TS 10303-1044
-
-USE FROM certification_schema   -- ISO 10303-41
-  (certification,
-   certification_type); 
-
-USE FROM Class_mim;    -- ISO/TS 10303-1070
 
 USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
 
-USE FROM classification_schema   -- ISO 10303-54
-  (class); 
-
-USE FROM Contract_mim;    -- ISO/TS 10303-1062
-
 USE FROM contract_schema   -- ISO 10303-41
-  (contract,
-   contract_type); 
-
-USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
-
-USE FROM Date_time_mim;    -- ISO/TS 10303-1010
+  (contract_type); 
 
 USE FROM date_time_schema   -- ISO 10303-41
-  (calendar_date,
-   date_and_time,
-   date_role,
-   date_time_role,
-   event_occurrence,
-   event_occurrence_context_role,
-   event_occurrence_relationship,
-   local_time,
-   time_interval_relationship); 
-
-USE FROM Event_assignment_mim;    -- ISO/TS 10303-1364
-
-USE FROM Event_mim;    -- ISO/TS 10303-1064
+  (event_occurrence_context_role,
+   local_time); 
 
 USE FROM External_class_mim;    -- ISO/TS 10303-1275
 
-USE FROM group_schema   -- ISO 10303-41
-  (group); 
-
-USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
-
 USE FROM Management_resource_information_mim;    -- ISO/TS 10303-1288
-
-USE FROM management_resources_schema   -- ISO 10303-41
-  (identification_role,
-   organizational_project_role); 
-
-USE FROM Multi_linguism_mim;    -- ISO/TS 10303-1105
-
-USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
-
-USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
-
-USE FROM person_organization_schema   -- ISO 10303-41
-  (address,
-   organization,
-   organization_relationship,
-   organization_role,
-   organizational_address,
-   organizational_project,
-   organizational_project_relationship,
-   person,
-   person_and_organization,
-   person_and_organization_role); 
-
-USE FROM Project_mim;    -- ISO/TS 10303-1061
-
-USE FROM Security_classification_mim;    -- ISO/TS 10303-1015
-
-USE FROM security_classification_schema   -- ISO 10303-41
-  (security_classification,
-   security_classification_level); 
 
 USE FROM Set_theory_mim;    -- ISO/TS 10303-1210
 
-USE FROM Time_interval_mim;    -- ISO/TS 10303-1065
+USE FROM Time_interval_assignment_mim;    -- ISO/TS 10303-1365
 
 
 TYPE ap239_mri_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON aliasable_item WITH 
@@ -141,7 +60,6 @@ TYPE ap239_mri_approval_item = SELECT BASED_ON approval_item WITH
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     security_classification);
 END_TYPE; 
 
@@ -166,7 +84,6 @@ TYPE ap239_mri_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     organizational_address, 
     organizational_project_relationship, 
     organizational_project_role, 
-    person_and_organization_address, 
     person_and_organization_role, 
     security_classification_level, 
     time_interval_relationship);
@@ -211,12 +128,10 @@ TYPE ap239_mri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON c
     multi_language_attribute_assignment, 
     organization, 
     organization_relationship, 
-    organizational_address, 
     organizational_project, 
     organizational_project_relationship, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     security_classification, 
     time_interval_relationship);
 END_TYPE; 
@@ -240,7 +155,6 @@ TYPE ap239_mri_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON da
     organizational_address, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     security_classification);
 END_TYPE; 
 
@@ -257,7 +171,6 @@ TYPE ap239_mri_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item W
     organizational_address, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     security_classification);
 END_TYPE; 
 
@@ -302,7 +215,6 @@ TYPE ap239_mri_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON org
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     security_classification);
 END_TYPE; 
 
@@ -321,7 +233,22 @@ TYPE ap239_mri_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT B
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
+    security_classification);
+END_TYPE; 
+
+TYPE ap239_mri_time_interval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH 
+   (applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    approval, 
+    organization_relationship, 
+    organizational_address, 
+    person, 
+    person_and_organization, 
     security_classification);
 END_TYPE; 
 

@@ -271,13 +271,7 @@ REFERENCE FROM support_resource_schema
       view_reference_system : axis2_placement_3d;
       perspective_of_volume : view_volume;
     WHERE
-      WR1: (dot_product (SELF.view_reference_system.p[3],
-           SELF.perspective_of_volume.view_window.placement.p[3]) = 1.0)
-           AND
-           (SELF.view_reference_system.location.coordinates[3] =
-           SELF.perspective_of_volume.view_window.
-             placement.location.coordinates[3]);
-      WR2: SELF\geometric_representation_item.dim = 3;
+      WR1: SELF\geometric_representation_item.dim = 3;
   END_ENTITY;
 
   ENTITY camera_model_d3_multi_clipping 
@@ -598,6 +592,11 @@ REFERENCE FROM support_resource_schema
       back_plane_clipping        : BOOLEAN;
       view_volume_sides_clipping : BOOLEAN;
       view_window                : planar_box;
+    INVERSE
+      camera_usages : SET[1:?] OF camera_model_d3 FOR perspective_of_volume;
+    WHERE
+      WR1: (dot_product (direction([0.0,0.0,1.0]), SELF.view_window.placement.p[3]) = 1.0);
+      WR2: view_plane_distance = view_window.placement.location.coordinates[3];
   END_ENTITY;
 
   RULE symbol_representation_rule

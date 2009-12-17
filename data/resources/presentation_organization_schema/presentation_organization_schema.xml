@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express
   SYSTEM "../../../dtd/express.dtd">
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2009/11/19 11:06:10 $" rcs.revision="$Revision: 1.20 $" reference="ISO 10303-46">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-46">
    <application name="JSDAI" owner="LKSoft" source="presentation_organization_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="presentation_organization_schema">
       <interface kind="reference" schema="presentation_resource_schema">
@@ -167,8 +167,7 @@
          <explicit name="perspective_of_volume">
             <typename name="view_volume"/>
          </explicit>
-         <where expression="(dot_product (SELF.view_reference_system.p[3],&#xA;           SELF.perspective_of_volume.view_window.placement.p[3]) = 1.0)&#xA;           AND&#xA;           (SELF.view_reference_system.location.coordinates[3] =&#xA;           SELF.perspective_of_volume.view_window.&#xA;             placement.location.coordinates[3])" label="WR1"/>
-         <where expression="SELF\geometric_representation_item.dim = 3" label="WR2"/>
+         <where expression="SELF\geometric_representation_item.dim = 3" label="WR1"/>
       </entity>
       <entity name="camera_model_d3_multi_clipping" supertypes="camera_model_d3">
          <explicit name="shape_clipping">
@@ -393,6 +392,11 @@
          <explicit name="view_window">
             <typename name="planar_box"/>
          </explicit>
+         <inverse attribute="perspective_of_volume" entity="camera_model_d3" name="camera_usages">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+         <where expression="(dot_product (direction([0.0,0.0,1.0]), SELF.view_window.placement.p[3]) = 1.0)" label="WR1"/>
+         <where expression="view_plane_distance = view_window.placement.location.coordinates[3]" label="WR2"/>
       </entity>
       <subtype.constraint entity="geometric_representation_item" name="pos_geometric_representation_item_subtypes" super.expression="ONEOF (camera_model, camera_model_d3_multi_clipping_intersection, camera_model_d3_multi_clipping_union, curve, direction, light_source, mapped_item)"/>
       <rule appliesto="presentation_representation_relationship" name="symbol_representation_rule">

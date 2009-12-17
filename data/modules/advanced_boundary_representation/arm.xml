@@ -1,46 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express
   SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1514">
+   
    <application name="JSDAI" owner="LKSoft" source="advanced_boundary_representation_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   
    <schema name="Advanced_boundary_representation_arm">
+      
       <interface kind="use" schema="Topologically_bounded_surface_arm"/>
+      
       <interface kind="use" schema="Solid_model_arm"/>
+      
       <type name="advanced_brep_shape_representation_item">
-         <select selectitems="Axis_placement_3d Geometric_placement_operation Manifold_solid_brep"/>
+         
+         <select extensible="NO" genericentity="NO" selectitems="Axis_placement_3d Geometric_placement_operation Manifold_solid_brep"/>
+      
       </type>
-      <entity name="Advanced_brep_shape_representation" supertypes="Geometric_model">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Advanced_brep_shape_representation" supertypes="Geometric_model">
+         
+         <explicit name="items" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="advanced_brep_shape_representation_item"/>
+            
             <redeclaration entity-ref="Representation"/>
+         
          </explicit>
+         
          <where expression="SIZEOF(QUERY ( msb &lt;* QUERY ( it &lt;* SELF.items |&#xA;                ('ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP' IN TYPEOF(it)) ) |&#xA;               ( NOT (SIZEOF(QUERY ( csh &lt;* collect_shells(msb) |&#xA;                                (NOT (SIZEOF(QUERY ( fcs &lt;* csh\&#xA;                connected_face_set.cfs_faces | (NOT (&#xA;                'ADVANCED_BOUNDARY_REPRESENTATION_ARM.ADVANCED_FACE' IN TYPEOF(fcs))) )) = 0)) ))&#xA;              = 0)) )) = 0" label="WR1"/>
+      
       </entity>
-      <entity name="Closed_shell" supertypes="Connected_face_set"/>
-      <entity name="Manifold_solid_brep" supertypes="Solid_model">
-         <explicit name="outer">
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Closed_shell" supertypes="Connected_face_set">
+         <where label="IP1"/>
+      </entity>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Manifold_solid_brep" supertypes="Solid_model">
+         
+         <explicit name="outer" optional="NO">
+            
             <typename name="Closed_shell"/>
+         
          </explicit>
+         
          <explicit name="voids" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="Oriented_closed_shell"/>
+         
          </explicit>
+         
+         <where expression="(NOT EXISTS(voids)) OR (SIZEOF(QUERY ( ocs &lt;* SELF.voids |                &#xA;                      ( NOT (ocs.orientation = FALSE)))) = 0)" label="WR1"/>
+      
       </entity>
-      <entity name="Oriented_closed_shell" supertypes="Closed_shell">
-         <explicit name="shell">
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Oriented_closed_shell" supertypes="Closed_shell">
+         
+         <explicit name="shell" optional="NO">
+            
             <typename name="Closed_shell"/>
+         
          </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
+         
+         <explicit name="orientation" optional="NO">
+            
+            <builtintype fixed="NO" type="BOOLEAN"/>
+         
          </explicit>
+         
+         <where expression="NOT ('ADVANCED_BOUNDARY_REPRESENTATION_ARM.ORIENTED_CLOSED_SHELL'&#xA;              IN TYPEOF (SELF.shell))" label="WR1"/>
+      
       </entity>
+      
       <function name="collect_shells">
+         
          <parameter name="brep">
+            
             <typename name="Manifold_solid_brep"/>
+         
          </parameter>
-         <aggregate lower="1" type="SET" upper="?"/>
+         
+         <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+         
          <typename name="Closed_shell"/>
+         
          <algorithm>LOCAL   
       return_set: SET[1:?] OF closed_shell := [brep.outer];   
     END_LOCAL;   
@@ -50,6 +96,9 @@
        return_set := return_set + brep.voids;   
     END_IF;   
    RETURN(return_set);</algorithm>
+      
       </function>
+   
    </schema>
+
 </express>

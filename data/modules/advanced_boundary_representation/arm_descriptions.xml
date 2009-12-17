@@ -13,6 +13,15 @@ rcs.date="$Date: 2009/12/02 14:27:19 $" rcs.revision="$Revision: 1.11 $">
    <ext_description linkend="Advanced_boundary_representation_arm"/>
 
   <!-- 
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     Schema: Advanced_boundary_representation_arm  TYPE:  advanced_brep_shape_representation_item 
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+    -->
+  <ext_description linkend="Advanced_boundary_representation_arm.advanced_brep_shape_representation_item">
+
+  A SELECT type defining the types of element that are to be used in the definition of an <express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Advanced_brep_shape_representation"/>
+  </ext_description>
+  <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Advanced_boundary_representation_arm  Entity: Advanced_brep_shape_representation 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
@@ -20,8 +29,8 @@ rcs.date="$Date: 2009/12/02 14:27:19 $" rcs.revision="$Revision: 1.11 $">
 <ext_description linkend="Advanced_boundary_representation_arm.Advanced_brep_shape_representation">
 	An <b>Advanced_brep_shape_representation</b> is a type of 
 	<express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/>
-	in which the representation items are specializations of the 
-	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.manifold_solid_brep"/>
+	in which the representation <b>items</b> are specializations of the 
+	<express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/>
 	 entity. 
 	<p>
 	These specializations differ from the more general B-rep in that they shall only use explicit geometric forms for their face and edge geometry. 
@@ -29,42 +38,47 @@ rcs.date="$Date: 2009/12/02 14:27:19 $" rcs.revision="$Revision: 1.11 $">
 	</p>
 	<note number="1">
 		This entity is incompletely modelled in the ARM. Complete specification 
-		can be obtained in the definition of the corresponding MIM entity.
+		can be obtained in the definition of the corresponding MIM entity. The MIM entity contains additional constraints on the usage of mapped_items in this entity.
+	to ensure that an appropriate manifold solid B-rep is included in the representation.
 	</note>
-	<note number="2">
-		Although this only appears in the MIM schema, the faces included in 
-		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.manifold_solid_brep"/>s 
-		are 
-		<express_ref linkend="aic_topologically_bounded_surface:ir_express:aic_topologically_bounded_surface.advanced_face"/>s, 
-		as defined in application module Topologically bounded surface.
-	</note>
+	 
 </ext_description>
 
 <!-- items -->
 <ext_description linkend="Advanced_boundary_representation_arm.Advanced_brep_shape_representation.items">
-	the set of 
-	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.advanced_brep_shape_representation_item">advanced_brep_shape_representation_items</express_ref>
-	that the <b>Advanced_brep_shape_representation</b> is a collection of.
+<p>	a set of 
+	<express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.advanced_brep_shape_representation_item"></express_ref>s
+	that the <b>Advanced_brep_shape_representation</b> is a collection of. Each item is either a <express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/>, an <express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_3d"/>,
+	or a <express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_placement_operation"/>.</p>
+<note number="2">When a <express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_placement_operation"/> is included there are 
+rules in the corresponding MIM entity to ensure that it is a mapping of an <b>Advanced_brep_shape_representation</b>.
+</note>
 </ext_description>
-
-<!-- WR1 -->
+<!-- WR1-->
 <ext_description linkend="Advanced_boundary_representation_arm.Advanced_brep_shape_representation.wr:WR1">
-	
+for each <express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/>
+	 in the <b>items</b> set each face shall be an <express_ref linkend="topologically_bounded_surface:arm:Topologically_bounded_surface_arm.Advanced_face"/>.
+This ensures that the geometry and topology of the B-rep are fully defined.
 </ext_description>
-
 <!-- +++++++++++ Closed_shell +++++++++++ -->
 <ext_description linkend="Advanced_boundary_representation_arm.Closed_shell">
 	A <b>Closed_shell</b> is a type of
-	<express_ref linkend="Elemental_topology:arm:Elemental_topology_arm.Connected_face_set"/>.
+	<express_ref linkend="Elemental_topology:arm:Elemental_topology_arm.Connected_face_set"/> that encloses a finite volume of space.
 </ext_description>
 
 <!-- connected_faces -->
 <ext_description linkend="Advanced_boundary_representation_arm.Closed_shell.connected_faces">
-	specifies a set of
-	<express_ref linkend="Topologically_bounded_surface:arm:Topologically_bounded_surface_arm.Advanced_face">Advanced_face</express_ref>
-	for the <b>Closed_shell</b>
+	<p>specifies a set of
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Face"></express_ref>s  
+	for the <b>Closed_shell</b>. </p>
+	<note> Except in the case of an <express_ref linkend="advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Oriented_closed_shell"></express_ref> with orientation FALSE, the face normals are requied to point away from the volume enclosed by the shell. </note>
+	
 </ext_description>
 
+<!-- IP1-->
+<ext_description linkend="Advanced_boundary_representation_arm.Closed_shell.wr:IP1">
+The <b>connected_faces</b> shall be connected by their shared edges to form a shell with a closed interior. Where the edges are explicitly defined this requires that each edge is used exactly twice with opposite orientations for the two usages.
+</ext_description>
 <!-- +++++++++++ Manifold_solid_brep +++++++++++ -->
 <ext_description linkend="Advanced_boundary_representation_arm.Manifold_solid_brep">
 	A <b>Manifold_solid_brep</b> is a type of
@@ -75,53 +89,59 @@ rcs.date="$Date: 2009/12/02 14:27:19 $" rcs.revision="$Revision: 1.11 $">
 <ext_description linkend="Advanced_boundary_representation_arm.Manifold_solid_brep.outer">
 	specifies the role of the
 	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/>
-	for the <b>Manifold_solid_brep</b>.
+	as outer shell of the <b>Manifold_solid_brep</b>.
 </ext_description>
 
 <!-- voids -->
 <ext_description linkend="Advanced_boundary_representation_arm.Manifold_solid_brep.voids">
-	specifies the role of the
+	specifies the 
 	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Oriented_closed_shell"/>
-	for the <b>Manifold_solid_brep</b>.
-	There shall exist one or more
-	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Oriented_closed_shell">Oriented_closed_shells</express_ref>
-	for the <b>Manifold_solid_brep</b>.
+	enclosing the interior voids of the <b>Manifold_solid_brep</b>.
+	
+	
+	
 	The value of this attribute need not be specified.
+</ext_description>
+<!-- WR1-->
+<ext_description linkend="Advanced_boundary_representation_arm.Manifold_solid_brep.wr:WR1">
+Either there shall be no <b>voids</b> attribute, or each <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Oriented_closed_shell"/> in this set shall have orientation = FALSE.
 </ext_description>
 
 <!-- +++++++++++ Oriented_closed_shell +++++++++++ -->
 <ext_description linkend="Advanced_boundary_representation_arm.Oriented_closed_shell">
-	An <b>Oriented_closed_shell</b> is a type of
-	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/>.
+An <b>Oriented_closed_shell</b> is a type of <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/> constructed by referencing  another <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/> and contains a BOOLEAN
+orientation flag to indicate whether or not the orientation of the constructed <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/>  agrees with, or is opposite to, the
+orientation of the original <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/>.
 </ext_description>
-
-<!-- shell -->
+<!-- +++++++++++ Oriented_closed_shell.shell +++++++++++ -->
 <ext_description linkend="Advanced_boundary_representation_arm.Oriented_closed_shell.shell">
-	specifies the role of the
-	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/>
-	for the <b>Oriented_closed_shell</b>.
-</ext_description>
 
-<!-- orientation -->
+<p>the <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Closed_shell"/> which defines the faces of the <b>Oriented_closed_shell</b>.
+</p>
+<note>This entity is not fully defined in the ARM, the corresponding MIM object has an additional attribute which derives the set of correctly oriented faces for the oriented closed shell from those of <b>shell</b>. 
+</note>
+</ext_description>
+<!-- +++++++++++ Oriented_closed_shell.orientation +++++++++++ -->
 <ext_description linkend="Advanced_boundary_representation_arm.Oriented_closed_shell.orientation">
-	specifies the boolean value.
+the relationship between the orientation of the <b>Oriented_closed_shell</b> being defined and
+the <b>shell</b> referenced.
+</ext_description>
+<!-- WR1-->
+<ext_description linkend="Advanced_boundary_representation_arm.Oriented_closed_shell.wr:WR1">
+
+The type of <b>shell</b> shall not be <b>Oriented_closed_shell</b>.
 </ext_description>
 
-<!-- +++++++++++ collect_shells +++++++++++ -->
-<ext_description linkend="Advanced_boundary_representation_arm.collect_shells">
-	The <b>collect_shells</b> function .. 
-</ext_description>
+<!-- ++++++++++ collect_shells +++++++++++ -->
+  <ext_description linkend="Advanced_boundary_representation_arm.collect_shells">
+  	The <b>collect_shells</b> function  collects all the shells used in the definition of a <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/> into a set.
+  </ext_description>
+  
+  <!-- collect_shells.brep -->
+  
+  <ext_description linkend="Advanced_boundary_representation_arm.collect_shells.brep">
+  	(input) the <express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/>  for which it is required to collect the shells.
+  </ext_description>
 
-<!-- brep -->
-<ext_description linkend="Advanced_boundary_representation_arm.collect_shells.brep">
-	the specified 
-	<express_ref linkend="Advanced_boundary_representation:arm:Advanced_boundary_representation_arm.Manifold_solid_brep"/>
-</ext_description>
 
 </ext_descriptions>
-
-
-
-
-
-

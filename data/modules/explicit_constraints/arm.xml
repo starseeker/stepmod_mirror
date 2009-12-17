@@ -2,80 +2,164 @@
 <!DOCTYPE express
   SYSTEM "../../../dtd/express.dtd">
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1788">
+   
    <application name="JSDAI" owner="LKSoft" source="explicit_constraints_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   
    <schema name="Explicit_constraints_arm">
+      
+      <interface kind="use" schema="Expression_arm"/>
+      
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      
       <interface kind="use" schema="Parameterization_and_variational_representation_arm"/>
+      
       <type name="constraint_group_member">
-         <select selectitems="Explicit_constraint Simultaneous_constraint_group"/>
+         
+         <select extensible="NO" genericentity="NO" selectitems="Explicit_constraint Simultaneous_constraint_group"/>
+      
       </type>
+      
       <type name="variational_parameter_select">
-         <select selectitems="Bound_variational_parameter Unbound_variational_parameter"/>
+         
+         <select extensible="NO" genericentity="NO" selectitems="Bound_variational_parameter Unbound_variational_parameter"/>
+      
       </type>
-      <entity name="Boolean_expression" supertypes="Expression"/>
-      <entity abstract.supertype="YES" name="Defined_constraint" super.expression="Equal_parameter_constraint" supertypes="Explicit_constraint"/>
-      <entity name="Equal_parameter_constraint" supertypes="Defined_constraint">
-         <explicit name="constrained_elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Defined_constraint" super.expression="Equal_parameter_constraint" supertypes="Explicit_constraint"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Equal_parameter_constraint" supertypes="Defined_constraint">
+         
+         <explicit name="constrained_elements" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
-         <explicit name="reference_elements">
-            <aggregate lower="0" type="SET" upper="1"/>
+         
+         <explicit name="reference_elements" optional="NO">
+            
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="1"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
+         
          <where expression="SIZEOF(SELF\Explicit_constraint.constrained_elements +&#xA;    SELF\Explicit_constraint.reference_elements) &gt;= 2" label="WR1"/>
+      
       </entity>
-      <entity abstract.supertype="YES" name="Explicit_constraint" super.expression="ONEOF (Defined_constraint, Free_form_assignment, Free_form_relation)" supertypes="Variational_representation_item">
+      
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Explicit_constraint" super.expression="ONEOF (Defined_constraint, Free_form_assignment, Free_form_relation)" supertypes="Variational_representation_item">
+         
          <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
+            
+            <builtintype fixed="NO" type="STRING"/>
+         
          </explicit>
-         <explicit name="constrained_elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+         
+         <explicit name="constrained_elements" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="Representation_item"/>
+         
          </explicit>
-         <explicit name="reference_elements">
-            <aggregate lower="0" type="SET" upper="?"/>
+         
+         <explicit name="reference_elements" optional="NO">
+            
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="Representation_item"/>
+         
          </explicit>
+         
          <where expression="SIZEOF(constrained_elements * reference_elements) = 0" label="WR1"/>
+      
       </entity>
-      <entity abstract.supertype="YES" name="Expression"/>
-      <entity name="Free_form_assignment" supertypes="Explicit_constraint">
-         <explicit name="constrained_elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Free_form_assignment" supertypes="Explicit_constraint">
+         
+         <explicit name="constrained_elements" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
-         <explicit name="reference_elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+         
+         <explicit name="reference_elements" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
-         <explicit name="constraining_expression">
+         
+         <explicit name="constraining_expression" optional="NO">
+            
             <typename name="Expression"/>
+         
          </explicit>
+      
+         <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
-      <entity name="Free_form_relation" supertypes="Explicit_constraint">
-         <explicit name="constrained_elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Free_form_relation" supertypes="Explicit_constraint">
+         
+         <explicit name="constrained_elements" optional="NO">
+            
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
-         <explicit name="reference_elements">
-            <aggregate lower="0" type="SET" upper="?"/>
+         
+         <explicit name="reference_elements" optional="NO">
+            
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="variational_parameter_select"/>
+            
             <redeclaration entity-ref="Explicit_constraint"/>
+         
          </explicit>
-         <explicit name="constraining_expression">
+         
+         <explicit name="constraining_expression" optional="NO">
+            
             <typename name="Boolean_expression"/>
+         
          </explicit>
+      
+         <where label="IP1"/>
       </entity>
-      <entity name="Simultaneous_constraint_group" supertypes="Variational_representation_item">
-         <explicit name="constraint_group">
-            <aggregate lower="2" type="SET" upper="?"/>
+      
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Simultaneous_constraint_group" supertypes="Variational_representation_item">
+         
+         <explicit name="constraint_group" optional="NO">
+            
+            <aggregate lower="2" optional="NO" type="SET" unique="NO" upper="?"/>
+            
             <typename name="constraint_group_member"/>
+         
          </explicit>
+      
+         <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
+   
    </schema>
+
 </express>

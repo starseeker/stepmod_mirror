@@ -1,4 +1,5 @@
 (*
+$Id: arm.exp,v 1.57 2009/12/18 17:40:40 philsp Exp $
 ISO TC184/SC4/WG3 N2682 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM Long form
 Supersedes ISO TC184/SC4/WG3 N2567
 *) 
@@ -106,6 +107,7 @@ TYPE action_items = SELECT
     effectivity, 
     effectivity_relationship, 
     envelope, 
+    environment_definition_view, 
     event_occurrence, 
     event_occurrence_relationship, 
     evidence, 
@@ -138,6 +140,7 @@ TYPE action_items = SELECT
     multi_language_attribute_assignment, 
     named_unit, 
     observation_consequence, 
+    observed_environment_view, 
     organization, 
     organization_relationship, 
     organization_type, 
@@ -265,6 +268,7 @@ TYPE action_method_items = SELECT
     document_file, 
     effectivity, 
     envelope, 
+    environment_definition_view, 
     event_occurrence, 
     evidence, 
     executed_action, 
@@ -412,6 +416,7 @@ TYPE approval_item = SELECT
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -842,6 +847,7 @@ TYPE classification_item = SELECT
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -1425,22 +1431,39 @@ TYPE description_item = SELECT
     action_resource_relationship, 
     action_resource_requirement, 
     action_resource_requirement_relationship, 
+    address, 
     alternate_product_relationship, 
     applied_action_assignment, 
     applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
     applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
     applied_external_identification_assignment, 
     applied_identification_assignment, 
     applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
     applied_position_in_organization_group_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
     approval_relationship, 
     ascribable_state, 
     ascribable_state_relationship, 
     assembly_component_usage_substitute, 
-    assumption_assignment, 
     breakdown_element_group_assignment, 
     certification, 
     configuration_item, 
+    contract, 
+    contract_relationship, 
     document_relationship, 
     effectivity, 
     effectivity_relationship, 
@@ -1456,17 +1479,20 @@ TYPE description_item = SELECT
     group, 
     identification_assignment_relationship, 
     intersection, 
-    item_assumed, 
     justification_group_assignment, 
     justification_item_group_assignment, 
+    justification_support_item_group_assignment, 
     location, 
     location_relationship, 
     measure_qualification, 
     observation_consequence, 
+    organization, 
     organization_relationship, 
     organization_type, 
     organizational_project, 
     organizational_project_relationship, 
+    person, 
+    person_and_organization, 
     person_type, 
     person_type_definition, 
     person_type_definition_relationship, 
@@ -1477,12 +1503,14 @@ TYPE description_item = SELECT
     position_in_organization_type_assignment, 
     product, 
     product_concept, 
+    product_concept_context, 
     product_definition, 
     product_definition_context, 
     product_definition_formation, 
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
+    product_group_membership, 
     product_group_relationship, 
     product_relationship, 
     property_definition, 
@@ -1490,9 +1518,12 @@ TYPE description_item = SELECT
     qualification_type, 
     qualification_type_relationship, 
     representation, 
+    representation_item, 
     representation_relationship, 
     resource_property, 
     resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
     security_classification, 
     shape_aspect, 
     shape_aspect_relationship, 
@@ -1532,6 +1563,7 @@ TYPE document_reference_item = SELECT
     action_resource_requirement_relationship, 
     address, 
     alternate_product_relationship, 
+    analysis_assignment, 
     applied_action_assignment, 
     applied_action_method_assignment, 
     applied_approval_assignment, 
@@ -1543,23 +1575,26 @@ TYPE document_reference_item = SELECT
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
     applied_event_occurrence_assignment, 
+    applied_external_identification_assignment, 
     applied_identification_assignment, 
     applied_location_assignment, 
     applied_location_representation_assignment, 
     applied_organization_assignment, 
     applied_person_and_organization_assignment, 
     applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
     applied_position_in_organization_type_assignment, 
     applied_security_classification_assignment, 
     applied_state_observed_assignment, 
     applied_state_type_assignment, 
     approval, 
+    approval_relationship, 
     ascribable_state, 
+    ascribable_state_relationship, 
     assembly_component_usage, 
     assembly_component_usage_substitute, 
     assumption, 
     assumption_assignment, 
-    assumption_relationship, 
     attachment_slot_design_to_planned, 
     attachment_slot_design_to_realized, 
     attachment_slot_planned_to_realized, 
@@ -1572,15 +1607,22 @@ TYPE document_reference_item = SELECT
     contract, 
     contract_relationship, 
     descriptive_representation_item, 
+    document_relationship, 
     effectivity, 
+    effectivity_relationship, 
     environment_definition_view, 
+    event_occurrence, 
+    event_occurrence_relationship, 
     evidence, 
     executed_action, 
     experience, 
     experience_type, 
+    external_source, 
     general_property, 
     general_property_relationship, 
+    geometric_item_specific_usage, 
     group, 
+    identification_assignment_relationship, 
     information_right, 
     information_usage_right, 
     interface_connection, 
@@ -1592,6 +1634,7 @@ TYPE document_reference_item = SELECT
     interface_connector_occurrence, 
     interface_connector_planned_to_realized, 
     interface_definition_connection, 
+    intersection, 
     item_assumed, 
     justification_assignment, 
     justification_group_assignment, 
@@ -1599,6 +1642,8 @@ TYPE document_reference_item = SELECT
     justification_support_assignment, 
     justification_support_item_group_assignment, 
     location, 
+    location_relationship, 
+    measure_qualification, 
     measure_representation_item, 
     observation, 
     observation_consequence, 
@@ -1608,12 +1653,17 @@ TYPE document_reference_item = SELECT
     organization_type, 
     organizational_address, 
     organizational_project, 
+    organizational_project_relationship, 
     person, 
     person_and_organization, 
     person_type, 
     person_type_definition, 
+    person_type_definition_relationship, 
     position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
     position_in_organization_type, 
+    position_in_organization_type_assignment, 
     probability_generator, 
     product, 
     product_as_planned, 
@@ -1621,6 +1671,7 @@ TYPE document_reference_item = SELECT
     product_concept, 
     product_concept_context, 
     product_definition, 
+    product_definition_context, 
     product_definition_formation, 
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
@@ -1635,8 +1686,10 @@ TYPE document_reference_item = SELECT
     property_definition, 
     property_definition_representation, 
     qualification_type, 
+    qualification_type_relationship, 
     representation, 
     representation_item, 
+    representation_relationship, 
     requirement_assignment, 
     requirement_source, 
     resource_property, 
@@ -1648,11 +1701,19 @@ TYPE document_reference_item = SELECT
     shape_aspect, 
     shape_aspect_relationship, 
     state_observed, 
+    state_observed_relationship, 
+    state_observed_role, 
     state_type, 
     state_type_relationship, 
+    state_type_role, 
     structured_message, 
+    time_interval, 
+    time_interval_relationship, 
+    uncertainty_measure_with_unit, 
+    uncertainty_qualifier, 
     validation, 
     verification, 
+    verification_relationship, 
     versioned_action_request);
 END_TYPE; 
 
@@ -1678,6 +1739,7 @@ TYPE effectivity_item = SELECT
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -2312,6 +2374,7 @@ TYPE identification_item = SELECT
     applied_action_assignment, 
     applied_action_method_assignment, 
     applied_action_request_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_external_identification_assignment, 
@@ -2612,6 +2675,7 @@ TYPE justification_item = SELECT
     applied_action_method_assignment, 
     applied_approval_assignment, 
     applied_classification_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_location_assignment, 
@@ -2721,9 +2785,11 @@ TYPE location_item = SELECT
     applied_action_method_assignment, 
     assembly_component_usage, 
     document_file, 
+    environment_definition_view, 
     interface_connection, 
     interface_connector_occurrence, 
     interface_definition_connection, 
+    observed_environment_view, 
     organization, 
     organization_type, 
     organizational_project, 
@@ -2839,6 +2905,7 @@ TYPE multi_language_attribute_item = SELECT
     alternate_product_relationship, 
     applied_action_assignment, 
     applied_action_method_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_experience_assignment, 
@@ -2981,6 +3048,7 @@ TYPE organization_item = SELECT
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -3115,6 +3183,7 @@ TYPE person_and_organization_item = SELECT
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -3581,7 +3650,6 @@ TYPE same_as_item = SELECT
     description_text, 
     event_occurrence, 
     evidence, 
-    executed_action, 
     experience, 
     experience_type, 
     external_source, 
@@ -3641,6 +3709,7 @@ TYPE security_classification_item = SELECT
     alternate_product_relationship, 
     applied_action_assignment, 
     applied_action_method_assignment, 
+    applied_description_text_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_state_observed_assignment, 
@@ -3801,6 +3870,7 @@ TYPE state_observed_of_item = SELECT
     configuration_item, 
     contract, 
     document_file, 
+    environment_definition_view, 
     executed_action, 
     group, 
     interface_connection, 
@@ -3814,6 +3884,7 @@ TYPE state_observed_of_item = SELECT
     interface_specification_definition, 
     interface_specification_version, 
     location, 
+    observed_environment_view, 
     organization, 
     organizational_project, 
     person_and_organization, 
@@ -3865,6 +3936,7 @@ TYPE state_type_of_item = SELECT
     configuration_item, 
     contract, 
     document_file, 
+    environment_definition_view, 
     executed_action, 
     interface_connection, 
     interface_connector_as_planned, 
@@ -3877,6 +3949,4258 @@ TYPE state_type_of_item = SELECT
     interface_specification_definition, 
     interface_specification_version, 
     location, 
+    observed_environment_view, 
+    organization, 
+    organizational_project, 
+    person_and_organization, 
+    product, 
+    product_as_individual, 
+    product_as_individual_view, 
+    product_as_planned, 
+    product_as_realized, 
+    product_category, 
+    product_concept, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_in_attachment_slot, 
+    risk_attitude, 
+    risk_impact_assignment, 
+    security_classification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE statechar_action_items = action_items;
+WHERE
+  wr1: NOT ('STATE_CHARACTERIZED_MIM.ACTION' IN TYPEOF(SELF));
+  wr2: NOT ('STATE_CHARACTERIZED_MIM.ACTION_DIRECTIVE' IN TYPEOF(SELF));
+  wr3: NOT ('STATE_CHARACTERIZED_MIM.ACTION_METHOD' IN TYPEOF(SELF));
+  wr4: NOT ('STATE_CHARACTERIZED_MIM.ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr5: NOT ('STATE_CHARACTERIZED_MIM.ACTION_METHOD_RELATIONSHIP' IN TYPEOF(SELF));
+  wr6: NOT ('STATE_CHARACTERIZED_MIM.ACTION_PROPERTY' IN TYPEOF(SELF));
+  wr7: NOT ('STATE_CHARACTERIZED_MIM.ACTION_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr8: NOT ('STATE_CHARACTERIZED_MIM.ACTION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr9: NOT ('STATE_CHARACTERIZED_MIM.ACTION_REQUEST_SOLUTION' IN TYPEOF(SELF));
+  wr10: NOT ('STATE_CHARACTERIZED_MIM.ACTION_REQUEST_STATUS' IN TYPEOF(SELF));
+  wr11: NOT ('STATE_CHARACTERIZED_MIM.ACTION_RESOURCE' IN TYPEOF(SELF));
+  wr12: NOT ('STATE_CHARACTERIZED_MIM.ACTION_RESOURCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr13: NOT ('STATE_CHARACTERIZED_MIM.ACTION_RESOURCE_REQUIREMENT' IN TYPEOF(SELF));
+  wr14: NOT ('STATE_CHARACTERIZED_MIM.ACTION_RESOURCE_REQUIREMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr15: NOT ('STATE_CHARACTERIZED_MIM.ACTION_STATUS' IN TYPEOF(SELF));
+  wr16: NOT ('STATE_CHARACTERIZED_MIM.ADDRESS' IN TYPEOF(SELF));
+  wr17: NOT ('STATE_CHARACTERIZED_MIM.ALTERNATE_PRODUCT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr18: NOT ('STATE_CHARACTERIZED_MIM.ANALYSIS_ASSIGNMENT' IN TYPEOF(SELF));
+  wr19: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ACTION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr20: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr21: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ACTION_REQUEST_ASSIGNMENT' IN TYPEOF(SELF));
+  wr22: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_APPROVAL_ASSIGNMENT' IN TYPEOF(SELF));
+  wr23: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ATTRIBUTE_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr24: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_CERTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr25: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr26: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_CONTRACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr27: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr28: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr29: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_DESCRIPTION_TEXT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr30: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_DOCUMENT_REFERENCE' IN TYPEOF(SELF));
+  wr31: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_DOCUMENT_USAGE_CONSTRAINT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr32: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF));
+  wr33: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_EVENT_OCCURRENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr34: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_EXPERIENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr35: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr36: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr37: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr38: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_LOCATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr39: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_LOCATION_REPRESENTATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr40: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_NAME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr41: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr42: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ORGANIZATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr43: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_ORGANIZATIONAL_PROJECT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr44: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr45: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_PERSON_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr46: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_PERSON_TYPE_DEFINITION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr47: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_POSITION_IN_ORGANIZATION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr48: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_QUALIFICATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr49: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr50: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr51: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr52: NOT ('STATE_CHARACTERIZED_MIM.APPLIED_USAGE_RIGHT' IN TYPEOF(SELF));
+  wr53: NOT ('STATE_CHARACTERIZED_MIM.APPROVAL' IN TYPEOF(SELF));
+  wr54: NOT ('STATE_CHARACTERIZED_MIM.APPROVAL_PERSON_ORGANIZATION' IN TYPEOF(SELF));
+  wr55: NOT ('STATE_CHARACTERIZED_MIM.APPROVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr56: NOT ('STATE_CHARACTERIZED_MIM.APPROVAL_STATUS' IN TYPEOF(SELF));
+  wr57: NOT ('STATE_CHARACTERIZED_MIM.ASCRIBABLE_STATE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr58: NOT ('STATE_CHARACTERIZED_MIM.ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(SELF));
+  wr59: NOT ('STATE_CHARACTERIZED_MIM.ASSEMBLY_COMPONENT_USAGE_SUBSTITUTE' IN TYPEOF(SELF));
+  wr60: NOT ('STATE_CHARACTERIZED_MIM.ATTACHMENT_SLOT_DESIGN_TO_PLANNED' IN TYPEOF(SELF));
+  wr61: NOT ('STATE_CHARACTERIZED_MIM.ATTACHMENT_SLOT_DESIGN_TO_REALIZED' IN TYPEOF(SELF));
+  wr62: NOT ('STATE_CHARACTERIZED_MIM.ATTACHMENT_SLOT_ON_PRODUCT' IN TYPEOF(SELF));
+  wr63: NOT ('STATE_CHARACTERIZED_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr64: NOT ('STATE_CHARACTERIZED_MIM.BREAKDOWN_ELEMENT_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr65: NOT ('STATE_CHARACTERIZED_MIM.BREAKDOWN_ELEMENT_USAGE' IN TYPEOF(SELF));
+  wr66: NOT ('STATE_CHARACTERIZED_MIM.CALENDAR_DATE' IN TYPEOF(SELF));
+  wr67: NOT ('STATE_CHARACTERIZED_MIM.CERTIFICATION' IN TYPEOF(SELF));
+  wr68: NOT ('STATE_CHARACTERIZED_MIM.COMPLEMENT' IN TYPEOF(SELF));
+  wr69: NOT ('STATE_CHARACTERIZED_MIM.CONFIGURATION_DESIGN' IN TYPEOF(SELF));
+  wr70: NOT ('STATE_CHARACTERIZED_MIM.CONFIGURATION_ITEM' IN TYPEOF(SELF));
+  wr71: NOT ('STATE_CHARACTERIZED_MIM.CONFIGURATION_ITEM_RELATIONSHIP' IN TYPEOF(SELF));
+  wr72: NOT ('STATE_CHARACTERIZED_MIM.CONTEXT_DEPENDENT_SHAPE_REPRESENTATION' IN TYPEOF(SELF));
+  wr73: NOT ('STATE_CHARACTERIZED_MIM.CONTRACT' IN TYPEOF(SELF));
+  wr74: NOT ('STATE_CHARACTERIZED_MIM.CONTRACT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr75: NOT ('STATE_CHARACTERIZED_MIM.COORDINATED_UNIVERSAL_TIME_OFFSET' IN TYPEOF(SELF));
+  wr76: NOT ('STATE_CHARACTERIZED_MIM.DATE_AND_TIME' IN TYPEOF(SELF));
+  wr77: NOT ('STATE_CHARACTERIZED_MIM.DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr78: NOT ('STATE_CHARACTERIZED_MIM.DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr79: NOT ('STATE_CHARACTERIZED_MIM.DERIVED_UNIT' IN TYPEOF(SELF));
+  wr80: NOT ('STATE_CHARACTERIZED_MIM.DERIVED_UNIT_ELEMENT' IN TYPEOF(SELF));
+  wr81: NOT ('STATE_CHARACTERIZED_MIM.DESCRIPTION_TEXT' IN TYPEOF(SELF));
+  wr82: NOT ('STATE_CHARACTERIZED_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr83: NOT ('STATE_CHARACTERIZED_MIM.DOCUMENT_FILE' IN TYPEOF(SELF));
+  wr84: NOT ('STATE_CHARACTERIZED_MIM.DOCUMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr85: NOT ('STATE_CHARACTERIZED_MIM.EFFECTIVITY' IN TYPEOF(SELF));
+  wr86: NOT ('STATE_CHARACTERIZED_MIM.EFFECTIVITY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr87: NOT ('STATE_CHARACTERIZED_MIM.ENVELOPE' IN TYPEOF(SELF));
+  wr88: NOT ('STATE_CHARACTERIZED_MIM.EVENT_OCCURRENCE' IN TYPEOF(SELF));
+  wr89: NOT ('STATE_CHARACTERIZED_MIM.EVENT_OCCURRENCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr90: NOT ('STATE_CHARACTERIZED_MIM.EVIDENCE' IN TYPEOF(SELF));
+  wr91: NOT ('STATE_CHARACTERIZED_MIM.EXECUTED_ACTION' IN TYPEOF(SELF));
+  wr92: NOT ('STATE_CHARACTERIZED_MIM.EXPERIENCE' IN TYPEOF(SELF));
+  wr93: NOT ('STATE_CHARACTERIZED_MIM.EXPERIENCE_TYPE' IN TYPEOF(SELF));
+  wr94: NOT ('STATE_CHARACTERIZED_MIM.EXPERIENCE_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr95: NOT ('STATE_CHARACTERIZED_MIM.EXTERNAL_SOURCE' IN TYPEOF(SELF));
+  wr96: NOT ('STATE_CHARACTERIZED_MIM.GENERAL_PROPERTY' IN TYPEOF(SELF));
+  wr97: NOT ('STATE_CHARACTERIZED_MIM.GENERAL_PROPERTY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr98: NOT ('STATE_CHARACTERIZED_MIM.GEOMETRIC_ITEM_SPECIFIC_USAGE' IN TYPEOF(SELF));
+  wr99: NOT ('STATE_CHARACTERIZED_MIM.GROUP' IN TYPEOF(SELF));
+  wr100: NOT ('STATE_CHARACTERIZED_MIM.HIERARCHICAL_INTERFACE_CONNECTION' IN TYPEOF(SELF));
+  wr101: NOT ('STATE_CHARACTERIZED_MIM.IDENTIFICATION_ASSIGNMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr102: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_CONNECTION' IN TYPEOF(SELF));
+  wr103: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_CONNECTOR_AS_PLANNED' IN TYPEOF(SELF));
+  wr104: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_CONNECTOR_AS_REALIZED' IN TYPEOF(SELF));
+  wr105: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_CONNECTOR_DESIGN' IN TYPEOF(SELF));
+  wr106: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_CONNECTOR_OCCURRENCE' IN TYPEOF(SELF));
+  wr107: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_DEFINITION_CONNECTION' IN TYPEOF(SELF));
+  wr108: NOT ('STATE_CHARACTERIZED_MIM.INTERFACE_DEFINITION_FOR' IN TYPEOF(SELF));
+  wr109: NOT ('STATE_CHARACTERIZED_MIM.INTERSECTION' IN TYPEOF(SELF));
+  wr110: NOT ('STATE_CHARACTERIZED_MIM.ITEM_DEFINED_TRANSFORMATION' IN TYPEOF(SELF));
+  wr111: NOT ('STATE_CHARACTERIZED_MIM.LOCAL_TIME' IN TYPEOF(SELF));
+  wr112: NOT ('STATE_CHARACTERIZED_MIM.LOCATION' IN TYPEOF(SELF));
+  wr113: NOT ('STATE_CHARACTERIZED_MIM.LOCATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr114: NOT ('STATE_CHARACTERIZED_MIM.MEASURE_QUALIFICATION' IN TYPEOF(SELF));
+  wr115: NOT ('STATE_CHARACTERIZED_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr116: NOT ('STATE_CHARACTERIZED_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
+  wr117: NOT ('STATE_CHARACTERIZED_MIM.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr118: NOT ('STATE_CHARACTERIZED_MIM.NAMED_UNIT' IN TYPEOF(SELF));
+  wr119: NOT ('STATE_CHARACTERIZED_MIM.OBSERVATION_CONSEQUENCE' IN TYPEOF(SELF));
+  wr120: NOT ('STATE_CHARACTERIZED_MIM.ORGANIZATION' IN TYPEOF(SELF));
+  wr121: NOT ('STATE_CHARACTERIZED_MIM.ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr122: NOT ('STATE_CHARACTERIZED_MIM.ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr123: NOT ('STATE_CHARACTERIZED_MIM.ORGANIZATIONAL_PROJECT' IN TYPEOF(SELF));
+  wr124: NOT ('STATE_CHARACTERIZED_MIM.ORGANIZATIONAL_PROJECT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr125: NOT ('STATE_CHARACTERIZED_MIM.PERSON' IN TYPEOF(SELF));
+  wr126: NOT ('STATE_CHARACTERIZED_MIM.PERSON_AND_ORGANIZATION' IN TYPEOF(SELF));
+  wr127: NOT ('STATE_CHARACTERIZED_MIM.PERSON_TYPE' IN TYPEOF(SELF));
+  wr128: NOT ('STATE_CHARACTERIZED_MIM.PERSON_TYPE_DEFINITION' IN TYPEOF(SELF));
+  wr129: NOT ('STATE_CHARACTERIZED_MIM.PERSON_TYPE_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr130: NOT ('STATE_CHARACTERIZED_MIM.POSITION_IN_ORGANIZATION' IN TYPEOF(SELF));
+  wr131: NOT ('STATE_CHARACTERIZED_MIM.POSITION_IN_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr132: NOT ('STATE_CHARACTERIZED_MIM.POSITION_IN_ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr133: NOT ('STATE_CHARACTERIZED_MIM.POSITION_IN_ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr134: NOT ('STATE_CHARACTERIZED_MIM.POSITION_IN_ORGANIZATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr135: NOT ('STATE_CHARACTERIZED_MIM.POWER_SET' IN TYPEOF(SELF));
+  wr136: NOT ('STATE_CHARACTERIZED_MIM.PRECISION_QUALIFIER' IN TYPEOF(SELF));
+  wr137: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT' IN TYPEOF(SELF));
+  wr138: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_AS_INDIVIDUAL' IN TYPEOF(SELF));
+  wr139: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_AS_INDIVIDUAL_VIEW' IN TYPEOF(SELF));
+  wr140: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_AS_PLANNED' IN TYPEOF(SELF));
+  wr141: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_AS_REALIZED' IN TYPEOF(SELF));
+  wr142: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_CONCEPT' IN TYPEOF(SELF));
+  wr143: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_CONCEPT_CONTEXT' IN TYPEOF(SELF));
+  wr144: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF));
+  wr145: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_CONTEXT' IN TYPEOF(SELF));
+  wr146: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr147: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_FORMATION' IN TYPEOF(SELF));
+  wr148: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr149: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr150: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr151: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_GROUP' IN TYPEOF(SELF));
+  wr152: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_GROUP_MEMBERSHIP' IN TYPEOF(SELF));
+  wr153: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_GROUP_RELATIONSHIP' IN TYPEOF(SELF));
+  wr154: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY' IN TYPEOF(SELF));
+  wr155: NOT ('STATE_CHARACTERIZED_MIM.PRODUCT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr156: NOT ('STATE_CHARACTERIZED_MIM.PROPERTY_DEFINITION' IN TYPEOF(SELF));
+  wr157: NOT ('STATE_CHARACTERIZED_MIM.PROPERTY_DEFINITION_REPRESENTATION' IN TYPEOF(SELF));
+  wr158: NOT ('STATE_CHARACTERIZED_MIM.QUALIFICATION_TYPE' IN TYPEOF(SELF));
+  wr159: NOT ('STATE_CHARACTERIZED_MIM.QUALIFICATION_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr160: NOT ('STATE_CHARACTERIZED_MIM.REPRESENTATION' IN TYPEOF(SELF));
+  wr161: NOT ('STATE_CHARACTERIZED_MIM.REPRESENTATION_CONTEXT' IN TYPEOF(SELF));
+  wr162: NOT ('STATE_CHARACTERIZED_MIM.REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr163: NOT ('STATE_CHARACTERIZED_MIM.REPRESENTATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr164: NOT ('STATE_CHARACTERIZED_MIM.REQUIREMENT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr165: NOT ('STATE_CHARACTERIZED_MIM.RESOURCE_PROPERTY' IN TYPEOF(SELF));
+  wr166: NOT ('STATE_CHARACTERIZED_MIM.RESOURCE_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr167: NOT ('STATE_CHARACTERIZED_MIM.RISK_IMPACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr168: NOT ('STATE_CHARACTERIZED_MIM.RISK_PERCEPTION_SOURCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr169: NOT ('STATE_CHARACTERIZED_MIM.SAME_AS_EXTERNAL_ITEM_ASSIGNMENT' IN TYPEOF(SELF));
+  wr170: NOT ('STATE_CHARACTERIZED_MIM.SAME_MEMBERSHIP' IN TYPEOF(SELF));
+  wr171: NOT ('STATE_CHARACTERIZED_MIM.SECURITY_CLASSIFICATION' IN TYPEOF(SELF));
+  wr172: NOT ('STATE_CHARACTERIZED_MIM.SELECTED_ITEM_ASSIGNMENT' IN TYPEOF(SELF));
+  wr173: NOT ('STATE_CHARACTERIZED_MIM.SHAPE_ASPECT' IN TYPEOF(SELF));
+  wr174: NOT ('STATE_CHARACTERIZED_MIM.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr175: NOT ('STATE_CHARACTERIZED_MIM.STATE_OBSERVED' IN TYPEOF(SELF));
+  wr176: NOT ('STATE_CHARACTERIZED_MIM.STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr177: NOT ('STATE_CHARACTERIZED_MIM.STATE_OBSERVED_RELATIONSHIP' IN TYPEOF(SELF));
+  wr178: NOT ('STATE_CHARACTERIZED_MIM.STATE_OBSERVED_ROLE' IN TYPEOF(SELF));
+  wr179: NOT ('STATE_CHARACTERIZED_MIM.STATE_TYPE' IN TYPEOF(SELF));
+  wr180: NOT ('STATE_CHARACTERIZED_MIM.STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr181: NOT ('STATE_CHARACTERIZED_MIM.STATE_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr182: NOT ('STATE_CHARACTERIZED_MIM.STATE_TYPE_ROLE' IN TYPEOF(SELF));
+  wr183: NOT ('STATE_CHARACTERIZED_MIM.STATECHAR_ACTION_ITEMS' IN TYPEOF(SELF));
+  wr184: NOT ('STATE_CHARACTERIZED_MIM.STRUCTURED_MESSAGE' IN TYPEOF(SELF));
+  wr185: NOT ('STATE_CHARACTERIZED_MIM.SUBSET' IN TYPEOF(SELF));
+  wr186: NOT ('STATE_CHARACTERIZED_MIM.TASK_ELEMENT' IN TYPEOF(SELF));
+  wr187: NOT ('STATE_CHARACTERIZED_MIM.TASK_METHOD' IN TYPEOF(SELF));
+  wr188: NOT ('STATE_CHARACTERIZED_MIM.TASK_METHOD_VERSION' IN TYPEOF(SELF));
+  wr189: NOT ('STATE_CHARACTERIZED_MIM.TASK_OBJECTIVE' IN TYPEOF(SELF));
+  wr190: NOT ('STATE_CHARACTERIZED_MIM.TIME_INTERVAL' IN TYPEOF(SELF));
+  wr191: NOT ('STATE_CHARACTERIZED_MIM.TIME_INTERVAL_ASSIGNMENT' IN TYPEOF(SELF));
+  wr192: NOT ('STATE_CHARACTERIZED_MIM.TIME_INTERVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr193: NOT ('STATE_CHARACTERIZED_MIM.TIME_INTERVAL_ROLE' IN TYPEOF(SELF));
+  wr194: NOT ('STATE_CHARACTERIZED_MIM.TYPE_QUALIFIER' IN TYPEOF(SELF));
+  wr195: NOT ('STATE_CHARACTERIZED_MIM.UNCERTAINTY_QUALIFIER' IN TYPEOF(SELF));
+  wr196: NOT ('STATE_CHARACTERIZED_MIM.UNION' IN TYPEOF(SELF));
+  wr197: NOT ('STATE_CHARACTERIZED_MIM.VALIDATION' IN TYPEOF(SELF));
+  wr198: NOT ('STATE_CHARACTERIZED_MIM.VERIFICATION' IN TYPEOF(SELF));
+  wr199: NOT ('STATE_CHARACTERIZED_MIM.VERIFICATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr200: NOT ('STATE_CHARACTERIZED_MIM.VERSIONED_ACTION_REQUEST' IN TYPEOF(SELF));
+END_TYPE; 
+
+TYPE supported_item = SELECT
+   (action, 
+    action_directive, 
+    action_method);
+END_TYPE; 
+
+TYPE text = STRING;
+END_TYPE; 
+
+TYPE thermodynamic_temperature_measure = REAL;
+END_TYPE; 
+
+TYPE time_interval_item = SELECT
+   (action_method_relationship, 
+    analysis_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    approval, 
+    approval_person_organization, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    evidence, 
+    identification_assignment_relationship, 
+    item_assumed, 
+    observed_environment_view, 
+    organization_relationship, 
+    organizational_address, 
+    person, 
+    person_and_organization, 
+    security_classification, 
+    validation, 
+    verification, 
+    verification_relationship);
+END_TYPE; 
+
+TYPE time_measure = REAL;
+END_TYPE; 
+
+TYPE transformation = SELECT
+   (functionally_defined_transformation, 
+    item_defined_transformation);
+END_TYPE; 
+
+TYPE unit = SELECT
+   (derived_unit, 
+    named_unit);
+END_TYPE; 
+
+TYPE value_qualifier = SELECT
+   (precision_qualifier, 
+    type_qualifier, 
+    uncertainty_qualifier);
+END_TYPE; 
+
+TYPE vector_or_direction = SELECT
+   (direction, 
+    vector);
+END_TYPE; 
+
+TYPE velocity_measure = REAL;
+END_TYPE; 
+
+TYPE volume_measure = REAL;
+END_TYPE; 
+
+TYPE year_number = INTEGER;
+END_TYPE; 
+
+ISO TC184/SC4/WG3 N2682 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM Long form
+Supersedes ISO TC184/SC4/WG3 N2567
+*) 
+
+
+SCHEMA AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF;
+
+
+CONSTANT
+  dummy_gri : geometric_representation_item := representation_item('')||geometric_representation_item(); 
+END_CONSTANT; 
+
+TYPE absorbed_dose_measure = REAL;
+END_TYPE; 
+
+TYPE acceleration_measure = REAL;
+END_TYPE; 
+
+TYPE action_items = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_request_status, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    action_status, 
+    address, 
+    alternate_product_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_approval_assignment, 
+    applied_attribute_classification_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_group_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_name_assignment, 
+    applied_organization_assignment, 
+    applied_organization_type_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_person_type_definition_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    applied_usage_right, 
+    approval, 
+    approval_person_organization, 
+    approval_relationship, 
+    approval_status, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attribute_language_assignment, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    calendar_date, 
+    certification, 
+    complement, 
+    configuration_design, 
+    configuration_item, 
+    configuration_item_relationship, 
+    context_dependent_shape_representation, 
+    contract, 
+    contract_relationship, 
+    coordinated_universal_time_offset, 
+    date_and_time, 
+    date_and_time_assignment, 
+    date_assignment, 
+    derived_unit, 
+    derived_unit_element, 
+    description_text, 
+    descriptive_representation_item, 
+    document_file, 
+    document_relationship, 
+    effectivity, 
+    effectivity_relationship, 
+    envelope, 
+    environment_definition_view, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    evidence, 
+    executed_action, 
+    experience, 
+    experience_type, 
+    experience_type_relationship, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    geometric_item_specific_usage, 
+    group, 
+    hierarchical_interface_connection, 
+    identification_assignment_relationship, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    intersection, 
+    item_defined_transformation, 
+    local_time, 
+    location, 
+    location_relationship, 
+    measure_qualification, 
+    measure_representation_item, 
+    measure_with_unit, 
+    multi_language_attribute_assignment, 
+    named_unit, 
+    observation_consequence, 
+    observed_environment_view, 
+    organization, 
+    organization_relationship, 
+    organization_type, 
+    organizational_project, 
+    organizational_project_relationship, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    position_in_organization_type_assignment, 
+    power_set, 
+    precision_qualifier, 
+    product, 
+    product_as_individual, 
+    product_as_individual_view, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_element_relationship, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_representation, 
+    qualification_type, 
+    qualification_type_relationship, 
+    representation, 
+    representation_context, 
+    representation_item, 
+    representation_relationship, 
+    requirement_assignment, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    same_as_external_item_assignment, 
+    same_membership, 
+    security_classification, 
+    selected_item_assignment, 
+    shape_aspect, 
+    shape_aspect_relationship, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_observed_role, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    state_type_role, 
+    statechar_action_items, 
+    structured_message, 
+    subset, 
+    task_element, 
+    task_method, 
+    task_method_version, 
+    task_objective, 
+    time_interval, 
+    time_interval_assignment, 
+    time_interval_relationship, 
+    time_interval_role, 
+    type_qualifier, 
+    uncertainty_qualifier, 
+    union, 
+    validation, 
+    verification, 
+    verification_relationship, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE action_method_items = SELECT
+   (action, 
+    action_actual, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    ascribable_state, 
+    assembly_component_usage, 
+    breakdown_element_usage, 
+    calendar_date, 
+    configuration_item, 
+    contract, 
+    date_and_time, 
+    date_and_time_assignment, 
+    date_assignment, 
+    document_file, 
+    effectivity, 
+    envelope, 
+    environment_definition_view, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    general_property, 
+    group, 
+    hierarchical_interface_connection, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    location, 
+    observation_consequence, 
+    observed_environment_view, 
+    organization, 
+    organization_role, 
+    organization_type, 
+    organizational_project, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    position_in_organization, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
+    product_concept, 
+    product_definition, 
+    product_definition_element_relationship, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_related_product_category, 
+    property_definition, 
+    property_definition_representation, 
+    representation, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    state_observed, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE action_request_item = SELECT
+   (action_method, 
+    action_property, 
+    action_resource, 
+    analysis_assignment, 
+    assembly_component_usage, 
+    contract, 
+    document_file, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    organization, 
+    person, 
+    person_and_organization, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_relationship, 
+    product_group, 
+    property_definition, 
+    resource_property, 
+    state_observed, 
+    state_type);
+END_TYPE; 
+
+TYPE ahead_or_behind = ENUMERATION OF 
+   (ahead,
+    exact,
+    behind);
+END_TYPE; 
+
+TYPE amount_of_substance_measure = REAL;
+END_TYPE; 
+
+TYPE analysed_item = SELECT
+   (action, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_relationship, 
+    action_resource_relationship, 
+    alternate_product_relationship, 
+    ascribable_state, 
+    assembly_component_usage_substitute, 
+    evidence, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    observation_consequence, 
+    organization, 
+    organization_relationship, 
+    organizational_project_relationship, 
+    product, 
+    product_concept, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    requirement_assignment, 
+    resource_property, 
+    state_observed, 
+    state_observed_role, 
+    state_type, 
+    validation, 
+    verification, 
+    verification_relationship);
+END_TYPE; 
+
+TYPE approval_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_organization_assignment, 
+    applied_organization_type_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    applied_usage_right, 
+    ascribable_state, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    attachment_slot_as_planned, 
+    attachment_slot_as_realized, 
+    attachment_slot_design, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    configuration_item, 
+    contract, 
+    date_and_time_assignment, 
+    date_assignment, 
+    descriptive_representation_item, 
+    directed_action, 
+    effectivity, 
+    envelope, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience_type, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_assignment_relationship, 
+    in_zone, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_definition, 
+    interface_connector_design, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_connector_version, 
+    interface_definition_for, 
+    interface_specification_definition, 
+    interface_specification_version, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    measure_representation_item, 
+    observation, 
+    organization_relationship, 
+    organizational_address, 
+    organizational_project, 
+    person_and_organization, 
+    person_and_organization_address, 
+    person_type, 
+    position_in_organization, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_element_relationship, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_in_attachment_slot, 
+    product_planned_to_realized, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    qualification_type, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item_assignment, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE area_measure = REAL;
+END_TYPE; 
+
+TYPE attribute_classification_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_request_status, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    alternate_product_relationship, 
+    application_context, 
+    application_context_element, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_location_representation_assignment, 
+    approval, 
+    approval_relationship, 
+    approval_role, 
+    approval_status, 
+    breakdown_context, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    certification_type, 
+    context_dependent_unit, 
+    contract_type, 
+    conversion_based_unit, 
+    date_role, 
+    date_time_role, 
+    derived_unit, 
+    descriptive_representation_item, 
+    document_relationship, 
+    document_type, 
+    document_usage_role, 
+    effectivity, 
+    effectivity_relationship, 
+    envelope, 
+    envelope_relationship, 
+    event_occurrence_context_role, 
+    event_occurrence_relationship, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_role, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_definition, 
+    interface_definition_connection, 
+    interface_specification_definition, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
+    measure_with_unit, 
+    message_relationship, 
+    name_attribute, 
+    named_unit, 
+    object_role, 
+    organization_relationship, 
+    organization_role, 
+    organizational_address, 
+    organizational_project_relationship, 
+    organizational_project_role, 
+    person_and_organization_role, 
+    product, 
+    product_category, 
+    product_concept, 
+    product_concept_context, 
+    product_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_version_to_individual, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    representation, 
+    representation_context, 
+    representation_item, 
+    resource_property, 
+    resource_property_representation, 
+    security_classification_level, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    time_interval_relationship, 
+    uncertainty_measure_with_unit, 
+    usage_association, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE attribute_language_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_type_assignment, 
+    approval, 
+    approval_relationship, 
+    approval_status, 
+    attribute_value_assignment, 
+    certification, 
+    certification_type, 
+    contract, 
+    date_role, 
+    date_time_role, 
+    document_relationship, 
+    document_usage_role, 
+    envelope, 
+    envelope_relationship, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience_type, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_role, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    justification_group_assignment, 
+    justification_support_assignment, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
+    message_relationship, 
+    multi_language_attribute_assignment, 
+    object_role, 
+    observation, 
+    observation_consequence, 
+    organization_relationship, 
+    organization_type, 
+    organizational_project, 
+    organizational_project_relationship, 
+    organizational_project_role, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    qualification_type, 
+    representation, 
+    representation_item, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    state_observed, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE attribute_select = SELECT
+   (product_group_context, 
+    product_group_purpose);
+END_TYPE; 
+
+TYPE attribute_type = SELECT
+   (label, 
+    text);
+END_TYPE; 
+
+TYPE capacitance_measure = REAL;
+END_TYPE; 
+
+TYPE celsius_temperature_measure = REAL;
+END_TYPE; 
+
+TYPE certification_item = SELECT
+   (action, 
+    action_method, 
+    action_resource, 
+    analysis_assignment, 
+    applied_action_method_assignment, 
+    applied_qualification_type_assignment, 
+    assembly_component_usage, 
+    configuration_item, 
+    evidence, 
+    interface_connection, 
+    interface_connector_version, 
+    interface_definition_connection, 
+    interface_specification_version, 
+    organizational_project, 
+    product, 
+    product_as_individual, 
+    product_as_planned, 
+    product_as_realized, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_relationship);
+END_TYPE; 
+
+TYPE characterized_action_definition = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    action_relationship);
+END_TYPE; 
+
+TYPE characterized_definition = SELECT
+   (characterized_object, 
+    characterized_product_definition, 
+    shape_definition);
+END_TYPE; 
+
+TYPE characterized_product_definition = SELECT
+   (product_definition, 
+    product_definition_relationship);
+END_TYPE; 
+
+TYPE characterized_resource_definition = SELECT
+   (action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship);
+END_TYPE; 
+
+TYPE classification_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_request_status, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    action_status, 
+    address, 
+    alternate_product_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_person_type_definition_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    applied_usage_right, 
+    approval, 
+    approval_person_organization, 
+    approval_relationship, 
+    approval_status, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    attribute_language_assignment, 
+    breakdown_context, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    breakdown_of, 
+    calendar_date, 
+    certification, 
+    characterized_object, 
+    class, 
+    configuration_design, 
+    configuration_effectivity, 
+    configuration_item, 
+    context_dependent_unit, 
+    contract, 
+    contract_relationship, 
+    conversion_based_unit, 
+    date_and_time, 
+    date_and_time_assignment, 
+    date_assignment, 
+    derived_unit, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    document_relationship, 
+    effectivity, 
+    effectivity_relationship, 
+    envelope, 
+    envelope_relationship, 
+    environment_assignment, 
+    environment_definition, 
+    environment_definition_version, 
+    environment_definition_view, 
+    environment_view_definition_relationship, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    evidence, 
+    executed_action, 
+    experience, 
+    experience_type, 
+    external_class_library, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_assignment_relationship, 
+    in_zone, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_group_assignment, 
+    justification_support_assignment, 
+    language, 
+    local_time, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
+    measure_with_unit, 
+    message_relationship, 
+    multi_language_attribute_assignment, 
+    named_unit, 
+    observation, 
+    observation_consequence, 
+    observation_relationship, 
+    observed_environment, 
+    observed_environment_assignment, 
+    observed_environment_version, 
+    observed_environment_view_definition_relationship, 
+    organization, 
+    organization_relationship, 
+    organization_type, 
+    organizational_address, 
+    organizational_project, 
+    organizational_project_relationship, 
+    person, 
+    person_and_organization, 
+    person_and_organization_address, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    product, 
+    product_as_planned, 
+    product_as_realized, 
+    product_category, 
+    product_concept, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_definition_shape, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_planned_to_realized, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    qualification_type, 
+    qualification_type_relationship, 
+    representation, 
+    representation_context, 
+    representation_item, 
+    representation_relationship, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_relationship, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    selected_item_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_observed_role, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    time_interval_relationship, 
+    uncertainty_measure_with_unit, 
+    usage_association, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE compound_item_definition = SELECT
+   (list_representation_item, 
+    set_representation_item);
+END_TYPE; 
+
+TYPE conductance_measure = REAL;
+END_TYPE; 
+
+TYPE configuration_design_item = SELECT
+   (product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE context_dependent_measure = REAL;
+END_TYPE; 
+
+TYPE contract_item = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    action_resource, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    configuration_item, 
+    external_class_library, 
+    externally_defined_class, 
+    group, 
+    information_usage_right, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    organizational_project, 
+    product, 
+    product_as_individual, 
+    product_as_planned, 
+    product_as_realized, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_relationship, 
+    requirement_assignment, 
+    requirement_source, 
+    security_classification, 
+    structured_message, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE count_measure = NUMBER;
+END_TYPE; 
+
+TYPE date_and_time_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    address, 
+    alternate_product_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_organization_type_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    applied_usage_right, 
+    approval, 
+    approval_person_organization, 
+    ascribable_state, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    configuration_item, 
+    contract, 
+    date_and_time_assignment, 
+    date_assignment, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    effectivity, 
+    envelope, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    hierarchical_interface_connection, 
+    identification_assignment_relationship, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    measure_representation_item, 
+    observation, 
+    observed_environment_view, 
+    organization_relationship, 
+    organizational_address, 
+    organizational_project, 
+    person, 
+    person_and_organization, 
+    person_and_organization_address, 
+    product, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_in_attachment_slot, 
+    product_planned_to_realized, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    representation, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_relationship, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    selected_item_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    verification_relationship, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE date_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    address, 
+    alternate_product_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_organization_type_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    applied_usage_right, 
+    approval, 
+    approval_person_organization, 
+    ascribable_state, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    configuration_item, 
+    contract, 
+    date_and_time_assignment, 
+    date_assignment, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    effectivity, 
+    envelope, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    hierarchical_interface_connection, 
+    identification_assignment_relationship, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    measure_representation_item, 
+    observed_environment_view, 
+    organization_relationship, 
+    organizational_address, 
+    organizational_project, 
+    person, 
+    person_and_organization, 
+    person_and_organization_address, 
+    product, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_in_attachment_slot, 
+    product_planned_to_realized, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    representation, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_relationship, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    selected_item_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    verification_relationship, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE date_time_or_event_occurrence = SELECT
+   (date_time_select, 
+    event_occurrence);
+END_TYPE; 
+
+TYPE date_time_select = SELECT
+   (date, 
+    date_and_time, 
+    local_time);
+END_TYPE; 
+
+TYPE day_in_month_number = INTEGER;
+WHERE
+  WR1: {1 <= SELF <= 31};
+END_TYPE; 
+
+TYPE derived_property_select = SELECT
+   (action_property, 
+    property_definition, 
+    resource_property);
+END_TYPE; 
+
+TYPE description_attribute_select = SELECT
+   (action_request_solution, 
+    application_context, 
+    approval_role, 
+    configuration_design, 
+    context_dependent_shape_representation, 
+    date_role, 
+    date_time_role, 
+    effectivity, 
+    external_source, 
+    organization_role, 
+    person_and_organization, 
+    person_and_organization_role, 
+    person_role, 
+    property_definition_representation, 
+    representation, 
+    time_role);
+END_TYPE; 
+
+TYPE description_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_external_identification_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    approval_relationship, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assembly_component_usage_substitute, 
+    breakdown_element_group_assignment, 
+    certification, 
+    configuration_item, 
+    contract, 
+    contract_relationship, 
+    document_relationship, 
+    effectivity, 
+    effectivity_relationship, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    evidence, 
+    experience, 
+    experience_type, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    geometric_item_specific_usage, 
+    group, 
+    identification_assignment_relationship, 
+    intersection, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_item_group_assignment, 
+    location, 
+    location_relationship, 
+    measure_qualification, 
+    observation_consequence, 
+    organization, 
+    organization_relationship, 
+    organization_type, 
+    organizational_project, 
+    organizational_project_relationship, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    position_in_organization_type_assignment, 
+    product, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    property_definition_representation, 
+    qualification_type, 
+    qualification_type_relationship, 
+    representation, 
+    representation_item, 
+    representation_relationship, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    shape_aspect, 
+    shape_aspect_relationship, 
+    state_observed, 
+    state_observed_relationship, 
+    state_observed_role, 
+    state_type, 
+    state_type_relationship, 
+    state_type_role, 
+    time_interval, 
+    time_interval_relationship, 
+    uncertainty_measure_with_unit, 
+    uncertainty_qualifier, 
+    verification_relationship, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE descriptive_measure = STRING;
+END_TYPE; 
+
+TYPE dimension_count = INTEGER;
+WHERE
+  WR1: SELF > 0;
+END_TYPE; 
+
+TYPE document_reference_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    alternate_product_relationship, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_external_identification_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    approval_relationship, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_planned_to_realized, 
+    breakdown_context, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    class, 
+    configuration_item, 
+    contract, 
+    contract_relationship, 
+    descriptive_representation_item, 
+    document_relationship, 
+    effectivity, 
+    effectivity_relationship, 
+    environment_definition_view, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    evidence, 
+    executed_action, 
+    experience, 
+    experience_type, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    geometric_item_specific_usage, 
+    group, 
+    identification_assignment_relationship, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_definition_connection, 
+    intersection, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    location, 
+    location_relationship, 
+    measure_qualification, 
+    measure_representation_item, 
+    observation, 
+    observation_consequence, 
+    observed_environment_view, 
+    organization, 
+    organization_relationship, 
+    organization_type, 
+    organizational_address, 
+    organizational_project, 
+    organizational_project_relationship, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    position_in_organization_type_assignment, 
+    probability_generator, 
+    product, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_planned_to_realized, 
+    product_relationship, 
+    property_definition, 
+    property_definition_representation, 
+    qualification_type, 
+    qualification_type_relationship, 
+    representation, 
+    representation_item, 
+    representation_relationship, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    shape_aspect, 
+    shape_aspect_relationship, 
+    state_observed, 
+    state_observed_relationship, 
+    state_observed_role, 
+    state_type, 
+    state_type_relationship, 
+    state_type_role, 
+    structured_message, 
+    time_interval, 
+    time_interval_relationship, 
+    uncertainty_measure_with_unit, 
+    uncertainty_qualifier, 
+    validation, 
+    verification, 
+    verification_relationship, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE dose_equivalent_measure = REAL;
+END_TYPE; 
+
+TYPE effectivity_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_resource_relationship, 
+    action_resource_requirement_relationship, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_external_identification_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_organization_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_usage_right, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    attachment_slot_as_planned, 
+    attachment_slot_as_realized, 
+    attachment_slot_design, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    configuration_item, 
+    date_and_time_assignment, 
+    date_assignment, 
+    document_file, 
+    document_relationship, 
+    document_type, 
+    evidence, 
+    group, 
+    identification_assignment_relationship, 
+    in_zone, 
+    interface_connection, 
+    interface_connector_design_to_planned, 
+    interface_connector_design_to_realized, 
+    interface_connector_occurrence, 
+    interface_connector_planned_to_realized, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_group_assignment, 
+    justification_support_assignment, 
+    make_from_usage_option, 
+    multi_language_attribute_assignment, 
+    organization_relationship, 
+    organizational_address, 
+    person_and_organization, 
+    person_and_organization_address, 
+    person_type_definition_relationship, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_definition_usage, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_in_attachment_slot, 
+    product_planned_to_realized, 
+    product_relationship, 
+    property_definition, 
+    property_definition_representation, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    selected_item_assignment, 
+    state_type_assignment, 
+    state_type_relationship, 
+    validation, 
+    verification, 
+    verification_relationship);
+END_TYPE; 
+
+TYPE electric_charge_measure = REAL;
+END_TYPE; 
+
+TYPE electric_current_measure = REAL;
+END_TYPE; 
+
+TYPE electric_potential_measure = REAL;
+END_TYPE; 
+
+TYPE energy_measure = REAL;
+END_TYPE; 
+
+TYPE event_occurrence_item = SELECT
+   (action_method, 
+    action_method_relationship, 
+    action_relationship, 
+    applied_action_method_assignment, 
+    approval, 
+    certification, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    organizational_project, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_relationship, 
+    risk_impact_assignment, 
+    risk_perception, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_relationship);
+END_TYPE; 
+
+TYPE evidence_item = SELECT
+   (action_actual, 
+    action_method, 
+    action_relationship, 
+    action_status, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_approval_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_organization_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_security_classification_assignment, 
+    date_and_time_assignment, 
+    date_assignment, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    person, 
+    person_and_organization, 
+    product, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_relationship, 
+    property_definition, 
+    representation, 
+    representation_context, 
+    representation_item, 
+    risk_impact_assignment, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE experience_item = SELECT
+   (action_actual, 
+    action_resource, 
+    experience_type, 
+    experience_type_classification_item);
+END_TYPE; 
+
+TYPE experience_type_classification_item = classification_item;
+WHERE
+  wr1: NOT ('EXPERIENCE_MIM.ACTION' IN TYPEOF(SELF));
+  wr2: NOT ('EXPERIENCE_MIM.ACTION_DIRECTIVE' IN TYPEOF(SELF));
+  wr3: NOT ('EXPERIENCE_MIM.ACTION_METHOD' IN TYPEOF(SELF));
+  wr4: NOT ('EXPERIENCE_MIM.ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr5: NOT ('EXPERIENCE_MIM.ACTION_METHOD_RELATIONSHIP' IN TYPEOF(SELF));
+  wr6: NOT ('EXPERIENCE_MIM.ACTION_PROPERTY' IN TYPEOF(SELF));
+  wr7: NOT ('EXPERIENCE_MIM.ACTION_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr8: NOT ('EXPERIENCE_MIM.ACTION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr9: NOT ('EXPERIENCE_MIM.ACTION_REQUEST_SOLUTION' IN TYPEOF(SELF));
+  wr10: NOT ('EXPERIENCE_MIM.ACTION_REQUEST_STATUS' IN TYPEOF(SELF));
+  wr11: NOT ('EXPERIENCE_MIM.ACTION_RESOURCE' IN TYPEOF(SELF));
+  wr12: NOT ('EXPERIENCE_MIM.ACTION_RESOURCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr13: NOT ('EXPERIENCE_MIM.ACTION_RESOURCE_REQUIREMENT' IN TYPEOF(SELF));
+  wr14: NOT ('EXPERIENCE_MIM.ACTION_RESOURCE_REQUIREMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr15: NOT ('EXPERIENCE_MIM.ACTION_STATUS' IN TYPEOF(SELF));
+  wr16: NOT ('EXPERIENCE_MIM.ADDRESS' IN TYPEOF(SELF));
+  wr17: NOT ('EXPERIENCE_MIM.ALTERNATE_PRODUCT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr18: NOT ('EXPERIENCE_MIM.ANALYSIS_ASSIGNMENT' IN TYPEOF(SELF));
+  wr19: NOT ('EXPERIENCE_MIM.APPLIED_ACTION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr20: NOT ('EXPERIENCE_MIM.APPLIED_ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr21: NOT ('EXPERIENCE_MIM.APPLIED_ACTION_REQUEST_ASSIGNMENT' IN TYPEOF(SELF));
+  wr22: NOT ('EXPERIENCE_MIM.APPLIED_APPROVAL_ASSIGNMENT' IN TYPEOF(SELF));
+  wr23: NOT ('EXPERIENCE_MIM.APPLIED_CERTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr24: NOT ('EXPERIENCE_MIM.APPLIED_CONTRACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr25: NOT ('EXPERIENCE_MIM.APPLIED_DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr26: NOT ('EXPERIENCE_MIM.APPLIED_DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr27: NOT ('EXPERIENCE_MIM.APPLIED_DOCUMENT_REFERENCE' IN TYPEOF(SELF));
+  wr28: NOT ('EXPERIENCE_MIM.APPLIED_DOCUMENT_USAGE_CONSTRAINT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr29: NOT ('EXPERIENCE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF));
+  wr30: NOT ('EXPERIENCE_MIM.APPLIED_EVENT_OCCURRENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr31: NOT ('EXPERIENCE_MIM.APPLIED_EXPERIENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr32: NOT ('EXPERIENCE_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr33: NOT ('EXPERIENCE_MIM.APPLIED_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr34: NOT ('EXPERIENCE_MIM.APPLIED_LOCATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr35: NOT ('EXPERIENCE_MIM.APPLIED_LOCATION_REPRESENTATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr36: NOT ('EXPERIENCE_MIM.APPLIED_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr37: NOT ('EXPERIENCE_MIM.APPLIED_ORGANIZATIONAL_PROJECT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr38: NOT ('EXPERIENCE_MIM.APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr39: NOT ('EXPERIENCE_MIM.APPLIED_PERSON_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr40: NOT ('EXPERIENCE_MIM.APPLIED_PERSON_TYPE_DEFINITION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr41: NOT ('EXPERIENCE_MIM.APPLIED_POSITION_IN_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr42: NOT ('EXPERIENCE_MIM.APPLIED_POSITION_IN_ORGANIZATION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr43: NOT ('EXPERIENCE_MIM.APPLIED_POSITION_IN_ORGANIZATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr44: NOT ('EXPERIENCE_MIM.APPLIED_QUALIFICATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr45: NOT ('EXPERIENCE_MIM.APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr46: NOT ('EXPERIENCE_MIM.APPLIED_STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr47: NOT ('EXPERIENCE_MIM.APPLIED_STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr48: NOT ('EXPERIENCE_MIM.APPLIED_USAGE_RIGHT' IN TYPEOF(SELF));
+  wr49: NOT ('EXPERIENCE_MIM.APPROVAL' IN TYPEOF(SELF));
+  wr50: NOT ('EXPERIENCE_MIM.APPROVAL_PERSON_ORGANIZATION' IN TYPEOF(SELF));
+  wr51: NOT ('EXPERIENCE_MIM.APPROVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr52: NOT ('EXPERIENCE_MIM.APPROVAL_STATUS' IN TYPEOF(SELF));
+  wr53: NOT ('EXPERIENCE_MIM.ASCRIBABLE_STATE' IN TYPEOF(SELF));
+  wr54: NOT ('EXPERIENCE_MIM.ASCRIBABLE_STATE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr55: NOT ('EXPERIENCE_MIM.ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(SELF));
+  wr56: NOT ('EXPERIENCE_MIM.ASSEMBLY_COMPONENT_USAGE_SUBSTITUTE' IN TYPEOF(SELF));
+  wr57: NOT ('EXPERIENCE_MIM.ASSUMPTION' IN TYPEOF(SELF));
+  wr58: NOT ('EXPERIENCE_MIM.ASSUMPTION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr59: NOT ('EXPERIENCE_MIM.ASSUMPTION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr60: NOT ('EXPERIENCE_MIM.ATTACHMENT_SLOT_DESIGN_TO_PLANNED' IN TYPEOF(SELF));
+  wr61: NOT ('EXPERIENCE_MIM.ATTACHMENT_SLOT_DESIGN_TO_REALIZED' IN TYPEOF(SELF));
+  wr62: NOT ('EXPERIENCE_MIM.ATTACHMENT_SLOT_ON_PRODUCT' IN TYPEOF(SELF));
+  wr63: NOT ('EXPERIENCE_MIM.ATTACHMENT_SLOT_PLANNED_TO_REALIZED' IN TYPEOF(SELF));
+  wr64: NOT ('EXPERIENCE_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr65: NOT ('EXPERIENCE_MIM.BREAKDOWN_CONTEXT' IN TYPEOF(SELF));
+  wr66: NOT ('EXPERIENCE_MIM.BREAKDOWN_ELEMENT_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr67: NOT ('EXPERIENCE_MIM.BREAKDOWN_ELEMENT_USAGE' IN TYPEOF(SELF));
+  wr68: NOT ('EXPERIENCE_MIM.BREAKDOWN_OF' IN TYPEOF(SELF));
+  wr69: NOT ('EXPERIENCE_MIM.CALENDAR_DATE' IN TYPEOF(SELF));
+  wr70: NOT ('EXPERIENCE_MIM.CERTIFICATION' IN TYPEOF(SELF));
+  wr71: NOT ('EXPERIENCE_MIM.CHARACTERIZED_OBJECT' IN TYPEOF(SELF));
+  wr72: NOT ('EXPERIENCE_MIM.CLASS' IN TYPEOF(SELF));
+  wr73: NOT ('EXPERIENCE_MIM.CONFIGURATION_DESIGN' IN TYPEOF(SELF));
+  wr74: NOT ('EXPERIENCE_MIM.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF));
+  wr75: NOT ('EXPERIENCE_MIM.CONFIGURATION_ITEM' IN TYPEOF(SELF));
+  wr76: NOT ('EXPERIENCE_MIM.CONTEXT_DEPENDENT_UNIT' IN TYPEOF(SELF));
+  wr77: NOT ('EXPERIENCE_MIM.CONTRACT' IN TYPEOF(SELF));
+  wr78: NOT ('EXPERIENCE_MIM.CONTRACT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr79: NOT ('EXPERIENCE_MIM.CONVERSION_BASED_UNIT' IN TYPEOF(SELF));
+  wr80: NOT ('EXPERIENCE_MIM.DATE_AND_TIME' IN TYPEOF(SELF));
+  wr81: NOT ('EXPERIENCE_MIM.DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr82: NOT ('EXPERIENCE_MIM.DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr83: NOT ('EXPERIENCE_MIM.DERIVED_UNIT' IN TYPEOF(SELF));
+  wr84: NOT ('EXPERIENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr85: NOT ('EXPERIENCE_MIM.DIRECTED_ACTION' IN TYPEOF(SELF));
+  wr86: NOT ('EXPERIENCE_MIM.DOCUMENT_FILE' IN TYPEOF(SELF));
+  wr87: NOT ('EXPERIENCE_MIM.DOCUMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr88: NOT ('EXPERIENCE_MIM.EFFECTIVITY' IN TYPEOF(SELF));
+  wr89: NOT ('EXPERIENCE_MIM.EFFECTIVITY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr90: NOT ('EXPERIENCE_MIM.ENVELOPE' IN TYPEOF(SELF));
+  wr91: NOT ('EXPERIENCE_MIM.ENVELOPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr92: NOT ('EXPERIENCE_MIM.ENVIRONMENT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr93: NOT ('EXPERIENCE_MIM.ENVIRONMENT_DEFINITION' IN TYPEOF(SELF));
+  wr94: NOT ('EXPERIENCE_MIM.ENVIRONMENT_DEFINITION_VERSION' IN TYPEOF(SELF));
+  wr95: NOT ('EXPERIENCE_MIM.ENVIRONMENT_DEFINITION_VIEW' IN TYPEOF(SELF));
+  wr96: NOT ('EXPERIENCE_MIM.ENVIRONMENT_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr97: NOT ('EXPERIENCE_MIM.EVENT_OCCURRENCE' IN TYPEOF(SELF));
+  wr98: NOT ('EXPERIENCE_MIM.EVENT_OCCURRENCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr99: NOT ('EXPERIENCE_MIM.EVIDENCE' IN TYPEOF(SELF));
+  wr100: NOT ('EXPERIENCE_MIM.EXECUTED_ACTION' IN TYPEOF(SELF));
+  wr101: NOT ('EXPERIENCE_MIM.EXPERIENCE' IN TYPEOF(SELF));
+  wr102: NOT ('EXPERIENCE_MIM.EXTERNAL_CLASS_LIBRARY' IN TYPEOF(SELF));
+  wr103: NOT ('EXPERIENCE_MIM.GENERAL_PROPERTY' IN TYPEOF(SELF));
+  wr104: NOT ('EXPERIENCE_MIM.GENERAL_PROPERTY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr105: NOT ('EXPERIENCE_MIM.GROUP' IN TYPEOF(SELF));
+  wr106: NOT ('EXPERIENCE_MIM.IDENTIFICATION_ASSIGNMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr107: NOT ('EXPERIENCE_MIM.IN_ZONE' IN TYPEOF(SELF));
+  wr108: NOT ('EXPERIENCE_MIM.INFORMATION_RIGHT' IN TYPEOF(SELF));
+  wr109: NOT ('EXPERIENCE_MIM.INFORMATION_USAGE_RIGHT' IN TYPEOF(SELF));
+  wr110: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTION' IN TYPEOF(SELF));
+  wr111: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_AS_PLANNED' IN TYPEOF(SELF));
+  wr112: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_AS_REALIZED' IN TYPEOF(SELF));
+  wr113: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_DESIGN' IN TYPEOF(SELF));
+  wr114: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_DESIGN_TO_PLANNED' IN TYPEOF(SELF));
+  wr115: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_DESIGN_TO_REALIZED' IN TYPEOF(SELF));
+  wr116: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_OCCURRENCE' IN TYPEOF(SELF));
+  wr117: NOT ('EXPERIENCE_MIM.INTERFACE_CONNECTOR_PLANNED_TO_REALIZED' IN TYPEOF(SELF));
+  wr118: NOT ('EXPERIENCE_MIM.INTERFACE_DEFINITION_CONNECTION' IN TYPEOF(SELF));
+  wr119: NOT ('EXPERIENCE_MIM.INTERFACE_DEFINITION_FOR' IN TYPEOF(SELF));
+  wr120: NOT ('EXPERIENCE_MIM.ITEM_ASSUMED' IN TYPEOF(SELF));
+  wr121: NOT ('EXPERIENCE_MIM.JUSTIFICATION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr122: NOT ('EXPERIENCE_MIM.JUSTIFICATION_SUPPORT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr123: NOT ('EXPERIENCE_MIM.LANGUAGE' IN TYPEOF(SELF));
+  wr124: NOT ('EXPERIENCE_MIM.LOCAL_TIME' IN TYPEOF(SELF));
+  wr125: NOT ('EXPERIENCE_MIM.LOCATION' IN TYPEOF(SELF));
+  wr126: NOT ('EXPERIENCE_MIM.LOCATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr127: NOT ('EXPERIENCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr128: NOT ('EXPERIENCE_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
+  wr129: NOT ('EXPERIENCE_MIM.MESSAGE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr130: NOT ('EXPERIENCE_MIM.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr131: NOT ('EXPERIENCE_MIM.NAMED_UNIT' IN TYPEOF(SELF));
+  wr132: NOT ('EXPERIENCE_MIM.OBSERVATION' IN TYPEOF(SELF));
+  wr133: NOT ('EXPERIENCE_MIM.OBSERVATION_CONSEQUENCE' IN TYPEOF(SELF));
+  wr134: NOT ('EXPERIENCE_MIM.OBSERVATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr135: NOT ('EXPERIENCE_MIM.OBSERVED_ENVIRONMENT' IN TYPEOF(SELF));
+  wr136: NOT ('EXPERIENCE_MIM.OBSERVED_ENVIRONMENT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr137: NOT ('EXPERIENCE_MIM.OBSERVED_ENVIRONMENT_VERSION' IN TYPEOF(SELF));
+  wr138: NOT ('EXPERIENCE_MIM.OBSERVED_ENVIRONMENT_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr139: NOT ('EXPERIENCE_MIM.ORGANIZATION' IN TYPEOF(SELF));
+  wr140: NOT ('EXPERIENCE_MIM.ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr141: NOT ('EXPERIENCE_MIM.ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr142: NOT ('EXPERIENCE_MIM.ORGANIZATIONAL_ADDRESS' IN TYPEOF(SELF));
+  wr143: NOT ('EXPERIENCE_MIM.ORGANIZATIONAL_PROJECT' IN TYPEOF(SELF));
+  wr144: NOT ('EXPERIENCE_MIM.ORGANIZATIONAL_PROJECT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr145: NOT ('EXPERIENCE_MIM.PERSON' IN TYPEOF(SELF));
+  wr146: NOT ('EXPERIENCE_MIM.PERSON_AND_ORGANIZATION' IN TYPEOF(SELF));
+  wr147: NOT ('EXPERIENCE_MIM.PERSON_AND_ORGANIZATION_ADDRESS' IN TYPEOF(SELF));
+  wr148: NOT ('EXPERIENCE_MIM.PERSON_TYPE' IN TYPEOF(SELF));
+  wr149: NOT ('EXPERIENCE_MIM.PERSON_TYPE_DEFINITION' IN TYPEOF(SELF));
+  wr150: NOT ('EXPERIENCE_MIM.PERSON_TYPE_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr151: NOT ('EXPERIENCE_MIM.POSITION_IN_ORGANIZATION' IN TYPEOF(SELF));
+  wr152: NOT ('EXPERIENCE_MIM.POSITION_IN_ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr153: NOT ('EXPERIENCE_MIM.POSITION_IN_ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr154: NOT ('EXPERIENCE_MIM.PRODUCT' IN TYPEOF(SELF));
+  wr155: NOT ('EXPERIENCE_MIM.PRODUCT_AS_PLANNED' IN TYPEOF(SELF));
+  wr156: NOT ('EXPERIENCE_MIM.PRODUCT_AS_REALIZED' IN TYPEOF(SELF));
+  wr157: NOT ('EXPERIENCE_MIM.PRODUCT_CATEGORY' IN TYPEOF(SELF));
+  wr158: NOT ('EXPERIENCE_MIM.PRODUCT_CONCEPT' IN TYPEOF(SELF));
+  wr159: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF));
+  wr160: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_CONTEXT' IN TYPEOF(SELF));
+  wr161: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_FORMATION' IN TYPEOF(SELF));
+  wr162: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr163: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr164: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr165: NOT ('EXPERIENCE_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF));
+  wr166: NOT ('EXPERIENCE_MIM.PRODUCT_DESIGN_TO_INDIVIDUAL' IN TYPEOF(SELF));
+  wr167: NOT ('EXPERIENCE_MIM.PRODUCT_DESIGN_VERSION_TO_INDIVIDUAL' IN TYPEOF(SELF));
+  wr168: NOT ('EXPERIENCE_MIM.PRODUCT_GROUP' IN TYPEOF(SELF));
+  wr169: NOT ('EXPERIENCE_MIM.PRODUCT_GROUP_MEMBERSHIP' IN TYPEOF(SELF));
+  wr170: NOT ('EXPERIENCE_MIM.PRODUCT_GROUP_RELATIONSHIP' IN TYPEOF(SELF));
+  wr171: NOT ('EXPERIENCE_MIM.PRODUCT_PLANNED_TO_REALIZED' IN TYPEOF(SELF));
+  wr172: NOT ('EXPERIENCE_MIM.PRODUCT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr173: NOT ('EXPERIENCE_MIM.PROPERTY_DEFINITION' IN TYPEOF(SELF));
+  wr174: NOT ('EXPERIENCE_MIM.PROPERTY_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr175: NOT ('EXPERIENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION' IN TYPEOF(SELF));
+  wr176: NOT ('EXPERIENCE_MIM.QUALIFICATION_TYPE' IN TYPEOF(SELF));
+  wr177: NOT ('EXPERIENCE_MIM.QUALIFICATION_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr178: NOT ('EXPERIENCE_MIM.REPRESENTATION' IN TYPEOF(SELF));
+  wr179: NOT ('EXPERIENCE_MIM.REPRESENTATION_CONTEXT' IN TYPEOF(SELF));
+  wr180: NOT ('EXPERIENCE_MIM.REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr181: NOT ('EXPERIENCE_MIM.REPRESENTATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr182: NOT ('EXPERIENCE_MIM.REQUIREMENT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr183: NOT ('EXPERIENCE_MIM.REQUIREMENT_SOURCE' IN TYPEOF(SELF));
+  wr184: NOT ('EXPERIENCE_MIM.RESOURCE_PROPERTY' IN TYPEOF(SELF));
+  wr185: NOT ('EXPERIENCE_MIM.RESOURCE_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr186: NOT ('EXPERIENCE_MIM.RISK_IMPACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr187: NOT ('EXPERIENCE_MIM.RISK_PERCEPTION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr188: NOT ('EXPERIENCE_MIM.RISK_PERCEPTION_SOURCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr189: NOT ('EXPERIENCE_MIM.SECURITY_CLASSIFICATION' IN TYPEOF(SELF));
+  wr190: NOT ('EXPERIENCE_MIM.SELECTED_ITEM' IN TYPEOF(SELF));
+  wr191: NOT ('EXPERIENCE_MIM.SELECTED_ITEM_ASSIGNMENT' IN TYPEOF(SELF));
+  wr192: NOT ('EXPERIENCE_MIM.STATE_OBSERVED' IN TYPEOF(SELF));
+  wr193: NOT ('EXPERIENCE_MIM.STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr194: NOT ('EXPERIENCE_MIM.STATE_OBSERVED_RELATIONSHIP' IN TYPEOF(SELF));
+  wr195: NOT ('EXPERIENCE_MIM.STATE_OBSERVED_ROLE' IN TYPEOF(SELF));
+  wr196: NOT ('EXPERIENCE_MIM.STATE_TYPE' IN TYPEOF(SELF));
+  wr197: NOT ('EXPERIENCE_MIM.STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr198: NOT ('EXPERIENCE_MIM.STATE_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr199: NOT ('EXPERIENCE_MIM.STRUCTURED_MESSAGE' IN TYPEOF(SELF));
+  wr200: NOT ('EXPERIENCE_MIM.TIME_INTERVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr201: NOT ('EXPERIENCE_MIM.UNCERTAINTY_MEASURE_WITH_UNIT' IN TYPEOF(SELF));
+  wr202: NOT ('EXPERIENCE_MIM.USAGE_ASSOCIATION' IN TYPEOF(SELF));
+  wr203: NOT ('EXPERIENCE_MIM.VALIDATION' IN TYPEOF(SELF));
+  wr204: NOT ('EXPERIENCE_MIM.VERIFICATION' IN TYPEOF(SELF));
+  wr205: NOT ('EXPERIENCE_MIM.VERSIONED_ACTION_REQUEST' IN TYPEOF(SELF));
+END_TYPE; 
+
+TYPE experience_type_item = SELECT
+   (action_method, 
+    action_resource_requirement, 
+    executed_action, 
+    organization, 
+    person, 
+    person_and_organization);
+END_TYPE; 
+
+TYPE external_identification_item = SELECT
+   (document_file, 
+    product_definition);
+END_TYPE; 
+
+TYPE force_measure = REAL;
+END_TYPE; 
+
+TYPE founded_item_select = SELECT
+   (representation_item);
+END_TYPE; 
+
+TYPE frequency_measure = REAL;
+END_TYPE; 
+
+TYPE geometric_item_specific_usage_select = SELECT
+   (shape_aspect, 
+    shape_aspect_relationship);
+END_TYPE; 
+
+TYPE groupable_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_assignment, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_request_status, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    action_status, 
+    address, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_approval_assignment, 
+    applied_attribute_classification_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_group_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_location_representation_assignment, 
+    applied_name_assignment, 
+    applied_organization_assignment, 
+    applied_organization_type_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_person_type_definition_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_usage_right, 
+    approval, 
+    approval_person_organization, 
+    approval_relationship, 
+    approval_status, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    attribute_language_assignment, 
+    breakdown_element_group_assignment, 
+    calendar_date, 
+    certification, 
+    class, 
+    collection_assignment, 
+    collection_membership, 
+    complement, 
+    configuration_design, 
+    configuration_item, 
+    configuration_item_relationship, 
+    context_dependent_shape_representation, 
+    contract, 
+    contract_relationship, 
+    coordinated_universal_time_offset, 
+    date_and_time, 
+    date_and_time_assignment, 
+    date_assignment, 
+    derived_unit, 
+    derived_unit_element, 
+    description_text, 
+    document_file, 
+    document_relationship, 
+    effectivity, 
+    effectivity_relationship, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    evidence, 
+    executed_action, 
+    experience, 
+    experience_type, 
+    experience_type_relationship, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    geometric_item_specific_usage, 
+    group, 
+    identification_assignment_relationship, 
+    information_right, 
+    information_usage_right, 
+    interface_connector_definition, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    intersection, 
+    item_defined_transformation, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    language, 
+    local_time, 
+    location, 
+    location_relationship, 
+    measure_qualification, 
+    measure_with_unit, 
+    multi_language_attribute_assignment, 
+    named_unit, 
+    organization, 
+    organization_relationship, 
+    organization_type, 
+    organizational_address, 
+    organizational_project, 
+    organizational_project_relationship, 
+    person, 
+    person_and_organization, 
+    person_and_organization_address, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    position_in_organization_type_assignment, 
+    power_set, 
+    precision_qualifier, 
+    product, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    property_definition_representation, 
+    qualification_type, 
+    qualification_type_relationship, 
+    representation, 
+    representation_context, 
+    representation_item, 
+    representation_relationship, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    same_as_external_item_assignment, 
+    same_membership, 
+    satisfies_requirement, 
+    security_classification, 
+    selected_item_assignment, 
+    shape_aspect, 
+    shape_aspect_relationship, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_observed_role, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    state_type_role, 
+    subset, 
+    time_interval, 
+    time_interval_assignment, 
+    time_interval_relationship, 
+    time_interval_role, 
+    type_qualifier, 
+    uncertainty_qualifier, 
+    union, 
+    usage_association, 
+    validation, 
+    verification, 
+    verification_relationship, 
+    versioned_action_request);
+WHERE
+  WR1: NOT ('AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.GROUP' IN TYPEOF(SELF));
+END_TYPE; 
+
+TYPE hour_in_day = INTEGER;
+WHERE
+  WR1: {0 <= SELF < 24};
+END_TYPE; 
+
+TYPE id_attribute_select = SELECT
+   (action, 
+    address, 
+    application_context, 
+    group, 
+    organizational_project, 
+    product_category, 
+    property_definition, 
+    representation, 
+    shape_aspect, 
+    shape_aspect_relationship);
+END_TYPE; 
+
+TYPE identification_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_relationship, 
+    action_resource, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_external_identification_assignment, 
+    applied_identification_assignment, 
+    applied_location_representation_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    approval_status, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    assumption, 
+    assumption_relationship, 
+    certification, 
+    class, 
+    configuration_item, 
+    contract, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    effectivity, 
+    environment_assignment, 
+    environment_definition, 
+    environment_definition_version, 
+    environment_view_definition_relationship, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience, 
+    experience_type, 
+    external_class_library, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_assignment_relationship, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    interface_connector_occurrence, 
+    interface_connector_version, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    interface_specification_version, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    location, 
+    measure_representation_item, 
+    observation, 
+    observation_consequence, 
+    observed_environment, 
+    observed_environment_assignment, 
+    observed_environment_version, 
+    observed_environment_view_definition_relationship, 
+    organization, 
+    organization_type, 
+    organizational_project, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    position_in_organization, 
+    probability_generator, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_planned, 
+    product_as_realized, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_definition_shape, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    qualification_type, 
+    representation, 
+    requirement_assignment, 
+    requirement_source, 
+    requirement_view_definition_relationship, 
+    resource_property, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    security_classification_level, 
+    shape_aspect_relationship, 
+    shape_representation, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE identifier = STRING;
+END_TYPE; 
+
+TYPE illuminance_measure = REAL;
+END_TYPE; 
+
+TYPE inductance_measure = REAL;
+END_TYPE; 
+
+TYPE ir_usage_item = action_items;
+WHERE
+  wr1: NOT ('INFORMATION_RIGHTS_MIM.ACTION' IN TYPEOF(SELF));
+  wr2: NOT ('INFORMATION_RIGHTS_MIM.ACTION_DIRECTIVE' IN TYPEOF(SELF));
+  wr3: NOT ('INFORMATION_RIGHTS_MIM.ACTION_METHOD' IN TYPEOF(SELF));
+  wr4: NOT ('INFORMATION_RIGHTS_MIM.ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr5: NOT ('INFORMATION_RIGHTS_MIM.ACTION_METHOD_RELATIONSHIP' IN TYPEOF(SELF));
+  wr6: NOT ('INFORMATION_RIGHTS_MIM.ACTION_PROPERTY' IN TYPEOF(SELF));
+  wr7: NOT ('INFORMATION_RIGHTS_MIM.ACTION_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr8: NOT ('INFORMATION_RIGHTS_MIM.ACTION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr9: NOT ('INFORMATION_RIGHTS_MIM.ACTION_REQUEST_SOLUTION' IN TYPEOF(SELF));
+  wr10: NOT ('INFORMATION_RIGHTS_MIM.ACTION_REQUEST_STATUS' IN TYPEOF(SELF));
+  wr11: NOT ('INFORMATION_RIGHTS_MIM.ACTION_RESOURCE' IN TYPEOF(SELF));
+  wr12: NOT ('INFORMATION_RIGHTS_MIM.ACTION_RESOURCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr13: NOT ('INFORMATION_RIGHTS_MIM.ACTION_RESOURCE_REQUIREMENT' IN TYPEOF(SELF));
+  wr14: NOT ('INFORMATION_RIGHTS_MIM.ACTION_RESOURCE_REQUIREMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr15: NOT ('INFORMATION_RIGHTS_MIM.ACTION_STATUS' IN TYPEOF(SELF));
+  wr16: NOT ('INFORMATION_RIGHTS_MIM.ADDRESS' IN TYPEOF(SELF));
+  wr17: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ACTION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr18: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ACTION_METHOD_ASSIGNMENT' IN TYPEOF(SELF));
+  wr19: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ACTION_REQUEST_ASSIGNMENT' IN TYPEOF(SELF));
+  wr20: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_APPROVAL_ASSIGNMENT' IN TYPEOF(SELF));
+  wr21: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ATTRIBUTE_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr22: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_CLASSIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr23: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_CONTRACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr24: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr25: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr26: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_DESCRIPTION_TEXT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr27: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_DOCUMENT_REFERENCE' IN TYPEOF(SELF));
+  wr28: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_DOCUMENT_USAGE_CONSTRAINT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr29: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF));
+  wr30: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_EVENT_OCCURRENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr31: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_EXPERIENCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr32: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr33: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr34: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_IDENTIFICATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr35: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_LOCATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr36: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_LOCATION_REPRESENTATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr37: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_NAME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr38: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr39: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ORGANIZATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr40: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_ORGANIZATIONAL_PROJECT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr41: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr42: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_PERSON_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr43: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_PERSON_TYPE_DEFINITION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr44: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_POSITION_IN_ORGANIZATION_GROUP_ASSIGNMENT' IN TYPEOF(SELF));
+  wr45: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_QUALIFICATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr46: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr47: NOT ('INFORMATION_RIGHTS_MIM.APPLIED_STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr48: NOT ('INFORMATION_RIGHTS_MIM.APPROVAL' IN TYPEOF(SELF));
+  wr49: NOT ('INFORMATION_RIGHTS_MIM.APPROVAL_PERSON_ORGANIZATION' IN TYPEOF(SELF));
+  wr50: NOT ('INFORMATION_RIGHTS_MIM.APPROVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr51: NOT ('INFORMATION_RIGHTS_MIM.APPROVAL_STATUS' IN TYPEOF(SELF));
+  wr52: NOT ('INFORMATION_RIGHTS_MIM.ASCRIBABLE_STATE' IN TYPEOF(SELF));
+  wr53: NOT ('INFORMATION_RIGHTS_MIM.ASCRIBABLE_STATE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr54: NOT ('INFORMATION_RIGHTS_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr55: NOT ('INFORMATION_RIGHTS_MIM.CALENDAR_DATE' IN TYPEOF(SELF));
+  wr56: NOT ('INFORMATION_RIGHTS_MIM.COMPLEMENT' IN TYPEOF(SELF));
+  wr57: NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_DESIGN' IN TYPEOF(SELF));
+  wr58: NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_ITEM_RELATIONSHIP' IN TYPEOF(SELF));
+  wr59: NOT ('INFORMATION_RIGHTS_MIM.CONTEXT_DEPENDENT_SHAPE_REPRESENTATION' IN TYPEOF(SELF));
+  wr60: NOT ('INFORMATION_RIGHTS_MIM.CONTRACT' IN TYPEOF(SELF));
+  wr61: NOT ('INFORMATION_RIGHTS_MIM.CONTRACT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr62: NOT ('INFORMATION_RIGHTS_MIM.COORDINATED_UNIVERSAL_TIME_OFFSET' IN TYPEOF(SELF));
+  wr63: NOT ('INFORMATION_RIGHTS_MIM.DATE_AND_TIME' IN TYPEOF(SELF));
+  wr64: NOT ('INFORMATION_RIGHTS_MIM.DATE_AND_TIME_ASSIGNMENT' IN TYPEOF(SELF));
+  wr65: NOT ('INFORMATION_RIGHTS_MIM.DATE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr66: NOT ('INFORMATION_RIGHTS_MIM.DERIVED_UNIT' IN TYPEOF(SELF));
+  wr67: NOT ('INFORMATION_RIGHTS_MIM.DERIVED_UNIT_ELEMENT' IN TYPEOF(SELF));
+  wr68: NOT ('INFORMATION_RIGHTS_MIM.DESCRIPTION_TEXT' IN TYPEOF(SELF));
+  wr69: NOT ('INFORMATION_RIGHTS_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr70: NOT ('INFORMATION_RIGHTS_MIM.EFFECTIVITY' IN TYPEOF(SELF));
+  wr71: NOT ('INFORMATION_RIGHTS_MIM.EFFECTIVITY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr72: NOT ('INFORMATION_RIGHTS_MIM.ENVELOPE' IN TYPEOF(SELF));
+  wr73: NOT ('INFORMATION_RIGHTS_MIM.EVENT_OCCURRENCE' IN TYPEOF(SELF));
+  wr74: NOT ('INFORMATION_RIGHTS_MIM.EVENT_OCCURRENCE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr75: NOT ('INFORMATION_RIGHTS_MIM.EXECUTED_ACTION' IN TYPEOF(SELF));
+  wr76: NOT ('INFORMATION_RIGHTS_MIM.EXPERIENCE' IN TYPEOF(SELF));
+  wr77: NOT ('INFORMATION_RIGHTS_MIM.EXPERIENCE_TYPE' IN TYPEOF(SELF));
+  wr78: NOT ('INFORMATION_RIGHTS_MIM.EXPERIENCE_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr79: NOT ('INFORMATION_RIGHTS_MIM.EXTERNAL_SOURCE' IN TYPEOF(SELF));
+  wr80: NOT ('INFORMATION_RIGHTS_MIM.GENERAL_PROPERTY' IN TYPEOF(SELF));
+  wr81: NOT ('INFORMATION_RIGHTS_MIM.GENERAL_PROPERTY_RELATIONSHIP' IN TYPEOF(SELF));
+  wr82: NOT ('INFORMATION_RIGHTS_MIM.GEOMETRIC_ITEM_SPECIFIC_USAGE' IN TYPEOF(SELF));
+  wr83: NOT ('INFORMATION_RIGHTS_MIM.GROUP' IN TYPEOF(SELF));
+  wr84: NOT ('INFORMATION_RIGHTS_MIM.HIERARCHICAL_INTERFACE_CONNECTION' IN TYPEOF(SELF));
+  wr85: NOT ('INFORMATION_RIGHTS_MIM.IDENTIFICATION_ASSIGNMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr86: NOT ('INFORMATION_RIGHTS_MIM.INTERSECTION' IN TYPEOF(SELF));
+  wr87: NOT ('INFORMATION_RIGHTS_MIM.ITEM_DEFINED_TRANSFORMATION' IN TYPEOF(SELF));
+  wr88: NOT ('INFORMATION_RIGHTS_MIM.LOCAL_TIME' IN TYPEOF(SELF));
+  wr89: NOT ('INFORMATION_RIGHTS_MIM.LOCATION' IN TYPEOF(SELF));
+  wr90: NOT ('INFORMATION_RIGHTS_MIM.LOCATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr91: NOT ('INFORMATION_RIGHTS_MIM.MEASURE_QUALIFICATION' IN TYPEOF(SELF));
+  wr92: NOT ('INFORMATION_RIGHTS_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr93: NOT ('INFORMATION_RIGHTS_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
+  wr94: NOT ('INFORMATION_RIGHTS_MIM.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr95: NOT ('INFORMATION_RIGHTS_MIM.NAMED_UNIT' IN TYPEOF(SELF));
+  wr96: NOT ('INFORMATION_RIGHTS_MIM.OBSERVATION_CONSEQUENCE' IN TYPEOF(SELF));
+  wr97: NOT ('INFORMATION_RIGHTS_MIM.ORGANIZATION' IN TYPEOF(SELF));
+  wr98: NOT ('INFORMATION_RIGHTS_MIM.ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr99: NOT ('INFORMATION_RIGHTS_MIM.ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr100: NOT ('INFORMATION_RIGHTS_MIM.ORGANIZATIONAL_PROJECT' IN TYPEOF(SELF));
+  wr101: NOT ('INFORMATION_RIGHTS_MIM.ORGANIZATIONAL_PROJECT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr102: NOT ('INFORMATION_RIGHTS_MIM.PERSON' IN TYPEOF(SELF));
+  wr103: NOT ('INFORMATION_RIGHTS_MIM.PERSON_AND_ORGANIZATION' IN TYPEOF(SELF));
+  wr104: NOT ('INFORMATION_RIGHTS_MIM.PERSON_TYPE' IN TYPEOF(SELF));
+  wr105: NOT ('INFORMATION_RIGHTS_MIM.PERSON_TYPE_DEFINITION' IN TYPEOF(SELF));
+  wr106: NOT ('INFORMATION_RIGHTS_MIM.PERSON_TYPE_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr107: NOT ('INFORMATION_RIGHTS_MIM.POSITION_IN_ORGANIZATION' IN TYPEOF(SELF));
+  wr108: NOT ('INFORMATION_RIGHTS_MIM.POSITION_IN_ORGANIZATION_ASSIGNMENT' IN TYPEOF(SELF));
+  wr109: NOT ('INFORMATION_RIGHTS_MIM.POSITION_IN_ORGANIZATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr110: NOT ('INFORMATION_RIGHTS_MIM.POSITION_IN_ORGANIZATION_TYPE' IN TYPEOF(SELF));
+  wr111: NOT ('INFORMATION_RIGHTS_MIM.POSITION_IN_ORGANIZATION_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr112: NOT ('INFORMATION_RIGHTS_MIM.POWER_SET' IN TYPEOF(SELF));
+  wr113: NOT ('INFORMATION_RIGHTS_MIM.PRECISION_QUALIFIER' IN TYPEOF(SELF));
+  wr114: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_CONCEPT' IN TYPEOF(SELF));
+  wr115: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_CONCEPT_CONTEXT' IN TYPEOF(SELF));
+  wr116: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_CONTEXT' IN TYPEOF(SELF));
+  wr117: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr118: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_GROUP' IN TYPEOF(SELF));
+  wr119: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_GROUP_MEMBERSHIP' IN TYPEOF(SELF));
+  wr120: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_GROUP_RELATIONSHIP' IN TYPEOF(SELF));
+  wr121: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY' IN TYPEOF(SELF));
+  wr122: NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr123: NOT ('INFORMATION_RIGHTS_MIM.PROPERTY_DEFINITION' IN TYPEOF(SELF));
+  wr124: NOT ('INFORMATION_RIGHTS_MIM.PROPERTY_DEFINITION_REPRESENTATION' IN TYPEOF(SELF));
+  wr125: NOT ('INFORMATION_RIGHTS_MIM.QUALIFICATION_TYPE' IN TYPEOF(SELF));
+  wr126: NOT ('INFORMATION_RIGHTS_MIM.QUALIFICATION_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr127: NOT ('INFORMATION_RIGHTS_MIM.REPRESENTATION' IN TYPEOF(SELF));
+  wr128: NOT ('INFORMATION_RIGHTS_MIM.REPRESENTATION_CONTEXT' IN TYPEOF(SELF));
+  wr129: NOT ('INFORMATION_RIGHTS_MIM.REPRESENTATION_ITEM' IN TYPEOF(SELF));
+  wr130: NOT ('INFORMATION_RIGHTS_MIM.REPRESENTATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr131: NOT ('INFORMATION_RIGHTS_MIM.RESOURCE_PROPERTY' IN TYPEOF(SELF));
+  wr132: NOT ('INFORMATION_RIGHTS_MIM.RESOURCE_PROPERTY_REPRESENTATION' IN TYPEOF(SELF));
+  wr133: NOT ('INFORMATION_RIGHTS_MIM.RISK_IMPACT_ASSIGNMENT' IN TYPEOF(SELF));
+  wr134: NOT ('INFORMATION_RIGHTS_MIM.RISK_PERCEPTION_SOURCE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr135: NOT ('INFORMATION_RIGHTS_MIM.SAME_AS_EXTERNAL_ITEM_ASSIGNMENT' IN TYPEOF(SELF));
+  wr136: NOT ('INFORMATION_RIGHTS_MIM.SAME_MEMBERSHIP' IN TYPEOF(SELF));
+  wr137: NOT ('INFORMATION_RIGHTS_MIM.SELECTED_ITEM_ASSIGNMENT' IN TYPEOF(SELF));
+  wr138: NOT ('INFORMATION_RIGHTS_MIM.SHAPE_ASPECT' IN TYPEOF(SELF));
+  wr139: NOT ('INFORMATION_RIGHTS_MIM.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF(SELF));
+  wr140: NOT ('INFORMATION_RIGHTS_MIM.STATE_OBSERVED' IN TYPEOF(SELF));
+  wr141: NOT ('INFORMATION_RIGHTS_MIM.STATE_OBSERVED_ASSIGNMENT' IN TYPEOF(SELF));
+  wr142: NOT ('INFORMATION_RIGHTS_MIM.STATE_OBSERVED_RELATIONSHIP' IN TYPEOF(SELF));
+  wr143: NOT ('INFORMATION_RIGHTS_MIM.STATE_OBSERVED_ROLE' IN TYPEOF(SELF));
+  wr144: NOT ('INFORMATION_RIGHTS_MIM.STATE_TYPE' IN TYPEOF(SELF));
+  wr145: NOT ('INFORMATION_RIGHTS_MIM.STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+  wr146: NOT ('INFORMATION_RIGHTS_MIM.STATE_TYPE_RELATIONSHIP' IN TYPEOF(SELF));
+  wr147: NOT ('INFORMATION_RIGHTS_MIM.STATE_TYPE_ROLE' IN TYPEOF(SELF));
+  wr148: NOT ('INFORMATION_RIGHTS_MIM.STATECHAR_ACTION_ITEMS' IN TYPEOF(SELF));
+  wr149: NOT ('INFORMATION_RIGHTS_MIM.SUBSET' IN TYPEOF(SELF));
+  wr150: NOT ('INFORMATION_RIGHTS_MIM.TIME_INTERVAL' IN TYPEOF(SELF));
+  wr151: NOT ('INFORMATION_RIGHTS_MIM.TIME_INTERVAL_ASSIGNMENT' IN TYPEOF(SELF));
+  wr152: NOT ('INFORMATION_RIGHTS_MIM.TIME_INTERVAL_RELATIONSHIP' IN TYPEOF(SELF));
+  wr153: NOT ('INFORMATION_RIGHTS_MIM.TIME_INTERVAL_ROLE' IN TYPEOF(SELF));
+  wr154: NOT ('INFORMATION_RIGHTS_MIM.TYPE_QUALIFIER' IN TYPEOF(SELF));
+  wr155: NOT ('INFORMATION_RIGHTS_MIM.UNCERTAINTY_QUALIFIER' IN TYPEOF(SELF));
+  wr156: NOT ('INFORMATION_RIGHTS_MIM.UNION' IN TYPEOF(SELF));
+  wr157: NOT ('INFORMATION_RIGHTS_MIM.VERIFICATION_RELATIONSHIP' IN TYPEOF(SELF));
+  wr158: NOT ('INFORMATION_RIGHTS_MIM.VERSIONED_ACTION_REQUEST' IN TYPEOF(SELF));
+END_TYPE; 
+
+TYPE justification_item = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_classification_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_location_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    ascribable_state, 
+    assembly_component_usage, 
+    descriptive_representation_item, 
+    document_relationship, 
+    effectivity, 
+    evidence, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    measure_representation_item, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    property_definition, 
+    representation, 
+    resource_property, 
+    state_observed_assignment, 
+    state_type_assignment, 
+    structured_message, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE justification_support_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_request_solution, 
+    analysis_assignment, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_location_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    ascribable_state, 
+    assembly_component_usage, 
+    certification, 
+    contract, 
+    descriptive_representation_item, 
+    document_relationship, 
+    effectivity, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    location, 
+    measure_representation_item, 
+    observation, 
+    organizational_project, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    property_definition, 
+    resource_property, 
+    risk_impact_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE label = STRING;
+END_TYPE; 
+
+TYPE length_measure = REAL;
+END_TYPE; 
+
+TYPE list_representation_item = LIST[1:?] OF representation_item;
+END_TYPE; 
+
+TYPE location_item = SELECT
+   (action, 
+    action_method, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_requirement, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    assembly_component_usage, 
+    document_file, 
+    environment_definition_view, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    observed_environment_view, 
+    organization, 
+    organization_type, 
+    organizational_project, 
+    person, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    position_in_organization, 
+    position_in_organization_type, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_relationship, 
+    product_group);
+END_TYPE; 
+
+TYPE location_representation_item = SELECT
+   (interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    organizational_address, 
+    person_and_organization_address, 
+    product, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE luminous_flux_measure = REAL;
+END_TYPE; 
+
+TYPE luminous_intensity_measure = REAL;
+END_TYPE; 
+
+TYPE magnetic_flux_density_measure = REAL;
+END_TYPE; 
+
+TYPE magnetic_flux_measure = REAL;
+END_TYPE; 
+
+TYPE mass_measure = REAL;
+END_TYPE; 
+
+TYPE measure_value = SELECT
+   (absorbed_dose_measure, 
+    acceleration_measure, 
+    amount_of_substance_measure, 
+    area_measure, 
+    capacitance_measure, 
+    celsius_temperature_measure, 
+    conductance_measure, 
+    context_dependent_measure, 
+    count_measure, 
+    descriptive_measure, 
+    dose_equivalent_measure, 
+    electric_charge_measure, 
+    electric_current_measure, 
+    electric_potential_measure, 
+    energy_measure, 
+    force_measure, 
+    frequency_measure, 
+    illuminance_measure, 
+    inductance_measure, 
+    length_measure, 
+    luminous_flux_measure, 
+    luminous_intensity_measure, 
+    magnetic_flux_density_measure, 
+    magnetic_flux_measure, 
+    mass_measure, 
+    non_negative_length_measure, 
+    numeric_measure, 
+    parameter_value, 
+    plane_angle_measure, 
+    positive_length_measure, 
+    positive_plane_angle_measure, 
+    positive_ratio_measure, 
+    power_measure, 
+    pressure_measure, 
+    radioactivity_measure, 
+    ratio_measure, 
+    resistance_measure, 
+    solid_angle_measure, 
+    thermodynamic_temperature_measure, 
+    time_measure, 
+    velocity_measure, 
+    volume_measure);
+END_TYPE; 
+
+TYPE message = STRING;
+END_TYPE; 
+
+TYPE minute_in_hour = INTEGER;
+WHERE
+  WR1: {0 <= SELF <= 59};
+END_TYPE; 
+
+TYPE month_in_year_number = INTEGER;
+WHERE
+  WR1: {1 <= SELF <= 12};
+END_TYPE; 
+
+TYPE multi_language_attribute_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    action_resource_requirement_relationship, 
+    address, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_location_representation_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_type_assignment, 
+    approval, 
+    approval_relationship, 
+    approval_status, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    certification_type, 
+    configuration_item, 
+    contract, 
+    date_role, 
+    date_time_role, 
+    document_relationship, 
+    document_usage_role, 
+    envelope, 
+    envelope_relationship, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    experience_type, 
+    external_source, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_role, 
+    information_right, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    justification_group_assignment, 
+    justification_support_assignment, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
+    message_relationship, 
+    object_role, 
+    observation, 
+    observation_consequence, 
+    organization_relationship, 
+    organization_type, 
+    organizational_project, 
+    organizational_project_relationship, 
+    organizational_project_role, 
+    person_and_organization, 
+    person_type, 
+    person_type_definition, 
+    person_type_definition_relationship, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_relationship, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_relationship, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    qualification_type, 
+    representation, 
+    representation_item, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    state_observed, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE name_attribute_select = SELECT
+   (action_request_solution, 
+    address, 
+    configuration_design, 
+    context_dependent_shape_representation, 
+    derived_unit, 
+    effectivity, 
+    person_and_organization, 
+    product_definition, 
+    property_definition_representation);
+END_TYPE; 
+
+TYPE name_item = SELECT
+   (applied_action_assignment, 
+    applied_action_method_assignment, 
+    external_class_library, 
+    observation_consequence);
+END_TYPE; 
+
+TYPE non_negative_length_measure = length_measure;
+WHERE
+  WR1: SELF >= 0.000000;
+END_TYPE; 
+
+TYPE numeric_measure = NUMBER;
+END_TYPE; 
+
+TYPE organization_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_organization_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    approval_status, 
+    ascribable_state, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    class, 
+    configuration_item, 
+    contract, 
+    date_and_time_assignment, 
+    date_assignment, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    effectivity, 
+    envelope, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_assignment_relationship, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    measure_representation_item, 
+    observation, 
+    organization, 
+    organizational_address, 
+    organizational_project, 
+    person_and_organization, 
+    person_and_organization_address, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_planned, 
+    product_as_realized, 
+    product_category, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    representation, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    selected_item_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE organization_type_item = SELECT
+   (organization);
+END_TYPE; 
+
+TYPE parameter_value = REAL;
+END_TYPE; 
+
+TYPE person_and_organization_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_property_representation, 
+    action_relationship, 
+    action_request_solution, 
+    action_resource, 
+    action_resource_relationship, 
+    action_resource_requirement, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_effectivity_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    applied_location_assignment, 
+    applied_organization_assignment, 
+    applied_organizational_project_assignment, 
+    applied_person_and_organization_assignment, 
+    applied_person_type_assignment, 
+    applied_position_in_organization_assignment, 
+    applied_position_in_organization_group_assignment, 
+    applied_position_in_organization_type_assignment, 
+    applied_qualification_type_assignment, 
+    applied_security_classification_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    approval, 
+    approval_status, 
+    ascribable_state, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    assumption_assignment, 
+    assumption_relationship, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    class, 
+    configuration_item, 
+    contract, 
+    date_and_time_assignment, 
+    date_assignment, 
+    descriptive_representation_item, 
+    directed_action, 
+    document_file, 
+    effectivity, 
+    envelope, 
+    event_occurrence, 
+    evidence, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    group, 
+    identification_assignment_relationship, 
+    information_usage_right, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    item_assumed, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    measure_representation_item, 
+    observation, 
+    organization, 
+    organizational_address, 
+    organizational_project, 
+    person_and_organization, 
+    person_and_organization_address, 
+    position_in_organization_type, 
+    product, 
+    product_as_individual, 
+    product_as_planned, 
+    product_as_realized, 
+    product_category, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_related_product_category, 
+    product_relationship, 
+    property_definition, 
+    property_definition_relationship, 
+    property_definition_representation, 
+    qualification_type, 
+    representation, 
+    requirement_assignment, 
+    requirement_source, 
+    resource_property, 
+    resource_property_representation, 
+    risk_impact_assignment, 
+    risk_perception_source_assignment, 
+    security_classification, 
+    selected_item, 
+    selected_item_assignment, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_assignment, 
+    state_type_relationship, 
+    structured_message, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE person_definition_item = SELECT
+   (experience_type, 
+    qualification_type);
+END_TYPE; 
+
+TYPE person_organization_item = SELECT
+   (person);
+END_TYPE; 
+
+TYPE person_organization_select = SELECT
+   (organization, 
+    person, 
+    person_and_organization);
+END_TYPE; 
+
+TYPE person_type_item = SELECT
+   (analysis_assignment, 
+    group, 
+    person, 
+    person_and_organization, 
+    position_in_organization, 
+    position_in_organization_type);
+END_TYPE; 
+
+TYPE plane_angle_measure = REAL;
+END_TYPE; 
+
+TYPE position_in_organization_group_assignment_item = SELECT
+   (position_in_organization_assignment);
+END_TYPE; 
+
+TYPE position_in_organization_group_item = SELECT
+   (applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    approval_person_organization, 
+    product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE position_in_organization_item = SELECT
+   (address, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    approval_person_organization, 
+    organization, 
+    organizational_project, 
+    person, 
+    product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE position_in_organization_type_item = SELECT
+   (applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    approval_person_organization, 
+    person_type, 
+    position_in_organization, 
+    product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE positive_length_measure = non_negative_length_measure;
+WHERE
+  WR1: SELF > 0.000000;
+END_TYPE; 
+
+TYPE positive_plane_angle_measure = plane_angle_measure;
+WHERE
+  WR1: SELF > 0.000000;
+END_TYPE; 
+
+TYPE positive_ratio_measure = ratio_measure;
+WHERE
+  WR1: SELF > 0.000000;
+END_TYPE; 
+
+TYPE power_measure = REAL;
+END_TYPE; 
+
+TYPE pressure_measure = REAL;
+END_TYPE; 
+
+TYPE process_or_process_relationship = SELECT
+   (relationship_with_condition);
+END_TYPE; 
+
+TYPE product_definition_or_breakdown_element_usage = SELECT
+   (product_definition, 
+    product_definition_usage);
+END_TYPE; 
+
+TYPE product_definition_or_product_definition_relationship = SELECT
+   (interface_connector_occurrence, 
+    product_definition, 
+    product_definition_usage, 
+    product_group);
+END_TYPE; 
+
+TYPE product_or_formation_or_definition = SELECT
+   (product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE product_select = SELECT
+   (action, 
+    action_method, 
+    organization, 
+    organization_type, 
+    product, 
+    product_as_individual, 
+    product_concept, 
+    product_definition, 
+    product_definition_formation, 
+    product_group);
+END_TYPE; 
+
+TYPE project_group_name_item = SELECT
+   (applied_position_in_organization_group_assignment);
+END_TYPE; 
+
+TYPE project_item = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    configuration_item, 
+    general_property, 
+    group, 
+    product, 
+    product_concept, 
+    product_definition_formation, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship);
+END_TYPE; 
+
+TYPE radioactivity_measure = REAL;
+END_TYPE; 
+
+TYPE ratio_measure = REAL;
+END_TYPE; 
+
+TYPE relationship_with_condition = SELECT
+   (action_method_relationship, 
+    action_relationship, 
+    context_dependent_action_method_relationship, 
+    context_dependent_action_relationship);
+END_TYPE; 
+
+TYPE representation_proxy_select = SELECT
+   (action_method, 
+    product_definition_formation, 
+    state_type, 
+    state_type_relationship);
+END_TYPE; 
+
+TYPE represented_definition = SELECT
+   (general_property, 
+    property_definition, 
+    property_definition_relationship, 
+    shape_aspect, 
+    shape_aspect_relationship);
+END_TYPE; 
+
+TYPE requirement_assigned_item = SELECT
+   (action_method, 
+    action_resource_requirement, 
+    alternate_product_relationship, 
+    applied_action_method_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    configuration_item, 
+    interface_connector_occurrence, 
+    organizational_project, 
+    product, 
+    product_as_individual_version, 
+    product_as_planned, 
+    product_as_realized, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_group_assignment, 
+    product_in_attachment_slot, 
+    state_observed, 
+    state_type, 
+    validation, 
+    verification, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE requirement_satisfaction_item = SELECT
+   (requirement_assigned_item);
+END_TYPE; 
+
+TYPE requirement_source_item = SELECT
+   (action_method, 
+    applied_action_method_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    interface_connector_occurrence, 
+    product, 
+    product_as_individual_version, 
+    product_definition, 
+    product_definition_formation, 
+    state_observed, 
+    state_type, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE resistance_measure = REAL;
+END_TYPE; 
+
+TYPE risk_action = SELECT
+   (risk_acceptance, 
+    risk_analysis, 
+    risk_assessment, 
+    risk_communication, 
+    risk_control, 
+    risk_estimation, 
+    risk_evaluation, 
+    risk_identification, 
+    risk_treatment);
+END_TYPE; 
+
+TYPE risk_impact_item = SELECT
+   (action_method, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    applied_action_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    approval, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    executed_action, 
+    general_property, 
+    general_property_relationship, 
+    organization, 
+    person, 
+    person_and_organization, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    representation, 
+    representation_item, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type_relationship);
+END_TYPE; 
+
+TYPE risk_perception_source_item = SELECT
+   (action, 
+    action_method, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    applied_action_method_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_organization_assignment, 
+    applied_person_and_organization_assignment, 
+    approval, 
+    approval_person_organization, 
+    ascribable_state, 
+    ascribable_state_relationship, 
+    document_file, 
+    event_occurrence, 
+    event_occurrence_relationship, 
+    general_property, 
+    general_property_relationship, 
+    justification_assignment, 
+    justification_group_assignment, 
+    justification_item_group_assignment, 
+    justification_support_assignment, 
+    justification_support_item_group_assignment, 
+    organization, 
+    person, 
+    person_and_organization, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
+    product_relationship, 
+    property_definition, 
+    representation, 
+    representation_item, 
+    state_observed, 
+    state_observed_assignment, 
+    state_observed_relationship, 
+    state_type, 
+    state_type_relationship);
+END_TYPE; 
+
+TYPE role_select = SELECT
+   (action_assignment, 
+    action_request_assignment, 
+    approval_assignment, 
+    approval_date_time, 
+    certification_assignment, 
+    contract_assignment, 
+    document_reference, 
+    effectivity_assignment, 
+    external_referent_assignment, 
+    group_assignment, 
+    name_assignment, 
+    security_classification_assignment);
+END_TYPE; 
+
+TYPE same_as_item = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    action_property, 
+    action_request_status, 
+    action_resource, 
+    action_resource_requirement, 
+    action_status, 
+    address, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_experience_assignment, 
+    applied_external_identification_assignment, 
+    applied_group_assignment, 
+    applied_location_representation_assignment, 
+    applied_position_in_organization_group_assignment, 
+    approval, 
+    approval_status, 
+    ascribable_state, 
+    attribute_language_assignment, 
+    breakdown_context, 
+    calendar_date, 
+    certification, 
+    configuration_effectivity, 
+    contract, 
+    coordinated_universal_time_offset, 
+    date_and_time, 
+    derived_unit, 
+    derived_unit_element, 
+    description_text, 
+    event_occurrence, 
+    evidence, 
+    experience, 
+    experience_type, 
+    external_source, 
+    general_property, 
+    group, 
+    information_right, 
+    information_usage_right, 
+    item_assumed, 
+    language, 
+    local_time, 
+    location, 
+    measure_qualification, 
+    measure_with_unit, 
+    named_unit, 
+    organization, 
+    organization_type, 
+    person, 
+    person_type, 
+    person_type_definition, 
+    position_in_organization, 
+    position_in_organization_assignment, 
+    position_in_organization_type, 
+    position_in_organization_type_assignment, 
+    precision_qualifier, 
+    product, 
+    product_concept, 
+    product_concept_context, 
+    product_definition, 
+    product_definition_context, 
+    product_definition_formation, 
+    qualification_type, 
+    representation, 
+    representation_context, 
+    requirement_source, 
+    resource_property, 
+    security_classification, 
+    state_observed, 
+    state_observed_role, 
+    state_type, 
+    state_type_role, 
+    time_interval, 
+    type_qualifier, 
+    uncertainty_qualifier, 
+    usage_association);
+END_TYPE; 
+
+TYPE second_in_minute = REAL;
+WHERE
+  WR1: {0 <= SELF <= 60.000000};
+END_TYPE; 
+
+TYPE security_classification_item = SELECT
+   (action, 
+    action_method, 
+    action_method_relationship, 
+    action_resource, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_description_text_assignment, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_state_observed_assignment, 
+    applied_state_type_assignment, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    configuration_item, 
+    document_file, 
+    evidence, 
+    group, 
+    hierarchical_interface_connection, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_design, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    interface_definition_for, 
+    product, 
+    product_as_individual, 
+    product_as_individual_view, 
+    product_as_planned, 
+    product_as_realized, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_design_to_individual, 
+    product_design_version_to_individual, 
+    product_group, 
+    product_group_membership, 
+    product_group_relationship, 
+    product_relationship, 
+    requirement_assignment, 
+    requirement_source, 
+    structured_message, 
+    validation, 
+    verification);
+END_TYPE; 
+
+TYPE selected_item_context_items = SELECT
+   (configuration_item, 
+    contract, 
+    organizational_project, 
+    product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_concept);
+END_TYPE; 
+
+TYPE selected_item_select = SELECT
+   (interface_connection, 
+    interface_connector_definition, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    product, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE set_representation_item = SET[1:?] OF representation_item;
+END_TYPE; 
+
+TYPE shape_definition = SELECT
+   (product_definition_shape, 
+    shape_aspect, 
+    shape_aspect_relationship);
+END_TYPE; 
+
+TYPE si_prefix = ENUMERATION OF 
+   (exa,
+    peta,
+    tera,
+    giga,
+    mega,
+    kilo,
+    hecto,
+    deca,
+    deci,
+    centi,
+    milli,
+    micro,
+    nano,
+    pico,
+    femto,
+    atto);
+END_TYPE; 
+
+TYPE si_unit_name = ENUMERATION OF 
+   (metre,
+    gram,
+    second,
+    ampere,
+    kelvin,
+    mole,
+    candela,
+    radian,
+    steradian,
+    hertz,
+    newton,
+    pascal,
+    joule,
+    watt,
+    coulomb,
+    volt,
+    farad,
+    ohm,
+    siemens,
+    weber,
+    tesla,
+    henry,
+    degree_Celsius,
+    lumen,
+    lux,
+    becquerel,
+    gray,
+    sievert);
+END_TYPE; 
+
+TYPE solid_angle_measure = REAL;
+END_TYPE; 
+
+TYPE source_item = SELECT
+   (identifier, 
+    message);
+END_TYPE; 
+
+TYPE state_observed_of_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_property, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_approval_assignment, 
+    applied_external_identification_assignment, 
+    approval, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    configuration_item, 
+    contract, 
+    document_file, 
+    environment_definition_view, 
+    executed_action, 
+    group, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_definition, 
+    interface_connector_design, 
+    interface_connector_occurrence, 
+    interface_connector_version, 
+    interface_definition_connection, 
+    interface_specification_definition, 
+    interface_specification_version, 
+    location, 
+    observed_environment_view, 
+    organization, 
+    organizational_project, 
+    person_and_organization, 
+    product, 
+    product_as_individual, 
+    product_as_individual_view, 
+    product_as_planned, 
+    product_as_realized, 
+    product_category, 
+    product_concept, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_group_assignment, 
+    product_definition_relationship, 
+    product_group, 
+    product_in_attachment_slot, 
+    property_definition, 
+    risk_impact_assignment, 
+    security_classification, 
+    state_observed_assignment, 
+    structured_message, 
+    task_method_version, 
+    versioned_action_request);
+END_TYPE; 
+
+TYPE state_type_of_item = SELECT
+   (action, 
+    action_directive, 
+    action_method, 
+    action_property, 
+    action_relationship, 
+    action_resource, 
+    action_resource_relationship, 
+    alternate_product_relationship, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
+    applied_external_identification_assignment, 
+    approval, 
+    assembly_component_usage, 
+    assembly_component_usage_substitute, 
+    assumption, 
+    attachment_slot_design_to_planned, 
+    attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
+    attachment_slot_planned_to_realized, 
+    breakdown_element_group_assignment, 
+    breakdown_element_usage, 
+    certification, 
+    configuration_item, 
+    contract, 
+    document_file, 
+    environment_definition_view, 
+    executed_action, 
+    interface_connection, 
+    interface_connector_as_planned, 
+    interface_connector_as_realized, 
+    interface_connector_definition, 
+    interface_connector_design, 
+    interface_connector_occurrence, 
+    interface_connector_version, 
+    interface_definition_connection, 
+    interface_specification_definition, 
+    interface_specification_version, 
+    location, 
+    observed_environment_view, 
     organization, 
     organizational_project, 
     person_and_organization, 
@@ -9431,4 +13755,5 @@ FUNCTION vector_difference
       RETURN (result);
       END_FUNCTION; 
 
-END_SCHEMA;  -- Ap239_product_life_cycle_support_mim_LF
+END_SCHEMA;  -- AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.23 2009/08/27 12:50:19 abf Exp $
+     $Id: sect_introduction.xsl,v 1.24 2009/09/04 04:00:20 thomasrthurman Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -110,6 +110,28 @@
     </p>
 
     <p>
+      This document specifies the high level business concepts and
+      terminology of the application protocol and the details of the implementation
+      conformance options. 
+      The detailed information requirements of the application protocol are
+      specified in the AP module
+       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
+      that is referenced in Clause <a href="4_info_reqs{$FILE_EXT}#arm">4</a>. 
+      Specifically clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a>
+      presents the business context for the
+      information required for the exchange of 
+    <xsl:value-of select="$purpose"/> data.
+ 
+    <!-- 
+    exchange of information between
+      iterative design and analysis stages of the product life cycle, while
+      clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a> provides a data 
+    planning model that provides an overview of the
+      information requirements of this domain in domain terminology. 
+    </p>
+
+
+    <p>
       The information requirements of the application are specified in 
       the AP module 
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
@@ -119,6 +141,7 @@
       presents the business context for the information required for the
       exchange of 
       <xsl:value-of select="$purpose"/>.
+-->
 
       <xsl:choose>
         <xsl:when test="./data_plan and //inforeqt/fundamentals/data_plan">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.205 2008/09/12 15:49:06 abf Exp $
+$Id: module.xsl,v 1.206 2008/11/14 13:44:33 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -431,109 +431,10 @@ o=isocs; s=central<br/>
     </p>
   </xsl:if>
 
-  This document has been reviewed using the internal review checklist 
-  <xsl:choose>
-    <xsl:when test="@checklist.working_group">
-      (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.internal_review)"/>),
-  </xsl:when>
-  <xsl:otherwise>
-    (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
-</xsl:otherwise>
-      </xsl:choose>
-      <!-- test the checklist WG number for checklist.internal_review -->
-      <xsl:variable name="test_cl_internal_review">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_internal_review,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        module.xml/module/@checklist.internal_review - ', 
-                        $test_cl_internal_review)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-
-
-      the project leader checklist 
-      <xsl:choose>
-        <xsl:when test="@checklist.working_group">
-          (see <xsl:value-of
-          select="concat('WG',@checklist.working_group,'&#160;N',@checklist.project_leader)"/>),
-        </xsl:when>
-        <xsl:otherwise>
-          (see <xsl:value-of
-          select="concat('WG',$wg_group,'&#160;N',@checklist.project_leader)"/>),          
-        </xsl:otherwise>
-      </xsl:choose>
-
-      <!-- test the checklist WG number for checklist.project_leader -->
-      <xsl:variable name="test_cl_project_leader">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_project_leader,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        module.xml/module/@checklist.project_leader - ', 
-                        $test_cl_project_leader)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-
-      and the convener checklist
-      <xsl:choose>
-        <xsl:when test="@checklist.working_group">
-          (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.convener)"/>),          
-        </xsl:when>
-        <xsl:otherwise>
-          (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.convener)"/>),
-        </xsl:otherwise>
-      </xsl:choose>
-
-
-      <!-- test the checklist WG number for checklist.convener -->
-      <xsl:variable name="test_cl_convener">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.convener"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_convener,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        module.xml/module/@checklist.convener - ', 
-                        $test_cl_convener)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-      and is ready for 
-      <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
-
-      <xsl:if test="$confirmatory_ballot='YES'">
-	<p>
-	  This document is being submitted for a confirmatory 
-<xsl:value-of select="$status" /> ballot in accordance with clause 2.5 of the SC4 Handbook (SC4 N1620).
-	</p>
-      </xsl:if>
       <xsl:apply-templates select="comments_to_reader" />
 	<p>
         The project issues raised against the individual modules are stored on
-        <a href="http://sourceforge.net/">http://sourceforge.net/</a>
-        under the stepmod project. Ballot comments will be maintained using ISO form 13b. 
+        <a href="http://locke.dcnicn.com/bugzilla/iso10303/">http://locke.dcnicn.com/bugzilla/iso10303/</a>.
       </p>
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>
       <xsl:if test="string-length($dvlp_fldr)>0">

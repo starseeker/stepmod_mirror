@@ -60,14 +60,12 @@
 						<br/>
 						<a href="../sys/3_defs.htm">3 Terms, definitions and abbreviations</a>
 						<br/>
-						<a href="../sys/4_modules.htm">4 Modules</a>
+						<a href="../sys/a_obj_reg.htm">A Information object registration</a>
 						<br/>
 					</p>
 				</td>
 				<td valign="TOP">
 					<p class="toc">
-						<a href="../sys/a_obj_reg.htm">A Information object registration</a>
-						<br/>
 						<a href="../sys/biblio.htm">Bibliography</a>
 						<br/>
 						<a href="../sys/index_apdoc.htm">Index</a>
@@ -80,19 +78,9 @@
 	<xsl:template name="bottom_stuff">
 		<br/>
 		<br/>
-		<p>&#169; ISO 2009 &#8212; All rights reserved</p>
+		<p>&#169; ISO 2010 &#8212; All rights reserved</p>
 	</xsl:template>
 	<xsl:template name="insert_metadata">
 		<link rel="schema.DC" href="http://www.dublincore.org/documents/2003/02/04/dces/"/>
-		<!--
-		<meta name="DC.Title" content="Industrial automation systems and integration &#8212; Product data representation and exchange &#8212; Part 1000: Application modules "/>
-		<meta name="DC.Dates" content="2009-05-12 17:55:13"/>
-		<meta name="DC.Published" content="2009-05-31"/>
-		<meta name="DC.Contributor" content="Radack, Gerald"/>
-		<meta name="DC.Creator" content="Radack, Gerald"/>
-		<meta name="DC.Description" content="The collection of all ISO 10303 application modules"/>
-		<meta name="DC.Subject" content="application modules"/>
-		<meta name="SC4.version" content="1"/>
-		-->
 	</xsl:template>
 </xsl:stylesheet>

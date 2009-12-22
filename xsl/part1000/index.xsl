@@ -11,7 +11,7 @@
     <xsl:choose>
       <xsl:when test="@index_type eq 'MODULES_BY_NAME'">
 	<xsl:if test="@method = 'top'">
-	  <b>Modules</b>
+	  <b>Parts</b>
 	  <br/>
 	</xsl:if>
 	<xsl:call-template name="doc_index">
@@ -20,7 +20,7 @@
       </xsl:when>
       <xsl:when test="@index_type eq 'MODULES_BY_NUMBER'">
 	<xsl:if test="@method = 'top'">
-	  <b>Modules</b>
+	  <b>Parts</b>
 	  <br/>
 	</xsl:if>
 	<xsl:call-template name="doc_index">
@@ -363,10 +363,10 @@
       <xsl:variable name="file_ref">
 	<xsl:choose>
 	  <xsl:when test="$type eq 'resource'">
-	    <xsl:value-of select="concat('../../../resources/',@directory,'/',$filename)"/>
+	    <xsl:value-of select="concat('../../resources/',@directory,'/',$filename)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="concat('../../../modules/',@directory,'/sys/',$filename)"/>
+	    <xsl:value-of select="concat('../../modules/',@directory,'/sys/',$filename)"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>

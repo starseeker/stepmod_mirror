@@ -33,7 +33,7 @@
 	<xsl:template match="doc" priority="2.0">
 		<tr>
 			<td>
-				<a href="../../../modules/{@name}/sys/cover.htm">
+				<a href="../../modules/{@name}/sys/cover.htm">
 					<xsl:value-of select="@name"/>
 				</a>
 			</td>

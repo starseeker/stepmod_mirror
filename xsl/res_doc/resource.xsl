@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.72 2009/11/07 20:27:21 lothartklein Exp $
+$Id: resource.xsl,v 1.73 2009/11/30 20:15:46 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2738,7 +2738,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
   </xsl:template>
 
 
-  <!-- output the normative references, terms, definitions and abbreviations -->
+  <!-- output the normative references, terms, definitions and abbreviated terms -->
   <xsl:template name="output_terms">
     <xsl:param name="resource_number"/>
     <xsl:param name="current_resource"/>

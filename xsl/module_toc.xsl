@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.43 2006/05/18 16:17:23 dmprice Exp $
+$Id: module_toc.xsl,v 1.44 2006/06/29 19:44:50 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -68,7 +68,7 @@ $Id: module_toc.xsl,v 1.43 2006/05/18 16:17:23 dmprice Exp $
           <xsl:when test="./definition/term">
             <!-- use #defns to link direct -->
             <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}">
-              3 Terms, definitions and abbreviations
+              3 Terms, definitions and abbreviated terms
             </A>
           </xsl:when>
           <xsl:otherwise>
@@ -76,7 +76,7 @@ $Id: module_toc.xsl,v 1.43 2006/05/18 16:17:23 dmprice Exp $
             <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}">
               <!-- every module references Terms defined in other standards,
                    and abbreviations hence as per ISO -->
-              3 Terms, definitions and abbreviations
+              3 Terms, definitions and abbreviated terms
             </A>            
           </xsl:otherwise>
         </xsl:choose>

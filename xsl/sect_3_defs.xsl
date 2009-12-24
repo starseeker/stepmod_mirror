@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.8 2003/03/13 19:17:04 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.9 2004/08/03 12:06:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,12 +43,12 @@ $Id: sect_3_defs.xsl,v 1.8 2003/03/13 19:17:04 robbod Exp $
     <a name="defns">
       <xsl:choose>
         <xsl:when test="./definition/term">
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
         </xsl:when>
         <xsl:otherwise>
           <!-- every module references Terms defined in other standards,
                and abbreviations hence as per ISO -->
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
         </xsl:otherwise>
       </xsl:choose>
     </a>

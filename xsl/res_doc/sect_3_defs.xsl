@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.3 2004/04/27 15:14:33 thendrix Exp $
+$Id: sect_3_defs.xsl,v 1.4 2006/03/11 01:22:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -29,7 +29,7 @@ $Id: sect_3_defs.xsl,v 1.3 2004/04/27 15:14:33 thendrix Exp $
       <!--
       <xsl:choose>
         <xsl:when test="./definition/term">
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
         </xsl:when>
         <xsl:otherwise>
           3 Terms and abbreviations
@@ -38,10 +38,12 @@ $Id: sect_3_defs.xsl,v 1.3 2004/04/27 15:14:33 thendrix Exp $
 -->
       <xsl:choose>
         <xsl:when test="./abbreviation">
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
         </xsl:when>
         <xsl:otherwise>
-          3 Terms and definitions
+          <!-- every module references Terms defined in other standards,
+               and abbreviations hence as per ISO -->
+          3 Terms, definitions and abbreviated terms
         </xsl:otherwise>
       </xsl:choose>
     </a>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.40 2006/06/29 19:45:07 darla Exp $
+$Id: sect_contents.xsl,v 1.41 2006/10/13 20:31:28 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -68,7 +68,7 @@ $Id: sect_contents.xsl,v 1.40 2006/06/29 19:45:07 darla Exp $
     <xsl:when test="./definition/term">
       <!-- use #defns to link direct -->
           <A HREF="./3_defs{$FILE_EXT}">
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
         </A>
         <br/>
     </xsl:when>
@@ -77,7 +77,7 @@ $Id: sect_contents.xsl,v 1.40 2006/06/29 19:45:07 darla Exp $
          <A HREF="./3_defs{$FILE_EXT}">
            <!-- every module references Terms defined in other standards,
                 and abbreviations hence as per ISO -->
-           3 Terms, definitions and abbreviations
+           3 Terms, definitions and abbreviated terms
         </A>
         <br/>
     </xsl:otherwise>

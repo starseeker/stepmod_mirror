@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.21 2008/04/24 16:34:48 darla Exp $
+$Id: sect_3_defs.xsl,v 1.22 2009/08/27 13:13:04 abf Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -36,12 +36,12 @@ $Id: sect_3_defs.xsl,v 1.21 2008/04/24 16:34:48 darla Exp $
       <a name="defns">
         <xsl:choose>
           <xsl:when test="./definition/term">
-            3 Terms, definitions and abbreviations
+            3 Terms, definitions and abbreviated terms
           </xsl:when>
           <xsl:otherwise>
           <!-- every AP references Terms defined in other standards,
                and abbreviations hence as per ISO -->
-          3 Terms, definitions and abbreviations
+          3 Terms, definitions and abbreviated terms
           </xsl:otherwise>
         </xsl:choose>
       </a>
@@ -49,7 +49,7 @@ $Id: sect_3_defs.xsl,v 1.21 2008/04/24 16:34:48 darla Exp $
     <xsl:apply-templates select="." mode="output_terms"/>
   </xsl:template>
 	
-<!-- output the normative references, terms, definitions and abbreviations -->
+<!-- output the normative references, terms, definitions and abbreviated terms -->
 <xsl:template match="application_protocol" mode="output_terms">
 
   <!-- output any issues -->

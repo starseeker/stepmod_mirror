@@ -58,7 +58,7 @@
 					<p class="toc">
 						<a href="../sys/2_refs.htm">2 Normative references</a>
 						<br/>
-						<a href="../sys/3_defs.htm">3 Terms, definitions and abbreviations</a>
+						<a href="../sys/3_defs.htm">3 Terms, definitions and abbreviated terms</a>
 						<br/>
 						<a href="../sys/a_obj_reg.htm">A Information object registration</a>
 						<br/>

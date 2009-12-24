@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.24 2008/08/25 20:14:26 abf Exp $
+$Id: res_toc.xsl,v 1.25 2009/08/24 10:23:27 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -454,13 +454,13 @@ $Id: res_toc.xsl,v 1.24 2008/08/25 20:14:26 abf Exp $
           <xsl:when test="./definition/term">
             <!-- use #defns to link direct -->
             <A HREF="{$resdoc_root}/sys/3_defs{$FILE_EXT}">
-              3 Terms, definitions and abbreviations
+              3 Terms, definitions and abbreviated terms
             </A>
           </xsl:when>
           <xsl:otherwise>
             <!-- use #defns to link direct -->
             <A HREF="{$resdoc_root}/sys/3_defs{$FILE_EXT}">
-              3 Terms and abbreviations
+              3 Terms and abbreviated terms
             </A>            
           </xsl:otherwise>
         </xsl:choose>

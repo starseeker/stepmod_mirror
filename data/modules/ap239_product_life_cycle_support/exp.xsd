@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: exp.xsd,v 1.1 2009/06/26 16:49:11 robbod Exp $ -->
+
+
+<xs:schema 
+	targetNamespace="urn:iso:std:iso:10303:28:ed-2:2005:schema:common"
+    xmlns:exp="urn:iso:std:iso:10303:28:ed-2:2005:schema:common"
+	  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
+	<!-- ROOT ELEMENT  UOS -->
+<xs:complexType name="uos">
+	<xs:sequence>
+		<xs:element ref="exp:header" minOccurs="0"/>
+	</xs:sequence>
+	<xs:attribute name="id" type="xs:ID"  use="optional"/>
+	<xs:attribute name="express" type="exp:Seq-anyURI" 
+    use="optional"/>
+	<xs:attribute name="configuration" type="exp:Seq-anyURI"  
+    use="optional"/>
+	<xs:attribute name="schemaLocation"  type="exp:Seq-anyURI" 
+    use="optional"/>
+	<xs:attribute name="edo"  type="xs:anyURI" use="optional"/>
+	<xs:attribute name="defaultLanguage" type="xs:language" 
+     use="optional"/>
+</xs:complexType>
+
+<xs:element name="uos" type="exp:uos">
+	<xs:key name="base64Binary-key">
+		<xs:selector xpath="exp:base64Binary-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="hexBinary-key">
+		<xs:selector xpath="exp:hexBinary-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="logical-key">
+		<xs:selector xpath="exp:logical-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="integer-key">
+		<xs:selector xpath="exp:integer-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="boolean-key">
+		<xs:selector xpath="exp:boolean-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="double-key">
+		<xs:selector xpath="exp:double-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="decimal-key">
+		<xs:selector xpath="exp:decimal-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="long-key">
+		<xs:selector xpath="exp:long-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+	<xs:key name="string-key">
+		<xs:selector xpath="exp:string-wrapper"/>
+		<xs:field xpath="@id"/>
+	</xs:key>
+</xs:element>	
+
+	<!-- UOS and DOCUMENT HEADER -->
+<xs:complexType name="name_and_address">
+  <xs:sequence>
+    <xs:element name="name" type="xs:string" />
+    <xs:element name="address">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address_line" type="xs:string"
+              minOccurs="0" maxOccurs="unbounded"/> 
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:element name = "header">
+ <xs:complexType>
+  <xs:sequence>
+   <xs:element name="name" type="xs:string" minOccurs="0"/>
+   <xs:element name="time_stamp" type="xs:dateTime" minOccurs="0"/> 
+   <xs:element name="author" type="exp:name_and_address" minOccurs="0"/>
+   <xs:element name="organization" type="exp:name_and_address"
+       minOccurs="0"/> 
+   <xs:element name="preprocessor_version" type="xs:string" minOccurs="0"/>
+   <xs:element name="originating_system" type="xs:string" minOccurs="0"/>
+   <xs:element name="authorization" type="xs:string" minOccurs="0"/>
+   <xs:element name="documentation" type="xs:string" minOccurs="0"/>
+  </xs:sequence>
+ </xs:complexType>
+</xs:element>
+
+<xs:attribute name="authority" type="xs:anyURI"/>
+
+<xs:complexType name = "edokey" abstract="true">
+		<xs:attribute name="id" type="xs:ID" use="required" />
+		<xs:attribute name="edo" type="xs:anyURI" use="optional"/>
+		<xs:attribute ref = "exp:authority"  use = "required"/>
+</xs:complexType>
+
+<xs:attribute name="edokeyType" type="xs:QName" />
+
+<xs:element name="edokey" type="exp:edokey" abstract="true" />
+
+<!--  EXP ENTITY DEFINTIONS and DECLARATIONS -->
+
+<xs:complexType name = "Entity" abstract="true">
+		<xs:annotation>
+			<xs:documentation>The Entity type is the supertype for every
+         EXPRESS entity. It provides the exp id attribute that is the local
+         identifier for each instance as well as the other exp descriptive
+         attributes.</xs:documentation>
+		</xs:annotation>
+ <xs:attribute name = "href" type = "xs:anyURI" use = "optional"/>
+ <xs:attribute name = "ref" type = "xs:IDREF" use = "optional"/>
+ <xs:attribute name = "proxy" type = "xs:IDREF" use = "optional"/>
+ <xs:attribute name = "edo" type = "xs:anyURI" use = "optional"/>
+ <xs:attributeGroup ref = "exp:instanceAttributes"/>
+</xs:complexType>
+
+<xs:element name="Entity" type = "exp:Entity" abstract = "true" nillable = "true"/>
+
+<xs:element name="complexEntity" substitutionGroup="exp:Entity">
+	<xs:complexType>
+		<xs:complexContent>
+			<xs:extension base="exp:Entity">
+				<xs:sequence>
+					<xs:element ref="exp:Entity"
+							minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="exp:Single-Entity" 
+							minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="entities" type="xs:NMTOKENS" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="Single-Entity" type="exp:Single-Entity"
+			abstract="true"/>
+
+<xs:complexType name="Single-Entity">
+</xs:complexType>
+
+<!-- UNRESTRICTED AGGREGATION TYPE DEFINITIONS -->
+
+<xs:complexType name="Seq-IDREF">
+	<xs:simpleContent>
+		<xs:extension base="xs:IDREFS">
+			<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+			<xs:attribute ref="exp:itemType"  use="optional" />
+			<xs:attribute ref="exp:cType"     use="optional" />
+			<xs:attribute ref="exp:arraySize" use="optional"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="Seq-IDREF-wrapper">
+	<xs:simpleContent>
+		<xs:extension base="exp:Seq-IDREF">
+			<xs:attributeGroup ref="exp:instanceAttributes"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+	<!-- GLOBAL ATTRIBUTE DECLARATIONS  -->
+
+	<!--  EXP ARRAY -->
+<xs:attribute name="arraySize">
+		<xs:simpleType>
+     <xs:restriction>
+			  <xs:simpleType>
+			    <xs:list itemType="xs:integer"/>
+			  </xs:simpleType>
+			  <xs:minLength value="1"/>
+     </xs:restriction>
+		</xs:simpleType>
+</xs:attribute>
+
+<xs:attribute name="itemType">
+	<xs:simpleType>
+	  <xs:list itemType="xs:QName"/>
+	</xs:simpleType>
+</xs:attribute>
+
+<xs:attribute name="cType">
+	<xs:simpleType>
+	  <xs:list itemType="exp:aggregateType"/>
+	</xs:simpleType>
+</xs:attribute>
+
+	<xs:simpleType name="aggregateType">
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="array"/>
+			<xs:enumeration value="list"/>
+			<xs:enumeration value="set"/>
+			<xs:enumeration value="bag"/>
+    <xs:enumeration value="array-unique"/>
+			<xs:enumeration value="array-optional"/>
+			<xs:enumeration value="array-optional-unique"/>
+    <xs:enumeration value="list-unique"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+<xs:attributeGroup name="instanceAttributes">
+	<xs:attribute name="id"  type="xs:ID" use="optional"/>
+	<xs:attribute name="path" type="xs:NMTOKENS" use="optional"/>
+	<xs:attribute name="pos" use="optional">
+		<xs:simpleType>
+			<xs:restriction>
+				<xs:simpleType>
+						<xs:list itemType="xs:integer"/>
+				</xs:simpleType>
+				<xs:minLength value="1"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+</xs:attributeGroup>
+
+<xs:attribute name="attributeType">
+	<xs:simpleType>
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="explicit"/>
+			<xs:enumeration value="inverse"/>
+			<xs:enumeration value="derived"/>
+			<xs:enumeration value="renamed"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:attribute>
+
+
+<!--  SIMPLE TYPE DEFINITIONS -->
+
+	<xs:complexType name="base64Binary">
+		<xs:simpleContent>
+			<xs:extension base="xs:base64Binary" >
+				<xs:attribute name="extraBits" type="xs:integer" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+<xs:complexType name="hexBinary">
+	<xs:simpleContent>
+		<xs:extension base="xs:hexBinary" >
+				<xs:attribute name="extraBits" type="xs:integer" use="optional"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:simpleType name = "logical">
+	<xs:restriction base = "xs:string">
+		<xs:enumeration value = "false"/>
+		<xs:enumeration value = "true"/>
+		<xs:enumeration value = "unknown"/>
+	</xs:restriction>
+</xs:simpleType>
+
+
+<!-- OTHER NEEDED TYPE DEFINITIONS -->
+
+<xs:simpleType name="Seq-anyURI">
+	<xs:list itemType="xs:anyURI" />
+</xs:simpleType>
+
+
+		<!-- WRAPPER FOR ATOMIC SIMPLE TYPES  -->
+<xs:element name="base64Binary-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="exp:base64Binary">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="hexBinary-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="exp:hexBinary">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="integer-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:integer">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="logical-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="exp:logical">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+
+		<!-- WRAPPER FOR ATOMIC SIMPLE TYPES  -->
+<xs:element name="boolean-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:boolean">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="double-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:double">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>	
+
+<xs:element name="decimal-wrapper" nillable="true">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:decimal">
+					<xs:attributeGroup ref="exp:instanceAttributes"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+</xs:element>
+
+<xs:element name="long-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:long">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="string-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:normalizedString">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="generalString-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="language-wrapper" nillable="true" >
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:language">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="Name-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:Name">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="QName-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:QName">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="NMTOKEN-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:NMTOKEN">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="anyURI-wrapper" nillable="true">
+	<xs:complexType>
+		<xs:simpleContent>
+			<xs:extension base="xs:anyURI">
+				<xs:attributeGroup ref="exp:instanceAttributes"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:element>
+
+
+</xs:schema>
+

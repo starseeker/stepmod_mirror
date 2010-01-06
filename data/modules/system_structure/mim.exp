@@ -1,28 +1,35 @@
 (*
-   $Id: mim.exp,v 1.20 2009/07/02 21:06:04 philsp Exp $
-   ISO_TC184/SC4/WG3_N2527_-_ISO/TS_10303-1450_System_structure_-_EXPRESS_MIM
-   Supersedes_ISO_TC184/SC4/WG3_N2352
-*)
+   $Id: mim.exp,v 1.21 2009/08/11 14:48:48 abhpf Exp $
+ISO TC184/SC4/WG3 N2707 - ISO/TS 10303-1450 System structure - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG3 N2527
+*) 
+
 
 SCHEMA System_structure_mim;
 
+USE FROM Collection_identification_and_version_mim;    -- ISO/TS 10303-1396
+
 USE FROM Conditional_effectivity_mim;    -- ISO/TS 10303-1397
 
-USE FROM Collection_identification_and_version_mim;    -- ISO/TS 10303-1396
+USE FROM date_time_schema   -- ISO 10303-41
+  (local_time); 
 
 USE FROM Identification_relationship_mim;    -- ISO/TS 10303-1398
 
 USE FROM Interface_mim;    -- ISO/TS 10303-1251
 
-USE FROM Physical_breakdown_mim;    -- ISO/TS 10303-1215
+USE FROM Location_assignment_mim;    -- ISO/TS 10303-1277
 
-USE FROM Product_as_individual_mim;    -- ISO/TS 10303-1164
+USE FROM Physical_breakdown_mim;    -- ISO/TS 10303-1215
 
 USE FROM Product_data_management_mim;    -- ISO/TS 10303-1231
 
-USE FROM Product_environment_definition_mim;    -- ISO/TS 10303-1400
-
 USE FROM Product_environment_observed_mim;    -- ISO/TS 10303-1401
+
+USE FROM Product_group_mim;    -- ISO/TS 10303-1278
+
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object); 
 
 USE FROM Same_as_external_item_mim;    -- ISO/TS 10303-1402
 
@@ -32,14 +39,8 @@ USE FROM System_view_definition_mim;    -- ISO/TS 10303-1485
 
 USE FROM Zonal_breakdown_mim;    -- ISO/TS 10303-1217
 
-USE FROM product_property_definition_schema   -- ISO 10303-41
-  (characterized_object); 
 
-USE FROM date_time_schema   -- ISO 10303-41
-  (local_time); 
-
-
-TYPE syss_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
+TYPE syss_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_action_items WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -57,7 +58,6 @@ TYPE syss_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items 
     general_property, 
     interface_connection, 
     interface_connector_occurrence, 
-    interface_definition_connection, 
     measure_representation_item, 
     organization, 
     organizational_project, 
@@ -65,27 +65,9 @@ TYPE syss_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items 
     person_and_organization, 
     product, 
     product_concept, 
-    product_definition, 
-    product_definition_formation, 
     product_definition_formation_relationship, 
     property_definition, 
     versioned_action_request);
-END_TYPE; 
-
-TYPE syss_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
-   (action_directive, 
-    document_file, 
-    location, 
-    organization, 
-    person, 
-    person_and_organization, 
-    product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_definition, 
-    product_definition_formation, 
-    product_group);
 END_TYPE; 
 
 TYPE syss_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_request_item WITH 
@@ -114,7 +96,7 @@ TYPE syss_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action
     versioned_action_request);
 END_TYPE; 
 
-TYPE syss_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+TYPE syss_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -132,7 +114,6 @@ TYPE syss_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_ite
     applied_organizational_project_assignment, 
     applied_person_and_organization_assignment, 
     applied_security_classification_assignment, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     certification, 
@@ -141,29 +122,18 @@ TYPE syss_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_ite
     contract_relationship, 
     date_and_time_assignment, 
     date_assignment, 
-    directed_action, 
     effectivity, 
     event_occurrence, 
     general_property, 
     general_property_relationship, 
     in_zone, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization_relationship, 
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
-    product_as_individual, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept, 
     product_definition, 
     product_definition_context, 
@@ -171,16 +141,12 @@ TYPE syss_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_ite
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
     property_definition, 
-    quantified_assembly_component_usage, 
     security_classification);
 END_TYPE; 
 
-TYPE syss_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_language_item WITH 
+TYPE syss_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_attribute_language_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -188,9 +154,7 @@ TYPE syss_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON at
     action_request_solution, 
     alternate_product_relationship, 
     applied_action_assignment, 
-    applied_external_identification_assignment, 
     applied_identification_assignment, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     configuration_item, 
@@ -201,117 +165,59 @@ TYPE syss_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON at
     general_property, 
     general_property_relationship, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_definition, 
-    product_definition_formation, 
     product_definition_group_assignment, 
-    product_definition_relationship, 
-    product_definition_usage, 
     property_definition, 
-    quantified_assembly_component_usage, 
     representation_item, 
     versioned_action_request);
 END_TYPE; 
 
-TYPE syss_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
+TYPE syss_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_certification_item WITH 
    (action_method, 
     alternate_product_relationship, 
     approval_person_organization, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     configuration_item, 
     executed_action, 
     interface_connection, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_specification_version, 
     organizational_project, 
     product, 
-    product_as_individual, 
-    product_as_planned, 
-    product_as_realized, 
     product_definition_formation, 
     product_definition_relationship, 
-    property_definition, 
-    quantified_assembly_component_usage);
+    property_definition);
 END_TYPE; 
 
-TYPE syss_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+TYPE syss_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_classification_item WITH 
    (action_property_representation, 
-    action_relationship, 
     action_status, 
-    alternate_product_relationship, 
-    applied_action_assignment, 
-    applied_certification_assignment, 
-    applied_document_usage_constraint_assignment, 
-    applied_effectivity_assignment, 
-    applied_external_identification_assignment, 
     attribute_language_assignment, 
-    breakdown_context, 
     breakdown_element_group_assignment, 
-    breakdown_of, 
     characterized_object, 
     configuration_design, 
-    configuration_effectivity, 
-    configuration_item, 
-    derived_unit, 
-    document_file, 
     effectivity_relationship, 
     event_occurrence_relationship, 
     external_class_library, 
-    in_zone, 
-    interface_connection, 
-    interface_connector_definition, 
-    interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     local_time, 
-    named_unit, 
     person_and_organization, 
-    product, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept_context, 
-    product_definition, 
-    product_definition_formation, 
-    product_definition_formation_relationship, 
     product_definition_group_assignment, 
-    product_definition_shape, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
-    property_definition_representation, 
     time_interval_relationship);
 END_TYPE; 
 
 TYPE syss_collection_assignment_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON collection_assignment_groupable_item WITH 
    (product, 
-    product_definition, 
     product_definition_formation);
 END_TYPE; 
 
 TYPE syss_collection_membership_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON collection_membership_groupable_item WITH 
    (product, 
-    product_definition, 
     product_definition_formation);
 END_TYPE; 
 
 TYPE syss_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH 
    (action_directive, 
     action_method, 
-    action_method_relationship, 
     action_property, 
     action_resource, 
     action_resource_relationship, 
@@ -327,53 +233,28 @@ TYPE syss_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     applied_organizational_project_assignment, 
     applied_security_classification_assignment, 
     approval, 
-    assembly_component_usage, 
     breakdown_element_group_assignment, 
     date_and_time_assignment, 
     date_assignment, 
     effectivity, 
     executed_action, 
-    hierarchical_interface_connection, 
     interface_connection, 
-    interface_definition_connection, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     product_group, 
     product_group_membership, 
     product_group_relationship, 
     property_definition, 
-    quantified_assembly_component_usage, 
-    state_type, 
-    state_type_relationship, 
     versioned_action_request);
 END_TYPE; 
 
 TYPE syss_contract_item = EXTENSIBLE SELECT BASED_ON contract_item WITH 
-   (action_directive, 
-    action_method, 
-    applied_action_assignment, 
-    configuration_item, 
-    executed_action, 
-    external_class_library, 
-    externally_defined_class, 
-    interface_connector_version, 
-    interface_specification_version, 
-    organization, 
+   (action_method, 
     organization_item, 
-    organizational_project, 
-    person_and_organization, 
-    person_and_organization_item, 
-    product, 
-    product_as_individual, 
-    product_as_planned, 
-    product_as_realized, 
-    product_definition, 
-    product_definition_formation, 
-    security_classification);
+    person_and_organization_item);
 END_TYPE; 
 
-TYPE syss_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
+TYPE syss_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_and_time_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -394,7 +275,6 @@ TYPE syss_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_an
     applied_person_and_organization_assignment, 
     approval, 
     approval_person_organization, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     certification, 
@@ -403,29 +283,18 @@ TYPE syss_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_an
     contract_relationship, 
     date_and_time_assignment, 
     date_assignment, 
-    directed_action, 
     document_file, 
     effectivity, 
     general_property, 
     general_property_relationship, 
-    hierarchical_interface_connection, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization_relationship, 
     organizational_address, 
     organizational_project, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept, 
     product_definition, 
     product_definition_context, 
@@ -433,17 +302,13 @@ TYPE syss_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_an
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
     property_definition, 
     property_definition_representation, 
-    quantified_assembly_component_usage, 
     representation);
 END_TYPE; 
 
-TYPE syss_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH 
+TYPE syss_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -464,7 +329,6 @@ TYPE syss_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
     applied_person_and_organization_assignment, 
     approval, 
     approval_person_organization, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     certification, 
@@ -473,29 +337,18 @@ TYPE syss_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
     contract_relationship, 
     date_and_time_assignment, 
     date_assignment, 
-    directed_action, 
     document_file, 
     effectivity, 
     general_property, 
     general_property_relationship, 
-    hierarchical_interface_connection, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization_relationship, 
     organizational_address, 
     organizational_project, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept, 
     product_definition, 
     product_definition_context, 
@@ -503,19 +356,14 @@ TYPE syss_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
     property_definition, 
     property_definition_representation, 
-    quantified_assembly_component_usage, 
     representation);
 END_TYPE; 
 
-TYPE syss_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+TYPE syss_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_document_reference_item WITH 
    (action_directive, 
-    action_method, 
     action_property, 
     action_property_representation, 
     action_relationship, 
@@ -534,7 +382,6 @@ TYPE syss_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON do
     applied_person_and_organization_assignment, 
     approval, 
     approval_person_organization, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     certification, 
@@ -543,47 +390,31 @@ TYPE syss_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON do
     contract_relationship, 
     date_and_time_assignment, 
     date_assignment, 
-    directed_action, 
     document_file, 
     effectivity, 
     general_property, 
     general_property_relationship, 
-    hierarchical_interface_connection, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization_relationship, 
     organizational_address, 
     organizational_project, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept, 
     product_definition, 
     product_definition_context, 
     product_definition_formation, 
-    product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
     property_definition, 
     property_definition_representation, 
-    quantified_assembly_component_usage, 
     representation);
 END_TYPE; 
 
-TYPE syss_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH 
+TYPE syss_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_effectivity_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -605,10 +436,8 @@ TYPE syss_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivi
     applied_organizational_project_assignment, 
     applied_person_and_organization_assignment, 
     applied_security_classification_assignment, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
-    breakdown_of, 
     configuration_item, 
     date_and_time_assignment, 
     date_assignment, 
@@ -618,38 +447,24 @@ TYPE syss_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivi
     executed_action, 
     interface_connection, 
     interface_connector_occurrence, 
-    interface_definition_for, 
-    make_from_usage_option, 
     multi_language_attribute_assignment, 
     organization_relationship, 
     organizational_address, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_definition, 
-    product_definition_formation, 
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
-    product_definition_relationship, 
-    product_definition_usage, 
     product_design_to_individual, 
-    product_design_version_to_individual, 
-    product_planned_to_realized, 
     property_definition, 
-    property_definition_representation, 
-    quantified_assembly_component_usage);
+    property_definition_representation);
 END_TYPE; 
 
-TYPE syss_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_occurrence_item WITH 
+TYPE syss_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_event_occurrence_item WITH 
    (approval, 
     certification, 
     contract, 
     contract_relationship, 
     executed_action, 
-    organizational_project, 
     product, 
     versioned_action_request);
 END_TYPE; 
@@ -662,7 +477,7 @@ TYPE syss_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
     product_definition);
 END_TYPE; 
 
-TYPE syss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+TYPE syss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_identification_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -677,7 +492,6 @@ TYPE syss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identi
     applied_security_classification_assignment, 
     approval, 
     approval_status, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     certification, 
     class, 
@@ -685,7 +499,6 @@ TYPE syss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identi
     contract, 
     contract_relationship, 
     descriptive_representation_item, 
-    directed_action, 
     document_file, 
     effectivity, 
     event_occurrence, 
@@ -694,48 +507,32 @@ TYPE syss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identi
     general_property, 
     general_property_relationship, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     measure_representation_item, 
     organization, 
     organizational_project, 
     person, 
     person_and_organization, 
     product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_as_planned, 
-    product_as_realized, 
     product_concept, 
     product_concept_context, 
     product_definition, 
     product_definition_context, 
     product_definition_formation, 
     product_definition_relationship, 
-    product_definition_shape, 
-    product_definition_usage, 
     property_definition, 
-    quantified_assembly_component_usage, 
     representation, 
     security_classification, 
-    shape_aspect_relationship, 
     versioned_action_request);
 END_TYPE; 
 
 TYPE syss_in_zone_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_groupable_item WITH 
-   (hierarchical_interface_connection, 
-    interface_connection, 
+   (interface_connection, 
     interface_connector_occurrence, 
     interface_definition_connection);
 END_TYPE; 
 
-TYPE syss_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON multi_language_attribute_item WITH 
+TYPE syss_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_multi_language_attribute_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -743,9 +540,7 @@ TYPE syss_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     action_request_solution, 
     alternate_product_relationship, 
     applied_action_assignment, 
-    applied_external_identification_assignment, 
     applied_identification_assignment, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     configuration_item, 
@@ -756,22 +551,9 @@ TYPE syss_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     general_property, 
     general_property_relationship, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_definition, 
-    product_definition_formation, 
     product_definition_group_assignment, 
-    product_definition_relationship, 
-    product_definition_usage, 
     property_definition, 
-    quantified_assembly_component_usage, 
     representation_item, 
     versioned_action_request);
 END_TYPE; 
@@ -785,7 +567,7 @@ TYPE syss_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH
     product_definition_usage);
 END_TYPE; 
 
-TYPE syss_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+TYPE syss_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_organization_item WITH 
    (action_directive, 
     action_property, 
     action_property_representation, 
@@ -798,46 +580,31 @@ TYPE syss_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organiza
     applied_person_and_organization_assignment, 
     applied_security_classification_assignment, 
     approval_status, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     breakdown_element_realization, 
     certification, 
-    directed_action, 
     document_file, 
     effectivity, 
     event_occurrence, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization, 
     organizational_project, 
     person, 
     person_and_organization, 
     product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_as_planned, 
-    product_as_realized, 
     product_definition, 
     product_definition_formation, 
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     property_definition, 
     property_definition_representation, 
-    quantified_assembly_component_usage, 
     shape_aspect_relationship);
 END_TYPE; 
 
-TYPE syss_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
+TYPE syss_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_person_and_organization_item WITH 
    (action_directive, 
     action_property, 
     action_property_representation, 
@@ -850,65 +617,45 @@ TYPE syss_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
     applied_person_and_organization_assignment, 
     applied_security_classification_assignment, 
     approval_status, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     breakdown_element_realization, 
     certification, 
-    directed_action, 
     document_file, 
     effectivity, 
     event_occurrence, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
-    interface_connector_version, 
-    interface_definition_connection, 
-    interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organization, 
     organizational_project, 
     person, 
     person_and_organization, 
     product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_as_planned, 
-    product_as_realized, 
     product_definition, 
     product_definition_formation, 
     product_definition_formation_relationship, 
     product_definition_group_assignment, 
     product_definition_relationship, 
-    product_definition_usage, 
     property_definition, 
     property_definition_representation, 
-    quantified_assembly_component_usage, 
     shape_aspect_relationship);
 END_TYPE; 
 
 TYPE syss_product_definition_or_product_definition_relationship = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_definition_or_product_definition_relationship WITH 
-   (assembly_component_usage, 
-    interface_connector_occurrence, 
-    quantified_assembly_component_usage);
+   (interface_connector_occurrence);
 END_TYPE; 
 
 TYPE syss_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH 
    (action_method, 
     alternate_product_relationship, 
     applied_action_assignment, 
-    assembly_component_usage, 
     assembly_component_usage_substitute, 
     configuration_item, 
     general_property, 
     interface_connection, 
-    interface_definition_connection, 
     product, 
     product_definition, 
     product_definition_relationship, 
-    quantified_assembly_component_usage, 
     representation);
 END_TYPE; 
 
@@ -918,7 +665,7 @@ TYPE syss_same_as_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON same_as_item 
     product_definition_formation);
 END_TYPE; 
 
-TYPE syss_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
+TYPE syss_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_security_classification_item WITH 
    (action_directive, 
     action_method, 
     action_property, 
@@ -932,33 +679,22 @@ TYPE syss_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
     configuration_item, 
-    directed_action, 
     document_file, 
     event_occurrence, 
     executed_action, 
-    hierarchical_interface_connection, 
     in_zone, 
     interface_connection, 
-    interface_connector_definition, 
     interface_connector_occurrence, 
     interface_definition_connection, 
     interface_definition_for, 
-    interface_specification_definition, 
-    interface_specification_version, 
     organizational_project_relationship, 
     product, 
-    product_as_individual, 
-    product_as_individual_version, 
-    product_as_individual_view, 
-    product_as_planned, 
-    product_as_realized, 
     product_definition, 
     product_definition_formation, 
     product_definition_group_assignment, 
     product_definition_usage, 
     product_design_to_individual, 
     product_design_version_to_individual, 
-    promissory_usage_occurrence, 
     property_definition, 
     versioned_action_request);
 END_TYPE; 
@@ -1136,14 +872,3 @@ ENTITY syss_characterizable_versioned_action_request
 END_ENTITY;
 
 END_SCHEMA;  -- System_structure_mim
-
-
-
-
-
-
-
-
-
-
-

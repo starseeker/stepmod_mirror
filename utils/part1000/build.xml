@@ -1,13 +1,18 @@
-<project name="Part1000" default="part1000" basedir="../../data/collections/part1000">
-    <description>Part 1000</description>
-  <!-- set global properties for this build -->
+<project name="Part1000" default="part1000" basedir="../..">
+  <description>Part 1000</description>
+
+  <!-- The following environment variables must be set before running this build:
+         SAXON_HOME     Directory path of the Saxon 9 distribution
+         STEP1000_ROOT  Directory path of local working copy of SMRL Subversion publication repository (similar to STEPMod top-level directory).
+  -->
   <property environment="env"/>
   <property name="saxon" location="${env.SAXON_HOME}"/>
+  <property name="step1000_dir" location="${env.STEP1000_ROOT}"/>
+
+  <!-- set global properties for this build -->
   <property name="saxon_jar" location="${saxon}/saxon9.jar"/>
   <property name="xslt_classpath" value="${saxon_jar};."/>
-  <property name="step1000_dir" location="${env.STEP1000_ROOT}"/>
-  <property name="xslt_dir" location="../../../xsl/part1000"/>
-  <property name="target_dir" location="${step1000_dir}/data/collections/part1000"/>
+  <property name="xslt_dir" location="xsl/part1000"/>
 
   <!--
   <taskdef name="foreach" classname="net.sf.antcontrib.logic.ForEach"/>
@@ -31,9 +36,12 @@
   </macrodef>
 
   <macrodef name="trans">
+    <attribute name="source-dir"/>
+    <attribute name="dest-dir"/>
     <attribute name="file"/>
     <sequential>
-      <xslt1 in="sys/@{file}.xml" out="${target_dir}/sys/@{file}.htm" style="${xslt_dir}/collection_page.xsl"/>
+      <echo message="Trans: dest-dir=@{dest-dir} file=@{file}"/>
+      <xslt1 in="@{source-dir}/sys/@{file}.xml" out="@{dest-dir}/sys/@{file}.htm" style="${xslt_dir}/collection_page.xsl"/>
     </sequential>
   </macrodef>
 
@@ -43,50 +51,49 @@
     <!-- Create the build directory structure used by compile -->
   </target>
 
-  <target name="part1000" depends="init" description="create the files">
-    <!--
-    <xslt1 in="docs.xml" out="${target_dir}/sys/by_name_inner.htm" style="${xslt_dir}/by_name.xsl"/>
-    <xslt1 in="docs.xml" out="${target_dir}/sys/by_number_inner.htm" style="${xslt_dir}/by_number.xsl"/>
-    <xslt1 in="docs.xml" out="${target_dir}/sys/4_modules.htm" style="${xslt_dir}/modules.xsl"/>
-    -->
-    <trans file="cover"/>
-    <trans file="contents"/>
-    <trans file="foreword"/>
-    <trans file="introduction"/>
-    <trans file="1_scope"/>
-    <trans file="2_refs"/>
-    <trans file="3_defs"/>
-    <trans file="4_modules"/>
-    <trans file="a_obj_reg"/>
-    <trans file="biblio"/>
-    <trans file="index_apdoc"/>
-    <trans file="frame_toc_short"/>
-    <trans file="frame_index"/>
-    <trans file="index_arm_express_top"/>
-    <trans file="index_arm_express_inner"/>
-    <trans file="index_mim_express_top"/>
-    <trans file="index_mim_express_inner"/>
-    <copy todir="${target_dir}">
-      <fileset dir="." includes="**/*.htm"/>
+  <target name="library" depends="init" description="create the files">
+    <property name="source-dir" location="data/library"/>
+    <property name="dest-dir" location="${step1000_dir}/data/library"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="cover"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_aptitle"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_contenttitle"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_index"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_toc_short"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="help"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_apdoc"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_express_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_express_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_modules_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_modules_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_by_name_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_by_name_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_by_number_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_by_number_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_express_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_express_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_modules_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_modules_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_resources_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_resources_top"/>
+    <copy todir="${dest-dir}">
+      <fileset dir="${source-dir}" includes="**/*.htm"/>
     </copy>
   </target>
 
-  <target name="library" depends="init" description="create the index files">
-    <!--
-    <xslt1 in="docs.xml" out="${target_dir}/sys/by_name_inner.htm" style="${xslt_dir}/by_name.xsl"/>
-    <xslt1 in="docs.xml" out="${target_dir}/sys/by_number_inner.htm" style="${xslt_dir}/by_number.xsl"/>
-    <xslt1 in="docs.xml" out="${target_dir}/sys/4_modules.htm" style="${xslt_dir}/modules.xsl"/>
-    -->
-    <trans file="cover"/>
-    <trans file="index_apdoc"/>
-    <trans file="frame_toc_short"/>
-    <trans file="frame_index"/>
-    <trans file="index_arm_express_top"/>
-    <trans file="index_arm_express_inner"/>
-    <trans file="index_mim_express_top"/>
-    <trans file="index_mim_express_inner"/>
-    <copy todir="${target_dir}">
-      <fileset dir="." includes="**/*.htm"/>
+  <target name="part1" depends="init" description="create the files">
+    <property name="source-dir" location="data/fundamentals/overview_and_fundamental_principles"/>
+    <property name="dest-dir" location="${step1000_dir}/data/collections/part1000"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="cover"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="contents"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="foreword"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="introduction"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="1_scope"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="2_refs"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="3_defs"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="a_obj_reg"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="biblio"/>
+    <copy todir="${dest-dir}">
+      <fileset dir="${source-dir}" includes="**/*.htm"/>
     </copy>
   </target>
 

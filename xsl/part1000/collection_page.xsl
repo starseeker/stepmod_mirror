@@ -2,8 +2,9 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 	<xsl:output method="html" indent="yes" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
 	<xsl:include href="default.xsl"/>
-	<xsl:include href="modules.xsl"/>
 	<xsl:include href="index.xsl"/>
+	<xsl:include href="modules.xsl"/>
+	<xsl:include href="nav.xsl"/>
 	<xsl:template match="collection_page" priority="2.0">
 		<html>
 			<head>
@@ -32,48 +33,14 @@
 				</td>
 			</tr>
 		</table>
-		<table border="1" cellspacing="1" width="100%">
-			<tr>
-				<td valign="TOP">
-					<p class="toc">
-						<a href="../sys/cover.htm">Cover page</a>
-						<br/>
-						<a href="../sys/contents.htm">Table of contents</a>
-						<br/>
-						<a href="../sys/cover.htm#copyright">Copyright</a>
-						<br/>
-					</p>
-				</td>
-				<td valign="TOP">
-					<p class="toc">
-						<a href="../sys/foreword.htm">Foreword</a>
-						<br/>
-						<a href="../sys/introduction.htm">Introduction</a>
-						<br/>
-						<a href="../sys/1_scope.htm">1 Scope</a>
-						<br/>
-					</p>
-				</td>
-				<td valign="TOP">
-					<p class="toc">
-						<a href="../sys/2_refs.htm">2 Normative references</a>
-						<br/>
-						<a href="../sys/3_defs.htm">3 Terms, definitions and abbreviated terms</a>
-						<br/>
-						<a href="../sys/a_obj_reg.htm">A Information object registration</a>
-						<br/>
-					</p>
-				</td>
-				<td valign="TOP">
-					<p class="toc">
-						<a href="../sys/biblio.htm">Bibliography</a>
-						<br/>
-						<a href="../sys/index_apdoc.htm">Index</a>
-						<br/>
-					</p>
-				</td>
-			</tr>
-		</table>
+		<xsl:call-template name="top_nav"/>
+	</xsl:template>
+	<xsl:template match="p[@class='note' or @class='example']">
+	  <xsl:copy>
+	    <small>
+	      <xsl:apply-templates/>
+	    </small>
+	  </xsl:copy>
 	</xsl:template>
 	<xsl:template name="bottom_stuff">
 		<br/>

@@ -1,8 +1,10 @@
-# $Id: isodoc.ent,v 1.10 2004/12/30 14:42:35 robbod Exp $
+# $Id: isodoc.ent,v 1.13 2006/05/18 09:38:41 dmprice Exp $
 
 # External entity sets
 
 # ARM markup declarations
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 
 include "mapping.ent.rnc"
 # normative references, definitions, and terms
@@ -48,6 +50,18 @@ comments_to_reader-attlist &= empty
 comment_to_reader =
   element comment_to_reader { comment_to_reader-attlist, text }
 comment_to_reader-attlist &= empty
+# reference data
+refdata =
+  element refdata {
+    refdata-attlist, (description.content | refdata_subclause)*
+  }
+refdata-attlist &= empty
+refdata_subclause =
+  element refdata_subclause {
+    refdata_subclause-attlist,
+    (description.content | refdata_subclause)*
+  }
+refdata_subclause-attlist &= attribute title { text }
 # usage guide
 usage_guide =
   element usage_guide {
@@ -68,7 +82,11 @@ bibliography-attlist &= empty
 # bibiographic item
 bibitem = element bibitem { bibitem-attlist, bib-elts* }
 # an identifer for the bibliographic item.  It should be unique to the repository
-bibitem-attlist &= attribute id { xsd:ID }?
+
+# If n then the bibliographic item has not been published
+bibitem-attlist &=
+  attribute id { xsd:ID }?,
+  [ a:defaultValue = "y" ] attribute published { "y" | "n" }?
 # A list of bibitems that can be included in module.xml
 bibitem.list = element bibitem.list { bibitem.list-attlist, bibitem+ }
 bibitem.list-attlist &= empty

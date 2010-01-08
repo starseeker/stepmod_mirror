@@ -1,4 +1,4 @@
-# $Id: isodoc.ent.rnc,v 1.2 2004/12/23 22:30:30 thendrix Exp $
+# $Id: isodoc.ent,v 1.7 2005/11/09 23:29:59 thendrix Exp $
 # Author:  Mike Ward, David Price, Rob Bodington, Nigel Shaw,  Eurostep Limited
 # Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
 # Purpose: DTD of general ISO elements for AP document
@@ -48,17 +48,6 @@ abstract =
     abstract-attlist, (text-elts | block-elts | single-block-elts)*
   }
 abstract-attlist &= empty
-# usage guide
-usage_guide =
-  element usage_guide {
-    usage_guide-attlist, (description.content | guide_subclause)*
-  }
-usage_guide-attlist &= empty
-guide_subclause =
-  element guide_subclause {
-    guide_subclause-attlist, (description.content | guide_subclause)*
-  }
-guide_subclause-attlist &= attribute title { text }
 # bibliography
 bibliography =
   element bibliography {
@@ -67,18 +56,15 @@ bibliography =
 bibliography-attlist &= empty
 # bibiographic item
 bibitem = element bibitem { bibitem-attlist, bib-elts* }
-# an identifer for the bibliographic item.  It should be unique to the repository
-bibitem-attlist &= attribute id { xsd:ID }?
+# id an identifer for the bibliographic item.  It should be unique to the repository
+
+# If n then the bibliographic item has not been published
+bibitem-attlist &=
+  attribute id { xsd:ID }?,
+  [ a:defaultValue = "y" ] attribute published { "y" | "n" }?
 # A list of bibitems that can be included in module.xml
 bibitem.list = element bibitem.list { bibitem.list-attlist, bibitem+ }
 bibitem.list-attlist &= empty
 # included bibilographic item
 bibitem.inc = element bibitem.inc { bibitem.inc-attlist, empty }
 bibitem.inc-attlist &= attribute ref { xsd:NMTOKEN }
-# section is any other chapter/section to be in the dex or capability document using the text markup from stepmod.  
-section =
-  element section { section-attlist, (description.content | section)* }
-section-attlist &=
-  attribute title { text },
-  [ a:defaultValue = "none" ]
-  attribute level { "none" | "1" | "2" | "3" | "4" | "5" | "6" | "7" }?

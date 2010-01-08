@@ -1,6 +1,6 @@
-# $Id: isodoc.ent,v 1.2 2003/03/27 02:35:53 thendrix Exp $  
+# $Id: isodoc.ent,v 1.6 2008/12/16 15:46:06 darla Exp $  
 
-# ARM markup declarations
+# resource part markup declarations
 
 include "mapping.ent.rnc"
 # normative references, definitions, and terms
@@ -13,6 +13,12 @@ purpose =
     purpose-attlist, (text-elts | block-elts | single-block-elts)*
   }
 purpose-attlist &= empty
+# Free text for scope
+scope =
+  element scope {
+    scope-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+scope-attlist &= empty
 # in scope
 inscope = element inscope { inscope-attlist, li+ }
 inscope-attlist &= empty
@@ -36,11 +42,20 @@ shortname-attlist &=
   attribute entity { xsd:NMTOKEN }
 # abstract
 
-# <!ELEMENT abstract (li+)>
-abstract =
-  element abstract {
-    abstract-attlist, (text-elts | block-elts | single-block-elts)*
-  }
+# usually  abstract is derived from inscope, but just in case
+
+# we wanted to  allow either (li+)
+
+# or ( %text-elts; | %block-elts; | %single-block-elts;)*
+
+# but dont know how to constraint in dtd
+
+# However forcing only (li+) prevents the user from writing ANY text other than a list
+
+# Therefore, the abstract is temporarily (p*|li*) so that abstracts in any format can be written.
+
+# Currently, there are no format restrictions on the format of the abstract by SC4 or ISO
+abstract = element abstract { abstract-attlist, (p* | li*) }
 abstract-attlist &= empty
 # usage guide
 usage_guide =

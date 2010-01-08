@@ -1,8 +1,8 @@
-# $Id: text.ent.rnc,v 1.1 2003/12/19 21:25:53 thendrix Exp $
+# $Id: text.ent,v 1.26 2005/01/18 09:42:03 robbod Exp $
 
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 
-fontstyle = i | b | sub | sup
+fontstyle = i | b | sub | sup | tt
 special = a
 inline = text | fontstyle
 # a Uniform Resource Identifier
@@ -17,7 +17,7 @@ description.content = text-elts | block-elts | single-block-elts
 # caption - table caption
 # number  - table number
 # width   - table width 
-table = element table { table-attlist, tr+ }
+table = element table { table-attlist, tr+* }
 table-attlist &=
   attribute caption { text },
   attribute id { text }?,
@@ -27,7 +27,13 @@ tr = element tr { tr-attlist, (th | td)+ }
 tr-attlist &=
   attribute align { "left" | "center" | "right" | "justify" | "char" }?
 th = element th { th-attlist, description.content* }
-th-attlist &= empty
+th-attlist &=
+  attribute align { text }?,
+  attribute rowspan { text }?,
+  attribute colspan { text }?,
+  attribute valign { "top" | "middle" | "bottom" | "baseline" }?,
+  attribute width { text }?,
+  attribute height { text }?
 # Table data 
 # rowspan   number of rows spanned by cell
 # colspan   number of cols spanned by cell
@@ -35,7 +41,10 @@ td = element td { td-attlist, description.content* }
 td-attlist &=
   attribute align { text }?,
   attribute rowspan { text }?,
-  attribute colspan { text }?
+  attribute colspan { text }?,
+  attribute valign { "top" | "middle" | "bottom" | "baseline" }?,
+  attribute width { text }?,
+  attribute height { text }?
 note =
   element note {
     note-attlist, (text-elts | block-elts | figure-table-elts)*
@@ -84,6 +93,9 @@ p-attlist &= empty
 # bold
 b = element b { b-attlist, text-elts* }
 b-attlist &= empty
+# teletype
+tt = element tt { tt-attlist, text-elts* }
+tt-attlist &= empty
 # italic
 i = element i { i-attlist, text-elts* }
 i-attlist &= empty

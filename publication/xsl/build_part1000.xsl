@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.4 2009/08/11 07:10:54 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.5 2009/08/11 07:14:17 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -35,6 +35,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="index_ok2">
 			<xsl:apply-templates select="." mode="check"/>
 		</xsl:variable>
+
 
 		<xsl:choose>
 			<!-- dont check to see if a pure build
@@ -98,8 +99,8 @@ Purpose: To build the initial ANT publication file.
 			</tstamp>
 			<echo> Publication started: ${START_TIME} </echo>
 
-
-			<input message="Have you created  CVS tag for the modules (y/n)?"
+			<xsl:variable name="CVS_tag" select="@name"/>
+			<input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
 				addproperty="do.continue"/>
 			<condition property="do.abort">
 				<xsl:element name="equals">
@@ -107,24 +108,15 @@ Purpose: To build the initial ANT publication file.
 					<xsl:attribute name="arg2">${do.continue}</xsl:attribute>
 				</xsl:element>
 			</condition>
-			<fail if="do.abort"> ------------------------------------------------------------ You
-				need to tag the repository before publishing the modules.
-				------------------------------------------------------------ </fail>
-
-			<input message="Enter CVS tag " addproperty="CVS_tag"/>
-
-			<echo> The CVS tag is: ${CVS_tag} </echo>
-			<input message="Is this correct (y/n)?" addproperty="do.continue1"/>
-			<condition property="do.abort1">
-				<xsl:element name="equals">
-					<xsl:attribute name="arg1">n</xsl:attribute>
-					<xsl:attribute name="arg2">${do.continue1}</xsl:attribute>
-				</xsl:element>
-
-			</condition>
-			<fail if="do.abort1"> ------------------------------------------------------------ Enter
-				the correct values for the CVS tag and module edition
-				------------------------------------------------------------ </fail>
+                        <xsl:variable name="fail_msg">-
+                          ------------------------------------------------------------ 
+                          You need to tag the repository before publishing the modules.
+                          Use: <xsl:value-of select="$CVS_tag"/>
+                          ------------------------------------------------------------
+                      </xsl:variable>
+                          <fail if="do.abort">
+                            <xsl:value-of select="$fail_msg"/> 
+                          </fail>
 
 			<xsl:element name="property">
 				<xsl:attribute name="name">PUBLICATION</xsl:attribute>
@@ -6255,21 +6247,9 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="depends">isoindex</xsl:attribute>
 			<xsl:attribute name="description">zip the results.</xsl:attribute>
 			<xsl:element name="zip">
-				<!-- 
-        <xsl:attribute name="zipfile">
-          <xsl:choose>
-          	<xsl:when test="contains(@sc4.working_group,'WG')">
-          		<xsl:value-of select="concat('${PUBDIR}/',@sc4.working_group,'N',@wg.number.publication_set,'_${DATE}.zip')"/>            
-          	</xsl:when>
-          <xsl:otherwise>
-          	<xsl:value-of select="concat('${PUBDIR}/WG',@sc4.working_group,'N',@wg.number.publication_set,'_${DATE}.zip')"/>            
-          </xsl:otherwise>
-        </xsl:choose>
-        </xsl:attribute> -->
 				<xsl:attribute name="zipfile">
 					<xsl:value-of select="concat('${PUBDIR}/',@name,'_${DATE}.zip')"/>
 				</xsl:attribute>
-
 				<xsl:attribute name="basedir">
 					<xsl:value-of select="'${PUBDIR}/'"/>
 				</xsl:attribute>
@@ -6281,6 +6261,30 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
+	<xsl:apply-templates select="." mode="target_zipfoo"/>
 	</xsl:template>
-
+	
+	<xsl:template match="part1000.publication_index" mode="target_zipfoo">
+		<xsl:text>
+		</xsl:text>
+		<xsl:element name="target">
+			<xsl:attribute name="name">zipfoo</xsl:attribute>
+			<xsl:attribute name="depends">isoindex</xsl:attribute>
+			<xsl:attribute name="description">zip the results.</xsl:attribute>
+			<xsl:element name="zip">
+				<xsl:attribute name="zipfile">
+					<xsl:value-of select="concat('${PUBDIR}/',@name,'_${DATE}.zip')"/>
+				</xsl:attribute>
+				<xsl:element name="zipfileset">
+					<xsl:attribute name="dir"><xsl:value-of select="@name"/></xsl:attribute>
+					<xsl:attribute name="prefix"><xsl:value-of select="@name"/></xsl:attribute>					
+					<xsl:attribute name="excludes">
+						<xsl:value-of select="'*.zip, **/Thumbs.db'"/>
+					</xsl:attribute>
+				</xsl:element>
+				
+			</xsl:element>
+		</xsl:element>
+	</xsl:template>
+	
 </xsl:stylesheet>

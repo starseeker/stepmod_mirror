@@ -1,4 +1,4 @@
-//$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $
+//$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to generate a Part 1000 publication package
@@ -36,7 +36,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var publicationXml = stepmodHome+"/publication/publication_p1000/"+publication+"/sys/"+xml;
+    var publicationXml = stepmodHome+"/publication/part1000/"+publication+"/sys/"+xml;
     fso.CreateTextFile(publicationXml, true);
     var f = fso.GetFile(publicationXml);
 
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
+    ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -60,8 +60,8 @@ function mkPublicationPackage(publication) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-
-    var publicationDir = stepmodHome + "/publication/publication_p1000/"+publication;
+    var cvsTag = publication;
+    var publicationDir = stepmodHome + "/publication/part1000/"+publication;
 
     if (!fso.FolderExists(publicationDir)) {
 	// Make the directory for the publication package
@@ -71,25 +71,26 @@ function mkPublicationPackage(publication) {
 	mkPublicationXsl(publication, "publication_summary.xsl", "publication_summary.xml");
 
 	//Make the publication_index file
-	var publicationIndexXml = stepmodHome+"/publication/publication_p1000/"+publication+"/publication_index.xml";
+	var publicationIndexXml = stepmodHome+"/publication/part1000/"+publication+"/publication_index.xml";
 	fso.CreateTextFile(publicationIndexXml, true );
 	var f = fso.GetFile(publicationIndexXml);
 	var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!DOCTYPE publication_index SYSTEM \"../../dtd/publication_index.dtd\">");
+	ts.WriteLine("<!DOCTYPE part1000.publication_index SYSTEM \"../../dtd/p1000_publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
-	ts.WriteLine("  Purpose: A listing of modules to be published ");
+	ts.WriteLine("  Purpose: A listing of modules to be published as a Part 1000 change request");
 	ts.WriteLine("           Note - to generate an ant build for this package, run:");
 	ts.WriteLine("              ant -buildfile buildbuild.xml");
 	ts.WriteLine("           This will create the build.xml file.");
 	ts.WriteLine("           Then run: ");
 	ts.WriteLine("              ant all");
 	ts.WriteLine("           to create the HTML files of the individual modules");
+	ts.WriteLine("           See: readme.txt for details");
 	ts.WriteLine("");
 	ts.WriteLine("     publication_index has the following attributes");
 	ts.WriteLine("           name");
@@ -113,6 +114,11 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  date.iso_publication=\"\">");
 	ts.WriteLine("");
 	ts.WriteLine("  <description>");
+	ts.WriteLine("    The modules that are to be added to Part1000 as part of ");
+	ts.WriteLine("    change request "+publication);
+	ts.WriteLine("    ");
+	ts.WriteLine("    The STEPmod CVS repository shoudl be tagged as: "+cvsTag);
+	ts.WriteLine("    before submitting the change request");
 	ts.WriteLine("  </description>");
 	ts.WriteLine("");
 	ts.WriteLine("  <contacts>");
@@ -120,16 +126,40 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("    <editor ref=\"xx\"/>");
 	ts.WriteLine("  </contacts>");
 	ts.WriteLine("");
-	ts.WriteLine("  <!-- The list of modules to be published as individual ISO parts -->");
+	ts.WriteLine("  <!-- The list of modules to be published as individual ISO parts and include in part1000 -->");
+	ts.WriteLine("  <!-- Only add the module once -->");
 	ts.WriteLine("  <modules>");
-   	ts.WriteLine("    <module name=\"\"/>");
+  	ts.WriteLine("    <!-- START: AP203 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP203 modules -->");
+	ts.WriteLine("");
+  	ts.WriteLine("    <!-- START: AP209 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP09 modules -->");
+	ts.WriteLine("");
+  	ts.WriteLine("    <!-- START: AP210 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP210 modules -->");
+	ts.WriteLine("");
+  	ts.WriteLine("    <!-- START: AP233 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP233 modules -->");
+	ts.WriteLine("");
+  	ts.WriteLine("    <!-- START: AP236 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP236 modules -->");
+	ts.WriteLine("");
+  	ts.WriteLine("    <!-- START: AP239 modules  -->");
+  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- END: AP239 specific modules -->");
+	ts.WriteLine("");
 	ts.WriteLine("  </modules>");
 	ts.WriteLine("");
 	ts.WriteLine("</part1000.publication_index>");
 	ts.Close();
 
 	// Make the ISO menu bar
-	var menubarIsoXml = stepmodHome+"/publication/publication_p1000/"+publication+"/menubar_iso.xml";
+	var menubarIsoXml = stepmodHome+"/publication/part1000/"+publication+"/menubar_iso.xml";
 	fso.CreateTextFile(menubarIsoXml, true );
 	f = fso.GetFile(menubarIsoXml);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
@@ -137,7 +167,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -148,7 +178,7 @@ function mkPublicationPackage(publication) {
 
 
 	// Make the normref-check
-	var normrefXml = stepmodHome+"/publication/publication_p1000/"+publication+"/sys/normref_check.xml";
+	var normrefXml = stepmodHome+"/publication/part1000/"+publication+"/sys/normref_check.xml";
 	fso.CreateTextFile(normrefXml, true );
 	f = fso.GetFile(normrefXml);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
@@ -156,7 +186,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -167,7 +197,7 @@ function mkPublicationPackage(publication) {
 
 
 	// Make the buildbuild file
-	var buildbuildXml = stepmodHome+"/publication/publication_p1000/"+publication+"/buildbuild.xml";
+	var buildbuildXml = stepmodHome+"/publication/part1000/"+publication+"/buildbuild.xml";
 	fso.CreateTextFile(buildbuildXml, true );
 	f = fso.GetFile(buildbuildXml);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
@@ -175,7 +205,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.1 2009/07/15 14:08:42 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
@@ -200,24 +230,20 @@ function mkPublicationPackage(publication) {
 	ts.Close();
 
 	// Make the readme file
-	var readmetxt = stepmodHome+"/publication/publication_p1000/"+publication+"/readme.txt";
+	var readmetxt = stepmodHome+"/publication/part1000/"+publication+"/readme.txt";
 	fso.CreateTextFile(readmetxt, true );
 	f = fso.GetFile(readmetxt);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
-	ts.WriteLine("This directory contains files used to generate a package");
-	ts.WriteLine("for distribution to ISO for publication.");
+	ts.WriteLine("This directory contains files used to generate a Part 1000 change request package");
 	ts.WriteLine("");
-	ts.WriteLine("To build the publication package:");
+	ts.WriteLine("To build the change request package:");
 	ts.WriteLine("");
-	ts.WriteLine("1) Add the modules, resources documents and application protocols to be");
-	ts.WriteLine("   published to: publication_index.xml      ");
-	ts.WriteLine("   NOTE - you can not mix modules, resource documents and application");
-	ts.WriteLine("   protocols in one publication package.");
+	ts.WriteLine("1) Add the modules to be published to: publication_index.xml ");
 	ts.WriteLine("");
 	ts.WriteLine("2) Generate the ANT build file using ANT");
 	ts.WriteLine("     ant -buildfile buildbuild.xml");
 	ts.WriteLine("");
-	ts.WriteLine("3) CVS tag the repository");
+	ts.WriteLine("3) CVS tag the repository using "+cvsTag+" as the tag");
 	ts.WriteLine("");
 	ts.WriteLine("4) Run ANT on the build.xml that has just been created:");
 	ts.WriteLine("     ant all");
@@ -226,15 +252,29 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("   This will create a directory:");
 	ts.WriteLine("     stepmod/publication/isopub/"+publication);
 	ts.WriteLine("");
-	ts.WriteLine("5) The HTML for each part to be published will be generated and stored in a");
-	ts.WriteLine("   zip file in: ");
-	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/zip/iso<part>.zip");
-	ts.WriteLine("   where <part> is the ISO part number of the part being published.");
-	ts.WriteLine("   These are the files to be sent to ISO");
+	ts.WriteLine("5) The HTML for each part to be published will be generated and stored in ");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/part1000");
+	ts.WriteLine("   The directory:");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/part1000/data/modules");
+	ts.WriteLine("     contains the modules");
+	ts.WriteLine("   The directory:");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/part1000/data/resources");
+	ts.WriteLine("     contains the integrated resources schemas referenced by the modules");
+	ts.WriteLine("   The directory:");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/part1000/express");
+	ts.WriteLine("     contains the EXPRESS for all the modules and integrated resources schemas.");
 	ts.WriteLine("   The complete directory:");
-	ts.WriteLine("    stepmod/publication/isopub/"+publication);
-	ts.WriteLine("   is also zipped to WG???.zip. This is the file to send to the convener for sign off");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/part1000");
+	ts.WriteLine("   is added to the zip file: ");
+	ts.WriteLine("     stepmod/publication/isopub/"+publication+"/"+publication+"<YYYYMMDD>.zip");
+	ts.WriteLine("   where <YYYMMDD> is the date of the build.");
+	ts.WriteLine("   The zip file is to be sent to the modules validation team for sign off");
 	ts.WriteLine("");
+	ts.WriteLine("");
+	ts.WriteLine("To merge the change request into Part1000");
+	ts.WriteLine("1) Check out part1000 to the same directory that contains stepmod");
+	ts.WriteLine("2) Run ANT on the build.xml that has been created in 2) above:");
+	ts.WriteLine("     ant mergePart1000");
 	userMessage("Created: "+publicationDir);
     } else {
 	ErrorMessage("The publication folder "+publicationDir+" already exists");

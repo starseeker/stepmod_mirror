@@ -2,24 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.5 2006/02/28 01:06:30 thendrix Exp $
-  Author:  Rob Bodington, Eurostep Limited
-  Owner:   Developed by Eurostep and supplied to NIST under contract.
+$Id: sect_1_scope.xsl,v 1.6 2008/12/16 15:44:48 darla Exp $
   Purpose: Output the Scope section as a web page
-     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
- <xsl:import href="resource.xsl"/>
-
-  <!-- 
-       the stylesheet that allows different stylesheets to be applied 
-       -->
-
-  <xsl:import href="resource_clause.xsl"/>
-
-  <xsl:output method="html"/>
+<xsl:import href="resource.xsl"/>
+<xsl:import href="resource_clause.xsl"/>
+<xsl:output method="html"/>
 
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
@@ -51,8 +42,23 @@ $Id: sect_1_scope.xsl,v 1.5 2006/02/28 01:06:30 thendrix Exp $
     </xsl:variable>
     <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
     <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>    
-      This part of ISO 10303 specifies the integrated resource constructs for 
-      <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
+    <xsl:variable name="doctype">
+      <xsl:apply-templates select="." mode="doctype"/>
+    </xsl:variable>
+    <xsl:choose>
+	  <xsl:when test="$doctype='aic'">
+        This part of ISO 10303 specifies the interpretation of the integrated resources to satisfy requirements for the representation of  
+        <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
+	  </xsl:when>
+	  <xsl:when test="$doctype='igr'">
+        This part of ISO 10303 specifies the integrated generic resource constructs for 
+        <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
+	  </xsl:when>
+	  <xsl:when test="$doctype='iar'">
+        This part of ISO 10303 specifies the integrated application resource constructs for 
+        <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
+	  </xsl:when>
+	</xsl:choose>
   </xsl:template>
 
 <xsl:template match="resource" mode="special_header">

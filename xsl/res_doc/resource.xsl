@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.73 2009/11/30 20:15:46 darla Exp $
+$Id: resource.xsl,v 1.74 2009/12/24 17:42:04 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1357,7 +1357,16 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     </xsl:variable>
 
     <xsl:variable name="clause_intro_1">The following EXPRESS declaration begins the </xsl:variable>
-    <xsl:variable name="clause_intro_2"> and identifies the necessary external references.
+    <xsl:variable name="clause_intro_2"> 
+      <xsl:choose>
+	    <xsl:when  test="$doctype='aic'">
+          schema that uses elements from the integrated resources and contains
+the types, entity specializations, and functions that are specific to this part of ISO 10303.
+	    </xsl:when>
+	    <xsl:otherwise>
+          and identifies the necessary external references.
+	    </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
     <xsl:value-of select="$clause_intro_1"/>
     <xsl:element name='b'><xsl:value-of select="$schema_name" /></xsl:element>

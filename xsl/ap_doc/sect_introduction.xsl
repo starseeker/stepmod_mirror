@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.24 2009/09/04 04:00:20 thomasrthurman Exp $
+     $Id: sect_introduction.xsl,v 1.25 2009/12/18 15:50:12 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -108,8 +108,25 @@
       lists the words defined in this part of ISO 10303 and refers to words
       defined elsewhere.  
     </p>
-
+    
+    
     <p>
+      This part of ISO 10303 describes the high level business concepts and
+    terminology of the application and specifies the implementation conformance
+    options. 
+    Clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a>
+    presents the business context for the information
+    requirements.
+    It also contains a data planning model, which provides an
+    overview of the information requirements of this domain in domain terminology.
+     Clause <a href="4_info_reqs{$FILE_EXT}#42">4.2</a> includes a reference to the AP module 
+    (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>), which
+    specifies the details of the information requirements of the application.
+    
+
+    
+    <!--   See: http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3201
+   <p>
       This document specifies the high level business concepts and
       terminology of the application protocol and the details of the implementation
       conformance options. 
@@ -121,28 +138,6 @@
       presents the business context for the
       information required for the exchange of 
     <xsl:value-of select="$purpose"/> data.
- 
-    <!-- 
-    exchange of information between
-      iterative design and analysis stages of the product life cycle, while
-      clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a> provides a data 
-    planning model that provides an overview of the
-      information requirements of this domain in domain terminology. 
-    </p>
-
-
-    <p>
-      The information requirements of the application are specified in 
-      the AP module 
-      (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
-      that is referenced in Clause 
-      <a href="4_info_reqs{$FILE_EXT}#arm">4</a>.
-      Clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a> 
-      presents the business context for the information required for the
-      exchange of 
-      <xsl:value-of select="$purpose"/>.
--->
-
       <xsl:choose>
         <xsl:when test="./data_plan and //inforeqt/fundamentals/data_plan">
           <xsl:apply-templates select="./data_plan/imgfile"
@@ -161,7 +156,7 @@
           <a href="4_info_reqs{$FILE_EXT}#41">4.1</a>.
         </xsl:when>
         <xsl:when test="./data_plan">
-          <!-- output Figure 1 -->
+          <!-\- output Figure 1 -\->
           <xsl:apply-templates select="./data_plan/imgfile"
             mode="data_plan_figures"/>
           <xsl:choose>
@@ -183,7 +178,8 @@
           terminology. 
         </xsl:when>
       </xsl:choose>
-
+    -->  
+      
       <xsl:if test="/application_protocol/terminology_map">
         A table correlating the terminology used in the AP module
         (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)

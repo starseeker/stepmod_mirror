@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.32 2009/11/16 17:57:49 lothartklein Exp $
+	$Id: arm.exp,v 1.33 2009/12/23 13:28:43 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N6929 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6258
 *)
@@ -11,9 +11,16 @@ SCHEMA Shape_property_assignment_arm;
 
 (*REFERENCE FROM*) USE FROM External_model_arm; -- ISO/TS 10303-1033
 
+USE FROM Geometric_model_relationship_arm; -- ISO/TS 10303-1403 
 USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
 
+  TYPE chained_geometric_model_link = SELECT (
+      Geometric_placement_operation,
+      Geometric_coordinate_space,
+      Geometric_model_relationship);
+  END_TYPE;
+  
   TYPE described_element_select = SELECT (
     View_definition_usage,
     Product_occurrence_definition_relationship);
@@ -59,6 +66,12 @@ USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
       definition      : geometric_item_specific_usage_select;
       identified_item : Detailed_geometric_model_element;
       used_model      : shape_model;      
+  END_ENTITY;
+  
+  ENTITY Chain_based_geometric_item_specific_usage
+      SUBTYPE OF (Geometric_item_specific_usage);
+      nodes : LIST [2:?] OF UNIQUE Geometric_model;
+      undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
   END_ENTITY;
  
   ENTITY Item_shape;

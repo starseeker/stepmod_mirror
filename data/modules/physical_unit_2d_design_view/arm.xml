@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="physical_unit_2d_design_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Physical_unit_2d_design_view_arm">
@@ -10,30 +11,31 @@
       <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Assembly_component_2d_shape_model" supertypes="Planar_projected_shape_model">
-         <explicit name="shape_characterized_component">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Assembly_component_2d_shape_model" supertypes="Planar_projected_shape_model">
+         <explicit name="shape_characterized_component" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Assembly_component"/>
          </explicit>
-         <derived expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#xA;        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')))" name="equivalent_reference_shape_model">
-            <aggregate lower="0" type="SET" upper="1"/>
+         <derived expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')))" name="equivalent_reference_shape_model">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="1"/>
             <typename name="Geometric_model_relationship"/>
          </derived>
          <where expression="SIZEOF(equivalent_reference_shape_model) &lt; 2" label="WR1"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation">
-         <explicit name="placement_fixed">
-            <builtintype type="BOOLEAN"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation">
+         <explicit name="placement_fixed" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <explicit name="transformation">
+         <explicit name="transformation" optional="NO">
             <typename name="Cartesian_transformation_2d"/>
             <redeclaration entity-ref="Geometric_relationship_with_operator_transformation"/>
          </explicit>
-         <explicit name="assembly_model">
+         <explicit name="assembly_model" optional="NO">
             <typename name="Physical_unit_planar_shape_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
-         <explicit name="component_model">
+         <explicit name="component_model" optional="NO">
             <typename name="Geometric_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
          </explicit>
@@ -41,7 +43,7 @@
             <typename name="Next_assembly_usage"/>
          </derived>
          <derived expression="substrate_in_assembly(SELF)" name="substrate_location">
-            <builtintype type="BOOLEAN"/>
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </derived>
          <derived expression="assembly_model\Representation.context_of_items" name="the_context">
             <typename name="Geometric_coordinate_space"/>
@@ -51,13 +53,15 @@
             <redeclaration entity-ref="Contextual_shape_representation"/>
          </derived>
          <derived expression="'component 2d location'" name="relation_type">
-            <builtintype type="STRING"/>
+            <typename name="label"/>
             <redeclaration entity-ref="Representation_relationship"/>
          </derived>
          <where expression="EXISTS (component)" label="WR1"/>
-         <where expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#xA;     (component\Product_occurrence_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)" label="WR2"/>
-         <where expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#xA;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#xA;     component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from)" label="WR3"/>
-         <where expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#xA;     (component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from IN&#xA;      component_model\Part_template_shape_model.shape_characterized_definition)" label="WR4"/>
+         <where expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Product_occurrence_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)" label="WR2"/>
+         <where expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#10;     component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from)" label="WR3"/>
+         <where expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from IN&#10;      component_model\Part_template_shape_model.shape_characterized_definition)" label="WR4"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
       <rule appliesto="Assembly_component_2d_shape_model" name="unique_assembly_component_2d_shape_model">
          <algorithm>LOCAL
@@ -70,14 +74,14 @@
          <where expression="SIZEOF(ac) = SIZEOF(bag_to_set(ac))" label="WR1"/>
       </rule>
       <rule appliesto="Part_design_view Part_usage_view" name="unique_physical_unit_planar_shape_model_for_part_design_and_usage_view">
-         <where expression="SIZEOF(QUERY (pdv &lt;* Part_design_view | &#xA;        (SIZEOF (QUERY (pupsm1 &lt;* USEDIN&#xA;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#xA;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF&#xA;        (pupsm1)) AND (SIZEOF (QUERY (pupsm2 &lt;* USEDIN&#xA;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#xA;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND (pupsm1 = pupsm2))) &gt; 1)&#xA;        )) &gt; 0) )) = 0" label="WR1"/>
-         <where expression="SIZEOF(QUERY (puv &lt;* Part_usage_view | (SIZEOF (QUERY (pupsm1 &lt;*&#xA;        USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#xA;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm1)) AND &#xA;          (SIZEOF (QUERY (pupsm2 &lt;* USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |&#xA;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND &#xA;          (pupsm1 = pupsm2))) &gt; 1) )) &gt; 0) )) = 0" label="WR2"/>
+         <where expression="SIZEOF(QUERY (pdv &lt;* Part_design_view | &#10;        (SIZEOF (QUERY (pupsm1 &lt;* USEDIN&#10;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF&#10;        (pupsm1)) AND (SIZEOF (QUERY (pupsm2 &lt;* USEDIN&#10;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND (pupsm1 = pupsm2))) &gt; 1)&#10;        )) &gt; 0) )) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY (puv &lt;* Part_usage_view | (SIZEOF (QUERY (pupsm1 &lt;*&#10;        USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm1)) AND &#10;          (SIZEOF (QUERY (pupsm2 &lt;* USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |&#10;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND &#10;          (pupsm1 = pupsm2))) &gt; 1) )) &gt; 0) )) = 0" label="WR2"/>
       </rule>
       <function name="pu2dv_has_shape">
          <parameter name="input">
             <typename name="Assembly_component"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
     ac2ds : BAG OF Assembly_component_2d_shape_model := USEDIN(input,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT');
   END_LOCAL;
@@ -88,8 +92,8 @@
          <parameter name="input">
             <typename name="Assembly_component"/>
          </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
-         <builtintype type="STRING"/>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+         <builtintype fixed="NO" type="STRING"/>
          <algorithm>LOCAL
     ac2ds : BAG OF Assembly_component_2d_shape_model := USEDIN(input,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT');
   END_LOCAL;
@@ -102,7 +106,7 @@
          <parameter name="c2dl">
             <typename name="Component_2d_location"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>

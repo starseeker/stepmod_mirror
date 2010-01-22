@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.5 2009/08/11 07:14:17 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.6 2010/01/15 07:26:03 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -99,7 +99,7 @@ Purpose: To build the initial ANT publication file.
 			</tstamp>
 			<echo> Publication started: ${START_TIME} </echo>
 
-			<xsl:variable name="CVS_tag" select="@name"/>
+			<xsl:variable name="CVS_tag" select="concat('SMRL_',@name)"/>
 			<input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
 				addproperty="do.continue"/>
 			<condition property="do.abort">

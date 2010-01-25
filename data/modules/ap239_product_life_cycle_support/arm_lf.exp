@@ -1,5 +1,5 @@
 (*
-$Id: arm_lf.exp,v 1.36 2010/01/05 21:30:28 philsp Exp $
+$Id: arm_lf.exp,v 1.37 2010/01/07 10:33:18 philsp Exp $
 ISO TC184/SC4/WG3 N2680 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM Long form
 Supersedes ISO TC184/SC4/WG3 N2565
 *) 
@@ -648,6 +648,12 @@ TYPE certification_item = SELECT
     Task_objective, 
     View_definition_relationship, 
     Work_output);
+END_TYPE; 
+
+TYPE chained_geometric_model_link = SELECT
+   (Geometric_coordinate_space, 
+    Geometric_model_relationship, 
+    Geometric_placement_operation);
 END_TYPE; 
 
 TYPE characterized_activity_definition = SELECT
@@ -5339,6 +5345,12 @@ ENTITY Certification_assignment;
   role : STRING;
 END_ENTITY;
 
+ENTITY Chain_based_geometric_item_specific_usage
+  SUBTYPE OF (Geometric_item_specific_usage);
+  nodes : LIST[2:?] OF UNIQUE Geometric_model;
+  undirected_link : LIST[1:?] OF UNIQUE chained_geometric_model_link;
+END_ENTITY;
+
 ENTITY Class
   SUPERTYPE OF (ONEOF (Class_by_extension,
                        Class_by_intension));
@@ -8389,3 +8401,4 @@ FUNCTION spa_get_definition
       END_FUNCTION; 
 
 END_SCHEMA;  -- AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF
+

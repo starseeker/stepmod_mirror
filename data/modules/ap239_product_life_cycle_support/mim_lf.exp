@@ -1,5 +1,5 @@
 (*
-$Id: mim_lf.exp,v 1.33 2010/01/07 10:33:18 philsp Exp $
+$Id: mim_lf.exp,v 1.34 2010/01/07 11:58:29 philsp Exp $
 ISO TC184/SC4/WG3 N2682 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM Long form
 Supersedes ISO TC184/SC4/WG3 N2567
 *) 
@@ -793,6 +793,12 @@ TYPE certification_item = SELECT
     product_definition_relationship, 
     product_group, 
     product_group_relationship);
+END_TYPE; 
+
+TYPE chained_representation_link = SELECT
+   (mapped_item, 
+    representation_context, 
+    representation_relationship);
 END_TYPE; 
 
 TYPE characterized_action_definition = SELECT
@@ -5076,6 +5082,29 @@ ENTITY certification_type;
   description : label;
 END_ENTITY;
 
+ENTITY chain_based_geometric_item_specific_usage
+  SUBTYPE OF (chain_based_item_identified_representation_usage, geometric_item_specific_usage);
+END_ENTITY;
+
+ENTITY chain_based_item_identified_representation_usage
+  SUBTYPE OF (item_identified_representation_usage);
+  nodes : LIST[2:?] OF UNIQUE representation;
+  undirected_link : LIST[1:?] OF UNIQUE chained_representation_link;
+DERIVE
+  root : representation := nodes[1];
+  SELF\item_identified_representation_usage.used_representation RENAMED leaf : representation := nodes[HIINDEX(nodes)];
+  directed_link : LIST[1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
+WHERE
+  WR1: root :=: directed_link[1]\representation_relationship.rep_1;
+  WR2: leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
+  WR3: SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1;
+  WR4: (SIZEOF(QUERY(directed_link_element <* directed_link | (root :=: directed_link_element\representation_relationship.rep_1))) + SIZEOF(QUERY(directed_link_element <* directed_link | (root :=: directed_link_element\representation_relationship.rep_2)))) = 1;
+  WR5: (SIZEOF(QUERY(directed_link_element <* directed_link | (leaf :=: directed_link_element\representation_relationship.rep_1))) + SIZEOF(QUERY(directed_link_element <* directed_link | (leaf :=: directed_link_element\representation_relationship.rep_2)))) = 1;
+  WR6: (SIZEOF(QUERY(directed_link_element <* directed_link | (root :<>: directed_link_element\representation_relationship.rep_1))) + SIZEOF(QUERY(directed_link_element <* directed_link | (root :<>: directed_link_element\representation_relationship.rep_2))) + SIZEOF(QUERY(directed_link_element <* directed_link | (leaf :<>: directed_link_element\representation_relationship.rep_1))) + SIZEOF(QUERY(directed_link_element <* directed_link | (leaf :<>: directed_link_element\representation_relationship.rep_2)))) = 2;
+  WR7: NOT ('AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR (root IN using_representations(undirected_link[1]));
+  WR8: SIZEOF(undirected_link) = SIZEOF(directed_link);
+END_ENTITY;
+
 ENTITY characterizable_applied_action_assignment
   SUBTYPE OF (applied_action_assignment, characterized_object);
 END_ENTITY;
@@ -8884,6 +8913,45 @@ FUNCTION get_description_value
       END_IF;
       END_FUNCTION; 
 
+FUNCTION get_directed_link
+ (nodes : LIST[0:?] OF representation; undirected_link : LIST[0:?] OF chained_representation_link) : LIST[0:?] OF representation_relationship; 
+      LOCAL
+        directed_link : LIST OF representation_relationship := [];
+      END_LOCAL;
+
+      REPEAT i := 1 TO SIZEOF(undirected_link);
+        CASE TRUE OF 
+          ('REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(undirected_link[i])):
+            BEGIN
+              IF ((nodes[i]\representation.context_of_items :=: undirected_link[i]) AND (nodes[i + 1]\representation.context_of_items :=: undirected_link[i])) THEN
+                INSERT(directed_link, representation_relationship('', '', nodes[i], nodes[i + 1]), (i - 1));
+              ELSE
+                RETURN (?);
+              END_IF;
+            END;
+          ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(undirected_link[i])):
+            BEGIN
+              IF (((nodes[i] :=: undirected_link[i]\representation_relationship.rep_1) AND (nodes[i + 1] :=: undirected_link[i]\representation_relationship.rep_2)) OR ((nodes[i] :=: undirected_link[i]\representation_relationship.rep_2) AND (nodes[i + 1] :=: undirected_link[i]\representation_relationship.rep_1))) THEN
+                INSERT(directed_link, representation_relationship('', '', nodes[i], nodes[i + 1]), (i - 1));
+              ELSE
+                RETURN (?);
+              END_IF;
+            END;
+          ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[i])):
+            BEGIN
+              IF ((nodes[i] IN using_representations(undirected_link[i])) AND (nodes[i + 1] :=: undirected_link[i]\mapped_item.mapping_source\representation_map.mapped_representation)) THEN
+                INSERT(directed_link, representation_relationship('', '', nodes[i], nodes[i + 1]), (i - 1));
+              ELSE
+                RETURN (?);
+              END_IF;
+            END;
+          OTHERWISE:
+            RETURN (?);
+        END_CASE;
+      END_REPEAT;
+      RETURN (directed_link);
+      END_FUNCTION; 
+
 FUNCTION get_id_value
  (obj : id_attribute_select) : identifier; 
       LOCAL
@@ -9509,4 +9577,3 @@ FUNCTION vector_difference
       END_FUNCTION; 
 
 END_SCHEMA;  -- AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF
-

@@ -1955,6 +1955,29 @@
 
 
 
+   <xs:complexType name="Chained_geometric_model_link">
+      <xs:group ref="ap239:Chained_geometric_model_link" minOccurs="0" maxOccurs="1"/>
+      <xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+   </xs:complexType>
+
+
+   <xs:group name="Chained_geometric_model_link">
+      <xs:choice>
+         <xs:element ref="ap239:Geometric_coordinate_space"/>
+         <xs:element ref="ap239:Geometric_model_relationship"/>
+         <xs:element ref="ap239:Geometric_relationship_with_operator_transformation"/>
+         <xs:element ref="ap239:Geometric_composition_with_operator_transformation"/>
+         <xs:element ref="ap239:Geometric_relationship_with_placement_transformation"/>
+         <xs:element ref="ap239:Geometric_composition_with_placement_transformation"/>
+         <xs:element ref="ap239:Geometric_operator_transformation"/>
+         <xs:element ref="ap239:Geometric_placement"/>
+         <xs:element ref="exp:complexEntity"/>
+      </xs:choice>
+   </xs:group>
+
+
+
+
    <xs:complexType name="Characterized_activity_definition">
       <xs:group ref="ap239:Characterized_activity_definition" minOccurs="0" maxOccurs="1"/>
       <xs:attribute name="ref" type="xs:IDREF" use="optional"/>
@@ -3152,6 +3175,7 @@
          <xs:element ref="ap239:File_relationship"/>
          <xs:element ref="ap239:Function_value_pair"/>
          <xs:element ref="ap239:Geometric_item_specific_usage"/>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
          <xs:element ref="ap239:Identification_assignment"/>
          <xs:element ref="ap239:Alias_identification"/>
          <xs:element ref="ap239:Identification_relationship"/>
@@ -5141,6 +5165,7 @@
          <xs:element ref="ap239:File_location_identification"/>
          <xs:element ref="ap239:File_relationship"/>
          <xs:element ref="ap239:Geometric_item_specific_usage"/>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
          <xs:element ref="ap239:Identification_assignment"/>
          <xs:element ref="ap239:Alias_identification"/>
          <xs:element ref="ap239:Identification_relationship"/>
@@ -5723,6 +5748,7 @@
          <xs:element ref="ap239:File_location_identification"/>
          <xs:element ref="ap239:File_relationship"/>
          <xs:element ref="ap239:Geometric_item_specific_usage"/>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
          <xs:element ref="ap239:Identification_assignment"/>
          <xs:element ref="ap239:Alias_identification"/>
          <xs:element ref="ap239:Identification_relationship"/>
@@ -8428,6 +8454,7 @@
          <xs:element ref="ap239:File_relationship"/>
          <xs:element ref="ap239:Function_value_pair"/>
          <xs:element ref="ap239:Geometric_item_specific_usage"/>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
          <xs:element ref="ap239:Identification_assignment"/>
          <xs:element ref="ap239:Alias_identification"/>
          <xs:element ref="ap239:Identification_relationship"/>
@@ -16599,6 +16626,49 @@
          <xs:element ref="exp:complexEntity"/>
       </xs:choice>
    </xs:group>
+   <xs:element name="Chain_based_geometric_item_specific_usage" type="ap239:Chain_based_geometric_item_specific_usage" block="extension restriction" substitutionGroup="exp:Entity" nillable="true"/>
+
+
+   <xs:complexType name="Chain_based_geometric_item_specific_usage" abstract="false">
+      <xs:complexContent>
+         <xs:extension base="exp:Entity">
+            <xs:all>
+               <xs:element name="Name" type="xs:normalizedString" minOccurs="1" nillable="false"/>
+
+
+               <xs:element name="Description" type="xs:normalizedString" minOccurs="0" nillable="true"/>
+
+
+               <xs:element name="Definition" type="ap239:Geometric_item_specific_usage_select" minOccurs="1" nillable="false"/>
+
+
+               <xs:element name="Identified_item" minOccurs="1" nillable="false">
+                  <xs:complexType>
+                     <xs:sequence>
+                        <xs:group ref="ap239:Detailed_geometric_model_element-complexEntity-group"/>
+                     </xs:sequence>
+                  </xs:complexType>
+               </xs:element>
+               <xs:element name="Used_model" type="ap239:Shape_model" minOccurs="1" nillable="false"/>
+
+
+            </xs:all>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+
+   <xs:group name="Chain_based_geometric_item_specific_usage-group">
+      <xs:choice>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
+      </xs:choice>
+   </xs:group>
+   <xs:group name="Chain_based_geometric_item_specific_usage-complexEntity-group">
+      <xs:choice>
+         <xs:group ref="ap239:Chain_based_geometric_item_specific_usage-group"/>
+         <xs:element ref="exp:complexEntity"/>
+      </xs:choice>
+   </xs:group>
    <xs:element name="Class" type="ap239:Class" block="extension restriction" substitutionGroup="exp:Entity" nillable="true"/>
 
 
@@ -19778,6 +19848,7 @@
    <xs:group name="Geometric_item_specific_usage-group">
       <xs:choice>
          <xs:element ref="ap239:Geometric_item_specific_usage"/>
+         <xs:element ref="ap239:Chain_based_geometric_item_specific_usage"/>
       </xs:choice>
    </xs:group>
    <xs:group name="Geometric_item_specific_usage-complexEntity-group">
@@ -32067,6 +32138,20 @@
 
 
 
+      <xs:key name="ap239___Chain_based_geometric_item_specific_usage-key">
+         <xs:selector xpath="ap239:Chain_based_geometric_item_specific_usage"/>
+         <xs:field xpath="@id"/>
+      </xs:key>
+
+
+      <xs:keyref name="ap239___Chain_based_geometric_item_specific_usage-keyref" refer="ap239:ap239___Chain_based_geometric_item_specific_usage-key">
+         <xs:selector xpath=".//ap239:Chain_based_geometric_item_specific_usage"/>
+         <xs:field xpath="@ref"/>
+      </xs:keyref>
+
+
+
+
       <xs:key name="ap239___Class-key">
          <xs:selector xpath="ap239:Class"/>
          <xs:field xpath="@id"/>
@@ -39000,6 +39085,13 @@
 
       <xs:keyref name="Certification_assignment___Assigned_certification-keyref" refer="ap239:ap239___Certification-key">
          <xs:selector xpath=".//ap239:Certification/Assigned_certification"/>
+         <xs:field xpath="@ref"/>
+      </xs:keyref>
+
+
+
+      <xs:keyref name="Chain_based_geometric_item_specific_usage___Nodes-keyref" refer="ap239:ap239___Geometric_model-key">
+         <xs:selector xpath=".//ap239:Geometric_model/Nodes"/>
          <xs:field xpath="@ref"/>
       </xs:keyref>
 

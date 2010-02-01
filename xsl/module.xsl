@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.207 2009/12/20 21:29:42 lothartklein Exp $
+$Id: module.xsl,v 1.208 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -752,6 +752,18 @@ o=isocs; s=central<br/>
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
+    
+    <xsl:if test="@version != 1">
+      <xsl:if test="string-length(normalize-space(@previous.revision.year)) = 0">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="inline" select="'yes'"/>
+            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+            <xsl:with-param name="message"
+              select="concat('Error F1 module: ',/module/@name,' Attribute module.previous.revision.year not specified')"/>
+          </xsl:call-template>   
+      </xsl:if>      
+    </xsl:if>
+    
     <xsl:choose>
       <xsl:when test="@previous.revision.cancelled='NO'">
         This <xsl:value-of select="$this_edition"/> edition of  

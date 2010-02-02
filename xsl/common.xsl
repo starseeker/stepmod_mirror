@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.171 2009/04/24 16:03:04 robbod Exp $
+$Id: common.xsl,v 1.172 2009/07/20 16:32:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4564,9 +4564,49 @@ is case sensitive.')"/>
   </xsl:choose>  
 </xsl:template>
 
+  <!-- Flag a warning if the defnition starts with a an the
+    A phrase should NOT end in a period -->
+  <xsl:template match="def" mode="check_phrase">
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="defn" select="translate(normalize-space(text()), $LOWER, $UPPER)"/>   
+    
+    <xsl:if test="substring($defn,string-length($defn))='.'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="'Error defn1: definition should be a phrase and so should not end in a period.'"/>
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="starts-with($defn, 'A ')">        
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error defn2, module: ',/*/@name,' - definition should not start with an article i.e A or a.')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="starts-with($defn, 'AN ')">        
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error defn2, module: ',/*/@name,' - definition should not start with an article i.e An or an.')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="starts-with($defn, 'THE ')">        
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error defn2, module: ',/*/@name,' - definition should not start with an article i.e The or the.')"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+  
+
 <!-- Flag a warning if the description is not a phrase.
      A phrase should NOT end in a period -->
-<xsl:template match="description|def" mode="check_phrase">
+<xsl:template match="description" mode="check_phrase">
   <xsl:variable name="defn" select="normalize-space(text())"/>
   <xsl:if test="substring($defn,string-length($defn))='.'">
     <xsl:call-template name="error_message">

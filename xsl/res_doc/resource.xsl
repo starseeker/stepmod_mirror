@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.74 2009/12/24 17:42:04 lothartklein Exp $
+$Id: resource.xsl,v 1.75 2010/01/15 19:56:03 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2633,9 +2633,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
   <xsl:template name="output_abbreviations">
     <xsl:param name="section"/>
     <h2>
-      <a name="abbrv">
-	<xsl:value-of select="concat('3.',$section)"/> Abbreviated terms
-      </a>
+      <a name="abbrv">3.2 Abbreviated terms</a>
     </h2>
 
     <!-- output any issues -->
@@ -2787,7 +2785,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       <!-- output the section head first -->
       <xsl:call-template name="output_resource_term_section">
 	<xsl:with-param name="resource" select="/resource"/>
-	<xsl:with-param name="section" select="concat('3.',$def_section+1)"/>
+	<xsl:with-param name="section" select="concat('3.1.',$def_section+1)"/>
       </xsl:call-template>
       <!-- RBN Changed due to request from ISO
 	   For the purposes of this part of ISO 10303, -->              
@@ -2809,7 +2807,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     </xsl:variable>
 
     <xsl:apply-templates select="/resource/definition">
-      <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+      <xsl:with-param name="section" select="concat('3.1.',$def_section1)"/>
       <xsl:sort select="term"/>
     </xsl:apply-templates>
 
@@ -2868,7 +2866,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 			  select="substring-after($normref/stdref/stdnumber,'-')"/>
 	    <xsl:if test="$resource_number!=$part_no">
 	      <h2>
-		<xsl:value-of select="concat('3.',$section_no,
+		<xsl:value-of select="concat('3.1.',$section_no,
 				      ' Terms defined in ',$stdnumber)"/>
 	      </h2>
 	      <!-- RBN Changed due to request from ISO

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.25 2009/08/24 10:23:27 lothartklein Exp $
+$Id: res_toc.xsl,v 1.26 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -465,7 +465,6 @@ $Id: res_toc.xsl,v 1.25 2009/08/24 10:23:27 lothartklein Exp $
           </xsl:otherwise>
         </xsl:choose>
 
-
       <xsl:if test="$col1 &gt; 0 ">
         <br/>
         <xsl:for-each select="./schema[position() &lt;= $col1 ]">          
@@ -476,6 +475,13 @@ $Id: res_toc.xsl,v 1.25 2009/08/24 10:23:27 lothartklein Exp $
         </xsl:for-each>
      </xsl:if>
  
+          <br/>
+          &#160; &#160;
+          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#termsdefns">3.1 Terms and definitions</a>
+          <br/>
+          &#160; &#160;
+          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#abbrv">3.2 Abbreviated terms</a>
+          <br/> 
      </p> 
 
    </TD>

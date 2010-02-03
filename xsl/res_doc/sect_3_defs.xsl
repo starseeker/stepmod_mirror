@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.4 2006/03/11 01:22:50 thendrix Exp $
+$Id: sect_3_defs.xsl,v 1.5 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -48,6 +48,11 @@ $Id: sect_3_defs.xsl,v 1.4 2006/03/11 01:22:50 thendrix Exp $
       </xsl:choose>
     </a>
   </h2>
+    <h2>
+      <a name="termsdefns">
+        3.1 Terms and definitions
+      </a>        
+    </h2>  
   <xsl:call-template name="output_terms">
     <xsl:with-param name="current_resource" select="."/>
     <xsl:with-param name="resource_number" select="./@part"/>

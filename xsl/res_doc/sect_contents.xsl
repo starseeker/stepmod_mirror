@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.35 2009/10/31 14:05:58 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -66,22 +66,32 @@ $Id: sect_contents.xsl,v 1.35 2009/10/31 14:05:58 lothartklein Exp $
    <h2>Contents</h2>
    <A HREF="./1_scope{$FILE_EXT}">1 Scope</A><br/>
    <A HREF="./2_refs{$FILE_EXT}">2 Normative references</A><br/>
-   <xsl:choose>
+<!--   <xsl:choose>
      <xsl:when test="./definition/term">
-       <!-- use #defns to link direct -->
+       <!-\- use #defns to link direct -\->
          <A HREF="./3_defs{$FILE_EXT}">
            3 Terms, definitions and abbreviated terms
          </A>
        <br/>
      </xsl:when>
      <xsl:otherwise>
-       <!-- use #defns to link direct -->
+       <!-\- use #defns to link direct -\->
          <A HREF="./3_defs{$FILE_EXT}">
            3 Terms and abbreviated terms
          </A>
        <br/>
      </xsl:otherwise>
-   </xsl:choose>
+   </xsl:choose> -->
+  <a HREF="./3_defs{$FILE_EXT}">
+    3 Terms, definitions and abbreviated terms
+  </a>
+  <br/>
+  &#160; &#160;
+  <a href="./3_defs{$FILE_EXT}#termsdefns">3.1 Terms and definitions</a>
+  <br/>
+  &#160; &#160;
+  <a href="./3_defs{$FILE_EXT}#abbrv">3.2 Abbreviated terms</a>
+  <br/>
    <xsl:if test="count(schema)>0" >
      <xsl:for-each select="./schema">          
        <xsl:call-template name="toc_schema_section">

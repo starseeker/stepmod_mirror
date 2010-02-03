@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-59">
+   <application name="JSDAI" owner="LKSoft" source="shape_data_quality_inspection_result_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="shape_data_quality_inspection_result_schema">
+      <interface kind="reference" schema="geometric_model_schema"/>
+      <interface kind="reference" schema="geometry_schema"/>
+      <interface kind="reference" schema="measure_schema"/>
+      <interface kind="reference" schema="product_data_quality_criteria_schema"/>
+      <interface kind="reference" schema="product_data_quality_inspection_result_schema"/>
+      <interface kind="reference" schema="product_definition_schema">
+         <interfaced.item name="product_definition"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="product_definition_shape"/>
+         <interfaced.item name="characterized_product_definition"/>
+      </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+         <interfaced.item name="shape_representation_relationship"/>
+         <interfaced.item name="shape_definition_representation"/>
+      </interface>
+      <interface kind="reference" schema="qualified_measure_schema">
+         <interfaced.item name="qualified_representation_item"/>
+         <interfaced.item name="value_qualifier"/>
+         <interfaced.item name="type_qualifier"/>
+         <interfaced.item name="measure_representation_item"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="founded_item_select"/>
+         <interfaced.item name="founded_item"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="using_representations"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="compound_representation_item"/>
+         <interfaced.item name="value_representation_item"/>
+         <interfaced.item name="set_representation_item"/>
+      </interface>
+      <interface kind="reference" schema="shape_data_quality_criteria_schema"/>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <interface kind="reference" schema="topology_schema"/>
+      <type name="b_spline_or_composite_curve_select">
+         <select selectitems="b_spline_curve composite_curve"/>
+      </type>
+      <type name="b_spline_or_rectangular_composite_surface_select">
+         <select selectitems="b_spline_surface rectangular_composite_surface"/>
+      </type>
+      <type name="boolean_value">
+         <builtintype type="BOOLEAN"/>
+      </type>
+      <type name="closed_or_open_shell_select">
+         <select selectitems="closed_shell open_shell"/>
+      </type>
+      <type name="inspected_shape_element_select">
+         <select selectitems="edge_loop edge_curve face_surface curve surface vertex_point closed_or_open_shell_select b_spline_or_composite_curve_select b_spline_or_rectangular_composite_surface_select point connected_face_set manifold_solid_brep direction placement"/>
+      </type>
+      <type name="location_of_extreme_value_select">
+         <select selectitems="inspected_shape_element_select b_spline_surface_knot_locator b_spline_curve_knot_locator b_spline_curve_segment b_spline_surface_strip b_spline_surface_patch composite_curve_transition_locator rectangular_composite_surface_transition_locator boundary_curve_of_b_spline_or_rectangular_composite_surface oriented_edge face_bound point_on_edge_curve point_on_face_surface subedge subface"/>
+      </type>
+      <type name="measured_value_select">
+         <select selectitems="boolean_value measure_value plane_angle_and_ratio_pair plane_angle_and_length_pair"/>
+      </type>
+      <type name="surface_boundary_type">
+         <enumeration items="U_PARAMETER_MIN V_PARAMETER_MIN U_PARAMETER_MAX V_PARAMETER_MAX"/>
+      </type>
+      <type name="u_or_v_parameter">
+         <enumeration items="U_PARAMETER V_PARAMETER"/>
+      </type>
+      <entity name="b_spline_curve_knot_locator" supertypes="founded_item">
+         <explicit name="basis_curve">
+            <typename name="b_spline_curve"/>
+         </explicit>
+         <explicit name="knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_curve) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="b_spline_curve_segment" supertypes="founded_item">
+         <explicit name="basis_curve">
+            <typename name="b_spline_curve"/>
+         </explicit>
+         <explicit name="start_knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_curve) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="b_spline_surface_knot_locator" supertypes="founded_item">
+         <explicit name="basis_surface">
+            <typename name="b_spline_surface"/>
+         </explicit>
+         <explicit name="knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="surface_parameter">
+            <typename name="u_or_v_parameter"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="b_spline_surface_patch" supertypes="founded_item">
+         <explicit name="basis_surface">
+            <typename name="b_spline_surface"/>
+         </explicit>
+         <explicit name="u_start_knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="v_start_knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="b_spline_surface_strip" supertypes="founded_item">
+         <explicit name="basis_surface">
+            <typename name="b_spline_surface"/>
+         </explicit>
+         <explicit name="start_knot_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="surface_parameter">
+            <typename name="u_or_v_parameter"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="boundary_curve_of_b_spline_or_rectangular_composite_surface" supertypes="founded_item">
+         <explicit name="basis_surface">
+            <typename name="b_spline_or_rectangular_composite_surface_select"/>
+         </explicit>
+         <explicit name="boundary_type">
+            <typename name="surface_boundary_type"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="composite_curve_transition_locator" supertypes="founded_item">
+         <explicit name="basis_curve">
+            <typename name="composite_curve"/>
+         </explicit>
+         <explicit name="transition_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_curve) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="extreme_instance">
+         <explicit name="locations_of_extreme_value">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="location_of_extreme_value_select"/>
+         </explicit>
+         <explicit name="measured_value">
+            <typename name="measured_value_select"/>
+         </explicit>
+      </entity>
+      <entity name="instance_report_item_with_extreme_instances" supertypes="shape_data_quality_inspection_instance_report_item">
+         <explicit name="extreme_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="extreme_instance"/>
+         </explicit>
+      </entity>
+      <entity name="plane_angle_and_length_pair" supertypes="founded_item">
+         <explicit name="plane_angle_value">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="length_value">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="plane_angle_and_ratio_pair" supertypes="founded_item">
+         <explicit name="plane_angle_value">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="ratio_value">
+            <typename name="ratio_measure"/>
+         </explicit>
+      </entity>
+      <entity name="point_on_edge_curve" supertypes="point_on_curve">
+         <explicit name="basis_edge_curve">
+            <typename name="edge_curve"/>
+         </explicit>
+         <derived expression="SELF.basis_edge_curve.edge_geometry" name="basis_curve">
+            <typename name="curve"/>
+            <redeclaration entity-ref="point_on_curve"/>
+         </derived>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_edge_curve) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="point_on_face_surface" supertypes="point_on_surface">
+         <explicit name="basis_face_surface">
+            <typename name="face_surface"/>
+         </explicit>
+         <derived expression="SELF.basis_face_surface.face_geometry" name="basis_surface">
+            <typename name="surface"/>
+            <redeclaration entity-ref="point_on_surface"/>
+         </derived>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_face_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="rectangular_composite_surface_transition_locator" supertypes="founded_item">
+         <explicit name="basis_surface">
+            <typename name="rectangular_composite_surface"/>
+         </explicit>
+         <explicit name="surface_parameter">
+            <typename name="u_or_v_parameter"/>
+         </explicit>
+         <explicit name="u_transition_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="v_transition_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_representations(SELF.basis_surface) *&#10;           relating_shape_representations_of_extreme_values(SELF))&gt;0" label="WR1"/>
+      </entity>
+      <entity name="shape_data_quality_inspected_shape_and_result_relationship" supertypes="shape_representation_relationship">
+         <explicit name="rep_1">
+            <typename name="shape_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="shape_data_quality_inspection_result_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <where expression="SIZEOF(&#10;           using_product_definition_of_shape_representation(SELF.rep_1)&#10;           *&#10;           bag_to_set(inspected_product_definition(SELF.rep_2))&#10;           ) &gt; 0" label="WR1"/>
+         <where expression="SELF.rep_1\representation.context_of_items :=: &#10;           SELF.rep_2\representation.context_of_items" label="WR2"/>
+      </entity>
+      <entity name="shape_data_quality_inspection_criterion_report" supertypes="data_quality_inspection_criterion_report">
+         <explicit name="representative_measured_value">
+            <typename name="measured_value_select"/>
+         </explicit>
+      </entity>
+      <entity name="shape_data_quality_inspection_instance_report" supertypes="data_quality_inspection_instance_report">
+         <explicit name="inspected_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="shape_data_quality_inspection_instance_report_item"/>
+            <redeclaration entity-ref="data_quality_inspection_instance_report"/>
+         </explicit>
+      </entity>
+      <entity name="shape_data_quality_inspection_instance_report_item" supertypes="data_quality_inspection_instance_report_item">
+         <explicit name="inspected_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_shape_element_select"/>
+         </explicit>
+         <explicit name="measured_value">
+            <typename name="measured_value_select"/>
+         </explicit>
+      </entity>
+      <entity name="shape_data_quality_inspection_result" supertypes="data_quality_inspection_result">
+         <where expression="'SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.'+&#10;           'SHAPE_DATA_QUALITY_CRITERION' IN TYPEOF&#10;           (SELF\data_quality_inspection_result.criterion_inspected)" label="WR1"/>
+      </entity>
+      <entity name="shape_data_quality_inspection_result_representation" supertypes="data_quality_inspection_result_representation">
+         <where expression="SIZEOF( QUERY( q &lt;* SELF\representation.items|&#10;                              'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +&#10;                              'SHAPE_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) &gt; 0" label="WR1"/>
+         <where expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN&#10;           TYPEOF(SELF\representation.context_of_items)" label="WR2"/>
+         <where expression="SIZEOF(USEDIN(SELF,&#10;                  'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;                  'SHAPE_DATA_QUALITY_INSPECTED_SHAPE_AND_RESULT_RELATIONSHIP.'+&#10;                  'REP_2'))&gt;0" label="WR3"/>
+      </entity>
+      <entity name="shape_inspection_result_accuracy_association">
+         <explicit name="applied_specific_accuracy">
+            <typename name="shape_measurement_accuracy"/>
+         </explicit>
+         <explicit name="shape_data_quality_result">
+            <typename name="shape_data_quality_inspection_result"/>
+         </explicit>
+      </entity>
+      <entity name="shape_inspection_result_representation_with_accuracy" supertypes="shape_data_quality_inspection_result_representation">
+         <explicit name="applied_general_accuracy">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="shape_measurement_accuracy"/>
+         </explicit>
+      </entity>
+      <function name="relating_shape_representations_of_extreme_values">
+         <parameter name="item">
+            <typename name="location_of_extreme_value_select"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="shape_representation"/>
+         <algorithm>LOCAL
+   results   : SET OF shape_representation:=[];
+   exti      : SET OF extreme_instance:=[];
+   ii_ei     : SET OF 
+        instance_report_item_with_extreme_instances:=[];
+   sdiir        : SET OF 
+        shape_data_quality_inspection_instance_report:=[];
+   sdqr      : SET OF 
+        shape_data_quality_inspection_result_representation:=[];
+   sdisr     : SET OF 
+        shape_data_quality_inspected_shape_and_result_relationship:=[];
+ END_LOCAL;
+ -- find extreme_instances 
+ exti := exti + 
+    bag_to_set( USEDIN(item,
+      'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +
+      'EXTREME_INSTANCE.'+
+      'LOCATIONS_OF_EXTREME_VALUE')); 
+
+ -- find instance_report_item_with_extreme_instances 
+ REPEAT i := 1 TO HIINDEX (exti);
+   ii_ei := ii_ei + 
+     bag_to_set( USEDIN(exti[i],
+       'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +
+       'INSTANCE_REPORT_ITEM_WITH_EXTREME_INSTANCES.'+
+       'EXTREME_INSTANCES')); 
+ END_REPEAT;
+
+ -- find shape_data_quality_inspection_instance_report
+ REPEAT i := 1 TO HIINDEX (ii_ei);
+   sdiir := sdiir + 
+     bag_to_set( USEDIN(ii_ei[i],
+       'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +
+       'SHAPE_DATA_QUALITY_INSPECTION_INSTANCE_REPORT.'+
+       'INSPECTED_INSTANCES')); 
+ END_REPEAT;
+
+ -- find shape_data_quality_inspection_result_representation
+ REPEAT i := 1 TO HIINDEX (sdiir);
+  sdqr := sdqr + 
+    QUERY(i1&lt;* bag_to_set( USEDIN(sdiir[i].inspection_result,
+      'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))|
+    'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +
+    'SHAPE_DATA_QUALITY_INSPECTION_RESULT_REPRESENTATION' 
+     IN TYPEOF(i1)); 
+ END_REPEAT;
+
+ -- find shape_data_quality_inspected_shape_and_result_relationship
+ REPEAT i := 1 TO HIINDEX (sdqr);
+   sdisr := sdisr +  bag_to_set(USEDIN(sdqr[i],
+      'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.' +
+      'SHAPE_DATA_QUALITY_INSPECTED_SHAPE_AND_RESULT_RELATIONSHIP.'+
+      'REP_2')); 
+ END_REPEAT;
+
+ -- find shape_representation
+ REPEAT i := 1 TO HIINDEX (sdisr);
+   results := results + sdisr[i].rep_1;
+ END_REPEAT;
+
+ RETURN (results);</algorithm>
+      </function>
+      <function name="using_product_definition_of_shape_representation">
+         <parameter name="item">
+            <typename name="shape_representation"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="product_definition"/>
+         <algorithm>LOCAL
+   local_s_d_r: SET OF shape_definition_representation := [];
+   local_p_d_s: SET OF product_definition_shape := [];
+   local_p_d: SET OF product_definition := [];
+   i : INTEGER;
+ END_LOCAL;
+
+ -- find shape_definition_representations 
+ (*
+   local_s_d_r  := local_s_d_r + bag_to_set (USEDIN (item, 
+  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
+  'SHAPE_DEFINITION_REPRESENTATION.USED_REPRESENTATION')); 
+ *)
+   local_s_d_r  := QUERY(i1&lt;* bag_to_set (USEDIN (item, 
+  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'))|
+  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
+  'SHAPE_DEFINITION_REPRESENTATION'
+  IN TYPEOF(i1)); 
+
+ -- find product_definition_shape &amp; product_definitions
+ REPEAT i := 1 TO HIINDEX (local_s_d_r);
+    IF (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN 
+      TYPEOF (local_s_d_r[i].definition))
+      AND
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF
+        (local_s_d_r[i].definition.definition))) 
+    THEN local_p_d := local_p_d + local_s_d_r[i].definition.definition;
+    ELSE IF (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION' IN 
+      TYPEOF (local_s_d_r[i].definition))
+      AND
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF
+        (local_s_d_r[i].definition.definition)))
+    THEN local_p_d := local_p_d + local_s_d_r[i].definition.definition;
+    END_IF;
+    END_IF;
+ END_REPEAT;
+ RETURN (local_p_d);</algorithm>
+      </function>
+   </schema>
+</express>

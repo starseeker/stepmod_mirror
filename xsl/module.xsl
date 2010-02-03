@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.209 2010/02/01 14:41:27 robbod Exp $
+$Id: module.xsl,v 1.210 2010/02/03 12:10:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1196,7 +1196,7 @@ o=isocs; s=central<br/>
     in Annex <a href="d_mim_expg{$FILE_EXT}">D</a>.
   </p>
   <p>
-    In this International Standard, the same English language words may be
+    In ISO 10303, the same English language words can be
     used to refer to an object in the real world or concept, and as the
     name of an EXPRESS data type that represents this object or concept. 
   </p>

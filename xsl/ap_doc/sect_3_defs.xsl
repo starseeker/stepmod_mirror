@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.22 2009/08/27 13:13:04 abf Exp $
+$Id: sect_3_defs.xsl,v 1.23 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -46,6 +46,14 @@ $Id: sect_3_defs.xsl,v 1.22 2009/08/27 13:13:04 abf Exp $
         </xsl:choose>
       </a>
     </h2>
+    
+    <xsl:if test="./definition/term">
+      <h2>
+        <a name="termsdefns">
+          3.1 Terms and definitions
+        </a>        
+      </h2>
+    </xsl:if>
     <xsl:apply-templates select="." mode="output_terms"/>
   </xsl:template>
 	
@@ -83,7 +91,7 @@ $Id: sect_3_defs.xsl,v 1.22 2009/08/27 13:13:04 abf Exp $
     <!-- output the section head first -->
     <xsl:call-template name="output_module_term_section">
       <xsl:with-param name="module" select="."/>
-      <xsl:with-param name="section" select="concat('3.',$def_section+1)"/>
+      <xsl:with-param name="section" select="concat('3.1.',$def_section+1)"/>
     </xsl:call-template>
     <!-- RBN Changed due to request from ISO
     For the purposes of this part of ISO 10303, -->
@@ -147,7 +155,7 @@ abf changed so that section number is incremented regardless of whether there ar
       <xsl:variable name="definitions_common_node_set" select="msxsl:node-set($definitions_common)"/> 
       <xsl:variable name="temp" select="/application_protocol|$definitions_common_node_set"/>
 	  <xsl:apply-templates select="$temp/definition" >
-	    <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+	    <xsl:with-param name="section" select="concat('3.1.',$def_section1)"/>
 	    <xsl:sort select="term"/>
 	  </xsl:apply-templates>
     </xsl:when>
@@ -155,7 +163,7 @@ abf changed so that section number is incremented regardless of whether there ar
       <xsl:variable name="definitions_common_node_set" select="exslt:node-set($definitions_common)"/>
       <xsl:variable name="temp" select="/application_protocol|$definitions_common_node_set"/>
 	  <xsl:apply-templates select="$temp/definition" >
-	    <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+	    <xsl:with-param name="section" select="concat('3.1.',$def_section1)"/>
 	    <xsl:sort select="term"/>
 	  </xsl:apply-templates>
     </xsl:when>
@@ -210,7 +218,7 @@ abf changed so that section number is incremented regardless of whether there ar
             select="substring-after($normref/stdref/stdnumber,'-')"/>
           <xsl:if test="$module_number!=$part_no">
             <h2>
-            <xsl:value-of select="concat('3.',$section_no,
+            <xsl:value-of select="concat('3.1.',$section_no,
                                   ' Terms defined in ',$stdnumber)"/>
             </h2>
             <p>
@@ -269,7 +277,7 @@ abf changed so that section number is incremented regardless of whether there ar
                 <!-- output the section header for the normative reference
                      that is defining terms -->              
                 <h2>
-                  <xsl:value-of select="concat('3.',$section_no,
+                  <xsl:value-of select="concat('3.1.',$section_no,
                                         ' Terms defined in ', $stdnumber)"/>
                 </h2>
                 <p>
@@ -523,9 +531,8 @@ $module_ok,' Check the normatives references')"/>
 <xsl:template name="output_abbreviations">
   <xsl:param name="section"/>
   <h2>
-    <a name="abbrv">
-      <xsl:value-of select="concat('3.',$section)"/> Abbreviated terms
-    </a>
+    <a name="abbrvterms">3.2 Abbreviated terms</a>
+      <!--<xsl:value-of select="concat('3.2.',$section)"/> Abbreviated terms-->
   </h2>
 
   <!-- output any issues -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.29 2004/11/08 16:24:33 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.30 2009/12/24 17:42:04 lothartklein Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -54,6 +54,9 @@ $Id: application_protocol_toc.xsl,v 1.29 2004/11/08 16:24:33 robbod Exp $
             <br/>
             <a href="{$application_protocol_root}/sys/2_refs{$FILE_EXT}">2 Normative references</a>
             <br/>
+            <!-- every AP references Terms defined in other standards,
+            and abbreviations hence as per ISO --> 
+            <!--
             <xsl:choose>
               <xsl:when test="./definition/term">
                 <a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">
@@ -61,13 +64,22 @@ $Id: application_protocol_toc.xsl,v 1.29 2004/11/08 16:24:33 robbod Exp $
                 </a>
               </xsl:when>
               <xsl:otherwise>
-                <a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">
-                  <!-- every AP references Terms defined in other standards,
-                       and abbreviations hence as per ISO -->
+                <a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">                  
                   3 Terms, definitions and abbreviated terms
                 </a>
                 </xsl:otherwise>
-              </xsl:choose>
+                </xsl:choose>-->
+            <a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">
+              3 Terms, definitions and abbreviated terms
+            </a>
+            <br/>
+            <small>
+              &#160;&#160;<a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}#termsdefns">3.1 Terms and definitions </a>
+            </small>            
+            <br/>
+            <small>
+              &#160;&#160;<a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}#abbrvterms">3.2 Abbreviated terms</a>
+            </small>
             </p>
           </td>
           <td valign="TOP">

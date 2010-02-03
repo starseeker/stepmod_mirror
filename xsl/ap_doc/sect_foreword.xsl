@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
+$Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -118,6 +118,7 @@ $Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
     </p>
 
     <xsl:if test="@version!='1'">
+      <p>
       <xsl:variable name="this_edition">
         <xsl:apply-templates select="." mode="this_edition"/>
       </xsl:variable>
@@ -134,7 +135,7 @@ $Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
         <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
         select="@previous.revision.number"/>),
-        of which it constitutes a technical revision. 
+        which has been technically revised.        
 <!--    <xsl:choose>
           <xsl:when test="@revision.complete='NO'">
             <xsl:value-of select="@revision.scope"/>
@@ -186,7 +187,8 @@ $Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates select="./changes" mode="foreword"/>
-  </xsl:if>
+      </p>
+   </xsl:if>
 
   <p>
     This International Standard is organized as a series of parts, each
@@ -632,9 +634,7 @@ $Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
 
     <xsl:choose>
       <xsl:when test="./change_summary and ./change_detail">
-        <p class="note">
-          <small>
-            NOTE&#160;&#160;A detailed description of the changes is provided
+            A detailed description of the changes is provided
             in the 
             <a href="./introduction{$FILE_EXT}#changes">
               Introduction
@@ -643,19 +643,13 @@ $Id: sect_foreword.xsl,v 1.23 2008/11/14 15:17:36 darla Exp $
             <a href="./annex_changes{$FILE_EXT}">
               <xsl:value-of select="$al_changes"/>.
             </a>
-          </small>
-        </p>
       </xsl:when>
       <xsl:otherwise>
-        <p class="note">
-          <small>
-            NOTE&#160;&#160;A detailed description of the changes is provided
+            A detailed description of the changes is provided
             in the 
             <a href="./introduction{$FILE_EXT}#changes">
               Introduction
             </a>. 
-          </small>
-        </p>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

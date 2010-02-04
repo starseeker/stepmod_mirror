@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.210 2010/02/03 12:10:33 robbod Exp $
+$Id: module.xsl,v 1.211 2010/02/03 14:47:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1646,16 +1646,18 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
       module. 
     </small>
   </p>
-
+    
   <p>
+    This clause defines the information requirements to which implementation shall
+    conform using the EXPRESS language as defined in ISO 10303-11.   
     <xsl:choose>
       <xsl:when test="$arm_node/express/schema/interface">
-        The following EXPRESS specification begins the 
+        The following begins the 
         <b><xsl:value-of select="$arm_node/express/schema/@name"/></b>
         schema and identifies the necessary external references.
       </xsl:when>
       <xsl:otherwise>
-        The following EXPRESS specification begins the 
+        The following begins the 
         <b><xsl:value-of select="$current_module"/></b> schema.
       </xsl:otherwise>
     </xsl:choose>

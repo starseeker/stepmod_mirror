@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.211 2010/02/03 14:47:29 robbod Exp $
+$Id: module.xsl,v 1.212 2010/02/04 15:42:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1648,7 +1648,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   </p>
     
   <p>
-    This clause defines the information requirements to which implementation shall
+    This clause defines the information requirements to which implementations shall
     conform using the EXPRESS language as defined in ISO 10303-11.   
     <xsl:choose>
       <xsl:when test="$arm_node/express/schema/interface">

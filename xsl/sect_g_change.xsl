@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.1 2010/02/04 16:50:06 robbod Exp $
+$Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -138,6 +138,11 @@ $Id: sect_g_change.xsl,v 1.1 2010/02/04 16:50:06 robbod Exp $
           <xsl:value-of select="concat($annex_letter,'.',position()+1,' Changes made to edition ',@version)"/>
         </a>
       </h2>
+      <h2>
+        <a name="{$aname}">
+          <xsl:value-of select="concat($annex_letter,'.',position()+1,'.1 Summary of changes ')"/>
+        </a>
+      </h2>
       <p>
         The 
         <xsl:call-template name="number_to_word">
@@ -151,13 +156,13 @@ $Id: sect_g_change.xsl,v 1.1 2010/02/04 16:50:06 robbod Exp $
       </p>
       <xsl:apply-templates select="./description"/>
       <xsl:apply-templates select="./arm.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
       </xsl:apply-templates>      
       <xsl:apply-templates select="./mapping.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="./mim.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
       </xsl:apply-templates>
     </xsl:for-each>
   </xsl:template>

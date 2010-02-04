@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.45 2009/12/24 17:42:04 lothartklein Exp $
+$Id: module_toc.xsl,v 1.46 2010/02/03 12:10:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -727,6 +727,17 @@ $Id: module_toc.xsl,v 1.45 2009/12/24 17:42:04 lothartklein Exp $
           <A HREF="{$module_root}/sys/f_guide{$FILE_EXT}">
             F Application module implementation and usage guide</A><BR/>
         </xsl:if>
+          
+          <xsl:variable name="annex_letter">
+            <xsl:choose>
+              <xsl:when test="./changes and ./usage_guide">G</xsl:when>
+              <xsl:when test="./changes">F</xsl:when>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:if test="./changes">
+            <A HREF="{$module_root}/sys/g_change{$FILE_EXT}">
+              <xsl:value-of select="$annex_letter"/> Change history</A><BR/>
+          </xsl:if>
         <A HREF="{$module_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A><BR/>
         <A HREF="{$module_root}/sys/modindex{$FILE_EXT}">Index</A><BR/>
       </p>

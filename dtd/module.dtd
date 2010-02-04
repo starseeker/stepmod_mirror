@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: module.dtd,v 1.37 2008/05/19 13:26:40 dmprice Exp $
+     $Id: module.dtd,v 1.38 2010/01/09 10:16:02 lothartklein Exp $
                                                                    -->
 <!ENTITY % isodoc SYSTEM "isodoc.ent">
 %isodoc;
 
 <!--                    application module                         -->
-<!ELEMENT module (keywords, abstract?, changes?, comments_to_reader?, contacts, purpose, inscope, outscope?, normrefs?, definition*, abbreviations?, arm, arm_lf?, mapping_table?, mim, mim_lf?, refdata?, usage_guide?, bibliography?)>
+<!ELEMENT module (keywords, abstract?, comments_to_reader?, contacts, changes?, purpose, inscope, outscope?, normrefs?, definition*, abbreviations?, arm, arm_lf?, mapping_table?, mim, mim_lf?, refdata?, usage_guide?, bibliography?)>
 <!--         name         module directory name                    -->
 <!--	     name.french  French name, required for ISO            -->
 <!--                      publication, provided by SC4 secretariat -->
@@ -15,8 +15,8 @@
 <!--         wg.number    SC4 N-number                             -->
 <!--         wg.number.supersedes   superseded SC4 N-number        -->
 <!-- Attributes for source control software like RCS or CVS        -->
-<!--         rcs.date      $Date: 2008/05/19 13:26:40 $            -->
-<!--         rcs.revision  $Revision: 1.37 $                       -->
+<!--         rcs.date      $Date: 2010/01/09 10:16:02 $            -->
+<!--         rcs.revision  $Revision: 1.38 $                       -->
 <!ATTLIST module
 	xmlns:xlink CDATA #FIXED "http://www.w3.org/1999/xlink"
 	name NMTOKEN #REQUIRED
@@ -55,12 +55,37 @@
         development.folder CDATA #IMPLIED
 >
 
-<!ELEMENT changes (change_summary, change_detail?) >
-<!ELEMENT change_summary (%description.content;)*> 
-<!ELEMENT change_detail (%description.content; | annex_clause | express_ref_inline )* >
+        
+<!ELEMENT changes (change+)>
+<!ATTLIST change
+  version CDATA #REQUIRED>
 
-<!-- A clause in the  usage_guide or tech_disc sections -->
-<!ELEMENT annex_clause (%description.content; | annex_clause | express_ref_inline )*>
-<!ATTLIST annex_clause
-        title         CDATA       #REQUIRED>
+<!ELEMENT change (description?, arm.changes?, mapping.changes?, mim.changes?)>
 
+<!ELEMENT arm.changes (description?,arm.additions?,arm.modifications?,arm.deletions?)>
+
+<!ELEMENT mim.changes (description?,mim.additions?,mim.modifications?,mim.deletions?)>
+
+<!ELEMENT arm.additions (modified.object)+>
+
+<!ELEMENT arm.modifications (modified.object)+>
+
+<!ELEMENT arm.deletions (modified.object)+>
+
+<!ELEMENT mapping.changes (description? , mapping.change+)>
+
+<!ELEMENT mapping.change (#PCDATA)>
+
+<!ELEMENT mim.additions (modified.object)+>
+
+<!ELEMENT mim.modifications (modified.object)+>
+
+<!ELEMENT mim.deletions (modified.object)+>
+
+
+<!ELEMENT modified.object (description)?>
+<!ATTLIST modified.object
+  moved-to-module NMTOKEN #IMPLIED
+  moved-to-resource NMTOKEN #IMPLIED
+  name NMTOKEN #REQUIRED
+  type (USE_FROM | REFERENCE_FROM | CONSTANT | TYPE | ENTITY | SUBTYPE_CONSTRAINT | RULE | FUNCTION )  #IMPLIED>

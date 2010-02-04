@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.42 2009/12/24 17:42:04 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.43 2010/02/03 12:10:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -845,6 +845,17 @@ $Id: sect_contents.xsl,v 1.42 2009/12/24 17:42:04 lothartklein Exp $
     <xsl:apply-templates 
       select="./usage_guide/guide_subclause" mode="contents"/>
   </xsl:if>
+  <xsl:variable name="annex_letter">
+    <xsl:choose>
+      <xsl:when test="./changes and ./usage_guide">G</xsl:when>
+      <xsl:when test="./changes">F</xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:if test="./changes">
+    <A HREF="./g_change{$FILE_EXT}">
+      Annex <xsl:value-of select="$annex_letter"/> Change history</A><BR/>
+  </xsl:if>
+  
   <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A><br/>
   <A HREF="./modindex{$FILE_EXT}">Index</A>
   

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_f_guide.xsl,v 1.5 2004/05/01 09:05:56 robbod Exp $
+$Id: sect_g_change.xsl,v 1.1 2010/02/04 16:50:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -62,8 +62,8 @@ $Id: sect_f_guide.xsl,v 1.5 2004/05/01 09:05:56 robbod Exp $
   </xsl:if>
 
   <h2>
-    <a name="Introduction">
-      <xsl:value-of select="concat($annex_letter,'.1 Introduction')"/>
+    <a name="general">
+      <xsl:value-of select="concat($annex_letter,'.1 General')"/>
     </a>
   </h2>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.7 2010/01/22 07:36:14 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.8 2010/02/05 09:29:54 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -61,7 +61,9 @@ Purpose: To build the initial ANT publication file.
 					default="all" basedir="../../..">
 					<xsl:text>
 		  </xsl:text>
-					<xsl:apply-templates select="." mode="target_variables"/>
+					<xsl:apply-templates select="." mode="target_variables"/>					
+					<xsl:apply-templates select="." mode="target_checkcvstag"/>
+					<xsl:apply-templates select="." mode="target_prebuildcheck"/>
 					<xsl:apply-templates select="." mode="target_init"/>
 					<xsl:apply-templates select="." mode="target_isoindex"/>
 					<xsl:apply-templates select="." mode="target_zip"/>
@@ -87,6 +89,32 @@ Purpose: To build the initial ANT publication file.
 		</xsl:choose>
 	</xsl:template>
 
+	<!-- generate the target "checkcvstag" -->
+	<xsl:template match="part1000.publication_index" mode="target_checkcvstag">
+		<xsl:element name="target">
+			<xsl:attribute name="name">checkcvstag</xsl:attribute>
+			<xsl:attribute name="description">check CVS tag</xsl:attribute>			
+			<xsl:variable name="CVS_tag" select="concat('SMRL_',@name)"/>
+			<input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
+				addproperty="do.continue"/>
+			<condition property="do.abort">
+				<xsl:element name="equals">
+					<xsl:attribute name="arg1">n</xsl:attribute>
+					<xsl:attribute name="arg2">${do.continue}</xsl:attribute>
+				</xsl:element>
+			</condition>
+			<xsl:variable name="fail_msg">-
+				------------------------------------------------------------ 
+				You need to tag the repository before publishing the modules.
+				Use: <xsl:value-of select="$CVS_tag"/>
+				------------------------------------------------------------
+			</xsl:variable>
+			<fail if="do.abort">
+				<xsl:value-of select="$fail_msg"/> 
+			</fail>
+		</xsl:element>		
+	</xsl:template>
+	
 
 	<!-- generate the target "variables" -->
 	<xsl:template match="part1000.publication_index" mode="target_variables">
@@ -98,26 +126,6 @@ Purpose: To build the initial ANT publication file.
 				<format property="PUB_DATE" pattern="yyyy-MM-dd"/>
 			</tstamp>
 			<echo> Publication started: ${START_TIME} </echo>
-
-			<xsl:variable name="CVS_tag" select="concat('SMRL_',@name)"/>
-			<input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
-				addproperty="do.continue"/>
-			<condition property="do.abort">
-				<xsl:element name="equals">
-					<xsl:attribute name="arg1">n</xsl:attribute>
-					<xsl:attribute name="arg2">${do.continue}</xsl:attribute>
-				</xsl:element>
-			</condition>
-                        <xsl:variable name="fail_msg">-
-                          ------------------------------------------------------------ 
-                          You need to tag the repository before publishing the modules.
-                          Use: <xsl:value-of select="$CVS_tag"/>
-                          ------------------------------------------------------------
-                      </xsl:variable>
-                          <fail if="do.abort">
-                            <xsl:value-of select="$fail_msg"/> 
-                          </fail>
-
 			<xsl:element name="property">
 				<xsl:attribute name="name">PUBLICATION</xsl:attribute>
 				<xsl:attribute name="value">YES</xsl:attribute>
@@ -1471,22 +1479,12 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- generate the target "init" -->
 	<xsl:template match="part1000.publication_index" mode="target_init">
-		<target xsl:extension-element-prefixes="exslt" name="init" depends="variables">
-
+		<target xsl:extension-element-prefixes="exslt" name="init" depends="checkcvstag, prebuildcheck, variables">
 			<xsl:element name="mkdir">
 				<xsl:attribute name="dir">
 					<xsl:value-of select="'${P1000DIR}'"/>
 				</xsl:attribute>
 			</xsl:element>
-
-			<!--
-		  <xsl:element name="mkdir">
-		  <xsl:attribute name="dir">
-		  <xsl:value-of select="'${PUBDIR}/sc4covers'"/>
-		  </xsl:attribute>          
-		  </xsl:element>
-	  -->
-
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
 					<xsl:value-of select="'${P1000DIR}/images'"/>
@@ -6305,30 +6303,36 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	<xsl:apply-templates select="." mode="target_zipfoo"/>
 	</xsl:template>
 	
-	<xsl:template match="part1000.publication_index" mode="target_zipfoo">
+	<xsl:template match="part1000.publication_index" mode="target_prebuildcheck">
 		<xsl:text>
 		</xsl:text>
-		<xsl:element name="target">
-			<xsl:attribute name="name">zipfoo</xsl:attribute>
-			<xsl:attribute name="depends">isoindex</xsl:attribute>
-			<xsl:attribute name="description">zip the results.</xsl:attribute>
-			<xsl:element name="zip">
-				<xsl:attribute name="zipfile">
-					<xsl:value-of select="concat('${PUBDIR}/',@name,'_${DATE}.zip')"/>
+		<target xsl:extension-element-prefixes="exslt" name="prebuildcheck" depends="variables" 
+			description="Check the modules dates etc.">
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${PUBSRCDIR}/publication_index.xml'"/>
 				</xsl:attribute>
-				<xsl:element name="zipfileset">
-					<xsl:attribute name="dir"><xsl:value-of select="@name"/></xsl:attribute>
-					<xsl:attribute name="prefix"><xsl:value-of select="@name"/></xsl:attribute>					
-					<xsl:attribute name="excludes">
-						<xsl:value-of select="'*.zip, **/Thumbs.db'"/>
-					</xsl:attribute>
-				</xsl:element>
-				
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="'.'"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.txt'"/>
+				</xsl:attribute>
+				<xsl:attribute name="force">
+					<xsl:value-of select="'yes'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${PUBSRCSTYLES}/check_SMRLCR_modules.xsl'"/>
+				</xsl:attribute>
 			</xsl:element>
-		</xsl:element>
+			<xsl:element name="delete">
+				<xsl:attribute name="file">
+					<xsl:value-of select="'${PUBSRCDIR}/publication_index.txt'"/>
+				</xsl:attribute>
+			</xsl:element>			
+		</target>
 	</xsl:template>
 	
 </xsl:stylesheet>

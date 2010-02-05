@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.30 2008/12/19 16:40:30 thomasrthurman Exp $
+<!--  $Id: build.xsl,v 1.31 2009/05/20 13:40:10 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -553,6 +553,16 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:attribute>
 	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">GCHANGEXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="modules/module" mode="list">
+  				<xsl:with-param name="prefix" select="'data/modules/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
 
 	<xsl:element name="property">
 	  <xsl:attribute name="name">FOREWORDXML</xsl:attribute>
@@ -1964,6 +1974,16 @@ Purpose: To build the initial ANT publication file.
 	  </xsl:attribute>
 	</xsl:element>
 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">DMODGCHANGEXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
+  				<xsl:with-param name="prefix" select="'data/modules/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+
 	<xsl:element name="property">
 	  <xsl:attribute name="name">DMODFOREWORDXML</xsl:attribute>
 	  <xsl:attribute name="value">
@@ -2443,6 +2463,18 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:element>
 
+		<xsl:element name="xslt">
+			<xsl:attribute name="includes">
+				<xsl:value-of select="'${GCHANGEXML}'"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/sect_g_change.xsl'"/>
+			</xsl:attribute>
+			<xsl:apply-templates select="." mode="modules_target_style_attributes">
+				<xsl:with-param name="menu" select="$menu"/>
+			</xsl:apply-templates>
+		</xsl:element>
+		
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${FOREWORDXML}'"/>
@@ -3021,6 +3053,18 @@ Purpose: To build the initial ANT publication file.
 		  <xsl:with-param name="menu" select="$menu"/>
 		</xsl:apply-templates>
 	  </xsl:element>
+		
+		<xsl:element name="xslt">
+			<xsl:attribute name="includes">
+				<xsl:value-of select="'${DMODGCHANGEXML}'"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/sect_g_change.xsl'"/>
+			</xsl:attribute>
+			<xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+				<xsl:with-param name="menu" select="$menu"/>
+			</xsl:apply-templates>
+		</xsl:element>
 
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">

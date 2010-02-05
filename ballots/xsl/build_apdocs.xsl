@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
+$Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -1688,6 +1688,17 @@ $Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
     </xsl:element>
     
     <xsl:element name="property">
+      <xsl:attribute name="name">GCHANGEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
       <xsl:attribute name="name">FOREWORDXML</xsl:attribute>
       <xsl:attribute name="value">
         <xsl:apply-templates select="ballot_package/module">
@@ -2149,6 +2160,17 @@ $Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODGCHANGEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
     
     <xsl:element name="property">
       <xsl:attribute name="name">DMODFOREWORDXML</xsl:attribute>
@@ -8613,6 +8635,18 @@ $Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
       </xsl:element>
+       
+       <xsl:element name="xslt">
+         <xsl:attribute name="includes">
+           <xsl:value-of select="'${GCHANGEXML}'"/>
+         </xsl:attribute>
+         <xsl:attribute name="style">
+           <xsl:value-of select="'${STEPMODSTYLES}/sect_g_change.xsl'"/>
+         </xsl:attribute>
+         <xsl:apply-templates select="." mode="modules_target_style_attributes">
+           <xsl:with-param name="menu" select="$menu"/>
+         </xsl:apply-templates>
+       </xsl:element>
       
       <xsl:element name="xslt">
         <xsl:attribute name="includes">
@@ -9148,6 +9182,18 @@ $Id: build_apdocs.xsl,v 1.46 2009/05/20 13:53:07 robbod Exp $
             </xsl:attribute>
             <xsl:attribute name="style">
               <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="xslt">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODGCHANGEXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_g_change.xsl'"/>
             </xsl:attribute>
             <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
               <xsl:with-param name="menu" select="$menu"/>

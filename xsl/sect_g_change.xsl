@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.4 2010/02/05 07:37:20 robbod Exp $
+$Id: sect_g_change.xsl,v 1.5 2010/02/05 08:28:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -107,7 +107,10 @@ $Id: sect_g_change.xsl,v 1.4 2010/02/05 07:37:20 robbod Exp $
         </a>
       </h2>
       <p>
-        The 
+        <xsl:choose>
+          <xsl:when test="@version = /module/@version">This </xsl:when>
+          <xsl:otherwise>The </xsl:otherwise>
+        </xsl:choose>          
         <xsl:call-template name="number_to_word">
           <xsl:with-param name="number" select="@version"/>
         </xsl:call-template>

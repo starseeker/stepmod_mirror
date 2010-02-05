@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
+$Id: sect_g_change.xsl,v 1.3 2010/02/04 18:10:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -139,7 +139,7 @@ $Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
         </a>
       </h2>
       <h2>
-        <a name="{$aname}">
+        <a name="summary{@version}">
           <xsl:value-of select="concat($annex_letter,'.',position()+1,'.1 Summary of changes ')"/>
         </a>
       </h2>
@@ -156,20 +156,20 @@ $Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
       </p>
       <xsl:apply-templates select="./description"/>
       <xsl:apply-templates select="./arm.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
       </xsl:apply-templates>      
       <xsl:apply-templates select="./mapping.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="./mim.changes">
-        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+2)"/>
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
       </xsl:apply-templates>
     </xsl:for-each>
   </xsl:template>
   
   <xsl:template match="arm.changes">
     <xsl:param name="annex"/>
-    <xsl:variable name="aname" select="concat('arm_',@version)"/>
+    <xsl:variable name="aname" select="concat(name(),../@version)"/>
     <h2>
       <a name="{$aname}">
         <xsl:value-of select="concat($annex,'.1 Changes made to the ARM')"/>
@@ -188,10 +188,20 @@ $Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
   
   <xsl:template match="mapping.changes">   
     <xsl:param name="annex"/>
-    <xsl:variable name="aname" select="concat('map_',@version)"/>
+    <xsl:variable name="aname" select="concat(name(),../@version)"/>
+    <xsl:variable name="annex_number">
+      <xsl:choose>
+        <xsl:when test="../arm.changes">
+          <xsl:value-of select="concat($annex,'.3')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat($annex,'.2')"/>
+        </xsl:otherwise>
+      </xsl:choose>      
+    </xsl:variable>
     <h2>
       <a name="{$aname}">
-        <xsl:value-of select="concat($annex,'.1 Changes made to the mapping')"/>
+        <xsl:value-of select="concat($annex_number,' Changes made to the mapping')"/>
       </a>
     </h2> 
     <xsl:apply-templates select="./description"/>
@@ -207,15 +217,18 @@ $Id: sect_g_change.xsl,v 1.2 2010/02/04 16:53:43 robbod Exp $
     <xsl:param name="annex"/>
     <xsl:variable name="annex_number">
       <xsl:choose>
+        <xsl:when test="../arm.changes and ../mapping.changes">
+          <xsl:value-of select="concat($annex,'.4')"/>
+        </xsl:when>
         <xsl:when test="../arm.changes">
           <xsl:value-of select="concat($annex,'.2')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="concat($annex,'.1')"/>
         </xsl:otherwise>
-      </xsl:choose>      
+      </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="aname" select="concat('mim_',@version)"/>
+    <xsl:variable name="aname" select="concat(name(),../@version)"/>
     <h2>
       <a name="{$aname}">
         <xsl:value-of select="concat($annex_number,' Changes made to the MIM')"/>

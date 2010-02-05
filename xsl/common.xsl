@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.172 2009/07/20 16:32:59 robbod Exp $
+$Id: common.xsl,v 1.173 2010/02/02 08:16:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4709,6 +4709,43 @@ is case sensitive.')"/>
     <xsl:apply-templates/>
   </code>
 </xsl:template>
+
+<xsl:template name="number_to_word">
+  <xsl:param name="number"/>
+  <xsl:choose>
+    <xsl:when test="$number='1'">first</xsl:when>
+    <xsl:when test="$number='2'">second</xsl:when>
+    <xsl:when test="$number='3'">third</xsl:when>
+    <xsl:when test="$number='4'">fourth</xsl:when>
+    <xsl:when test="$number='5'">fifth</xsl:when>
+    <xsl:when test="$number='6'">sixth</xsl:when>
+    <xsl:when test="$number='7'">seventh</xsl:when>
+    <xsl:when test="$number='8'">eighth</xsl:when>
+    <xsl:when test="$number='9'">ninth</xsl:when>
+    <xsl:when test="$number='10'">tenth</xsl:when>
+    <xsl:when test="$number='11'">eleventh</xsl:when>
+    <xsl:when test="$number='12'">twelfth</xsl:when>
+    <xsl:when test="$number='13'">thirteenth</xsl:when>
+    <xsl:when test="$number='14'">fourteenth</xsl:when>
+    <xsl:when test="$number='15'">fifteenth</xsl:when>
+    <xsl:when test="$number='16'">sixteenth</xsl:when>
+    <xsl:when test="$number='17'">seventeenth</xsl:when>
+    <xsl:when test="$number='18'">eighteenth</xsl:when>
+    <xsl:when test="$number='19'">nineteenth</xsl:when>
+    <xsl:when test="$number='20'">twentieth</xsl:when>
+    <xsl:when test="$number='21'">twenty first</xsl:when>
+    <xsl:when test="$number='22'">twenty second</xsl:when>
+    <xsl:when test="$number='23'">twenty third</xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="inline" select="'yes'"/>
+        <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+        <xsl:with-param name="message"
+          select="concat('Error F2 version error: ',/module/@name,' The number (',$number,') is not recognized. Either update sect_g_change.xsl or module.xml')"/>
+      </xsl:call-template> 
+      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 </xsl:stylesheet>
-
-

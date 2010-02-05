@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.212 2010/02/04 15:42:43 robbod Exp $
+$Id: module.xsl,v 1.213 2010/02/04 16:45:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -614,6 +614,170 @@ o=isocs; s=central<br/>
   <xsl:value-of select="normalize-space(concat($keywords1, $keywords2))"/>
 </xsl:template>
 
+
+  <!-- Outputs the a sentnce about the edition -->
+  <xsl:template match="module" mode="edition_sentence">    
+    <xsl:variable name="part_no">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          ISO/TS 10303-XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <p>
+      <xsl:variable name="this_edition">
+        <xsl:choose>
+          <xsl:when test="@version='2'">
+            second
+          </xsl:when>
+          <xsl:when test="@version='3'">
+            third
+          </xsl:when>
+          <xsl:when test="@version='4'">
+            fourth
+          </xsl:when>
+          <xsl:when test="@version='5'">
+            fifth
+          </xsl:when>
+          <xsl:when test="@version='6'">
+            sixth
+          </xsl:when>
+          <xsl:when test="@version='7'">
+            seventh
+          </xsl:when>
+          <xsl:when test="@version='8'">
+            eighth
+          </xsl:when>
+          <xsl:when test="@version='9'">
+            ninth
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      
+      <xsl:variable name="prev_edition">
+        <xsl:choose>
+          <xsl:when test="@version='2'">
+            first
+          </xsl:when>
+          <xsl:when test="@version='3'">
+            second
+          </xsl:when>
+          <xsl:when test="@version='4'">
+            third
+          </xsl:when>
+          <xsl:when test="@version='5'">
+            fourth
+          </xsl:when>
+          <xsl:when test="@version='6'">
+            fifth
+          </xsl:when>
+          <xsl:when test="@version='7'">
+            sixth
+          </xsl:when>
+          <xsl:when test="@version='8'">
+            seventh
+          </xsl:when>
+          <xsl:when test="@version='9'">
+            eighth
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      
+      <xsl:if test="@version != 1">
+        <xsl:if test="string-length(normalize-space(@previous.revision.year)) = 0">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="inline" select="'yes'"/>
+            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+            <xsl:with-param name="message"
+              select="concat('Error F1 module: ',/module/@name,' Attribute module.previous.revision.year not specified')"/>
+          </xsl:call-template>   
+        </xsl:if>      
+      </xsl:if>
+      
+      <xsl:choose>
+        <xsl:when test="@previous.revision.cancelled='NO'">
+          This <xsl:value-of select="$this_edition"/> edition of  
+          <xsl:value-of select="$part_no"/> 
+          cancels and replaces the
+          <xsl:value-of select="$prev_edition"/> edition  
+          (<xsl:value-of
+            select="concat($part_no,':',@previous.revision.year)"/>),
+          of which it constitutes a technical revision. 
+          
+          
+          <xsl:choose>
+            <!-- only changed a section of the document -->
+            <xsl:when test="@revision.complete='NO'">
+              <xsl:value-of select="@revision.scope"/>
+              of the <xsl:value-of select="$prev_edition"/> 
+              edition  
+              <xsl:choose>
+                <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                  then must be plural-->
+                <xsl:when test="contains(@revision.scope,'es')">
+                  have
+                </xsl:when>
+                <xsl:otherwise>
+                  has
+                </xsl:otherwise>
+              </xsl:choose>
+              been technically revised.
+            </xsl:when>
+            <xsl:otherwise>
+              <!-- complete revision so no extra text -->
+            </xsl:otherwise>
+          </xsl:choose>
+          
+        </xsl:when>
+        
+        <xsl:otherwise>
+          <!-- cancelled -->
+          This <xsl:value-of select="$this_edition"/> edition of 
+          <xsl:value-of select="$part_no"/> cancels and replaces the
+          <xsl:value-of select="$prev_edition"/> edition
+          (<xsl:value-of
+            select="concat($part_no,':',@previous.revision.year)"/>), 
+          
+          <xsl:choose>
+            <!-- only changed a section of the document -->
+            <xsl:when test="@revision.complete='NO'">
+              of which 
+              <xsl:value-of select="@revision.scope"/>
+              <xsl:choose>
+                <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                  then must be plural-->
+                <xsl:when test="contains(@revision.scope,'es')">
+                  have
+                </xsl:when>
+                <xsl:otherwise>
+                  has
+                </xsl:otherwise>
+              </xsl:choose>
+              been technically revised.
+            </xsl:when>
+            <xsl:otherwise>
+              of which it constitutes a technical revision.
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:if test="./changes">
+        <xsl:variable name="annex_letter">
+          <xsl:choose>
+            <xsl:when test="./changes and ./usage_guide">G</xsl:when>
+            <xsl:when test="./changes">F</xsl:when>
+          </xsl:choose>
+        </xsl:variable> A detailed description of the changes is provided in Annex <a
+          href="g_change{$FILE_EXT}">
+          <xsl:value-of select="$annex_letter"/>
+        </a>. 
+      </xsl:if>
+    </p>    
+  </xsl:template> 
+
 <!-- Outputs the foreword -->
 <xsl:template match="module" mode="foreword">
     <xsl:variable name="part_no">
@@ -693,146 +857,11 @@ o=isocs; s=central<br/>
     <i>Automation systems and integration,</i>
     Subcommittee SC4, <i>Industrial data.</i>
   </p>
-
+  
   <xsl:if test="@version!='1'">
-    <xsl:variable name="this_edition">
-      <xsl:choose>
-        <xsl:when test="@version='2'">
-          second
-        </xsl:when>
-        <xsl:when test="@version='3'">
-          third
-        </xsl:when>
-        <xsl:when test="@version='4'">
-          fourth
-        </xsl:when>
-        <xsl:when test="@version='5'">
-          fifth
-        </xsl:when>
-        <xsl:when test="@version='6'">
-          sixth
-        </xsl:when>
-        <xsl:when test="@version='7'">
-          seventh
-        </xsl:when>
-        <xsl:when test="@version='8'">
-          eighth
-        </xsl:when>
-        <xsl:when test="@version='9'">
-          ninth
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="prev_edition">
-      <xsl:choose>
-        <xsl:when test="@version='2'">
-          first
-        </xsl:when>
-        <xsl:when test="@version='3'">
-          second
-        </xsl:when>
-        <xsl:when test="@version='4'">
-          third
-        </xsl:when>
-        <xsl:when test="@version='5'">
-          fourth
-        </xsl:when>
-        <xsl:when test="@version='6'">
-          fifth
-        </xsl:when>
-        <xsl:when test="@version='7'">
-          sixth
-        </xsl:when>
-        <xsl:when test="@version='8'">
-          seventh
-        </xsl:when>
-        <xsl:when test="@version='9'">
-          eighth
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    
-    <xsl:if test="@version != 1">
-      <xsl:if test="string-length(normalize-space(@previous.revision.year)) = 0">
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="inline" select="'yes'"/>
-            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-            <xsl:with-param name="message"
-              select="concat('Error F1 module: ',/module/@name,' Attribute module.previous.revision.year not specified')"/>
-          </xsl:call-template>   
-      </xsl:if>      
-    </xsl:if>
-    
-    <xsl:choose>
-      <xsl:when test="@previous.revision.cancelled='NO'">
-        This <xsl:value-of select="$this_edition"/> edition of  
-        <xsl:value-of select="$part_no"/> 
-        cancels and replaces the
-        <xsl:value-of select="$prev_edition"/> edition  
-        (<xsl:value-of
-          select="concat($part_no,':',@previous.revision.year)"/>),
-        of which it constitutes a technical revision. 
-
-
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            <xsl:value-of select="@revision.scope"/>
-            of the <xsl:value-of select="$prev_edition"/> 
-            edition  
-            <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- complete revision so no extra text -->
-          </xsl:otherwise>
-        </xsl:choose>
-
-      </xsl:when>
-
-      <xsl:otherwise>
-        <!-- cancelled -->
-        This <xsl:value-of select="$this_edition"/> edition of 
-        <xsl:value-of select="$part_no"/> cancels and replaces the
-        <xsl:value-of select="$prev_edition"/> edition
-        (<xsl:value-of
-          select="concat($part_no,':',@previous.revision.year)"/>), 
-
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            of which 
-            <xsl:value-of select="@revision.scope"/>
-            <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            of which it constitutes a technical revision.
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:apply-templates select="." mode="edition_sentence"/>  
   </xsl:if>
-
+  
   <p>
     ISO 10303 is organized as a series of parts, each published
     separately. The structure of ISO 10303 is described in ISO 10303-1.
@@ -1168,7 +1197,33 @@ o=isocs; s=central<br/>
   </xsl:apply-templates>
   <xsl:apply-templates/>
 
-
+  <xsl:if test="../changes">  
+    <xsl:variable name="annex_letter">
+      <xsl:choose>
+        <xsl:when test="../changes and ../usage_guide">
+          <xsl:value-of select="concat('G.',../@version)"/>
+        </xsl:when>
+        <xsl:when test="../changes">
+          <xsl:value-of select="concat('F.',../@version)"/>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable> 
+    <p>      
+      <xsl:variable name="aname" select="concat('change_',../@version)"/>
+      This 
+      <xsl:call-template name="number_to_word">
+        <xsl:with-param name="number" select="../@version"/>
+      </xsl:call-template>
+      edition of this part of ISO 10303 incorporates the modifications to the 
+      <xsl:call-template name="number_to_word">
+        <xsl:with-param name="number" select="string(../@version - 1)"/>
+      </xsl:call-template>
+      edition listed in Annex <a
+        href="g_change{$FILE_EXT}#{$aname}">
+        <xsl:value-of select="$annex_letter"/>
+      </a>. 
+    </p>
+  </xsl:if>
   <p>
     Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
     application module and summarizes the functionality and data covered. 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.173 2010/02/02 08:16:34 robbod Exp $
+$Id: common.xsl,v 1.174 2010/02/05 08:28:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4748,4 +4748,167 @@ is case sensitive.')"/>
   </xsl:choose>
 </xsl:template>
 
+  <xsl:template name="check_application_protocol_exists">
+    <xsl:param name="application_protocol"/>
+    <xsl:variable name="application_protocol_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="ret_val">
+      <xsl:choose>
+        <xsl:when test="document('../repository_index.xml')/repository_index/application_protocols/application_protocol[@name=$application_protocol_name]">
+          <xsl:value-of select="'true'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(' The application_protocol ', $application_protocol_name, ' is not identified as an application_protocol module in repository_index.xml')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+  <xsl:template name="application_protocol_directory">
+    <xsl:param name="application_protocol"/>
+    <xsl:variable name="ap_dir">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
+  </xsl:template>
+  
+  
+  
+  
+  <!-- output the module as a bibliography entry -->
+  <xsl:template match="module" mode="bibitem">
+    <xsl:variable name="part">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="@part"/>
+        </xsl:when>
+        <xsl:otherwise> &lt;part&gt; </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_module_stdnumber_undated">
+        <xsl:with-param name="module" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="stdtitle"
+      select="concat('Industrial automation systems and integration ',
+      '&#8212; Product data representation and exchange ')"/>
+    <xsl:variable name="module_name">
+      <xsl:call-template name="module_display_name">
+        <xsl:with-param name="module" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="subtitle"
+      select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
+    <!-- Printing of standard line starts here -->
+    <xsl:value-of select="$stdnumber"/>
+    <xsl:choose>
+      <!-- if the module is a TS or IS module and is referring to a CD or CD-TS module -->
+      <xsl:when
+        test="( string(./@status)='TS' or 
+        string(./@status)='IS') and
+        ( string(./@status)='CD' or string(./@status)='CD-TS')"
+        > &#160;<sup><a href="#derogation">2</a>)</sup>
+      </xsl:when>
+      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
+      </xsl:when>
+    </xsl:choose>,&#160; <i>
+      <xsl:value-of select="$stdtitle"/>
+      <xsl:value-of select="$subtitle"/>
+    </i>
+  </xsl:template>
+ 
+  <!-- output the AP as a bibliography entry -->
+  <xsl:template match="application_protocol" mode="bibitem">
+    <xsl:variable name="part">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="@part"/>
+        </xsl:when>
+        <xsl:otherwise> &lt;part&gt; </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_protocol_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="stdtitle"
+      select="concat('Industrial automation systems and integration ',
+      '&#8212; Product data representation and exchange ')"/>
+    <xsl:variable name="ap_name">
+      <xsl:call-template name="protocol_display_name">
+        <xsl:with-param name="application_protocol" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="subtitle"
+      select="concat('&#8212; Part ',$part,': Application protocol: ', $ap_name,'.')"/>
+    <!-- Printing of standard line starts here -->
+    <xsl:value-of select="$stdnumber"/>
+    <xsl:choose>
+      <!-- if the module is a TS or IS module and is referring to a CD or CD-TS module -->
+      <xsl:when
+        test="( string(./@status)='TS' or 
+        string(./@status)='IS') and
+        ( string(./@status)='CD' or string(./@status)='CD-TS')"
+        > &#160;<sup><a href="#derogation">2</a>)</sup>
+      </xsl:when>
+      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
+      </xsl:when>
+    </xsl:choose>,&#160; <i>
+      <xsl:value-of select="$stdtitle"/>
+      <xsl:value-of select="$subtitle"/>
+    </i>
+  </xsl:template>
+  
+  <!-- output the resource document as a bibliography entry -->
+  <xsl:template match="resource" mode="bibitem">
+    <xsl:variable name="part">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="@part"/>
+        </xsl:when>
+        <xsl:otherwise> &lt;part&gt; </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_protocol_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="stdtitle"
+      select="concat('Industrial automation systems and integration ',
+      '&#8212; Product data representation and exchange ')"/>
+    <xsl:variable name="ap_name">
+      <xsl:call-template name="protocol_display_name">
+        <xsl:with-param name="application_protocol" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="subtitle"
+      select="concat('&#8212; Part ',$part,': Integrated generic resource: ', $ap_name,'.')"/>
+    <!-- Printing of standard line starts here -->
+    <xsl:value-of select="$stdnumber"/>
+    <xsl:choose>
+      <!-- if the module is a TS or IS module and is referring to a CD or CD-TS module -->
+      <xsl:when
+        test="( string(./@status)='TS' or 
+        string(./@status)='IS') and
+        ( string(./@status)='CD' or string(./@status)='CD-TS')"
+        > &#160;<sup><a href="#derogation">2</a>)</sup>
+      </xsl:when>
+      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
+      </xsl:when>
+    </xsl:choose>,&#160; <i>
+      <xsl:value-of select="$stdtitle"/>
+      <xsl:value-of select="$subtitle"/>
+    </i>
+  </xsl:template>
+  
 </xsl:stylesheet>

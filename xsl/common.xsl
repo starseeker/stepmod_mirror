@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.174 2010/02/05 08:28:16 robbod Exp $
+$Id: common.xsl,v 1.175 2010/02/05 16:29:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4817,8 +4817,11 @@ is case sensitive.')"/>
         ( string(./@status)='CD' or string(./@status)='CD-TS')"
         > &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
+      <!-- 
+        See 
+        http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3401#c5        
       <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
-      </xsl:when>
+      </xsl:when> -->
     </xsl:choose>,&#160; <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -4860,8 +4863,12 @@ is case sensitive.')"/>
         ( string(./@status)='CD' or string(./@status)='CD-TS')"
         > &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
+      <!-- 
+        See 
+        http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3401#c5        
+        
       <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
-      </xsl:when>
+      </xsl:when> -->
     </xsl:choose>,&#160; <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -4903,6 +4910,10 @@ is case sensitive.')"/>
         ( string(./@status)='CD' or string(./@status)='CD-TS')"
         > &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
+      <!-- 
+        See 
+        http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3401#c5        
+        -->
       <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160; <i>

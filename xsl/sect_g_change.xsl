@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.5 2010/02/05 08:28:16 robbod Exp $
+$Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -213,6 +213,8 @@ $Id: sect_g_change.xsl,v 1.5 2010/02/05 08:28:16 robbod Exp $
   
   <xsl:template match="arm.additions|arm.modifications|arm.deletions|mim.additions|mim.modifications|mim.deletions" mode="modified.object">
    
+    <xsl:apply-templates select="./modified.object" mode="check_attributes"/>
+   
     <xsl:variable name="objects">
       <objects>
         <xsl:for-each select="modified.object[@type='CONSTANT']">
@@ -276,6 +278,25 @@ $Id: sect_g_change.xsl,v 1.5 2010/02/05 08:28:16 robbod Exp $
     </xsl:choose>
   </xsl:template>
   
+  
+  <xsl:template match="modified.object" mode="check_attributes">
+    <xsl:if test="@type!='CONSTANT' and
+      @type!='USE_FROM' and
+      @type!='REFERENCE_FROM' and
+      @type!='TYPE' and
+      @type!='ENTITY' and
+      @type!='SUBTYPE_CONSTRAINT' and
+      @type!='RULE' and
+      @type!='FUNCTION' or string-length(@type)=0">      
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="concat('Error F4 Change : ',/module/@name,' 
+            The modified.object has @type attribute =',@type,' should have a @type attribute = USE_FROM | REFERENCE_FROM | CONSTANT | TYPE | ENTITY | SUBTYPE_CONSTRAINT | RULE | FUNCTION')"/>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:if>    
+  </xsl:template>
+  
   <xsl:template match="modified.object">
     <xsl:choose>
       <xsl:when test="@moved-to-module">
@@ -328,10 +349,22 @@ $Id: sect_g_change.xsl,v 1.5 2010/02/05 08:28:16 robbod Exp $
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat(@type,' ',@name)"/>
-        <xsl:apply-templates select="description"/>
+        <xsl:apply-templates select="description" mode="modified.object"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <xsl:template match="p" mode="position">
+    <xsl:value-of select="position()"/>
+  </xsl:template>
+  
+  <xsl:template match="description" mode="modified.object">
+    <xsl:if test="string-length(normalize-space(./child::text()[1])!=0)">
+        <br/>  
+    </xsl:if>    
+    <xsl:apply-templates select="."/>
+  </xsl:template>
+  
   
   <xsl:template match="arm.additions">    
     <p>

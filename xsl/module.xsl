@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.214 2010/02/05 08:28:16 robbod Exp $
+$Id: module.xsl,v 1.215 2010/02/05 16:29:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3099,10 +3099,11 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
             <xsl:variable name="module_xml" 
               select="concat($module_dir,'/module.xml')"/>
-
+            <xsl:variable name="module_node" 
+              select="document($module_xml)"/>
             <xsl:choose>
-              <xsl:when test="document($module_xml)/module[@published='n']">
-                <xsl:value-of select="'y'"/>
+              <xsl:when test="$module_node/module[@published='n'] and $module_node/module[@version='1']">
+               <xsl:value-of select="'y'"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="'n'"/>
@@ -3350,7 +3351,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
-      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
+      <!-- See:
+        http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3401#c7
+        -->
+      <xsl:when test="@published='n' and @version='1'">&#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>

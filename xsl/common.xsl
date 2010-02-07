@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.175 2010/02/05 16:29:37 robbod Exp $
+$Id: common.xsl,v 1.176 2010/02/07 06:33:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4769,7 +4769,8 @@ is case sensitive.')"/>
     <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
-  <xsl:template name="application_protocol_directory">
+
+<!--  <xsl:template name="application_protocol_directory">
     <xsl:param name="application_protocol"/>
     <xsl:variable name="ap_dir">
       <xsl:call-template name="module_name">
@@ -4777,7 +4778,7 @@ is case sensitive.')"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
-  </xsl:template>
+  </xsl:template>-->
   
   
   

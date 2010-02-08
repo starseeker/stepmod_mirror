@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.44 2010/02/04 16:47:26 robbod Exp $
+$Id: sect_contents.xsl,v 1.45 2010/02/05 07:37:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -856,14 +856,14 @@ $Id: sect_contents.xsl,v 1.44 2010/02/04 16:47:26 robbod Exp $
         history</A>
       <BR/>      
       &#160; &#160; &#160; 
-      <A HREF="./g_change{$FILE_EXT}#general">F.1 General</A>
+      <A HREF="./g_change{$FILE_EXT}#general"><xsl:value-of select="concat($annex_letter,'.1 General')"/></A>
       <BR/>
       <xsl:for-each select="./changes/node()">
         <xsl:sort select="@version"/>
         <xsl:variable name="annex_no" select="concat($annex_letter,' ',position()+1)"/>
         <xsl:variable name="ahref" select="concat('change_',@version)"/> &#160; &#160;
         &#160; <A HREF="./g_change{$FILE_EXT}#{$ahref}">
-          <xsl:value-of select="concat($annex_no,' Changes made to edition ',@version)"/>
+          <xsl:value-of select="concat($annex_no,' Changes made in edition ',@version)"/>
         </A>
         <BR/> &#160; &#160; &#160; &#160; &#160; &#160; <A
           HREF="./g_change{$FILE_EXT}#summary{@version}">
@@ -872,8 +872,9 @@ $Id: sect_contents.xsl,v 1.44 2010/02/04 16:47:26 robbod Exp $
         <BR/>
         <xsl:for-each select="./node()">
           <xsl:variable name="aahref" select="concat(name(),../@version)"/>
+          <xsl:variable name="sect_no" select="position()+count(../description)+1"/>
           <xsl:variable name="aannex_no"
-            select="concat($annex_no,'.',position()+count(../description))"/>
+            select="concat($annex_no,'.',$sect_no)"/>
           <xsl:choose>
             <xsl:when test="name()='arm.changes'"> &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
@@ -884,13 +885,13 @@ $Id: sect_contents.xsl,v 1.44 2010/02/04 16:47:26 robbod Exp $
             <xsl:when test="name()='mapping.changes'"> &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
                 <xsl:value-of
-                  select="concat($annex_no,'.',position(),' Changes made to the mapping')"/>
+                  select="concat($aannex_no,' Changes made to the mapping')"/>
               </A>
               <BR/>
             </xsl:when>
             <xsl:when test="name()='mim.changes'"> &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
-                <xsl:value-of select="concat($annex_no,'.',position(),' Changes made to the MIM')"/>
+                <xsl:value-of select="concat($aannex_no,' Changes made to the MIM')"/>
               </A>
               <BR/>
             </xsl:when>

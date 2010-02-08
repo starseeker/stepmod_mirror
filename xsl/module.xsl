@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.215 2010/02/05 16:29:38 robbod Exp $
+$Id: module.xsl,v 1.216 2010/02/07 09:05:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4386,7 +4386,7 @@ $module_ok,' Check the normatives references')"/>
     </xsl:apply-templates>
   </xsl:template>-->
   
-<xsl:template match="bibliography">
+<xsl:template match="bibliography" mode="old">
   <!-- output the defaults -->
   <xsl:apply-templates 
     select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>
@@ -4402,6 +4402,27 @@ $module_ok,' Check the normatives references')"/>
     <xsl:with-param name="number_start" select="$bibitem_inc_cnt"/>
   </xsl:apply-templates>  
 </xsl:template>
+  
+  <xsl:template match="bibliography">
+   
+    <xsl:apply-templates select="./*">
+      <xsl:with-param name="number_start" select="0"/>
+    </xsl:apply-templates>
+    
+    <!-- 
+      count how many bitiem
+      and start the numbering of the bibitem from there
+    -->
+    <xsl:variable name="bibitem_cnt" 
+      select="count(./*)"/>
+    
+    <!-- output the defaults -->
+    <xsl:apply-templates 
+      select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc">
+      <xsl:with-param name="number_start" select="$bibitem_cnt"/>
+    </xsl:apply-templates>
+    
+  </xsl:template>
 
   <xsl:template match="bibitem.ap">
     <!-- the value from which to start the counting. -->

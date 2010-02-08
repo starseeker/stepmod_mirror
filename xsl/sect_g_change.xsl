@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
+$Id: sect_g_change.xsl,v 1.7 2010/02/07 10:07:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -98,7 +98,7 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
       <xsl:variable name="aname" select="concat('change_',@version)"/>
       <h2>
         <a name="{$aname}">
-          <xsl:value-of select="concat($annex_letter,'.',position()+1,' Changes made to edition ',@version)"/>
+          <xsl:value-of select="concat($annex_letter,'.',position()+1,' Changes made in edition ',@version)"/>
         </a>
       </h2>
       <h2>
@@ -141,9 +141,10 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
   <xsl:template match="arm.changes">
     <xsl:param name="annex"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
+    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
     <h2>
       <a name="{$aname}">
-        <xsl:value-of select="concat($annex,'.1 Changes made to the ARM')"/>
+        <xsl:value-of select="concat($annex, '.', $section_number,' Changes made to the ARM')"/>
       </a>
     </h2>
     <xsl:apply-templates select="./description"/>
@@ -160,19 +161,10 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
   <xsl:template match="mapping.changes">   
     <xsl:param name="annex"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
-    <xsl:variable name="annex_number">
-      <xsl:choose>
-        <xsl:when test="../arm.changes">
-          <xsl:value-of select="concat($annex,'.3')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat($annex,'.2')"/>
-        </xsl:otherwise>
-      </xsl:choose>      
-    </xsl:variable>
+    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
     <h2>
       <a name="{$aname}">
-        <xsl:value-of select="concat($annex_number,' Changes made to the mapping')"/>
+        <xsl:value-of select="concat($annex, '.', $section_number,' Changes made to the mapping')"/>
       </a>
     </h2> 
     <xsl:apply-templates select="./description"/>
@@ -186,23 +178,11 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
   
   <xsl:template match="mim.changes">
     <xsl:param name="annex"/>
-    <xsl:variable name="annex_number">
-      <xsl:choose>
-        <xsl:when test="../arm.changes and ../mapping.changes">
-          <xsl:value-of select="concat($annex,'.4')"/>
-        </xsl:when>
-        <xsl:when test="../arm.changes">
-          <xsl:value-of select="concat($annex,'.2')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat($annex,'.1')"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
+    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
     <h2>
       <a name="{$aname}">
-        <xsl:value-of select="concat($annex_number,' Changes made to the MIM')"/>
+        <xsl:value-of select="concat($annex,'.', $section_number,' Changes made to the MIM')"/>
       </a>
     </h2>    
     <xsl:apply-templates select="./description"/>
@@ -297,7 +277,34 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
     </xsl:if>    
   </xsl:template>
   
+  <xsl:template name="output_interfaced_items">
+    <xsl:param name="interface_name"/>
+    <xsl:param name="interfaced_items"/>
+    <xsl:variable name="output2" 
+      select="translate(normalize-space(translate($interfaced_items,',()','   ')),' ',', ')"/>
+    <xsl:variable name="output1">
+      <xsl:call-template name="output_comma_separated_list">
+        <xsl:with-param name="string" 
+          select="normalize-space(translate($interfaced_items,',()','   '))"/>
+        </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat($interface_name,'(',$output1,')')"/>    
+  </xsl:template>
+  
+    
   <xsl:template match="modified.object">
+    <xsl:variable name="object">
+      <xsl:choose>
+        <xsl:when test="string-length(@interfaced.items)!=0">
+        <xsl:call-template name="output_interfaced_items">
+            <xsl:with-param name="interface_name" select="@name"/>
+            <xsl:with-param name="interfaced_items" select="@interfaced.items"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+      </xsl:choose>
+      
+    </xsl:variable>
     <xsl:choose>
       <xsl:when test="@moved-to-module">
         <xsl:variable name="module_href"
@@ -309,7 +316,7 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$module_ok='true'">
-            <xsl:value-of select="concat(@type,' ',@name, ' has been moved to the module ')"/>
+            <xsl:value-of select="concat($object,' ',@name, ' has been moved to the module ')"/>
             <a href="{$module_href}">
               <xsl:value-of select="@moved-to-module"/>
             </a>            
@@ -333,7 +340,7 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
-            <xsl:value-of select="concat(@type,' ',@name, ' has been moved to the resource ')"/>
+            <xsl:value-of select="concat($object,' ',@name, ' has been moved to the resource ')"/>
             <a href="{$resource_href}">
               <xsl:value-of select="@moved-to-resource"/>
             </a>
@@ -348,7 +355,7 @@ $Id: sect_g_change.xsl,v 1.6 2010/02/05 13:13:54 robbod Exp $
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(@type,' ',@name)"/>
+        <xsl:value-of select="$object"/>
         <xsl:apply-templates select="description" mode="modified.object"/>
       </xsl:otherwise>
     </xsl:choose>

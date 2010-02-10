@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.8 2010/02/08 13:31:23 robbod Exp $
+$Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -317,7 +317,7 @@ $Id: sect_g_change.xsl,v 1.8 2010/02/08 13:31:23 robbod Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$module_ok='true'">
-            <xsl:value-of select="concat($object,' ',@name, ' has been moved to the module ')"/>
+            <xsl:value-of select="concat($object,' has been moved to the module ')"/>
             <a href="{$module_href}">
               <xsl:value-of select="@moved-to-module"/>
             </a>            
@@ -341,7 +341,7 @@ $Id: sect_g_change.xsl,v 1.8 2010/02/08 13:31:23 robbod Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
-            <xsl:value-of select="concat($object,' ',@name, ' has been moved to the resource ')"/>
+            <xsl:value-of select="concat($object,' has been moved to the resource ')"/>
             <a href="{$resource_href}">
               <xsl:value-of select="@moved-to-resource"/>
             </a>

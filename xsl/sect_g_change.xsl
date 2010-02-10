@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
+$Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -192,10 +192,26 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
     <xsl:apply-templates select="./mim.deletions"/>
   </xsl:template>
   
+  
+  
   <xsl:template match="arm.additions|arm.modifications|arm.deletions|mim.additions|mim.modifications|mim.deletions" mode="modified.object">
-   
     <xsl:apply-templates select="./modified.object" mode="check_attributes"/>
-   
+    
+    <xsl:variable name="arm_mim_clause">
+      <xsl:choose>
+        <xsl:when test="name()='mim.modifications'">5_mim</xsl:when>
+        <xsl:when test="name()='mim.deletions'">5_mim</xsl:when>
+        <xsl:otherwise>4_info_reqs</xsl:otherwise>
+      </xsl:choose>      
+    </xsl:variable>
+    <xsl:variable name="arm_mim_suffix">
+      <xsl:choose>
+        <xsl:when test="name()='mim.modifications'">_mim</xsl:when>
+        <xsl:when test="name()='mim.deletions'">_mim</xsl:when>
+        <xsl:otherwise>_arm</xsl:otherwise>
+      </xsl:choose>      
+    </xsl:variable>
+    
     <xsl:variable name="objects">
       <objects>
         <xsl:for-each select="modified.object[@type='CONSTANT']">
@@ -238,8 +254,15 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
         <xsl:for-each select="$objectnodes//modified.object">
           <li>
             <xsl:choose>
-              <xsl:when test="position()=last()"><xsl:apply-templates select="."/>.</xsl:when>
-              <xsl:otherwise><xsl:apply-templates select="."/>;</xsl:otherwise>
+              <xsl:when test="position()=last()">
+                <xsl:apply-templates select=".">
+                  <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                  <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+                  </xsl:apply-templates>.</xsl:when>
+              <xsl:otherwise><xsl:apply-templates select=".">
+                <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+              </xsl:apply-templates>;</xsl:otherwise>
             </xsl:choose>            
           </li>
         </xsl:for-each>
@@ -249,9 +272,16 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
         <xsl:for-each select="$objectnodes//modified.object">
           <li>
             <xsl:choose>
-              <xsl:when test="position()=last()"><xsl:apply-templates select="."/>.</xsl:when>
-              <xsl:otherwise><xsl:apply-templates select="."/>;</xsl:otherwise>
-            </xsl:choose>            
+              <xsl:when test="position()=last()">
+                <xsl:apply-templates select=".">
+                  <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                  <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+                </xsl:apply-templates>.</xsl:when>
+              <xsl:otherwise><xsl:apply-templates select=".">
+                <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+              </xsl:apply-templates>;</xsl:otherwise>
+              </xsl:choose>
           </li>
         </xsl:for-each>
       </xsl:when>
@@ -294,6 +324,8 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
   
     
   <xsl:template match="modified.object">
+    <xsl:param name="arm_mim_clause"/>
+    <xsl:param name="arm_mim_suffix"/>
     <xsl:variable name="object">
       <xsl:choose>
         <xsl:when test="string-length(@interfaced.items)!=0">
@@ -303,13 +335,12 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-      </xsl:choose>
-      
+      </xsl:choose>      
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="@moved-to-module">
         <xsl:variable name="module_href"
-          select="concat('../../../modules/',@moved-to-module,'/sys/5_mim',$FILE_EXT,'#',@moved-to-module,'_mim.',@name)"/>
+          select="concat('../../../modules/',@moved-to-module,'/sys/',$arm_mim_clause,$FILE_EXT,'#',@moved-to-module,$arm_mim_suffix,'.',@name)"/>
         <xsl:variable name="module_ok">
           <xsl:call-template name="check_module_exists">
             <xsl:with-param name="module" select="@moved-to-module"/>
@@ -333,7 +364,7 @@ $Id: sect_g_change.xsl,v 1.9 2010/02/10 10:26:58 robbod Exp $
       </xsl:when>
       <xsl:when test="@moved-to-resource">
         <xsl:variable name="resource_href"
-          select="concat('../../../modules/',@moved-to-resource,'/sys/5_mim',$FILE_EXT,'#',@moved-to-module,'_mim.',@name)"/>
+          select="concat('../../../resources/',@moved-to-resource,'/',@moved-to-resource,$FILE_EXT,'#',@name)"/>
         <xsl:variable name="resource_ok">
           <xsl:call-template name="check_resource_exists">
             <xsl:with-param name="schema" select="@moved-to-resource"/>

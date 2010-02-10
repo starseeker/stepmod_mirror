@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.216 2010/02/07 09:05:39 robbod Exp $
+$Id: module.xsl,v 1.217 2010/02/08 06:56:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4417,10 +4417,12 @@ $module_ok,' Check the normatives references')"/>
       select="count(./*)"/>
     
     <!-- output the defaults -->
-    <xsl:apply-templates 
-      select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc">
-      <xsl:with-param name="number_start" select="$bibitem_cnt"/>
-    </xsl:apply-templates>
+    <xsl:if test="not(@output_default='no')">
+      <xsl:apply-templates
+        select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc">
+        <xsl:with-param name="number_start" select="$bibitem_cnt"/>
+      </xsl:apply-templates>
+    </xsl:if>
     
   </xsl:template>
 

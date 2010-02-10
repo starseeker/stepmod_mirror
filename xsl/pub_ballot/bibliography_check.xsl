@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
+$Id: bibliography_check.xsl,v 1.1 2010/02/10 10:03:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -43,18 +43,34 @@ $Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
           select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>
         <xsl:variable name="module_xml" select="document($pub_dir)"/>
         <h2>Index</h2>
-        <xsl:for-each select="$module_xml//module">
+        <xsl:apply-templates select="$module_xml//module" mode="bibilio_index">
           <xsl:sort select="@name"/>
-          <a name="index_{@name}"></a>
-          <a href="#{@name}"><xsl:value-of select="@name"/></a><br/>
-        </xsl:for-each>
+        </xsl:apply-templates>
         <xsl:apply-templates select="$module_xml//module" mode="bibilio">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </body>
     </html>
   </xsl:template>
-
+  
+  
+  <xsl:template match="module" mode="bibilio_index">    
+    <xsl:variable name="module_name" select="@name"/>
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="module_xml" select="document(concat('../',$module_dir, '/module.xml'))"/>
+    <xsl:choose>
+      <xsl:when test="$module_xml/module/bibliography">
+        <a name="index_{@name}"></a>
+        <a href="#{@name}"><xsl:value-of select="@name"/></a><br/>        
+      </xsl:when>
+      <xsl:otherwise><xsl:value-of select="@name"/> (default bibliography)<br/></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <xsl:template match="module" mode="bibilio">
     <xsl:variable name="module_name" select="@name"/>
     <xsl:variable name="module_dir">
@@ -63,18 +79,18 @@ $Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="module_xml" select="document(concat('../',$module_dir, '/module.xml'))"/>
-    <hr/>
-    <h1>
-      <a name="{$module_name}">
-        <xsl:value-of select="@name"/>
-      </a>
-    </h1>
-    <a href="#index_{$module_name}">index</a>
     <xsl:choose>
       <xsl:when test="$module_xml/module/bibliography">
+        <hr/>
+        <h1>
+          <a name="{$module_name}">
+            <xsl:value-of select="@name"/>
+          </a>
+        </h1>
+        <a href="#index_{$module_name}">index</a>
         <xsl:apply-templates select="$module_xml//module"/>
       </xsl:when>
-      <xsl:otherwise> <p>Default bibliography so not output</p> </xsl:otherwise>
+      <!--<xsl:otherwise> <p>Default bibliography so not output</p> </xsl:otherwise>-->
     </xsl:choose>
   </xsl:template>
 

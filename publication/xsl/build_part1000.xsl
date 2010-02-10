@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.9 2010/02/05 11:47:30 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.10 2010/02/10 08:42:57 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -5077,6 +5077,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:text>
 	 </xsl:text>
 		<xsl:variable name="target1">
+			normref_check bibliography_check 
 			<xsl:apply-templates select="./resource_docs" mode="target_all"/>
 			<xsl:apply-templates select="./modules" mode="target_all"/>
 			<xsl:apply-templates select="./application_protocols" mode="target_all"/>

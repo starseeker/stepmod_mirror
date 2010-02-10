@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.4 2004/12/17 20:02:34 thendrix Exp $
+$Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -69,7 +69,7 @@ $Id: normref_check.xsl,v 1.4 2004/12/17 20:02:34 thendrix Exp $
 
   <xsl:template match="publication">
     <xsl:variable name="publication_index" 
-      select="concat('../../publication/publication/',@directory,'/publication_index.xml')"/>
+      select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>
     <xsl:apply-templates select="document($publication_index)/publication_index" mode="html_body"/>
   </xsl:template>
 

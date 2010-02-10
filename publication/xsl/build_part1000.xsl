@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.8 2010/02/05 09:29:54 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.9 2010/02/05 11:47:30 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -63,7 +63,9 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:text>
 					<xsl:apply-templates select="." mode="target_variables"/>					
 					<xsl:apply-templates select="." mode="target_checkcvstag"/>
-					<xsl:apply-templates select="." mode="target_prebuildcheck"/>
+					<xsl:apply-templates select="." mode="target_prebuildcheck"/>					
+					<xsl:apply-templates select="." mode="target_normref_check"/>					
+					<xsl:apply-templates select="." mode="target_bibliography_check"/>
 					<xsl:apply-templates select="." mode="target_init"/>
 					<xsl:apply-templates select="." mode="target_isoindex"/>
 					<xsl:apply-templates select="." mode="target_zip"/>
@@ -6332,6 +6334,82 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${PUBSRCDIR}/publication_index.txt'"/>
 				</xsl:attribute>
 			</xsl:element>			
+		</target>
+	</xsl:template>
+	
+	<!-- generate the target "normref_check" -->
+	<!-- Note - that this target should be included in isoindex, but left out
+		as not all publication packages have a normref_check file yet -->
+	<xsl:template match="part1000.publication_index" mode="target_normref_check">
+		<xsl:text>
+		</xsl:text>
+		<target name="normref_check" depends="variables" 
+			description="Create normative reference check">
+			<xsl:element name="xslt">
+				<xsl:attribute name="in">
+					<xsl:value-of select="'${PUBSRCDIR}/sys/normref_check.xml'"/>
+				</xsl:attribute>
+				<xsl:attribute name="out">
+					<xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="'${PUBDIR}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/normref_check.xsl'"/>
+				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
+				<param name="stepmodhome" expression="."/>
+				<xsl:element name="param">
+					<xsl:attribute name="name">
+						<xsl:value-of select="'date'"/>
+					</xsl:attribute>
+					<xsl:attribute name="expression">
+						<xsl:value-of select="'${DATE}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+		</target>
+	</xsl:template>
+
+	<!-- generate the target "bibliography_check" -->
+	<!-- Note - that this target should be included in isoindex, but left out
+		as not all publication packages have a normref_check file yet -->
+	<xsl:template match="part1000.publication_index" mode="target_bibliography_check">
+		<xsl:text>
+		</xsl:text>
+		<target name="bibliography_check" depends="variables" 
+			description="Create normative reference check">
+			<xsl:element name="xslt">
+				<xsl:attribute name="in">
+					<xsl:value-of select="'${PUBSRCDIR}/sys/bibliography_check.xml'"/>
+				</xsl:attribute>
+				<xsl:attribute name="out">
+					<xsl:value-of select="'${PUBDIR}/bibliography_check.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="'${PUBDIR}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/bibliography_check.xsl'"/>
+				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
+				<param name="stepmodhome" expression="."/>
+				<xsl:element name="param">
+					<xsl:attribute name="name">
+						<xsl:value-of select="'date'"/>
+					</xsl:attribute>
+					<xsl:attribute name="expression">
+						<xsl:value-of select="'${DATE}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
 		</target>
 	</xsl:template>
 	

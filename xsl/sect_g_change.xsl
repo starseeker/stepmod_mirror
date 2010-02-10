@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.7 2010/02/07 10:07:24 robbod Exp $
+$Id: sect_g_change.xsl,v 1.8 2010/02/08 13:31:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -30,6 +30,7 @@ $Id: sect_g_change.xsl,v 1.7 2010/02/07 10:07:24 robbod Exp $
     <xsl:choose>
       <xsl:when test="//changes and //usage_guide">G</xsl:when>
       <xsl:when test="//changes">F</xsl:when>
+      <xsl:otherwise>G</xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
   <xsl:call-template name="annex_header">
@@ -77,7 +78,7 @@ $Id: sect_g_change.xsl,v 1.7 2010/02/07 10:07:24 robbod Exp $
     </xsl:when>
     <xsl:otherwise>
       <p>
-        A change history has not been provided.
+        This is the first edition of the part.
       </p>
     </xsl:otherwise>
   </xsl:choose>

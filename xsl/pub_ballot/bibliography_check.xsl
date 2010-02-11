@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: bibliography_check.xsl,v 1.1 2010/02/10 10:03:33 robbod Exp $
+$Id: bibliography_check.xsl,v 1.2 2010/02/10 15:13:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -36,8 +36,20 @@ $Id: bibliography_check.xsl,v 1.1 2010/02/10 10:03:33 robbod Exp $
       <body>
         <h1>Bibliography summary</h1>
         <p>
-          Note: Only bibliographies are NOT the default are output
+          Note: Only bibliographies that are NOT the default are output as there is 
+          no need to check the others.
         </p>
+        <p>
+          The Supplementary Directives states that references should be in the following
+          order:
+        </p>
+        <ol>  
+          <li>ISO standards, ordered by their standard number</li>
+          <li>IEC standards, ordered by their standard number</li>
+          <li>ISO/IEC standards, ordered by their standard number</li>
+          <li>other standards, ordered alphabetically by their standard designation and
+          standard number</li>
+        </ol>
         
         <xsl:variable name="pub_dir"
           select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>

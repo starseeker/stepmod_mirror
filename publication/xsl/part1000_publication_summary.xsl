@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.4 2010/02/10 08:42:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -88,15 +88,21 @@ $Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
         </tr>
       </table>
       <hr/>
-      <p>
-        <!-- NOTE - not all packages have normref_check file -->
-        Normative reference 
-        <a href="normref_check{$FILE_EXT}">check</a>
-      </p>
         <p>
           <!-- NOTE - not all packages have normref_check file -->
-          Bibliography  reference 
-          <a href="bibliography_check{$FILE_EXT}">check</a>
+          
+          <a href="bibliography_check{$FILE_EXT}">All bibliographies</a>
+        </p>
+      <p>
+        <!-- NOTE - not all packages have normref_check file -->
+        All normative references 
+        <a href="normref_check{$FILE_EXT}">SC4 check</a>
+      </p>
+        <p>
+        <a>
+          Modules date check
+          <a href="modules_check{$FILE_EXT}">SC4 check</a>
+        </a>
         </p>
       <xsl:apply-templates select="./modules" mode="table_hdr"/>      
     </body>
@@ -109,11 +115,16 @@ $Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
     <table border="1">
       <tr>
       <td><b>Module</b></td>
-      <td><b>Part</b></td>
-      <td><b>Edition</b></td>
-      <td><b>Stage</b></td>
-      <td><b>Year of<br/>publication</b></td>
-      <td><b>CVS file revisions</b></td>
+        <td><b>Part</b></td>
+        <td><b>Stage</b></td>
+        <td><b>Edition</b></td>
+        <td><b>Year of<br/>publication</b></td>   
+        <td><b>Date of<br/>publication</b></td> 
+        <td><b>Previous year<br/>of publication</b></td>       
+        <td><b>Published</b></td>
+        <td><b>Title</b></td>
+        <td><b>French title</b></td>
+        <td><b>CVS file revisions</b></td>
       </tr>
       <xsl:apply-templates select="./module" mode="table_row">
         <xsl:sort select="@name"/>
@@ -175,20 +186,7 @@ $Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
           </xsl:choose>
         </td>
         
-        <!-- Version -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@version))>0">
-              <xsl:value-of select="$module_node/@version"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
-        <!-- Status -->
+        <!-- Stage -->
         <td>
           <xsl:choose>
             <xsl:when 
@@ -201,7 +199,20 @@ $Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
           </xsl:choose>
         </td>
         
-        <!-- Year -->
+          <!-- Version -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($module_node/@version))>0">
+                <xsl:value-of select="$module_node/@version"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Year -->
         <td>
           <xsl:choose>
             <xsl:when 
@@ -213,18 +224,49 @@ $Id: part1000_publication_summary.xsl,v 1.3 2009/08/10 14:18:44 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </td>
-        
-        <!-- SC4 cover page -->
-        <!-- <td>
-             <xsl:variable name="sc4_xref"
-               select="concat($pub_dir,'/data/modules/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
-             <a href="{$sc4_xref}">sc4_cover.htm</a>
-           </td>
-           -->
-        
-        <xsl:variable name="status"
-          select="translate(translate($module_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
-  
+          <!-- Date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($module_node/@publication.date))>0">
+                <xsl:value-of select="$module_node/@publication.date"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+        <!-- Previous ed date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($module_node/@previous.revision.year))>0">
+                <xsl:value-of select="$module_node/@previous.revision.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+           
+        <td>
+          <xsl:value-of select="$module_node/@published"/>          
+        </td>
+          
+          
+          <!--  Title -->
+          <td>
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="$module_node/@name"/>
+            </xsl:call-template>            
+          </td>
+          <!-- French Title -->
+          <td>
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="$module_node/@name.french"/>
+            </xsl:call-template> 
+          </td>
         <!-- CVS revisions -->
         <td>
           <xsl:variable name="cvs_xref"

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
+$Id: sect_g_change.xsl,v 1.11 2010/02/10 13:25:27 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -309,6 +309,7 @@ $Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
   </xsl:template>
   
   <xsl:template name="output_interfaced_items">
+    <xsl:param name="interface_type"/>
     <xsl:param name="interface_name"/>
     <xsl:param name="interfaced_items"/>
     <xsl:variable name="output2" 
@@ -319,7 +320,7 @@ $Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
           select="normalize-space(translate($interfaced_items,',()','   '))"/>
         </xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="concat($interface_name,'(',$output1,')')"/>    
+    <xsl:value-of select="concat($interface_type,' ',$interface_name,'(',$output1,')')"/>    
   </xsl:template>
   
     
@@ -329,29 +330,30 @@ $Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
     <xsl:variable name="object">
       <xsl:choose>
         <xsl:when test="string-length(@interfaced.items)!=0">
-        <xsl:call-template name="output_interfaced_items">
+          <xsl:call-template name="output_interfaced_items">
+            <xsl:with-param name="interface_type" select="@type"/>
             <xsl:with-param name="interface_name" select="@name"/>
             <xsl:with-param name="interfaced_items" select="@interfaced.items"/>
           </xsl:call-template>
         </xsl:when>
-        <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+        <xsl:otherwise><xsl:value-of select="concat(@type,' ',@name)"/></xsl:otherwise>
       </xsl:choose>      
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="@moved-to-module">
-        <xsl:variable name="module_href"
-          select="concat('../../../modules/',@moved-to-module,'/sys/',$arm_mim_clause,$FILE_EXT,'#',@moved-to-module,$arm_mim_suffix,'.',@name)"/>
-        <xsl:variable name="module_ok">
+      <xsl:when test="@moved-to-module"><xsl:variable name="module_ok">
           <xsl:call-template name="check_module_exists">
             <xsl:with-param name="module" select="@moved-to-module"/>
           </xsl:call-template>
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$module_ok='true'">
-            <xsl:value-of select="concat($object,' has been moved to the module ')"/>
+            <xsl:value-of select="concat($object,' has been moved to the module ',@moved-to-module)"/>
+            <!--<xsl:value-of select="concat($object,' has been moved to the module ')"/>
+            <xsl:variable name="module_href"
+              select="concat('../../../modules/',@moved-to-module,'/sys/',$arm_mim_clause,$FILE_EXT,'#',@moved-to-module,$arm_mim_suffix,'.',@name)"/>
             <a href="{$module_href}">
               <xsl:value-of select="@moved-to-module"/>
-            </a>            
+            </a>-->
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="error_message">
@@ -363,8 +365,6 @@ $Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
         </xsl:choose>
       </xsl:when>
       <xsl:when test="@moved-to-resource">
-        <xsl:variable name="resource_href"
-          select="concat('../../../resources/',@moved-to-resource,'/',@moved-to-resource,$FILE_EXT,'#',@name)"/>
         <xsl:variable name="resource_ok">
           <xsl:call-template name="check_resource_exists">
             <xsl:with-param name="schema" select="@moved-to-resource"/>
@@ -372,10 +372,13 @@ $Id: sect_g_change.xsl,v 1.10 2010/02/10 12:28:04 robbod Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
+            <xsl:value-of select="concat($object,' has been moved to the resource ',@moved-to-resource )"/>
+            <!--<xsl:variable name="resource_href"
+              select="concat('../../../resources/',@moved-to-resource,'/',@moved-to-resource,$FILE_EXT,'#',@name)"/>
             <xsl:value-of select="concat($object,' has been moved to the resource ')"/>
             <a href="{$resource_href}">
               <xsl:value-of select="@moved-to-resource"/>
-            </a>
+            </a>-->
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="error_message">

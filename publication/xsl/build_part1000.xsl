@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.10 2010/02/10 08:42:57 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.11 2010/02/10 09:52:26 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -63,7 +63,7 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:text>
 					<xsl:apply-templates select="." mode="target_variables"/>					
 					<xsl:apply-templates select="." mode="target_checkcvstag"/>
-					<xsl:apply-templates select="." mode="target_prebuildcheck"/>					
+					<xsl:apply-templates select="." mode="target_modules_check"/>					
 					<xsl:apply-templates select="." mode="target_normref_check"/>					
 					<xsl:apply-templates select="." mode="target_bibliography_check"/>
 					<xsl:apply-templates select="." mode="target_init"/>
@@ -1481,7 +1481,7 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- generate the target "init" -->
 	<xsl:template match="part1000.publication_index" mode="target_init">
-		<target xsl:extension-element-prefixes="exslt" name="init" depends="checkcvstag, prebuildcheck, variables">
+		<target xsl:extension-element-prefixes="exslt" name="init" depends="checkcvstag, modules_check, variables">
 			<xsl:element name="mkdir">
 				<xsl:attribute name="dir">
 					<xsl:value-of select="'${P1000DIR}'"/>
@@ -5077,7 +5077,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:text>
 	 </xsl:text>
 		<xsl:variable name="target1">
-			normref_check bibliography_check 
+			normref_check bibliography_check modules_check
 			<xsl:apply-templates select="./resource_docs" mode="target_all"/>
 			<xsl:apply-templates select="./modules" mode="target_all"/>
 			<xsl:apply-templates select="./application_protocols" mode="target_all"/>
@@ -6308,33 +6308,32 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	</xsl:template>
 	
-	<xsl:template match="part1000.publication_index" mode="target_prebuildcheck">
+	<xsl:template match="part1000.publication_index" mode="target_modules_check">
 		<xsl:text>
 		</xsl:text>
-		<target xsl:extension-element-prefixes="exslt" name="prebuildcheck" depends="variables" 
+		<target xsl:extension-element-prefixes="exslt" name="modules_check" depends="variables" 
 			description="Check the modules dates etc.">
-			<xsl:element name="xslt">
-				<xsl:attribute name="includes">
-					<xsl:value-of select="'${PUBSRCDIR}/publication_index.xml'"/>
+			<xsl:element name="xslt">				
+				<xsl:attribute name="in">
+					<xsl:value-of select="'${PUBSRCDIR}/sys/modules_check.xml'"/>
+				</xsl:attribute>
+				<xsl:attribute name="out">
+					<xsl:value-of select="'${PUBDIR}/modules_check.htm'"/>
 				</xsl:attribute>
 				<xsl:attribute name="destdir">
-					<xsl:value-of select="'.'"/>
+					<xsl:value-of select="'${PUBDIR}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="extension">
-					<xsl:value-of select="'.txt'"/>
+					<xsl:value-of select="'.htm'"/>
 				</xsl:attribute>
 				<xsl:attribute name="force">
 					<xsl:value-of select="'yes'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${PUBSRCSTYLES}/check_SMRLCR_modules.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/modules_check.xsl'"/>
 				</xsl:attribute>
-			</xsl:element>
-			<xsl:element name="delete">
-				<xsl:attribute name="file">
-					<xsl:value-of select="'${PUBSRCDIR}/publication_index.txt'"/>
-				</xsl:attribute>
-			</xsl:element>			
+				<param name="output_type" expression="HTM"/>
+			</xsl:element>	
 		</target>
 	</xsl:template>
 	

@@ -128,8 +128,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               </xsl:when>
             </xsl:choose>
           </xsl:if>
-        </xsl:for-each>
-        
+        </xsl:for-each>        
       </body>
     </html>
   </xsl:template>

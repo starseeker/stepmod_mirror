@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: bibliography_check.xsl,v 1.2 2010/02/10 15:13:15 robbod Exp $
+$Id: bibliography_check.xsl,v 1.3 2010/02/11 06:51:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -34,10 +34,24 @@ $Id: bibliography_check.xsl,v 1.2 2010/02/10 15:13:15 robbod Exp $
   <xsl:template match="publication">
     <html>
       <body>
-        <h1>Bibliography summary</h1>
+        <xsl:variable name="pub_dir"
+          select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>
+        <xsl:variable name="publication_index_xml" select="document($pub_dir)"/>
+        <xsl:variable name="index_file">
+          <xsl:choose>
+            <xsl:when test="$FILE_EXT='.xml'">
+              <xsl:value-of select="concat('publication_summary',$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="'index.htm'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <h1><xsl:value-of select="concat('CR ',$publication_index_xml/part1000.publication_index/@name,':- Bibliography summary')"/></h1>
+        <p><a href="{$index_file}">CR index</a></p>
         <p>
           Note: Only bibliographies that are NOT the default are output as there is 
-          no need to check the others.
+          no need to check the defaults.
         </p>
         <p>
           The Supplementary Directives states that references should be in the following
@@ -51,14 +65,11 @@ $Id: bibliography_check.xsl,v 1.2 2010/02/10 15:13:15 robbod Exp $
           standard number</li>
         </ol>
         
-        <xsl:variable name="pub_dir"
-          select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>
-        <xsl:variable name="module_xml" select="document($pub_dir)"/>
         <h2>Index</h2>
-        <xsl:apply-templates select="$module_xml//module" mode="bibilio_index">
+        <xsl:apply-templates select="$publication_index_xml//module" mode="bibilio_index">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="$module_xml//module" mode="bibilio">
+        <xsl:apply-templates select="$publication_index_xml//module" mode="bibilio">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </body>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
+$Id: normref_check.xsl,v 1.6 2010/02/10 08:43:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -40,8 +40,9 @@ $Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
       select="concat('../../ballots/ballots/',@directory,'/ballot_index.xml')"/>
     <xsl:apply-templates select="document($ballot_index)/ballot_index" mode="html_body"/>
   </xsl:template>
+  
 
-  <xsl:template match="ballot_index|publication_index" mode="html_body">
+  <xsl:template match="ballot_index|publication_index|part1000.publication_index" mode="html_body">
     <HTML>
       <head>
         <title>Normative reference check</title>
@@ -71,6 +72,7 @@ $Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
     <xsl:variable name="publication_index" 
       select="concat('../../publication/part1000/',@directory,'/publication_index.xml')"/>
     <xsl:apply-templates select="document($publication_index)/publication_index" mode="html_body"/>
+    <xsl:apply-templates select="document($publication_index)/part1000.publication_index" mode="html_body"/>
   </xsl:template>
 
   
@@ -234,13 +236,12 @@ $Id: normref_check.xsl,v 1.5 2005/02/04 23:43:42 thendrix Exp $
   </xsl:template>
 
 
-<xsl:template name="output_unpublished_normrefs_footnote">
-  <p>
+  <xsl:template name="output_unpublished_normrefs_footnote">
+    <p>
       <a name="tobepub">
-        <sup>1)</sup> To be published.
-      </a>      
+        <sup>1)</sup> To be published. </a>
     </p>
-</xsl:template>
+  </xsl:template>
 
 
 </xsl:stylesheet>

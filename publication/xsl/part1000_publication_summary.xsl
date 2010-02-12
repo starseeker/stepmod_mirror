@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.4 2010/02/10 08:42:57 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -95,13 +95,13 @@ $Id: part1000_publication_summary.xsl,v 1.4 2010/02/10 08:42:57 robbod Exp $
         </p>
       <p>
         <!-- NOTE - not all packages have normref_check file -->
-        All normative references 
-        <a href="normref_check{$FILE_EXT}">SC4 check</a>
+        SC4: All normative references 
+        <a href="normref_check{$FILE_EXT}">check</a>
       </p>
         <p>
         <a>
-          Modules date check
-          <a href="modules_check{$FILE_EXT}">SC4 check</a>
+          SC4: Modules error check
+          <a href="modules_check{$FILE_EXT}">check</a>
         </a>
         </p>
       <xsl:apply-templates select="./modules" mode="table_hdr"/>      

@@ -1,4 +1,4 @@
-//$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $
+//$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to generate a Part 1000 publication package
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+    ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -68,7 +68,7 @@ function mkPublicationPackage(publication) {
 	fso.CreateFolder(publicationDir);
 	fso.CreateFolder(publicationDir+"/sys");
 
-	mkPublicationXsl(publication, "publication_summary.xsl", "publication_summary.xml");
+	mkPublicationXsl(publication, "part1000_publication_summary.xsl", "publication_summary.xml");
 
 	//Make the publication_index file
 	var publicationIndexXml = stepmodHome+"/publication/part1000/"+publication+"/publication_index.xml";
@@ -79,7 +79,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE part1000.publication_index SYSTEM \"../../dtd/p1000_publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
@@ -167,7 +167,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -186,7 +186,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -204,7 +204,25 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/bibliography_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
+  	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
+  	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
+	ts.WriteLine("Purpose: Display summary of normative references");
+	ts.WriteLine("-->");
+	ts.WriteLine("<publication directory=\""+publication+"\"/>");
+	ts.Close();
+
+
+	// Make the biblio-check
+	var biblioXml = stepmodHome+"/publication/part1000/"+publication+"/sys/modules_check.xml";
+	fso.CreateTextFile(biblioXml, true );
+	f = fso.GetFile(biblioXml);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/modules_check.xsl\" ?>");
+	ts.WriteLine("<!-- ");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -221,7 +239,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.2 2010/01/15 07:25:22 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.3 2010/02/10 08:43:52 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

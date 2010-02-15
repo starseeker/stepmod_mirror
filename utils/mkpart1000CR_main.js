@@ -1,4 +1,4 @@
-//$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $
+//$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to generate a Part 1000 publication package
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+    ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -79,10 +79,9 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE part1000.publication_index SYSTEM \"../../dtd/p1000_publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
-	ts.WriteLine("           and supplied to NIST under contract");
 	ts.WriteLine("  Purpose: A listing of modules to be published as a Part 1000 change request");
 	ts.WriteLine("           Note - to generate an ant build for this package, run:");
 	ts.WriteLine("              ant -buildfile buildbuild.xml");
@@ -134,27 +133,26 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  <!-- Only add the module once -->");
 	ts.WriteLine("  <modules>");
   	ts.WriteLine("    <!-- START: AP203 modules -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
   	ts.WriteLine("    <!-- END: AP203 modules -->");
 	ts.WriteLine("");
   	ts.WriteLine("    <!-- START: AP209 modules -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
   	ts.WriteLine("    <!-- END: AP09 modules -->");
 	ts.WriteLine("");
   	ts.WriteLine("    <!-- START: AP210 modules -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
   	ts.WriteLine("    <!-- END: AP210 modules -->");
 	ts.WriteLine("");
   	ts.WriteLine("    <!-- START: AP233 modules -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
-  	ts.WriteLine("    <!-- END: AP233 modules -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
 	ts.WriteLine("");
   	ts.WriteLine("    <!-- START: AP236 modules -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
   	ts.WriteLine("    <!-- END: AP236 modules -->");
 	ts.WriteLine("");
   	ts.WriteLine("    <!-- START: AP239 modules  -->");
-  	ts.WriteLine("    <!-- <module name=\"\"/> -->");
+  	ts.WriteLine("    <!-- <module name=\"\" team=\"\"/> -->");
   	ts.WriteLine("    <!-- END: AP239 specific modules -->");
 	ts.WriteLine("");
 	ts.WriteLine("  </modules>");
@@ -171,7 +169,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -190,7 +188,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -208,7 +206,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/bibliography_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -226,7 +224,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/modules_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -243,7 +241,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.4 2010/02/12 08:13:33 robbod Exp $");
+	ts.WriteLine("$Id: mkpart1000CR_main.js,v 1.5 2010/02/12 09:53:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

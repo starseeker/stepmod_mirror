@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.176 2010/02/07 06:33:51 robbod Exp $
+$Id: common.xsl,v 1.177 2010/02/07 10:07:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1182,6 +1182,18 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   </xsl:element>
 </xsl:template>
 
+
+  <xsl:template name="remove_word">
+    <xsl:param name="list"/>
+    <xsl:param name="word"/>    
+    <xsl:variable
+      name="first"
+      select="substring-before($list,$word)"/>
+    <xsl:variable
+      name="rest"
+      select="substring-after($list,$word)"/>
+    <xsl:value-of select="normalize-space(concat($first,$rest))"/>
+</xsl:template>
 
 <!-- Given a string representing a space separated list, remove all
      duplicate words

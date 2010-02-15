@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
+$Id: build_apdocs.xsl,v 1.48 2010/02/05 09:11:43 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -9436,6 +9436,9 @@ $Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
         <xsl:when test="starts-with($this-schema,'aic_')">
           <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
         </xsl:when>
+        <xsl:when test="substring-before($this-schema,'_mim_lf')"/>
+        <xsl:when test="substring-before($this-schema,'_arm_lf')"/>       
+        
         <xsl:when test="substring-before($this-schema,'_arm')">
           BAD SCHEMA name !!! {<xsl:value-of select="$this-schema"/>}
         </xsl:when>
@@ -9555,8 +9558,17 @@ $Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
 
 <xsl:template match="express_ref" mode="schema_name">
   <xsl:param name="done"/>
-  <xsl:variable name="schema"
-    select="concat(' ',substring-before(substring-after(substring-after(@linkend,':'),':'),'.'),' ')"/> 
+  <xsl:variable name="schema">
+    <xsl:choose>
+      <xsl:when test="contains(@linkend,'.')">
+        <xsl:value-of select="concat(' ',substring-before(substring-after(substring-after(@linkend,':'),':'),'.'),' ')"/> 
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat(' ',substring-after(substring-after(@linkend,':'),':'),' ')"/> 
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
   <xsl:variable name="schema1">
     <xsl:choose>
       <xsl:when test="contains($schema,'_arm ')">
@@ -9619,6 +9631,28 @@ $Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
         </xsl:call-template>
       </xsl:variable>
       <xsl:value-of select="concat(' ',$mod_schema,' ')"/>
+      
+        <xsl:variable name="ap_schemas1">
+          <xsl:apply-templates select="$ap_node//express_ref|$ap_node//module_ref"
+            mode="schema_name">
+            <xsl:with-param name="done" select="$mod_schema"/>
+          </xsl:apply-templates>
+        </xsl:variable>
+        <xsl:variable name="ap_schemas2"
+          select="translate(normalize-space($ap_schemas1),$UPPER,$LOWER)"/> 
+          
+        <xsl:variable name="ap_schemas3">
+          <xsl:call-template name="remove_duplicates">
+            <xsl:with-param name="list" select="$ap_schemas2"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="ap_schemas4">
+          <xsl:call-template name="sort_list">
+            <xsl:with-param name="list" select="$ap_schemas3"/>
+          </xsl:call-template>
+        </xsl:variable>
+      <xsl:message>[[<xsl:value-of select="concat(' ',$ap_schemas4,' ')"/>]]</xsl:message>
+      <xsl:value-of select="concat(' ',$ap_schemas4,' ')"/>
     </xsl:for-each>
   </xsl:variable>
   
@@ -9634,9 +9668,14 @@ $Id: build_apdocs.xsl,v 1.47 2009/05/20 14:04:33 robbod Exp $
       </xsl:for-each>
     </xsl:for-each>
   </xsl:variable>
-
-  <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules),string($resdocs))"/>
-
+  
+  <xsl:variable name="todo_schema_list1" select="concat(string($aps),string($modules),string($resdocs))"/>
+  
+  <xsl:variable name="todo_schema_list">
+    <xsl:call-template name="remove_duplicates">
+      <xsl:with-param name="list" select="$todo_schema_list1"/>
+    </xsl:call-template>
+  </xsl:variable> 
 
   <xsl:variable name="mim_schemas">
     <xsl:call-template name="depends-on-recurse-mim-x">

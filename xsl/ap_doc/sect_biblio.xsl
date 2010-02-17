@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.19 2005/08/10 14:21:16 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.20 2010/02/05 16:52:44 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -116,10 +116,14 @@ Incorrect numbering and of bibitems
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
-    <xsl:if test="stdtitle and stdnumber">
-      <xsl:text>, </xsl:text>
-    </xsl:if>
-    <xsl:apply-templates select="stdtitle"/>
+    	<xsl:if test="author">
+	      <xsl:text>, </xsl:text>
+		  <xsl:apply-templates select="author"/>
+    	</xsl:if>
+    	<xsl:if test="stdtitle and stdnumber">
+	      <xsl:text>, </xsl:text>
+		  <xsl:apply-templates select="stdtitle"/>
+    	</xsl:if>
 
     <xsl:if test="subtitle">
       <xsl:text>, </xsl:text>
@@ -212,6 +216,10 @@ Incorrect numbering and of bibitems
   </xsl:if>
 </xsl:template>
 
+<xsl:template match="author">
+<xsl:value-of select="normalize-space(.)"/>
+</xsl:template>
+
 <xsl:template match="stdtitle">
 <i>
 <xsl:value-of select="normalize-space(.)"/>
@@ -234,7 +242,7 @@ Incorrect numbering and of bibitems
 <xsl:template match="ulink">
 <xsl:text>Available from the World Wide Web: </xsl:text>
   <xsl:variable name="href" select="."/>
-  <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
+  <a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
 
 

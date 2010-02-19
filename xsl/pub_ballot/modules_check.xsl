@@ -122,6 +122,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                 <xsl:variable name="module_path"
                   select="concat('../../data/modules/',@name,'/module.xml')"/>
                 <xsl:variable name="module" select="document($module_path)"/>
+                <xsl:attribute name="part">
+                  <xsl:value-of select="$module/module/@part"/>
+                </xsl:attribute>
                 <xsl:if test="$module/module/@published!='y'">
                   <error>
                     <xsl:attribute name="error.type">published</xsl:attribute>
@@ -241,7 +244,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:sort select="@team"/>
       <xsl:sort select="@name"/>
       <xsl:if test="./error">
-        <xsl:value-of select="@team"/><a href="#modall.{@name}"><xsl:value-of select="concat(': ',@name)"/></a>
+        <xsl:value-of select="@team"/><a href="#modall.{@name}"><xsl:value-of select="concat(': ',@name,' ISO 10303-',@part)"/></a>
         <xsl:apply-templates select="." mode="CR"/>
         <br/>              
       </xsl:if>
@@ -252,7 +255,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:sort select="@name"/>
       <xsl:if test="./error">
         <h2>
-          <a name="modall.{@name}"><xsl:value-of select="concat(@team,': ',@name)"/></a>
+          <a name="modall.{@name}"><xsl:value-of select="concat(@team,': ',@name,' ISO 10303-',@part)"/></a>
         </h2>
         <xsl:choose>
           <xsl:when test="error[@error.type='publication.year' or @error.type='publication.date' or @error.type='published']">
@@ -277,7 +280,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         test="./error[@error.type='publication.year' or @error.type='publication.date' or @error.type='published']">
         <xsl:value-of select="@team"/>
         <a href="#moddate.{@name}">
-          <xsl:value-of select="concat(': ',@name)"/>
+          <xsl:value-of select="concat(': ',@name,' ISO 10303-',@part)"/>
         </a>
         <xsl:apply-templates select="." mode="CR"/>
         <br/>
@@ -288,7 +291,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:sort select="@name"/>
       <xsl:if test="./error[@error.type='publication.year' or @error.type='publication.date' or @error.type='published']">
         <h2>
-          <a name="moddate.{@name}"><xsl:value-of select="concat(@team,': ',@name,' - date error')"/></a> 
+          <a name="moddate.{@name}"><xsl:value-of select="concat(@team,': ',@name,' ISO 10303-',@part,' - date error')"/></a> 
         </h2>
         [<a href="#top">Top</a>&#160;<a href="#modall.{@name}">All errors</a>&#160;]                        
         <p>Module in change requests: <xsl:apply-templates select="." mode="CR"/></p>

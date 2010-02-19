@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.6 2010/02/12 08:06:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
 
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+<xsl:stylesheet
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+  version="1.0">
 
   <xsl:import href="../../xsl/ap_doc/common.xsl"/>
   <xsl:import href="../../xsl/res_doc/common.xsl"/>
@@ -88,33 +92,90 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
         </tr>
       </table>
       <hr/>
-        <p>
-          <!-- NOTE - not all packages have normref_check file -->
-          
-          <a href="bibliography_check{$FILE_EXT}">All bibliographies</a>
-        </p>
-      <p>
-        <!-- NOTE - not all packages have normref_check file -->
-        SC4: All normative references 
-        <a href="normref_check{$FILE_EXT}">check</a>
-      </p>
-        <p>
-        <a>
-          SC4: Modules error check
-          <a href="modules_check{$FILE_EXT}">check</a>
-        </a>
-        </p>
-      <xsl:apply-templates select="./modules" mode="table_hdr"/>      
+        
+        <p><a name="index">Index</a></p>
+        <ul>
+          <li>
+            <!-- NOTE - not all packages have normref_check file -->
+
+            <a href="bibliography_check{$FILE_EXT}">All bibliographies</a>
+          </li>
+          <li>
+            <!-- NOTE - not all packages have normref_check file --> SC4: All normative references
+              <a href="normref_check{$FILE_EXT}">check</a>
+          </li>
+          <li>
+            <a> SC4: Modules error check <a href="modules_check{$FILE_EXT}">check</a>
+            </a>
+          </li>
+          <li>
+            <a href="#modulenames">Modules sorted by name</a>
+          </li>
+          <li>
+            <a href="#modulenos">Modules sorted by part number</a>
+          </li>
+        </ul>
+              
+        <xsl:apply-templates select="./modules" mode="table"/>      
     </body>
   </HTML>
   </xsl:template>
 
-
-  <xsl:template match="modules" mode="table_hdr">
+  <xsl:template match="modules" mode="table">
+    <xsl:variable name="modules">
+      <modules>
+        <xsl:for-each select="module">
+          <xsl:variable name="module_ok">
+            <xsl:call-template name="check_module_exists">
+              <xsl:with-param name="module" select="@name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$module_ok='true'">
+            <module>
+              <xsl:variable name="module_file"
+                select="concat('../../data/modules/',@name,'/module.xml')"/>
+              <xsl:variable name="module_node" select="document($module_file)/module"/>              
+              <xsl:attribute name="name">
+                <xsl:value-of select="@name"/>
+              </xsl:attribute>
+              
+              <xsl:attribute name="name.french">
+                <xsl:value-of select="$module_node/@name.french"/>
+              </xsl:attribute>
+              <xsl:attribute name="part">
+                <xsl:value-of select="$module_node/@part"/>
+              </xsl:attribute>
+              <xsl:attribute name="previous.revision.year">
+                <xsl:value-of select="$module_node/@previous.revision.year"/>
+              </xsl:attribute>              
+              <xsl:attribute name="publication.date">
+                <xsl:value-of select="$module_node/@publication.date"/>
+              </xsl:attribute>              
+              <xsl:attribute name="publication.year">
+                <xsl:value-of select="$module_node/@publication.year"/>
+              </xsl:attribute>              
+              <xsl:attribute name="published">        
+                <xsl:value-of select="$module_node/@published"/>
+              </xsl:attribute>              
+              <xsl:attribute name="status">
+                <xsl:value-of select="$module_node/@status"/>
+              </xsl:attribute>              
+              <xsl:attribute name="version">
+                <xsl:value-of select="$module_node/@version"/>
+              </xsl:attribute>             
+              </module>
+          </xsl:if>
+        </xsl:for-each>
+      </modules>
+    </xsl:variable>
     <p/>
+    <h3>      
+      <a name="modulenames">Modules sorted by name</a>
+    </h3> 
+    <p><a href="#index">Index</a></p>
     <table border="1">
       <tr>
-      <td><b>Module</b></td>
+        <td><b>Module</b></td>
         <td><b>Part</b></td>
         <td><b>Stage</b></td>
         <td><b>Edition</b></td>
@@ -126,13 +187,61 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
         <td><b>French title</b></td>
         <td><b>CVS file revisions</b></td>
       </tr>
-      <xsl:apply-templates select="./module" mode="table_row">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
+           
+      <xsl:choose>
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:variable name="modules_nodes" select="msxsl:node-set($modules)"/>
+          <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="modules_nodes" select="exslt:node-set($modules)"/>
+          <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </xsl:when>
+      </xsl:choose>
+    </table>
+ 
+ 
+    <h3>      
+      <a name="modulenos">Modules sorted by part number</a>
+    </h3>
+    <p><a href="#index">Index</a></p>
+    <table border="1">
+      <tr>
+        <td><b>Module</b></td>
+        <td><b>Part</b></td>
+        <td><b>Stage</b></td>
+        <td><b>Edition</b></td>
+        <td><b>Year of<br/>publication</b></td>   
+        <td><b>Date of<br/>publication</b></td> 
+        <td><b>Previous year<br/>of publication</b></td>       
+        <td><b>Published</b></td>
+        <td><b>Title</b></td>
+        <td><b>French title</b></td>
+        <td><b>CVS file revisions</b></td>
+      </tr>
+      
+      <xsl:choose>
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:variable name="modules_nodes" select="msxsl:node-set($modules)"/>
+          <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
+            <xsl:sort select="@part"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="modules_nodes" select="exslt:node-set($modules)"/>
+          <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
+            <xsl:sort select="@part"/>
+          </xsl:apply-templates>
+        </xsl:when>
+      </xsl:choose>
     </table>
   </xsl:template>
-
-  <xsl:template match="module" mode="table_row">
+  
+  <xsl:template match="module" mode="table_row_orig">
     <xsl:variable name="module_ok">
       <xsl:call-template name="check_module_exists">
         <xsl:with-param name="module" select="@name"/>
@@ -166,7 +275,7 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
                 <xsl:value-of select="concat('10303-',$module_node/@part)"/>
                 
                 <!-- check that the part number in repository_index - that in
-                     module -->
+                  module -->
                 <xsl:variable name="module" select="@name"/>
                 <xsl:variable name="repo_mod_number"
                   select="document('../../repository_index.xml')/repository_index/modules/module[@name=$module]/@part"/>
@@ -175,30 +284,30 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
                   <font color="#FF0000" size="-1">
                     The part number in repository_index
                     (<xsl:value-of select="$repo_mod_number"/>)
-                  does not equal that in module 
-                  (<xsl:value-of select="$module_node/@part"/>).
-                </font>
-              </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
-        <!-- Stage -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@status))>0">
-              <xsl:value-of select="$module_node/@status"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
+                    does not equal that in module 
+                    (<xsl:value-of select="$module_node/@part"/>).
+                  </font>
+                </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Stage -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($module_node/@status))>0">
+                <xsl:value-of select="$module_node/@status"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
           <!-- Version -->
           <td>
             <xsl:choose>
@@ -213,17 +322,17 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
           </td>
           
           <!-- Year -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@publication.year))>0">
-              <xsl:value-of select="$module_node/@publication.year"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($module_node/@publication.year))>0">
+                <xsl:value-of select="$module_node/@publication.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
           <!-- Date -->
           <td>
             <xsl:choose>
@@ -237,7 +346,7 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
             </xsl:choose>
           </td>
           
-        <!-- Previous ed date -->
+          <!-- Previous ed date -->
           <td>
             <xsl:choose>
               <xsl:when 
@@ -249,10 +358,10 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
               </xsl:otherwise>
             </xsl:choose>
           </td>
-           
-        <td>
-          <xsl:value-of select="$module_node/@published"/>          
-        </td>
+          
+          <td>
+            <xsl:value-of select="$module_node/@published"/>          
+          </td>
           
           
           <!--  Title -->
@@ -263,8 +372,174 @@ $Id: part1000_publication_summary.xsl,v 1.5 2010/02/11 16:47:24 robbod Exp $
           </td>
           <!-- French Title -->
           <td>
+            <xsl:value-of select="module_node/@name.french"/>]
             <xsl:call-template name="module_display_name">
               <xsl:with-param name="module" select="$module_node/@name.french"/>
+            </xsl:call-template> 
+          </td>
+          <!-- CVS revisions -->
+          <td>
+            <xsl:variable name="cvs_xref"
+              select="concat($pub_dir,'/data/modules/',@name,'/publication_record.xml')"/>
+            
+            <a href="{$cvs_xref}">publication_record.xml</a>
+          </td>
+        </tr>
+      </xsl:when>
+      <!-- module does not exist in repository index -->
+      <xsl:otherwise>
+        <tr>
+          <td>
+            <xsl:value-of select="../@name"/>
+          </td>
+          <td>
+            <xsl:value-of select="@name"/>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Error publication1: ', $module_ok)"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+        </tr>      
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="module" mode="table_row">
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$module_ok='true'">
+        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/part1000')"/>
+        
+        <xsl:variable name="mod_dir_name"
+          select="concat('iso10303_',./@part)"/>
+        
+        <tr>
+          <!-- Module -->
+          <td>
+            <xsl:variable name="mod_xref"
+              select="concat($pub_dir,'/data/modules/',@name,'/sys/cover.htm')"/>
+            <a href="{$mod_xref}">
+              <xsl:value-of select="@name"/>
+            </a>
+          </td>
+          
+          <!-- Part -->
+          <td>
+            <xsl:choose>
+              <xsl:when test="./@part">
+                <xsl:value-of select="concat('10303-',./@part)"/>
+                
+                <!-- check that the part number in repository_index - that in
+                     module -->
+                <xsl:variable name="module" select="@name"/>
+                <xsl:variable name="repo_mod_number"
+                  select="document('../../repository_index.xml')/repository_index/modules/module[@name=$module]/@part"/>
+                <xsl:if test="$repo_mod_number != ./@part">
+                  <br/>
+                  <font color="#FF0000" size="-1">
+                    The part number in repository_index
+                    (<xsl:value-of select="$repo_mod_number"/>)
+                  does not equal that in module 
+                  (<xsl:value-of select="./@part"/>).
+                </font>
+              </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Stage -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space(./@status))>0">
+              <xsl:value-of select="./@status"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+          <!-- Version -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@version))>0">
+                <xsl:value-of select="./@version"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Year -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space(./@publication.year))>0">
+              <xsl:value-of select="./@publication.year"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+          <!-- Date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@publication.date))>0">
+                <xsl:value-of select="./@publication.date"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+        <!-- Previous ed date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@previous.revision.year))>0">
+                <xsl:value-of select="./@previous.revision.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+           
+        <td>
+          <xsl:value-of select="./@published"/>          
+        </td>
+          
+          
+          <!--  Title -->
+          <td>
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="./@name"/>
+            </xsl:call-template>            
+          </td>
+          <!-- French Title -->
+          <td>
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="./@name.french"/>
             </xsl:call-template> 
           </td>
         <!-- CVS revisions -->

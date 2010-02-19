@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.48 2010/02/05 09:11:43 robbod Exp $
+$Id: build_apdocs.xsl,v 1.49 2010/02/15 15:47:39 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -9651,8 +9651,7 @@ $Id: build_apdocs.xsl,v 1.48 2010/02/05 09:11:43 robbod Exp $
             <xsl:with-param name="list" select="$ap_schemas3"/>
           </xsl:call-template>
         </xsl:variable>
-      <xsl:message>[[<xsl:value-of select="concat(' ',$ap_schemas4,' ')"/>]]</xsl:message>
-      <xsl:value-of select="concat(' ',$ap_schemas4,' ')"/>
+     <xsl:value-of select="concat(' ',$ap_schemas4,' ')"/>
     </xsl:for-each>
   </xsl:variable>
   

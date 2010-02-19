@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.20 2010/02/05 16:52:44 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.21 2010/02/17 16:54:58 lothartklein Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -241,7 +241,7 @@ Incorrect numbering and of bibitems
 
 <xsl:template match="ulink">
 <xsl:text>Available from the World Wide Web: </xsl:text>
-  <xsl:variable name="href" select="."/>
+  <xsl:variable name="href" select="normalize-space(.)"/>
   <a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
 

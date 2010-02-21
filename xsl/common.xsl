@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.177 2010/02/07 10:07:03 robbod Exp $
+$Id: common.xsl,v 1.178 2010/02/15 15:46:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4934,5 +4934,20 @@ is case sensitive.')"/>
       <xsl:value-of select="$subtitle"/>
     </i>
   </xsl:template>
+  
+  <!-- 
+      used to display the URL in a n bibliographic entry 
+      Used by:
+      sect_biblio.xsl
+      ap_doc/sect_biblio.xsl
+      
+  -->
+  <xsl:template match="ulink">
+    <xsl:text>Available from the World Wide Web: </xsl:text>
+    <xsl:variable name="href" select="normalize-space(.)"/>
+    &lt;<a href="{$href}"><xsl:value-of select="$href"/></a>&gt;<xsl:text/>
+  </xsl:template>
+  
+  
   
 </xsl:stylesheet>

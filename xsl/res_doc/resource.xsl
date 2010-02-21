@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.75 2010/01/15 19:56:03 lothartklein Exp $
+$Id: resource.xsl,v 1.76 2010/02/03 23:18:58 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -3534,11 +3534,13 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     <xsl:text>.</xsl:text>
   </xsl:template>
 
-  <xsl:template match="ulink">
+<!-- moved to 
+	stepmod/xsl/common.xsl
+	<xsl:template match="ulink">
     <xsl:text>Available from the World Wide Web: </xsl:text>
     <xsl:variable name="href" select="."/>
     <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
-  </xsl:template>
+  </xsl:template>-->
 
   <xsl:template match="resource" mode="annex_list" >
     <!-- returns a list of annexes with content as a string with each annex name as a single word(no spaces)

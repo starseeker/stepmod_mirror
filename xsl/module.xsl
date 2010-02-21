@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.217 2010/02/08 06:56:55 robbod Exp $
+$Id: module.xsl,v 1.218 2010/02/10 18:08:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4771,30 +4771,7 @@ $module_ok,' Check the normatives references')"/>
   </xsl:if>
 </xsl:template>
 
-<xsl:template match="ulink">
-  <xsl:choose>
-    <xsl:when test="string-length(@url)=0">
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message" select="'No URL provided'"/>
-      </xsl:call-template>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="href" select="@url"/>
-      <br/>
-      <a href="{@url}" target="_blank">
-        <xsl:apply-templates/>
-        <xsl:choose>
-          <xsl:when test="string-length(text()) > 0" >
-            (<xsl:value-of select="@url"/>)
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="@url"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </a>      
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+
 
 
 <!-- check that all of the modules that are used in the ARM are used in the

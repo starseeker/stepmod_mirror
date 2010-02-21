@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.20 2005/03/31 22:29:29 thendrix Exp $
+$Id: banner.xsl,v 1.21 2010/02/19 15:01:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -207,9 +207,15 @@ $Id: banner.xsl,v 1.20 2005/03/31 22:29:29 thendrix Exp $
                   <a href="ballot_modules{$FILE_EXT}" target="index">
                     Ballots
                   </a>
-                </p><p class="bannermenuitem">
+                </p>
+                <p class="bannermenuitem">
                   <a href="smrl_crs{$FILE_EXT}" target="index">
                     SMRL change requests
+                  </a>
+                </p>
+                <p class="bannermenuitem">
+                  <a href="tags_index{$FILE_EXT}" target="index">
+                    CVS tags
                   </a>
                 </p>
               </td>

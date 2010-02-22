@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.11 2010/02/10 09:52:26 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.12 2010/02/12 09:26:04 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -4804,12 +4804,16 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">file.verbose</xsl:attribute>
 			<xsl:attribute name="value">false</xsl:attribute>
-		</xsl:element>
-		<xsl:element name="delete">
-			<xsl:attribute name="dir">
-				<xsl:value-of select="concat('${part1000ModulesTarget}',@name)"/>
-			</xsl:attribute>
+		</xsl:element>		
+		<xsl:element name="delete">	
 			<xsl:attribute name="verbose">${file.verbose}</xsl:attribute>
+			<xsl:attribute name="failonerror">false</xsl:attribute>
+			<xsl:element name="fileset">
+				<xsl:attribute name="dir">
+					<xsl:value-of select="concat('${part1000ModulesTarget}',@name)"/>
+				</xsl:attribute>
+				<xsl:attribute name="includes">**/*</xsl:attribute>
+			</xsl:element>
 		</xsl:element>
 		<xsl:element name="copy">
 			<xsl:attribute name="todir">

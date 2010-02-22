@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.6 2002/08/05 16:20:48 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.7 2010/02/22 22:32:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -47,7 +47,7 @@ $Id: sect_2_refs.xsl,v 1.6 2002/08/05 16:20:48 robbod Exp $
         <xsl:value-of select="concat('Normref ',@name,' is missing the &lt;normref/&gt; element')"/>
       </xsl:with-param>
     </xsl:call-template>    
-  </xsl:if>
+  </xsl:if>  
 </xsl:template>
 
 <xsl:template match="normrefs">
@@ -120,10 +120,10 @@ $Id: sect_2_refs.xsl,v 1.6 2002/08/05 16:20:48 robbod Exp $
       </xsl:element>
       <!--  </normref_nodes> -->
     </xsl:variable>
-
-  <!--  <saxon:output href="c:/users/rbn/temp/fooo.xml" method="xml">
+<!--
+    <saxon:output href="c:/users/rbn/temp/fooo.xml" method="xml">
       <xsl:copy-of select="$normref_list"/>
-    </saxon:output> -->
+    </saxon:output>--> 
     
     <xsl:choose>
       <xsl:when test="function-available('msxsl:node-set')">
@@ -133,7 +133,6 @@ $Id: sect_2_refs.xsl,v 1.6 2002/08/05 16:20:48 robbod Exp $
       <xsl:when test="function-available('exslt:node-set')">
         <xsl:variable name="normref_nodes" select="exslt:node-set($normref_list)"/>
         <xsl:apply-templates select="$normref_nodes" mode="output_normrefs"/>
-
       </xsl:when>
       <xsl:otherwise>
         <xsl:message> Only support SAXON and MXSL XSL parsers. </xsl:message>
@@ -382,6 +381,20 @@ $Id: sect_2_refs.xsl,v 1.6 2002/08/05 16:20:48 robbod Exp $
     <xsl:sort select="@id" data-type="number"/>
   </xsl:apply-templates>
   <xsl:apply-templates select="normref.resource" mode="check_resources"/>
+  <xsl:if test="normref/stdref[@published='n']">
+    <table width="200">
+      <tr>
+        <td><hr/></td>
+      </tr>
+      <tr>
+        <td>
+          <a name="tobepub">
+            <sup>1)</sup> To be published.
+          </a>
+        </td>
+      </tr>
+    </table>
+  </xsl:if>
 </xsl:template>
 
   <xsl:template match="normref.resource" mode="check_resources">

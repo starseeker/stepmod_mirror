@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.11 2010/02/10 13:25:27 robbod Exp $
+$Id: sect_g_change.xsl,v 1.12 2010/02/11 11:22:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -142,13 +142,11 @@ $Id: sect_g_change.xsl,v 1.11 2010/02/10 13:25:27 robbod Exp $
   <xsl:template match="arm.changes">
     <xsl:param name="annex"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
-    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
     <h2>
       <a name="{$aname}">
-        <xsl:value-of select="concat($annex, '.', $section_number,' Changes made to the ARM')"/>
+        <xsl:value-of select="concat($annex, '.2 Changes made to the ARM')"/>
       </a>
-    </h2>
-    <xsl:apply-templates select="./description"/>
+    </h2><xsl:apply-templates select="./description"/>
     <xsl:apply-templates select="./arm.additions"/>
     <xsl:apply-templates select="./arm.modifications"/>
     <xsl:apply-templates select="./arm.deletions"/>
@@ -162,7 +160,7 @@ $Id: sect_g_change.xsl,v 1.11 2010/02/10 13:25:27 robbod Exp $
   <xsl:template match="mapping.changes">   
     <xsl:param name="annex"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
-    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
+    <xsl:variable name="section_number" select="count(../arm.changes)+2"/>
     <h2>
       <a name="{$aname}">
         <xsl:value-of select="concat($annex, '.', $section_number,' Changes made to the mapping')"/>
@@ -179,7 +177,7 @@ $Id: sect_g_change.xsl,v 1.11 2010/02/10 13:25:27 robbod Exp $
   
   <xsl:template match="mim.changes">
     <xsl:param name="annex"/>
-    <xsl:variable name="section_number" select="count(preceding-sibling::node())+2"/>
+    <xsl:variable name="section_number" select="count(../arm.changes)+count(../mapping.changes)+2"/>
     <xsl:variable name="aname" select="concat(name(),../@version)"/>
     <h2>
       <a name="{$aname}">

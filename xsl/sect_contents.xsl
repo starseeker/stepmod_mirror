@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.45 2010/02/05 07:37:20 robbod Exp $
+$Id: sect_contents.xsl,v 1.46 2010/02/08 13:33:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -872,24 +872,29 @@ $Id: sect_contents.xsl,v 1.45 2010/02/05 07:37:20 robbod Exp $
         <BR/>
         <xsl:for-each select="./node()">
           <xsl:variable name="aahref" select="concat(name(),../@version)"/>
-          <xsl:variable name="sect_no" select="position()+count(../description)+1"/>
-          <xsl:variable name="aannex_no"
-            select="concat($annex_no,'.',$sect_no)"/>
           <xsl:choose>
-            <xsl:when test="name()='arm.changes'"> &#160; &#160; &#160; &#160;
+            <xsl:when test="name()='arm.changes'">   
+              <xsl:variable name="aannex_no" select="concat($annex_no,'.2')"/>
+              &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
                 <xsl:value-of select="concat($aannex_no,' Changes made to the ARM')"/>
               </A>
               <BR/>
             </xsl:when>
-            <xsl:when test="name()='mapping.changes'"> &#160; &#160; &#160; &#160;
+            <xsl:when test="name()='mapping.changes'">               
+              <xsl:variable name="section_number" select="count(../arm.changes)+2"/>              
+              <xsl:variable name="aannex_no" select="concat($annex_no,'.',$section_number)"/>
+              &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
                 <xsl:value-of
                   select="concat($aannex_no,' Changes made to the mapping')"/>
               </A>
               <BR/>
             </xsl:when>
-            <xsl:when test="name()='mim.changes'"> &#160; &#160; &#160; &#160;
+            <xsl:when test="name()='mim.changes'">               
+              <xsl:variable name="section_number" select="count(../arm.changes)+count(../mapping.changes)+2"/>              
+              <xsl:variable name="aannex_no" select="concat($annex_no,'.',$section_number)"/>
+              &#160; &#160; &#160; &#160;
               &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
                 <xsl:value-of select="concat($aannex_no,' Changes made to the MIM')"/>
               </A>

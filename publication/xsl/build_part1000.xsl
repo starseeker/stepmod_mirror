@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.12 2010/02/12 09:26:04 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.13 2010/02/22 09:09:07 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -73,7 +73,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:if test="./modules/module">
 						<xsl:apply-templates select="." mode="target_isomodules"/>
 						<xsl:apply-templates select="." mode="target_publish_isomodules"/>
-						<xsl:apply-templates select="." mode="target_mergePart1000"/>
+						<xsl:apply-templates select="." mode="target_mergeSMRL"/>
 					</xsl:if>
 
 					<xsl:if test="./application_protocols/ap_doc">
@@ -4799,7 +4799,7 @@ Purpose: To build the initial ANT publication file.
 
 	</xsl:template>
 
-	<xsl:template match="module" mode="target_mergePart1000">
+	<xsl:template match="module" mode="target_mergeSMRL">
 		<!-- added this so that we can debug if the files are not being deleted -->
 		<xsl:element name="property">
 			<xsl:attribute name="name">file.verbose</xsl:attribute>
@@ -5099,18 +5099,18 @@ Purpose: To build the initial ANT publication file.
 	</xsl:template>
 
 	<!-- generate the target "all" -->
-	<xsl:template match="part1000.publication_index" mode="target_mergePart1000">
+	<xsl:template match="part1000.publication_index" mode="target_mergeSMRL">
 		<xsl:text>
 		</xsl:text>
 		<xsl:element name="target">
-			<xsl:attribute name="name">mergePart1000</xsl:attribute>
+			<xsl:attribute name="name">mergeSMRL</xsl:attribute>
 			<xsl:attribute name="depends">resources, isomodules</xsl:attribute>
 			<xsl:attribute name="description">Merge the published modules and resources into
 				part1000</xsl:attribute>
 
 			<xsl:element name="property">
 				<xsl:attribute name="name">part1000target</xsl:attribute>
-				<xsl:attribute name="value">../part1000</xsl:attribute>
+				<xsl:attribute name="value">../SMRL</xsl:attribute>
 			</xsl:element>
 			<xsl:element name="property">
 				<xsl:attribute name="name">part1000ModulesTarget</xsl:attribute>
@@ -5120,7 +5120,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:attribute name="name">part1000ResourcesTarget</xsl:attribute>
 				<xsl:attribute name="value">${part1000target}/data/resources/</xsl:attribute>
 			</xsl:element>
-			<xsl:apply-templates select="modules/module" mode="target_mergePart1000"/>
+			<xsl:apply-templates select="modules/module" mode="target_mergeSMRL"/>
 
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">${part1000ResourcesTarget}</xsl:attribute>

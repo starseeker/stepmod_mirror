@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.13 2010/02/22 09:09:07 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.14 2010/02/22 13:52:28 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -5121,6 +5121,27 @@ Purpose: To build the initial ANT publication file.
 				<xsl:attribute name="value">${part1000target}/data/resources/</xsl:attribute>
 			</xsl:element>
 			<xsl:apply-templates select="modules/module" mode="target_mergeSMRL"/>
+			<xsl:element name="xslt">				
+				<xsl:attribute name="in">
+					<xsl:value-of select="'${PUBSRCDIR}/publication_index.xml'"/>
+				</xsl:attribute>
+				<xsl:attribute name="out">
+					<xsl:value-of select="concat('${part1000target}/SMRLCR',@name,'index.htm')"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="'${part1000target}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="force">
+					<xsl:value-of select="'yes'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${PUBSRCSTYLES}/SMRLCRindex.xsl'"/>
+				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
+			</xsl:element>	
 
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">${part1000ResourcesTarget}</xsl:attribute>

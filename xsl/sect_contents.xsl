@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.46 2010/02/08 13:33:20 robbod Exp $
+$Id: sect_contents.xsl,v 1.47 2010/02/22 08:57:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -858,7 +858,7 @@ $Id: sect_contents.xsl,v 1.46 2010/02/08 13:33:20 robbod Exp $
       &#160; &#160; &#160; 
       <A HREF="./g_change{$FILE_EXT}#general"><xsl:value-of select="concat($annex_letter,'.1 General')"/></A>
       <BR/>
-      <xsl:for-each select="./changes/node()">
+      <xsl:for-each select="./changes/change">
         <xsl:sort select="@version"/>
         <xsl:variable name="annex_no" select="concat($annex_letter,' ',position()+1)"/>
         <xsl:variable name="ahref" select="concat('change_',@version)"/> &#160; &#160;

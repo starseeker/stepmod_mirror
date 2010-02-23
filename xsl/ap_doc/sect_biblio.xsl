@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.23 2010/02/21 06:49:17 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.24 2010/02/21 07:08:23 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -68,7 +68,8 @@ Incorrect numbering and of bibitems
   <xsl:apply-templates select="./bibitem.inc">
     <xsl:with-param name="number_start" select="$bibitem_cnt"/>
   </xsl:apply-templates>
-</xsl:template>-->
+      </xsl:template>
+      -->
   
   <xsl:template match="bibliography">
     <!-- output the defaults -->
@@ -87,7 +88,7 @@ Incorrect numbering and of bibitems
   </xsl:template>
   
 
-<xsl:template match="bibitem">
+  <xsl:template match="bibitem|bibitem.techreport">
   <!-- the value from which to start the counting. -->
   <xsl:param name="number_start" select="0"/>
 
@@ -113,13 +114,14 @@ Incorrect numbering and of bibitems
   <A NAME="{$frag}"/>
 
     [<xsl:value-of select="$number_start+$number"/>] 
-	<!--	<xsl:apply-templates select="orgname"/> 
-    <xsl:apply-templates select="orgname"/>   -->
+      <xsl:apply-templates select="." mode="bibitem_content"/>
+      <xsl:apply-templates select="ulink"/>
+    </p>
+  </xsl:template>
+
+  <!-- item is a standard -->
+  <xsl:template match="bibitem" mode="bibitem_content">
     <xsl:apply-templates select="stdnumber"/>
-    	<xsl:if test="author">
-	      <xsl:text>, </xsl:text>
-		  <xsl:apply-templates select="author"/>
-    	</xsl:if>
     	<xsl:if test="stdtitle and stdnumber">
 	      <xsl:text>, </xsl:text>
 		  <xsl:apply-templates select="stdtitle"/>
@@ -137,13 +139,101 @@ Incorrect numbering and of bibitems
       <xsl:text>, </xsl:text>
     </xsl:if>
     <xsl:apply-templates select="pubdate"/>
-
-    <xsl:if test="ulink">
-      <xsl:text>, </xsl:text>
-    </xsl:if>
-    <xsl:apply-templates select="ulink"/>
     <xsl:text>.</xsl:text>
-  </p>
+  </xsl:template>
+
+  <!-- item is a technical report -->
+  <xsl:template match="bibitem.techreport" mode="bibitem_content">
+    <xsl:variable name="elt_list">
+      <elt-list terminator=".">
+	<elt>
+	  <xsl:value-of select="author"/>
+	</elt>
+      </elt-list>
+      <elt-list terminator=".">
+	<elt>
+	  <i>
+	    <xsl:value-of select="title"/>
+	  </i>
+	</elt>
+      </elt-list>
+      <elt-list separator="," terminator=".">
+	<elt>
+	  <xsl:value-of select="report-type"/>
+	  <xsl:text> </xsl:text>
+	  <xsl:value-of select="number"/>
+	</elt>
+	<elt>
+	  <xsl:value-of select="institution"/>
+	</elt>
+	<elt>
+	  <xsl:value-of select="pubdate"/>
+	</elt>
+      </elt-list>
+    </xsl:variable>
+    <xsl:variable name="elt_list1">
+      <xsl:call-template name="prune_elt_list">
+	<xsl:with-param name="elt_list" select="$elt_list"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:call-template name="render_elt_list">
+      <xsl:with-param name="elt_list" select="$elt_list1"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <!-- prune_elt_list and supporting templates                          -->
+
+  <xsl:template name="prune_elt_list">
+    <xsl:param name="elt_list"/>
+    <xsl:apply-templates select="$elt_list/*" mode="prune-elt-list"/>
+  </xsl:template>
+
+  <xsl:template match="elt-list" mode="prune-elt-list">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="prune-elt-list"/>
+      <xsl:apply-templates mode="prune-elt-list"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="elt" mode="prune-elt-list">
+    <xsl:if test="string-length(normalize-space(.)) > 0">
+      <xsl:copy-of select="."/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="@*" mode="prune-elt-list">
+    <xsl:copy-of select="."/>
+  </xsl:template>
+
+  <!-- render_elt_list and supporting templates                         -->
+
+  <xsl:template name="render_elt_list">
+    <xsl:param name="elt_list"/>
+    <xsl:apply-templates select="$elt_list/*" mode="render-elt-list"/>
+  </xsl:template>
+
+  <xsl:template match="elt-list" mode="render-elt-list">
+    <xsl:variable name="s1">
+      <xsl:for-each select="elt|elt-list">
+	<xsl:if test="position() > 1">
+	  <xsl:value-of select="../@separator"/>
+	  <xsl:text> </xsl:text>
+	</xsl:if>
+	<xsl:apply-templates select="." mode="render-elt-list"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:variable name="s2" select="normalize-space($s1)"/>
+    <xsl:copy-of select="$s1"/>
+    <xsl:if test="(string-length(@terminator) > 0) and (substring($s2,string-length($s2)) != @terminator)">
+      <xsl:value-of select="@terminator"/>
+    </xsl:if>
+    <xsl:text> </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="elt" mode="render-elt-list">
+    <xsl:for-each select="*|text()">
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
 </xsl:template>
 
 
@@ -153,7 +243,7 @@ Incorrect numbering and of bibitems
 
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="bibitem" 
-    select="document('../../data/basic/bibliography.xml')/bibitem.list/bibitem[@id=$ref]"/>
+		  select="document('../../data/basic/bibliography.xml')/bibitem.list/node()[starts-with(local-name(),'bibitem') and (@id=$ref)]"/>
   <xsl:choose>
     <xsl:when test="$bibitem">
       <xsl:apply-templates select="$bibitem">
@@ -238,6 +328,15 @@ Incorrect numbering and of bibitems
     <xsl:value-of select="normalize-space(.)"/>
   </xsl:if>
 </xsl:template>
+
+  <xsl:template match="ulink">
+    <xsl:text>Available from the World Wide Web: </xsl:text>
+    <xsl:variable name="href" select="."/>
+    <xsl:text>&lt;</xsl:text>
+    <a href="{$href}"><xsl:value-of select="$href"/></a>
+    <xsl:text>&gt;.</xsl:text>
+  </xsl:template>
+
 
 <!-- check that all bibitems have been published, if not output
      footnote -->

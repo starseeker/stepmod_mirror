@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.9 2010/02/22 23:40:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -105,7 +105,7 @@ $Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
     <!--
       <saxon:output href="c:/users/rbn/temp/fooo.xml" method="xml">
       <xsl:copy-of select="$normref_list"/>
-      </saxon:output>--> 
+      </saxon:output> -->
     
     <xsl:choose>
       <xsl:when test="function-available('msxsl:node-set')">
@@ -194,8 +194,7 @@ $Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
       <xsl:value-of 
         select="concat('module:',$abbr/term.ref/@resource.name)"/>
     </xsl:when>            
-  </xsl:choose>
-  
+  </xsl:choose>  
 </xsl:template>
 
 
@@ -242,7 +241,6 @@ $Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
 
     <!-- Interface to RESOURCE schema -->
       <xsl:otherwise>
-        <!-- STILL TO DO -->
         <xsl:variable name="ir_ok">
           <xsl:call-template name="check_resource_exists">
             <xsl:with-param name="schema" select="$schema_lcase"/>
@@ -253,35 +251,59 @@ $Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
             select="document(concat('../data/resources/',
             $schema_lcase,'/',$schema_lcase,'.xml'))/express/@reference"
           />
-          <xsl:variable name="ir_refn1" select="normalize-space($ir_ref)"/>
+          <xsl:variable name="ir_refn1" select="normalize-space($ir_ref)"/>   
           <xsl:variable name="ir_refn2">
             <xsl:choose>
-              <xsl:when test="starts-with($ir_ref,'ISO 10303-')">
+              <xsl:when test="starts-with($ir_refn1,'ISO 10303-')">
                 <xsl:value-of select="concat('10303',normalize-space(substring-after($ir_refn1,'-')))"/>
               </xsl:when>
-              <xsl:when test="starts-with($ir_ref,'IS0 10303')">
+              <xsl:when test="starts-with($ir_refn1,'IS0 10303')">
                 <xsl:value-of select="concat('10303',normalize-space(substring-after($ir_refn1,'10303')))"/>
               </xsl:when>
-              <xsl:when test="starts-with($ir_ref,'10303-')">
+              <xsl:when test="starts-with($ir_refn1,'10303-')">
                 <xsl:value-of select="concat('10303',normalize-space(substring-after($ir_refn1,'10303-')))"/>
               </xsl:when>
               <xsl:otherwise><xsl:value-of select="$ir_refn1"/></xsl:otherwise>
             </xsl:choose>            
-          </xsl:variable>  
-          <xsl:element name="normref.resource">
+          </xsl:variable> 
+          <xsl:variable name="normref.inc">
+            <xsl:choose>
+              <xsl:when test="starts-with($ir_ref,'ISO 10303-')">
+                <xsl:value-of select="concat('ref10303-',normalize-space(substring-after($ir_refn1,'-')))"/>
+              </xsl:when>
+              <xsl:when test="starts-with($ir_ref,'IS0 10303')">
+                <xsl:value-of select="concat('ref10303-',normalize-space(substring-after($ir_refn1,'10303')))"/>
+              </xsl:when>
+              <xsl:when test="starts-with($ir_ref,'10303-')">
+                <xsl:value-of select="concat('ref10303-',normalize-space(substring-after($ir_refn1,'10303-')))"/>
+              </xsl:when>
+              <xsl:otherwise><xsl:value-of select="$ir_refn1"/></xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:variable name="normref.list" select="document('../data/basic/normrefs.xml')/normref.list"/>
+          
+          <xsl:apply-templates 
+            select="$normref.list/normref[@id=$normref.inc]"
+            mode="generate_node">
+          </xsl:apply-templates>
+          <xsl:if test="count($normref.list/normref[@id=$normref.inc])=0"><xsl:element name="normref.resource">            
             <xsl:attribute name="id">
               <xsl:value-of select="$ir_refn2"/>
             </xsl:attribute>
             <xsl:attribute name="interfaced_schema">
-              <xsl:value-of select="$schema_lcase"/>
-            </xsl:attribute>
-            <xsl:attribute name="express_reference">
-              <xsl:value-of select="$ir_ref"/>
-            </xsl:attribute>
-            <xsl:attribute name="module">
-              <xsl:value-of select="../@name"/>
-            </xsl:attribute>
-          </xsl:element>
+                <xsl:value-of select="$schema_lcase"/>
+              </xsl:attribute>
+              <xsl:attribute name="express_reference">
+                <xsl:value-of select="$ir_ref"/>
+              </xsl:attribute>
+              <xsl:attribute name="module">
+                <xsl:value-of select="../@name"/>
+              </xsl:attribute>
+              <xsl:attribute name="normref.inc">
+                <xsl:value-of select="$normref.inc"/>
+              </xsl:attribute>
+            </xsl:element>            
+          </xsl:if>
         </xsl:if>
       </xsl:otherwise>
   </xsl:choose>
@@ -383,12 +405,12 @@ $Id: sect_2_refs.xsl,v 1.8 2010/02/22 23:16:32 robbod Exp $
   <xsl:template match="normref.resource" mode="check_resources">
     <xsl:variable name="id" select="@id"/>
     <xsl:variable name="normrefs" select="../normref[@id=$id]"/>
-    <xsl:if test="count(../normref[@id=$id])=0">
-        <xsl:call-template name="error_message">
+    <xsl:if test="count(../normref[@id=$id])=0">      
+      <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="concat('Interface error 2: ', @module, ' references the schema ',@interfaced_schema,'. Add a normative reference to ',@express_reference)"/>
+          <xsl:value-of select="concat('Normref error 2: ', @module, ' references the schema ',@interfaced_schema,'. Add a normative reference to the IR in data/basic/normrefs.xml ',@normref.inc)"/>
         </xsl:with-param>
-        </xsl:call-template>      
+      </xsl:call-template>        
     </xsl:if>
   </xsl:template>
   

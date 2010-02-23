@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.178 2010/02/15 15:46:32 robbod Exp $
+$Id: common.xsl,v 1.179 2010/02/21 07:08:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -370,6 +370,19 @@ $Id: common.xsl,v 1.178 2010/02/15 15:46:32 robbod Exp $
           </xsl:if>
         </p>
         </td>
+        <td>
+          <font size="-2">
+            <p class="rcs">Module edition:</p>
+          </font>
+        </td>
+        <td>
+          <font size="-2">
+            <p class="rcs">
+              <xsl:value-of select="@version"/>
+            </p>
+          </font>
+        </td>
+        <td>&#160;&#160;</td>
         <td>
           <font size="-2">
             <p class="rcs">

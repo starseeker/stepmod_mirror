@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: sect_biblio.xsl,v 1.25 2010/02/23 14:18:30 radack Exp $
+    $Id: sect_biblio.xsl,v 1.26 2010/02/23 21:02:23 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -146,9 +146,9 @@
   <xsl:template match="bibitem.techreport" mode="bibitem_content">
     <xsl:variable name="elt_list">
       <elt-list separator="." terminator="." name="top-level">
-	<elt-list name="author">
-	  <elt name="author">
-	    <xsl:value-of select="normalize-space(author)"/>
+	<elt-list name="primary-responsibility">
+	  <elt name="primary-responsibility">
+	    <xsl:value-of select="normalize-space(primary-responsibility)"/>
 	  </elt>
 	</elt-list>
 	<elt name="stdtitle">
@@ -183,9 +183,9 @@
   <xsl:template match="bibitem.book" mode="bibitem_content">
     <xsl:variable name="elt_list">
       <elt-list separator="." terminator="." name="top-level">
-	<elt-list name="author">
-	  <elt name="author">
-	    <xsl:value-of select="normalize-space(author)"/>
+	<elt-list name="primary-responsibility">
+	  <elt name="primary-responsibility">
+	    <xsl:value-of select="normalize-space(primary-responsibility)"/>
 	  </elt>
 	</elt-list>
 	<elt name="stdtitle">
@@ -287,7 +287,7 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="author">
+  <xsl:template match="primary-responsibility">
     <xsl:value-of select="normalize-space(.)"/>
   </xsl:template>
 

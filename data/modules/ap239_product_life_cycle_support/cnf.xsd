@@ -1,37 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cnf="urn:oid:1.0.10303.28.2.1.2"
-           targetNamespace="urn:oid:1.0.10303.28.2.1.2"
-           elementFormDefault="unqualified"
-           attributeFormDefault="unqualified">
+<!-- $Id: $ -->
+<!-- from ISO 10303-28:2007(E) -->
+<xs:schema
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   xmlns:cnf="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"
+   targetNamespace="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"
+   elementFormDefault="unqualified" attributeFormDefault="unqualified">
    <xs:element name="configuration" nillable="true">
       <xs:complexType>
          <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="include">
                <xs:complexType>
-                  <xs:attribute name="configuration" type="xs:IDREF" use="required"/>
+                  <xs:attribute name="configuration" type="xs:IDREF"
+                     use="required"/>
                </xs:complexType>
             </xs:element>
             <xs:element ref="cnf:option"/>
             <xs:element ref="cnf:type"/>
             <xs:element ref="cnf:entity"/>
             <xs:element ref="cnf:schema" maxOccurs="1"/>
+            <xs:element ref="cnf:uosElement"/>
+            <xs:element ref="cnf:uosEntity"/>
+            <xs:element ref="cnf:rootEntity"/>
          </xs:choice>
          <xs:attribute name="id" type="xs:ID" use="required"/>
-         <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional"/>
+         <xs:attribute name="targetNamespace" type="xs:anyURI"
+            use="optional"/>
          <xs:attribute name="schema" type="xs:IDREF" use="optional"/>
-         <xs:attribute name="configurationLocation" type="cnf:Seq-anyURI" use="optional"/>
+         <xs:attribute name="configuration-location"
+            type="cnf:Seq-anyURI" use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="option">
       <xs:complexType>
-         <xs:attribute name="inheritance" type="xs:boolean" default="false"/>
-         <xs:attribute name="exp-type" type="cnf:exp-type" default="unspecified"/>
-         <xs:attribute name="entity_attribute" type="cnf:exp-attribute-global" use="optional"/>
-         <xs:attribute name="concrete_attribute" type="cnf:exp-attribute-global" use="optional"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" default="unspecified"/>
-         <xs:attribute name="naming-convention" type="cnf:naming-convention" default="initial-upper"/>
-         <xs:attribute name="keep" type="cnf:attributeType"/>
-         <xs:attribute name="generate-keys" type="xs:boolean" default="true"/>
+         <xs:attribute name="inheritance" type="xs:boolean"
+            default="false"/>
+         <xs:attribute name="exp-type" type="cnf:exp-type"
+            default="unspecified"/>
+         <xs:attribute name="entity-attribute"
+            type="cnf:exp-attribute-global" default="double-tag"/>
+         <xs:attribute name="concrete-attribute"
+            type="cnf:exp-attribute-global" default="attribute-tag"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+            default="unspecified"/>
+         <xs:attribute name="naming-convention"
+            type="cnf:naming-convention" default="initial-upper"/>
+         <xs:attribute name="keep-all" type="cnf:attributeType"/>
+         <xs:attribute name="generate-keys" type="xs:boolean"
+            default="true"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="type">
@@ -39,12 +55,17 @@
          <xs:choice minOccurs="0" maxOccurs="1">
             <xs:element ref="cnf:aggregate"/>
          </xs:choice>
-         <xs:attribute name="select" type="xs:NMTOKEN" use="required"/>
+         <xs:attribute name="select" type="cnf:patterns" use="required"/>
          <xs:attribute name="name" type="xs:NMTOKEN" use="optional"/>
          <xs:attribute name="map" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="exp-type" type="cnf:exp-type" use="optional"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" use="optional"/>
-         <!--<xs:attribute name="notation" type="xs:NOTATION" use="optional"/> --><xs:attribute name="keep" type="xs:boolean" use="optional" default="true"/>
+         <xs:attribute name="exp-type" type="cnf:exp-type"
+            use="optional"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+            use="optional"/>
+         <xs:attribute name="notation" type="xs:normalizedString"
+            use="optional"/>
+         <xs:attribute name="keep" type="xs:boolean" default="true"/>
+         <xs:attribute name="flatten" type="xs:boolean" use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="entity">
@@ -53,28 +74,37 @@
             <xs:element ref="cnf:attribute"/>
             <xs:element ref="cnf:inverse"/>
          </xs:choice>
-         <xs:attribute name="select">
+         <xs:attribute name="select" type="cnf:patterns" use="optional"/>
+         <xs:attribute name="synthetic" use="optional" >
             <xs:simpleType>
                <xs:restriction>
                   <xs:simpleType>
                      <xs:list itemType="xs:Name"/>
                   </xs:simpleType>
-                  <xs:minLength value="1"/>
+                  <xs:minLength value="2"/>
                </xs:restriction>
             </xs:simpleType>
          </xs:attribute>
-         <xs:attribute name="inheritance" type="xs:boolean" default="false"/>
+         <xs:attribute name="inheritance" type="xs:boolean"
+            default="false"/>
          <xs:attribute name="name" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="tag-source" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="tag-values" type="xs:NMTOKENS" use="optional"/>
+         <xs:attribute name="tag-source" type="xs:NMTOKEN"
+            use="optional"/>
+         <xs:attribute name="tag-values" type="xs:NMTOKENS"
+            use="optional"/>
          <xs:attribute name="map" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="exp-type" type="cnf:exp-type" use="optional"/>
+         <xs:attribute name="exp-type" type="cnf:exp-type"
+            use="optional"/>
          <xs:attribute name="content" type="cnf:content" use="optional"/>
-         <xs:attribute name="exp-attribute" type="cnf:exp-attribute" default="unspecified"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" use="optional"/>
-         <xs:attribute name="keep" type="xs:boolean" use="optional" default="true"/>
-         <xs:attribute name="new" type="xs:boolean" use="optional" default="false"/>
-         <xs:attribute name="implementation" type="xs:string" use="optional"/>
+         <xs:attribute name="exp-attribute" type="cnf:exp-attribute"
+            default="unspecified"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+         use="optional"/>
+         <xs:attribute name="keep" type="xs:boolean" default="true"/>
+         <xs:attribute name="new" type="xs:boolean"
+            default="false"/>
+         <xs:attribute name="implementation" type="xs:string"
+            use="optional"/>
          <xs:attribute name="facet" type="xs:string" use="optional"/>
       </xs:complexType>
    </xs:element>
@@ -83,33 +113,47 @@
          <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element ref="cnf:aggregate"/>
          </xs:choice>
+         <xs:attribute name="select" type="xs:NMTOKEN" use="optional"/>
+         <xs:attribute name="new" type="xs:boolean" default="false"/>
          <xs:attribute name="name" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="exp-attribute" type="cnf:exp-attribute" use="optional"/>
+         <xs:attribute name="exp-attribute" type="cnf:exp-attribute"
+            use="optional"/>
          <xs:attribute name="content" type="cnf:content" use="optional"/>
-         <xs:attribute name="aggregate-content" type="cnf:content" use="optional"/>
+         <xs:attribute name="aggregate-content" type="cnf:content"
+            use="optional"/>
          <xs:attribute name="map" type="xs:NMTOKEN" use="optional"/>
          <xs:attribute name="use-id" type="xs:boolean" use="optional"/>
          <xs:attribute name="keep" type="xs:boolean" default="true"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" use="optional"/>
-         <!--<xs:attribute name="notation" type="xs:NOTATION" use="optional"/> --><xs:attribute name="new" type="xs:boolean" use="optional" default="false"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+            use="optional"/>
+         <xs:attribute name="notation" type="xs:normalizedString"
+            use="optional"/>
+         <xs:attribute name="flatten" type="xs:boolean" use="optional"/>
          <xs:attribute name="ref" type="xs:NMTOKEN" use="optional"/>
          <xs:attribute name="use" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="implementation" type="xs:string" use="optional"/>
+         <xs:attribute name="implementation" type="xs:string"
+            use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="inverse">
       <xs:complexType>
-         <xs:attribute name="select" type="xs:NMTOKEN" use="required"/>
+         <xs:attribute name="select" type="xs:NMTOKEN"
+            use="optional"/>
          <xs:attribute name="name" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="exp-attribute" type="cnf:exp-attribute" use="optional"/>
+         <xs:attribute name="exp-attribute" type="cnf:exp-attribute"
+            use="optional"/>
          <xs:attribute name="content" type="cnf:content" use="optional"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" use="optional"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+            use="optional"/>
          <xs:attribute name="invert" type="xs:NMTOKEN" use="optional"/>
+         <xs:attribute name="map" type="xs:NMTOKEN" use="optional"/>
          <xs:attribute name="keep" type="xs:boolean" default="false"/>
-         <xs:attribute name="minOccurs" type="xs:nonNegativeInteger" default="0" use="optional"/>
-         <xs:attribute name="maxOccurs" type="cnf:nonNegativeInteger_or_unbounded" default="unbounded"
-                       use="optional"/>
-         <xs:attribute name="ref" type="xs:NMTOKEN" use="optional"/>
+         <xs:attribute name="minOccurs" type="xs:nonNegativeInteger"
+            default="0" use="optional"/>
+         <xs:attribute name="maxOccurs"
+            type="cnf:nonNegativeInteger_or_unbounded"
+            default="unbounded" use="optional"/>
+         <xs:attribute name="ref" type="xs:NMTOKEN" use="optional" />
       </xs:complexType>
    </xs:element>
    <xs:element name="aggregate">
@@ -118,67 +162,78 @@
             <xs:element ref="cnf:aggregate"/>
          </xs:choice>
          <xs:attribute name="name" type="xs:NMTOKEN" use="optional"/>
-         <xs:attribute name="exp-attribute" type="cnf:exp-attribute" use="optional"/>
-         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified" use="optional"/>
+         <xs:attribute name="content" type="cnf:content"
+            use="optional"/>
+         <xs:attribute name="tagless" type="cnf:boolean_or_unspecified"
+            use="optional"/>
          <xs:attribute name="use-id" type="xs:boolean" use="optional"/>
+         <xs:attribute name="flatten" type="xs:boolean" use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="schema">
       <xs:complexType>
-         <xs:choice>
-            <xs:element ref="cnf:namespace" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="cnf:include" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="cnf:containerObject" minOccurs="0" maxOccurs="1"/>
-            <xs:element ref="cnf:additionalObject" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:choice maxOccurs="unbounded">
+            <xs:element ref="cnf:namespace" minOccurs="0"
+               maxOccurs="unbounded"/>
+            <xs:element ref="cnf:include" minOccurs="0"
+               maxOccurs="unbounded"/>
+            <xs:element ref="cnf:containerObject" minOccurs="0"
+               maxOccurs="1"/>
+            <xs:element ref="cnf:additionalObject" minOccurs="0"
+               maxOccurs="unbounded"/>
          </xs:choice>
-         <xs:attribute name="targetNamespace" type="xs:anyURI"/>
-         <xs:attribute name="elementFormDefault" type="xs:string"/>
-         <xs:attribute name="attributeFormDefault" type="xs:string"/>
-         <xs:attribute name="defaultRootObjectType" type="xs:string"/>
-         <xs:attribute name="defaultObjectType" type="xs:string"/>
-         <xs:attribute name="schema-version" type="xs:string"/>
+         <xs:attribute name="targetNamespace" type="xs:anyURI" />
+         <xs:attribute name="elementFormDefault" type="cnf:qual" />
+         <xs:attribute name="attributeFormDefault" type="cnf:qual" />
+         <xs:attribute name="defaultRootObjectType" type="xs:string" />
+         <xs:attribute name="defaultObjectType" type="xs:string" />
+         <xs:attribute name="schema-version" type="xs:string" />
+         <xs:attribute name="embed-schema-items" type="xs:boolean"
+            default="false"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="containerObject">
       <xs:complexType>
          <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
-         <xs:attribute name="implementation" type="xs:string" use="optional"/>
+         <xs:attribute name="implementation" type="xs:string"
+            use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="additionalObject">
       <xs:complexType>
          <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
-         <xs:attribute name="implementation" type="xs:string" use="optional"/>
+         <xs:attribute name="implementation" type="xs:string"
+            use="optional"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="namespace">
       <xs:complexType>
-         <xs:attribute name="urn" type="xs:anyURI"/>
+         <xs:attribute name="alias" type="xs:anyURI"/>
          <xs:attribute name="prefix" type="xs:string"/>
       </xs:complexType>
    </xs:element>
    <xs:element name="include">
       <xs:complexType>
-         <xs:attribute name="urn" type="xs:anyURI"/>
-         <xs:attribute name="schema-location" type="xs:string"/>
+         <xs:attribute name="urn" type="xs:anyURI" />
+         <xs:attribute name="schema-location" type="xs:string" />
       </xs:complexType>
    </xs:element>
-   <xs:element name="add-attribute">
+   <xs:element name="addAttribute" >
       <xs:complexType>
-         <xs:attribute name="name" type="xs:QName" use="required"/>
-         <xs:attribute name="ref" type="xs:boolean" default="false"/>
-         <xs:attribute name="type" type="xs:QName" use="optional"/>
-         <xs:attribute name="usage" default="optional">
+         <xs:attribute name="name" type="xs:QName" use="required" />
+         <xs:attribute name="ref" type="xs:boolean" default="false" />
+         <xs:attribute name="type" type="xs:QName" use="optional" />
+         <xs:attribute name="usage" default="optional" >
             <xs:simpleType>
                <xs:restriction base="xs:string">
-                  <xs:enumeration value="optional"/>
-                  <xs:enumeration value="required"/>
-                  <xs:enumeration value="fixed"/>
-                  <xs:enumeration value="default"/>
+                  <xs:enumeration value="optional" />
+                  <xs:enumeration value="required" />
+                  <xs:enumeration value="fixed" />
+                  <xs:enumeration value="default" />
                </xs:restriction>
             </xs:simpleType>
          </xs:attribute>
-         <xs:attribute name="value" type="xs:string" use="optional"/>
+         <xs:attribute name="value" type="xs:string" use="optional" />
       </xs:complexType>
    </xs:element>
    <xs:simpleType name="exp-type">
@@ -234,8 +289,9 @@
    </xs:simpleType>
    <xs:simpleType name="attributeType">
       <xs:restriction base="xs:normalizedString">
-         <xs:enumeration value="INVERSE"/>
-         <xs:enumeration value="DERIVE"/>
+         <xs:enumeration value="inverse"/>
+         <xs:enumeration value="derive"/>
+         <xs:enumeration value="derive-inverse"/>
       </xs:restriction>
    </xs:simpleType>
    <xs:simpleType name="nonNegativeInteger_or_unbounded">
@@ -253,12 +309,42 @@
    <xs:simpleType name="patterns">
       <xs:restriction>
          <xs:simpleType>
-            <xs:list itemType="xs:normalizedString"/>
+            <xs:list itemType="xs:normalizedString" />
          </xs:simpleType>
          <xs:minLength value="1"/>
       </xs:restriction>
    </xs:simpleType>
-   <xs:simpleType name="Seq-anyURI">
-      <xs:list itemType="xs:anyURI"/>
+   <xs:simpleType name="qual">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="qualified"/>
+         <xs:enumeration value="unqualified"/>
+      </xs:restriction>
    </xs:simpleType>
+   <xs:simpleType name="Seq-anyURI">
+      <xs:list itemType="xs:anyURI" />
+   </xs:simpleType>
+   <xs:element name="uosElement">
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element ref="cnf:addAttribute"/>
+         </xs:choice>
+         <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="uosEntity" >
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element ref="cnf:addAttribute"/>
+         </xs:choice>
+         <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="rootEntity">
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element ref="cnf:addAttribute"/>
+         </xs:choice>
+         <xs:attribute name="name" type="xs:NMTOKEN" use="required"/>
+      </xs:complexType>
+   </xs:element>
 </xs:schema>

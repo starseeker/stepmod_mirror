@@ -116,9 +116,11 @@ sub process_file {
     }
     # Check whether this file has information that needs to be changed.
     # This can be determined from the presences of a <TITLE> element.
-    if ($content =~ m|<TITLE>ISO/TS 10303-([0-9]+):[0-9]{4} ([^<]+)</TITLE>|) {
-	my $part_number = $1;
-	my $part_title = $2;
+    if ($content =~ m%<(TITLE|title)>ISO/TS 10303-([0-9]+):[0-9]{4} ([^<]+)</(TITLE|title)>%) {
+	my $part_number = $2;
+	my $part_title = $3;
+	while ($content =~ s%\(ISO/TS 10303-$part_number:([0-9]+)\)%xxxx$1xxxx%) {
+	}
 	# change 1: replace "ISO/CD-TS" with "ISO/TS"
 	$content =~ s|ISO/CD-TS|ISO/TS|g;
 	# change 2: replace date in part number with <pub_year_mo>
@@ -128,13 +130,13 @@ sub process_file {
 	# change 4: remove "To be published" footnote
 	$content =~ s|<a name="tobepub"><sup>1\)</sup> To be published\.[^<]*</a>||g;
 	# change 5: replace date in footer with <pub_year>
-	$content =~ s|&copy; ISO [0-9]{4} &#8212;|&copy; ISO $pub_year &#8212;|g;
-	$content =~ s|&copy;&nbsp;&nbsp;&nbsp;ISO&nbsp;[0-9]{4}|&copy;&nbsp;&nbsp;&nbsp;ISO&nbsp;$pub_year|g;
-	# change 6: replace @to_be_published@ with <pub_date>
-	$content =~ s|\@to_be_published\@|$pub_date|;
+	$content =~ s%&copy;(:&nbsp;| )+ISO(:&nbsp;| )+[0-9]{4}%&copy; ISO $pub_year%g;
+	$content =~ s%\xc2\xa9(:&nbsp;| )+ISO(:&nbsp;| )+[0-9]{4}%&copy; ISO $pub_year%g;
+	# change 6: replace publication date on cover page with <pub_date>
+	$content =~ s^<b>([a-zA-Z]+)&nbsp;edition&nbsp;&nbsp;([0-9]{4}-[0-9]{2}-[0-9]{2}|\@to_be_published\@)</b>^<div align="center" style="margin-top:50pt"><span style="font-size:12; font-family:sans-serif;"><b>$1&nbsp;edition&nbsp;&nbsp;$pub_date</b>^;
 	# change 7: remove "Price based on <nn> pages"
 	$content =~ s|<td width="220" align="right" valign="top"><span style="font-size:14; font-family:sans-serif;"><b>Price based on [0-9]+ +pages</b></span></td>||g;
-	print "writing file: $dest_file_path\n";
+	$content =~ s|xxxx([0-9]+)xxxx|(ISO/TS 10303-$part_number:$1)|;
 	open DEST_FILE, ">$dest_file_path" || die "Could not open output file $dest_file_path";
 	print DEST_FILE $content;
 	close DEST_FILE;

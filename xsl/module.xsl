@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.218 2010/02/10 18:08:42 robbod Exp $
+$Id: module.xsl,v 1.219 2010/02/21 07:08:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1263,7 +1263,7 @@ o=isocs; s=central<br/>
     EXPRESS data type. 
   </p>
   <p>
-    The name of an EXPRESS data type may be used to refer to the data type
+    The name of an EXPRESS data type can be used to refer to the data type
     itself, or to an instance of the data type. The distinction between
     these uses is normally clear from the context. If there is a likelihood
     of ambiguity, either the phrase "entity data type" or "instance(s) of" is

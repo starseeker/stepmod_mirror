@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.23 2009/12/24 17:42:04 lothartklein Exp $
+$Id: sect_3_defs.xsl,v 1.24 2010/02/03 11:56:23 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -87,7 +87,9 @@ $Id: sect_3_defs.xsl,v 1.23 2009/12/24 17:42:04 lothartklein Exp $
 
   <!-- output any definitions defined in this ap -->
 <!-- abf this section heading needs to print regardless. There are default defs included
-  <xsl:if test="./definition"> -->
+abf 20100317 update - looks like these defs will be added to part 1 so put if test back
+in -->
+  <xsl:if test="./definition"> 
     <!-- output the section head first -->
     <xsl:call-template name="output_module_term_section">
       <xsl:with-param name="module" select="."/>
@@ -97,22 +99,23 @@ $Id: sect_3_defs.xsl,v 1.23 2009/12/24 17:42:04 lothartklein Exp $
     For the purposes of this part of ISO 10303, -->
     For the purposes of this document, 
     the following terms and definitions apply:
- <!-- abf </xsl:if> -->
+ f </xsl:if>
 
   <!-- increment the section number depending on whether a definition
        section has been output 
-abf changed so that section number is incremented regardless of whether there are locally defined definitions.  default definitions are included and require a header and incremented section number -->
+abf changed so that section number is incremented regardless of whether there are locally defined definitions.  default definitions are included and require a header and incremented section number 
+abf 20100317 changing back, default definitions removed -->
   <xsl:variable name="def_section1">
     <xsl:choose>
       <xsl:when test="/application_protocol/definition">
         <xsl:value-of select="$def_section+1"/>
       </xsl:when> 
       <xsl:otherwise>
-        <xsl:value-of select="$def_section+1"/>
+        <xsl:value-of select="$def_section"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-<!--  definitions originally defined in 1001 and 1017 -->
+<!--  definitions originally defined in 1001 and 1017 must have been included in part 1 update, commented out here 
   <xsl:variable name="definitions_common">
     <xsl:element name="definition">
       <xsl:element name="term">
@@ -149,15 +152,19 @@ abf changed so that section number is incremented regardless of whether there ar
     </xsl:element>
     
   </xsl:variable>
-
-  <xsl:choose>
+-->
+<!--  abf 20100317 removed - common definitions no longer included 
+xsl:choose>
     <xsl:when test="function-available('msxsl:node-set')">
       <xsl:variable name="definitions_common_node_set" select="msxsl:node-set($definitions_common)"/> 
       <xsl:variable name="temp" select="/application_protocol|$definitions_common_node_set"/>
 	  <xsl:apply-templates select="$temp/definition" >
+abf 20100317 replaced above with following statement -->
+	  <xsl:apply-templates select="/application_protocol/definition" >
 	    <xsl:with-param name="section" select="concat('3.1.',$def_section1)"/>
 	    <xsl:sort select="term"/>
 	  </xsl:apply-templates>
+<!-- abf 20100317 removed - common definitions no longer included
     </xsl:when>
     <xsl:when test="function-available('exslt:node-set')">
       <xsl:variable name="definitions_common_node_set" select="exslt:node-set($definitions_common)"/>
@@ -168,7 +175,7 @@ abf changed so that section number is incremented regardless of whether there ar
 	  </xsl:apply-templates>
     </xsl:when>
   </xsl:choose>  
-
+-->
   <xsl:call-template name="output_abbreviations">
     <xsl:with-param name="section" select="$def_section1+1"/>
     

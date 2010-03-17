@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.219 2010/02/21 07:08:23 robbod Exp $
+$Id: module.xsl,v 1.220 2010/03/11 14:43:50 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4600,7 +4600,7 @@ $module_ok,' Check the normatives references')"/>
 
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="bibitem" 
-    select="document('../data/basic/bibliography.xml')/bibitem.list/bibitem[@id=$ref]"/>
+    select="document('../data/basic/bibliography.xml')/bibitem.list/*[@id=$ref]"/>
   
   <xsl:choose>
     <xsl:when test="$bibitem">

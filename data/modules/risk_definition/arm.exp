@@ -1,12 +1,11 @@
 (*
-$Id: arm.exp,v 1.37 2009/12/15 18:05:15 mikeward Exp $
+$Id: arm.exp,v 1.3 2009/12/15 19:37:04 mikeward Exp $
 ISO TC184/SC4/WG12 N6836 - ISO/TS 10303-1786 Risk definition - EXPRESS ARM
-*) 
-
+*)
 
 SCHEMA Risk_definition_arm;
 
-USE FROM Event_assignment_arm;    -- ISO/TS 10303-1364
+USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 
 USE FROM Probability_arm;    -- ISO/TS 10303-1252
 
@@ -17,7 +16,7 @@ USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 
-TYPE risk_event_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_item WITH 
+TYPE risk_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
    (Risk_perception);
 END_TYPE; 
 
@@ -31,7 +30,7 @@ TYPE risk_perception_source_item = EXTENSIBLE GENERIC_ENTITY SELECT
 END_TYPE; 
 
 TYPE risk_property_assignment_select = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
-   (Event, 
+   (Activity_method, 
     Risk_perception);
 END_TYPE; 
 
@@ -41,15 +40,10 @@ ENTITY Causal_consequence
   SELF\View_definition_relationship.related_view : Risk_consequence;
 END_ENTITY;
 
-ENTITY Event_probability
-  SUBTYPE OF (Assigned_property);
-  SELF\Assigned_property.described_element : Event;
-END_ENTITY;
-
 ENTITY Probability_representation
   SUBTYPE OF (Property_representation);
-  SELF\Property_representation.property : Event_probability;
   SELF\Property_definition_representation.rep : Probability;
+  SELF\Property_representation.property : Risk_event_probability;
 END_ENTITY;
 
 ENTITY Related_consequence
@@ -70,15 +64,19 @@ END_ENTITY;
 
 ENTITY Risk_consequence
   SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Risk_version;
+  SELF\Product_view_definition.defined_version : Risk_perception;
 END_ENTITY;
 
 ENTITY Risk_event
-  SUBTYPE OF (Event_assignment);
-  associated_risk : Risk_perception;
+  SUBTYPE OF (Applied_activity_method_assignment);
+  SELF\Applied_activity_method_assignment.items RENAMED associated_risk : SET[1:1] OF Risk_perception;
 DERIVE
-  SELF\Event_assignment.items : SET[1:?] OF Risk_perception := [associated_risk];
-  SELF\Event_assignment.role : STRING := 'risk of event';
+  SELF\Applied_activity_method_assignment.role : STRING := 'causal event';
+END_ENTITY;
+
+ENTITY Risk_event_probability
+  SUBTYPE OF (Assigned_property);
+  SELF\Assigned_property.described_element : Activity_method;
 END_ENTITY;
 
 ENTITY Risk_impact_assignment;

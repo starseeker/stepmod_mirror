@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.26 2010/01/20 16:15:17 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.27 2010/03/18 21:09:03 abf Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -105,7 +105,7 @@
     <p>
       Clause 
       <a href="3_defs{$FILE_EXT}">3</a> 
-      lists the terms defined in this part of ISO 10303 and refers to termss
+      lists the terms defined in this part of ISO 10303 and refers to terms
       defined elsewhere.  
     </p>
     

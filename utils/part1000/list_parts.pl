@@ -77,8 +77,8 @@ sub main {
 	process_part_list($source_root, $part_list_path);
     }
     print HTMLFILE "</table>\n";
-    print HTMLFILE "</body>";
-    print HTMLFILE "</html>";
+    print HTMLFILE "</body\n";
+    print HTMLFILE "</html>\n";
     close HTMLFILE;
 }
 
@@ -97,14 +97,6 @@ sub ord_to_card {
     $card =~ s/Ninth/9/;
     $card =~ s/Tenth/10/;
     return $card;
-}
-
-sub replace_entities {
-    my ($str) = @_;
-    #$str =~ s/&eacute;/&#201;/g;
-    #$str =~ s/&egrave;/&#200;/g;
-    #$str =~ s/&acirc;/&#194;/g;
-    return $str;
 }
 
 sub process_part_list {
@@ -145,7 +137,14 @@ sub process_node {
 
 	my $child;
 	foreach $child (@children) {
-	    process_node($source_root, "$node_rel_path/$child");
+	    my $child_rel_path;
+	    if ($node_rel_path eq "") {
+		$child_rel_path = $child;
+	    }
+	    else {
+		$child_rel_path = "$node_rel_path/$child";
+	    }
+	    process_node($source_root, $child_rel_path);
 	}
     }
     if (-f $source_node_path && $source_node_path =~ m/cover.htm$/) {
@@ -173,18 +172,23 @@ sub process_file {
     my $edition;
     my $date;
 
-    if ($content =~ m/Part [0-9]*:\s*<br><b>\s*Application module:\s*([^<]+)</) {
+    if ($content =~ m/Part ([0-9]*):/) {
+	$part_number = $1;
+    }
+    else {
+	print "Error: could not find part number.\n";
+    }
+    if ($content =~ m/Application\s+module\s*:\s*([^<"]+)</) {
 	$english_title = $1;
     }
     else {
-	print "Error: counld not find English title.\n";
+	print "Error: could not find English title.\n";
     }
-    if ($content =~ m/Partie ([0-9]+):\s*Module d'application:\s*([^<]+)</) {
-	$part_number = $1;
-	$french_title = replace_entities($2);
+    if ($content =~ m/Module\s+d'application\s*:\s*([^<"]+)</) {
+	$french_title = $1;
     }
     else {
-	print "Error: counld not find part number and French title.\n";
+	print "Error: could not find French title.\n";
     }
     if ($content =~ m/([A-Za-z]+)&nbsp;edition&nbsp;&nbsp;([0-9]{4}-[0-9]{2}-[0-9]{2})/) {
 	$edition = ord_to_card($1);

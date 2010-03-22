@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.51 2009/12/24 17:42:04 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -69,6 +69,7 @@ $Id: sect_contents.xsl,v 1.51 2009/12/24 17:42:04 lothartklein Exp $
 
     <a href="./1_scope{$FILE_EXT}" target="{$target}">1 Scope</a><br/>
     <a href="./2_refs{$FILE_EXT}" target="{$target}">2 Normative references</a><br/>
+      <!-- Assume that every AP has terms definitions and abbreviations
     <xsl:choose>
       <xsl:when test="./definition/term">
         <a href="./3_defs{$FILE_EXT}" target="{$target}">
@@ -78,13 +79,13 @@ $Id: sect_contents.xsl,v 1.51 2009/12/24 17:42:04 lothartklein Exp $
       </xsl:when>
       <xsl:otherwise>
         <a href="./3_defs{$FILE_EXT}" target="{$target}">
-          <!-- every AP references Terms defined in other standards,
-               and abbreviations hence as per ISO -->
+          <!-\- every AP references Terms defined in other standards,
+               and abbreviations hence as per ISO -\->
           3 Terms, definitions and abbreviated terms
         </a>
         <br/>
       </xsl:otherwise>
-    </xsl:choose>      
+    </xsl:choose>     --> 
       <a href="./3_defs{$FILE_EXT}" target="{$target}">
         3 Terms, definitions and abbreviated terms
       </a>  

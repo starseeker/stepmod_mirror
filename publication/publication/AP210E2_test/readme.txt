@@ -18,14 +18,14 @@ To build the publication package:
    NOTE - this process will ask for the name of the CVS tag used in stage 3
 
    This will create a directory:
-     stepmod/publication/isopub/WG3_N2602_AP210E2_IS
+     stepmod/publication/isopub/AP210E2_test
 
 5) The HTML for each part to be published will be generated and stored in a
    zip file in: 
-     stepmod/publication/isopub/WG3_N2602_AP210E2_IS/zip/iso<part>.zip
+     stepmod/publication/isopub/AP210E2_test/zip/iso<part>.zip
    where <part> is the ISO part number of the part being published.
    These are the files to be sent to ISO
    The complete directory:
-    stepmod/publication/isopub/WG3_N2602_AP210E2_IS
+    stepmod/publication/isopub/AP210E2_test
    is also zipped to WG???.zip. This is the file to send to the convener for sign off
 

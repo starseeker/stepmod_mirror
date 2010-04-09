@@ -1,16 +1,22 @@
 (*
-   $Id: arm.exp,v 1.13 2009/12/21 15:15:56 liutkuviene Exp $
+   $Id: arm.exp,v 1.14 2010/03/18 19:52:15 lothartklein Exp $
    ISO TC184/SC4/WG12 N6881 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5320
 *)
 
 SCHEMA Composite_constituent_shape_arm;
 
-USE FROM Advanced_boundary_representation_arm; -- ISO/CD-TS 10303-1514
+USE FROM Advanced_boundary_representation_arm; -- ISO/TS 10303-1514
 
-USE FROM Construction_geometry_arm; -- ISO/CD-TS 10303-1131
+USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
+
+USE FROM Constructive_solid_geometry_3d_arm; -- ISO/TS 10303-1068
+
+USE FROM Curve_swept_solid_arm; -- ISO/TS 10303-1659
 
 USE FROM Edge_based_wireframe_arm; -- ISO/TS 10303-1501
+
+USE FROM Elementary_boundary_representation_arm; -- ISO/TS 10303-1329
 
 USE FROM Faceted_boundary_representation_arm; -- ISO/TS 10303-1512
 
@@ -49,9 +55,12 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
   TYPE ply_laminate_shape = EXTENSIBLE GENERIC_ENTITY SELECT 
     (Composite_sheet_representation,
      Three_d_geometry_set,
-     Faceted_brep_shape_representation,
-     Advanced_brep_shape_representation);
-  END_TYPE;
+     Advanced_brep_shape_representation,
+     Csg_model,
+     Curve_swept_solid,
+     Elementary_brep_shape_representation,
+     Faceted_brep_shape_representation);
+  END_TYPE; 
  
   TYPE ply_piece_shape = SELECT 
     (Ply_shape);
@@ -109,7 +118,7 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
   ENTITY Ply_shape
     SUPERTYPE OF (ONEOF(Projected_ply_shape, Laid_ply_shape, Flat_pattern_ply_shape));
-      defining_model : Composite_sheet_representation;
+      defining_model : ply_laminate_shape;
       basis : OPTIONAL Ply_shape;
   END_ENTITY;
 

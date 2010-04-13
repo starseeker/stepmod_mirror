@@ -1,9 +1,8 @@
 (*
- $Id: arm.exp,v 1.6 2008/06/24 20:05:22 darla Exp $
+ $Id: arm.exp,v 1.7 2009/07/22 20:19:58 darla Exp $
  ISO TC184/SC4/WG12 N6742 - ISO/TS 10303-1378 Cfd_results_arm - EXPRESS ARM
 
 *) 
-
 
 SCHEMA Cfd_results_arm;
 
@@ -12,6 +11,12 @@ USE FROM Analysis_arm;
 USE FROM Mesh_connectivity_arm;
 
 USE FROM Mesh_topology_arm;
+
+USE FROM Support_resource_arm;
+
+TYPE cfdr_property_distribution_select = EXTENSIBLE SELECT BASED_ON property_distribution_select  WITH (
+   Model_property_distribution);
+END_TYPE; 
 
 TYPE flow_solution_data_name = EXTENSIBLE ENUMERATION OF 
   (potential,
@@ -89,17 +94,25 @@ END_ENTITY;
 
 ENTITY Mbna_history
 SUBTYPE OF (Mbna_result);
-  notes : LIST [0 : ?] OF STRING;
+  notes : LIST [0 : ?] OF text;
+INVERSE
+  data : SET OF Property_distribution_description FOR physical_function;
 END_ENTITY;
 
 
 ENTITY Mbna_result
+SUPERTYPE OF (ONEOF(
+  mbna_solution,
+  mbna_history,
+  mbna_discrete_data))
 SUBTYPE OF (Model_property_distribution);
 END_ENTITY;
 
 ENTITY Mbna_solution
 SUBTYPE OF (Mbna_result);
   gridloc : mesh_location;
+INVERSE
+  solution : SET OF Property_distribution_description FOR physical_function;
 END_ENTITY;
 
 
@@ -107,10 +120,6 @@ ENTITY Mbna_solution_with_rind
 SUBTYPE OF (Mbna_solution);
   rind_planes : Rind;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_mbna_result FOR Mbna_result;
-  ONEOF(mbna_solution, mbna_history, mbna_discrete_data);
-END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 

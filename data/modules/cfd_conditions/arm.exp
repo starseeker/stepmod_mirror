@@ -1,10 +1,7 @@
-
 (*
-   $Id: arm.exp,v 1.11 2008/10/08 14:58:41 darla Exp $
-   ISO TC184/SC4/WG12 N6707 - ISO/TS 10303-1375 Cfd_conditions - EXPRESS ARM
-   
+$Id: arm.exp,v 1.12 2009/07/23 20:54:25 darla Exp $
+ISO TC184/SC4/WG12 N6707 - ISO/TS 10303-1375 Cfd_conditions - EXPRESS ARM
 *)
-
 
 SCHEMA Cfd_conditions_arm;
 
@@ -89,7 +86,7 @@ END_ENTITY;
 
 ENTITY Fd_bc_dataset
 SUBTYPE OF (Mbna_bc_dataset);
-  (* SELF\Mbna_bc_dataset.the_type : Fd_bc_type_simple;*)
+  SELF\Mbna_bc_dataset.the_type : Fd_bc_type_simple;
 END_ENTITY;
 
 ENTITY Fd_zone_bc
@@ -108,57 +105,57 @@ SUBTYPE OF (Mbna_bc);
 END_ENTITY;
 
 ENTITY Mbna_bc
-SUBTYPE OF (Mbna_condition);
+  SUPERTYPE OF(ONEOF(elements_bc,
+        Indexed_elements_bc,
+        Indexed_points_bc)) 
+  SUBTYPE OF (Mbna_condition);
   datasets : SET [0 : ?] OF Mbna_bc_dataset;
-  family : SET [0 : ?] OF Mbna_family;
+  gridloc : mesh_location;
   inward_normal_index : OPTIONAL Ijk_minmax;
   inward_normal_list : OPTIONAL Ijk_minmax;
   rstate : SET [0 : ?] OF Mbna_reference_state;
   the_type : mbna_bc_type;
-  gridloc : mesh_location;
 END_ENTITY;
 
 ENTITY Mbna_bc_data
+ABSTRACT SUPERTYPE
 SUBTYPE OF (Mbna_condition);
 END_ENTITY;
 
 ENTITY Mbna_bc_data_global
 SUBTYPE OF (Mbna_bc_data);
+INVERSE
+  data_global : SET OF Model_property_distribution FOR domain;
 END_ENTITY;
 
 ENTITY Mbna_bc_data_local
 SUBTYPE OF (Mbna_bc_data);
-(*
 INVERSE
-  data : SET [0 : ?] OF Model_property_distribution FOR ;
-*)
+  data : SET [0 : ?] OF Model_property_distribution FOR domain;
 END_ENTITY;
 
 ENTITY Mbna_bc_dataset
-SUBTYPE OF (Mbna_condition);
+  SUPERTYPE OF (ONEOF(Mbna_Dirichlet_bc_dataset,
+               Mbna_Neumann_bc_dataset))
+  SUBTYPE OF (Mbna_condition);
   gridloc : mesh_location;
   rstate : SET [0 : ?] OF Mbna_reference_state;
   the_type : mbna_bc_type_simple;
 END_ENTITY;
 
 ENTITY Mbna_condition
-SUBTYPE OF (Model_state_domain);
+  ABSTRACT SUPERTYPE OF(ONEOF(
+        Mbna_zone_bc,
+        Mbna_bc,
+        Mbna_bc_dataset,
+        Mbna_bc_data,
+        Mbna_reference_state))
+  SUBTYPE OF (Model_state_domain);
 END_ENTITY;
 
 ENTITY Mbna_dirichlet_bc_dataset
 SUBTYPE OF (Mbna_bc_dataset);
   data : Mbna_bc_data;
-END_ENTITY;
-
-ENTITY Mbna_family;
-  description : STRING;
-  id : STRING;
-  conditions : SET [0 : ?] OF mbna_bc_type;
-  geometry : SET [0 : ?] OF Geometry_reference;
-END_ENTITY;
-
-ENTITY Mbna_integral_data
-SUBTYPE OF (Mbna_condition);
 END_ENTITY;
 
 ENTITY Mbna_neumann_bc_dataset
@@ -168,6 +165,8 @@ END_ENTITY;
 
 ENTITY Mbna_reference_state
 SUBTYPE OF (Mbna_condition);
+INVERSE
+  data : SET OF Model_property_distribution FOR domain;
 END_ENTITY;
 
 ENTITY Mbna_zone_bc
@@ -175,23 +174,6 @@ SUBTYPE OF (Mbna_condition);
   conditions : SET [0 : ?] OF Mbna_bc;
   rstate : SET [0 : ?] OF Mbna_reference_state;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_mbna_bc FOR Mbna_bc;
-  ONEOF(Elements_bc, Indexed_elements_bc, Indexed_points_bc);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT sc1_mbna_bc_data FOR Mbna_bc_data;
-  ABSTRACT SUPERTYPE;
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT sc1_mbna_bc_dataset FOR Mbna_bc_dataset;
-  ONEOF(mbna_Dirichlet_bc_dataset, Mbna_neumann_bc_dataset);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT sc1_mbna_condition FOR Mbna_condition;
-  ABSTRACT SUPERTYPE;
-  ONEOF(Mbna_zone_bc, Mbna_bc, Mbna_bc_dataset, Mbna_bc_data, Mbna_reference_state, Mbna_integral_data);
-END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 

@@ -1,6 +1,6 @@
 (*
- $Id: arm.exp,v 1.9 2009/05/21 20:54:30 darla Exp $
- ISO TC184/SC4/WG12 N6713 - ISO/TS 10303-1377 Cfd_model_arm - EXPRESS ARM
+$Id: arm.exp,v 1.10 2009/07/22 20:21:58 darla Exp $
+ISO TC184/SC4/WG12 N6713 - ISO/TS 10303-1377 Cfd_model_arm - EXPRESS ARM
 
 *) 
 
@@ -38,14 +38,14 @@ END_TYPE;
 
 ENTITY Fd_step
 SUBTYPE OF (Mbna_step);
+  SELF\Mbna_step.equations : SET [0 : ?] OF Flow_equation_set; 
   SELF\Mbna_step.zones : LIST [0 : ?] OF Fd_zone;
-  SELF\Mbna_step.equations : SET [0 : ?] OF Flow_equation_set; -- LK: added "SET [0 : ?] OF"
 END_ENTITY;
 
 ENTITY Fd_zone
 SUBTYPE OF (Mbna_zone);
-  SELF\Mbna_zone.equations : SET [0 : ?] OF Flow_equation_set;
   SELF\Mbna_zone.conditions : SET [0 : ?] OF Fd_zone_bc;
+  SELF\Mbna_zone.equations : SET [0 : ?] OF Flow_equation_set;
 END_ENTITY;
 
 ENTITY Grid_coordinates
@@ -59,22 +59,26 @@ SUBTYPE OF (Grid_coordinates);
   rind_planes : Rind;
 END_ENTITY;
 
-ENTITY Mbna_model;
-  equations : SET [0 : ?] OF Mbna_equation_set;
-  data : SET [0 : ?] OF Mbna_integral_data;
-  steps : LIST [0 : ?] OF Fd_step;
-(*
-INVERSE
-  history : SET [0 : ?] OF Mbna_history FOR ;
-*)
+ENTITY Mbna_model
+  SUBTYPE OF (Model_product_domain);
+  SELF\Model_product_domain.temporal_parts : LIST OF Mbna_step;
+  equations : SET OF Mbna_equation_set;  
+  INVERSE
+  history : SET OF Mbna_history for domain;  
 END_ENTITY;
 
-ENTITY Mbna_step;
-  data : SET [0 : ?] OF Mbna_integral_data;
-  equations : SET [0 : ?] OF Mbna_equation_set;
-  families : SET [0 : ?] OF Mbna_family;
-  refstate : SET [0 : ?] OF Mbna_reference_state;
-  zones : LIST [0 : ?] OF Mbna_zone;
+ENTITY mbna_state
+  SUBTYPE OF (model_state_domain);
+END_ENTITY;  
+
+ENTITY Mbna_step
+  SUBTYPE OF (Model_action_domain);
+  SELF\Model_action_domain.final : Mbna_state;
+  equations : SET OF Mbna_equation_set;  
+  refstate : SET OF Mbna_reference_state;
+  zones : LIST OF Mbna_zone;
+INVERSE
+  history : SET OF Mbna_history for domain;  
 END_ENTITY;
 
 ENTITY Mbna_structured_zone
@@ -88,22 +92,19 @@ SUBTYPE OF (Mbna_zone);
 END_ENTITY;
 
 ENTITY Mbna_zone
-SUBTYPE OF (Model_product_domain_with_mesh);
-  cell_dimension : INTEGER;
-  conditions : SET [0 : ?] OF Mbna_zone_bc;
-  equations : SET [0 : ?] OF Mbna_equation_set;
-  families : SET [0 : ?] OF Mbna_family;
-  global_data : SET [0 : ?] OF Mbna_integral_data;
-  grid_connectivity : OPTIONAL Multiple_mesh_block;
-  nindices : INTEGER;
-  physical_dimension : INTEGER;
-  rstate : SET [0 : ?] OF Mbna_reference_state;
+  ABSTRACT SUPERTYPE OF (ONEOF
+    (Mbna_structured_zone, Mbna_unstructured_zone))
+  SUBTYPE OF (Model_product_domain_with_mesh);
+  conditions         : SET OF Mbna_zone_bc;
+  equations          : SET OF Mbna_equation_set;
+  grid_connectivity  : OPTIONAL Multiple_mesh_block;
+  rstate             : SET OF Mbna_reference_state;
+INVERSE
+  coordinates : SET OF Grid_coordinates FOR domain;
+  field_data  : SET OF Mbna_discrete_data FOR domain;
+  history     : SET OF Mbna_history FOR domain;
+  solution    : SET OF Mbna_solution FOR domain;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_mbna_zone FOR Mbna_zone;
-  ABSTRACT SUPERTYPE;
-  ONEOF(mbna_structured_zone, mbna_unstructured_zone);
-END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 

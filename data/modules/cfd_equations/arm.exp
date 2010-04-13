@@ -1,7 +1,6 @@
 (*
- $Id: arm.exp,v 1.8 2008/10/08 18:01:12 darla Exp $
- ISO TC184/SC4/WG12 N6712 - ISO/TS 10303-1376 Cfd_equations_arm - EXPRESS ARM
-
+$Id: arm.exp,v 1.9 2009/07/22 20:27:15 darla Exp $
+ISO TC184/SC4/WG12 N6712 - ISO/TS 10303-1376 Cfd_equations_arm - EXPRESS ARM
 *) 
 
 SCHEMA Cfd_equations_arm;
@@ -174,9 +173,7 @@ END_ENTITY;
 
 ENTITY Fd_governing_equation
 SUBTYPE OF (Mbna_governing_equation);
- (*
   SELF\Mbna_governing_equation.equation_type : fd_governing_equation_type;
-*)
 END_ENTITY;
 
 ENTITY Flow_equation_set
@@ -191,14 +188,22 @@ SUBTYPE OF (Mbna_behaviour_model);
 END_ENTITY;
 
 ENTITY Mbna_behaviour_model
+  ABSTRACT SUPERTYPE OF (
+  ONEOF(Thermal_conductivity_model,
+        Gas_model,
+        Turbulence_closure,
+        Turbulence_model,
+        Viscosity_model))
 SUBTYPE OF (Mbna_equation);
-(*
 INVERSE
-  data : SET [0 : ?] OF Model_property_distribution FOR ;
-*)
+  data : SET [0 : ?] OF Model_property_distribution FOR domain;
 END_ENTITY;
 
 ENTITY Mbna_equation
+SUPERTYPE OF (
+  ONEOF(Mbna_equation_set,
+        Mbna_governing_equation,
+        Mbna_behaviour_model))
 SUBTYPE OF (Model_product_domain);
 END_ENTITY;
 
@@ -206,7 +211,7 @@ ENTITY Mbna_equation_set
 SUBTYPE OF (Mbna_equation);
   dimension : INTEGER;
   equations : Mbna_governing_equation;
-  mbna_models : SET [0 : ?] OF mbna_behaviour_models;
+  mbna_models : SET [0 : ?] OF Mbna_behaviour_models;
 END_ENTITY;
 
 ENTITY Mbna_governing_equation
@@ -234,15 +239,6 @@ ENTITY Viscosity_model
 SUBTYPE OF (Mbna_behaviour_model);
   model_type : viscosity_model_type;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_mbna_behaviour_model FOR Mbna_behaviour_model;
-  ABSTRACT SUPERTYPE;
-  ONEOF(Thermal_conductivity_model, Gas_model, turbulence_closure, Turbulence_model, Viscosity_model);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT sc1_mbna_equation FOR Mbna_equation;
-  ONEOF(Mbna_equation_set, Mbna_governing_equation, Mbna_behaviour_model);
-END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 

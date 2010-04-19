@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions">
   <xsl:param name="filename_root"/>
+  <xsl:template match="list" priority="2.0">
+    <xsl:variable name="sort" select="replace(replace(@type,'BY_NAME','name'),'BY_NUMBER','number')"/>
+    <xsl:call-template name="doc_list">
+      <xsl:with-param name="sort" select="$sort"/>
+    </xsl:call-template>
+  </xsl:template>
+  <xsl:template name="doc_list">
+    <xsl:param name="sort"/>
+    <xsl:variable name="pairs">
+      <xsl:call-template name="get_pairs">
+	<xsl:with-param name="sort" select="$sort"/>
+	<xsl:with-param name="series"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <table border="1">
+      <col align="right" valign="top"/>
+      <col align="left" valign="top"/>
+      <col align="right" valign="top"/>
+      <col align="left" valign="top"/>
+      <tr>
+	<th align="center">Part</th>
+	<th align="center">Name</th>
+	<th align="center">Edition</th>
+	<th align="center">Published</th>
+      </tr>
+      <xsl:for-each select="$pairs/pair">
+	<xsl:variable name="directory">
+	  <xsl:call-template name="get_directory"/>
+	</xsl:variable>
+	<xsl:variable name="file_ref">
+	  <xsl:call-template name="get_file_ref">
+	    <xsl:with-param name="model"/>
+	    <xsl:with-param name="type"/>
+	    <xsl:with-param name="pound"/>
+	  </xsl:call-template>
+	</xsl:variable>
+	<tr>
+	  <td><xsl:value-of select="doc/@part"/></td>
+	  <td>
+	    <a href="{$file_ref}" target="info">
+	      <xsl:value-of select="doc/@name"/>
+	    </a>
+	    <xsl:if test="doc/tc">
+	      <xsl:for-each select="doc/tc">
+		<xsl:variable name="file_ref">
+		  <xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+		</xsl:variable>
+		<br/>
+		&#160;&#160;&#160;&#160;<a href="{$file_ref}" target="info"><xsl:value-of select="concat('TC ',@cor,': ',@pub_year_mo)"/></a>
+	      </xsl:for-each>
+	    </xsl:if>
+	  </td>
+	  <td><xsl:value-of select="doc/@edition"/></td>
+	  <td><xsl:value-of select="doc/@pub_year_mo"/></td>
+	</tr>
+      </xsl:for-each>
+    </table>
+  </xsl:template>
   <xsl:template match="index" priority="2.0">
     <xsl:if test="@method = 'top'">
       <small>
@@ -9,22 +67,26 @@
       <br/>
     </xsl:if>
     <xsl:choose>
-      <xsl:when test="@index_type eq 'MODULES_BY_NAME'">
+      <xsl:when test="@index_type eq 'BY_NAME'">
 	<xsl:if test="@method = 'top'">
 	  <b>Parts</b>
 	  <br/>
 	</xsl:if>
 	<xsl:call-template name="doc_index">
 	  <xsl:with-param name="sort">name</xsl:with-param>
+	  <xsl:with-param name="series"/>
+	  <xsl:with-param name="model"/>
 	</xsl:call-template>
       </xsl:when>
-      <xsl:when test="@index_type eq 'MODULES_BY_NUMBER'">
+      <xsl:when test="@index_type eq 'BY_NUMBER'">
 	<xsl:if test="@method = 'top'">
 	  <b>Parts</b>
 	  <br/>
 	</xsl:if>
 	<xsl:call-template name="doc_index">
 	  <xsl:with-param name="sort">number</xsl:with-param>
+	  <xsl:with-param name="series"/>
+	  <xsl:with-param name="model"/>
 	</xsl:call-template>
       </xsl:when>
       <xsl:when test="@index_type eq 'RESOURCE_SCHEMAS'">
@@ -47,6 +109,7 @@
 	</xsl:if>
 	<xsl:call-template name="doc_index">
 	  <xsl:with-param name="sort">name</xsl:with-param>
+	  <xsl:with-param name="series">AM</xsl:with-param>
 	  <xsl:with-param name="model">arm</xsl:with-param>
 	</xsl:call-template>
       </xsl:when>
@@ -57,6 +120,7 @@
 	</xsl:if>
 	<xsl:call-template name="doc_index">
 	  <xsl:with-param name="sort">name</xsl:with-param>
+	  <xsl:with-param name="series">AM</xsl:with-param>
 	  <xsl:with-param name="model">mim</xsl:with-param>
 	</xsl:call-template>
       </xsl:when>
@@ -83,27 +147,47 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  <xsl:template name="get_directory">
+    <xsl:variable name="cdr" select="element()[2]"/>
+    <xsl:choose>
+      <xsl:when test="$cdr/@directory">
+	<xsl:value-of select="$cdr/@directory"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="$cdr/@name"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  <xsl:template name="get_pairs">
+    <xsl:param name="sort"/>
+    <xsl:param name="series"/>
+    <xsl:choose>
+      <xsl:when test="$sort eq 'name'">
+	<xsl:apply-templates select="document('../docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
+	  <xsl:with-param name="sort" select="$sort"/>
+	  <xsl:sort select="@name"/>
+	</xsl:apply-templates>
+      </xsl:when>
+      <xsl:when test="$sort eq 'number'">
+	<xsl:apply-templates select="document('../docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
+	  <xsl:with-param name="sort" select="$sort"/>
+	  <xsl:sort select="@part" data-type="number"/>
+	</xsl:apply-templates>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
   <xsl:template name="doc_index">
     <xsl:param name="sort"/>
+    <xsl:param name="series"/>
     <xsl:param name="model"/>
     <xsl:variable name="pairs">
-      <xsl:choose>
-	<xsl:when test="$sort eq 'name'">
-	  <xsl:apply-templates select="document('../docs.xml',.)/docs/doc" mode="index">
-	    <xsl:with-param name="sort" select="$sort"/>
-	    <xsl:sort select="@name"/>
-	  </xsl:apply-templates>
-	</xsl:when>
-	<xsl:when test="$sort eq 'number'">
-	  <xsl:apply-templates select="document('../docs.xml',.)/docs/doc" mode="index">
-	    <xsl:with-param name="sort" select="$sort"/>
-	    <xsl:sort select="@part" data-type="number"/>
-	  </xsl:apply-templates>
-	</xsl:when>
-      </xsl:choose>
+      <xsl:call-template name="get_pairs">
+	<xsl:with-param name="sort" select="$sort"/>
+	<xsl:with-param name="series" select="$series"/>
+      </xsl:call-template>
     </xsl:variable>
     <xsl:call-template name="generate_index">
-      <xsl:with-param name="anchor"/>
+      <xsl:with-param name="anchor">docs</xsl:with-param>
       <xsl:with-param name="title"/>
       <xsl:with-param name="model" select="$model"/>
       <xsl:with-param name="type"/>
@@ -122,10 +206,16 @@
     <xsl:param name="sort"/>
     <xsl:choose>
       <xsl:when test="$sort eq 'name'">
-	<pair name="{@name}" directory="{@name}"/>
+	<pair>
+	  <key-str><xsl:value-of select="@name"/></key-str>
+	  <xsl:copy-of select="."/>
+	</pair>
       </xsl:when>
       <xsl:when test="$sort eq 'number'">
-	<pair name="{@part}" directory="{@name}"/>
+	<pair>
+	  <key-str><xsl:value-of select="@part"/></key-str>
+	  <xsl:copy-of select="."/>
+	</pair>
       </xsl:when>
       <xsl:otherwise>
 	<xsl:message>Error: invalid sort: <xsl:value-of select="$sort"/></xsl:message>
@@ -180,7 +270,7 @@
     <xsl:param name="local_name"/>
     <xsl:param name="type"/>
     <xsl:param name="model"/>
-    <xsl:variable name="filename">
+    <xsl:variable name="xmlfile">
       <xsl:choose>
 	<xsl:when test="$model eq 'arm'">
 	  <xsl:text>../arm_index.xml</xsl:text>
@@ -194,7 +284,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="pairs">
-      <xsl:apply-templates select="document($filename,.)/express_index/element()[fn:local-name() eq $local_name and @type = $type]" mode="generate-pv">
+      <xsl:apply-templates select="document($xmlfile,.)/express_index/element()[fn:local-name() eq $local_name and @type = $type]" mode="generate-pv">
 	<xsl:sort select="fn:lower-case(@name)"/>
       </xsl:apply-templates>
     </xsl:variable>
@@ -267,7 +357,10 @@
     </small>
   </xsl:template>
   <xsl:template match="schema|constant|type|entity|rule|algorithm" mode="generate-pv">
-    <pair name="{@name}" directory="{@directory}"/>
+    <pair>
+      <key-str><xsl:value-of select="@name"/></key-str>
+      <xsl:copy-of select="."/>
+    </pair>
   </xsl:template>
   <xsl:template name="generate_index_top">
     <xsl:param name="pairs"/>
@@ -278,20 +371,20 @@
       <xsl:variable name="c1">
 	<xsl:choose>
 	  <xsl:when test="$numeric eq 'true'">
-	    <xsl:value-of select="floor(number(@name) div 100)"/>
+	    <xsl:value-of select="floor(number(key-str) div 100)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="fn:lower-case(substring(@name,1,1))"/>
+	    <xsl:value-of select="fn:lower-case(substring(key-str,1,1))"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>
       <xsl:variable name="c1_prev">
 	<xsl:choose>
 	  <xsl:when test="$numeric eq 'true'">
-	    <xsl:value-of select="floor(number(preceding-sibling::pair[1]/@name) div 100)"/>
+	    <xsl:value-of select="floor(number(preceding-sibling::pair[1]/key-str) div 100)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="fn:lower-case(substring(preceding-sibling::pair[1]/@name,1,1))"/>
+	    <xsl:value-of select="fn:lower-case(substring(preceding-sibling::pair[1]/key-str,1,1))"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>
@@ -310,24 +403,27 @@
     <xsl:param name="type"/>
     <xsl:param name="pound"/>
     <xsl:param name="numeric"/>
+    <!-- <xsl:message>type = <xsl:value-of select="type"/></xsl:message> -->
+    <!-- <xsl:message>model = <xsl:value-of select="model"/></xsl:message> -->
     <xsl:for-each select="$pairs/pair">
+      <!-- <xsl:message>loop: <xsl:copy-of select="."/></xsl:message> -->
       <xsl:variable name="c1">
 	<xsl:choose>
 	  <xsl:when test="$numeric eq 'true'">
-	    <xsl:value-of select="floor(number(@name) div 100)"/>
+	    <xsl:value-of select="floor(number(key-str) div 100)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="fn:lower-case(substring(@name,1,1))"/>
+	    <xsl:value-of select="fn:lower-case(substring(key-str,1,1))"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>
       <xsl:variable name="c1_prev">
 	<xsl:choose>
 	  <xsl:when test="$numeric eq 'true'">
-	    <xsl:value-of select="floor(number(preceding-sibling::pair[1]/@name) div 100)"/>
+	    <xsl:value-of select="floor(number(preceding-sibling::pair[1]/key-str) div 100)"/>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:value-of select="fn:lower-case(substring(preceding-sibling::pair[1]/@name,1,1))"/>
+	    <xsl:value-of select="fn:lower-case(substring(preceding-sibling::pair[1]/key-str,1,1))"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>
@@ -344,45 +440,96 @@
 	<br/>
       </xsl:if>
       <br/>
-      <xsl:variable name="filename">
-	<xsl:choose>
-	  <xsl:when test="$type eq 'resource'">
-	    <xsl:value-of select="concat(@name,'.htm')"/>
-	  </xsl:when>
-	  <xsl:when test="$model eq 'arm'">
-	    <xsl:text>4_info_reqs.htm</xsl:text>
-	  </xsl:when>
-	  <xsl:when test="$model eq 'mim'">
-	    <xsl:text>5_mim.htm</xsl:text>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:text>cover.htm</xsl:text>
-	  </xsl:otherwise>
-	</xsl:choose>
-      </xsl:variable>
       <xsl:variable name="file_ref">
-	<xsl:choose>
-	  <xsl:when test="$type eq 'resource'">
-	    <xsl:value-of select="concat('../../resources/',@directory,'/',$filename)"/>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="concat('../../modules/',@directory,'/sys/',$filename)"/>
-	  </xsl:otherwise>
-	</xsl:choose>
+	<xsl:call-template name="get_file_ref">
+	  <xsl:with-param name="model" select="$model"/>
+	  <xsl:with-param name="type" select="$type"/>
+	  <xsl:with-param name="pound" select="$pound"/>
+	</xsl:call-template>
       </xsl:variable>
-      <xsl:choose>
-	<xsl:when test="$pound eq 'true'">
-	  <a href="{$file_ref}#{@directory}_{$model}.{@name}" target="info">
-	    <xsl:value-of select="@name"/>
-	  </a>
-	</xsl:when>
-	<xsl:otherwise>
-	  <a href="{$file_ref}" target="info">
-	    <xsl:value-of select="@name"/>
-	  </a>
-	</xsl:otherwise>
-      </xsl:choose>
+      <!-- <xsl:message>file_ref = <xsl:value-of select="$file_ref"/></xsl:message> -->
+      <a href="{$file_ref}" target="info">
+	<xsl:value-of select="key-str"/>
+	<xsl:if test="($numeric ne 'true') and (doc/@series ne 'AM')">
+	  <xsl:variable name="doc_kind" select="replace(replace(doc/@series,'IAR','IR'),'IGR','IR')"/>
+	  <xsl:text> (</xsl:text>
+	  <xsl:value-of select="$doc_kind"/>
+	  <xsl:text>)</xsl:text>
+	</xsl:if>
+      </a>
+      <xsl:if test="doc/tc">
+	<xsl:variable name="directory">
+	  <xsl:call-template name="get_directory"/>
+	</xsl:variable>
+	<xsl:text> [TC </xsl:text>
+	<xsl:for-each select="doc/tc">
+	  <xsl:variable name="file_ref">
+	    <xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+	  </xsl:variable>
+	  <a href="{$file_ref}" target="info"><xsl:value-of select="@cor"/></a>
+	  <xsl:if test="position() lt last()">
+	    <xsl:text>, </xsl:text>
+	  </xsl:if>
+	</xsl:for-each>
+	<xsl:text>]</xsl:text>
+      </xsl:if>
     </xsl:for-each>
     <br/>
+  </xsl:template>
+  <xsl:template name="get_file_ref">
+    <xsl:param name="model"/>
+    <xsl:param name="type"/>
+    <xsl:param name="pound"/>
+    <xsl:variable name="eltname" select="element()[2]/@name"/>
+    <!-- <xsl:message>eltname = <xsl:value-of select="$eltname"/></xsl:message> -->
+    <xsl:variable name="filename">
+      <xsl:choose>
+	<xsl:when test="$type eq 'resource'">
+	  <xsl:value-of select="concat($eltname,'.htm')"/>
+	</xsl:when>
+	<xsl:when test="$model eq 'arm'">
+	  <xsl:text>4_info_reqs.htm</xsl:text>
+	</xsl:when>
+	<xsl:when test="$model eq 'mim'">
+	  <xsl:text>5_mim.htm</xsl:text>
+	</xsl:when>
+	<xsl:when test="doc/@filename">
+	  <xsl:value-of select="doc/@filename"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:text>cover.htm</xsl:text>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- <xsl:message>filename = <xsl:value-of select="$filename"/></xsl:message> -->
+    <xsl:variable name="directory">
+      <xsl:call-template name="get_directory"/>
+    </xsl:variable>
+    <!-- <xsl:message>directory = <xsl:value-of select="$directory"/></xsl:message> -->
+    <xsl:variable name="suffix">
+      <xsl:choose>
+	<xsl:when test="$pound eq 'true'">
+	  <xsl:value-of select="concat('#',$directory,'_',$model,'.',$eltname)"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:text/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- <xsl:message>suffix = <xsl:value-of select="$suffix"/></xsl:message> -->
+    <xsl:choose>
+      <xsl:when test="$type eq 'resource'">
+	<xsl:value-of select="concat('../../resources/',$directory,'/',$filename)"/>
+      </xsl:when>
+      <xsl:when test="(string-length(doc/@series) eq 0) or (doc/@series eq 'AM')">
+	<xsl:value-of select="concat('../../modules/',$directory,'/sys/',$filename,$suffix)"/>
+      </xsl:when>
+      <xsl:when test="doc/@format eq 'html-stepmod'">
+	<xsl:value-of select="concat('../../resource_docs/',$directory,'/sys/',$filename,$suffix)"/>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="concat('../../resource_docs/',$directory,'/',$filename)"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:stylesheet>

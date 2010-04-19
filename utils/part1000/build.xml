@@ -1,15 +1,15 @@
-<project name="Part1000" default="part1000" basedir="../..">
-  <description>Part 1000</description>
+<project name="SMRL" default="smrl" basedir="../..">
+  <description>STEP Module and Resource Library</description>
 
   <!-- The following environment variables must be set before running this build:
          SAXON_HOME     Directory path of the Saxon 9 distribution
             LTK: I used saxonb9-1-0-8j.zip from http://saxon.sourceforge.net/ (the older one)
                         saxon92 did not work with me
-         STEP1000_ROOT  Directory path of local working copy of SMRL Subversion publication repository (similar to STEPMod top-level directory).
+         SMRL_ROOT      Directory path of local working copy of SMRL Subversion publication repository (similar to STEPMod top-level directory).
   -->
   <property environment="env"/>
   <property name="saxon" location="${env.SAXON_HOME}"/>
-  <property name="step1000_dir" location="${env.STEP1000_ROOT}"/>
+  <property name="SMRL_root" location="${env.SMRL_ROOT}"/>
 
   <!-- set global properties for this build -->
   <property name="saxon_jar" location="${saxon}/saxon9.jar"/>
@@ -24,6 +24,16 @@
     <attribute name="in"/>
     <attribute name="out"/>
     <attribute name="style"/>
+    <attribute name="pv1" default="tmp1=1"/>
+    <attribute name="pv2" default="tmp2=2"/>
+    <attribute name="pv3" default="tmp3=3"/>
+    <attribute name="pv4" default="tmp4=4"/>
+    <attribute name="pv5" default="tmp5=5"/>
+    <attribute name="pv6" default="tmp6=6"/>
+    <attribute name="pv7" default="tmp7=7"/>
+    <attribute name="pv8" default="tmp8=8"/>
+    <attribute name="pv9" default="tmp9=9"/>
+    <attribute name="pv10" default="tmp10=10"/>
     <sequential>
       <exec executable="java">
         <arg value="-classpath"/>
@@ -33,6 +43,16 @@
         <arg value="@{out}"/>
         <arg value="@{in}"/>
         <arg value="@{style}"/>
+        <arg value="@{pv1}"/>
+        <arg value="@{pv2}"/>
+        <arg value="@{pv3}"/>
+        <arg value="@{pv4}"/>
+        <arg value="@{pv5}"/>
+        <arg value="@{pv6}"/>
+        <arg value="@{pv7}"/>
+        <arg value="@{pv8}"/>
+        <arg value="@{pv9}"/>
+        <arg value="@{pv10}"/>
       </exec>
     </sequential>
   </macrodef>
@@ -42,8 +62,8 @@
     <attribute name="dest-dir"/>
     <attribute name="file"/>
     <sequential>
-      <echo message="Trans: dest-dir=@{dest-dir} file=@{file}"/>
-      <xslt1 in="@{source-dir}/sys/@{file}.xml" out="@{dest-dir}/sys/@{file}.htm" style="${xslt_dir}/collection_page.xsl"/>
+      <echo message="Trans: file=@{file}"/>
+      <xslt1 in="@{source-dir}/sys/@{file}.xml" out="@{dest-dir}/sys/@{file}.htm" style="${xslt_dir}/collection_page.xsl" pv1="filename_root=@{file}"/>
     </sequential>
   </macrodef>
 
@@ -53,16 +73,15 @@
     <!-- Create the build directory structure used by compile -->
   </target>
 
-  <target name="library" depends="init" description="create the files">
+  <target name="smrl" depends="init" description="create the files">
     <property name="source-dir" location="data/library"/>
-    <property name="dest-dir" location="${step1000_dir}/data/library"/>
+    <property name="dest-dir" location="${SMRL_root}/data/library"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="biblio"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="cover"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_aptitle"/>
-    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_contenttitle"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_index"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="frame_toc_short"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="help"/>
-    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_apdoc"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_express_inner"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_express_top"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_arm_modules_inner"/>
@@ -76,7 +95,10 @@
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_modules_inner"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_mim_modules_top"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_resources_inner"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="introduction"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="index_resources_top"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="list_by_name"/>
+    <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="list_by_number"/>
     <copy todir="${dest-dir}">
       <fileset dir="${source-dir}" includes="**/*.htm"/>
     </copy>
@@ -84,10 +106,10 @@
 
   <target name="part1" depends="init" description="create the files">
     <property name="source-dir" location="data/fundamentals/overview_and_fundamental_principles"/>
-    <mkdir dir="${step1000_dir}/data/fundamentals"/>
-    <mkdir dir="${step1000_dir}/data/fundamentals/overview_and_fundamental_principles"/>
-    <mkdir dir="${step1000_dir}/data/fundamentals/overview_and_fundamental_principles/sys"/>
-    <property name="dest-dir" location="${step1000_dir}/data/fundamentals/overview_and_fundamental_principles"/>
+    <mkdir dir="${SMRL_root}/data/fundamentals"/>
+    <mkdir dir="${SMRL_root}/data/fundamentals/overview_and_fundamental_principles"/>
+    <mkdir dir="${SMRL_root}/data/fundamentals/overview_and_fundamental_principles/sys"/>
+    <property name="dest-dir" location="${SMRL_root}/data/fundamentals/overview_and_fundamental_principles"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="cover"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="contents"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="foreword"/>

@@ -87,12 +87,17 @@ sub my_denormalize {
     my ($source_dir_uri, $original_link) = @_;
     my $modified_link = $original_link;
     if (!($modified_link =~ m|^http:|)) {
-	if ($source_dir_uri =~ m|/sys|) {
+	if ($source_dir_uri =~ m|/sys$|) {
 	    $modified_link =~ s|^(\w)|../sys/\1|;
 	}
 	else {
-	    $modified_link =~ s|^(\w)|./\1|;
-	    $modified_link =~ s|^../(\w)|../../../data/modules/\1|;
+	    $modified_link =~ s|^([A-Za-z0-9])|./\1|;
+	    if ($modified_link =~ s|^\.\./sys|./sys|) {
+		print "case 1\n";
+	    }
+	    else {
+		$modified_link =~ s|^\.\./(\w)|../../../data/modules/\1|;
+	    }
 	}
     }
     return $modified_link;
@@ -151,12 +156,12 @@ sub process_node {
 sub process_file {
     my ($source_root, $dest_root, $node_rel_path, $pub_date) = @_;
     my $source_file_path = "$source_root/$node_rel_path";
-    # my $source_dir_path = File::Spec->updir($source_file_path);
     my $source_dir_path = $source_file_path;
     $source_dir_path =~ s%/[^/]*$%%;
     my $source_dir_abs_path = File::Spec->rel2abs($source_dir_path);
     my $source_dir_uri = URI::file->new($source_dir_abs_path);
     my $dest_file_path = "$dest_root/$node_rel_path";
+    print "process_file: $source_file_path\n";
     if (is_html($source_file_path)) {
 	my $content;
 	{

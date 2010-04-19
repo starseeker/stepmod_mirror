@@ -5,14 +5,14 @@ rem   build <target>
 rem
 rem See build.xml for the targets.
 
-if not defined STEP1000_ROOT (
-echo Environment variable STEP1000_ROOT not defined
+if not defined SMRL_ROOT (
+echo Environment variable SMRL_ROOT not defined
 echo Exiting
 exit /b 1
 )
 
-if not exist %STEP1000_ROOT% (
-echo Directory %STEP1000_ROOT% does not exist
+if not exist %SMRL_ROOT% (
+echo Directory %SMRL_ROOT% does not exist
 echo Exiting
 exit /b 1
 )

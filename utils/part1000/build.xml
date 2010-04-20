@@ -1,15 +1,20 @@
-<project name="SMRL" default="smrl" basedir="../..">
+<project name="SMRL" default="smrl-greadme" basedir="../..">
   <description>STEP Module and Resource Library</description>
 
   <!-- The following environment variables must be set before running this build:
          SAXON_HOME     Directory path of the Saxon 9 distribution
             LTK: I used saxonb9-1-0-8j.zip from http://saxon.sourceforge.net/ (the older one)
                         saxon92 did not work with me
-         SMRL_ROOT      Directory path of local working copy of SMRL Subversion publication repository (similar to STEPMod top-level directory).
+         SMRL_ROOT      Directory path of local working copy of SMRL Subversion
+                        publication repository (similar to STEPMod top-level
+                        directory).
+         WORK           Directory where to put working files (e.g., ZIP file
+                        of SMRL).
   -->
   <property environment="env"/>
   <property name="saxon" location="${env.SAXON_HOME}"/>
   <property name="SMRL_root" location="${env.SMRL_ROOT}"/>
+  <property name="work" location="${env.WORK}"/>
 
   <!-- set global properties for this build -->
   <property name="saxon_jar" location="${saxon}/saxon9.jar"/>
@@ -73,7 +78,7 @@
     <!-- Create the build directory structure used by compile -->
   </target>
 
-  <target name="smrl" depends="init" description="create the files">
+  <target name="smrl-greadme" depends="init" description="create the files">
     <property name="source-dir" location="data/library"/>
     <property name="dest-dir" location="${SMRL_root}/data/library"/>
     <trans source-dir="${source-dir}" dest-dir="${dest-dir}" file="biblio"/>
@@ -102,6 +107,10 @@
     <copy todir="${dest-dir}">
       <fileset dir="${source-dir}" includes="**/*.htm"/>
     </copy>
+  </target>
+
+  <target name="smrl-zip" depends="init" description="ZIP the files">
+    <zip destfile="${work}/SMRL-${DSTAMP}.zip" basedir="${SMRL_root}" excludes="data/fundamentals/**"/>
   </target>
 
   <target name="part1" depends="init" description="create the files">

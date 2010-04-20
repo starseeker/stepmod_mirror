@@ -14,7 +14,9 @@
 			</head>
 			<body>
 				<xsl:if test="@page_type = 'main'">
+					<!--
 					<xsl:call-template name="top_stuff"/>
+					-->
 				</xsl:if>
 				<xsl:apply-templates/>
 				<xsl:if test="@page_type = 'main'">
@@ -43,10 +45,20 @@
 	    </small>
 	  </xsl:copy>
 	</xsl:template>
+	<xsl:template match="footnotes" priority="2.0">
+	  <table width="200">
+            <tr>
+              <td>
+		<hr/>
+	      </td>
+	    </tr>
+	  </table>
+	  <xsl:apply-templates/>
+	</xsl:template>
 	<xsl:template name="bottom_stuff">
-		<br/>
-		<br/>
-		<p>&#169; ISO <xsl:value-of select="$pub_year"/> &#8212; All rights reserved</p>
+	  <br/>
+	  <br/>
+	  <p>&#169; ISO <xsl:value-of select="$pub_year"/> &#8212; All rights reserved</p>
 	</xsl:template>
 	<xsl:template name="insert_metadata">
 		<link rel="schema.DC" href="http://www.dublincore.org/documents/2003/02/04/dces/"/>

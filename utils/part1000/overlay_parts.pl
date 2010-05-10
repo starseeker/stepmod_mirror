@@ -26,7 +26,7 @@
 #
 # Environment variables:
 #
-#   STEP1000_HOME   path of the checked-out copy of the part1000 Subversion
+#   PART1000_HOME   path of the checked-out copy of the part1000 Subversion
 #                   repository
 #
 # Example:
@@ -54,6 +54,9 @@ my $part1000_home;
 
 sub main {
     $part1000_home = $ENV{PART1000_HOME};
+    if (length($part1000_home) == 0) {
+	die "Environment variable PART1000_HOME not set.";
+    }
 
     my $module_list_path = "";
     my $resource_list_path = "";

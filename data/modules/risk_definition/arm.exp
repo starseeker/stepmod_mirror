@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.4 2010/03/18 21:05:08 philsp Exp $
+$Id: arm.exp,v 1.5 2010/03/23 16:58:33 philsp Exp $
 ISO TC184/SC4/WG12 N6836 - ISO/TS 10303-1786 Risk definition - EXPRESS ARM
 *)
 
@@ -8,6 +8,8 @@ SCHEMA Risk_definition_arm;
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 
 USE FROM Probability_arm;    -- ISO/TS 10303-1252
+
+USE FROM Process_property_assignment_arm;    -- ISO/TS 10303-1040
 
 USE FROM Product_relationship_arm;    -- ISO/TS 10303-1024
 
@@ -30,8 +32,7 @@ TYPE risk_perception_source_item = EXTENSIBLE GENERIC_ENTITY SELECT
 END_TYPE; 
 
 TYPE risk_property_assignment_select = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
-   (Activity_method, 
-    Risk_perception);
+   (Risk_perception);
 END_TYPE; 
 
 ENTITY Causal_consequence
@@ -41,9 +42,9 @@ ENTITY Causal_consequence
 END_ENTITY;
 
 ENTITY Probability_representation
-  SUBTYPE OF (Property_representation);
-  SELF\Property_definition_representation.rep : Probability;
-  SELF\Property_representation.property : Risk_event_probability;
+  SUBTYPE OF (Activity_property_representation);
+  SELF\Activity_property_representation.property : Risk_event_probability;
+  SELF\Activity_property_representation.rep : Probability;
 END_ENTITY;
 
 ENTITY Related_consequence
@@ -75,8 +76,8 @@ DERIVE
 END_ENTITY;
 
 ENTITY Risk_event_probability
-  SUBTYPE OF (Assigned_property);
-  SELF\Assigned_property.described_element : Activity_method;
+  SUBTYPE OF (Activity_property);
+  SELF\Activity_property.described_element : Activity_method;
 END_ENTITY;
 
 ENTITY Risk_impact_assignment;

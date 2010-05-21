@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2009/07/02 14:36:37 philsp Exp $
+   $Id: arm.exp,v 1.30 2009/08/11 14:25:47 abhpf Exp $
    ISO_TC184/SC4/WG3_N2511_-_ISO/TS_10303-1371_State_based_behaviour_-_EXPRESS_ARM
    Supersedes_ISO_TC184/SC4/WG3_N2327
 *)
@@ -7,8 +7,6 @@
 SCHEMA State_based_behaviour_arm;
 
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
-
-USE FROM Alias_identification_arm;    -- ISO/TS 10303-1025
 
 USE FROM Behaviour_description_assignment_arm;    -- ISO/TS 10303-1483
 
@@ -25,6 +23,8 @@ USE FROM External_state_based_behaviour_model_arm;    -- ISO/TS 10303-1468
 USE FROM General_model_parameter_arm;    -- ISO/TS 10303-1472
 
 USE FROM Identification_relationship_arm;    -- ISO/TS 10303-1398
+
+USE FROM Process_property_assignment_arm;    -- ISO/TS 10303-1040
 
 USE FROM Same_as_external_item_arm;    -- ISO/TS 10303-1402
 
@@ -45,29 +45,24 @@ TYPE sbb_behaviour_model = SELECT BASED_ON behaviour_model WITH
     State_definition);
 END_TYPE; 
 
+TYPE sbb_characterized_activity_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_activity_definition WITH 
+   (Activity_method_relationship);
+END_TYPE; 
+
 TYPE sbb_classification_item = SELECT BASED_ON classification_item WITH 
    (Activity_method, 
     Activity_method_relationship, 
     Applied_activity_method_assignment, 
     Applied_state_definition_assignment, 
     Assigned_property, 
-    Behaviour, 
-    Behaviour_view_definition, 
     Class, 
-    Context_dependent_unit, 
-    Conversion_based_unit, 
-    Derived_unit, 
     Description_text, 
     Description_text_assignment, 
-    Digital_file, 
     Expression, 
     Expression_assignment, 
     External_class_library, 
-    External_item_identification, 
     External_source_identification, 
     File, 
-    File_location_identification, 
-    Hardcopy, 
     Identification_assignment, 
     Identification_relationship, 
     Independent_property, 
@@ -82,12 +77,8 @@ TYPE sbb_classification_item = SELECT BASED_ON classification_item WITH
     Representation, 
     Representation_item, 
     Representation_relationship, 
-    State_based_behaviour_model, 
     State_definition, 
     State_definition_relationship, 
-    String_representation_item, 
-    Supplied_part_relationship, 
-    Uncertainty_with_unit, 
     Unit, 
     Value_with_unit, 
     View_definition_context);
@@ -151,8 +142,7 @@ TYPE sbb_condition_item = SELECT BASED_ON condition_item WITH
     Assigned_property, 
     Expression_assignment, 
     State_definition, 
-    State_definition_relationship, 
-    State_transition_definition);
+    State_definition_relationship);
 END_TYPE; 
 
 TYPE sbb_condition_parameter_item = SELECT BASED_ON condition_parameter_item WITH 
@@ -161,29 +151,21 @@ TYPE sbb_condition_parameter_item = SELECT BASED_ON condition_parameter_item WIT
     Applied_activity_method_assignment, 
     Assigned_property, 
     Classification_assignment, 
-    Expression, 
     Identification_assignment, 
     Independent_property, 
     Independent_property_representation, 
     parameter_value_select, 
     Product, 
     Product_version, 
-    Product_view_definition, 
     Property_representation, 
-    Representation, 
-    State_definition, 
     State_transition_definition);
 END_TYPE; 
 
 TYPE sbb_description_item = SELECT BASED_ON description_item WITH 
-   (Activity_method, 
-    Activity_method_relationship, 
+   (Activity_method_relationship, 
     Applied_activity_method_assignment, 
     Assigned_property, 
-    Behaviour, 
     behaviour_model, 
-    Behaviour_version, 
-    Behaviour_view_definition, 
     Class, 
     Condition, 
     Condition_assignment, 
@@ -194,7 +176,6 @@ TYPE sbb_description_item = SELECT BASED_ON description_item WITH
     External_source, 
     External_source_identification, 
     File, 
-    General_model_parameter, 
     Identification_assignment, 
     Identification_relationship, 
     Independent_property, 
@@ -208,11 +189,8 @@ TYPE sbb_description_item = SELECT BASED_ON description_item WITH
     Representation, 
     Representation_item, 
     Representation_relationship, 
-    State_based_behaviour_model, 
-    State_definition, 
     State_definition_relationship, 
     State_definition_role, 
-    Uncertainty_with_unit, 
     Unit, 
     Value_with_unit, 
     View_definition_context);
@@ -235,12 +213,9 @@ TYPE sbb_identification_item = SELECT BASED_ON identification_item WITH
     Class, 
     Condition, 
     Description_text_assignment, 
-    Digital_file, 
     External_class_library, 
     External_source_identification, 
     File, 
-    General_model_parameter, 
-    Hardcopy, 
     Identification_relationship, 
     Independent_property, 
     Independent_property_relationship, 
@@ -250,10 +225,8 @@ TYPE sbb_identification_item = SELECT BASED_ON identification_item WITH
     Product_view_definition, 
     Representation, 
     Representation_item, 
-    State_based_behaviour_model, 
     State_definition, 
     State_definition_relationship, 
-    State_transition_definition, 
     View_definition_context);
 END_TYPE; 
 
@@ -265,16 +238,11 @@ TYPE sbb_parameter_value_select = SELECT BASED_ON parameter_value_select WITH
 END_TYPE; 
 
 TYPE sbb_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
-   (Activity_method, 
-    Activity_method_relationship, 
-    Applied_activity_method_assignment, 
+   (Applied_activity_method_assignment, 
     Applied_state_definition_assignment, 
-    Assigned_property, 
-    Behaviour_view_definition, 
     Condition_parameter, 
     File, 
     Generic_expression, 
-    Independent_property, 
     Independent_property_relationship, 
     Product, 
     Product_version, 
@@ -312,19 +280,11 @@ TYPE sbb_state_definition_of_item = SELECT BASED_ON state_definition_of_item WIT
    (Activity_method, 
     Applied_activity_method_assignment, 
     Behaviour_description_association, 
-    Digital_file, 
     File, 
     File_location_identification, 
-    Hardcopy, 
     Product, 
     Product_version, 
     Product_view_definition);
 END_TYPE; 
 
 END_SCHEMA;  -- State_based_behaviour_arm
-
-
-
-
-
-

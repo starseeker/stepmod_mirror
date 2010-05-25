@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.24 2010/02/03 11:56:23 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.25 2010/03/17 15:52:21 abf Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -99,7 +99,7 @@ in -->
     For the purposes of this part of ISO 10303, -->
     For the purposes of this document, 
     the following terms and definitions apply:
- f </xsl:if>
+  </xsl:if>
 
   <!-- increment the section number depending on whether a definition
        section has been output 

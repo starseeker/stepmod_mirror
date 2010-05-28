@@ -2,5 +2,53 @@
    $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
    N - ISO/CD-TS - 10303- work_control - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Work_control_arm;
+
+USE FROM Root_things_arm;
+
+USE FROM Temporal_objects_arm;
+
+USE FROM Work_order_arm;
+
+ENTITY Approve_work_as_complete
+SUBTYPE OF (Monitor_work);
+END_ENTITY;
+
+ENTITY Control_document
+SUBTYPE OF (Information_object);
+END_ENTITY;
+
+ENTITY Disapprove_work
+SUBTYPE OF (Monitor_work);
+END_ENTITY;
+
+ENTITY Monitor_work
+SUBTYPE OF (Temporal_object_activity);
+  monitored_work : OPTIONAL Temporal_object_activity;
+END_ENTITY;
+
+ENTITY Oder_an_end_to_work
+SUBTYPE OF (Monitor_work);
+END_ENTITY;
+
+ENTITY Perform_work_as_directed_by_work_order
+SUBTYPE OF (Directed_activity, Temporal_object_activity);
+  controlling_documents : OPTIONAL SET [1 : ?] OF Control_document;
+  SELF\Directed_activity.directive : OPTIONAL Work_order_document;
+END_ENTITY;
+
+ENTITY Prepare_work_order
+SUBTYPE OF (Temporal_object_activity);
+  prepared_work_order : OPTIONAL Work_order_document;
+END_ENTITY;
+
+ENTITY Specify_perform_and_monitor_work
+SUBTYPE OF (Temporal_object_activity);
+END_ENTITY;
+
+ENTITY Work_order_document
+SUBTYPE OF (Information_object, Work_order);
+END_ENTITY;
+
 END_SCHEMA;

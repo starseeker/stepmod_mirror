@@ -2,78 +2,80 @@
    $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
    N - ISO/CD-TS - 10303- temporal_objects - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Temporal_objects_arm;
 
-USE FROM Activity_arm;    -- ISO/TS 10303-1047
+USE FROM Event_arm;
 
-USE FROM Date_time_arm;    -- ISO/TS 10303-1010
+USE FROM Individual_activity_arm;
 
-USE FROM Event_arm;    -- ISO/TS 10303-1064
+USE FROM Product_as_individual_arm;
 
-USE FROM Product_as_individual_arm;    -- ISO/TS 10303-1164
-
-USE FROM Root_things_arm;    -- ISO/WD-TS 10303-1393
-
+USE FROM Root_things_arm;
 
 ENTITY Temporal_beginning
-  SUBTYPE OF (Temporal_bounding);
+SUBTYPE OF (Root_relationship);
+  bounded_temporal_object : Temporal_object_in_period;
+  bounding_temporal_object : Temporal_object_at_instant;
 END_ENTITY;
 
-ENTITY Temporal_bounding
-  ABSTRACT SUPERTYPE OF (ONEOF (Temporal_beginning,
-                                Temporal_end))
-  SUBTYPE OF (Root_relationship);
-  boundary : Temporal_object_in_period;
-  in_boundary_object_at_instant : SET[0.0000:?] OF Temporal_object_at_instant;
+ENTITY Temporal_containment
+SUBTYPE OF (Root_relationship);
+  contained_temporal_object : Temporal_object;
+  containing_temporal_object : Temporal_object;
 END_ENTITY;
 
 ENTITY Temporal_end
-  SUBTYPE OF (Temporal_bounding);
+SUBTYPE OF (Root_relationship);
+  bounded_temporal_object : Temporal_object_in_period;
+  bounding_temporal_object : Temporal_object_at_instant;
 END_ENTITY;
 
 ENTITY Temporal_object
-  ABSTRACT SUPERTYPE OF (ONEOF (Temporal_object_in_period,
-                                Temporal_object_at_instant))
-  SUBTYPE OF (Root_thing);
+ABSTRACT SUPERTYPE OF (ONEOF(Temporal_object_in_period, Temporal_object_at_instant))
+SUBTYPE OF (Root_object_or_relationship);
 END_ENTITY;
 
 ENTITY Temporal_object_activity
-  SUBTYPE OF (Activity, Temporal_object_in_period);
+SUBTYPE OF (Individual_activity, Temporal_object_in_period);
 END_ENTITY;
 
 ENTITY Temporal_object_at_instant
-  SUBTYPE OF (Temporal_object);
-  at : OPTIONAL date_or_date_time_select;
-END_ENTITY;
-
-ENTITY Temporal_object_event
-  SUBTYPE OF (Event, Temporal_object_at_instant);
+SUBTYPE OF (Temporal_object);
+  exists_at_instant : OPTIONAL date_or_event;
 END_ENTITY;
 
 ENTITY Temporal_object_in_period
-  SUBTYPE OF (Temporal_object);
-  ending : OPTIONAL date_or_date_time_select;
-  beginning : OPTIONAL date_or_date_time_select;
+SUBTYPE OF (Temporal_object);
+  existence_ends_at_instant : OPTIONAL date_or_event;
+  existence_begins_at_instant : OPTIONAL date_or_event;
 END_ENTITY;
 
-ENTITY Temporal_object_product_as_realized_at_instant
-  SUBTYPE OF (Product_as_realized, Temporal_object_at_instant);
+ENTITY Temporal_object_product_as_individual_version_at_instant
+SUBTYPE OF (Product_as_individual_version, Temporal_object_at_instant);
 END_ENTITY;
 
-ENTITY Temporal_object_product_as_realized_in_period
-  SUBTYPE OF (Product_as_realized, Temporal_object_in_period);
+ENTITY Temporal_object_product_as_individual_version_in_period
+SUBTYPE OF (Product_as_individual_version, Temporal_object_in_period);
 END_ENTITY;
 
-ENTITY Temporal_part
-  SUBTYPE OF (Root_relationship);
-  whole : Temporal_object;
-  part : OPTIONAL SET[0.0000:?] OF Temporal_object;
+ENTITY Temporal_partial_sequence
+SUBTYPE OF (Root_relationship);
+  preceding_temporal_object : Temporal_object;
+  succeding_temporal_object : Temporal_object;
 END_ENTITY;
 
-ENTITY Temporal_sequence
-  SUBTYPE OF (Root_relationship);
-  predecessor : Temporal_object;
-  successor : Temporal_object;
+ENTITY Temporal_strict_sequence
+SUBTYPE OF (Root_relationship);
+  preceding_temporal_object : Temporal_object;
+  succeding_temporal_object : Temporal_object;
 END_ENTITY;
 
-END_SCHEMA;  -- Temporal_objects_arm
+ENTITY Temporal_whole_part
+SUBTYPE OF (Root_relationship);
+  whole_temporal_object : Temporal_object;
+  part_temporal_object : Temporal_object;
+END_ENTITY;
+
+END_SCHEMA;
+

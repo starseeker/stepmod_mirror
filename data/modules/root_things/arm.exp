@@ -2,30 +2,46 @@
    $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
    N - ISO/CD-TS - 10303- root_things - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Root_things_arm;
 
-USE FROM Class_arm;    -- ISO/TS 10303-1070
+USE FROM Class_arm;
 
-USE FROM Data_creation_and_maintenance_activity_arm;    -- ISO/WD-TS 10303-1391
+USE FROM Data_creation_and_maintenance_activity_arm;
 
+USE FROM Document_and_version_identification_arm;
+
+USE FROM Group_arm;
+
+USE FROM Temporal_objects_arm;
 
 TYPE global_id = STRING;
-END_TYPE; 
+END_TYPE;
+
+TYPE relationship_in_information_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH
+  (Root_relationship);
+END_TYPE;
 
 ENTITY Class_under_root
-  SUBTYPE OF (Class, Root_thing);
+SUBTYPE OF (Class, Root_object_or_relationship);
+END_ENTITY;
+
+ENTITY Information_object
+SUBTYPE OF (Document_version, Root_object_or_relationship);
+END_ENTITY;
+
+ENTITY Information_object_as_set_of_statements
+SUBTYPE OF (Group, Information_object);
+  SELF\Group.elements : OPTIONAL SET [1 : ?] OF relationship_in_information_object_select;
+END_ENTITY;
+
+ENTITY Root_object_or_relationship ABSTRACT SUPERTYPE;
+  global_unique_id : global_id;
+  record_creating_activity : Temporal_object_activity;
 END_ENTITY;
 
 ENTITY Root_relationship
-  ABSTRACT SUPERTYPE 
-  SUBTYPE OF (Root_thing);
+SUBTYPE OF (Root_object_or_relationship);
 END_ENTITY;
 
-ENTITY Root_thing
-  ABSTRACT SUPERTYPE ;
-  global_unique_id : global_id;
-  owning_information : Data_creation_and_maintenance_activity;
-END_ENTITY;
-
-END_SCHEMA;  -- Root_things_arm
-
+END_SCHEMA;

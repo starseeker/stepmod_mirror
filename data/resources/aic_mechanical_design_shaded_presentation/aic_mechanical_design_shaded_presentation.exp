@@ -1,5 +1,5 @@
 (*
-$Id: aic_mechanical_design_shaded_presentation.exp,v 1.4 2008/08/21 13:06:38 liutkuviene Exp $ 
+$Id: aic_mechanical_design_shaded_presentation.exp,v 1.5 2009/04/22 11:42:42 liutkuviene Exp $ 
 ISO TC184/SC4/WG12 N6183 - ISO/DIS 10303-518 Mechanical design shaded presentation - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N5254
 *)
@@ -7,7 +7,9 @@ Supersedes ISO TC184/SC4/WG12 N5254
 SCHEMA aic_mechanical_design_shaded_presentation;
 
     USE FROM geometry_schema                          -- ISO 10303-42
-    (axis2_placement_2d);
+     (axis2_placement,
+      axis2_placement_2d,
+      axis2_placement_3d); 
 
     USE FROM measure_schema                           -- ISO 10303-41
     (positive_ratio_measure);
@@ -43,6 +45,9 @@ SCHEMA aic_mechanical_design_shaded_presentation;
       u_direction_count,
       v_direction_count);
 
+    USE FROM presentation_organization_schema   -- ISO 10303-46
+     (area_in_set);
+
     REFERENCE FROM presentation_organization_schema   -- ISO 10303-46
      (aspect_ratio);
 
@@ -75,10 +80,21 @@ SCHEMA aic_mechanical_design_shaded_presentation;
      (mapped_item,
       representation); 
 
+  TYPE mechanical_design_shaded_presentation_area_items = SELECT(
+    axis2_placement,
+    mapped_item);
+  END_TYPE;
 
+  TYPE mechanical_design_shaded_presentation_representation_items = SELECT(
+    axis2_placement,
+    camera_model_d3,
+    mapped_item,
+    styled_item);
+  END_TYPE;
 
   ENTITY mechanical_design_shaded_presentation_area
     SUBTYPE OF (presentation_area);
+      SELF\representation.items : SET[1:?] OF mechanical_design_shaded_presentation_area_items;
   WHERE
   WR1 : (* only presentation_views or axis2_placements in
            mechanical_design_shaded_presentation_area *)
@@ -130,8 +146,8 @@ SCHEMA aic_mechanical_design_shaded_presentation;
         (SIZEOF (QUERY(ps <* USEDIN (SELF, 
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' + 
         'PRESENTATION_SIZE.UNIT') |
-        NOT ((ps.size\planar_extent.size_in_x > 0) 
-        AND (ps.size\planar_extent.size_in_y > 0)) )) = 0)
+        NOT ((ps\presentation_size.size.size_in_x > 0) 
+        AND (ps\presentation_size.size.size_in_y > 0)) )) = 0)
         AND
         (* check secondly for presentation_set, via area_in_set *)
         (SIZEOF (QUERY(pset <* QUERY(ais <* 
@@ -140,11 +156,11 @@ SCHEMA aic_mechanical_design_shaded_presentation;
         | 'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' +
         'PRESENTATION_SET' IN TYPEOF (ais.in_set)) |
         (* after having collected all presentation_set, check their sizes *)
-        SIZEOF (QUERY(psize <* USEDIN(pset, 
+        SIZEOF (QUERY(ps <* USEDIN(pset, 
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' + 
         'PRESENTATION_SIZE.UNIT')
-        | NOT ((psize.size\planar_extent.size_in_x > 0) 
-        AND (psize.size\planar_extent.size_in_y > 0)) )) = 0)) = 0);
+        | NOT ((ps\presentation_size.size.size_in_x > 0) 
+        AND (ps\presentation_size.size.size_in_y > 0)) )) = 0)) = 0);
   WR4:  (* Drawing space shall be defined in 2D.
            Check for this presentation_area subtype first. *)
         (SIZEOF(QUERY( psize <* USEDIN (SELF, 
@@ -200,15 +216,9 @@ SCHEMA aic_mechanical_design_shaded_presentation;
 
 ENTITY mechanical_design_shaded_presentation_representation
    SUBTYPE OF (representation);
+      SELF\representation.items : SET[1:?] OF mechanical_design_shaded_presentation_representation_items;
 WHERE
-  WR1:  SIZEOF(QUERY(it <* SELF.items |
-        NOT (SIZEOF(
-        ['AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.MAPPED_ITEM',
-        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.STYLED_ITEM',
-        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.AXIS2_PLACEMENT',
-        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.CAMERA_MODEL_D3']
-        * TYPEOF(it)) = 1))) = 0;
-  WR2:  (* for all mapped_items check that only
+  WR1:  (* for all mapped_items check that only
            shape_representations and
            mechanical_design_shaded_presentation_representations
            are referenced *)
@@ -221,7 +231,7 @@ WHERE
         'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION']
         * TYPEOF(mi\mapped_item.mapping_source.mapped_representation))
         = 1))) = 0;
-  WR3:  (* for all styled_item.item check that in case they are
+  WR2:  (* for all styled_item.item check that in case they are
            mapped_items that they are shape_representations *)
         SIZEOF(QUERY(smi <* QUERY(si <* QUERY(it <* SELF.items |
         ('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.STYLED_ITEM'
@@ -231,7 +241,7 @@ WHERE
         ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
         'SHAPE_REPRESENTATION' IN TYPEOF (smi\styled_item.
         item\mapped_item.mapping_source.mapped_representation))) )) = 0;
-  WR4 : (* for all styled_items get their styles via
+  WR3: (* for all styled_items get their styles via
            presentation_style_assignment.styles and check for valid
            style types *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
@@ -244,7 +254,7 @@ WHERE
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.CURVE_STYLE',
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.SURFACE_STYLE_USAGE']
         *  TYPEOF (pss)) = 1))) = 0))) = 0))) = 0;
-  WR5 : (* for all styled_items get those assigned styles that 
+  WR4: (* for all styled_items get those assigned styles that 
            are presentation_style_by_contexts and ensure that
            these reference only representation_items and 
            representations as valid contexts *)
@@ -259,7 +269,7 @@ WHERE
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.REPRESENTATION']
         * TYPEOF (psbc\presentation_style_by_context.style_context)) = 1)))
         = 0))) = 0;
-  WR6 : (* for all styled_items get all assigned point_styles  
+  WR5: (* for all styled_items get all assigned point_styles  
            and ensure that marker_select, marker_size and
            marker_colour are valid *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
@@ -280,7 +290,7 @@ WHERE
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+
         'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF
         (ps\point_style.marker_colour)) = 1)))) = 0))) = 0))) = 0;
-  WR7 : (* for all styled_items get all assigned curve_styles  
+  WR6: (* for all styled_items get all assigned curve_styles  
            and ensure that curve_width, curve_font and
            curve_colour are valid *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
@@ -303,7 +313,7 @@ WHERE
         'CURVE_STYLE_FONT', 'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+
         'DRAUGHTING_PRE_DEFINED_CURVE_FONT'] * TYPEOF
         (cs\curve_style.curve_font)) = 1)))) = 0))) = 0))) = 0;
-  WR8 : (* for all styled_items get all assigned surface_style_usages
+  WR7: (* for all styled_items get all assigned surface_style_usages
            and ensure that its style is a surface_side_style *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.STYLED_ITEM'
@@ -314,7 +324,7 @@ WHERE
         IN TYPEOF (pss)) |
         NOT ('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.SURFACE_SIDE_STYLE'
         IN TYPEOF (ssu\surface_style_usage.style)) )) = 0))) = 0 ))) = 0;
-  WR9 : (* for all styled_items get all assigned surface_style_usages
+  WR8: (* for all styled_items get all assigned surface_style_usages
            and the surface_side_styles that they reference, and ensure
            that the styles referenced by those surface_side_styles
            are among the valid subset *)
@@ -343,7 +353,7 @@ WHERE
         'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+
         'SURFACE_STYLE_RENDERING'] * TYPEOF (sses)) = 1))) = 0))) = 0)))
         = 0))) = 0;
-  WR10: (* for all surface_style_fill_areas that are referenced by
+  WR9: (* for all surface_style_fill_areas that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to their colour representation *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
@@ -367,7 +377,7 @@ WHERE
         'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF
         (fss\fill_area_style_colour.fill_colour)) = 1)))) = 0))) = 0)))
         = 0))) = 0))) = 0;
-  WR11: (* for all surface_style_parameter_lines that are referenced by
+  WR10: (* for all surface_style_parameter_lines that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to the applied curve_style, which may include
            rendering *)
@@ -412,7 +422,7 @@ WHERE
         (sspl\surface_style_parameter_line.style_of_parameter_lines\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-  WR12: (* for all surface_style_control_grids that are referenced by
+  WR11: (* for all surface_style_control_grids that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to the applied curve_style, which may include
            rendering *)
@@ -456,7 +466,7 @@ WHERE
         (sscg\surface_style_control_grid.style_of_control_grid\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-  WR13: (* for all surface_style_silhouettes that are referenced by
+  WR12: (* for all surface_style_silhouettes that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to the applied curve_style, which may include
            rendering *)
@@ -500,7 +510,7 @@ WHERE
         (sssh\surface_style_silhouette.style_of_silhouette\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-  WR14: (* for all surface_style_segmentation_curves that are referenced by
+  WR13: (* for all surface_style_segmentation_curves that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to the applied curve_style, which may include
            rendering *)
@@ -546,7 +556,7 @@ WHERE
         (sssc\surface_style_segmentation_curve.style_of_segmentation_curve\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-  WR15: (* for all surface_style_boundaries that are referenced by
+  WR14: (* for all surface_style_boundaries that are referenced by
            any surface_side_styles ensure that they are valid 
            with respect to the applied curve_style, which may include
            rendering *)
@@ -590,7 +600,7 @@ WHERE
         (ssbd\surface_style_boundary.style_of_boundary\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-  WR16: (* for all surface_style_renderings that are referenced by
+  WR15: (* for all surface_style_renderings that are referenced by
            any surface_side_styles ensure that the colour
            representation is valid *)
         SIZEOF (QUERY (si <* QUERY (it <* SELF.items |

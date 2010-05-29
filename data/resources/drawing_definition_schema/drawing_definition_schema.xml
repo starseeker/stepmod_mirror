@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-101" rcs.date="$Date: 2007-03-20 15:25:09 -0700 (An, 20 Kov 2007) $" rcs.revision="$Revision: 13 $" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="drawing_definition_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="drawing_definition_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="drawing_definition_schema">
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="label"/>
@@ -27,7 +27,7 @@
       </type>
       <entity name="draughting_title">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="draughting_titled_item"/>
          </explicit>
          <explicit name="language">
@@ -67,18 +67,18 @@
          <explicit name="successor">
             <typename name="drawing_revision"/>
          </explicit>
-         <where label="WR1" expression="predecessor :&lt;&gt;: successor"/>
+         <where expression="predecessor :&lt;&gt;: successor" label="WR1"/>
       </entity>
       <entity name="drawing_sheet_revision" supertypes="presentation_area">
          <explicit name="revision_identifier">
             <typename name="identifier"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF( QUERY(item &lt;* SELF\representation.items |&#10;       ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN (TYPEOF(item)))&#10;       AND&#10;       ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN&#10;       (TYPEOF(item\mapped_item.mapping_source.mapped_representation)))))=0"/>
+         <where expression="SIZEOF( QUERY(item &lt;* SELF\representation.items |&#10;       ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN (TYPEOF(item)))&#10;       AND&#10;       ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN&#10;       (TYPEOF(item\mapped_item.mapping_source.mapped_representation)))))=0" label="WR1"/>
       </entity>
       <entity name="drawing_sheet_revision_sequence" supertypes="representation_relationship">
-         <where label="WR1" expression="SELF\representation_relationship.rep_1 :&lt;&gt;:                            &#10;       SELF\representation_relationship.rep_2"/>
-         <where label="WR2" expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_1)"/>
-         <where label="WR3" expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_2)"/>
+         <where expression="SELF\representation_relationship.rep_1 :&lt;&gt;:                            &#10;       SELF\representation_relationship.rep_2" label="WR1"/>
+         <where expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_1)" label="WR2"/>
+         <where expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_2)" label="WR3"/>
       </entity>
       <entity name="drawing_sheet_revision_usage" supertypes="area_in_set">
          <explicit name="sheet_number">
@@ -86,12 +86,12 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="sheet_number"/>
-            <unique.attribute entity-ref="area_in_set" attribute="in_set"/>
+            <unique.attribute attribute="SELF\area_in_set.in_set"/>
          </unique>
-         <where label="WR1" expression="('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN &#10;                  TYPEOF(SELF\area_in_set.area)) &#10;              AND&#10;              ('DRAWING_DEFINITION_SCHEMA.DRAWING_REVISION' &#10;               IN TYPEOF (SELF\area_in_set.in_set))"/>
+         <where expression="('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN &#10;                  TYPEOF(SELF\area_in_set.area)) &#10;              AND&#10;              ('DRAWING_DEFINITION_SCHEMA.DRAWING_REVISION' &#10;               IN TYPEOF (SELF\area_in_set.in_set))" label="WR1"/>
       </entity>
-      <rule name="drawing_sheets_not_nested" appliesto="presentation_representation_relationship">
-         <where label="WR1" expression="SIZEOF( QUERY(p_r_r &lt;* presentation_representation_relationship |      &#10;         ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' &#10;        IN (TYPEOF(p_r_r.rep_1))) AND&#10;        ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;        IN (TYPEOF( p_r_r.rep_2))))) = 0"/>
+      <rule appliesto="presentation_representation_relationship" name="drawing_sheets_not_nested">
+         <where expression="SIZEOF( QUERY(p_r_r &lt;* presentation_representation_relationship |      &#10;         ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' &#10;        IN (TYPEOF(p_r_r.rep_1))) AND&#10;        ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;        IN (TYPEOF( p_r_r.rep_2))))) = 0" label="WR1"/>
       </rule>
    </schema>
 </express>

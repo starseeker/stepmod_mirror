@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.179 2010/02/21 07:08:23 robbod Exp $
+$Id: common.xsl,v 1.180 2010/02/23 07:39:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4675,7 +4675,7 @@ is case sensitive.')"/>
   </xsl:variable>
   <xsl:choose>
 	<xsl:when test="$doctype='aic'">
-	  **FIX** </xsl:when>
+	  Construction interpr&#233;t&#233;e d'application</xsl:when>
 	<xsl:when test="$doctype='iar'">
 	  Ressources d'application int&#233;gr&#233;es</xsl:when>
 	<xsl:when test="$doctype='igr'">

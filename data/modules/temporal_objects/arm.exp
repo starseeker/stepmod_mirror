@@ -1,81 +1,54 @@
 (*
    $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- temporal_objects - EXPRESS ARM*)
+   N - ISO/CD-TS - 10303- work_control - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 
-SCHEMA Temporal_objects_arm;
-
-USE FROM Event_arm;
-
-USE FROM Individual_activity_arm;
-
-USE FROM Product_as_individual_arm;
+SCHEMA Work_control_arm;
 
 USE FROM Root_things_arm;
 
-ENTITY Temporal_beginning
-SUBTYPE OF (Root_relationship);
-  bounded_temporal_object : Temporal_object_in_period;
-  bounding_temporal_object : Temporal_object_at_instant;
+USE FROM Temporal_objects_arm;
+
+USE FROM Work_order_arm;
+
+ENTITY Approve_work_as_complete
+SUBTYPE OF (Monitor_work);
 END_ENTITY;
 
-ENTITY Temporal_containment
-SUBTYPE OF (Root_relationship);
-  contained_temporal_object : Temporal_object;
-  containing_temporal_object : Temporal_object;
+ENTITY Control_document
+SUBTYPE OF (Information_object);
 END_ENTITY;
 
-ENTITY Temporal_end
-SUBTYPE OF (Root_relationship);
-  bounded_temporal_object : Temporal_object_in_period;
-  bounding_temporal_object : Temporal_object_at_instant;
+ENTITY Disapprove_work
+SUBTYPE OF (Monitor_work);
 END_ENTITY;
 
-ENTITY Temporal_object
-ABSTRACT SUPERTYPE OF (ONEOF(Temporal_object_in_period, Temporal_object_at_instant))
-SUBTYPE OF (Root_object_or_relationship);
+ENTITY Monitor_work
+SUBTYPE OF (Temporal_object_activity);
+  monitored_work : OPTIONAL Temporal_object_activity;
 END_ENTITY;
 
-ENTITY Temporal_object_activity
-SUBTYPE OF (Individual_activity, Temporal_object_in_period);
+ENTITY Oder_an_end_to_work
+SUBTYPE OF (Monitor_work);
 END_ENTITY;
 
-ENTITY Temporal_object_at_instant
-SUBTYPE OF (Temporal_object);
-  exists_at_instant : OPTIONAL date_or_event;
+ENTITY Perform_work_as_directed_by_work_order
+SUBTYPE OF (Directed_activity, Temporal_object_activity);
+  controlling_documents : OPTIONAL SET [1 : ?] OF Control_document;
+  SELF\Directed_activity.directive : OPTIONAL Work_order_document;
 END_ENTITY;
 
-ENTITY Temporal_object_in_period
-SUBTYPE OF (Temporal_object);
-  existence_ends_at_instant : OPTIONAL date_or_event;
-  existence_begins_at_instant : OPTIONAL date_or_event;
+ENTITY Prepare_work_order
+SUBTYPE OF (Temporal_object_activity);
+  prepared_work_order : OPTIONAL Work_order_document;
 END_ENTITY;
 
-ENTITY Temporal_object_product_as_individual_version_at_instant
-SUBTYPE OF (Product_as_individual_version, Temporal_object_at_instant);
+ENTITY Specify_perform_and_monitor_work
+SUBTYPE OF (Temporal_object_activity);
 END_ENTITY;
 
-ENTITY Temporal_object_product_as_individual_version_in_period
-SUBTYPE OF (Product_as_individual_version, Temporal_object_in_period);
-END_ENTITY;
-
-ENTITY Temporal_partial_sequence
-SUBTYPE OF (Root_relationship);
-  preceding_temporal_object : Temporal_object;
-  succeding_temporal_object : Temporal_object;
-END_ENTITY;
-
-ENTITY Temporal_strict_sequence
-SUBTYPE OF (Root_relationship);
-  preceding_temporal_object : Temporal_object;
-  succeding_temporal_object : Temporal_object;
-END_ENTITY;
-
-ENTITY Temporal_whole_part
-SUBTYPE OF (Root_relationship);
-  whole_temporal_object : Temporal_object;
-  part_temporal_object : Temporal_object;
+ENTITY Work_order_document
+SUBTYPE OF (Information_object, Work_order);
 END_ENTITY;
 
 END_SCHEMA;
-

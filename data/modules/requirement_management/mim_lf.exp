@@ -1,7 +1,7 @@
 (*
-$Id: mim_lf.exp,v 1.11 2010/01/13 15:57:14 philsp Exp $
-ISO TC184/SC4/WG3 N2714 - ISO/TS 10303-1348 Requirement management - EXPRESS MIM Long form
-Supersedes ISO TC184/SC4/WG3 N2509
+$Id: mim_lf.exp,v 1.12 2010/01/20 10:11:32 philsp Exp $
+ISO TC184/SC4/WG3 N2752 - ISO/TS 10303-1348 Requirement management - EXPRESS MIM Long form
+Supersedes ISO TC184/SC4/WG3 N2714
 *) 
 
 
@@ -59,7 +59,6 @@ TYPE approval_item = SELECT
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -161,7 +160,6 @@ TYPE classification_item = SELECT
     calendar_date, 
     certification, 
     class, 
-    context_dependent_unit, 
     contract, 
     contract_relationship, 
     date_and_time, 
@@ -184,12 +182,10 @@ TYPE classification_item = SELECT
     named_unit, 
     organization, 
     organization_relationship, 
-    organizational_address, 
     organizational_project, 
     organizational_project_relationship, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -205,7 +201,6 @@ TYPE classification_item = SELECT
     requirement_source, 
     security_classification, 
     time_interval_relationship, 
-    uncertainty_measure_with_unit, 
     usage_association);
 END_TYPE; 
 
@@ -235,8 +230,6 @@ TYPE date_and_time_item = SELECT
    (applied_certification_assignment, 
     applied_classification_assignment, 
     applied_contract_assignment, 
-    applied_date_and_time_assignment, 
-    applied_date_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -264,7 +257,6 @@ TYPE date_and_time_item = SELECT
     organizational_project, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -283,8 +275,6 @@ TYPE date_item = SELECT
    (applied_certification_assignment, 
     applied_classification_assignment, 
     applied_contract_assignment, 
-    applied_date_and_time_assignment, 
-    applied_date_assignment, 
     applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
@@ -312,7 +302,6 @@ TYPE date_item = SELECT
     organizational_project, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -423,7 +412,6 @@ TYPE effectivity_item = SELECT
     organization_relationship, 
     organizational_address, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -519,12 +507,10 @@ TYPE groupable_item = SELECT
     named_unit, 
     organization, 
     organization_relationship, 
-    organizational_address, 
     organizational_project, 
     organizational_project_relationship, 
     person, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -596,7 +582,6 @@ TYPE identification_item = SELECT
     property_definition, 
     requirement_assignment, 
     requirement_source, 
-    requirement_view_definition_relationship, 
     security_classification, 
     security_classification_level);
 END_TYPE; 
@@ -771,7 +756,6 @@ TYPE organization_item = SELECT
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -816,7 +800,6 @@ TYPE person_and_organization_item = SELECT
     organizational_address, 
     organizational_project, 
     person_and_organization, 
-    person_and_organization_address, 
     product, 
     product_definition, 
     product_definition_context, 
@@ -2879,538 +2862,538 @@ END_RULE;
 RULE validate_dependently_instantiable_entity_data_types FOR 
 (application_context, application_context_element, attribute_value_role, classification_role, contract_type, document_type, document_usage_constraint, document_usage_role, event_occurrence_role, product_context, product_definition_context_role);
 
-      LOCAL
-        number_of_input_instances : INTEGER;
-        previous_in_chain : LIST OF GENERIC := [];
-        set_of_input_types : SET OF STRING := [];
-        all_instances : SET OF GENERIC := [];
-      END_LOCAL;
+  LOCAL
+    number_of_input_instances : INTEGER;
+    previous_in_chain : LIST OF GENERIC := [];
+    set_of_input_types : SET OF STRING := [];
+    all_instances : SET OF GENERIC := [];
+  END_LOCAL;
 
-      all_instances := all_instances + application_context + application_context_element + attribute_value_role + classification_role + contract_type + document_type + document_usage_constraint + document_usage_role + event_occurrence_role + product_context + product_definition_context_role;
-      number_of_input_instances := SIZEOF(all_instances);
-      REPEAT i := 1 TO number_of_input_instances;
-        set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
-      END_REPEAT;
+  all_instances := all_instances + application_context + application_context_element + attribute_value_role + classification_role + contract_type + document_type + document_usage_constraint + document_usage_role + event_occurrence_role + product_context + product_definition_context_role;--<make a union of all implicit populations of the FOR-clause>
+  number_of_input_instances := SIZEOF(all_instances);
+  REPEAT i := 1 TO number_of_input_instances;
+    set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
+  END_REPEAT;
       WHERE
   WR1: dependently_instantiated(all_instances, set_of_input_types, previous_in_chain);
 END_RULE; 
 
 FUNCTION acyclic_product_definition_relationship
  (relation : product_definition_relationship; relatives : SET[1:?] OF product_definition; specific_relation : STRING) : BOOLEAN; 
-      LOCAL
-        x : SET OF product_definition_relationship;
-      END_LOCAL;
+  LOCAL
+    x : SET OF product_definition_relationship;
+  END_LOCAL;
 
-      IF relation.relating_product_definition IN relatives THEN
-        RETURN (FALSE);
-      END_IF;
-      x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_product_definition, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION')) | specific_relation IN TYPEOF(pd));
-      REPEAT i := 1 TO HIINDEX(x);
-        IF NOT acyclic_product_definition_relationship(x[i], relatives + relation.relating_product_definition, specific_relation) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_REPEAT;
-      RETURN (TRUE);
+  IF relation.relating_product_definition IN relatives THEN
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_product_definition, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION')) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_product_definition_relationship(x[i], relatives + relation.relating_product_definition, specific_relation) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
       END_FUNCTION; 
 
 FUNCTION bag_to_set
  (the_bag : BAG OF GENERIC : intype) : SET OF GENERIC : intype; 
-      LOCAL
-        the_set : SET OF GENERIC:intype := [];
-      END_LOCAL;
+  LOCAL
+    the_set : SET OF GENERIC:intype := [];
+  END_LOCAL;
 
-      IF SIZEOF(the_bag) > 0 THEN
-        REPEAT i := 1 TO HIINDEX(the_bag);
-          the_set := the_set + the_bag[i];
-        END_REPEAT;
-      END_IF;
-      RETURN (the_set);
+  IF SIZEOF(the_bag) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(the_bag);
+      the_set := the_set + the_bag[i];
+    END_REPEAT;
+  END_IF;
+  RETURN (the_set);
       END_FUNCTION; 
 
 FUNCTION dependently_instantiated
  (set_of_input_instances : SET OF GENERIC : igen; set_of_input_types : SET OF STRING; previous_in_chain : LIST OF GENERIC : cgen) : BOOLEAN; 
-      LOCAL
-        number_of_input_instances : INTEGER;
-        number_of_referring_instances : INTEGER;
-        bag_of_referring_instances : BAG OF GENERIC:igen := [];
-        dependently_instantiated_flag : BOOLEAN;
-        previous_in_chain_plus : LIST OF GENERIC:cgen := [];
-        result : BOOLEAN := TRUE;
-        set_of_types : SET OF STRING := [];
-      END_LOCAL;
+  LOCAL
+    number_of_input_instances : INTEGER;
+    number_of_referring_instances : INTEGER;
+    bag_of_referring_instances : BAG OF GENERIC:igen := [];
+    dependently_instantiated_flag : BOOLEAN;
+    previous_in_chain_plus : LIST OF GENERIC:cgen := [];
+    result : BOOLEAN := TRUE;
+    set_of_types : SET OF STRING := [];
+  END_LOCAL;
 
-      IF EXISTS(set_of_input_instances) THEN
-        number_of_input_instances := SIZEOF(set_of_input_instances);
-        set_of_input_types := set_of_input_types + 'GENERIC';
-        REPEAT i := 1 TO number_of_input_instances;
-          bag_of_referring_instances := USEDIN(set_of_input_instances[i], '');
-          IF EXISTS(bag_of_referring_instances) THEN
-            number_of_referring_instances := SIZEOF(bag_of_referring_instances);
-            dependently_instantiated_flag := FALSE;
-            REPEAT j := 1 TO number_of_referring_instances;
-              set_of_types := TYPEOF(bag_of_referring_instances[j]);
-              IF set_of_types <= set_of_input_types THEN
-                IF NOT (bag_of_referring_instances[j] IN previous_in_chain) THEN
-                  previous_in_chain_plus := previous_in_chain + set_of_input_instances[i];
-                  IF dependently_instantiated([bag_of_referring_instances[j]], set_of_input_types, previous_in_chain_plus) THEN
-                    dependently_instantiated_flag := TRUE;
-                    ESCAPE;
-                  ELSE
-                    SKIP;
-                  END_IF;
-                END_IF;
-              ELSE
+  IF EXISTS(set_of_input_instances) THEN
+    number_of_input_instances := SIZEOF(set_of_input_instances);
+    set_of_input_types := set_of_input_types + 'GENERIC';
+    REPEAT i := 1 TO number_of_input_instances;
+      bag_of_referring_instances := USEDIN(set_of_input_instances[i], '');
+      IF EXISTS(bag_of_referring_instances) THEN
+        number_of_referring_instances := SIZEOF(bag_of_referring_instances);
+        dependently_instantiated_flag := FALSE;
+        REPEAT j := 1 TO number_of_referring_instances;
+          set_of_types := TYPEOF(bag_of_referring_instances[j]);
+          IF set_of_types <= set_of_input_types THEN
+            IF NOT (bag_of_referring_instances[j] IN previous_in_chain) THEN
+              previous_in_chain_plus := previous_in_chain + set_of_input_instances[i];
+              IF dependently_instantiated([bag_of_referring_instances[j]], set_of_input_types, previous_in_chain_plus) THEN
                 dependently_instantiated_flag := TRUE;
                 ESCAPE;
+              ELSE
+                SKIP;
               END_IF;
-            END_REPEAT;
-            IF NOT dependently_instantiated_flag THEN
-              RETURN (FALSE);
             END_IF;
           ELSE
-            RETURN (FALSE);
+            dependently_instantiated_flag := TRUE;
+            ESCAPE;
           END_IF;
         END_REPEAT;
+        IF NOT dependently_instantiated_flag THEN
+          RETURN (FALSE);
+        END_IF;
       ELSE
         RETURN (FALSE);
       END_IF;
-      RETURN (TRUE);
+    END_REPEAT;
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+  RETURN (TRUE);
       END_FUNCTION; 
 
 FUNCTION derive_dimensional_exponents
  (x : unit) : dimensional_exponents; 
-      LOCAL
-        result : dimensional_exponents := dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
-      END_LOCAL;
+  LOCAL
+    result : dimensional_exponents := dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
+  END_LOCAL;
 
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.DERIVED_UNIT' IN TYPEOF(x) THEN
-        REPEAT i := LOINDEX(x\derived_unit.elements) TO HIINDEX(x\derived_unit.elements);
-          result.length_exponent := result.length_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.length_exponent);
-          result.mass_exponent := result.mass_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.mass_exponent);
-          result.time_exponent := result.time_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.time_exponent);
-          result.electric_current_exponent := result.electric_current_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.electric_current_exponent);
-          result.thermodynamic_temperature_exponent := result.thermodynamic_temperature_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.thermodynamic_temperature_exponent);
-          result.amount_of_substance_exponent := result.amount_of_substance_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.amount_of_substance_exponent);
-          result.luminous_intensity_exponent := result.luminous_intensity_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.luminous_intensity_exponent);
-        END_REPEAT;
-      ELSE
-        result := x\named_unit.dimensions;
-      END_IF;
-      RETURN (result);
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.DERIVED_UNIT' IN TYPEOF(x) THEN
+    REPEAT i := LOINDEX(x\derived_unit.elements) TO HIINDEX(x\derived_unit.elements);
+      result.length_exponent := result.length_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.length_exponent);
+      result.mass_exponent := result.mass_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.mass_exponent);
+      result.time_exponent := result.time_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.time_exponent);
+      result.electric_current_exponent := result.electric_current_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.electric_current_exponent);
+      result.thermodynamic_temperature_exponent := result.thermodynamic_temperature_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.thermodynamic_temperature_exponent);
+      result.amount_of_substance_exponent := result.amount_of_substance_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.amount_of_substance_exponent);
+      result.luminous_intensity_exponent := result.luminous_intensity_exponent + (x\derived_unit.elements[i]\derived_unit_element.exponent * x\derived_unit.elements[i]\derived_unit_element.unit\named_unit.dimensions.luminous_intensity_exponent);
+    END_REPEAT;
+  ELSE
+    result := x\named_unit.dimensions;
+  END_IF;
+  RETURN (result);
       END_FUNCTION; 
 
 FUNCTION dimensions_for_si_unit
  (n : si_unit_name) : dimensional_exponents; 
-      CASE n OF 
-        metre:
-          RETURN (dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        gram:
-          RETURN (dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        second:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        ampere:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-        kelvin:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
-        mole:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000));
-        candela:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-        radian:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        steradian:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        hertz:
-          RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        newton:
-          RETURN (dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        pascal:
-          RETURN (dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        joule:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        watt:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        coulomb:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-        volt:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-        farad:
-          RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-        ohm:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
-        siemens:
-          RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000));
-        weber:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-        tesla:
-          RETURN (dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-        henry:
-          RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
-        degree_Celsius:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
-        lumen:
-          RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-        lux:
-          RETURN (dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-        becquerel:
-          RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        gray:
-          RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        sievert:
-          RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-        OTHERWISE:
-          RETURN (?);
-      END_CASE;
+  CASE n OF 
+    metre:
+      RETURN (dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gram:
+      RETURN (dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    second:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    ampere:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    kelvin:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    mole:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000));
+    candela:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    radian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    steradian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    hertz:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    newton:
+      RETURN (dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    pascal:
+      RETURN (dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    joule:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    watt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    coulomb:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    volt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    farad:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    ohm:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    siemens:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000));
+    weber:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    tesla:
+      RETURN (dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    henry:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    degree_Celsius:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    lumen:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    lux:
+      RETURN (dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    becquerel:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gray:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    sievert:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    OTHERWISE:
+      RETURN (?);
+  END_CASE;
       END_FUNCTION; 
 
 FUNCTION get_description_value
  (obj : description_attribute_select) : text; 
-      LOCAL
-        description_bag : BAG OF description_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM'));
-      END_LOCAL;
+  LOCAL
+    description_bag : BAG OF description_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM'));
+  END_LOCAL;
 
-      IF SIZEOF(description_bag) = 1 THEN
-        RETURN (description_bag[1].attribute_value);
-      ELSE
-        RETURN (?);
-      END_IF;
+  IF SIZEOF(description_bag) = 1 THEN
+    RETURN (description_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION get_id_value
  (obj : id_attribute_select) : identifier; 
-      LOCAL
-        id_bag : BAG OF id_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM'));
-      END_LOCAL;
+  LOCAL
+    id_bag : BAG OF id_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM'));
+  END_LOCAL;
 
-      IF SIZEOF(id_bag) = 1 THEN
-        RETURN (id_bag[1].attribute_value);
-      ELSE
-        RETURN (?);
-      END_IF;
+  IF SIZEOF(id_bag) = 1 THEN
+    RETURN (id_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION get_name_value
  (obj : name_attribute_select) : label; 
-      LOCAL
-        name_bag : BAG OF name_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'NAME_ATTRIBUTE.' + 'NAMED_ITEM'));
-      END_LOCAL;
+  LOCAL
+    name_bag : BAG OF name_attribute := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'NAME_ATTRIBUTE.' + 'NAMED_ITEM'));
+  END_LOCAL;
 
-      IF SIZEOF(name_bag) = 1 THEN
-        RETURN (name_bag[1].attribute_value);
-      ELSE
-        RETURN (?);
-      END_IF;
+  IF SIZEOF(name_bag) = 1 THEN
+    RETURN (name_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION get_role
  (obj : role_select) : object_role; 
-      LOCAL
-        role_bag : BAG OF role_association := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'ROLE_ASSOCIATION.' + 'ITEM_WITH_ROLE'));
-      END_LOCAL;
+  LOCAL
+    role_bag : BAG OF role_association := (USEDIN(obj, 'REQUIREMENT_MANAGEMENT_MIM_LF.' + 'ROLE_ASSOCIATION.' + 'ITEM_WITH_ROLE'));
+  END_LOCAL;
 
-      IF SIZEOF(role_bag) = 1 THEN
-        RETURN (role_bag[1].role);
-      ELSE
-        RETURN (?);
-      END_IF;
+  IF SIZEOF(role_bag) = 1 THEN
+    RETURN (role_bag[1].role);
+  ELSE
+    RETURN (?);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION leap_year
  (year : year_number) : BOOLEAN; 
-      IF ((((year MOD 4) = 0) AND ((year MOD 100) <> 0)) OR ((year MOD 400) = 0)) THEN
-        RETURN (TRUE);
-      ELSE
-        RETURN (FALSE);
-      END_IF;
+  IF ((((year MOD 4) = 0) AND ((year MOD 100) <> 0)) OR ((year MOD 400) = 0)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION using_items
  (item : founded_item_select; checked_items : SET OF founded_item_select) : SET OF founded_item_select; 
-      LOCAL
-        new_check_items : SET OF founded_item_select;
-        result_items : SET OF founded_item_select;
-        next_items : SET OF founded_item_select;
-      END_LOCAL;
+  LOCAL
+    new_check_items : SET OF founded_item_select;
+    result_items : SET OF founded_item_select;
+    next_items : SET OF founded_item_select;
+  END_LOCAL;
 
-      result_items := [];
-      new_check_items := checked_items + item;
-      next_items := QUERY(z <* bag_to_set(USEDIN(item, '')) | ('REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION_ITEM' IN TYPEOF(z)) OR ('REQUIREMENT_MANAGEMENT_MIM_LF.FOUNDED_ITEM' IN TYPEOF(z)));
-      IF SIZEOF(next_items) > 0 THEN
-        REPEAT i := 1 TO HIINDEX(next_items);
-          IF NOT (next_items[i] IN new_check_items) THEN
-            result_items := result_items + next_items[i] + using_items(next_items[i], new_check_items);
-          END_IF;
-        END_REPEAT;
+  result_items := [];
+  new_check_items := checked_items + item;
+  next_items := QUERY(z <* bag_to_set(USEDIN(item, '')) | ('REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION_ITEM' IN TYPEOF(z)) OR ('REQUIREMENT_MANAGEMENT_MIM_LF.FOUNDED_ITEM' IN TYPEOF(z)));
+  IF SIZEOF(next_items) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(next_items);
+      IF NOT (next_items[i] IN new_check_items) THEN
+        result_items := result_items + next_items[i] + using_items(next_items[i], new_check_items);
       END_IF;
-      RETURN (result_items);
+    END_REPEAT;
+  END_IF;
+  RETURN (result_items);
       END_FUNCTION; 
 
 FUNCTION using_representations
  (item : founded_item_select) : SET OF representation; 
-      LOCAL
-        results : SET OF representation;
-        result_bag : BAG OF representation;
-        intermediate_items : SET OF founded_item_select;
-      END_LOCAL;
+  LOCAL
+    results : SET OF representation;
+    result_bag : BAG OF representation;
+    intermediate_items : SET OF founded_item_select;
+  END_LOCAL;
 
-      results := [];
-      result_bag := USEDIN(item, 'REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION.ITEMS');
+  results := [];
+  result_bag := USEDIN(item, 'REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION.ITEMS');
+  IF SIZEOF(result_bag) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(result_bag);
+      results := results + result_bag[i];
+    END_REPEAT;
+  END_IF;
+  intermediate_items := using_items(item, []);
+  IF SIZEOF(intermediate_items) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(intermediate_items);
+      result_bag := USEDIN(intermediate_items[i], 'REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION.ITEMS');
       IF SIZEOF(result_bag) > 0 THEN
-        REPEAT i := 1 TO HIINDEX(result_bag);
-          results := results + result_bag[i];
+        REPEAT j := 1 TO HIINDEX(result_bag);
+          results := results + result_bag[j];
         END_REPEAT;
       END_IF;
-      intermediate_items := using_items(item, []);
-      IF SIZEOF(intermediate_items) > 0 THEN
-        REPEAT i := 1 TO HIINDEX(intermediate_items);
-          result_bag := USEDIN(intermediate_items[i], 'REQUIREMENT_MANAGEMENT_MIM_LF.REPRESENTATION.ITEMS');
-          IF SIZEOF(result_bag) > 0 THEN
-            REPEAT j := 1 TO HIINDEX(result_bag);
-              results := results + result_bag[j];
-            END_REPEAT;
-          END_IF;
-        END_REPEAT;
-      END_IF;
-      RETURN (results);
+    END_REPEAT;
+  END_IF;
+  RETURN (results);
       END_FUNCTION; 
 
 FUNCTION valid_calendar_date
  (date : calendar_date) : LOGICAL; 
-      CASE date.month_component OF 
-        1:
-          RETURN ({1 <= date.day_component <= 31});
-        2:
-          BEGIN
-            IF (leap_year(date.year_component)) THEN
-              RETURN ({1 <= date.day_component <= 29});
-            ELSE
-              RETURN ({1 <= date.day_component <= 28});
-            END_IF;
-          END;
-        3:
-          RETURN ({1 <= date.day_component <= 31});
-        4:
-          RETURN ({1 <= date.day_component <= 30});
-        5:
-          RETURN ({1 <= date.day_component <= 31});
-        6:
-          RETURN ({1 <= date.day_component <= 30});
-        7:
-          RETURN ({1 <= date.day_component <= 31});
-        8:
-          RETURN ({1 <= date.day_component <= 31});
-        9:
-          RETURN ({1 <= date.day_component <= 30});
-        10:
-          RETURN ({1 <= date.day_component <= 31});
-        11:
-          RETURN ({1 <= date.day_component <= 30});
-        12:
-          RETURN ({1 <= date.day_component <= 31});
-      END_CASE;
-      RETURN (FALSE);
+  CASE date.month_component OF 
+    1:
+      RETURN ({1 <= date.day_component <= 31});
+    2:
+      BEGIN
+        IF (leap_year(date.year_component)) THEN
+          RETURN ({1 <= date.day_component <= 29});
+        ELSE
+          RETURN ({1 <= date.day_component <= 28});
+        END_IF;
+      END;
+    3:
+      RETURN ({1 <= date.day_component <= 31});
+    4:
+      RETURN ({1 <= date.day_component <= 30});
+    5:
+      RETURN ({1 <= date.day_component <= 31});
+    6:
+      RETURN ({1 <= date.day_component <= 30});
+    7:
+      RETURN ({1 <= date.day_component <= 31});
+    8:
+      RETURN ({1 <= date.day_component <= 31});
+    9:
+      RETURN ({1 <= date.day_component <= 30});
+    10:
+      RETURN ({1 <= date.day_component <= 31});
+    11:
+      RETURN ({1 <= date.day_component <= 30});
+    12:
+      RETURN ({1 <= date.day_component <= 31});
+  END_CASE;
+  RETURN (FALSE);
       END_FUNCTION; 
 
 FUNCTION valid_measure_value
  (m : measure_value) : BOOLEAN; 
-      IF ('REAL' IN TYPEOF(m)) THEN
-        RETURN (m > 0.000000);
-      ELSE
-        IF ('INTEGER' IN TYPEOF(m)) THEN
-          RETURN (m > 0);
-        ELSE
-          RETURN (TRUE);
-        END_IF;
-      END_IF;
+  IF ('REAL' IN TYPEOF(m)) THEN
+    RETURN (m > 0.000000);
+  ELSE
+    IF ('INTEGER' IN TYPEOF(m)) THEN
+      RETURN (m > 0);
+    ELSE
+      RETURN (TRUE);
+    END_IF;
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION valid_time
  (time : local_time) : BOOLEAN; 
-      IF EXISTS(time.second_component) THEN
-        RETURN (EXISTS(time.minute_component));
-      ELSE
-        RETURN (TRUE);
-      END_IF;
+  IF EXISTS(time.second_component) THEN
+    RETURN (EXISTS(time.minute_component));
+  ELSE
+    RETURN (TRUE);
+  END_IF;
       END_FUNCTION; 
 
 FUNCTION valid_units
  (m : measure_with_unit) : BOOLEAN; 
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LENGTH_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MASS_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.TIME_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_CURRENT_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.THERMODYNAMIC_TEMPERATURE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CELSIUS_TEMPERATURE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.AMOUNT_OF_SUBSTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LUMINOUS_INTENSITY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.PLANE_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.SOLID_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.AREA_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.VOLUME_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(3.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RATIO_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POSITIVE_LENGTH_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POSITIVE_PLANE_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ACCELERATION_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CAPACITANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_CHARGE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CONDUCTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_POTENTIAL_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ENERGY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.FORCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.FREQUENCY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ILLUMINANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.INDUCTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LUMINOUS_FLUX_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MAGNETIC_FLUX_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MAGNETIC_FLUX_DENSITY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POWER_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.PRESSURE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RESISTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.VELOCITY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RADIOACTIVITY_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ABSORBED_DOSE_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      IF 'REQUIREMENT_MANAGEMENT_MIM_LF.DOSE_EQUIVALENT_MEASURE' IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
-          RETURN (FALSE);
-        END_IF;
-      END_IF;
-      RETURN (TRUE);
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LENGTH_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MASS_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.TIME_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_CURRENT_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.THERMODYNAMIC_TEMPERATURE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CELSIUS_TEMPERATURE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.AMOUNT_OF_SUBSTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LUMINOUS_INTENSITY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.PLANE_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.SOLID_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.AREA_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.VOLUME_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(3.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RATIO_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POSITIVE_LENGTH_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POSITIVE_PLANE_ANGLE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ACCELERATION_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CAPACITANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_CHARGE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.CONDUCTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ELECTRIC_POTENTIAL_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ENERGY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.FORCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.FREQUENCY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ILLUMINANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.INDUCTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.LUMINOUS_FLUX_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MAGNETIC_FLUX_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.MAGNETIC_FLUX_DENSITY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.POWER_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.PRESSURE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RESISTANCE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.VELOCITY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(1.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.RADIOACTIVITY_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.ABSORBED_DOSE_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF 'REQUIREMENT_MANAGEMENT_MIM_LF.DOSE_EQUIVALENT_MEASURE' IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) <> dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  RETURN (TRUE);
       END_FUNCTION; 
 
 END_SCHEMA;  -- Requirement_management_mim_LF

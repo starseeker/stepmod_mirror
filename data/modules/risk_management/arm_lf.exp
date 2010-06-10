@@ -1,7 +1,7 @@
 (*
-$Id: arm_lf.exp,v 1.22 2010/01/07 11:54:18 philsp Exp $
-ISO TC184/SC4/WG3 N2695 - ISO/TS 10303-1467 Risk management - EXPRESS ARM Long form
-Supersedes ISO TC184/SC4/WG3 N2503
+$Id: arm_lf.exp,v 1.23 2010/04/28 16:21:48 philsp Exp $
+ISO TC184/SC4/WG3 N2755 - ISO/TS 10303-1467 Risk management - EXPRESS ARM Long form
+Supersedes ISO TC184/SC4/WG3 N2695
 *) 
 
 
@@ -141,6 +141,12 @@ TYPE assumption_item = SELECT
     Approval, 
     Product, 
     Product_version);
+END_TYPE; 
+
+TYPE characterized_activity_definition = SELECT
+   (Activity, 
+    Activity_method, 
+    Activity_method_relationship);
 END_TYPE; 
 
 TYPE classification_item = SELECT
@@ -660,9 +666,7 @@ TYPE plane_angle_measure = REAL;
 END_TYPE; 
 
 TYPE property_assignment_select = SELECT
-   (Activity_method, 
-    Activity_method_relationship, 
-    Address, 
+   (Address, 
     Applied_activity_assignment, 
     Applied_activity_method_assignment, 
     Applied_state_assignment, 
@@ -872,6 +876,19 @@ ENTITY Activity_method_relationship;
   related_method : Activity_method;
 END_ENTITY;
 
+ENTITY Activity_property;
+  name : STRING;
+  description : STRING;
+  described_element : characterized_activity_definition;
+END_ENTITY;
+
+ENTITY Activity_property_representation;
+  description : OPTIONAL STRING;
+  property : Activity_property;
+  rep : Representation;
+  role : STRING;
+END_ENTITY;
+
 ENTITY Activity_relationship;
   name : STRING;
   description : OPTIONAL STRING;
@@ -927,6 +944,13 @@ ENTITY Applied_activity_method_assignment;
   assigned_activity_method : Activity_method;
   items : SET[1:?] OF activity_method_item;
   role : STRING;
+END_ENTITY;
+
+ENTITY Applied_independent_activity_property
+  SUBTYPE OF (Activity_property);
+  base_element_property : Independent_property;
+DERIVE
+  SELF\Activity_property.name : STRING := base_element_property.property_type;
 END_ENTITY;
 
 ENTITY Applied_independent_property
@@ -1446,9 +1470,9 @@ ENTITY Probability_numeric_value
 END_ENTITY;
 
 ENTITY Probability_representation
-  SUBTYPE OF (Property_representation);
-  SELF\Property_definition_representation.rep : Probability;
-  SELF\Property_definition_representation.definition : Risk_event_probability;
+  SUBTYPE OF (Activity_property_representation);
+  SELF\Activity_property_representation.property : Risk_event_probability;
+  SELF\Activity_property_representation.rep : Probability;
 END_ENTITY;
 
 ENTITY Product;
@@ -1607,8 +1631,8 @@ DERIVE
 END_ENTITY;
 
 ENTITY Risk_event_probability
-  SUBTYPE OF (Assigned_property);
-  SELF\Assigned_property.described_element : Activity_method;
+  SUBTYPE OF (Activity_property);
+  SELF\Activity_property.described_element : Activity_method;
 END_ENTITY;
 
 ENTITY Risk_impact_assignment;

@@ -9,8 +9,8 @@
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 4, 36, 40"
-    source="rskm.exp"/>
+    version="1, 3, 34, 40"
+    source="arm_lf.exp"/>
 
   <schema name="Risk_management_arm_LF">
     <type name="approval_item">
@@ -192,9 +192,21 @@
       />
     </type>
 
+    <type name="characterized_activity_definition">
+      <select
+        selectitems="Activity Activity_method Activity_method_relationship"
+      />
+    </type>
+
+    <type name="activity_item">
+      <select
+        selectitems="Activity_method Applied_activity_assignment Applied_state_assignment Applied_state_definition_assignment Assigned_property File Independent_property Justification Organization Person Person_in_organization Product Product_version Product_version_relationship Product_view_definition Resource_item Resource_item_realization Risk_impact_assignment Risk_perception_source_assignment State State_assertion State_assessment State_relationship View_definition_relationship"
+      />
+    </type>
+
     <type name="property_assignment_select">
       <select
-        selectitems="Activity_method Activity_method_relationship Address Applied_activity_assignment Applied_activity_method_assignment Applied_state_assignment Applied_state_definition_assignment Document_assignment File Organization_or_person_in_organization_assignment Person Person_in_organization Product_view_definition Risk_impact_assignment Risk_perception State State_definition State_definition_relationship State_relationship View_definition_relationship"
+        selectitems="Address Applied_activity_assignment Applied_activity_method_assignment Applied_state_assignment Applied_state_definition_assignment Document_assignment File Organization_or_person_in_organization_assignment Person Person_in_organization Product_view_definition Risk_impact_assignment Risk_perception State State_definition State_definition_relationship State_relationship View_definition_relationship"
       />
     </type>
 
@@ -278,15 +290,17 @@
       />
     </type>
 
-    <type name="activity_item">
-      <select
-        selectitems="Activity_method Applied_activity_assignment Applied_state_assignment Applied_state_definition_assignment Assigned_property File Independent_property Justification Organization Person Person_in_organization Product Product_version Product_version_relationship Product_view_definition Resource_item Resource_item_realization Risk_impact_assignment Risk_perception_source_assignment State State_assertion State_assessment State_relationship View_definition_relationship"
-      />
-    </type>
-
-    <entity name="Amount_of_substance_unit"
+    <entity name="Conversion_based_unit"
       supertypes="Unit"
     >
+      <explicit
+        name="conversion_factor">
+        <typename name="Value_with_unit"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
     </entity>
 
     <entity name="Approval_assignment"
@@ -1173,11 +1187,6 @@
       </explicit>
     </entity>
 
-    <entity name="Hardcopy"
-      supertypes="File"
-    >
-    </entity>
-
     <entity name="File_location_identification"
       supertypes="External_item_identification"
     >
@@ -1185,6 +1194,11 @@
         label="WR1"
         expression="&apos;RISK_MANAGEMENT_ARM_LF.FILE&apos; IN TYPEOF(SELF\External_source_identification.item)">
       </where>
+    </entity>
+
+    <entity name="Hardcopy"
+      supertypes="File"
+    >
     </entity>
 
     <entity name="Identification_relationship"
@@ -1881,6 +1895,20 @@
       </explicit>
     </entity>
 
+    <entity name="Amount_of_substance_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Context_dependent_unit"
+      supertypes="Unit"
+    >
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
+    </entity>
+
     <entity name="Approval"
     >
       <explicit
@@ -1902,28 +1930,6 @@
         optional="YES">
         <typename name="date_or_date_time_select"/>
       </explicit>
-    </entity>
-
-    <entity name="Context_dependent_unit"
-      supertypes="Unit"
-    >
-      <where
-        label="WR1"
-        expression="EXISTS(SELF\Unit.name)">
-      </where>
-    </entity>
-
-    <entity name="Conversion_based_unit"
-      supertypes="Unit"
-    >
-      <explicit
-        name="conversion_factor">
-        <typename name="Value_with_unit"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="EXISTS(SELF\Unit.name)">
-      </where>
     </entity>
 
     <entity name="Derived_unit"
@@ -2067,19 +2073,19 @@
     </entity>
 
     <entity name="Probability_representation"
-      supertypes="Property_representation"
+      supertypes="Activity_property_representation"
     >
+      <explicit
+        name="property">
+        <typename name="Risk_event_probability"/>
+        <redeclaration
+          entity-ref="Activity_property_representation"/>
+      </explicit>
       <explicit
         name="rep">
         <typename name="Probability"/>
         <redeclaration
-          entity-ref="Property_definition_representation"/>
-      </explicit>
-      <explicit
-        name="definition">
-        <typename name="Risk_event_probability"/>
-        <redeclaration
-          entity-ref="Property_definition_representation"/>
+          entity-ref="Activity_property_representation"/>
       </explicit>
     </entity>
 
@@ -2171,13 +2177,13 @@
     </entity>
 
     <entity name="Risk_event_probability"
-      supertypes="Assigned_property"
+      supertypes="Activity_property"
     >
       <explicit
         name="described_element">
         <typename name="Activity_method"/>
         <redeclaration
-          entity-ref="Assigned_property"/>
+          entity-ref="Activity_property"/>
       </explicit>
     </entity>
 
@@ -2642,6 +2648,188 @@
       </explicit>
     </entity>
 
+    <entity name="Activity_property"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="described_element">
+        <typename name="characterized_activity_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_property_representation"
+    >
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="property">
+        <typename name="Activity_property"/>
+      </explicit>
+      <explicit
+        name="rep">
+        <typename name="Representation"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Applied_independent_activity_property"
+      supertypes="Activity_property"
+    >
+      <explicit
+        name="base_element_property">
+        <typename name="Independent_property"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="base_element_property.property_type">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Activity_property"/>
+      </derived>
+    </entity>
+
+    <entity name="Activity"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="chosen_method">
+        <typename name="Activity_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_relationship"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Activity"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_status"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Applied_activity_assignment"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="activity_item"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Independent_property"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="property_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Independent_property_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating">
+        <typename name="Independent_property"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Independent_property"/>
+      </explicit>
+    </entity>
+
     <entity name="View_definition_relationship"
     >
       <explicit
@@ -2758,49 +2946,6 @@
         expression="SELF\Property_definition_representation.definition">
         <typename name="Assigned_property"/>
       </derived>
-    </entity>
-
-    <entity name="Independent_property"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="property_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Independent_property_relationship"
-    >
-      <explicit
-        name="relation_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating">
-        <typename name="Independent_property"/>
-      </explicit>
-      <explicit
-        name="related">
-        <typename name="Independent_property"/>
-      </explicit>
     </entity>
 
     <entity name="Same_as_external_item"
@@ -3115,87 +3260,6 @@
     <entity name="Xor_state_cause_effect_definition"
       supertypes="State_cause_effect_definition"
     >
-    </entity>
-
-    <entity name="Activity"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="chosen_method">
-        <typename name="Activity_method"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_relationship"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="related_activity">
-        <typename name="Activity"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_status"
-    >
-      <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="status">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Applied_activity_assignment"
-    >
-      <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="activity_item"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
     </entity>
 
     <entity name="External_source"

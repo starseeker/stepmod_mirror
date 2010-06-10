@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.9 2010/02/22 23:40:20 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.10 2010/02/23 08:18:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -148,6 +148,10 @@ $Id: sect_2_refs.xsl,v 1.9 2010/02/22 23:40:20 robbod Exp $
       <xsl:choose>
         <xsl:when test="contains($stdno,'10303-')">
           <xsl:value-of select="concat('10303',substring-after($stdno,'10303-'))"/>
+        </xsl:when>
+        <!-- fix for phil spiby -->
+        <xsl:when test="contains($stdno,'13584-')">
+          <xsl:value-of select="concat('13584',substring-after($stdno,'13584-'))"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$stdno"/>
@@ -381,9 +385,10 @@ $Id: sect_2_refs.xsl,v 1.9 2010/02/22 23:40:20 robbod Exp $
 <!-- outputs the norm refs that have been collected into the normref_nodes
      node set. The normrefs are sorted on output  -->
 <xsl:template match="normref_nodes" mode="output_normrefs">
+  
   <xsl:apply-templates select="normref" mode="output_html">    
     <xsl:sort select="@group"/>
-    <xsl:sort select="@id" data-type="number"/>
+    <xsl:sort select="@id" data-type="text"/>
   </xsl:apply-templates>
   <xsl:apply-templates select="normref.resource" mode="check_resources"/>
   <xsl:if test="normref/stdref[@published='n']">

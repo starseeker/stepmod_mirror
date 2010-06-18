@@ -6,6 +6,9 @@
 	<xsl:include href="nav.xsl"/>
 	<xsl:variable name="desig" select="document('../part.xml',.)/part/designator"/>
 	<xsl:variable name="pub_year" select="document('../part.xml',.)/part/@publication.year"/>
+	<xsl:template match="space" priority="2.0">
+	  <xsl:text> </xsl:text>
+	</xsl:template>
 	<xsl:template match="collection_page" priority="2.0">
 		<html>
 			<head>

@@ -45,11 +45,11 @@
 	    </a>
 	    <xsl:if test="doc/tc">
 	      <xsl:for-each select="doc/tc">
-		<xsl:variable name="file_ref">
+		<xsl:variable name="file_ref1">
 		  <xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
 		</xsl:variable>
 		<br/>
-		&#160;&#160;&#160;&#160;<a href="{$file_ref}" target="info"><xsl:value-of select="concat('TC ',@cor,': ',@pub_year_mo)"/></a>
+		&#160;&#160;&#160;&#160;<a href="{$file_ref1}" target="info"><xsl:value-of select="concat('TC ',@cor,': ',@pub_year_mo)"/></a>
 	      </xsl:for-each>
 	    </xsl:if>
 	  </td>
@@ -463,10 +463,10 @@
 	</xsl:variable>
 	<xsl:text> [TC </xsl:text>
 	<xsl:for-each select="doc/tc">
-	  <xsl:variable name="file_ref">
+	  <xsl:variable name="file_ref1">
 	    <xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
 	  </xsl:variable>
-	  <a href="{$file_ref}" target="info"><xsl:value-of select="@cor"/></a>
+	  <a href="{$file_ref1}" target="info"><xsl:value-of select="@cor"/></a>
 	  <xsl:if test="position() lt last()">
 	    <xsl:text>, </xsl:text>
 	  </xsl:if>

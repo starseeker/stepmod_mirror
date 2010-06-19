@@ -66,4 +66,12 @@
 	<xsl:template name="insert_metadata">
 		<link rel="schema.DC" href="http://www.dublincore.org/documents/2003/02/04/dces/"/>
 	</xsl:template>
+	<xsl:template match="link">
+	  <xsl:variable name="href">
+	    <xsl:value-of select="concat(@ref,'.xml')"/>
+	  </xsl:variable>
+	  <a href="{$href}">
+	    <xsl:apply-templates/>
+	  </a>
+	</xsl:template>
 </xsl:stylesheet>

@@ -44,6 +44,11 @@
 #
 #   If specified, special edits are applied.
 #
+#   -data-out=<path>
+#
+#   File to write data from the "cancels and replaces" paragraph. If not
+#   specified, "data.txt" in the current directory is used.
+#
 # Example:
 #
 #   perl apply_blanket_changes.pl -part-list=cr2_parts.txt -pub-date=2010-05-15 ^
@@ -52,6 +57,7 @@
 ################################################################################
 
 use strict;
+use File::Basename;
 use File::Copy;
 use File::Spec;
 use Getopt::Long;
@@ -61,12 +67,50 @@ use URI::file;
 my $normalize_url = 0;
 my $denormalize_url = 0;
 my $special_edits = 0;
+my $part_name = "";
 
 BEGIN {
     $| = 1
 }
 
 my $arg_count = 0;
+
+sub text_to_number {
+    my ($txt) = @_;
+    if ($txt eq "first") {
+	return 1;
+    }
+    elsif ($txt eq "second") {
+	return 2;
+    }
+    elsif ($txt eq "third") {
+	return 3;
+    }
+    elsif ($txt eq "fourth") {
+	return 4;
+    }
+    elsif ($txt eq "fifth") {
+	return 5;
+    }
+    elsif ($txt eq "sixth") {
+	return 6;
+    }
+    elsif ($txt eq "seventh") {
+	return 7;
+    }
+    elsif ($txt eq "eighth") {
+	return 8;
+    }
+    elsif ($txt eq "ninth") {
+	return 9;
+    }
+    elsif ($txt eq "tenth") {
+	return 10;
+    }
+    else {
+	return $txt;
+    }
+}
 
 sub is_html {
     my ($file_path) = @_;
@@ -93,7 +137,6 @@ sub my_denormalize {
 	else {
 	    $modified_link =~ s|^([A-Za-z0-9])|./\1|;
 	    if ($modified_link =~ s|^\.\./sys|./sys|) {
-		print "case 1\n";
 	    }
 	    else {
 		$modified_link =~ s|^\.\./(\w)|../../../data/modules/\1|;
@@ -128,7 +171,8 @@ sub read_part_list {
 
 sub process_part {
     my ($source_root, $dest_root, $part_rel_path, $pub_date) = @_;
-    print "processing part: $part_rel_path\n";
+    $part_name = basename($part_rel_path);
+    print "processing part: $part_name\n";
     # dircopy($source_group_path, $target_group_path) or warn "cannot copy directory $source_group_path: $!";
     process_node($source_root, $dest_root, $part_rel_path, $pub_date);
 }
@@ -144,8 +188,16 @@ sub process_node {
 	closedir $dh;
 
 	my $child;
-	foreach $child (@children) {
-	    process_node($source_root, $dest_root, "$node_rel_path/$child", $pub_date);
+	my $basename = basename($node_rel_path);
+	if ($basename eq "modules" || $basename eq "resource_parts") {
+	    foreach $child (@children) {
+		process_part($source_root, $dest_root, "$node_rel_path/$child", $pub_date);
+	    }
+	}
+	else {
+	    foreach $child (@children) {
+		process_node($source_root, $dest_root, "$node_rel_path/$child", $pub_date);
+	    }
 	}
     }
     if (-f $source_node_path) {
@@ -161,7 +213,6 @@ sub process_file {
     my $source_dir_abs_path = File::Spec->rel2abs($source_dir_path);
     my $source_dir_uri = URI::file->new($source_dir_abs_path);
     my $dest_file_path = "$dest_root/$node_rel_path";
-    print "process_file: $source_file_path\n";
     if (is_html($source_file_path)) {
 	my $content;
 	{
@@ -182,12 +233,51 @@ sub process_file {
 	    my $part_number = $2;
 	    $content = apply_special_edits($content, $part_number, $pub_date);
 	}
+	if (basename($source_file_path) eq 'foreword.htm') {
+	    process_foreword($content);
+	}
 	open DEST_FILE, ">$dest_file_path" || die "Could not open output file $dest_file_path";
 	print DEST_FILE $content;
 	close DEST_FILE;
     }
     else {
 	copy($source_file_path,$dest_file_path) or die "Copy failed: $!";	
+    }
+}
+
+sub process_foreword {
+    my ($content) = @_;
+    if ($content =~ m|This\s+([a-z]+)\s+edition\s+of\s+(ISO(?:/TS)?)\s+([0-9]+)-([0-9]+)\s+cancels\s+and\s+replaces\s+the\s+([a-z]+)\s+edition\s+\((ISO(?:/TS)?)\s+([0-9]+)-([0-9]+):([0-9]+(-[0-9]+)?)\),\s+of\s+which\s+it\s+constitutes\s+a\s+technical\s+revision.|) {
+	my $current_edition = $1;
+	my $current_prefix = $2;
+	my $current_standard_no = $3;
+	my $current_part_no = $4;
+	my $previous_edition = $5;
+	my $previous_prefix = $6;
+	my $previous_standard_no = $7;
+	my $previous_part_no = $8;
+	my $previous_year = $9;
+	my $current_edition = text_to_number($current_edition);
+	my $previous_edition = text_to_number($previous_edition);
+	if ($current_prefix ne "ISO/TS") {
+	    print "Warning: current prefix $current_prefix not \"ISO/TS\".";
+	}
+	if ($current_standard_no ne "10303") {
+	    print "Warning: current standard number $current_standard_no number not 10303.";
+	}
+	if ($previous_prefix ne "ISO/TS") {
+	    print "Warning: previous prefix $previous_prefix not \"ISO/TS\".";
+	}
+	if ($previous_standard_no ne "10303") {
+	    print "Warning: previous stanard number $previous_standard_no not 10303.";
+	}
+	if ($current_part_no != $previous_part_no) {
+	    print "Warning: current part number $current_part_no not equal to previous $previous_part_no.\n";
+	}
+	print DATA_FILE "$part_name\t$current_prefix\t$current_standard_no\t$current_part_no\t$current_edition\t$previous_prefix\t$previous_standard_no\t$previous_part_no\t$previous_edition\t$previous_year\n";
+    }
+    else {
+	print "Warning: cancel-and-replace paragraph not found.\n";
     }
 }
 
@@ -216,6 +306,8 @@ sub apply_special_edits {
     $content =~ s^&copy;&nbsp;&nbsp;&nbsp;ISO&nbsp;[0-9]{4}^&copy;&nbsp;&nbsp;&nbsp;ISO&nbsp;$pub_year^g;
     # change 8: remove "Price based on <nn> pages"
     $content =~ s|<td width="220" align="right" valign="top"><span style="font-size:14; font-family:sans-serif;"><b>Price based on [0-9]+ +pages</b></span></td>||g;
+    # change 9: replace "ISO 10303-1xxx" with "ISO/TS 10303-1xxx"
+    $content =~ s|ISO 10303-(1[0-9]{3})|ISO/TS 10303-$1|g;
     $content =~ s|xxxx([0-9]+)xxxx|(ISO/TS 10303-$part_number:$1)|;
     return $content;
 }
@@ -223,8 +315,10 @@ sub apply_special_edits {
 sub main {
     my $part_list_path = "";
     my $pub_date = "";
+    my $data_out_path = "";
     my $result = GetOptions ("part-list=s"   => \$part_list_path,
 			     "pub-date=s"    => \$pub_date,
+			     "data-out=s"    => \$data_out_path,
 			     "normalize-url" => \$normalize_url,
 			     "denormalize-url" => \$denormalize_url,
 			     "special-edits" => \$special_edits);
@@ -232,12 +326,18 @@ sub main {
     my $source_root = $ARGV[0];
     my $dest_root = $ARGV[1];
 
+    if ($data_out_path eq "") {
+	$data_out_path = "data.txt";
+    }
+    open DATA_FILE, ">$data_out_path";
+
     if ($part_list_path eq "") {
 	process_node($source_root, $dest_root, "", $pub_date);
     }
     else {
 	process_part_list($source_root, $dest_root, $part_list_path, $pub_date);
     }
+    close DATA_FILE;
 }
 
 main();

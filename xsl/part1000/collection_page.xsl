@@ -68,10 +68,19 @@
 	</xsl:template>
 	<xsl:template match="link">
 	  <xsl:variable name="href">
-	    <xsl:value-of select="concat(@ref,'.xml')"/>
+	    <xsl:choose>
+	      <xsl:when test="contains(@ref,'#')">
+		<xsl:variable name="file_part" select="substring-before(@ref,'#')"/>
+		<xsl:variable name="internal_part" select="substring-after(@ref,'#')"/>
+		<xsl:value-of select="concat($file_part,'.xml','#',$internal_part)"/>
+	      </xsl:when>
+	      <xsl:otherwise>
+		<xsl:value-of select="concat(@ref,'.xml')"/>
+	      </xsl:otherwise>
+	    </xsl:choose>
 	  </xsl:variable>
-	  <a href="{$href}">
-	    <xsl:apply-templates/>
-	  </a>
+	<a href="{$href}">
+	  <xsl:apply-templates/>
+	</a>
 	</xsl:template>
 </xsl:stylesheet>

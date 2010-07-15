@@ -31,6 +31,13 @@
 #
 #   <pub_date> is the date of publication, in YYYY-MM-DD format
 #
+#   -date-placeholder=<date_placeholder>
+#
+#   <date_placeholder> is a pattern that will be replaced with the date of
+#   publication.
+#
+#   Example: 2010-99-02
+#
 #   -normalize-url
 #
 #   If specified, all URLs are normalized.
@@ -68,6 +75,8 @@ my $normalize_url = 0;
 my $denormalize_url = 0;
 my $special_edits = 0;
 my $part_name = "";
+my $verbose = 0;
+my $date_placeholder = "";
 
 BEGIN {
     $| = 1
@@ -172,7 +181,9 @@ sub read_part_list {
 sub process_part {
     my ($source_root, $dest_root, $part_rel_path, $pub_date) = @_;
     $part_name = basename($part_rel_path);
-    print "processing part: $part_name\n";
+    if ($verbose) {
+	print "processing part: $part_name\n";
+    }
     # dircopy($source_group_path, $target_group_path) or warn "cannot copy directory $source_group_path: $!";
     process_node($source_root, $dest_root, $part_rel_path, $pub_date);
 }
@@ -247,37 +258,46 @@ sub process_file {
 
 sub process_foreword {
     my ($content) = @_;
-    if ($content =~ m|This\s+([a-z]+)\s+edition\s+of\s+(ISO(?:/TS)?)\s+([0-9]+)-([0-9]+)\s+cancels\s+and\s+replaces\s+the\s+([a-z]+)\s+edition\s+\((ISO(?:/TS)?)\s+([0-9]+)-([0-9]+):([0-9]+(-[0-9]+)?)\),\s+of\s+which\s+it\s+constitutes\s+a\s+technical\s+revision.|) {
-	my $current_edition = $1;
-	my $current_prefix = $2;
-	my $current_standard_no = $3;
-	my $current_part_no = $4;
-	my $previous_edition = $5;
-	my $previous_prefix = $6;
-	my $previous_standard_no = $7;
-	my $previous_part_no = $8;
-	my $previous_year = $9;
-	my $current_edition = text_to_number($current_edition);
-	my $previous_edition = text_to_number($previous_edition);
-	if ($current_prefix ne "ISO/TS") {
-	    print "Warning: current prefix $current_prefix not \"ISO/TS\".";
+    if ($content =~ m|(This\s+([a-z]+)\s+edition[^.]*[.])|) {
+	my $sentence = $1;
+	$sentence =~ s|\s+| |g;
+	if ($sentence =~ m|This ([a-z]+) edition of (ISO(?:/TS)?) ([0-9]+)-([0-9]+) cancels and replaces the ([a-z]+) edition \((ISO(?:/TS)?) ([0-9]+)-([0-9]+):([0-9]+(-[0-9]+)?)\), of which it constitutes a technical revision.|) {
+	    my $current_edition = $1;
+	    my $current_prefix = $2;
+	    my $current_standard_no = $3;
+	    my $current_part_no = $4;
+	    my $previous_edition = $5;
+	    my $previous_prefix = $6;
+	    my $previous_standard_no = $7;
+	    my $previous_part_no = $8;
+	    my $previous_year = $9;
+	    my $current_edition = text_to_number($current_edition);
+	    my $previous_edition = text_to_number($previous_edition);
+	    if ($current_prefix ne "ISO/TS") {
+		print "Warning: current prefix $current_prefix not \"ISO/TS\".";
+	    }
+	    if ($current_standard_no ne "10303") {
+		print "Warning: current standard number $current_standard_no number not 10303.";
+	    }
+	    if ($previous_prefix ne "ISO/TS") {
+		print "Warning: previous prefix $previous_prefix not \"ISO/TS\".";
+	    }
+	    if ($previous_standard_no ne "10303") {
+		print "Warning: previous stanard number $previous_standard_no not 10303.";
+	    }
+	    if ($current_part_no != $previous_part_no) {
+		print "Warning: current part number $current_part_no not equal to previous $previous_part_no.\n";
+	    }
+	    print DATA_FILE "sentence=$sentence\n";
+	    print DATA_FILE "$part_name\t$current_prefix\t$current_standard_no\t$current_part_no\t$current_edition\t$previous_prefix\t$previous_standard_no\t$previous_part_no\t$previous_edition\t$previous_year\n";
 	}
-	if ($current_standard_no ne "10303") {
-	    print "Warning: current standard number $current_standard_no number not 10303.";
+	else {
+	    print "Warning: cancel-and-replace sentence incorrect syntax.\n";
+	    print "sentence = $sentence\n";
 	}
-	if ($previous_prefix ne "ISO/TS") {
-	    print "Warning: previous prefix $previous_prefix not \"ISO/TS\".";
-	}
-	if ($previous_standard_no ne "10303") {
-	    print "Warning: previous stanard number $previous_standard_no not 10303.";
-	}
-	if ($current_part_no != $previous_part_no) {
-	    print "Warning: current part number $current_part_no not equal to previous $previous_part_no.\n";
-	}
-	print DATA_FILE "$part_name\t$current_prefix\t$current_standard_no\t$current_part_no\t$current_edition\t$previous_prefix\t$previous_standard_no\t$previous_part_no\t$previous_edition\t$previous_year\n";
     }
     else {
-	print "Warning: cancel-and-replace paragraph not found.\n";
+	print "Warning: cancel-and-replace sentence not found.\n";
     }
 }
 
@@ -288,11 +308,13 @@ sub apply_special_edits {
     my $pub_year = $pub_year_mo;
     $pub_year =~ s/-[0-9]+$//;
 
-    while ($content =~ s%\(ISO/TS 10303-$part_number:([0-9]+)\)%xxxx$1xxxx%) {}
+    while ($content =~ s%\(ISO/TS 10303-$part_number:([0-9]+(:?-[0-9]{2})?)\)%xxxx$1xxxx%) {}
     # change 1: replace "ISO/CD-TS" with "ISO/TS"
     $content =~ s|ISO/CD-TS|ISO/TS|g;
     # change 2: replace date in part number with <pub_year_mo>
-    $content =~ s|10303-$part_number:[0-9]{4}(:?[-][0-9]{2})?|10303-$part_number:$pub_year_mo|g;
+    $content =~ s|10303-$part_number:[0-9]{4}(:?[-][9]{2})?|10303-$part_number:$pub_year_mo|g;
+    # change 2a: replace date placeholder with <pub_date>
+    $content =~ s|$date_placeholder|$pub_date|;
     # change 3: remove superscript reference to "To be published" footnote
     $content =~ s|<sup><a href="#tobepub">1</a>\)</sup>||g;
     # change 4: remove "To be published" footnote
@@ -307,8 +329,8 @@ sub apply_special_edits {
     # change 8: remove "Price based on <nn> pages"
     $content =~ s|<td width="220" align="right" valign="top"><span style="font-size:14; font-family:sans-serif;"><b>Price based on [0-9]+ +pages</b></span></td>||g;
     # change 9: replace "ISO 10303-1xxx" with "ISO/TS 10303-1xxx"
-    $content =~ s|ISO 10303-(1[0-9]{3})|ISO/TS 10303-$1|g;
-    $content =~ s|xxxx([0-9]+)xxxx|(ISO/TS 10303-$part_number:$1)|;
+    $content =~ s|ISO\s+10303-(1[0-9]{3})|ISO/TS 10303-$1|g;
+    $content =~ s|xxxx([^x]+)xxxx|(ISO/TS 10303-$part_number:$1)|;
     return $content;
 }
 
@@ -317,10 +339,12 @@ sub main {
     my $pub_date = "";
     my $data_out_path = "";
     my $result = GetOptions ("part-list=s"   => \$part_list_path,
+			     "date-placeholder=s"    => \$date_placeholder,
 			     "pub-date=s"    => \$pub_date,
 			     "data-out=s"    => \$data_out_path,
 			     "normalize-url" => \$normalize_url,
 			     "denormalize-url" => \$denormalize_url,
+			     "verbose"       => \$verbose,
 			     "special-edits" => \$special_edits);
 
     my $source_root = $ARGV[0];
@@ -330,7 +354,7 @@ sub main {
 	$data_out_path = "data.txt";
     }
     open DATA_FILE, ">$data_out_path";
-
+    print DATA_FILE "CURRENT_PREFIX\tCURRENT_STANDARD_NO\t_CURRENT_PART_NO\tCURRENT_EDITION\tPREVIOUS_PREFIX\tPREVIOUS_STANDARD_NO\t_PREVIOUS_PART_NO\tPREVIOUS_EDITION\tPREVIOUS_YEAR\n";
     if ($part_list_path eq "") {
 	process_node($source_root, $dest_root, "", $pub_date);
     }

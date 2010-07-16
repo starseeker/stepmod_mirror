@@ -1,6 +1,7 @@
 (*
-$Id: mim_lf.exp,v 1.6 2009/08/08 16:08:50 lothartklein Exp $
-WG12N2617 - ISO/CD-TS - 10303-403 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM LF
+$Id: mim_lf.exp,v 1.7 2009/09/03 18:54:47 darla Exp $
+WG12N2617 - ISO/CD - 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM LF
+
 *)
 
 SCHEMA Ap209_multidisciplinary_analysis_and_design_mim_LF;
@@ -170,8 +171,9 @@ TYPE amount_of_substance_measure = REAL;
 END_TYPE;
 
 TYPE analysed_item = SELECT (
+	control,
 	fea_model,
-	product_definition,
+	result,
 	temporal_spatial_domain);
 END_TYPE;
 
@@ -259,7 +261,6 @@ TYPE approval_item = SELECT (
 	configuration_effectivity,
 	configuration_item,
 	contract,
-	control,
 	date,
 	directed_action,
 	document,
@@ -278,7 +279,6 @@ TYPE approval_item = SELECT (
 	product_definition_relationship,
 	representation,
 	requirement_assignment,
-	result,
 	security_classification,
 	shape_aspect_relationship,
 	temporal_spatial_domain,
@@ -330,6 +330,7 @@ TYPE attribute_classification_item = SELECT (
 	applied_document_reference,
 	applied_document_usage_constraint_assignment,
 	applied_effectivity_assignment,
+	applied_event_occurrence_assignment,
 	applied_external_identification_assignment,
 	applied_identification_assignment,
 	applied_organization_assignment,
@@ -642,7 +643,6 @@ TYPE cell_shape_1D = ENUMERATION OF (
 END_TYPE;
 
 TYPE cell_shape_2D = ENUMERATION OF (
-	polygon,
 	quadrilateral,
 	triangle );
 END_TYPE;
@@ -671,6 +671,12 @@ END_TYPE;
 
 TYPE certified_item = SELECT (
 	supplied_part_relationship);
+END_TYPE;
+
+TYPE chained_representation_link = SELECT (
+	mapped_item,
+	representation_context,
+	representation_relationship);
 END_TYPE;
 
 TYPE change_request_item = SELECT (
@@ -763,6 +769,7 @@ TYPE classification_item = SELECT (
 	applied_document_reference,
 	applied_document_usage_constraint_assignment,
 	applied_effectivity_assignment,
+	applied_event_occurrence_assignment,
 	applied_external_identification_assignment,
 	applied_identification_assignment,
 	applied_organization_assignment,
@@ -1187,10 +1194,8 @@ TYPE description_attribute_select = SELECT (
 	organization_role,
 	person_and_organization_role,
 	person_and_organization,
-	person_role,
 	property_definition_representation,
-	representation,
-	time_role);
+	representation);
 END_TYPE;
 
 TYPE descriptive_measure = STRING;
@@ -1283,9 +1288,10 @@ TYPE dose_equivalent_measure = REAL;
 END_TYPE;
 
 TYPE draughting_callout_element = SELECT (
-	annotation_text_occurrence,
+	annotation_curve_occurrence,
+	annotation_fill_area_occurrence,
 	annotation_symbol_occurrence,
-	annotation_curve_occurrence);
+	annotation_text_occurrence);
 END_TYPE;
 
 TYPE draughting_model_item_association_select = SELECT (
@@ -1299,6 +1305,20 @@ TYPE draughting_model_item_select = SELECT (
 	axis2_placement,
 	camera_model,
 	draughting_callout);
+END_TYPE;
+
+TYPE draughting_subfigure_representation_item = SELECT (
+	annotation_occurrence,
+	draughting_callout,
+	axis2_placement);
+END_TYPE;
+
+TYPE draughting_symbol_representation_item = SELECT (
+	annotation_curve_occurrence,
+	annotation_symbol_occurrence,
+	annotation_fill_area_occurrence,
+	annotation_text_occurrence,
+	axis2_placement);
 END_TYPE;
 
 TYPE draughting_titled_item = SELECT (
@@ -1634,6 +1654,9 @@ TYPE external_identification_item = SELECT (
 	versioned_action_request);
 END_TYPE;
 
+TYPE fd_bc_type_simple = mbna_bc_type_simple;
+END_TYPE;
+
 TYPE fd_behaviour_models = SELECT (
 	gas_model,
 	turbulence_closure,
@@ -1651,6 +1674,9 @@ TYPE fd_defined_data_name = SELECT (
 	turbulence_closure_data_name,
 	turbulence_model_data_name,
 	viscosity_model_data_name);
+END_TYPE;
+
+TYPE fd_governing_equation_type = mbna_governing_equation_type;
 END_TYPE;
 
 TYPE fd_nondimensional_parameter_name = ENUMERATION OF (
@@ -2012,7 +2038,11 @@ END_TYPE;
 
 TYPE ir_usage_item = action_items;
 WHERE
-	wr1 : NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF));
+	wr1 : NOT ('INFORMATION_RIGHTS_MIM.APPLIED_STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF));
+	wr2 : NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF));
+	wr3 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF));
+	wr4 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF));
+	wr5 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
 END_TYPE;
 
 TYPE isotropic_symmetric_tensor2_3d = context_dependent_measure;
@@ -2292,6 +2322,18 @@ TYPE mechanical_design_geometric_presentation_representation_items = SELECT (
 	styled_item);
 END_TYPE;
 
+TYPE mechanical_design_shaded_presentation_area_items = SELECT (
+	axis2_placement,
+	mapped_item);
+END_TYPE;
+
+TYPE mechanical_design_shaded_presentation_representation_items = SELECT (
+	axis2_placement,
+	camera_model_d3,
+	mapped_item,
+	styled_item);
+END_TYPE;
+
 TYPE mesh_location = ENUMERATION OF (
 	application_defined,
 	cell_centre,
@@ -2301,6 +2343,11 @@ TYPE mesh_location = ENUMERATION OF (
 	jface_centre,
 	kface_centre,
 	unspecified,
+	vertices );
+END_TYPE;
+
+TYPE mesh_maths_space_type = ENUMERATION OF (
+	cells,
 	vertices );
 END_TYPE;
 
@@ -3357,16 +3404,6 @@ WHERE
 	WR1 : SELF > 1;
 END_TYPE;
 
-TYPE value_context_select = SELECT (
-	action,
-	action_method,
-	choose_representation_context_identifier,
-	general_property,
-	product_definition,
-	representation_item,
-	shape_aspect);
-END_TYPE;
-
 TYPE value_qualifier = SELECT (
 	precision_qualifier,
 	type_qualifier,
@@ -4146,7 +4183,7 @@ END_ENTITY;
 
 
 ENTITY application_context_element
-	SUPERTYPE OF (ONEOF (library_context, product_concept_context, product_context, product_definition_context));
+	SUPERTYPE OF (ONEOF (product_concept_context, product_context, product_definition_context));
 	name : label;
 	frame_of_reference : application_context;
 END_ENTITY;
@@ -4250,6 +4287,12 @@ ENTITY applied_effectivity_assignment
 END_ENTITY;
 
 
+ENTITY applied_event_occurrence_assignment
+	SUBTYPE OF (event_occurrence_assignment);
+	items : SET [1:?] OF event_occurrence_item;
+END_ENTITY;
+
+
 ENTITY applied_external_identification_assignment
 	SUBTYPE OF (external_identification_assignment);
 	items : SET [1:?] OF external_identification_item;
@@ -4301,6 +4344,12 @@ END_ENTITY;
 ENTITY applied_security_classification_assignment
 	SUBTYPE OF (security_classification_assignment);
 	items : SET [1:?] OF security_classification_item;
+END_ENTITY;
+
+
+ENTITY applied_time_interval_assignment
+	SUBTYPE OF (time_interval_assignment);
+	items : SET [0:?] OF time_interval_item;
 END_ENTITY;
 
 
@@ -4405,6 +4454,15 @@ ENTITY array_based_unstructured_mesh
 	cells : ARRAY [1:cell_count] OF vertex_defined_cell;
 WHERE
 	wr1 : SELF\mesh.index_count = 1;
+END_ENTITY;
+
+
+ENTITY array_based_unstructured_mesh_and_vertices
+	SUBTYPE OF (array_based_unstructured_mesh);
+	vertex_count : INTEGER;
+	vertices : ARRAY [1:vertex_count] OF  UNIQUE vertex;
+WHERE
+	wr1 : all_mesh_vertices(SELF);
 END_ENTITY;
 
 
@@ -5157,13 +5215,7 @@ ENTITY camera_model_d3
 	view_reference_system : axis2_placement_3d;
 	perspective_of_volume : view_volume;
 WHERE
-	WR1 : (dot_product (SELF.view_reference_system.p[3],
-           SELF.perspective_of_volume.view_window.placement.p[3]) = 1.0)
-           AND
-           (SELF.view_reference_system.location.coordinates[3] =
-           SELF.perspective_of_volume.view_window.
-             placement.location.coordinates[3]);
-	WR2 : SELF\geometric_representation_item.dim = 3;
+	WR1 : SELF\geometric_representation_item.dim = 3;
 END_ENTITY;
 
 
@@ -5231,7 +5283,6 @@ END_ENTITY;
 
 
 ENTITY cartesian_point
-	SUPERTYPE OF (ONEOF (cylindrical_point, polar_point, spherical_point))
 	SUBTYPE OF (point);
 	coordinates : LIST [1:3] OF length_measure;
 END_ENTITY;
@@ -5333,6 +5384,12 @@ DERIVE
 END_ENTITY;
 
 
+ENTITY cell_with_explicit_boundary
+	SUBTYPE OF (cell);
+	boundary : SET [1:?] OF topological_representation_item;
+END_ENTITY;
+
+
 ENTITY celsius_temperature_measure_with_unit
 	SUBTYPE OF (measure_with_unit);
 WHERE
@@ -5370,6 +5427,38 @@ END_ENTITY;
 
 ENTITY certification_type;
 	description : label;
+END_ENTITY;
+
+
+ENTITY chain_based_geometric_item_specific_usage
+	SUBTYPE OF (geometric_item_specific_usage, chain_based_item_identified_representation_usage);
+END_ENTITY;
+
+
+ENTITY chain_based_item_identified_representation_usage
+	SUBTYPE OF (item_identified_representation_usage);
+	nodes : LIST [2:?] OF  UNIQUE representation;
+	undirected_link : LIST [1:?] OF  UNIQUE chained_representation_link;
+DERIVE
+	directed_link : LIST [1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
+	leaf : representation := SELF\item_identified_representation_usage.used_representation;
+	root : representation := nodes[1];
+	SELF\item_identified_representation_usage.used_representation : representation := nodes[HIINDEX(nodes)];
+WHERE
+	WR1 : root :=: directed_link[1]\representation_relationship.rep_1;
+	WR2 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
+	WR3 : SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1;
+	WR4 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_1))) +
+             SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
+	WR5 : (SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_1))) +
+             SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
+	WR6 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_1))) +
+             SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_2))) + 
+             SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_1))) +
+             SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_2)))) = 2;
+	WR7 : NOT('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
+                (root IN using_representations(undirected_link[1]));
+	WR8 : SIZEOF(undirected_link) = SIZEOF(directed_link);
 END_ENTITY;
 
 
@@ -5784,14 +5873,8 @@ ENTITY composite_text_with_extent
 END_ENTITY;
 
 
-ENTITY compound_maths_space_context
-	SUBTYPE OF (maths_space_context);
-	components : LIST [2:?] OF maths_space_context;
-END_ENTITY;
-
-
 ENTITY compound_representation_item
-	SUPERTYPE OF (ONEOF (point_and_vector, point_path, row_representation_item, table_representation_item))
+	SUPERTYPE OF ((ONEOF (point_and_vector, point_path, row_representation_item, table_representation_item)))
 	SUBTYPE OF (representation_item);
 	item_element : compound_item_definition;
 END_ENTITY;
@@ -6947,18 +7030,6 @@ ENTITY curve_volume_element_location;
 END_ENTITY;
 
 
-ENTITY cylindrical_point
-	SUBTYPE OF (cartesian_point);
-	r : length_measure;
-	theta : plane_angle_measure;
-	z : length_measure;
-DERIVE
-	SELF\cartesian_point.coordinates : LIST [1:3] OF length_measure := [r*cos(theta), r*sin(theta), z];
-WHERE
-	WR1 : r >= 0.0;
-END_ENTITY;
-
-
 ENTITY cylindrical_surface
 	SUBTYPE OF (elementary_surface);
 	radius : positive_length_measure;
@@ -7125,11 +7196,6 @@ END_ENTITY;
 
 ENTITY defined_function
 	ABSTRACT SUPERTYPE OF ((ONEOF (numeric_defined_function, string_defined_function, boolean_defined_function) ANDOR SQL_mappable_defined_function));
-END_ENTITY;
-
-
-ENTITY defined_maths_space_context
-	SUBTYPE OF (maths_space_context);
 END_ENTITY;
 
 
@@ -7609,12 +7675,11 @@ END_ENTITY;
 
 
 ENTITY document_file
-	SUBTYPE OF (document, characterized_object);
+	SUBTYPE OF (characterized_object, document);
 WHERE
 	WR1 : SELF\characterized_object.name = '';
 	WR2 : NOT EXISTS(SELF\characterized_object.description);
-	WR3 : SIZEOF( QUERY( drt <* SELF\document.representation_types |
-               drt.name IN ['digital','physical'])) = 1;
+	WR3 : SIZEOF(QUERY(drt <* SELF\document.representation_types | drt.name IN ['digital', 'physical'])) = 1;
 END_ENTITY;
 
 
@@ -7644,9 +7709,9 @@ ENTITY document_product_equivalence
 	SUBTYPE OF (document_product_association);
 WHERE
 	WR1 : SELF\document_product_association.name = 'equivalence';
-	WR2 : NOT('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT' IN TYPEOF(SELF\document_product_association.related_product)) OR ((SELF\document_product_association.relating_document.kind. product_data_type = 'configuration controlled document') AND (SIZEOF( QUERY( prpc <* USEDIN(SELF\document_product_association.related_product,'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document' )) = 1));
-	WR3 : NOT('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION_FORMATION' IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document version') AND (SIZEOF( QUERY( prpc <* USEDIN(SELF.related_product\product_definition_formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document')) = 1));
-	WR4 : NOT('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document definition') AND (SIZEOF( QUERY( prpc <* USEDIN(SELF\document_product_association.related_product\product_definition.formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document' )) = 1));
+	WR2 : NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT' IN TYPEOF(SELF\document_product_association.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document') AND (SIZEOF(QUERY(prpc <* USEDIN(SELF\document_product_association.related_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document')) = 1));
+	WR3 : NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION_FORMATION' IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document version') AND (SIZEOF(QUERY(prpc <* USEDIN(SELF.related_product\product_definition_formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document')) = 1));
+	WR4 : NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document definition') AND (SIZEOF(QUERY(prpc <* USEDIN(SELF\document_product_association.related_product\product_definition.formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name = 'document')) = 1));
 END_ENTITY;
 
 
@@ -8029,17 +8094,13 @@ END_ENTITY;
 
 ENTITY draughting_subfigure_representation
 	SUBTYPE OF (symbol_representation);
+	SELF\representation.items : SET [1:?] OF draughting_subfigure_representation_item;
 WHERE
 	WR1 : SIZEOF (QUERY (item <* SELF\representation.items |
-         NOT (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_OCCURRENCE',
-              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAUGHTING_CALLOUT',
-              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AXIS2_PLACEMENT']
-               * TYPEOF (item)) = 1))) = 0;
-	WR2 : SIZEOF (QUERY (item <* SELF\representation.items |
          SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_OCCURRENCE',
                   'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAUGHTING_CALLOUT'] *
            TYPEOF (item)) = 1)) >= 1;
-	WR3 : SIZEOF (QUERY (srm <* QUERY (rm <*
+	WR2 : SIZEOF (QUERY (srm <* QUERY (rm <*
           USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
                         'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |
           ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SYMBOL_REPRESENTATION_MAP'
@@ -8051,49 +8112,32 @@ WHERE
                          'STYLED_ITEM.ITEM') |
           NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SUBFIGURE_OCCURRENCE'
             IN TYPEOF(aso)))) = 0))) = 0))) > 0;
-	WR4 : NOT (acyclic_mapped_item_usage (SELF));
-	WR5 : SIZEOF (SELF.context_of_items.representations_in_context) = 1;
+	WR3 : SIZEOF (SELF.context_of_items.representations_in_context) = 1;
 END_ENTITY;
 
 
 ENTITY draughting_symbol_representation
 	SUBTYPE OF (symbol_representation);
+	SELF\representation.items : SET [1:?] OF draughting_symbol_representation_item;
 UNIQUE
 	UR1 : name;
 WHERE
 	WR1 : SIZEOF (QUERY (item <* SELF\representation.items |
-         NOT (SIZEOF (TYPEOF (item) *
-            ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_CURVE_OCCURRENCE',
-             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SYMBOL_OCCURRENCE',
-             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_FILL_AREA_OCCURRENCE',
-             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_TEXT_OCCURRENCE',
-             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AXIS2_PLACEMENT']) = 1)
-       )) = 0;
-	WR2 : SIZEOF (QUERY (item <* SELF\representation.items |
          (SIZEOF (TYPEOF (item) *
             ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_CURVE_OCCURRENCE',
              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SYMBOL_OCCURRENCE',
              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_FILL_AREA_OCCURRENCE',
              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_TEXT_OCCURRENCE']) = 1)
        )) >= 1;
-	WR3 : SIZEOF (QUERY (item <* SELF\representation.items |
+	WR2 : SIZEOF (QUERY (item <* SELF\representation.items |
          'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SUBFIGURE_OCCURRENCE'
           IN TYPEOF (item))) = 0;
-	WR4 : SIZEOF (QUERY (srm <* QUERY (rm <*
+	WR3 : SIZEOF ( QUERY (rm <*
           USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
                         'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |
-          ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SYMBOL_REPRESENTATION_MAP'
-             IN TYPEOF(rm))) |
-         (SIZEOF (QUERY (a_s <* QUERY (mi <* srm.map_usage |
-           ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SYMBOL' IN TYPEOF(mi))) |
-         NOT (SIZEOF (QUERY(aso <*
-             USEDIN(a_s, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                         'STYLED_ITEM.ITEM') |
-             NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SYMBOL_OCCURRENCE'
-                  IN TYPEOF(aso))
-          )) = 0) )) = 0) )) > 0;
-	WR5 : NOT (acyclic_mapped_item_usage (SELF));
-	WR6 : SIZEOF (SELF.context_of_items.representations_in_context) = 1;
+          NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SYMBOL_REPRESENTATION_MAP'
+             IN TYPEOF(rm)))) = 0;
+	WR4 : SIZEOF (SELF.context_of_items.representations_in_context) = 1;
 END_ENTITY;
 
 
@@ -8655,9 +8699,10 @@ ENTITY event_occurrence;
 END_ENTITY;
 
 
-ENTITY event_occurrence_context_role;
-	name : label;
-	description : OPTIONAL text;
+ENTITY event_occurrence_assignment
+	ABSTRACT SUPERTYPE;
+	assigned_event_occurrence : event_occurrence;
+	role : event_occurrence_role;
 END_ENTITY;
 
 
@@ -8693,20 +8738,6 @@ END_ENTITY;
 ENTITY expanded_uncertainty
 	SUBTYPE OF (standard_uncertainty);
 	coverage_factor : REAL;
-END_ENTITY;
-
-
-ENTITY experience;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-END_ENTITY;
-
-
-ENTITY experience_type;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
 END_ENTITY;
 
 
@@ -8795,12 +8826,6 @@ ENTITY explicit_unstructured_mesh
 	SUBTYPE OF (unstructured_mesh);
 	explicit_model : fea_model;
 	cells : ARRAY [1:cell_count] OF  UNIQUE element_representation;
-END_ENTITY;
-
-
-ENTITY explicitly_enumerated_maths_space_context
-	SUBTYPE OF (maths_space_context);
-	members : SET [1:?] OF maths_value_context;
 END_ENTITY;
 
 
@@ -8998,6 +9023,42 @@ WHERE
 END_ENTITY;
 
 
+ENTITY extraction_of_structured_submesh
+	SUBTYPE OF (extraction_of_submesh);
+	lower_vertex : ARRAY [1:whole_indices] OF INTEGER;
+	used_indices : ARRAY [1:part_indices] OF INTEGER;
+	used_senses : ARRAY [1:part_indices] OF BOOLEAN;
+DERIVE
+	part_indices : INTEGER := part\mesh.index_count;
+	whole_indices : INTEGER := whole\mesh.index_count;
+WHERE
+	WR1 : ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STRUCTURED_MESH' IN  TYPEOF(
+             SELF\extraction_of_submesh.whole));
+	WR2 : ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STRUCTURED_MESH' IN  TYPEOF(
+             SELF\extraction_of_submesh.part));
+END_ENTITY;
+
+
+ENTITY extraction_of_submesh;
+	whole : mesh;
+	part : submesh;
+END_ENTITY;
+
+
+ENTITY extraction_of_submesh_by_cells
+	SUBTYPE OF (extraction_of_submesh);
+	cell_count : INTEGER;
+	cells : ARRAY [1:cell_count] OF cell;
+END_ENTITY;
+
+
+ENTITY extraction_of_submesh_by_vertices
+	SUBTYPE OF (extraction_of_submesh);
+	vertex_count : INTEGER;
+	vertices : ARRAY [1:vertex_count] OF vertex;
+END_ENTITY;
+
+
 ENTITY extruded_area_solid
 	SUBTYPE OF (swept_area_solid);
 	extruded_direction : direction;
@@ -9174,6 +9235,7 @@ END_ENTITY;
 
 ENTITY fd_bc_dataset
 	SUBTYPE OF (mbna_bc_dataset);
+	SELF\mbna_bc_dataset.the_type : fd_bc_type_simple;
 END_ENTITY;
 
 
@@ -9191,6 +9253,7 @@ END_ENTITY;
 
 ENTITY fd_governing_equation
 	SUBTYPE OF (mbna_governing_equation);
+	SELF\mbna_governing_equation.equation_type : fd_governing_equation_type;
 END_ENTITY;
 
 
@@ -9618,7 +9681,7 @@ END_ENTITY;
 ENTITY flat_pattern_ply_representation_relationship
 	SUBTYPE OF (shape_representation_relationship);
 WHERE
-	WR1 : 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION' IN
+	WR1 : 'STRUCTURAL_ANALYSIS_DESIGN.SHAPE_REPRESENTATION' IN
         (TYPEOF (SELF\representation_relationship.rep_1) *
          TYPEOF (SELF\representation_relationship.rep_2));
 	WR2 : SELF\representation_relationship.rep_1.
@@ -9678,8 +9741,7 @@ ENTITY forward_chaining_rule_premise
 END_ENTITY;
 
 
-ENTITY founded_item
-	SUPERTYPE OF (ONEOF (character_glyph_style_outline, character_glyph_style_stroke, curve_style, curve_style_font, curve_style_font_and_scaling, curve_style_font_pattern, fill_area_style, point_style, presentation_style_assignment, surface_side_style, surface_style_boundary, surface_style_control_grid, surface_style_fill_area, surface_style_parameter_line, surface_style_segmentation_curve, surface_style_silhouette, surface_style_usage, symbol_style, text_style));
+ENTITY founded_item;
 DERIVE
 	users : SET [0:?] OF founded_item_select := using_items(SELF,[]);
 WHERE
@@ -10260,14 +10322,6 @@ ENTITY identification_assignment
 END_ENTITY;
 
 
-ENTITY identification_assignment_relationship;
-	name : label;
-	description : OPTIONAL text;
-	relating_identification_assignment : identification_assignment;
-	related_identification_assignment : identification_assignment;
-END_ENTITY;
-
-
 ENTITY identification_role;
 	name : label;
 	description : OPTIONAL text;
@@ -10641,12 +10695,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY library_context
-	SUBTYPE OF (application_context_element);
-	library_reference : label;
-END_ENTITY;
-
-
 ENTITY light_source
 	SUPERTYPE OF (ONEOF (light_source_ambient, light_source_directional, light_source_positional, light_source_spot))
 	SUBTYPE OF (geometric_representation_item);
@@ -10859,13 +10907,6 @@ ENTITY local_time;
 	zone : coordinated_universal_time_offset;
 WHERE
 	WR1 : valid_time (SELF);
-END_ENTITY;
-
-
-ENTITY location;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
 END_ENTITY;
 
 
@@ -11404,8 +11445,7 @@ ENTITY maths_space
 END_ENTITY;
 
 
-ENTITY maths_space_context
-	SUPERTYPE OF (ONEOF (compound_maths_space_context, defined_maths_space_context, explicitly_enumerated_maths_space_context));
+ENTITY maths_space_context;
 	id : identifier;
 	name : label;
 	description : OPTIONAL text;
@@ -11424,15 +11464,6 @@ END_ENTITY;
 ENTITY maths_tuple_literal
 	SUBTYPE OF (generic_literal);
 	lit_value : LIST [0:?] OF maths_value;
-END_ENTITY;
-
-
-ENTITY maths_value_context;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-	abstract_value : maths_value;
-	physical_value : value_context_select;
 END_ENTITY;
 
 
@@ -11727,9 +11758,10 @@ WHERE
         ))) = 0))) = 0;
 	WR3 : (SIZEOF(QUERY(ps <* USEDIN (SELF,
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-        'PRESENTATION_SIZE.UNIT') | ((ps.size\planar_extent.size_in_x <= 0)
-        OR
-        (ps.size\planar_extent.size_in_y <= 0)))) = 0)
+        'PRESENTATION_SIZE.UNIT') | 
+        ((ps\presentation_size.size.size_in_x <= 0)
+         OR
+         (ps\presentation_size.size.size_in_y <= 0)))) = 0)
         AND
         (SIZEOF(QUERY(ais <* USEDIN (SELF,
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
@@ -11737,9 +11769,9 @@ WHERE
         (SIZEOF(QUERY(ps <* USEDIN (ais, 
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
         'PRESENTATION_SIZE.UNIT') |
-        ((ps.size\planar_extent.size_in_x <= 0)
+        ((ps\presentation_size.size.size_in_x <= 0)
         OR
-        (ps.size\planar_extent.size_in_y <= 0)))) > 0))) = 0);
+        (ps\presentation_size.size.size_in_y <= 0)))) > 0))) = 0);
 	WR4 : (SIZEOF(QUERY(ps <* USEDIN (SELF,
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
         'PRESENTATION_SIZE.UNIT') | 
@@ -12032,6 +12064,7 @@ END_ENTITY;
 
 ENTITY mechanical_design_shaded_presentation_area
 	SUBTYPE OF (presentation_area);
+	SELF\representation.items : SET [1:?] OF mechanical_design_shaded_presentation_area_items;
 WHERE
 	WR1 : SIZEOF (QUERY (it1 <* SELF.items |
         NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AXIS2_PLACEMENT'
@@ -12076,8 +12109,8 @@ WHERE
 	WR3 : (SIZEOF (QUERY(ps <* USEDIN (SELF, 
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 
         'PRESENTATION_SIZE.UNIT') |
-        NOT ((ps.size\planar_extent.size_in_x > 0) 
-        AND (ps.size\planar_extent.size_in_y > 0)) )) = 0)
+        NOT ((ps\presentation_size.size.size_in_x > 0) 
+        AND (ps\presentation_size.size.size_in_y > 0)) )) = 0)
         AND
         (* check secondly for presentation_set, via area_in_set *)
         (SIZEOF (QUERY(pset <* QUERY(ais <* 
@@ -12086,11 +12119,11 @@ WHERE
         | 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
         'PRESENTATION_SET' IN TYPEOF (ais.in_set)) |
         (* after having collected all presentation_set, check their sizes *)
-        SIZEOF (QUERY(psize <* USEDIN(pset, 
+        SIZEOF (QUERY(ps <* USEDIN(pset, 
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 
         'PRESENTATION_SIZE.UNIT')
-        | NOT ((psize.size\planar_extent.size_in_x > 0) 
-        AND (psize.size\planar_extent.size_in_y > 0)) )) = 0)) = 0);
+        | NOT ((ps\presentation_size.size.size_in_x > 0) 
+        AND (ps\presentation_size.size.size_in_y > 0)) )) = 0)) = 0);
 	WR4 : (SIZEOF(QUERY( psize <* USEDIN (SELF, 
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 
         'PRESENTATION_SIZE.UNIT') 
@@ -12142,15 +12175,9 @@ END_ENTITY;
 
 ENTITY mechanical_design_shaded_presentation_representation
 	SUBTYPE OF (representation);
+	SELF\representation.items : SET [1:?] OF mechanical_design_shaded_presentation_representation_items;
 WHERE
-	WR1 : SIZEOF(QUERY(it <* SELF.items |
-        NOT (SIZEOF(
-        ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM',
-        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM',
-        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AXIS2_PLACEMENT',
-        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CAMERA_MODEL_D3']
-        * TYPEOF(it)) = 1))) = 0;
-	WR2 : SIZEOF(QUERY(mi <* QUERY(it <* SELF.items |
+	WR1 : SIZEOF(QUERY(mi <* QUERY(it <* SELF.items |
         ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM'
         IN TYPEOF(it))) | NOT (SIZEOF(
         ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
@@ -12159,7 +12186,7 @@ WHERE
         'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION']
         * TYPEOF(mi\mapped_item.mapping_source.mapped_representation))
         = 1))) = 0;
-	WR3 : SIZEOF(QUERY(smi <* QUERY(si <* QUERY(it <* SELF.items |
+	WR2 : SIZEOF(QUERY(smi <* QUERY(si <* QUERY(it <* SELF.items |
         ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF(it))) |
         ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM'
@@ -12167,7 +12194,7 @@ WHERE
         ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
         'SHAPE_REPRESENTATION' IN TYPEOF (smi\styled_item.
         item\mapped_item.mapping_source.mapped_representation))) )) = 0;
-	WR4 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR3 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12177,7 +12204,7 @@ WHERE
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE',
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE_STYLE_USAGE']
         *  TYPEOF (pss)) = 1))) = 0))) = 0))) = 0;
-	WR5 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR4 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psbc <* QUERY (psa <* si\styled_item.styles |
@@ -12188,7 +12215,7 @@ WHERE
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.REPRESENTATION']
         * TYPEOF (psbc\presentation_style_by_context.style_context)) = 1)))
         = 0))) = 0;
-	WR6 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR5 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12206,7 +12233,7 @@ WHERE
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+
         'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF
         (ps\point_style.marker_colour)) = 1)))) = 0))) = 0))) = 0;
-	WR7 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR6 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12226,7 +12253,7 @@ WHERE
         'CURVE_STYLE_FONT', 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+
         'DRAUGHTING_PRE_DEFINED_CURVE_FONT'] * TYPEOF
         (cs\curve_style.curve_font)) = 1)))) = 0))) = 0))) = 0;
-	WR8 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR7 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12235,7 +12262,7 @@ WHERE
         IN TYPEOF (pss)) |
         NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE_SIDE_STYLE'
         IN TYPEOF (ssu\surface_style_usage.style)) )) = 0))) = 0 ))) = 0;
-	WR9 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR8 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12260,7 +12287,7 @@ WHERE
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+
         'SURFACE_STYLE_RENDERING'] * TYPEOF (sses)) = 1))) = 0))) = 0)))
         = 0))) = 0;
-	WR10 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR9 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12281,7 +12308,7 @@ WHERE
         'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF
         (fss\fill_area_style_colour.fill_colour)) = 1)))) = 0))) = 0)))
         = 0))) = 0))) = 0;
-	WR11 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR10 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12322,7 +12349,7 @@ WHERE
         (sspl\surface_style_parameter_line.style_of_parameter_lines\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-	WR12 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR11 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12362,7 +12389,7 @@ WHERE
         (sscg\surface_style_control_grid.style_of_control_grid\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-	WR13 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR12 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12402,7 +12429,7 @@ WHERE
         (sssh\surface_style_silhouette.style_of_silhouette\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-	WR14 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR13 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12444,7 +12471,7 @@ WHERE
         (sssc\surface_style_segmentation_curve.style_of_segmentation_curve\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-	WR15 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR14 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12484,7 +12511,7 @@ WHERE
         (ssbd\surface_style_boundary.style_of_boundary\
         curve_style_rendering.rendering_properties.rendered_colour))
         = 1))) )) = 0))) = 0))) = 0))) = 0;
-	WR16 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
+	WR15 : SIZEOF (QUERY (si <* QUERY (it <* SELF.items |
         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'
         IN TYPEOF (it)) |
         NOT (SIZEOF (QUERY (psa <* si\styled_item.styles |
@@ -12520,6 +12547,16 @@ ENTITY mesh_connectivity
 	current : mesh;
 DERIVE
 	index_count : INTEGER := current.index_count;
+END_ENTITY;
+
+
+ENTITY mesh_derived_maths_space
+	SUBTYPE OF (maths_space);
+	description : text;
+	name : label;
+	id : identifier;
+	the_mesh : mesh;
+	kind : mesh_maths_space_type;
 END_ENTITY;
 
 
@@ -13233,13 +13270,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY organization_type;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-END_ENTITY;
-
-
 ENTITY organizational_address
 	SUBTYPE OF (address);
 	organizations : SET [1:?] OF organization;
@@ -13567,7 +13597,7 @@ ENTITY percentage_ply_definition
 WHERE
 	WR1 : SIZEOF (QUERY (pdr <* USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
         'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
-        ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PERCENTAGE_LAMINATE_DEFINITION' 
+        ('STRUCTURAL_ANALYSIS_DESIGN.PERCENTAGE_LAMINATE_DEFINITION' 
         IN TYPEOF (pdr.related_product_definition)) AND
         (pdr.name = 'makeup and properties'))) = 0;
 END_ENTITY;
@@ -13636,38 +13666,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY person_role;
-	name : label;
-DERIVE
-	description : text := get_description_value(SELF);
-WHERE
-	WR1 : SIZEOF(USEDIN(SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
-END_ENTITY;
-
-
-ENTITY person_type;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-END_ENTITY;
-
-
-ENTITY person_type_definition;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-	formation : person_type_definition_formation;
-END_ENTITY;
-
-
-ENTITY person_type_definition_formation;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-	of_person_type : person_type;
-END_ENTITY;
-
-
 ENTITY personal_address
 	SUBTYPE OF (address);
 	people : SET [1:?] OF person;
@@ -13710,10 +13708,10 @@ INVERSE
 	size: presentation_size FOR unit;
 WHERE
 	WR1 : SIZEOF(QUERY(item <* items | 
-        'PICTURE_REPRESENTATION_MIM.STYLED_ITEM' IN TYPEOF(item))) = 1;
+        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM' IN TYPEOF(item))) = 1;
 	WR2 : SIZEOF (QUERY (se <* QUERY (item <* SELF.items 
-                   | ('PICTURE_REPRESENTATION_MIM.STYLED_ITEM' IN TYPEOF (item))) 
-         | NOT ('PICTURE_REPRESENTATION_MIM.PICTURE_REPRESENTATION_ITEM' 
+                   | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM' IN TYPEOF (item))) 
+         | NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PICTURE_REPRESENTATION_ITEM' 
                 IN TYPEOF (se\styled_item.item)) )) = 0;
 END_ENTITY;
 
@@ -13729,7 +13727,7 @@ ENTITY placed_datum_target_feature
 DERIVE
 	representation_associations : SET [0:?] OF property_definition_representation := get_shape_aspect_property_definition_representations(SELF);
 WHERE
-	WR1 : SELF.description IN ['point','line','rectangle','circle', 'circular line'];
+	WR1 : SELF.description IN ['point','line','rectangle','circle','circular curve'];
 	WR2 : SIZEOF (QUERY (pdr <* representation_associations | 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1;
 	WR3 : valid_datum_target_parameters(SELF);
 END_ENTITY;
@@ -14137,17 +14135,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY polar_point
-	SUBTYPE OF (cartesian_point);
-	r : length_measure;
-	theta : plane_angle_measure;
-DERIVE
-	SELF\cartesian_point.coordinates : LIST [1:3] OF length_measure := [r*cos(theta), r*sin(theta)];
-WHERE
-	WR1 : r >= 0.0;
-END_ENTITY;
-
-
 ENTITY poly_loop
 	SUBTYPE OF (loop, geometric_representation_item);
 	polygon : LIST [3:?] OF  UNIQUE cartesian_point;
@@ -14157,20 +14144,6 @@ END_ENTITY;
 ENTITY polyline
 	SUBTYPE OF (bounded_curve);
 	points : LIST [2:?] OF cartesian_point;
-END_ENTITY;
-
-
-ENTITY position_in_organization;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-END_ENTITY;
-
-
-ENTITY position_in_organization_type;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
 END_ENTITY;
 
 
@@ -14492,6 +14465,16 @@ WHERE
 END_ENTITY;
 
 
+ENTITY product_category_relationship;
+	name : label;
+	description : OPTIONAL text;
+	category : product_category;
+	sub_category : product_category;
+WHERE
+	WR1 : acyclic_product_category_relationship(SELF, [SELF.sub_category]);
+END_ENTITY;
+
+
 ENTITY product_class
 	SUBTYPE OF (product_concept, characterized_object);
 END_ENTITY;
@@ -14750,9 +14733,31 @@ ENTITY product_material_composition_relationship
 END_ENTITY;
 
 
+ENTITY product_of_mesh;
+	operands : LIST [2:2] OF mesh;
+	product : mesh;
+WHERE
+	wr1 : (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND
+        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND
+        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(product));
+	wr2 : operands[1].index_count = 1;
+	wr3 : operands[1].index_count + operands[2].index_count
+        = product.index_count;
+END_ENTITY;
+
+
 ENTITY product_related_product_category
 	SUBTYPE OF (product_category);
 	products : SET [1:?] OF product;
+END_ENTITY;
+
+
+ENTITY product_relationship;
+	id : identifier;
+	name : label;
+	description : OPTIONAL text;
+	relating_product : product;
+	related_product : product;
 END_ENTITY;
 
 
@@ -14842,20 +14847,6 @@ ENTITY property_distribution_description;
 	domain_context : maths_space_context;
 	physical_function : property_distribution_select;
 	range_context : maths_space_context;
-END_ENTITY;
-
-
-ENTITY qualification;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
-END_ENTITY;
-
-
-ENTITY qualification_type;
-	id : identifier;
-	name : label;
-	description : OPTIONAL text;
 END_ENTITY;
 
 
@@ -15169,7 +15160,7 @@ END_ENTITY;
 
 
 ENTITY representation_item
-	SUPERTYPE OF (ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item, mapped_item, styled_item, boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item));
+	SUPERTYPE OF ((ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item, mapped_item, styled_item, boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)));
 	name : label;
 WHERE
 	WR1 : SIZEOF(using_representations(SELF)) > 0;
@@ -16521,18 +16512,6 @@ ENTITY sphere
 END_ENTITY;
 
 
-ENTITY spherical_point
-	SUBTYPE OF (cartesian_point);
-	r : length_measure;
-	theta : plane_angle_measure;
-	phi : plane_angle_measure;
-DERIVE
-	SELF\cartesian_point.coordinates : LIST [1:3] OF length_measure := [r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)];
-WHERE
-	WR1 : r >= 0.0;
-END_ENTITY;
-
-
 ENTITY spherical_surface
 	SUBTYPE OF (elementary_surface);
 	radius : positive_length_measure;
@@ -16802,6 +16781,12 @@ ENTITY structured_mesh
 	vertex_counts : ARRAY [1:SELF\mesh.index_count] OF INTEGER;
 	cell_counts : ARRAY [1:SELF\mesh.index_count] OF INTEGER;
 	kind : structured_mesh_type;
+END_ENTITY;
+
+
+ENTITY structured_mesh_with_rind
+	SUBTYPE OF (structured_mesh);
+	rind_planes : rind;
 END_ENTITY;
 
 
@@ -18436,6 +18421,13 @@ ENTITY time_interval;
 END_ENTITY;
 
 
+ENTITY time_interval_assignment
+	ABSTRACT SUPERTYPE;
+	assigned_time_interval : time_interval;
+	role : time_interval_role;
+END_ENTITY;
+
+
 ENTITY time_interval_based_effectivity
 	SUBTYPE OF (effectivity);
 	effectivity_period : time_interval;
@@ -18471,15 +18463,6 @@ ENTITY time_measure_with_unit
 	SUBTYPE OF (measure_with_unit);
 WHERE
 	WR1 : 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TIME_UNIT' IN TYPEOF(SELF\measure_with_unit.unit_component);
-END_ENTITY;
-
-
-ENTITY time_role;
-	name : label;
-DERIVE
-	description : text := get_description_value (SELF);
-WHERE
-	WR1 : SIZEOF (USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
 END_ENTITY;
 
 
@@ -18951,6 +18934,16 @@ ENTITY view_volume
 	back_plane_clipping : BOOLEAN;
 	view_volume_sides_clipping : BOOLEAN;
 	view_window : planar_box;
+INVERSE
+	camera_usages: SET [1:?] OF camera_model_d3 FOR perspective_of_volume;
+WHERE
+	WR1 : ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AXIS2_PLACEMENT_3D' 
+              IN TYPEOF(SELF.view_window.placement)) AND
+                   (dot_product (
+                     (representation_item(' ') || geometric_representation_item() || direction([0.0,0.0,1.0])),
+                     SELF.view_window\planar_box.placement\axis2_placement_3d.p[3]
+                    ) = 1.0);
+	WR2 : view_plane_distance = view_window.placement.location.coordinates[3];
 END_ENTITY;
 
 
@@ -20349,7 +20342,7 @@ WHERE
 	WR1 : dkuhr;
 END_RULE;
 
-RULE validate_dependently_instantiable_entity_data_types FOR (action_resource_type, annotation_text, auxiliary_geometric_representation_item, bounded_curve, bounded_surface, cartesian_transformation_operator, cell, concept_feature_relationship, concept_feature_relationship_with_condition, connected_edge_set, document_usage_constraint, edge_blended_solid, event_occurrence_context_role, event_occurrence_role, experience, experience_type, explicit_procedural_representation_item_relationship, indices_list, indices_range, indirectly_selected_elements, library_context, local_time, location, loop, maths_space_context, maths_value_context, mesh, modified_solid_with_placed_configuration, one_direction_repeat_factor, organization_type, oriented_open_shell, oriented_path, person_role, person_type, person_type_definition, person_type_definition_formation, position_in_organization, position_in_organization_type, positioned_sketch, procedural_representation, procedural_representation_sequence, product_definition_context_role, product_definition_effectivity, property_distribution_description, qualification, qualification_type, resource_requirement_type, rind, runout_zone_orientation, solid_with_depression, solid_with_hole, solid_with_pocket, solid_with_protrusion, solid_with_shape_element_pattern, solid_with_slot, state_type_role, structured_mesh, swept_area_solid, symbol_target, time_role, tolerance_zone_form, two_direction_repeat_factor, unstructured_mesh, user_selected_elements, variational_representation_item, view_volume, volume);
+RULE validate_dependently_instantiable_entity_data_types FOR (action_method_role, annotation_text, attribute_value_role, auxiliary_geometric_representation_item, bounded_curve, bounded_surface, cartesian_transformation_operator, concept_feature_relationship, concept_feature_relationship_with_condition, document_usage_constraint, edge_blended_solid, effectivity_context_role, event_occurrence_role, explicit_procedural_representation_item_relationship, indirectly_selected_elements, local_time, maths_space_context, modified_solid_with_placed_configuration, one_direction_repeat_factor, oriented_open_shell, oriented_path, positioned_sketch, procedural_representation, procedural_representation_sequence, property_distribution_description, runout_zone_orientation, solid_with_depression, solid_with_hole, solid_with_pocket, solid_with_protrusion, solid_with_shape_element_pattern, solid_with_slot, state_type_role, swept_area_solid, symbol_target, tolerance_zone_form, two_direction_repeat_factor, user_selected_elements, variational_representation_item, view_volume, volume);
 LOCAL
   number_of_input_instances : INTEGER;
   previous_in_chain : LIST OF GENERIC := [];
@@ -20357,7 +20350,7 @@ LOCAL
   all_instances : SET OF GENERIC := [];
 END_LOCAL;
 
-  all_instances := all_instances + action_resource_type + annotation_text + auxiliary_geometric_representation_item + bounded_curve + bounded_surface + cartesian_transformation_operator + cell + concept_feature_relationship + concept_feature_relationship_with_condition + connected_edge_set + document_usage_constraint + edge_blended_solid + event_occurrence_context_role + event_occurrence_role + experience + experience_type + explicit_procedural_representation_item_relationship + indices_list + indices_range + indirectly_selected_elements + library_context + local_time + location + loop + maths_space_context + maths_value_context + mesh + modified_solid_with_placed_configuration + one_direction_repeat_factor + organization_type + oriented_open_shell + oriented_path + person_role + person_type + person_type_definition + person_type_definition_formation + position_in_organization + position_in_organization_type + positioned_sketch + procedural_representation + procedural_representation_sequence + product_definition_context_role + product_definition_effectivity + property_distribution_description + qualification + qualification_type + resource_requirement_type + rind + runout_zone_orientation + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + state_type_role + structured_mesh + swept_area_solid + symbol_target + time_role + tolerance_zone_form + two_direction_repeat_factor + unstructured_mesh + user_selected_elements + variational_representation_item + view_volume + volume;--<make a union of all implicit populations of the FOR-clause>
+  all_instances := action_method_role + annotation_text + attribute_value_role + auxiliary_geometric_representation_item + bounded_curve + bounded_surface + cartesian_transformation_operator + concept_feature_relationship + concept_feature_relationship_with_condition + document_usage_constraint + edge_blended_solid + effectivity_context_role + event_occurrence_role + explicit_procedural_representation_item_relationship + indirectly_selected_elements + local_time + maths_space_context + modified_solid_with_placed_configuration + one_direction_repeat_factor + oriented_open_shell + oriented_path + positioned_sketch + procedural_representation + procedural_representation_sequence + property_distribution_description + runout_zone_orientation + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + state_type_role + swept_area_solid + symbol_target + tolerance_zone_form + two_direction_repeat_factor + user_selected_elements + variational_representation_item + view_volume + volume;--<make a union of all implicit populations of the FOR-clause>
 number_of_input_instances := SIZEOF(all_instances);
 (* Collect all type strings of all FOR instances into one set. *)
 REPEAT i:=1 TO number_of_input_instances;
@@ -20487,31 +20480,6 @@ IF NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_REPLICA') IN 
     END_IF;
 END_FUNCTION;
 
-FUNCTION acyclic_mapped_item_usage
-	(rep: representation) : BOOLEAN;
-  LOCAL
-    items : SET OF representation_item;
-  END_LOCAL;
-
-  items := QUERY (item <* rep.items |
-           'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN TYPEOF (item));
-  IF SIZEOF (items) = 0
-  THEN 
-    RETURN (FALSE);
-  ELSE 
-    REPEAT i := 1 TO HIINDEX (items);
-      IF items[i]\mapped_item.mapping_source.mapped_representation :=: rep
-      THEN 
-        RETURN (TRUE);
-      ELSE 
-        RETURN (acyclic_mapped_item_usage(items[i]\
-                  mapped_item.mapping_source.mapped_representation));
-      END_IF;
-    END_REPEAT;
-  RETURN (FALSE);
-  END_IF;
-END_FUNCTION;
-
 FUNCTION acyclic_mapped_representation
 	(mi: mapped_item) : BOOLEAN;
     LOCAL
@@ -20560,6 +20528,30 @@ IF NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_REPLICA') IN 
    call function again with the parents own parent_pt.     *)
     ELSE RETURN(acyclic_point_replica(rep, parent\point_replica.parent_pt));
     END_IF;
+END_FUNCTION;
+
+FUNCTION acyclic_product_category_relationship
+	(relation: product_category_relationship; children: SET [0:?] OF product_category) : BOOLEAN;
+    LOCAL
+      x : SET OF product_category_relationship;
+      local_children : SET OF product_category;
+    END_LOCAL;
+
+    REPEAT i := 1 TO HIINDEX(children);
+      IF relation.category :=: children[i] THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    x := bag_to_set(USEDIN(relation.category, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'PRODUCT_CATEGORY_RELATIONSHIP.SUB_CATEGORY'));
+    local_children := children + relation.category;
+    IF SIZEOF(x) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(x);
+        IF NOT acyclic_product_category_relationship(x[i], local_children) THEN
+          RETURN (FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN (TRUE);
 END_FUNCTION;
 
 FUNCTION acyclic_product_definition_relationship
@@ -20696,6 +20688,29 @@ CONSTANT
     IF cum = FALSE THEN  RETURN (FALSE);  END_IF;
   END_REPEAT;
   RETURN (cum);
+END_FUNCTION;
+
+FUNCTION all_mesh_vertices
+	(arg: array_based_unstructured_mesh_and_vertices) : BOOLEAN;
+LOCAL
+  vertex_set : SET OF vertex := [];
+  cell : vertex_defined_cell;
+END_LOCAL;
+  REPEAT i := 1 TO arg.cell_count;
+    cell := arg.cells[i];
+    REPEAT j := 1 TO cell.vn_count;
+      vertex_set := vertex_set + cell.vertices[j];
+    END_REPEAT;
+  END_REPEAT;
+  IF (SIZEOF(vertex_set) <> arg.index_count) THEN
+    RETURN(FALSE);
+  END_IF;
+  REPEAT i := 1 TO arg.index_count;
+    IF (NOT (arg.vertices[i] IN vertex_set) ) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
 END_FUNCTION;
 
 FUNCTION any_space_satisfies
@@ -21046,15 +21061,15 @@ END_FUNCTION;
 
 FUNCTION categories_of_product
 	(obj: product) : SET [0:?] OF STRING;
-LOCAL
-  category_assignments: BAG OF product_category;
-  categories: SET OF STRING:=[];
-END_LOCAL;
-category_assignments := USEDIN(obj, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-  categories := categories + category_assignments[i].name;
-END_REPEAT;
-RETURN(categories);
+  LOCAL
+    category_assignments: BAG OF product_category;
+    categories: SET OF STRING:=[];
+  END_LOCAL;
+    category_assignments := USEDIN(obj, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+      categories := categories + category_assignments[i].name;
+    END_REPEAT;
+    RETURN(categories);
 END_FUNCTION;
 
 FUNCTION cc_design_person_and_organization_correlation
@@ -25397,6 +25412,52 @@ FUNCTION get_description_value
     END_IF;
 END_FUNCTION;
 
+FUNCTION get_directed_link
+	(nodes: LIST [0:?] OF representation; undirected_link: LIST [0:?] OF chained_representation_link) : LIST [0:?] OF representation_relationship;
+  LOCAL
+   directed_link : LIST OF representation_relationship := [];
+  END_LOCAL;
+
+  REPEAT i := 1 to SIZEOF(undirected_link);
+   CASE TRUE OF
+    ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.REPRESENTATION_CONTEXT' IN TYPEOF(undirected_link[i])) :
+    BEGIN
+     IF ((nodes[i]\representation.context_of_items   :=: undirected_link[i]) AND 
+         (nodes[i+1]\representation.context_of_items :=: undirected_link[i])) THEN
+       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+     ELSE
+       RETURN(?); 
+     END_IF;
+    END;
+
+    ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.REPRESENTATION_RELATIONSHIP' IN TYPEOF(undirected_link[i])) :
+    BEGIN
+     IF (((nodes[i]   :=: undirected_link[i]\representation_relationship.rep_1) AND
+          (nodes[i+1] :=: undirected_link[i]\representation_relationship.rep_2)) OR
+         ((nodes[i]   :=: undirected_link[i]\representation_relationship.rep_2) AND
+          (nodes[i+1] :=: undirected_link[i]\representation_relationship.rep_1))) THEN
+       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+     ELSE
+       RETURN(?); 
+     END_IF;
+    END;
+
+    ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN TYPEOF(undirected_link[i])) :
+    BEGIN
+     IF ((nodes[i] IN using_representations(undirected_link[i])) AND 
+         (nodes[i+1] :=: undirected_link[i]\mapped_item.mapping_source\representation_map.mapped_representation)) THEN
+       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+     ELSE
+       RETURN(?); 
+     END_IF;
+    END;
+
+    OTHERWISE : RETURN(?);
+   END_CASE;
+  END_REPEAT;
+  RETURN(directed_link);
+END_FUNCTION;
+
 FUNCTION get_id_value
 	(obj: id_attribute_select) : identifier;
     LOCAL
@@ -29330,6 +29391,10 @@ FUNCTION temporal_spatial_domain_for_model
     RETURN (FALSE);
 END_FUNCTION;
 
+FUNCTION this_schema : STRING;
+RETURN('MESH_TOPOLOGY_SCHEMA');
+END_FUNCTION;
+
 FUNCTION topology_reversed
 	(an_item: reversible_topology) : reversible_topology;
 IF ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EDGE' IN TYPEOF (an_item)) THEN
@@ -29527,35 +29592,26 @@ END_FUNCTION;
 
 FUNCTION valid_datum_target_parameters
 	(pdf: placed_datum_target_feature) : BOOLEAN;
-LOCAL
+  LOCAL
+    rep_set : SET OF representation := [] ;
+    parameter_representations: SET OF representation;
+  END_LOCAL;
 
-rep_set : SET OF representation := [] ;
+  REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
+    rep_set := rep_set + pdf.representation_associations[i].used_representation;
+  END_REPEAT;
+  parameter_representations := QUERY(rep <* rep_set | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF(rep)));
 
-parameter_representations: SET OF representation;
-END_LOCAL;
-
-
-REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
-rep_set := rep_set + pdf.representation_associations[i].used_representation;
-END_REPEAT;
- 
-parameter_representations := QUERY(rep <* rep_set |
-('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN
-TYPEOF(rep)));
-
-
-IF (SIZEOF( QUERY( srwp <* parameter_representations |
+  IF (SIZEOF( QUERY( srwp <* parameter_representations |
           (SIZEOF( QUERY( i <* srwp.items |
           (i.name='orientation') AND
           ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PLACEMENT' IN TYPEOF(i)))) = 1))) <> 1) THEN
-   RETURN(FALSE);
-END_IF;
-
-CASE pdf\shape_aspect.description OF
-'point': RETURN(SIZEOF(QUERY( srwp <* parameter_representations |
+    RETURN(FALSE);
+  END_IF;
+  CASE pdf\shape_aspect.description OF
+    'point': RETURN(SIZEOF(QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items) = 1))) = 1);
-
-'circle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+    'circle', 'circular curve': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items) = 2))) = 1) AND
              (SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
@@ -29563,15 +29619,13 @@ CASE pdf\shape_aspect.description OF
                 (SIZEOF(['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MEASURE_REPRESENTATION_ITEM',
 		   'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1));
-
-'line': RETURN(SIZEOF( QUERY( srwp <* parameter_representations |
+    'line': RETURN(SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
                 (i.name='target length') AND
                 (SIZEOF(['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MEASURE_REPRESENTATION_ITEM',
 		'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2) )) = 1))) = 1);
-
-'rectangle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+    'rectangle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF(srwp.items)= 3))) = 1) AND
              (SIZEOF( QUERY( srwp <* parameter_representations |
               (SIZEOF( QUERY( i <* srwp.items |
@@ -29585,8 +29639,8 @@ CASE pdf\shape_aspect.description OF
                  (SIZEOF(['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MEASURE_REPRESENTATION_ITEM',
  		'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                   ) = 2))) = 1) )) = 1));
-OTHERWISE : RETURN(FALSE);
-END_CASE;
+    OTHERWISE : RETURN(FALSE);
+  END_CASE;
 END_FUNCTION;
 
 FUNCTION valid_geometrically_bounded_wf_curve

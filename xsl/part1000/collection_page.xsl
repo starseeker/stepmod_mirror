@@ -3,6 +3,7 @@
 	<xsl:import href="../common.xsl"/>
 	<xsl:import href="../elt_list.xsl"/>
 	<xsl:include href="biblio.xsl"/>
+	<xsl:include href="cover.xsl"/>
 	<xsl:include href="default.xsl"/>
 	<xsl:include href="index.xsl"/>
 	<xsl:include href="nav.xsl"/>

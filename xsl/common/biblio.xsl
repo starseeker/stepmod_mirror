@@ -9,23 +9,54 @@
 		exclude-result-prefixes="msxsl exslt"
 		version="1.0">
 
+  <xsl:variable name="module_default_file">../../data/basic/bibliography_default.xml</xsl:variable>
+  <xsl:variable name="AP_default_file">../../data/basic/ap_doc/bibliography_default.xml</xsl:variable>
+  <xsl:variable name="bib_file">../../data/basic/bibliography.xml</xsl:variable>
+  <xsl:template name="get_default_file">
+    <xsl:param name="doc_type"/>
+    <xsl:choose>
+      <xsl:when test="$doc_type = 'AP'">
+	<xsl:value-of select="$AP_default_file"/>
+      </xsl:when>
+      <xsl:when test="$doc_type = 'module'">
+	<xsl:value-of select="$module_default_file"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="get_bib_file">
+    <xsl:param name="doc_type"/>
+    <xsl:value-of select="$bib_file"/>
+  </xsl:template>
+
   <xsl:template match="bibliography">
+    <xsl:param name="doc_type"/>
     <!-- output the defaults -->
-    <xsl:apply-templates 
-       select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>   
+    <xsl:variable name="default_file">
+      <xsl:call-template name="get_default_file">
+	<xsl:with-param name="doc_type" select="$doc_type"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="bib_file">
+      <xsl:call-template name="get_bib_file">
+	<xsl:with-param name="doc_type" select="$doc_type"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:apply-templates select="document(string($default_file))/bibliography/bibitem.inc">
+      <xsl:with-param name="bib_file" select="$bib_file"/>
+    </xsl:apply-templates>
     <!-- 
-	 count how many bitiem.incs are in
-	 ../data/basic/bibliography_default.xml 
+	 count how many bitiem.incs are in default_file
 	 and start the numbering of the bibitem from there
       -->
-    <xsl:variable name="bibitem_inc_cnt" 
-		  select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc)"/>
+    <xsl:variable name="bibitem_inc_cnt" select="count(document(string($default_file))/bibliography/bibitem.inc)"/>
     <xsl:apply-templates select="./*">
       <xsl:with-param name="number_start" select="$bibitem_inc_cnt"/>
+      <xsl:with-param name="bib_file" select="$bib_file"/>
     </xsl:apply-templates> 
   </xsl:template>
   
-  <xsl:template match="bibitem|bibitem.techreport|bibitem.book">
+  <xsl:template match="bibitem|bibitem.ap|bibitem.resource|bibitem.techreport|bibitem.book">
     <!-- the value from which to start the counting. -->
     <xsl:param name="number_start" select="0"/>
 
@@ -158,10 +189,10 @@
   <xsl:template match="bibitem.inc">
     <!-- the value from which to start the counting. -->
     <xsl:param name="number_start" select="0"/>
+    <xsl:param name="bib_file"/>
 
     <xsl:variable name="ref" select="@ref"/>
-    <xsl:variable name="bibitem" 
-		  select="document('../../data/basic/bibliography.xml')/bibitem.list/node()[starts-with(local-name(),'bibitem') and (@id=$ref)]"/>
+    <xsl:variable name="bibitem" select="document(string($bib_file))/bibitem.list/node()[starts-with(local-name(),'bibitem') and (@id=$ref)]"/>
     <xsl:choose>
       <xsl:when test="$bibitem">
 	<xsl:apply-templates select="$bibitem">
@@ -173,8 +204,8 @@
 	<xsl:call-template name="error_message">
           <xsl:with-param 
              name="message"
-             select="concat('Error 13: Can not find bibitem referenced by: ',$ref,
-                     'in ../data/basic/bibliography.xml')"/>
+             select="concat('Error 13: Cannot find bibitem referenced by: ',$ref,
+                     ' in ', $bib_file, '.')"/>
 	</xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -259,18 +290,32 @@
   <!-- check that all bibitems have been published, if not output
        footnote -->
   <xsl:template match="bibliography" mode="unpublished_bibitems_footnote">
+    <xsl:param name="doc_type"/>
+    <!-- output the defaults -->
+    <xsl:variable name="default_file">
+      <xsl:call-template name="get_default_file">
+	<xsl:with-param name="doc_type" select="$doc_type"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="bib_file">
+      <xsl:call-template name="get_bib_file">
+	<xsl:with-param name="doc_type" select="$doc_type"/>
+      </xsl:call-template>
+    </xsl:variable>
     <!-- collect up all bibitems -->
     <xsl:variable name="bibitems">
       <bibitems>
 	<!-- collect up the defaults -->
-	<xsl:apply-templates
-           select="document('../../data/basic/bibliography_default.xml')/bibliography" 
-           mode="collect_bibitems"/>
+	<xsl:apply-templates select="document(string($default_file))/bibliography" mode="collect_bibitems">
+	  <xsl:with-param name="bib_file" select="$bib_file"/>
+	</xsl:apply-templates>
 	
 	<!-- collect up the documents -->
 	<xsl:apply-templates
            select="." 
-           mode="collect_bibitems"/>
+           mode="collect_bibitems">
+	  <xsl:with-param name="bib_file" select="$bib_file"/>
+	</xsl:apply-templates>
       </bibitems>
     </xsl:variable>
 
@@ -316,9 +361,10 @@
   </xsl:template>
 
   <!-- collect up all bibitems in order to check for unpublished bib items -->
-  <xsl:template match="bibliography"  mode="collect_bibitems">
-    <xsl:variable name="bibitem_list" 
-		  select="document('../../data/basic/bibliography.xml')/bibitem.list"/>
+  <xsl:template match="bibliography" mode="collect_bibitems">
+    <xsl:param name="bib_file"/>
+
+    <xsl:variable name="bibitem_list" select="document(string($bib_file))/bibitem.list"/>
 
     <xsl:for-each select="bibitem">
       <xsl:element name="bibitem">
@@ -342,7 +388,7 @@
     </xsl:for-each>
   </xsl:template>
 
-  <xsl:template match="bibitem.ap">
+  <xsl:template match="bibitem.ap" mode="bibitem_content">
     <!-- the value from which to start the counting. -->
     <xsl:param name="number_start" select="0"/>     
     <xsl:variable name="part_name" select="@name"/>
@@ -356,7 +402,7 @@
         <xsl:variable name="ap_dir"
 		      select="concat('../../data/application_protocols/', $part_name)"/>
         <xsl:variable name="ap_xml" select="concat($ap_dir,'/application_protocol.xml')"/>
-        <xsl:variable name="ap_nodes" select="document($ap_xml)"/>
+        <xsl:variable name="ap_nodes" select="document(string($ap_xml))"/>
         <xsl:variable name="number" select="position()"/>
         <p>
           [<xsl:value-of select="$number_start+$number"/>] 
@@ -394,7 +440,7 @@
           </xsl:call-template>
         </xsl:variable>
         <xsl:variable name="module_xml" select="concat($module_dir,'/module.xml')"/>
-        <xsl:variable name="module_nodes" select="document($module_xml)"/>
+        <xsl:variable name="module_nodes" select="document(string($module_xml))"/>
         <xsl:variable name="number" select="position()"/>
         <p>
           [<xsl:value-of select="$number_start+$number"/>] 
@@ -415,7 +461,7 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="bibitem.resource ">
+  <xsl:template match="bibitem.resource" mode="bibitem_content">
     <!-- the value from which to start the counting. -->
     <xsl:param name="number_start" select="0"/>     
     <xsl:variable name="resdoc" select="@name"/>
@@ -427,10 +473,11 @@
     <xsl:choose>
       <xsl:when test="string($resdoc_ok)='true'">
         <xsl:variable name="resdoc_dir"
+
 		      select="concat('../../data/resource_docs/', $resdoc)"/>
         
         <xsl:variable name="resdoc_xml" select="concat($resdoc_dir,'/resource.xml')"/>
-        <xsl:variable name="resdoc_nodes" select="document($resdoc_xml)"/>
+        <xsl:variable name="resdoc_nodes" select="document(string($resdoc_xml))"/>
         <xsl:variable name="number" select="position()"/>
         <p>
           [<xsl:value-of select="$number_start+$number"/>] 

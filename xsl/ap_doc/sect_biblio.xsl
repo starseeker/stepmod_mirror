@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: sect_biblio.xsl,v 1.28 2010/07/01 20:35:20 radack Exp $
+    $Id: sect_biblio.xsl,v 1.29 2010/07/16 17:09:46 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -27,7 +27,9 @@
     </div>
     <xsl:choose>
       <xsl:when test="./bibliography">
-        <xsl:apply-templates select="./bibliography"/>
+        <xsl:apply-templates select="./bibliography">
+	  <xsl:with-param name="doc_type">AP</xsl:with-param>
+	</xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>
@@ -36,7 +38,9 @@
 
     <!-- check that all bibitems have been published, if not output
          footnote -->
-    <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote"/>    
+    <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote">
+      <xsl:with-param name="doc_type">AP</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
   
 

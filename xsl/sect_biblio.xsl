@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
+$Id: sect_biblio.xsl,v 1.9 2005/08/10 10:44:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -19,6 +19,10 @@ $Id: sect_biblio.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   <xsl:import href="module_clause.xsl"/>
 
   <xsl:import href="projmg/issues.xsl"/> 
+
+  <xsl:import href="elt_list.xsl"/>
+
+  <xsl:include href="common/biblio.xsl"/>
 
   <xsl:output method="html"/>
 
@@ -38,7 +42,9 @@ $Id: sect_biblio.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
 
   <xsl:choose>
     <xsl:when test="./bibliography">
-      <xsl:apply-templates select="./bibliography"/>
+      <xsl:apply-templates select="./bibliography">
+	<xsl:with-param name="doc_type">module</xsl:with-param>
+      </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>
       <!-- output the defaults -->
@@ -48,7 +54,9 @@ $Id: sect_biblio.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   </xsl:choose>
   <!-- check that all bibitems have been published, if not output
        footnote -->
-  <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote"/>    
+  <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote">
+    <xsl:with-param name="doc_type">module</xsl:with-param>
+  </xsl:apply-templates>
 </xsl:template>
   
 </xsl:stylesheet>

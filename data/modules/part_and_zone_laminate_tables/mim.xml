@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1770">
    <application name="JSDAI" owner="LKSoft" source="part_and_zone_laminate_tables_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Part_and_zone_laminate_tables_mim">
       <interface kind="use" schema="Composite_constituent_shape_mim"/>
@@ -15,36 +15,21 @@
       <interface kind="use" schema="product_definition_schema">
          <interfaced.item name="product_related_product_category"/>
       </interface>
-      <entity name="composite_assembly_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
-      </entity>
       <entity name="composite_assembly_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
       </entity>
       <entity name="composite_assembly_table" supertypes="part_laminate_table"/>
       <entity name="laminate_table" super.expression="ONEOF (part_laminate_table, zone_structural_makeup)" supertypes="product_definition"/>
       <entity name="part_laminate_table" super.expression="ONEOF (composite_assembly_table, ply_laminate_table)" supertypes="laminate_table"/>
-      <entity name="percentage_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
-      </entity>
       <entity name="percentage_laminate_table" supertypes="zone_structural_makeup"/>
-      <entity name="percentage_ply_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'PRODUCT_DEFINITION_SCHEMA.' +&#10;        'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;        ('STRUCTURAL_ANALYSIS_DESIGN.PERCENTAGE_LAMINATE_DEFINITION' &#10;        IN TYPEOF (pdr.related_product_definition)) AND&#10;        (pdr.name = 'makeup and properties'))) = 0" label="WR1"/>
-      </entity>
-      <entity name="ply_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
-      </entity>
       <entity name="ply_laminate_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
       </entity>
       <entity name="ply_laminate_table" supertypes="part_laminate_table"/>
       <entity name="smeared_material_definition" supertypes="zone_structural_makeup"/>
-      <entity name="thickness_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'PRODUCT_DEFINITION_SCHEMA.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'PRODUCT_STRUCTURE_SCHEMA.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
-      </entity>
       <entity name="thickness_laminate_table" supertypes="zone_structural_makeup"/>
       <entity name="zone_structural_makeup" super.expression="ONEOF ((thickness_laminate_table AND smeared_material_definition), (percentage_laminate_table AND smeared_material_definition), thickness_laminate_table, percentage_laminate_table, smeared_material_definition)" supertypes="laminate_table"/>
-      <subtype.constraint entity="product_definition" name="pos_product_definition_subtypes" super.expression="ONEOF (composite_assembly_definition, composite_assembly_sequence_definition, laminate_table, percentage_laminate_definition, percentage_ply_definition, ply_laminate_definition, ply_laminate_sequence_definition, thickness_laminate_definition)"/>
+      <subtype.constraint entity="product_definition" name="pos_product_definition_subtypes" super.expression="ONEOF (composite_assembly_sequence_definition, laminate_table, ply_laminate_sequence_definition)"/>
       <rule appliesto="composite_assembly_sequence_definition next_assembly_usage_occurrence product_related_product_category" name="component_class_for_assembly_select">
          <algorithm>LOCAL
       i,j,k :  INTEGER :=0;
@@ -127,97 +112,6 @@
         ESCAPE; 
       END_IF;
       IF(nnauo = 0) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;</algorithm>
-         <where expression="dkuhr" label="WR1"/>
-      </rule>
-      <rule appliesto="percentage_ply_definition make_from_usage_option product_related_product_category" name="stock_material_reference">
-         <algorithm>LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nmfuo :  INTEGER;
-      nprpc :  INTEGER;
-      rp     :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (percentage_ply_definition) TO
-               HIINDEX (percentage_ply_definition);
-      nmfuo := 0;  
-      REPEAT j:= LOINDEX (make_from_usage_option) TO 
-                 HIINDEX (make_from_usage_option);
-        IF (percentage_ply_definition[i] = 
-          make_from_usage_option[j].relating_product_definition) THEN
-          rp := make_from_usage_option[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                ['anisotropic material', 'isotropic material', 'stock core',
-                 'filament assembly', 'discontinuous fiber assembly'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nmfuo := nmfuo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE; 
-      END_IF;
-      IF(nmfuo = 0) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;</algorithm>
-         <where expression="dkuhr" label="WR1"/>
-      </rule>
-      <rule appliesto="thickness_laminate_definition next_assembly_usage_occurrence product_related_product_category" name="thickness_laminate_table_component_select">
-         <algorithm>LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nnauo :  INTEGER;
-      nprpc :  INTEGER;
-      rp    :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (thickness_laminate_definition) TO
-               HIINDEX (thickness_laminate_definition);
-      nnauo := 0;  
-      REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
-                 HIINDEX (next_assembly_usage_occurrence);
-        IF (thickness_laminate_definition[i] = 
-          next_assembly_usage_occurrence[j].relating_product_definition) THEN
-          rp := next_assembly_usage_occurrence[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                 ['ply', 'filament laminate', 'processed core'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nnauo := nnauo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE;
-      END_IF;
-      IF (nnauo &lt;&gt; 1) THEN
         dkuhr := FALSE;
         ESCAPE;
       END_IF;

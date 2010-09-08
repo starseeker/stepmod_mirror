@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="classification_with_attributes_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1111">
+   <application name="JSDAI" owner="LKSoft" source="classification_with_attributes_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Classification_with_attributes_mim">
       <interface kind="use" schema="Classification_assignment_mim"/>
       <interface kind="use" schema="Extended_measure_representation_mim"/>
@@ -34,13 +34,13 @@
          <select extensible="YES" genericentity="YES" selectitems="characterized_class"/>
       </type>
       <type name="classification_classification_item">
-         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="class"/>
+         <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="class"/>
       </type>
       <type name="classification_identification_item">
-         <select extensible="YES" basedon="identification_item" selectitems="class"/>
+         <select basedon="identification_item" extensible="YES" selectitems="class"/>
       </type>
       <type name="classification_item_extended">
-         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="characterized_class classified_item"/>
+         <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="characterized_class classified_item"/>
       </type>
       <type name="classified_item">
          <select extensible="YES" genericentity="YES" selectitems="product product_definition_formation product_definition"/>
@@ -48,16 +48,13 @@
       <type name="cwa_identification_item">
          <select basedon="identification_item" selectitems="characterized_class"/>
       </type>
-      <type name="cwa_versionable_item">
-         <select basedon="versionable_item" selectitems="characterized_class"/>
-      </type>
       <entity name="characterized_class" supertypes="characterized_object class"/>
       <entity name="class_system" supertypes="group"/>
-      <rule name="restrict_classification_assignments" appliesto="applied_classification_assignment">
-         <where label="WR1" expression="SIZEOF(QUERY(aia &lt;* applied_classification_assignment | &#10;		NOT class_assignment_is_valid(aia)))=0"/>
+      <rule appliesto="applied_classification_assignment" name="restrict_classification_assignments">
+         <where expression="SIZEOF(QUERY(aia &lt;* applied_classification_assignment | &#10;&#9;&#9;NOT class_assignment_is_valid(aia)))=0" label="WR1"/>
       </rule>
-      <rule name="restrict_group_relationship_for_classification_hierarchy" appliesto="group_relationship">
-         <where label="WR1" expression="SIZEOF( QUERY( gr &lt;* group_relationship | &#10;  (gr\group_relationship.name = 'class hierarchy') AND &#10;  (NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr\group_relationship.related_group)) OR &#10;  NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr\group_relationship.relating_group))) )) = 0"/>
+      <rule appliesto="group_relationship" name="restrict_group_relationship_for_classification_hierarchy">
+         <where expression="SIZEOF( QUERY( gr &lt;* group_relationship | &#10;  (gr\group_relationship.name = 'class hierarchy') AND &#10;  (NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr\group_relationship.related_group)) OR &#10;  NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr\group_relationship.relating_group))) )) = 0" label="WR1"/>
       </rule>
       <function name="class_assignment_is_valid">
          <parameter name="aia">

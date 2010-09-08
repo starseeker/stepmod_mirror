@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="product_class_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1103">
+   <application name="JSDAI" owner="LKSoft" source="product_class_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Product_class_mim">
       <interface kind="use" schema="Identification_assignment_mim"/>
       <interface kind="use" schema="Product_concept_identification_mim"/>
@@ -22,27 +22,24 @@
          <select selectitems="product_class"/>
       </type>
       <type name="id_for_class">
-         <select extensible="YES" basedon="identification_item" selectitems="product_class product_concept_feature"/>
+         <select basedon="identification_item" extensible="YES" selectitems="product_class product_concept_feature"/>
       </type>
       <type name="specification_for_category">
-         <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="package_product_concept_feature product_concept_feature"/>
-      </type>
-      <type name="version_for_class">
-         <select basedon="versionable_item" selectitems="product_class product_concept_feature"/>
+         <select basedon="groupable_item" extensible="YES" genericentity="YES" selectitems="package_product_concept_feature product_concept_feature"/>
       </type>
       <entity name="exclusive_product_concept_feature_category" supertypes="product_concept_feature_category"/>
       <entity name="inclusion_product_concept_feature" supertypes="conditional_concept_feature">
-         <where label="WR1" expression="NOT ( 'PRODUCT_CLASS_MIM.' + 'PACKAGE_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( SELF ) )"/>
-         <where label="WR2" expression="SIZEOF (QUERY&#10;									( cfr &lt;* USEDIN &#10;											( SELF ,'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.RELATING_PRODUCT_CONCEPT_FEATURE' ) &#10;											| &#10;											'PRODUCT_CONCEPT_SCHEMA.'+ 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF( cfr ) &#10;									) &#10;								) + &#10;				 SIZEOF(QUERY&#10;				 					( cfr &lt;* USEDIN &#10;				 							(SELF , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.RELATED_PRODUCT_CONCEPT_FEATURE' ) &#10;				 							| &#10;											'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF(cfr)&#10;									)&#10;								)= 0"/>
-         <where label="WR3" expression="SELF.condition.conditional_operator.name = 'implication'"/>
+         <where expression="NOT ( 'PRODUCT_CLASS_MIM.' + 'PACKAGE_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( SELF ) )" label="WR1"/>
+         <where expression="SIZEOF (QUERY&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( cfr &lt;* USEDIN &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( SELF ,'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.RELATING_PRODUCT_CONCEPT_FEATURE' ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;'PRODUCT_CONCEPT_SCHEMA.'+ 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF( cfr ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) + &#10;&#9;&#9;&#9;&#9; SIZEOF(QUERY&#10;&#9;&#9;&#9;&#9; &#9;&#9;&#9;&#9;&#9;( cfr &lt;* USEDIN &#10;&#9;&#9;&#9;&#9; &#9;&#9;&#9;&#9;&#9;&#9;&#9;(SELF , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.RELATED_PRODUCT_CONCEPT_FEATURE' ) &#10;&#9;&#9;&#9;&#9; &#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF(cfr)&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)= 0" label="WR2"/>
+         <where expression="SELF.condition.conditional_operator.name = 'implication'" label="WR3"/>
       </entity>
       <entity name="package_product_concept_feature" supertypes="product_concept_feature">
-         <where label="WR1" expression="NOT ( 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF ( SELF ) )"/>
-         <where label="WR2" expression="SIZEOF ( QUERY &#10;									( &#10;										cfr &lt;* USEDIN ( SELF , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.' +'RELATING_PRODUCT_CONCEPT_FEATURE' ) &#10;										| &#10;										('PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF (cfr ) ) &#10;										AND &#10;										( SIZEOF ( QUERY &#10;																( &#10;																	ipcf &lt;* USEDIN ( cfr , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE.' +	'CONDITION' ) &#10;																	| &#10;																	'PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ipcf ) &#10;																)&#10;															)= 1 &#10;										)&#10;									)&#10;							)&gt;0"/>
+         <where expression="NOT ( 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF ( SELF ) )" label="WR1"/>
+         <where expression="SIZEOF ( QUERY &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;cfr &lt;* USEDIN ( SELF , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP.' +'RELATING_PRODUCT_CONCEPT_FEATURE' ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;('PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF (cfr ) ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;AND &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( SIZEOF ( QUERY &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;ipcf &lt;* USEDIN ( cfr , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE.' +&#9;'CONDITION' ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;'PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ipcf ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)= 1 &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&gt;0" label="WR2"/>
       </entity>
       <entity name="product_class" supertypes="product_concept characterized_object"/>
       <entity name="product_concept_feature_category" supertypes="group">
-         <where label="WR1" expression="SIZEOF(QUERY&#10;									( &#10;										aga &lt;* USEDIN( SELF, 'MANAGEMENT_RESOURCES_SCHEMA.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) &#10;										|&#10;     								('GROUP_MIM.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) &#10;     								AND&#10;    								(&#10;    									( aga.role.name &lt;&gt; 'specification category member' ) &#10;    									OR &#10;    									( SIZEOF(QUERY &#10;    															( &#10;    																i &lt;* aga.items &#10;    																| &#10;    																('PRODUCT_CONCEPT_SCHEMA.'+ 'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) &#10;    																AND &#10;    																NOT ('PRODUCT_CONCEPT_SCHEMA.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i))&#10;    															)&#10;    													) &lt;&gt; SIZEOF (aga.items)&#10;    									)&#10;    								) &#10;       						) &#10;       				) =0"/>
+         <where expression="SIZEOF(QUERY&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;aga &lt;* USEDIN( SELF, 'MANAGEMENT_RESOURCES_SCHEMA.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) &#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;|&#10;     &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;('GROUP_MIM.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) &#10;     &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;AND&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;(&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( aga.role.name &lt;&gt; 'specification category member' ) &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;OR &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( SIZEOF(QUERY &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;( &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;i &lt;* aga.items &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;| &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;('PRODUCT_CONCEPT_SCHEMA.'+ 'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;AND &#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;NOT ('PRODUCT_CONCEPT_SCHEMA.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i))&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) &lt;&gt; SIZEOF (aga.items)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;)&#10;    &#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;) &#10;       &#9;&#9;&#9;&#9;&#9;&#9;) &#10;       &#9;&#9;&#9;&#9;) =0" label="WR1"/>
       </entity>
       <entity name="product_concept_feature_category_usage" supertypes="group_assignment">
          <explicit name="assigned_group">
@@ -50,21 +47,21 @@
             <redeclaration entity-ref="group_assignment"/>
          </explicit>
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="category_usage_item"/>
          </explicit>
-         <where label="WR1" expression="SELF.role.name IN [ 'mandatory category usage', 'optional category usage' ]"/>
+         <where expression="SELF.role.name IN [ 'mandatory category usage', 'optional category usage' ]" label="WR1"/>
       </entity>
-      <rule name="product_concept_feature_requires_category" appliesto="product_concept_feature">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pcf &lt;* product_concept_feature |&#10;(SIZEOF(['PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE',&#10;'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE'] * TYPEOF(pcf)) = 0) AND &#10;(SIZEOF ( QUERY ( aga &lt;* USEDIN ( pcf , 'GROUP_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.' + 'ITEMS' ) | &#10;( aga.role.name = 'specification category member' ) AND &#10;('PRODUCT_CLASS_MIM.' + 'PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF ( aga.assigned_group )))) &lt;&gt;1 ) ) ) = 0"/>
+      <rule appliesto="product_concept_feature" name="product_concept_feature_requires_category">
+         <where expression="SIZEOF ( QUERY ( pcf &lt;* product_concept_feature |&#10;(SIZEOF(['PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE',&#10;'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE'] * TYPEOF(pcf)) = 0) AND &#10;(SIZEOF ( QUERY ( aga &lt;* USEDIN ( pcf , 'GROUP_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.' + 'ITEMS' ) | &#10;( aga.role.name = 'specification category member' ) AND &#10;('PRODUCT_CLASS_MIM.' + 'PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF ( aga.assigned_group )))) &lt;&gt;1 ) ) ) = 0" label="WR1"/>
       </rule>
-      <rule name="restrict_concept_feature_operator" appliesto="concept_feature_operator">
-         <where label="WR1" expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | NOT&#10;		( cfo.name IN ['and' , 'or' , 'oneof' , 'not' , 'implication'] ) ) ) = 0"/>
-         <where label="WR2" expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | (cfo.name = 'implication' ) AND&#10;	 ( SIZEOF ( QUERY (cfrwc &lt;* USEDIN ( cfo , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +&#10;	'CONDITIONAL_OPERATOR' ) | &#10;		SIZEOF ( QUERY ( ccf &lt;* USEDIN( cfrwc , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE.CONDITION' ) | &#10;		NOT ('PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ccf )))) &gt;0 )) &gt;0 ))) = 0"/>
-         <where label="WR3" expression="SIZEOF( QUERY (cfo &lt;* concept_feature_operator | (cfo.name = 'not')&#10;	AND (SIZEOF(QUERY(cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.CONDITIONAL_OPERATOR') | &#10;		cfrwc.related_product_concept_feature :&lt;&gt;: cfrwc.relating_product_concept_feature)) &gt;0 ))) = 0"/>
+      <rule appliesto="concept_feature_operator" name="restrict_concept_feature_operator">
+         <where expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | NOT&#10;&#9;&#9;( cfo.name IN ['and' , 'or' , 'oneof' , 'not' , 'implication'] ) ) ) = 0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | (cfo.name = 'implication' ) AND&#10;&#9; ( SIZEOF ( QUERY (cfrwc &lt;* USEDIN ( cfo , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +&#10;&#9;'CONDITIONAL_OPERATOR' ) | &#10;&#9;&#9;SIZEOF ( QUERY ( ccf &lt;* USEDIN( cfrwc , 'PRODUCT_CONCEPT_SCHEMA.' + 'CONDITIONAL_CONCEPT_FEATURE.CONDITION' ) | &#10;&#9;&#9;NOT ('PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ccf )))) &gt;0 )) &gt;0 ))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY (cfo &lt;* concept_feature_operator | (cfo.name = 'not')&#10;&#9;AND (SIZEOF(QUERY(cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CONCEPT_SCHEMA.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.CONDITIONAL_OPERATOR') | &#10;&#9;&#9;cfrwc.related_product_concept_feature :&lt;&gt;: cfrwc.relating_product_concept_feature)) &gt;0 ))) = 0" label="WR3"/>
       </rule>
-      <rule name="restrict_group_relationship_for_specification_category" appliesto="group_relationship">
-         <where label="WR1" expression="SIZEOF( QUERY( gr &lt;* group_relationship | &#10;  (gr.name = 'specification category hierarchy') AND &#10;  (NOT('PRODUCT_CLASS_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF(gr.related_group)) &#10;  OR NOT('PRODUCT_CLASS_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF(gr.relating_group))) )) = 0"/>
+      <rule appliesto="group_relationship" name="restrict_group_relationship_for_specification_category">
+         <where expression="SIZEOF( QUERY( gr &lt;* group_relationship | &#10;  (gr.name = 'specification category hierarchy') AND &#10;  (NOT('PRODUCT_CLASS_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF(gr.related_group)) &#10;  OR NOT('PRODUCT_CLASS_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF(gr.relating_group))) )) = 0" label="WR1"/>
       </rule>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.12 2010/06/10 21:31:16 mikeward Exp $
+$Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -102,11 +102,19 @@ $Id: sect_2_refs.xsl,v 1.12 2010/06/10 21:31:16 mikeward Exp $
       </xsl:element>
       <!--  </normref_nodes> -->
     </xsl:variable>
-    <!--
-      <saxon:output href="c:/users/rbn/temp/fooo.xml" method="xml">
+
+<!--
+    <xsl:for-each select="msxsl:node-set($normref_list)/*">
+      <p>
+	<xsl:copy-of select="."/>
+      </p>
+    </xsl:for-each>
+
+    <saxon:output href="c:/temp/normref_list.xml" method="xml">
       <xsl:copy-of select="$normref_list"/>
-      </saxon:output> -->
-    
+    </saxon:output>
+-->
+
     <xsl:choose>
       <xsl:when test="function-available('msxsl:node-set')">
         <xsl:variable name="normref_nodes" select="msxsl:node-set($normref_list)"/>

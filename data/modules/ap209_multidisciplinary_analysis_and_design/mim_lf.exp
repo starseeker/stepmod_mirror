@@ -1,5 +1,5 @@
 (*
-$Id: mim_lf.exp,v 1.7 2009/09/03 18:54:47 darla Exp $
+$Id: mim_lf.exp,v 1.8 2010/07/16 15:05:22 darla Exp $
 WG12N2617 - ISO/CD - 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM LF
 
 *)
@@ -5747,19 +5747,6 @@ ENTITY complex_shelled_solid
 WHERE
 	WR1 : SIZEOF(thickened_face_list) = SIZEOF(thickness_list);
 	WR2 : SIZEOF(QUERY(q <* thickness_list | (q = 0))) = 0;
-END_ENTITY;
-
-
-ENTITY composite_assembly_definition
-	SUBTYPE OF (product_definition);
-WHERE
-	WR1 : SIZEOF (QUERY (pdr <* USEDIN (SELF, 
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'PRODUCT_DEFINITION_RELATIONSHIP.' +
-                             'RELATING_PRODUCT_DEFINITION') |
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN
-                             TYPEOF (pdr))) = 1;
 END_ENTITY;
 
 
@@ -13574,19 +13561,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY percentage_laminate_definition
-	SUBTYPE OF (product_definition);
-WHERE
-	WR1 : SIZEOF (QUERY (pdr <* USEDIN (SELF, 
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'PRODUCT_DEFINITION_RELATIONSHIP.' +
-                             'RELATING_PRODUCT_DEFINITION') |
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN
-                             TYPEOF (pdr))) > 0;
-END_ENTITY;
-
-
 ENTITY percentage_laminate_table
 	SUBTYPE OF (zone_structural_makeup);
 END_ENTITY;
@@ -13953,19 +13927,6 @@ ENTITY plus_minus_tolerance;
 	toleranced_dimension : dimensional_characteristic;
 UNIQUE
 	UR1 : toleranced_dimension;
-END_ENTITY;
-
-
-ENTITY ply_laminate_definition
-	SUBTYPE OF (product_definition);
-WHERE
-	WR1 : SIZEOF (QUERY (pdr <* USEDIN (SELF, 
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'PRODUCT_DEFINITION_RELATIONSHIP.' +
-                             'RELATING_PRODUCT_DEFINITION') |
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN
-                             TYPEOF (pdr))) = 1;
 END_ENTITY;
 
 
@@ -14563,7 +14524,7 @@ END_ENTITY;
 
 
 ENTITY product_definition
-	SUPERTYPE OF (ONEOF (composite_assembly_definition, composite_assembly_sequence_definition, laminate_table, percentage_laminate_definition, percentage_ply_definition, ply_laminate_definition, ply_laminate_sequence_definition, thickness_laminate_definition));
+	SUPERTYPE OF (ONEOF (composite_assembly_sequence_definition, laminate_table, percentage_ply_definition, ply_laminate_sequence_definition));
 	id : identifier;
 	description : OPTIONAL text;
 	formation : product_definition_formation;
@@ -18396,19 +18357,6 @@ WHERE
 END_ENTITY;
 
 
-ENTITY thickness_laminate_definition
-	SUBTYPE OF (product_definition);
-WHERE
-	WR1 : SIZEOF (QUERY (pdr <* USEDIN (SELF, 
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'PRODUCT_DEFINITION_RELATIONSHIP.' +
-                             'RELATING_PRODUCT_DEFINITION') |
-                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +
-                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN
-                             TYPEOF (pdr))) = 1;
-END_ENTITY;
-
-
 ENTITY thickness_laminate_table
 	SUBTYPE OF (zone_structural_makeup);
 END_ENTITY;
@@ -20213,54 +20161,6 @@ WHERE
 	     prpc.name = 'alternative solution')) = 0 ) )) = 0;
 END_RULE;
 
-RULE stock_material_reference FOR (percentage_ply_definition, make_from_usage_option, product_related_product_category);
-    LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nmfuo :  INTEGER;
-      nprpc :  INTEGER;
-      rp     :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (percentage_ply_definition) TO
-               HIINDEX (percentage_ply_definition);
-      nmfuo := 0;  
-      REPEAT j:= LOINDEX (make_from_usage_option) TO 
-                 HIINDEX (make_from_usage_option);
-        IF (percentage_ply_definition[i] = 
-          make_from_usage_option[j].relating_product_definition) THEN
-          rp := make_from_usage_option[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                ['anisotropic material', 'isotropic material', 'stock core',
-                 'filament assembly', 'discontinuous fiber assembly'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nmfuo := nmfuo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE; 
-      END_IF;
-      IF(nmfuo = 0) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;
-WHERE
-	WR1 : dkuhr;
-END_RULE;
-
 RULE styled_curve FOR (styled_item);
 
 WHERE
@@ -20293,53 +20193,6 @@ RULE text_font_usage FOR (externally_defined_text_font, pre_defined_text_font);
 WHERE
 	WR1 : SIZEOF (QUERY (pdtf <* pre_defined_text_font | SIZEOF (USEDIN (pdtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0;
 	WR2 : SIZEOF (QUERY (edtf <* externally_defined_text_font | SIZEOF (USEDIN (edtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0;
-END_RULE;
-
-RULE thickness_laminate_table_component_select FOR (thickness_laminate_definition, next_assembly_usage_occurrence, product_related_product_category);
-    LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nnauo :  INTEGER;
-      nprpc :  INTEGER;
-      rp    :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (thickness_laminate_definition) TO
-               HIINDEX (thickness_laminate_definition);
-      nnauo := 0;  
-      REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
-                 HIINDEX (next_assembly_usage_occurrence);
-        IF (thickness_laminate_definition[i] = 
-          next_assembly_usage_occurrence[j].relating_product_definition) THEN
-          rp := next_assembly_usage_occurrence[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                 ['ply', 'filament laminate', 'processed core'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nnauo := nnauo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE;
-      END_IF;
-      IF (nnauo <> 1) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;
-WHERE
-	WR1 : dkuhr;
 END_RULE;
 
 RULE validate_dependently_instantiable_entity_data_types FOR (action_method_role, annotation_text, attribute_value_role, auxiliary_geometric_representation_item, bounded_curve, bounded_surface, cartesian_transformation_operator, concept_feature_relationship, concept_feature_relationship_with_condition, document_usage_constraint, edge_blended_solid, effectivity_context_role, event_occurrence_role, explicit_procedural_representation_item_relationship, indirectly_selected_elements, local_time, maths_space_context, modified_solid_with_placed_configuration, one_direction_repeat_factor, oriented_open_shell, oriented_path, positioned_sketch, procedural_representation, procedural_representation_sequence, property_distribution_description, runout_zone_orientation, solid_with_depression, solid_with_hole, solid_with_pocket, solid_with_protrusion, solid_with_shape_element_pattern, solid_with_slot, state_type_role, swept_area_solid, symbol_target, tolerance_zone_form, two_direction_repeat_factor, user_selected_elements, variational_representation_item, view_volume, volume);

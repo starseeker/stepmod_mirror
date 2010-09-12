@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2010/07/16 15:05:51 $" rcs.revision="$Revision: 1.5 $" reference="">
    <application name="JSDAI" owner="LKSoft" source="ap209_multidisciplinary_analysis_and_design_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ap209_multidisciplinary_analysis_and_design_mim_LF">
       <constant expression="make_extended_tuple_space(&#10;    the_zero_tuple_space, the_integers)" name="the_integer_tuples">
@@ -3429,9 +3429,6 @@
          </explicit>
          <where expression="SIZEOF(thickened_face_list) = SIZEOF(thickness_list)" label="WR1"/>
          <where expression="SIZEOF(QUERY(q &lt;* thickness_list | (q = 0))) = 0" label="WR2"/>
-      </entity>
-      <entity name="composite_assembly_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
       </entity>
       <entity name="composite_assembly_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
@@ -8877,13 +8874,7 @@
          <where expression="'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])" label="WR2"/>
          <where expression="reference_to_curve\representation.items[1]\&#10;                               geometric_representation_item.dim =2" label="WR3"/>
       </entity>
-      <entity name="percentage_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
-      </entity>
       <entity name="percentage_laminate_table" supertypes="zone_structural_makeup"/>
-      <entity name="percentage_ply_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;        'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;        ('STRUCTURAL_ANALYSIS_DESIGN.PERCENTAGE_LAMINATE_DEFINITION' &#10;        IN TYPEOF (pdr.related_product_definition)) AND&#10;        (pdr.name = 'makeup and properties'))) = 0" label="WR1"/>
-      </entity>
       <entity name="perpendicular_to" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)= 1" label="WR1"/>
       </entity>
@@ -9156,9 +9147,6 @@
          <unique label="UR1">
             <unique.attribute attribute="toleranced_dimension"/>
          </unique>
-      </entity>
-      <entity name="ply_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
       </entity>
       <entity name="ply_laminate_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
@@ -9600,7 +9588,7 @@
             <typename name="label"/>
          </explicit>
       </entity>
-      <entity name="product_definition" super.expression="ONEOF (composite_assembly_definition, composite_assembly_sequence_definition, laminate_table, percentage_laminate_definition, percentage_ply_definition, ply_laminate_definition, ply_laminate_sequence_definition, thickness_laminate_definition)">
+      <entity name="product_definition" super.expression="ONEOF (composite_assembly_sequence_definition, laminate_table, ply_laminate_sequence_definition)">
          <explicit name="id">
             <typename name="identifier"/>
          </explicit>
@@ -13061,9 +13049,6 @@
          <where expression="NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE' IN TYPEOF(base_element)) AND&#10;    (NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.BOUNDED_SURFACE' IN TYPEOF(base_element))))" label="WR1"/>
          <where expression="offset1 &lt;&gt; offset2" label="WR2"/>
       </entity>
-      <entity name="thickness_laminate_definition" supertypes="product_definition">
-         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
-      </entity>
       <entity name="thickness_laminate_table" supertypes="zone_structural_makeup"/>
       <entity name="time_interval">
          <explicit name="id">
@@ -14555,52 +14540,6 @@
         (pd.frame_of_reference.name = 'alternative definition'));</algorithm>
          <where expression="SIZEOF( QUERY( pd &lt;* solution_definitions | &#10;        (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;&#9;     prpc.name = 'alternative solution')) = 0 ) )) = 0" label="WR1"/>
       </rule>
-      <rule appliesto="percentage_ply_definition make_from_usage_option product_related_product_category" name="stock_material_reference">
-         <algorithm>LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nmfuo :  INTEGER;
-      nprpc :  INTEGER;
-      rp     :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (percentage_ply_definition) TO
-               HIINDEX (percentage_ply_definition);
-      nmfuo := 0;  
-      REPEAT j:= LOINDEX (make_from_usage_option) TO 
-                 HIINDEX (make_from_usage_option);
-        IF (percentage_ply_definition[i] = 
-          make_from_usage_option[j].relating_product_definition) THEN
-          rp := make_from_usage_option[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                ['anisotropic material', 'isotropic material', 'stock core',
-                 'filament assembly', 'discontinuous fiber assembly'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nmfuo := nmfuo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE; 
-      END_IF;
-      IF(nmfuo = 0) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;</algorithm>
-         <where expression="dkuhr" label="WR1"/>
-      </rule>
       <rule appliesto="styled_item" name="styled_curve">
          <where expression="SIZEOF( QUERY( si &lt;* styled_item | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE' IN TYPEOF (si.item)) AND (SIZEOF (QUERY (psa &lt;* si.styles | (SIZEOF (QUERY (cs &lt;* psa.styles | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE' IN TYPEOF (cs)) )) &gt; 0) )) &lt;&gt; 1) )) = 0" label="WR1"/>
       </rule>
@@ -14616,51 +14555,6 @@
       <rule appliesto="externally_defined_text_font pre_defined_text_font" name="text_font_usage">
          <where expression="SIZEOF (QUERY (pdtf &lt;* pre_defined_text_font | SIZEOF (USEDIN (pdtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0" label="WR1"/>
          <where expression="SIZEOF (QUERY (edtf &lt;* externally_defined_text_font | SIZEOF (USEDIN (edtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0" label="WR2"/>
-      </rule>
-      <rule appliesto="thickness_laminate_definition next_assembly_usage_occurrence product_related_product_category" name="thickness_laminate_table_component_select">
-         <algorithm>LOCAL
-      i,j,k :  INTEGER;
-      dkuhr :  LOGICAL;
-      nnauo :  INTEGER;
-      nprpc :  INTEGER;
-      rp    :  product;
-    END_LOCAL;
-    dkuhr := TRUE;
-    REPEAT i:= LOINDEX (thickness_laminate_definition) TO
-               HIINDEX (thickness_laminate_definition);
-      nnauo := 0;  
-      REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
-                 HIINDEX (next_assembly_usage_occurrence);
-        IF (thickness_laminate_definition[i] = 
-          next_assembly_usage_occurrence[j].relating_product_definition) THEN
-          rp := next_assembly_usage_occurrence[j].related_product_definition.
-                formation.of_product;
-          nprpc := 0;
-          REPEAT k:= LOINDEX (product_related_product_category) TO
-                     HIINDEX (product_related_product_category);
-            IF ((rp IN product_related_product_category[k].products) AND
-                (product_related_product_category[k].name IN 
-                 ['ply', 'filament laminate', 'processed core'])) THEN
-                nprpc := nprpc + 1;
-            END_IF;
-          END_REPEAT;
-          IF (nprpc = 1) THEN
-            nnauo := nnauo + 1;
-          ELSE
-            dkuhr := FALSE;
-            ESCAPE;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-      IF (dkuhr = FALSE) THEN
-        ESCAPE;
-      END_IF;
-      IF (nnauo &lt;&gt; 1) THEN
-        dkuhr := FALSE;
-        ESCAPE;
-      END_IF;
-    END_REPEAT;</algorithm>
-         <where expression="dkuhr" label="WR1"/>
       </rule>
       <rule appliesto="action_method_role annotation_text attribute_value_role auxiliary_geometric_representation_item bounded_curve bounded_surface cartesian_transformation_operator concept_feature_relationship concept_feature_relationship_with_condition document_usage_constraint edge_blended_solid effectivity_context_role event_occurrence_role explicit_procedural_representation_item_relationship indirectly_selected_elements local_time maths_space_context modified_solid_with_placed_configuration one_direction_repeat_factor oriented_open_shell oriented_path positioned_sketch procedural_representation procedural_representation_sequence property_distribution_description runout_zone_orientation solid_with_depression solid_with_hole solid_with_pocket solid_with_protrusion solid_with_shape_element_pattern solid_with_slot state_type_role swept_area_solid symbol_target tolerance_zone_form two_direction_repeat_factor user_selected_elements variational_representation_item view_volume volume" name="validate_dependently_instantiable_entity_data_types">
          <algorithm>LOCAL

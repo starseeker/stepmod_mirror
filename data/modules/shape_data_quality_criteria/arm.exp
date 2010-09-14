@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id: arm.exp,v 1.1 2010/02/03 03:02:07 fumikitanaka Exp $
    N - ISO/CD-TS - 10303- shape_data_quality_criteria - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Shape_data_quality_criteria_arm;
@@ -29,6 +29,8 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
                                'SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
                                'SHAPE_DATA_QUALITY_CRITERION' IN TYPEOF(q))) > 0;
+      WR2 :'FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT' 
+            IN TYPEOF(context_of_items);
   END_ENTITY;
 
   ENTITY Shape_data_quality_assessment_by_numerical_test
@@ -54,13 +56,13 @@ SCHEMA Shape_data_quality_criteria_arm;
   ENTITY Shape_data_quality_upper_value_limit
     SUBTYPE OF(Shape_data_quality_value_limit);
     WHERE
-      WR1 : Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'maximum';
+      WR1 : SELF\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'maximum';
   END_ENTITY;
 
   ENTITY Shape_data_quality_lower_value_limit
     SUBTYPE OF(Shape_data_quality_value_limit);
     WHERE
-      WR1 : Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'minimum';
+      WR1 : SELF\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'minimum';
   END_ENTITY;
 
   ENTITY Shape_data_quality_assessment_by_logical_test
@@ -211,7 +213,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : validate_measured_data_type(SELF,
             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.BOOLEAN_VALUE');
       WR2 : validate_inspected_elements_type(SELF,
-            ['GEOMETRY_SCHEMA.RECTANGULAR_COMPOSITE_SURFACE']);
+            ['COMPOSITE_SURFACE_ARM.RECTANGULAR_COMPOSITE_SURFACE']);
       WR3 : validate_locations_of_extreme_value_type(SELF,
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'RECTANGULAR_COMPOSITE_SURFACE_TRANSITION_LOCATOR']);
@@ -358,7 +360,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR2 : validate_inspected_elements_type(SELF,
             ['ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP']);
       WR3 : validate_locations_of_extreme_value_type(SELF,
-            ['GEOMETRY_SCHEMA.SURFACE_CURVE']);
+            ['BASIC_GEOMETRY_ARM.CURVE']);
       WR4 : validate_accuracy_types(SELF,
             []);
   END_ENTITY;
@@ -455,10 +457,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.VERTEX_POINT']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -484,16 +486,16 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.AREA_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRY_ARM.SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             []);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Short_length_curve
@@ -523,7 +525,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : validate_measured_data_type(SELF,
             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.BOOLEAN_VALUE');
       WR2 : validate_inspected_elements_type(SELF,
-            ['GEOMETRY_SCHEMA.BOUNDED_SURFACE']);
+            ['BASIC_GEOMETRY_ARM.BOUNDED_SURFACE']);
       WR3 : validate_locations_of_extreme_value_type(SELF,
             []);
       WR4 : validate_accuracy_types(SELF,
@@ -569,7 +571,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR2 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF.assessment_specification_2.threshold))
-            AND ('MEASURE_SCHEMA.RATIO_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.RATIO_MEASURE'
             IN value_limit_type(SELF.assessment_specification_2.threshold)) ;
       WR3 : validate_measured_data_type(SELF,
              'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
@@ -617,7 +619,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR2 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF.assessment_specification_2.threshold))
-            AND ('MEASURE_SCHEMA.RATIO_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.RATIO_MEASURE'
             IN value_limit_type(SELF.assessment_specification_2.threshold));
       WR3 : validate_measured_data_type(SELF,
              'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
@@ -628,7 +630,7 @@ SCHEMA Shape_data_quality_criteria_arm;
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'B_SPLINE_SURFACE_KNOT_LOCATOR']);
       WR6 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.RATIO_MEASURE'])
+            ['VALUE_WITH_UNIT_ARM.RATIO_MEASURE'])
             ;
   END_ENTITY;
 
@@ -740,17 +742,17 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.AREA_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'B_SPLINE_SURFACE_PATCH']);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Narrow_surface_patch
@@ -883,17 +885,17 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.AREA_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRY_ARM.SURFACE','BASIC_GEOMETRY_ARM.SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
-            ['GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE',
-             'GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE']);
+            ['GEOMETRICALLY_BOUNDEED_SURFACE_ARM.CURVE_BOUNDED_SURFACE',
+             'GEOMETRICALLY_BOUNDEED_SURFACE_ARM.CURVE_BOUNDED_SURFACE']);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Multiply_defined_geometry
@@ -1034,10 +1036,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.RATIO_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.RATIO_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.RATIO_MEASURE');
+            'VALUE_WITH_UNIT_ARM.RATIO_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1095,10 +1097,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_CURVE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1114,10 +1116,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1133,10 +1135,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'B_SPLINE_OR_RECTANGULAR_COMPOSITE_SURFACE_SELECT']);
@@ -1153,10 +1155,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'B_SPLINE_OR_COMPOSITE_CURVE_SELECT']);
@@ -1174,10 +1176,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_CURVE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1194,10 +1196,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1214,10 +1216,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_CURVE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1234,10 +1236,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BSPLINE_GEOMETRY_ARM.B_SPLINE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1282,16 +1284,16 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.AREA_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.FACE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             []);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Entirely_narrow_face
@@ -1476,7 +1478,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR2 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF.assessment_specification_2.threshold))
-            AND ('MEASURE_SCHEMA.RATIO_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.RATIO_MEASURE'
             IN value_limit_type(SELF.assessment_specification_2.threshold));
       WR3 : validate_measured_data_type(SELF,
              'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
@@ -1487,7 +1489,7 @@ SCHEMA Shape_data_quality_criteria_arm;
             ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
              'POINT_ON_EDGE_CURVE']);
       WR6 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.RATIO_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.RATIO_MEASURE']);
   END_ENTITY;
 
   ENTITY Topology_related_to_self_intersecting_geometry
@@ -1610,17 +1612,17 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.AREA_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.FACE_SURFACE',
              'BASIC_GEOMETRIC_TOPOLOGY_ARM.FACE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             ['ELEMENTAL_TOPOLOGY_ARM.FACE','ELEMENTAL_TOPOLOGY_ARM.FACE']);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Partly_overlapping_edges
@@ -1721,10 +1723,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-             AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+             AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.FACE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1741,10 +1743,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1760,10 +1762,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRIC_TOPOLOGY_ARM.FACE_SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -1785,17 +1787,17 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-             AND ('MEASURE_SCHEMA.AREA_MEASURE'
+             AND ('VALUE_WITH_UNIT_ARM.AREA_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.AREA_MEASURE');
+            'VALUE_WITH_UNIT_ARM.AREA_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP',
              'ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             ['ELEMENTAL_TOPOLOGY_ARM.FACE','ELEMENTAL_TOPOLOGY_ARM.FACE']);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.AREA_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
 
   ENTITY Small_volume_solid
@@ -1805,16 +1807,16 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.VOLUME_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.VOLUME_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.VOLUME_MEASURE');
+            'VALUE_WITH_UNIT_ARM.VOLUME_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
             []);
       WR5 : validate_accuracy_types(SELF,
-            ['MEASURE_SCHEMA.VOLUME_MEASURE']);
+            ['VALUE_WITH_UNIT_ARM.VOLUME_MEASURE']);
   END_ENTITY;
 
   ENTITY Multiply_defined_solids
@@ -1859,10 +1861,10 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' 
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification.threshold))
-            AND ('MEASURE_SCHEMA.COUNT_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.COUNT_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification.threshold));
       WR2 : validate_measured_data_type(SELF,
-            'MEASURE_SCHEMA.COUNT_MEASURE');
+            'VALUE_WITH_UNIT_ARM.COUNT_MEASURE');
       WR3 : validate_inspected_elements_type(SELF,
             ['ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
@@ -2296,4 +2298,12 @@ SCHEMA Shape_data_quality_criteria_arm;
     END_IF;
     RETURN(retval);
   END_FUNCTION;
+(*  
+  RULE Numerical_representation_context_in_Shape_data_quality_criteria_representation FOR 
+       (Shape_data_quality_criteria_representation);
+  WHERE
+    WR1: SIZEOF(QUERY( sc <* Shape_data_quality_criteria_representation | NOT('FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT' IN TYPEOF(sc.context_of_items)))) = 0;
+  END_RULE;
+*)
+  
 END_SCHEMA;

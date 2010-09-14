@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id: arm.exp,v 1.1 2010/02/03 03:02:07 fumikitanaka Exp $
    N - ISO/CD-TS - 10303- shape_data_quality_inspection_result - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Shape_data_quality_inspection_result_arm;
@@ -12,10 +12,15 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   
   USE FROM Bspline_geometry_arm;
 
+  USE FROM Composite_surface_arm;
+
+  USE FROM Manifold_surface_arm;
+
   USE FROM Product_data_quality_inspection_result_arm;
 
   USE FROM Shape_data_quality_criteria_arm;
-
+  
+  USE FROM Shape_property_assignment_arm;
 --  USE FROM Value_with_unit_arm;
   
   REFERENCE FROM Foundation_representation_arm
@@ -38,25 +43,21 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   END_TYPE;
 
   TYPE u_or_v_parameter = ENUMERATION OF
-    (U_PARAMETER,
-     V_PARAMETER);
+    (u_parameter,
+     v_parameter);
   END_TYPE;
 
   TYPE b_spline_or_rectangular_composite_surface_select = SELECT
-    (b_spline_surface
--- F.Tanaka     ,rectangular_composite_surface
+    (b_spline_surface,
+     rectangular_composite_surface
      );
   END_TYPE;
 
   TYPE surface_boundary_type = ENUMERATION OF
-    (U_PARAMETER_MIN,
-     V_PARAMETER_MIN,
-     U_PARAMETER_MAX,
-     V_PARAMETER_MAX);
-  END_TYPE;
-
--- F.Tanaka Add this type because of error
-  TYPE ratio_measure = REAL;
+    (u_parameter_min,
+     v_parameter_min,
+     u_parameter_max,
+     v_parameter_max);
   END_TYPE;
 
   TYPE location_of_extreme_value_select = SELECT
@@ -98,9 +99,8 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   END_TYPE;
 
   TYPE closed_or_open_shell_select = SELECT
-    (closed_shell
--- F.Tanaka     ,open_shell
-	);
+    (closed_shell,
+    open_shell);
   END_TYPE;
 
   TYPE b_spline_or_composite_curve_select = SELECT
@@ -198,13 +198,13 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   END_ENTITY;
 
   ENTITY Rectangular_composite_surface_transition_locator;
--- F.Tanaka      basis_surface      : rectangular_composite_surface;
+      basis_surface      : rectangular_composite_surface;
       surface_parameter  : u_or_v_parameter;
       u_transition_index : INTEGER;
       v_transition_index : INTEGER;
     WHERE
       WR1 : SIZEOF(
---            using_representations(SELF.basis_surface) *
+            using_representations(SELF.basis_surface) *
             relating_geometric_models_of_extreme_values(SELF))>0;
   END_ENTITY;
 
@@ -257,7 +257,7 @@ SCHEMA Shape_data_quality_inspection_result_arm;
       WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
                                'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.' +
                                'SHAPE_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
-      WR2 : 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN
+      WR2 : 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_COORDINATE_SPACE' IN
             TYPEOF(SELF\representation.context_of_items);
       WR3 : SIZEOF(USEDIN(SELF,
                    'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
@@ -275,13 +275,14 @@ SCHEMA Shape_data_quality_inspection_result_arm;
       shape_data_quality_result : Shape_data_quality_inspection_result;
   END_ENTITY;
 
-  ENTITY Shape_data_quality_inspected_shape_and_result_relationship;
-      rep_1 : Advanced_brep_shape_representation;
-      rep_2 : Shape_data_quality_inspection_result_representation;
+  ENTITY Shape_data_quality_inspected_shape_and_result_relationship
+      SUBTYPE OF(Representation_relationship);
+      SELF\Representation_relationship.rep_1 : Geometric_model;
+      SELF\Representation_relationship.rep_2 : Shape_data_quality_inspection_result_representation;
     WHERE
       WR1 : SIZEOF(
---            using_product_definition_of_shape_representation(SELF.rep_1)
---            *
+            using_product_view_definition_of_geometric_model(SELF.rep_1)
+            *
             bag_to_set(inspected_product_view_definition(SELF.rep_2))
             ) > 0;
       WR2 : SELF.rep_1\representation.context_of_items :=: 
@@ -292,8 +293,8 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   FUNCTION using_product_view_definition_of_geometric_model
   (item: Geometric_model) : SET OF Product_view_definition;
   LOCAL
- --   local_s_d_r: SET OF shape_definition_representation := [];
- --   local_p_d_s: SET OF product_definition_shape := [];
+    local_s_d_a: SET OF Shape_description_association := [];
+ --   local_p_d_s: SET OF Item_shape := [];
     local_p_d: SET OF Product_view_definition := [];
     i : INTEGER;
   END_LOCAL;
@@ -302,25 +303,39 @@ Elemental_geometric_shape_arm.Geometric_model<=
 Foundation_representation_arm.Representation<-
 Property_assignment_arm.Property_definition_representation.rep
 Property_assignment_arm.Property_definition_representation
-Property_assignment_arm.Property_definition_representation.definition
-Property_assignment_arm.Assigned_property<-
+Property_assignment_arm.Property_definition_representation.definition ->
+Property_assignment_arm.represented_definition = Property_assignment_arm.Assigned_property
+Property_assignment_arm.Assigned_property.described_element ->
+Property_assignment_arm.property_assignment_select => Product_view_definition_properties_arm.product_property_assignment
+Product_view_definition_properties_arm.product_property_assignment = Product_view_definition_arm.Product_view_definition
+Product_view_definition_arm.Product_view_definition
 
-  -- find shape_definition_representations 
-    local_s_d_r  := QUERY(i1<* bag_to_set (USEDIN (item, 
-   'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
-   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'))|
-   'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
-   'SHAPE_DEFINITION_REPRESENTATION'
-   IN TYPEOF(i1)); 
+---- Another Path
+Elemental_geometric_shape_arm.Geometric_model
+Elemental_geometric_shape_arm.Geometric_model = Shape_property_assignment_arm.shape_model <-
+Shape_property_assignment_arm.Shape_description_association.representation
+Shape_property_assignment_arm.Shape_description_association
+Shape_property_assignment_arm.Shape_description_association.represented_characteristic ->
+Shape_property_assignment_arm.shape_select = Shape_property_assignment_arm.Item_shape
+Shape_property_assignment_arm.Item_shape
+Shape_property_assignment_arm.Item_shape.described_element ->
+Shape_property_assignment_arm.shapeable_item = Product_view_definition_arm.Product_view_definition
+Product_view_definition_arm.Product_view_definition
+*)
+  -- find Shape_description_association 
+   local_s_d_a  := bag_to_set (USEDIN (item, 
+   'SHAPE_PROPERTY_ASSIGNMENT_ARM.' +
+   'SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION')); 
   
-  -- find product_definition_shape & product_definitions
-  REPEAT i := 1 TO HIINDEX (local_s_d_r);
-     IF (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN 
-       TYPEOF (local_s_d_r[i].definition))
+  -- find Product_view_definitions
+  REPEAT i := 1 TO HIINDEX (local_s_d_a);
+     IF (('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
+       TYPEOF (local_s_d_a[i].represented_characteristic))
        AND
-       ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF
-         (local_s_d_r[i].definition.definition))) 
-     THEN local_p_d := local_p_d + local_s_d_r[i].definition.definition;
+       ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
+         (local_s_d_a[i].represented_characteristic.described_element))) 
+     THEN local_p_d := local_p_d + local_s_d_a[i].represented_characteristic.described_element;
+(*
      ELSE IF (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION' IN 
        TYPEOF (local_s_d_r[i].definition))
        AND
@@ -328,9 +343,10 @@ Property_assignment_arm.Assigned_property<-
          (local_s_d_r[i].definition.definition)))
      THEN local_p_d := local_p_d + local_s_d_r[i].definition.definition;
      END_IF;
+*)
      END_IF;
   END_REPEAT;
-*)
+
   RETURN (local_p_d);
   END_FUNCTION;
 
@@ -379,7 +395,7 @@ Property_assignment_arm.Assigned_property<-
   REPEAT i := 1 TO HIINDEX (sdiir);
    sdqr := sdqr + 
      QUERY(i1<* bag_to_set( USEDIN(sdiir[i].inspection_result,
-       'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))|
+       'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))|
      'SHAPE_DATA_QUALITY_INSPECTION_RESULT_ARM.' +
      'SHAPE_DATA_QUALITY_INSPECTION_RESULT_REPRESENTATION' 
       IN TYPEOF(i1)); 

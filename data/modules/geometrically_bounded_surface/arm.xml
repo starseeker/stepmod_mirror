@@ -1,31 +1,41 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.15"
-    source="../data/modules/geometrically_bounded_surface/arm.exp"/>
-
-  <schema name="Geometrically_bounded_surface_arm">
-    <interface
-      kind="use"
-      schema="Elemental_geometric_shape_arm">
-    </interface>
-
-    <entity
-      name="Geometrically_bounded_surface_shape_representation"
-      supertypes="Geometric_model">
-    </entity>
-
-  </schema>
-
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1507">
+   <application name="JSDAI" owner="LKSoft" source="geometrically_bounded_surface_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Geometrically_bounded_surface_arm">
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <interface kind="use" schema="B_spline_geometry_arm"/>
+      <type name="geometrically_bounded_surface_shape_representation_item">
+         <select selectitems="Axis_placement_3d Geometric_placement_operation Surface_set"/>
+      </type>
+      <entity name="Boundary_curve" supertypes="Closed_composite_curve"/>
+      <entity name="Curve_bounded_surface" supertypes="Bounded_surface">
+         <explicit name="basis_surface">
+            <typename name="Surface"/>
+         </explicit>
+         <explicit name="boundaries">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Boundary_curve"/>
+         </explicit>
+         <explicit name="implicit_outer">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="(NOT(implicit_outer)) OR&#10;   ('BASIC_GEOMETRY.BOUNDED_SURFACE' IN TYPEOF(basis_surface))" label="WR1"/>
+      </entity>
+      <entity name="Geometrically_bounded_surface_shape_representation" supertypes="Geometric_model">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="geometrically_bounded_surface_shape_representation_item"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity name="Surface_set" supertypes="Detailed_geometric_model_element">
+         <explicit name="surface_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Surface"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

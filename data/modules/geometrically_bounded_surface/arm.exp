@@ -1,15 +1,43 @@
 (*
- $Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $
+ $Id: arm.exp,v 1.6 2004/10/22 13:55:12 darla Exp $
  ISO TC184/SC4/WG12 N1273 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
 *)
 
 SCHEMA Geometrically_bounded_surface_arm;
 
-USE FROM Elemental_geometric_shape_arm;
+USE FROM Basic_curve_arm;
+USE FROM B_spline_geometry_arm;
+
+TYPE geometrically_bounded_surface_shape_representation_item = SELECT (
+    Axis_placement_3d,
+    Geometric_placement_operation,
+    Surface_set);
+  END_TYPE;
+
+ENTITY Boundary_curve
+  SUBTYPE OF (Closed_composite_curve);
+END_ENTITY;
+
+
+ENTITY Curve_bounded_surface
+SUBTYPE OF (Bounded_surface);
+  basis_surface : Surface;
+  boundaries : SET [1:?] OF Boundary_curve;
+  implicit_outer : BOOLEAN;
+WHERE
+ WR1: (NOT(implicit_outer)) OR
+   ('BASIC_GEOMETRY.BOUNDED_SURFACE' IN TYPEOF(basis_surface));
+END_ENTITY;
 
 ENTITY Geometrically_bounded_surface_shape_representation
 SUBTYPE OF (Geometric_model);
+ SELF\Representation.items : SET [1:?] OF
+        geometrically_bounded_surface_shape_representation_item;
 END_ENTITY;
 
+ENTITY Surface_set
+  SUBTYPE OF (Detailed_geometric_model_element);
+  surface_elements : SET [1: ?] OF Surface;
+END_ENTITY;
 END_SCHEMA;
 

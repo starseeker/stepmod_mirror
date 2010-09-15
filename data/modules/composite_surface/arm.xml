@@ -1,12 +1,73 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Composite_surface_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="composite_surface_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Composite_surface_arm">
+      <interface kind="use" schema="Basic_geometry_arm"/>
+      <interface kind="use" schema="B_spline_geometry_arm"/>
+      <type name="surface_transition_code">
+         <enumeration items="discontinuous continuous cont_same_gradient cont_same_gradient_same_curvature"/>
+      </type>
+      <entity name="Rectangular_composite_surface" supertypes="Bounded_surface">
+         <explicit name="segments">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Surface_patch"/>
+         </explicit>
+         <derived expression="SIZEOF(segments)" name="n_u">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived expression="SIZEOF(segments[1])" name="n_v">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <where expression="SIZEOF(QUERY (s &lt;* segments | n_v &lt;&gt; SIZEOF (s))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Surface_patch">
+         <explicit name="parent_surface">
+            <typename name="Bounded_surface"/>
+         </explicit>
+         <explicit name="u_transition">
+            <typename name="surface_transition_code"/>
+         </explicit>
+         <explicit name="v_transition">
+            <typename name="surface_transition_code"/>
+         </explicit>
+         <explicit name="u_sense">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="v_sense">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <inverse attribute="segments" entity="Rectangular_composite_surface" name="using_surfaces">
+            <inverse.aggregate lower="1" type="BAG" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Trimmed_surface" supertypes="Bounded_surface">
+         <explicit name="basis_surface">
+            <typename name="Surface"/>
+         </explicit>
+         <explicit name="u1">
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="u2">
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="v1">
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="v2">
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="usense">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="vsense">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="u1 &lt;&gt; u2" label="WR1"/>
+         <where expression="v1 &lt;&gt; v2" label="WR2"/>
+      </entity>
+   </schema>
 </express>

@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1651">
    <application name="JSDAI" owner="LKSoft" source="basic_curve_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Basic_curve_arm">
       <interface kind="use" schema="Basic_geometry_arm"/>
@@ -9,16 +10,25 @@
       <type name="closed_curve">
          <select extensible="YES" genericentity="YES" selectitems="Circle Closed_composite_curve"/>
       </type>
+      <type name="transition_code">
+         <enumeration items="discontinuous continuous cont_same_gradient cont_same_gradient_same_curvature"/>
+      </type>
       <entity name="Closed_composite_curve" supertypes="Composite_curve"/>
-      <entity name="Composite_curve" supertypes="Curve">
+      <entity name="Composite_curve" supertypes="Bounded_curve">
          <explicit name="curve_segment">
             <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="Composite_curve_segment"/>
          </explicit>
       </entity>
       <entity name="Composite_curve_segment">
+         <explicit name="transition">
+            <typename name="transition_code"/>
+         </explicit>
+         <explicit name="same_sense">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
          <explicit name="segment_curve">
-            <typename name="Curve"/>
+            <typename name="Bounded_curve"/>
          </explicit>
          <inverse attribute="curve_segment" entity="Composite_curve" name="using_curves">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
@@ -32,7 +42,10 @@
             <typename name="Geometric_coordinate_space"/>
          </explicit>
       </entity>
-      <entity name="Trimmed_curve" supertypes="Curve">
+      <entity name="Trimmed_curve" supertypes="Bounded_curve">
+         <explicit name="basis_curve">
+            <typename name="Curve"/>
+         </explicit>
          <explicit name="start_point">
             <typename name="Cartesian_point"/>
          </explicit>
@@ -40,6 +53,6 @@
             <typename name="Cartesian_point"/>
          </explicit>
       </entity>
-      <subtype.constraint entity="Curve" name="curve_subtypes" super.expression="ONEOF (Composite_curve, Trimmed_curve)"/>
+      <subtype.constraint entity="Bounded_curve" name="curve_subtypes" super.expression="ONEOF (Composite_curve, Trimmed_curve)"/>
    </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.16 2004/10/28 19:16:26 darla Exp $
+ $Id: arm.exp,v 1.17 2004/10/30 01:02:20 thendrix Exp $
 ISO TC184/SC4/WG12 N2976 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
 *) 
 
@@ -20,11 +20,31 @@ TYPE measure_value = EXTENSIBLE SELECT
    (any_number_value, 
     any_string_value, 
     length_measure, 
-    plane_angle_measure);
+    plane_angle_measure,
+    area_measure,
+    count_measure,
+   ratio_measure,
+   volume_measure);
 END_TYPE; 
 
 TYPE plane_angle_measure = REAL;
 END_TYPE; 
+
+TYPE ratio_measure = REAL;
+END_TYPE;
+
+TYPE area_measure = REAL;
+END_TYPE;
+
+TYPE volume_measure = REAL;
+END_TYPE;
+
+TYPE count_measure = NUMBER;
+END_TYPE;
+
+ENTITY Area_unit
+  SUBTYPE OF (Derived_unit);
+END_ENTITY;
 
 ENTITY Amount_of_substance_unit
   SUBTYPE OF (Unit);
@@ -44,9 +64,12 @@ WHERE
 END_ENTITY;
 
 ENTITY Derived_unit
-  SUBTYPE OF (Unit);
+ SUPERTYPE OF (ONEOF (Area_unit,
+                       Volume_unit))
+ SUBTYPE OF (Unit);
   elements : SET[1:?] OF Derived_unit_element;
 END_ENTITY;
+
 
 ENTITY Derived_unit_element;
   base_unit : Unit;
@@ -119,6 +142,10 @@ END_ENTITY;
 ENTITY Value_with_unit;
   unit : Unit;
   value_component : measure_value;
+END_ENTITY;
+
+ENTITY Volume_unit
+  SUBTYPE OF (Derived_unit);
 END_ENTITY;
 
 END_SCHEMA;  -- Value_with_unit_arm

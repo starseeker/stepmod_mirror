@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2010/04/24 09:03:50 $" rcs.revision="$Revision: 1.8 $" reference="ISO 10303-47">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-47">
    <application name="JSDAI" owner="LKSoft" source="shape_tolerance_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="shape_tolerance_schema">
       <interface kind="reference" schema="product_property_definition_schema">
@@ -12,6 +12,7 @@
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="derive_dimensional_exponents"/>
          <interfaced.item name="dimensional_exponents"/>
+         <interfaced.item name="length_measure_with_unit"/>
          <interfaced.item name="measure_with_unit"/>
          <interfaced.item name="measure_value"/>
       </interface>
@@ -24,171 +25,201 @@
       </interface>
       <interface kind="reference" schema="shape_aspect_definition_schema">
          <interfaced.item name="datum_reference"/>
+         <interfaced.item name="datum_system"/>
          <interfaced.item name="limit_condition"/>
       </interface>
       <interface kind="reference" schema="shape_dimension_schema">
          <interfaced.item name="dimensional_characteristic"/>
          <interfaced.item name="dimensional_location"/>
+         <interfaced.item name="dimensional_size"/>
       </interface>
+      <type name="area_unit_type">
+         <enumeration extensible="YES" items="circular square rectangular"/>
+      </type>
+      <type name="datum_system_or_reference">
+         <select extensible="NO" genericentity="NO" selectitems="datum_reference datum_system"/>
+      </type>
+      <type name="geometric_tolerance_target">
+         <select extensible="NO" genericentity="NO" selectitems="shape_aspect shape_aspect_relationship dimensional_size"/>
+      </type>
       <type name="shape_tolerance_select">
-         <select selectitems="geometric_tolerance plus_minus_tolerance"/>
+         <select extensible="NO" genericentity="NO" selectitems="geometric_tolerance plus_minus_tolerance"/>
       </type>
       <type name="tolerance_method_definition">
-         <select selectitems="tolerance_value limits_and_fits"/>
+         <select extensible="NO" genericentity="NO" selectitems="tolerance_value limits_and_fits"/>
       </type>
-      <entity name="dimension_related_tolerance_zone_element">
-         <explicit name="related_dimension">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="dimension_related_tolerance_zone_element">
+         <explicit name="related_dimension" optional="NO">
             <typename name="dimensional_location"/>
          </explicit>
-         <explicit name="related_element">
+         <explicit name="related_element" optional="NO">
             <typename name="tolerance_zone_definition"/>
          </explicit>
       </entity>
-      <entity name="geometric_tolerance">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="description">
+         <explicit name="description" optional="NO">
             <typename name="text"/>
          </explicit>
-         <explicit name="magnitude">
+         <explicit name="magnitude" optional="YES">
             <typename name="measure_with_unit"/>
          </explicit>
-         <explicit name="toleranced_shape_aspect">
-            <typename name="shape_aspect"/>
+         <explicit name="toleranced_shape_aspect" optional="NO">
+            <typename name="geometric_tolerance_target"/>
          </explicit>
          <where expression="('NUMBER' IN TYPEOF&#10;       (magnitude\measure_with_unit.value_component)) AND&#10;       (magnitude\measure_with_unit.value_component &gt;= 0.0)" label="WR1"/>
       </entity>
-      <entity name="geometric_tolerance_relationship">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_relationship">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="description">
+         <explicit name="description" optional="NO">
             <typename name="text"/>
          </explicit>
-         <explicit name="relating_geometric_tolerance">
+         <explicit name="relating_geometric_tolerance" optional="NO">
             <typename name="geometric_tolerance"/>
          </explicit>
-         <explicit name="related_geometric_tolerance">
+         <explicit name="related_geometric_tolerance" optional="NO">
             <typename name="geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity name="geometric_tolerance_with_datum_reference" supertypes="geometric_tolerance">
-         <explicit name="datum_system">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_datum_reference" supertypes="geometric_tolerance">
+         <explicit name="datum_system" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="datum_system_or_reference"/>
          </explicit>
       </entity>
-      <entity name="geometric_tolerance_with_defined_unit" supertypes="geometric_tolerance">
-         <explicit name="unit_size">
-            <typename name="measure_with_unit"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_defined_area_unit" supertypes="geometric_tolerance_with_defined_unit">
+         <explicit name="area_type" optional="NO">
+            <typename name="area_unit_type"/>
+         </explicit>
+         <explicit name="second_unit_size" optional="YES">
+            <typename name="length_measure_with_unit"/>
+         </explicit>
+         <where expression="NOT (EXISTS(second_unit_size) XOR (area_type = rectangular))" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_defined_unit" supertypes="geometric_tolerance">
+         <explicit name="unit_size" optional="NO">
+            <typename name="length_measure_with_unit"/>
          </explicit>
          <where expression="('NUMBER' IN TYPEOF&#10;       (unit_size\measure_with_unit.value_component)) AND&#10;       (unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
-      <entity name="limits_and_fits">
-         <explicit name="form_variance">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="limits_and_fits">
+         <explicit name="form_variance" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="zone_variance">
+         <explicit name="zone_variance" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="grade">
+         <explicit name="grade" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="source">
+         <explicit name="source" optional="NO">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="modified_geometric_tolerance" supertypes="geometric_tolerance">
-         <explicit name="modifier">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="modified_geometric_tolerance" supertypes="geometric_tolerance">
+         <explicit name="modifier" optional="NO">
             <typename name="limit_condition"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      <entity name="plus_minus_tolerance">
-         <explicit name="range">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="non_uniform_zone_definition" supertypes="tolerance_zone_definition"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="plus_minus_tolerance">
+         <explicit name="range" optional="NO">
             <typename name="tolerance_method_definition"/>
          </explicit>
-         <explicit name="toleranced_dimension">
+         <explicit name="toleranced_dimension" optional="NO">
             <typename name="dimensional_characteristic"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="toleranced_dimension"/>
          </unique>
       </entity>
-      <entity name="projected_zone_definition" supertypes="tolerance_zone_definition">
-         <explicit name="projection_end">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="projected_zone_definition" supertypes="tolerance_zone_definition">
+         <explicit name="projection_end" optional="NO">
             <typename name="shape_aspect"/>
          </explicit>
-         <explicit name="projected_length">
+         <explicit name="projected_length" optional="NO">
             <typename name="measure_with_unit"/>
          </explicit>
          <where expression="('NUMBER' IN TYPEOF&#10;       (projected_length\measure_with_unit.value_component)) AND&#10;       (projected_length\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
          <where expression="(derive_dimensional_exponents&#10;       (projected_length\measure_with_unit.unit_component)=&#10;        dimensional_exponents(1,0,0,0,0,0,0))" label="WR2"/>
       </entity>
-      <entity name="runout_zone_definition" supertypes="tolerance_zone_definition">
-         <explicit name="orientation">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="runout_zone_definition" supertypes="tolerance_zone_definition">
+         <explicit name="orientation" optional="NO">
             <typename name="runout_zone_orientation"/>
          </explicit>
       </entity>
-      <entity name="runout_zone_orientation">
-         <explicit name="angle">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="runout_zone_orientation">
+         <explicit name="angle" optional="NO">
             <typename name="measure_with_unit"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      <entity name="runout_zone_orientation_reference_direction" supertypes="runout_zone_orientation">
-         <explicit name="orientation_defining_relationship">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="runout_zone_orientation_reference_direction" supertypes="runout_zone_orientation">
+         <explicit name="orientation_defining_relationship" optional="NO">
             <typename name="shape_aspect_relationship"/>
          </explicit>
       </entity>
-      <entity name="statistical_distribution_for_tolerance" supertypes="representation">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="statistical_distribution_for_tolerance" supertypes="representation">
          <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       NOT ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' &#10;       IN TYPEOF (item)))) = 0" label="WR1"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="tolerance_value">
-         <explicit name="lower_bound">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_value">
+         <explicit name="lower_bound" optional="NO">
             <typename name="measure_with_unit"/>
          </explicit>
-         <explicit name="upper_bound">
+         <explicit name="upper_bound" optional="NO">
             <typename name="measure_with_unit"/>
          </explicit>
          <derived expression="upper_bound\measure_with_unit.value_component" name="ubvc">
-            <builtintype type="REAL"/>
+            <builtintype fixed="NO" type="REAL"/>
          </derived>
          <derived expression="lower_bound\measure_with_unit.value_component" name="lbvc">
-            <builtintype type="REAL"/>
+            <builtintype fixed="NO" type="REAL"/>
          </derived>
          <where expression="ubvc &gt; lbvc" label="WR1"/>
          <where expression="upper_bound\measure_with_unit.unit_component =&#10;        lower_bound\measure_with_unit.unit_component" label="WR2"/>
       </entity>
-      <entity name="tolerance_with_statistical_distribution">
-         <explicit name="associated_tolerance">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_with_statistical_distribution">
+         <explicit name="associated_tolerance" optional="NO">
             <typename name="shape_tolerance_select"/>
          </explicit>
-         <explicit name="tolerance_allocation">
+         <explicit name="tolerance_allocation" optional="NO">
             <typename name="statistical_distribution_for_tolerance"/>
          </explicit>
       </entity>
-      <entity name="tolerance_zone" supertypes="shape_aspect">
-         <explicit name="defining_tolerance">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_zone" supertypes="shape_aspect">
+         <explicit name="defining_tolerance" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="geometric_tolerance"/>
          </explicit>
-         <explicit name="form">
+         <explicit name="form" optional="NO">
             <typename name="tolerance_zone_form"/>
          </explicit>
       </entity>
-      <entity name="tolerance_zone_definition" super.expression="ONEOF (projected_zone_definition, runout_zone_definition)">
-         <explicit name="zone">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_zone_definition" super.expression="ONEOF (projected_zone_definition, non_uniform_zone_definition, runout_zone_definition)">
+         <explicit name="zone" optional="NO">
             <typename name="tolerance_zone"/>
          </explicit>
-         <explicit name="boundaries">
-            <aggregate lower="1" type="SET" upper="?"/>
+         <explicit name="boundaries" optional="NO">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="shape_aspect"/>
          </explicit>
       </entity>
-      <entity name="tolerance_zone_form">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_zone_form">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="unequally_disposed_geometric_tolerance" supertypes="geometric_tolerance">
+         <explicit name="displacement" optional="NO">
+            <typename name="measure_with_unit"/>
+         </explicit>
+         <where expression="('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
    </schema>
 </express>

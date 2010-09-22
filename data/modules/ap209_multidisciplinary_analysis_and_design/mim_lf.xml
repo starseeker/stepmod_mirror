@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2010/07/16 15:05:51 $" rcs.revision="$Revision: 1.5 $" reference="">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-409">
    <application name="JSDAI" owner="LKSoft" source="ap209_multidisciplinary_analysis_and_design_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ap209_multidisciplinary_analysis_and_design_mim_LF">
       <constant expression="make_extended_tuple_space(&#10;    the_zero_tuple_space, the_integers)" name="the_integer_tuples">
@@ -355,7 +355,7 @@
          <select selectitems="product_definition product_definition_relationship"/>
       </type>
       <type name="characterized_resource_definition">
-         <select selectitems="action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship"/>
+         <select selectitems="action_resource action_resource_relationship"/>
       </type>
       <type name="choose_general_property_identifier">
          <select selectitems="defined_data_name externally_defined_item"/>
@@ -800,11 +800,10 @@
       </type>
       <type name="ir_usage_item">
          <typename name="action_items"/>
-         <where expression="NOT ('INFORMATION_RIGHTS_MIM.APPLIED_STATE_TYPE_ASSIGNMENT' IN TYPEOF(SELF))" label="wr1"/>
-         <where expression="NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF))" label="wr2"/>
-         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF))" label="wr3"/>
-         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF))" label="wr4"/>
-         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF))" label="wr5"/>
+         <where expression="NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF))" label="wr1"/>
+         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF))" label="wr2"/>
+         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF))" label="wr3"/>
+         <where expression="NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF))" label="wr4"/>
       </type>
       <type name="isotropic_symmetric_tensor2_3d">
          <typename name="context_dependent_measure"/>
@@ -1426,6 +1425,9 @@
          <builtintype type="INTEGER"/>
          <where expression="SELF &gt; 1" label="WR1"/>
       </type>
+      <type name="value_context_select">
+         <select selectitems="action action_method choose_representation_context_identifier general_property product_definition representation_item shape_aspect"/>
+      </type>
       <type name="value_qualifier">
          <select selectitems="precision_qualifier type_qualifier uncertainty_qualifier"/>
       </type>
@@ -1735,36 +1737,6 @@
          <explicit name="related_resource">
             <typename name="action_resource"/>
          </explicit>
-      </entity>
-      <entity name="action_resource_requirement">
-         <explicit name="name">
-            <typename name="label"/>
-         </explicit>
-         <explicit name="description">
-            <typename name="text"/>
-         </explicit>
-         <explicit name="kind">
-            <typename name="resource_requirement_type"/>
-         </explicit>
-         <explicit name="operations">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="characterized_action_definition"/>
-         </explicit>
-      </entity>
-      <entity name="action_resource_requirement_relationship">
-         <explicit name="name">
-            <typename name="label"/>
-         </explicit>
-         <explicit name="description">
-            <typename name="text"/>
-         </explicit>
-         <explicit name="relating_action_resource_requirement">
-            <typename name="action_resource_requirement"/>
-         </explicit>
-         <explicit name="related_action_resource_requirement">
-            <typename name="action_resource_requirement"/>
-         </explicit>
-         <where expression="relating_action_resource_requirement :&lt;&gt;: &#10;       related_action_resource_requirement" label="WR1"/>
       </entity>
       <entity name="action_resource_type">
          <explicit name="name">
@@ -2569,7 +2541,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = axisymmetric" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'CURVE_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR2"/>
@@ -2602,7 +2574,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = axisymmetric" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_SURFACE_2D_ELEMENT_COORDINATE_SYSTEM'&#10;               IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ALIGNED_SURFACE_2D_ELEMENT_COORDINATE_SYSTEM' &#10;               IN TYPEOF (item))) = 1" label="WR2"/>
@@ -2635,7 +2607,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = axisymmetric" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_VOLUME_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ARBITRARY_VOLUME_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR2"/>
@@ -3081,7 +3053,7 @@
          </explicit>
          <where expression="min_exists(real_constraint) OR max_exists(real_constraint) OR&#10;       min_exists(imag_constraint) OR max_exists(imag_constraint)" label="WR1"/>
       </entity>
-      <entity name="cartesian_point" supertypes="point">
+      <entity name="cartesian_point" super.expression="ONEOF (cylindrical_point, polar_point, spherical_point)" supertypes="point">
          <explicit name="coordinates">
             <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
@@ -3338,6 +3310,17 @@
       <entity name="class" supertypes="group"/>
       <entity name="class_by_extension" supertypes="class"/>
       <entity name="class_by_intension" supertypes="class"/>
+      <entity name="class_of_activity" supertypes="executed_action class"/>
+      <entity name="class_of_possession_of_property_by_activity" supertypes="action_property">
+         <explicit name="definition">
+            <typename name="class_of_activity"/>
+            <redeclaration entity-ref="action_property"/>
+         </explicit>
+      </entity>
+      <entity name="class_of_possession_of_property_by_product" supertypes="property_definition">
+         <where expression="'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CLASS_OF_PRODUCT' IN TYPEOF(SELF\property_definition.definition.formation)" label="link_to_class"/>
+      </entity>
+      <entity name="class_of_product" supertypes="product_definition_formation class"/>
       <entity name="class_system" supertypes="group"/>
       <entity name="class_usage_effectivity_context_assignment" supertypes="effectivity_context_assignment">
          <explicit name="items">
@@ -3430,6 +3413,9 @@
          <where expression="SIZEOF(thickened_face_list) = SIZEOF(thickness_list)" label="WR1"/>
          <where expression="SIZEOF(QUERY(q &lt;* thickness_list | (q = 0))) = 0" label="WR2"/>
       </entity>
+      <entity name="composite_assembly_definition" supertypes="product_definition">
+         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
+      </entity>
       <entity name="composite_assembly_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
       </entity>
@@ -3510,7 +3496,13 @@
             <typename name="planar_extent"/>
          </explicit>
       </entity>
-      <entity name="compound_representation_item" super.expression="ONEOF (point_and_vector, point_path, row_representation_item, table_representation_item)" supertypes="representation_item">
+      <entity name="compound_maths_space_context" supertypes="maths_space_context">
+         <explicit name="components">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="maths_space_context"/>
+         </explicit>
+      </entity>
+      <entity name="compound_representation_item" super.expression="ONEOF (point_and_vector, point_path) ANDOR ONEOF (row_representation_item, table_representation_item)" supertypes="representation_item">
          <explicit name="item_element">
             <typename name="compound_item_definition"/>
          </explicit>
@@ -3601,8 +3593,8 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="configuration"/>
-            <unique.attribute attribute="usage" entity-ref="product_definition_effectivity"/>
-            <unique.attribute attribute="id" entity-ref="effectivity"/>
+            <unique.attribute attribute="SELF\product_definition_effectivity.usage"/>
+            <unique.attribute attribute="SELF\effectivity.id"/>
          </unique>
          <where expression="'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION_USAGE' IN&#10;        TYPEOF (SELF\product_definition_effectivity.usage)" label="WR1"/>
       </entity>
@@ -3873,11 +3865,11 @@
             <typename name="text"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="analysis_control" entity-ref="analysis_step"/>
+            <unique.attribute attribute="SELF\analysis_step.analysis_control"/>
             <unique.attribute attribute="sequence"/>
          </unique>
          <unique label="UR2">
-            <unique.attribute attribute="analysis_control" entity-ref="analysis_step"/>
+            <unique.attribute attribute="SELF\analysis_step.analysis_control"/>
             <unique.attribute attribute="step_id"/>
          </unique>
       </entity>
@@ -4351,7 +4343,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_CURVE_3D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ALIGNED_CURVE_3D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR1"/>
          <where expression="SIZEOF (QUERY(item1 &lt;* material.properties |&#10;        (SIZEOF (QUERY (item2 &lt;* &#10;        item1\property_definition_representation.used_representation.items |&#10;         SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_LINEAR_ELASTICITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MASS_DENSITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_AREA_DENSITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_TANGENTIAL_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SECANT_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MOISTURE_ABSORPTION'] * TYPEOF (item2)&#10;                  ) = 1&#10;        )) = 1&#10;       ))) &gt;= 1" label="WR2"/>
@@ -4673,6 +4665,23 @@
             <typename name="curve_section_element_location"/>
          </explicit>
       </entity>
+      <entity name="cylindrical_point" supertypes="cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="z">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[r*cos(theta), r*sin(theta), z]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="cylindrical_surface" supertypes="elementary_surface">
          <explicit name="radius">
             <typename name="positive_length_measure"/>
@@ -4807,6 +4816,7 @@
          <where expression="default_tolerance_table_cell_wr5(SELF\compound_representation_item.item_element)" label="WR5"/>
       </entity>
       <entity abstract.supertype="YES" name="defined_function" super.expression="ONEOF (numeric_defined_function, string_defined_function, boolean_defined_function) ANDOR SQL_mappable_defined_function"/>
+      <entity name="defined_maths_space_context" supertypes="maths_space_context"/>
       <entity name="defined_symbol" supertypes="geometric_representation_item">
          <explicit name="definition">
             <typename name="defined_symbol_select"/>
@@ -5108,7 +5118,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="required_1d_nodes (&#10;        SELF\element_representation.node_list,&#10;        linear)" label="FU1"/>
       </entity>
@@ -5154,8 +5164,8 @@
       </entity>
       <entity name="document_identifier" supertypes="group">
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="group"/>
-            <unique.attribute attribute="description" entity-ref="group"/>
+            <unique.attribute attribute="SELF\group.name"/>
+            <unique.attribute attribute="SELF\group.description"/>
          </unique>
       </entity>
       <entity name="document_identifier_assignment" supertypes="group_assignment">
@@ -5333,7 +5343,7 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY (mi &lt;* QUERY (it &lt;* SELF.items |&#10;         ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN TYPEOF(it))) |&#10;         NOT (&#10;           SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION',&#10;                    'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAUGHTING_MODEL'] *&#10;              TYPEOF (mi\mapped_item.mapping_source.&#10;                      mapped_representation)) = 1&#10;        ))) = 0" label="WR1"/>
          <where expression="SIZEOF (QUERY (smi &lt;* QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM' IN TYPEOF(it))) |&#10;        ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN&#10;            TYPEOF(si\styled_item.item))) |&#10;        (NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION' IN&#10;                 TYPEOF(smi\styled_item.item\mapped_item.&#10;                        mapping_source.mapped_representation))&#10;            AND&#10;             (SIZEOF (QUERY (sty &lt;* smi\styled_item.styles |&#10;               (NOT (SIZEOF (QUERY (psa &lt;* sty.styles |&#10;                       (NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE' IN TYPEOF(psa))))) = 1&#10;             )))) = 1)))&#10;        )) = 0" label="WR2"/>
@@ -5378,7 +5388,7 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         (SIZEOF (TYPEOF (item) *&#10;            ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_CURVE_OCCURRENCE',&#10;             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SYMBOL_OCCURRENCE',&#10;             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_TEXT_OCCURRENCE']) = 1)&#10;       )) &gt;= 1" label="WR1"/>
          <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ANNOTATION_SUBFIGURE_OCCURRENCE'&#10;          IN TYPEOF (item))) = 0" label="WR2"/>
@@ -5449,7 +5459,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="sheet_number"/>
-            <unique.attribute attribute="in_set" entity-ref="area_in_set"/>
+            <unique.attribute attribute="SELF\area_in_set.in_set"/>
          </unique>
          <where expression="('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAWING_SHEET_REVISION' IN &#10;                  TYPEOF(SELF\area_in_set.area)) &#10;              AND&#10;              ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAWING_REVISION' &#10;               IN TYPEOF (SELF\area_in_set.in_set))" label="WR1"/>
       </entity>
@@ -5750,8 +5760,8 @@
       </entity>
       <entity name="evaluated_characteristic" supertypes="representation representation_relationship">
          <unique label="UR1">
-            <unique.attribute attribute="rep_1" entity-ref="representation_relationship"/>
-            <unique.attribute attribute="rep_2" entity-ref="representation_relationship"/>
+            <unique.attribute attribute="SELF\representation_relationship.rep_1"/>
+            <unique.attribute attribute="SELF\representation_relationship.rep_2"/>
          </unique>
          <where expression="SELF\representation_relationship.rep_1 &lt;&gt; &#10;       SELF\representation_relationship.rep_2" label="WR1"/>
       </entity>
@@ -5837,7 +5847,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'FEA_AXIS2_PLACEMENT_3D') &#10;              IN TYPEOF (item))) = 1" label="WR1"/>
          <where expression="SIZEOF (matrix.node_dof_list) = &#10;        SIZEOF (SELF\element_representation.node_list)" label="WR2"/>
@@ -5895,6 +5905,12 @@
          <explicit name="cells">
             <aggregate lower="1" type="ARRAY" unique="YES" upper="0"/>
             <typename name="element_representation"/>
+         </explicit>
+      </entity>
+      <entity name="explicitly_enumerated_maths_space_context" supertypes="maths_space_context">
+         <explicit name="members">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="maths_value_context"/>
          </explicit>
       </entity>
       <entity abstract.supertype="YES" name="expression" super.expression="ONEOF (numeric_expression, boolean_expression, string_expression)" supertypes="generic_expression"/>
@@ -6313,7 +6329,7 @@
             <typename name="text"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
       </entity>
       <entity name="fea_model_2d" supertypes="fea_model">
@@ -7673,8 +7689,8 @@
       </entity>
       <entity name="material_property" supertypes="property_definition">
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="property_definition"/>
-            <unique.attribute attribute="definition" entity-ref="property_definition"/>
+            <unique.attribute attribute="SELF\property_definition.name"/>
+            <unique.attribute attribute="SELF\property_definition.definition"/>
          </unique>
          <where expression="('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CHARACTERIZED_OBJECT' IN&#10;          TYPEOF(SELF\property_definition.definition)) OR&#10;       (SIZEOF(bag_to_set(USEDIN(SELF ,&#10;                     'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) -&#10;              QUERY(temp &lt;* bag_to_set(USEDIN(SELF ,&#10;                       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |&#10;                       ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                      'MATERIAL_PROPERTY_REPRESENTATION' IN&#10;                      TYPEOF(temp)))) = 0)" label="WR1"/>
       </entity>
@@ -7717,7 +7733,7 @@
          <where expression="subspace_of_es(SELF\maths_variable.values_space,es_reals)" label="WR1"/>
       </entity>
       <entity abstract.supertype="YES" name="maths_space" super.expression="ONEOF (elementary_space, finite_integer_interval, integer_interval_from_min, integer_interval_to_max, finite_real_interval, real_interval_from_min, real_interval_to_max, cartesian_complex_number_region, polar_complex_number_region, finite_space, uniform_product_space, listed_product_space, extended_tuple_space, function_space)" supertypes="generic_expression"/>
-      <entity name="maths_space_context">
+      <entity name="maths_space_context" super.expression="ONEOF (compound_maths_space_context, defined_maths_space_context, explicitly_enumerated_maths_space_context)">
          <explicit name="id">
             <typename name="identifier"/>
          </explicit>
@@ -7741,6 +7757,23 @@
          <explicit name="lit_value">
             <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="maths_value"/>
+         </explicit>
+      </entity>
+      <entity name="maths_value_context">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="abstract_value">
+            <typename name="maths_value"/>
+         </explicit>
+         <explicit name="physical_value">
+            <typename name="value_context_select"/>
          </explicit>
       </entity>
       <entity name="maths_variable" supertypes="generic_variable">
@@ -8063,6 +8096,14 @@
          <where expression="SIZEOF (QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'&#10;        IN TYPEOF (it)) |&#10;        NOT (SIZEOF (QUERY (psa &lt;* si\styled_item.styles |&#10;        NOT (SIZEOF (QUERY (ssu &lt;* QUERY (pss &lt;* psa.styles |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE_STYLE_USAGE'&#10;        IN TYPEOF (pss)) |&#10;        NOT (SIZEOF (QUERY (ssbd &lt;* QUERY (sses &lt;*&#10;        ssu\surface_style_usage.style\surface_side_style.styles |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'SURFACE_STYLE_BOUNDARY' IN TYPEOF (sses)) |&#10;        NOT ((&#10;        ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE'&#10;        IN TYPEOF (ssbd\surface_style_boundary.style_of_boundary))&#10;        AND&#10;        (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COLOUR_RGB',&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF&#10;        (ssbd\surface_style_boundary.&#10;        style_of_boundary\curve_style.curve_colour)) = 1)&#10;        AND&#10;        ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POSITIVE_LENGTH_MEASURE' IN TYPEOF&#10;        (ssbd\surface_style_boundary.&#10;        style_of_boundary\curve_style.curve_width))&#10;        AND&#10;        (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'CURVE_STYLE_FONT', 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'DRAUGHTING_PRE_DEFINED_CURVE_FONT'] * TYPEOF&#10;        (ssbd\surface_style_boundary.&#10;        style_of_boundary\curve_style.curve_font)) = 1)) &#10;        OR&#10;        (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE_RENDERING'&#10;        IN TYPEOF (ssbd\surface_style_boundary.style_of_boundary))&#10;        AND&#10;        (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COLOUR_RGB',&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF&#10;        (ssbd\surface_style_boundary.style_of_boundary\&#10;        curve_style_rendering.rendering_properties.rendered_colour))&#10;        = 1))) )) = 0))) = 0))) = 0))) = 0" label="WR14"/>
          <where expression="SIZEOF (QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.STYLED_ITEM'&#10;        IN TYPEOF (it)) |&#10;        NOT (SIZEOF (QUERY (psa &lt;* si\styled_item.styles |&#10;        NOT (SIZEOF (QUERY (ssu &lt;* QUERY (pss &lt;* psa.styles |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE_STYLE_USAGE'&#10;        IN TYPEOF (pss)) |&#10;        NOT (SIZEOF (QUERY (ssre &lt;* QUERY (sses &lt;*&#10;        ssu\surface_style_usage.style\surface_side_style.styles |&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'SURFACE_STYLE_RENDERING' IN TYPEOF (sses)) |&#10;        NOT&#10;        (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COLOUR_RGB',&#10;        'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'+&#10;        'DRAUGHTING_PRE_DEFINED_COLOUR'] * TYPEOF&#10;        (ssre\surface_style_rendering.surface_colour)) = 1)))&#10;        = 0))) = 0))) = 0))) = 0" label="WR15"/>
       </entity>
+      <entity name="membership_of_maths_space_context">
+         <explicit name="space_context">
+            <typename name="maths_space_context"/>
+         </explicit>
+         <explicit name="value_context">
+            <typename name="maths_value_context"/>
+         </explicit>
+      </entity>
       <entity abstract.supertype="YES" name="mesh" super.expression="ONEOF (structured_mesh, unstructured_mesh) ANDOR submesh" supertypes="topological_representation_item">
          <explicit name="description">
             <typename name="text"/>
@@ -8383,7 +8424,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
       </entity>
       <entity name="node_sequence">
@@ -8442,6 +8483,11 @@
          <where expression="SIZEOF (QUERY (fbsm &lt;* QUERY (it &lt;* SELF.items |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.FACE_BASED_SURFACE_MODEL' IN TYPEOF (it)) |&#10;       NOT (SIZEOF (QUERY (cfs &lt;*&#10;       fbsm\face_based_surface_model.fbsm_faces |&#10;       NOT (SIZEOF (QUERY (fa &lt;* cfs.cfs_faces |&#10;       NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ADVANCED_FACE' IN TYPEOF (fa))&#10;       OR&#10;       (SIZEOF (QUERY (elp_fbnds &lt;* QUERY (bnds &lt;* fa.bounds |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EDGE_LOOP' IN TYPEOF (bnds.bound)) |&#10;       NOT (SIZEOF (QUERY (oe &lt;* elp_fbnds\path.edge_list |&#10;       NOT ((SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CARTESIAN_POINT',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DEGENERATE_PCURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_CURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_SURFACE'] * TYPEOF&#10;       (oe.edge_element.edge_start\vertex_point.vertex_geometry)) = 1)&#10;       AND&#10;       (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CARTESIAN_POINT',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DEGENERATE_PCURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_CURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_SURFACE'] * TYPEOF&#10;       (oe.edge_element.edge_end\vertex_point.vertex_geometry)) = 1&#10;       )))) = 0))) = 0)))) = 0))) = 0))) = 0" label="WR12"/>
          <where expression="SIZEOF (QUERY (fbsm &lt;* QUERY (it &lt;* SELF.items |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.FACE_BASED_SURFACE_MODEL' IN TYPEOF (it)) |&#10;       NOT (SIZEOF (QUERY (cfs &lt;* &#10;       fbsm\face_based_surface_model.fbsm_faces |&#10;       NOT (SIZEOF (QUERY (fa &lt;* cfs.cfs_faces |&#10;       NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ADVANCED_FACE' IN TYPEOF (fa))&#10;       OR&#10;       (SIZEOF (QUERY (vlp_fbnds &lt;* QUERY (bnds &lt;* fa.bounds |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.VERTEX_LOOP' IN TYPEOF (bnds.bound)) |&#10;       NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.VERTEX_POINT' IN TYPEOF&#10;       (vlp_fbnds\vertex_loop.loop_vertex)))) = 0)))) = 0))) &#10;       = 0))) = 0" label="WR13"/>
          <where expression="SIZEOF (QUERY (fbsm &lt;* QUERY (it &lt;* SELF.items |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.FACE_BASED_SURFACE_MODEL' IN TYPEOF (it)) |&#10;       NOT (SIZEOF (QUERY (cfs &lt;* &#10;       fbsm\face_based_surface_model.fbsm_faces |&#10;       NOT (SIZEOF (QUERY (fa &lt;* cfs.cfs_faces |&#10;       NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ADVANCED_FACE' IN TYPEOF (fa))&#10;       OR&#10;       (SIZEOF (QUERY (vlp_fbnds &lt;* QUERY (bnds &lt;* fa.bounds |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.VERTEX_LOOP' IN TYPEOF (bnds.bound)) |&#10;       NOT (SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CARTESIAN_POINT',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DEGENERATE_PCURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_CURVE',&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_SURFACE'] * TYPEOF&#10;       (vlp_fbnds\vertex_loop.loop_vertex\vertex_point.vertex_geometry)) &#10;       = 1))) = 0)))) = 0))) = 0))) = 0" label="WR14"/>
+      </entity>
+      <entity name="normalized_maths_space_context" supertypes="defined_maths_space_context">
+         <explicit name="normalization_basis">
+            <typename name="value_context_select"/>
+         </explicit>
       </entity>
       <entity name="not_expression" supertypes="unary_boolean_expression">
          <explicit name="operand">
@@ -8874,7 +8920,13 @@
          <where expression="'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])" label="WR2"/>
          <where expression="reference_to_curve\representation.items[1]\&#10;                               geometric_representation_item.dim =2" label="WR3"/>
       </entity>
+      <entity name="percentage_laminate_definition" supertypes="product_definition">
+         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
+      </entity>
       <entity name="percentage_laminate_table" supertypes="zone_structural_makeup"/>
+      <entity name="percentage_ply_definition" supertypes="product_definition">
+         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;        'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;        ('STRUCTURAL_ANALYSIS_DESIGN.PERCENTAGE_LAMINATE_DEFINITION' &#10;        IN TYPEOF (pdr.related_product_definition)) AND&#10;        (pdr.name = 'makeup and properties'))) = 0" label="WR1"/>
+      </entity>
       <entity name="perpendicular_to" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)= 1" label="WR1"/>
       </entity>
@@ -8976,6 +9028,11 @@
             <typename name="physical_action_domain"/>
          </explicit>
       </entity>
+      <entity name="physical_quantity_instance" supertypes="general_property class"/>
+      <entity name="physical_quantity_range" supertypes="physical_quantity_space"/>
+      <entity name="physical_quantity_space" supertypes="general_property class"/>
+      <entity name="physical_quantity_symmetry" supertypes="general_property class"/>
+      <entity name="physical_quantity_symmetry_by_library_reference" supertypes="physical_quantity_symmetry externally_defined_item"/>
       <entity name="physical_state_domain" supertypes="temporal_spatial_domain"/>
       <entity name="picture_representation" supertypes="presentation_view">
          <explicit name="items">
@@ -9005,7 +9062,7 @@
       </entity>
       <entity name="planar_box" supertypes="planar_extent">
          <explicit name="placement">
-            <typename name="axis2_placement"/>
+            <typename name="axis2_placement_3d"/>
          </explicit>
       </entity>
       <entity name="planar_extent" supertypes="geometric_representation_item">
@@ -9056,7 +9113,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = planar" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'CURVE_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR2"/>
@@ -9092,7 +9149,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = planar" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_SURFACE_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ALIGNED_SURFACE_2D_ELEMENT_COORDINATE_SYSTEM' &#10;              IN TYPEOF (item))) = 1" label="WR2"/>
@@ -9128,7 +9185,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="model_ref.type_of_2d_analysis = planar" label="WR1"/>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_VOLUME_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ARBITRARY_VOLUME_2D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR2"/>
@@ -9147,6 +9204,9 @@
          <unique label="UR1">
             <unique.attribute attribute="toleranced_dimension"/>
          </unique>
+      </entity>
+      <entity name="ply_laminate_definition" supertypes="product_definition">
+         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
       </entity>
       <entity name="ply_laminate_sequence_definition" supertypes="product_definition">
          <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) &gt; 0" label="WR1"/>
@@ -9186,7 +9246,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'FEA_AXIS2_PLACEMENT_3D'&#10;              IN TYPEOF (item))) = 1" label="WR1"/>
          <where expression="required_0d_nodes (&#10;        SELF\element_representation.node_list)" label="FU1"/>
@@ -9294,6 +9354,20 @@
          <where expression="(direction_constraint.max - direction_constraint.min &lt; 2.0*PI) OR&#10;       (direction_constraint.max_closure = open) OR&#10;       (direction_constraint.min = -PI)" label="WR5"/>
          <where expression="(real_min(distance_constraint) &gt; 0.0) OR max_exists(distance_constraint) OR&#10;       (direction_constraint.max - direction_constraint.min &lt; 2.0*PI) OR&#10;       (direction_constraint.max_closure = open)" label="WR6"/>
       </entity>
+      <entity name="polar_point" supertypes="cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="[r*cos(theta), r*sin(theta)]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="poly_loop" supertypes="loop geometric_representation_item">
          <explicit name="polygon">
             <aggregate lower="3" type="LIST" unique="YES" upper="?"/>
@@ -9321,6 +9395,13 @@
          <where expression="NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.FACE_SURFACE' IN TYPEOF(sketch_basis)) AND&#10;    NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PLANE' IN TYPEOF(sketch_basis\face_surface.face_geometry)))" label="WR2"/>
          <where expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | (SIZEOF(TYPEOF(q) * &#10;    ['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT','AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE']) = 0))) = 0" label="WR3"/>
          <where expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | &#10;    q\geometric_representation_item.dim &lt;&gt; 3)) = 0" label="WR4"/>
+      </entity>
+      <entity name="possessed_physical_quantity_space" supertypes="general_property_association">
+         <explicit name="base_definition">
+            <typename name="physical_quantity_space"/>
+            <redeclaration entity-ref="general_property_association"/>
+         </explicit>
+         <where expression="('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CLASS_OF_POSSESSION_OF_PROPERTY_BY_ACTIVITY' IN TYPEOF(SELF\general_property_association.derived_definition)) OR ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CLASS_OF_POSSESSION_OF_PROPERTY_BY_PRODUCT' IN TYPEOF(SELF\general_property_association.derived_definition))" label="link_to_possession"/>
       </entity>
       <entity name="power_expression" supertypes="binary_numeric_expression"/>
       <entity name="power_measure_with_unit" supertypes="measure_with_unit">
@@ -9588,7 +9669,7 @@
             <typename name="label"/>
          </explicit>
       </entity>
-      <entity name="product_definition" super.expression="ONEOF (composite_assembly_sequence_definition, laminate_table, ply_laminate_sequence_definition)">
+      <entity name="product_definition" super.expression="ONEOF (composite_assembly_definition, composite_assembly_sequence_definition, laminate_table, percentage_laminate_definition, percentage_ply_definition, ply_laminate_definition, ply_laminate_sequence_definition, thickness_laminate_definition)">
          <explicit name="id">
             <typename name="identifier"/>
          </explicit>
@@ -9720,7 +9801,7 @@
       </entity>
       <entity name="product_definition_shape" supertypes="property_definition">
          <unique label="UR1">
-            <unique.attribute attribute="definition" entity-ref="property_definition"/>
+            <unique.attribute attribute="SELF\property_definition.definition"/>
          </unique>
          <where expression="SIZEOF(['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CHARACTERIZED_PRODUCT_DEFINITION', 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CHARACTERIZED_OBJECT'] * TYPEOF(SELF\property_definition.definition)) &gt; 0" label="WR1"/>
       </entity>
@@ -9742,9 +9823,9 @@
       </entity>
       <entity name="product_definition_usage" super.expression="ONEOF (make_from_usage_option, assembly_component_usage)" supertypes="product_definition_relationship">
          <unique label="UR1">
-            <unique.attribute attribute="id" entity-ref="product_definition_relationship"/>
-            <unique.attribute attribute="relating_product_definition" entity-ref="product_definition_relationship"/>
-            <unique.attribute attribute="related_product_definition" entity-ref="product_definition_relationship"/>
+            <unique.attribute attribute="SELF\product_definition_relationship.id"/>
+            <unique.attribute attribute="SELF\product_definition_relationship.relating_product_definition"/>
+            <unique.attribute attribute="SELF\product_definition_relationship.related_product_definition"/>
          </unique>
          <where expression="acyclic_product_definition_relationship&#10;         (SELF,&#10;         [SELF\product_definition_relationship.related_product_definition],&#10;         'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PRODUCT_DEFINITION_USAGE')" label="WR1"/>
       </entity>
@@ -10168,7 +10249,12 @@
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="representation_item" super.expression="ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item, mapped_item, styled_item, boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)">
+      <entity name="representation_context_defined_maths_space_context" supertypes="defined_maths_space_context">
+         <explicit name="representation_basis">
+            <typename name="representation_context"/>
+         </explicit>
+      </entity>
+      <entity name="representation_item" super.expression="ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item) ANDOR ONEOF (mapped_item, styled_item) ANDOR ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -10264,14 +10350,6 @@
             <typename name="representation"/>
          </explicit>
       </entity>
-      <entity name="resource_requirement_type">
-         <explicit name="name">
-            <typename name="label"/>
-         </explicit>
-         <explicit name="description">
-            <typename name="text"/>
-         </explicit>
-      </entity>
       <entity name="restriction_function" supertypes="maths_function unary_generic_expression">
          <explicit name="operand">
             <typename name="maths_space"/>
@@ -10294,7 +10372,7 @@
             <typename name="result"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="analysis_control" entity-ref="analysis_step"/>
+            <unique.attribute attribute="SELF\analysis_step.analysis_control"/>
             <unique.attribute attribute="analysis_result"/>
          </unique>
       </entity>
@@ -11246,6 +11324,16 @@
             <typename name="product_definition"/>
          </explicit>
       </entity>
+      <entity name="space_for_physical_quantity" supertypes="general_property_relationship">
+         <explicit name="relating_property">
+            <typename name="physical_quantity_space"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
+         <explicit name="related_property">
+            <typename name="physical_quantity_instance"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
+      </entity>
       <entity name="spatial_decomposition_of_numerical_model">
          <explicit name="parts">
             <aggregate lower="2" type="SET" upper="?"/>
@@ -11301,17 +11389,40 @@
             <typename name="point"/>
          </explicit>
       </entity>
+      <entity name="spherical_point" supertypes="cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="phi">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="[r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="spherical_surface" supertypes="elementary_surface">
          <explicit name="radius">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
       <entity name="square_root_function" supertypes="unary_function_call"/>
+      <entity name="standard_physical_quantity_symmetry" supertypes="physical_quantity_symmetry_by_library_reference">
+         <where expression="(SELF\physical_quantity_symmetry_by_library_reference\externally_defined_item.source.source_id = 'ISO-TS-10303-1099') AND (SELF\physical_quantity_symmetry_by_library_reference\externally_defined_item.item_id IN ['PS001', 'PS002', 'PS003', 'PS004', 'PS005', 'PS006', 'PS007', 'PS008', 'PS009', 'PS010', 'PS011', 'PS012', 'PS013'])" label="valid_standard_class"/>
+      </entity>
       <entity name="standard_table_function" supertypes="linearized_table_function">
          <explicit name="order">
             <typename name="ordering_type"/>
          </explicit>
          <where expression="extremal_position_check(SELF)" label="WR1"/>
+      </entity>
+      <entity name="standard_tensor_order_and_symmetry" supertypes="tensor_order_and_symmetry_by_library_reference">
+         <where expression="(SELF\tensor_order_and_symmetry_by_library_reference\externally_defined_item.source.source_id = 'ISO-TS-10303-1080') AND (SELF\tensor_order_and_symmetry_by_library_reference\externally_defined_item.item_id IN ['TO001', 'TO002', 'TO003', 'TO004', 'TO005', 'TO006', 'TO007', 'TO008', 'TO009'])" label="valid_standard_class"/>
       </entity>
       <entity name="standard_uncertainty" super.expression="expanded_uncertainty" supertypes="uncertainty_qualifier">
          <explicit name="uncertainty_value">
@@ -11560,7 +11671,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
       </entity>
       <entity name="substructure_node_reference">
@@ -12323,7 +12434,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'PARAMETRIC_SURFACE_3D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'CONSTANT_SURFACE_3D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;              'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;              'ALIGNED_SURFACE_3D_ELEMENT_COORDINATE_SYSTEM'&#10;              IN TYPEOF (item))) = 1" label="WR1"/>
          <where expression="SIZEOF (QUERY(item1 &lt;* material.properties |&#10;        (SIZEOF (QUERY (item2 &lt;* &#10;        item1\property_definition_representation.used_representation.items |&#10;         SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_LINEAR_ELASTICITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MASS_DENSITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_AREA_DENSITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_TANGENTIAL_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SECANT_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MOISTURE_ABSORPTION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SHELL_MEMBRANE_STIFFNESS',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SHELL_BENDING_STIFFNESS',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SHELL_MEMBRANE_BENDING_COUPLING_STIFFNESS',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SHELL_SHEAR_STIFFNESS'] * TYPEOF (item2)&#10;                  ) = 1&#10;        )) = 1&#10;       ))) &gt;= 1" label="WR2"/>
@@ -12841,6 +12952,16 @@
          <where expression="SIZEOF (QUERY (x&lt;*SELF\symmetric_shape_aspect.basis_relationships |&#10;       'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CENTRE_OF_SYMMETRY' IN TYPEOF &#10;       (x\shape_aspect_relationship.related_shape_aspect)))&gt;=1" label="WR1"/>
       </entity>
       <entity name="symmetry_control" super.expression="ONEOF (no_symmetry_control, cylindrical_symmetry_control)"/>
+      <entity name="symmetry_for_physical_quantity" supertypes="general_property_relationship">
+         <explicit name="relating_property">
+            <typename name="physical_quantity_symmetry"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
+         <explicit name="related_property">
+            <typename name="physical_quantity_instance"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
+      </entity>
       <entity name="symmetry_tolerance" supertypes="geometric_tolerance_with_datum_reference">
          <where expression="SIZEOF (SELF\geometric_tolerance_with_datum_reference.datum_system) &lt;= 3" label="WR1"/>
       </entity>
@@ -12895,6 +13016,18 @@
             <typename name="text"/>
          </explicit>
          <where expression="definition_for_temporal_spatial_domain(SELF)" label="wr1"/>
+      </entity>
+      <entity name="tensor_order_and_symmetry" supertypes="general_property class"/>
+      <entity name="tensor_order_and_symmetry_by_library_reference" supertypes="tensor_order_and_symmetry externally_defined_item"/>
+      <entity name="tensor_order_and_symmetry_for_physical_quantity_space" supertypes="general_property_relationship">
+         <explicit name="relating_property">
+            <typename name="tensor_order_and_symmetry"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
+         <explicit name="related_property">
+            <typename name="physical_quantity_space"/>
+            <redeclaration entity-ref="general_property_relationship"/>
+         </explicit>
       </entity>
       <entity name="tensor_representation_item" supertypes="representation_item">
          <explicit name="tensor_value">
@@ -13048,6 +13181,9 @@
          </explicit>
          <where expression="NOT (('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SURFACE' IN TYPEOF(base_element)) AND&#10;    (NOT ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.BOUNDED_SURFACE' IN TYPEOF(base_element))))" label="WR1"/>
          <where expression="offset1 &lt;&gt; offset2" label="WR2"/>
+      </entity>
+      <entity name="thickness_laminate_definition" supertypes="product_definition">
+         <where expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, &#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;                             'RELATING_PRODUCT_DEFINITION') |&#10;                             'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;                             'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN&#10;                             TYPEOF (pdr))) = 1" label="WR1"/>
       </entity>
       <entity name="thickness_laminate_table" supertypes="zone_structural_makeup"/>
       <entity name="time_interval">
@@ -13324,6 +13460,11 @@
          </explicit>
       </entity>
       <entity name="uniform_surface_section_layered" supertypes="surface_section"/>
+      <entity name="unit_defined_maths_space_context" supertypes="defined_maths_space_context">
+         <explicit name="unit_basis">
+            <typename name="unit"/>
+         </explicit>
+      </entity>
       <entity name="unstructured_donor_mesh" supertypes="mismatched_donor_mesh">
          <explicit name="donor">
             <typename name="unstructured_mesh"/>
@@ -13426,6 +13567,23 @@
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="versioned_action_request_relationship">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_versioned_action_request">
+            <typename name="versioned_action_request"/>
+         </explicit>
+         <explicit name="related_versioned_action_request">
+            <typename name="versioned_action_request"/>
          </explicit>
       </entity>
       <entity name="vertex" supertypes="topological_representation_item"/>
@@ -14086,7 +14244,7 @@
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="model_ref"/>
-            <unique.attribute attribute="name" entity-ref="representation"/>
+            <unique.attribute attribute="SELF\representation.name"/>
          </unique>
          <where expression="SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;               'PARAMETRIC_VOLUME_3D_ELEMENT_COORDINATE_SYSTEM'&#10;               IN TYPEOF (item))) +&#10;       SIZEOF (QUERY(item &lt;* SELF\representation.items |&#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' +&#10;               'ARBITRARY_VOLUME_3D_ELEMENT_COORDINATE_SYSTEM'&#10;               IN TYPEOF (item))) = 1" label="WR1"/>
          <where expression="SIZEOF (QUERY(item1 &lt;* material.properties |&#10;        (SIZEOF (QUERY (item2 &lt;* &#10;        item1\property_definition_representation.used_representation.items |&#10;         SIZEOF (['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_LINEAR_ELASTICITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MASS_DENSITY',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_TANGENTIAL_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_SECANT_COEFFICIENT_OF_LINEAR_THERMAL_EXPANSION',&#10;                  'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.' + &#10;                  'FEA_MOISTURE_ABSORPTION'] * TYPEOF (item2)&#10;                  ) = 1&#10;        )) = 1&#10;       ))) &gt;= 1" label="WR2"/>
@@ -14540,6 +14698,52 @@
         (pd.frame_of_reference.name = 'alternative definition'));</algorithm>
          <where expression="SIZEOF( QUERY( pd &lt;* solution_definitions | &#10;        (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;&#9;     prpc.name = 'alternative solution')) = 0 ) )) = 0" label="WR1"/>
       </rule>
+      <rule appliesto="percentage_ply_definition make_from_usage_option product_related_product_category" name="stock_material_reference">
+         <algorithm>LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nmfuo :  INTEGER;
+      nprpc :  INTEGER;
+      rp     :  product;
+    END_LOCAL;
+    dkuhr := TRUE;
+    REPEAT i:= LOINDEX (percentage_ply_definition) TO
+               HIINDEX (percentage_ply_definition);
+      nmfuo := 0;  
+      REPEAT j:= LOINDEX (make_from_usage_option) TO 
+                 HIINDEX (make_from_usage_option);
+        IF (percentage_ply_definition[i] = 
+          make_from_usage_option[j].relating_product_definition) THEN
+          rp := make_from_usage_option[j].related_product_definition.
+                formation.of_product;
+          nprpc := 0;
+          REPEAT k:= LOINDEX (product_related_product_category) TO
+                     HIINDEX (product_related_product_category);
+            IF ((rp IN product_related_product_category[k].products) AND
+                (product_related_product_category[k].name IN 
+                ['anisotropic material', 'isotropic material', 'stock core',
+                 'filament assembly', 'discontinuous fiber assembly'])) THEN
+                nprpc := nprpc + 1;
+            END_IF;
+          END_REPEAT;
+          IF (nprpc = 1) THEN
+            nmfuo := nmfuo + 1;
+          ELSE
+            dkuhr := FALSE;
+            ESCAPE;
+          END_IF;
+        END_IF;
+      END_REPEAT;
+      IF (dkuhr = FALSE) THEN
+        ESCAPE; 
+      END_IF;
+      IF(nmfuo = 0) THEN
+        dkuhr := FALSE;
+        ESCAPE;
+      END_IF;
+    END_REPEAT;</algorithm>
+         <where expression="dkuhr" label="WR1"/>
+      </rule>
       <rule appliesto="styled_item" name="styled_curve">
          <where expression="SIZEOF( QUERY( si &lt;* styled_item | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE' IN TYPEOF (si.item)) AND (SIZEOF (QUERY (psa &lt;* si.styles | (SIZEOF (QUERY (cs &lt;* psa.styles | ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE_STYLE' IN TYPEOF (cs)) )) &gt; 0) )) &lt;&gt; 1) )) = 0" label="WR1"/>
       </rule>
@@ -14556,7 +14760,52 @@
          <where expression="SIZEOF (QUERY (pdtf &lt;* pre_defined_text_font | SIZEOF (USEDIN (pdtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0" label="WR1"/>
          <where expression="SIZEOF (QUERY (edtf &lt;* externally_defined_text_font | SIZEOF (USEDIN (edtf, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.TEXT_LITERAL.FONT')) = 0 )) = 0" label="WR2"/>
       </rule>
-      <rule appliesto="action_method_role annotation_text attribute_value_role auxiliary_geometric_representation_item bounded_curve bounded_surface cartesian_transformation_operator concept_feature_relationship concept_feature_relationship_with_condition document_usage_constraint edge_blended_solid effectivity_context_role event_occurrence_role explicit_procedural_representation_item_relationship indirectly_selected_elements local_time maths_space_context modified_solid_with_placed_configuration one_direction_repeat_factor oriented_open_shell oriented_path positioned_sketch procedural_representation procedural_representation_sequence property_distribution_description runout_zone_orientation solid_with_depression solid_with_hole solid_with_pocket solid_with_protrusion solid_with_shape_element_pattern solid_with_slot state_type_role swept_area_solid symbol_target tolerance_zone_form two_direction_repeat_factor user_selected_elements variational_representation_item view_volume volume" name="validate_dependently_instantiable_entity_data_types">
+      <rule appliesto="thickness_laminate_definition next_assembly_usage_occurrence product_related_product_category" name="thickness_laminate_table_component_select">
+         <algorithm>LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER;
+      rp    :  product;
+    END_LOCAL;
+    dkuhr := TRUE;
+    REPEAT i:= LOINDEX (thickness_laminate_definition) TO
+               HIINDEX (thickness_laminate_definition);
+      nnauo := 0;  
+      REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
+                 HIINDEX (next_assembly_usage_occurrence);
+        IF (thickness_laminate_definition[i] = 
+          next_assembly_usage_occurrence[j].relating_product_definition) THEN
+          rp := next_assembly_usage_occurrence[j].related_product_definition.
+                formation.of_product;
+          nprpc := 0;
+          REPEAT k:= LOINDEX (product_related_product_category) TO
+                     HIINDEX (product_related_product_category);
+            IF ((rp IN product_related_product_category[k].products) AND
+                (product_related_product_category[k].name IN 
+                 ['ply', 'filament laminate', 'processed core'])) THEN
+                nprpc := nprpc + 1;
+            END_IF;
+          END_REPEAT;
+          IF (nprpc = 1) THEN
+            nnauo := nnauo + 1;
+          ELSE
+            dkuhr := FALSE;
+            ESCAPE;
+          END_IF;
+        END_IF;
+      END_REPEAT;
+      IF (dkuhr = FALSE) THEN
+        ESCAPE;
+      END_IF;
+      IF (nnauo &lt;&gt; 1) THEN
+        dkuhr := FALSE;
+        ESCAPE;
+      END_IF;
+    END_REPEAT;</algorithm>
+         <where expression="dkuhr" label="WR1"/>
+      </rule>
+      <rule appliesto="action_method_role annotation_text attribute_value_role auxiliary_geometric_representation_item bounded_curve bounded_surface cartesian_transformation_operator concept_feature_relationship concept_feature_relationship_with_condition document_usage_constraint edge_blended_solid effectivity_context_role event_occurrence_role explicit_procedural_representation_item_relationship indirectly_selected_elements local_time modified_solid_with_placed_configuration one_direction_repeat_factor oriented_open_shell oriented_path positioned_sketch procedural_representation procedural_representation_sequence property_distribution_description runout_zone_orientation solid_with_depression solid_with_hole solid_with_pocket solid_with_protrusion solid_with_shape_element_pattern solid_with_slot state_type_role swept_area_solid symbol_target tolerance_zone_form two_direction_repeat_factor user_selected_elements variational_representation_item view_volume volume" name="validate_dependently_instantiable_entity_data_types">
          <algorithm>LOCAL
   number_of_input_instances : INTEGER;
   previous_in_chain : LIST OF GENERIC := [];
@@ -14564,7 +14813,7 @@
   all_instances : SET OF GENERIC := [];
 END_LOCAL;
 
-  all_instances := action_method_role + annotation_text + attribute_value_role + auxiliary_geometric_representation_item + bounded_curve + bounded_surface + cartesian_transformation_operator + concept_feature_relationship + concept_feature_relationship_with_condition + document_usage_constraint + edge_blended_solid + effectivity_context_role + event_occurrence_role + explicit_procedural_representation_item_relationship + indirectly_selected_elements + local_time + maths_space_context + modified_solid_with_placed_configuration + one_direction_repeat_factor + oriented_open_shell + oriented_path + positioned_sketch + procedural_representation + procedural_representation_sequence + property_distribution_description + runout_zone_orientation + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + state_type_role + swept_area_solid + symbol_target + tolerance_zone_form + two_direction_repeat_factor + user_selected_elements + variational_representation_item + view_volume + volume;--&lt;make a union of all implicit populations of the FOR-clause&gt;
+  all_instances := action_method_role + annotation_text + attribute_value_role + auxiliary_geometric_representation_item + bounded_curve + bounded_surface + cartesian_transformation_operator + concept_feature_relationship + concept_feature_relationship_with_condition + document_usage_constraint + edge_blended_solid + effectivity_context_role + event_occurrence_role + explicit_procedural_representation_item_relationship + indirectly_selected_elements + local_time + modified_solid_with_placed_configuration + one_direction_repeat_factor + oriented_open_shell + oriented_path + positioned_sketch + procedural_representation + procedural_representation_sequence + property_distribution_description + runout_zone_orientation + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + state_type_role + swept_area_solid + symbol_target + tolerance_zone_form + two_direction_repeat_factor + user_selected_elements + variational_representation_item + view_volume + volume;--&lt;make a union of all implicit populations of the FOR-clause&gt;
 number_of_input_instances := SIZEOF(all_instances);
 (* Collect all type strings of all FOR instances into one set. *)
 REPEAT i:=1 TO number_of_input_instances;

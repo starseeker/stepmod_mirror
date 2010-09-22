@@ -1,6 +1,6 @@
 (*
- $Id: arm.exp,v 1.11 2004/10/28 18:02:36 darla Exp $
- ISO TC184/SC4/WG12 N2943 - ISO/TS 10303-1049 Activity method - EXPRESS ARM
+ $Id: arm.exp,v 1.3 2010/09/15 17:22:09 lothartklein Exp $
+ ISO TC184/SC4/WG12 N2943 - ISO/TS 10303-1xxx - EXPRESS ARM
 *)
 
 
@@ -10,52 +10,39 @@ USE FROM Basic_geometry_arm;  -- ISO 10303-1652
 
 USE FROM B_spline_geometry_arm; -- ISO 10303-1801
 
-TYPE surface_transition_code = ENUMERATION OF 
-   (discontinuous,
-    continuous,
-    cont_same_gradient,
-    cont_same_gradient_same_curvature);
- END_TYPE;
-
-
 ENTITY Rectangular_composite_surface
-   SUBTYPE OF (Bounded_surface);
-   segments      : LIST [1:?] OF LIST [1:?] OF Surface_patch;
- DERIVE
-   n_u : INTEGER := SIZEOF(segments);
-   n_v : INTEGER := SIZEOF(segments[1]);
- WHERE
-   WR1: SIZEOF(QUERY (s <* segments | n_v <> SIZEOF (s))) = 0;
- END_ENTITY;
+  SUBTYPE OF (Bounded_surface);
+  segments      : LIST [1:?] OF LIST [1:?] OF Surface_patch;
+DERIVE
+  n_u : INTEGER := SIZEOF(segments);
+  n_v : INTEGER := SIZEOF(segments[1]);
+WHERE
+  WR1: SIZEOF(QUERY (s <* segments | n_v <> SIZEOF (s))) = 0;
+END_ENTITY;
 
- ENTITY Surface_patch;
-    parent_surface : Bounded_surface;
-    u_transition   : surface_transition_code;
-    v_transition   : surface_transition_code;
-    u_sense        : BOOLEAN;
-    v_sense        : BOOLEAN;
-  INVERSE
-    using_surfaces : BAG[1:?] OF Rectangular_composite_surface FOR segments;
- END_ENTITY;
+ENTITY Surface_patch;
+  parent_surface : Bounded_surface;
+  u_transition   : transition_code;
+  v_transition   : transition_code;
+  u_sense        : BOOLEAN;
+  v_sense        : BOOLEAN;
+INVERSE
+  using_surfaces : BAG[1:?] OF Rectangular_composite_surface FOR segments;
+END_ENTITY;
  
- 
- ENTITY Trimmed_surface
-   SUBTYPE OF (Bounded_surface);
-   basis_surface : surface;
-   u1            : parameter_value;
-   u2            : parameter_value;
-   v1            : parameter_value;
-   v2            : parameter_value;
-   usense        : BOOLEAN;
-   vsense        : BOOLEAN;
- WHERE
-   WR1: u1 <> u2;
-   WR2: v1 <> v2;
-  END_ENTITY;
-
-
-
-
+ENTITY Trimmed_surface
+  SUBTYPE OF (Bounded_surface);
+  basis_surface : surface;
+  u1            : parameter_value;
+  u2            : parameter_value;
+  v1            : parameter_value;
+  v2            : parameter_value;
+  usense        : BOOLEAN;
+  vsense        : BOOLEAN;
+WHERE
+  WR1: u1 <> u2;
+  WR2: v1 <> v2;
+END_ENTITY;
 
 END_SCHEMA;  -- Composite_surface_arm
 

@@ -115,7 +115,10 @@ TYPE simple_or_complex_datum_reference_modifiers = SELECT (
 END_TYPE;
 
 -- for details see ISO/FDIS 5459:2009, table 2 "Modifier symbols"
-TYPE simple_datum_reference_modifier = ENUMERATION OF (
+TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF (
+  free_state, -- F-circle
+  basic, -- "BSC" or "BASIC"
+  translation, -- triangle symbol
   least_material_requirement, -- L-circle
   maximum_material_requirement, -- M-Circle
   point, -- situation feature of type Point [SP]
@@ -124,7 +127,7 @@ TYPE simple_datum_reference_modifier = ENUMERATION OF (
   orientation, -- For orientation constraint only [OO]
   any_cross_section, -- [ACS]
   contacting_feature, -- [CF] .. maybe this should be on the datum only ???
-  variable_distance, -- Variable distance (for common datum) [DV]
+  distance_variable, -- [DV] (for common datum only) 
   projection); -- P-circle
 END_TYPE;
 
@@ -134,7 +137,7 @@ END_TYPE;
 ENTITY general_datum_reference
   ABSTRACT SUPERTYPE OF (ONEOF (datum_reference_compartment, datum_reference_element));
   base : datum_or_common_datum;
-  modifiers : LIST [1:?] OF simple_or_complex_datum_reference_modifiers;
+  modifiers : SET [1:?] OF simple_or_complex_datum_reference_modifiers;
 END_ENTITY;  
 
 ENTITY datum_reference_compartment

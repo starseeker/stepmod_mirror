@@ -55,7 +55,11 @@ ENTITY dimension_related_tolerance_zone_element;
   related_element   : tolerance_zone_definition;
 END_ENTITY;
 
-ENTITY geometric_tolerance;
+ENTITY geometric_tolerance
+  SUPERTYPE OF (geometric_tolerance_with_datum_reference 
+    ANDOR geometric_tolerance_with_defined_unit
+    ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance)
+    ANDOR unequally_disposed_geometric_tolerance ); 
   name                    : label;
   description             : text;
   magnitude               : OPTIONAL measure_with_unit; 
@@ -94,6 +98,29 @@ WHERE
        (unit_size\measure_with_unit.value_component)) AND
        (unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
+
+  ENTITY geometric_tolerance_with_modifiers
+    SUBTYPE OF (geometric_tolerance);
+    modifiers : SET[1:?] OF geometrical_tolerance_modifier;
+  END_ENTITY;
+
+TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF
+    (maximum_material_requirement,     -- "(M)" or MMR in ISO 2692, MMC in ASME
+     least_material_requirement,       -- "(L)" or LMR in ISO 2692, LMC in ASME
+     reciprocity_requirement,          -- "(R)" or RPR in ISO 2692
+     any_cross_section,                -- "ACS"
+     free_state,                       -- "(F)"
+     continuous_feature,               -- "<CZ>"
+     minor_diameter,                   -- "LD"
+     major_diameter,                   -- "MD"
+     pitch_diameter,                   -- "PD"
+     line_element,                     -- "LE"
+     not_convex,                       -- "NC"
+     statistical_tolerance,            -- "<ST>"
+     tangent_plane,                    -- "(T)"  ASME Y14.5 only
+     maximum_geometric_tolerance_value -- "MAX"  ASME Y14.5 only
+    );
+END_TYPE;
 
 ENTITY modified_geometric_tolerance
   SUBTYPE OF (geometric_tolerance);

@@ -158,16 +158,16 @@ END_ENTITY;
 
 ENTITY datum_reference_element
   SUBTYPE OF (general_datum_reference);
-INVERSE
-  usage : general_datum_reference FOR base;
+ DERIVE
+  usage : general_datum_reference := sts_get_general_datum_reference(SELF);
 WHERE
-  WR1: SELF <> usage;   
+  WR1: SELF <> usage;
+  WR2: EXISTS(usage);   
 END_ENTITY;  
 
 ENTITY complex_datum_reference_modifier
   ABSTRACT SUPERTYPE;
 END_ENTITY;
-
 
 ENTITY referenced_modified_datum
   SUBTYPE OF (datum_reference);
@@ -273,5 +273,21 @@ END_ENTITY;
 SUBTYPE_CONSTRAINT sads_shape_aspect_subtypes FOR shape_aspect;
           ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system);
 END_SUBTYPE_CONSTRAINT; 
+
+FUNCTION sts_get_general_datum_reference(input : datum_reference_element) :
+general_datum_reference;
+    LOCAL
+      general_datum_reference_bag : BAG OF general_datum_reference :=
+(USEDIN(input, 
+      'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.' +
+'GENERAL_DATUM_REFERENCE.' + 'BASE'));
+    END_LOCAL;
+
+    IF SIZEOF(general_datum_reference_bag) = 1 THEN
+      RETURN (general_datum_reference_bag[1]);
+    ELSE
+      RETURN (?);
+    END_IF;
+END_FUNCTION;
 
 END_SCHEMA;  --  shape_aspect_definition_schema

@@ -45,7 +45,7 @@
          <select extensible="NO" genericentity="NO" selectitems="cartesian_point line plane"/>
       </type>
       <type name="simple_datum_reference_modifier">
-         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature variable_distance projection"/>
+         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable projection"/>
       </type>
       <type name="simple_or_complex_datum_reference_modifiers">
          <select extensible="NO" genericentity="NO" selectitems="simple_datum_reference_modifier complex_datum_reference_modifier"/>
@@ -106,8 +106,11 @@
          <where expression="SIZEOF (QUERY (sf &lt;* situation_features | NOT (owner\datum_system_with_geometry IN using_representations(sf) ))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_element" supertypes="general_datum_reference">
-         <inverse attribute="base" entity="general_datum_reference" name="usage"/>
+         <derived expression="sts_get_general_datum_reference(SELF)" name="usage">
+            <typename name="general_datum_reference"/>
+         </derived>
          <where expression="SELF &lt;&gt; usage" label="WR1"/>
+         <where expression="EXISTS(usage)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_system" supertypes="shape_aspect">
          <explicit name="constituents" optional="NO">
@@ -193,5 +196,23 @@
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)= 1" label="WR1"/>
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="shape_aspect" name="sads_shape_aspect_subtypes" super.expression="ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system)"/>
+      <function name="sts_get_general_datum_reference">
+         <parameter name="input">
+            <typename name="datum_reference_element"/>
+         </parameter>
+         <typename name="general_datum_reference"/>
+         <algorithm>LOCAL
+      general_datum_reference_bag : BAG OF general_datum_reference :=
+(USEDIN(input, 
+      'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.' +
+'GENERAL_DATUM_REFERENCE.' + 'BASE'));
+    END_LOCAL;
+
+    IF SIZEOF(general_datum_reference_bag) = 1 THEN
+      RETURN (general_datum_reference_bag[1]);
+    ELSE
+      RETURN (?);
+    END_IF;</algorithm>
+      </function>
    </schema>
 </express>

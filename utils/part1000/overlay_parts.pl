@@ -62,16 +62,17 @@ sub main {
     my $resource_list_path = "";
     my $target_dir_path = "";
     my $verbose;
+    my $by_subdirs;
 
     my $result = GetOptions ("module-list=s" => \$module_list_path,    # string
 			     "resource-list=s" => \$resource_list_path,# string
-			     "target-dir=s"   => \$target_dir_path,    # string
-			     "verbose"  => \$verbose);  # flag  
-    if ($#ARGV == 1) {
+			     "target-dir=s" => \$target_dir_path,    # string
+			     "by-subdirs" => \$by_subdirs, # flag
+			     "verbose" => \$verbose);  # flag
+    if ($by_subdirs) {
 	$dir_mode = 1;
-	$target_dir_path =  $ARGV[0];
-	process_by_subdirs("$part1000_home/data/modules", "$target_dir_path/data/modules");
 	process_by_subdirs("$part1000_home/data/resources", "$target_dir_path/data/resources");
+	process_by_subdirs("$part1000_home/data/modules", "$target_dir_path/data/modules");
     }
     else {
 	my @module_list = read_part_list($module_list_path);
@@ -100,7 +101,7 @@ sub read_part_list {
 
 sub process_by_subdirs {
     my ($source_group_path, $target_group_path) = @_;
-    opendir my($dh), $target_group_path or die "Cannot open directory ($source_group_path): $!";
+    opendir my($dh), $target_group_path or die "Cannot open directory ($target_group_path): $!";
     my @parts = grep { /^[a-zA-Z]/ } readdir($dh);
     closedir $dh;
 
@@ -135,6 +136,7 @@ sub process_by_list {
 
 sub process_part {
     my ($source_part_path, $target_part_path) = @_;
+    rmtree($target_part_path);
     copy_dir($source_part_path, $target_part_path);
 }
 

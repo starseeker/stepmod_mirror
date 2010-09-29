@@ -1,12 +1,15 @@
 (*
-// $Id$
+// $Id: mim_3744_lf.exp,v 1.4 2010/09/29 05:17:07 thomasrthurman Exp $
 In development. This schema is for testing purposes only.
 This schema is located at stepmod/data/modules/ap242*/dvlp/express!!
 filename: mim_3744_lf.exp
-This schema has trial additions and modifications to support testing of bugzilla number 3744
+This schema has trial additions and modifications to support testing of following bugs:
+bugzilla number 3744
+bugzilla http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3764#c5
+
 *) 
 
-SCHEMA Ap242_managed_model_based_3d_engineering_mim_lf_3744_2010_09_25_0;
+SCHEMA Ap242_managed_model_based_3d_engineering_mim_lf_3744_2010_09_29_0;
 
 CONSTANT
 	deprecated_constructed_data_types : SET [0:?] OF STRING := ['approved_item',
@@ -2770,10 +2773,10 @@ DERIVE
                                              upper_index_on_control_points);
 	upper_index_on_control_points : INTEGER := (SIZEOF(control_points_list) - 1);
 WHERE
-	WR1 : ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.UNIFORM_CURVE' IN TYPEOF(self)) OR
-        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.QUASI_UNIFORM_CURVE' IN TYPEOF(self)) OR
-        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.BEZIER_CURVE' IN TYPEOF(self)) OR
-        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(self));
+	WR1 : ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.UNIFORM_CURVE' IN TYPEOF(SELF)) OR
+        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.QUASI_UNIFORM_CURVE' IN TYPEOF(SELF)) OR
+        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.BEZIER_CURVE' IN TYPEOF(SELF)) OR
+        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(SELF));
 END_ENTITY;
 
 
@@ -12470,6 +12473,31 @@ ENTITY zone_structural_makeup
 	SUBTYPE OF (laminate_table);
 END_ENTITY;
 
+--tt rule to enforce AP level specific string values.
+--reference bugzilla http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3764#c5
+
+RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);
+LOCAL
+ names : SET OF STRING :=
+  [ 'within a circle',
+    'between two concentric circles',
+    'between two equidistant curves',
+    'within a cylinder',
+    'between two coaxial cylinders',
+    'between two equidistant surfaces',
+    'non uniform',
+    'cylindrical or circular',
+    'spherical',
+    'unknown'];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(tolerance_zone_form) WHILE pass;
+ pass := (tolerance_zone_form[i].name IN names);
+END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
 
 RULE alternative_solution_requires_solution_definition FOR (product_definition_formation);
     LOCAL

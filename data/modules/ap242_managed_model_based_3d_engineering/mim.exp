@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.1 2010/09/04 15:14:55 lothartklein Exp $
+   $Id: mim.exp,v 1.2 2010/09/22 17:56:54 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
@@ -490,6 +490,31 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
   ENTITY supplied_part_relationship
     SUBTYPE OF (product_definition_relationship);
   END_ENTITY;
+
+--tt buzilla #3764#c5
+RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);
+LOCAL
+ names : SET OF STRING :=
+  [ 'within a circle',
+    'between two concentric circles',
+    'between two equidistant curves',
+    'within a cylinder',
+    'between two coaxial cylinders',
+    'between two equidistant surfaces',
+    'non uniform',
+    'cylindrical or circular',
+    'spherical',
+    'unknown'];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(tolerance_zone_form) WHILE pass;
+ pass := (tolerance_zone_form[i].name IN names);
+END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
+
 
   RULE application_protocol_definition_required FOR 
       (application_context); 

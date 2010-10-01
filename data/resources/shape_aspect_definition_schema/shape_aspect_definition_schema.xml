@@ -35,14 +35,8 @@
       <type name="datum_or_common_datum">
          <select extensible="NO" genericentity="NO" selectitems="datum common_datum_list"/>
       </type>
-      <type name="datum_system_geometry_item">
-         <select extensible="NO" genericentity="NO" selectitems="axis2_placement cartesian_point line plane"/>
-      </type>
       <type name="limit_condition">
          <enumeration extensible="NO" items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
-      </type>
-      <type name="point_line_or_plane">
-         <select extensible="NO" genericentity="NO" selectitems="cartesian_point line plane"/>
       </type>
       <type name="simple_datum_reference_modifier">
          <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable projection"/>
@@ -95,16 +89,6 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_compartment" supertypes="general_datum_reference">
          <inverse attribute="constituents" entity="datum_system" name="owner"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_compartment_with_situation_features" supertypes="datum_reference_compartment">
-         <explicit name="situation_features" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="3"/>
-            <typename name="point_line_or_plane"/>
-         </explicit>
-         <inverse attribute="constituents" entity="datum_system_with_geometry" name="owner">
-            <redeclaration entity-ref="datum_reference_compartment"/>
-         </inverse>
-         <where expression="SIZEOF (QUERY (sf &lt;* situation_features | NOT (owner\datum_system_with_geometry IN using_representations(sf) ))) = 0" label="WR1"/>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_element" supertypes="general_datum_reference">
          <derived expression="sts_get_general_datum_reference(SELF)" name="usage">
             <typename name="general_datum_reference"/>
@@ -116,17 +100,6 @@
          <explicit name="constituents" optional="NO">
             <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="3"/>
             <typename name="datum_reference_compartment"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_system_with_geometry" supertypes="datum_system representation">
-         <explicit name="context_of_items" optional="NO">
-            <typename name="geometric_representation_context"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <explicit name="items" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="datum_system_geometry_item"/>
-            <redeclaration entity-ref="representation"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_target" supertypes="shape_aspect">

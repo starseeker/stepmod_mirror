@@ -85,25 +85,6 @@ ENTITY datum_system
   constituents : LIST [1:3] OF datum_reference_compartment;
 END_ENTITY;    
 
-ENTITY datum_system_with_geometry
-  SUBTYPE OF (datum_system, representation);
-  SELF\representation.context_of_items : geometric_representation_context;
-  SELF\representation.items : SET [1:?] OF datum_system_geometry_item;
-END_ENTITY;    
-
-TYPE datum_system_geometry_item = SELECT (
-  axis2_placement,
-  cartesian_point,
-  line,
-  plane);
-END_TYPE;
-
-TYPE point_line_or_plane = SELECT (
-  cartesian_point,
-  line,
-  plane);
-END_TYPE;
-
 TYPE datum_or_common_datum = SELECT (
   datum,
   common_datum_list);
@@ -144,16 +125,6 @@ ENTITY datum_reference_compartment
   SUBTYPE OF (general_datum_reference);
 INVERSE
   owner : datum_system FOR constituents;  
-END_ENTITY;  
-
-ENTITY datum_reference_compartment_with_situation_features
-  SUBTYPE OF (datum_reference_compartment);
-  situation_features : SET [1:3] OF point_line_or_plane;
-INVERSE
-  SELF\datum_reference_compartment.owner : datum_system_with_geometry FOR constituents;  
-WHERE
-  WR1 : SIZEOF (QUERY (sf <* situation_features | NOT (owner\datum_system_with_geometry IN using_representations(sf) ))) = 0;
--- WR1: Each situation feature shall be founded in the owning datum_system_with_geometry
 END_ENTITY;  
 
 ENTITY datum_reference_element

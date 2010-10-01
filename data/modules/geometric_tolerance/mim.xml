@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1051">
    <application name="JSDAI" owner="LKSoft" source="geometric_tolerance_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Geometric_tolerance_mim">
       <interface kind="use" schema="Derived_shape_element_mim"/>
@@ -44,6 +45,26 @@
       </rule>
       <rule appliesto="geometric_tolerance" name="subtype_mandatory_geometric_tolerance">
          <where expression="SIZEOF(QUERY (gt &lt;* geometric_tolerance | NOT (type_check_function(gt, ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 0)))) = 0" label="WR1"/>
+      </rule>
+      <rule appliesto="tolerance_zone_form" name="tolerance_zone_form_name_constraint">
+         <algorithm>LOCAL
+ names : SET OF STRING :=
+  [ 'within a circle',
+    'between two concentric circles',
+    'between two equidistant curves',
+    'within a cylinder',
+    'between two coaxial cylinders',
+    'between two equidistant surfaces',
+    'non uniform',
+    'cylindrical or circular',
+    'spherical',
+    'unknown'];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(tolerance_zone_form) WHILE pass;
+ pass := (tolerance_zone_form[i].name IN names);
+END_REPEAT;</algorithm>
+         <where expression="pass" label="WR1"/>
       </rule>
       <function name="get_shape_aspect_property_definition_representations">
          <parameter name="s_a_instance">

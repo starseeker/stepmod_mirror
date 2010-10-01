@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.30 2009/11/24 13:49:33 lothartklein Exp $
+$Id: mim.exp,v 1.31 2009/12/23 13:26:59 liutkuviene Exp $
 ISO TC184/SC4/WG12 N6909 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N6757
 *) 
@@ -129,5 +129,29 @@ FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOO
     OTHERWISE : RETURN(FALSE);
   END_CASE;
 END_FUNCTION; 
+
+
+RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);
+LOCAL
+ names : SET OF STRING :=
+  [ 'within a circle',
+    'between two concentric circles',
+    'between two equidistant curves',
+    'within a cylinder',
+    'between two coaxial cylinders',
+    'between two equidistant surfaces',
+    'non uniform',
+    'cylindrical or circular',
+    'spherical',
+    'unknown'];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(tolerance_zone_form) WHILE pass;
+ pass := (tolerance_zone_form[i].name IN names);
+END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
+
 
 END_SCHEMA;  -- Geometric_tolerance_mim

@@ -35,14 +35,11 @@
       <type name="datum_or_common_datum">
          <select extensible="NO" genericentity="NO" selectitems="datum common_datum_list"/>
       </type>
+      <type name="datum_reference_modifier">
+         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable"/>
+      </type>
       <type name="limit_condition">
          <enumeration extensible="NO" items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
-      </type>
-      <type name="simple_datum_reference_modifier">
-         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable projection"/>
-      </type>
-      <type name="simple_or_complex_datum_reference_modifiers">
-         <select extensible="NO" genericentity="NO" selectitems="simple_datum_reference_modifier complex_datum_reference_modifier"/>
       </type>
       <entity abstract.entity="NO" abstract.supertype="NO" name="apex" supertypes="derived_shape_aspect"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="centre_of_symmetry" supertypes="derived_shape_aspect">
@@ -52,7 +49,6 @@
          <where expression="SIZEOF (SELF\composite_shape_aspect.component_relationships) = 2" label="WR1"/>
          <where expression="SIZEOF (QUERY ( sar &lt;* SELF\composite_shape_aspect.component_relationships| &#10;                      NOT (('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF (sar.related_shape_aspect)) AND &#10;                          NOT ('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM' IN TYPEOF (sar.related_shape_aspect))) )) = 0" label="WR2"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="complex_datum_reference_modifier"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="composite_shape_aspect" supertypes="shape_aspect">
          <inverse attribute="relating_shape_aspect" entity="shape_aspect_relationship" name="component_relationships">
             <inverse.aggregate lower="2" type="SET" upper="?"/>
@@ -69,12 +65,13 @@
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
          <where expression="('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM' IN TYPEOF(SELF)) XOR&#10;       ((SIZEOF(QUERY(x &lt;* SELF\datum.established_by_relationships |&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) = 1) XOR&#10;       (SIZEOF(QUERY(x &lt;* SELF\datum.established_by_relationships |&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) &gt;= 1))" label="WR1"/>
+         <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_feature" supertypes="shape_aspect">
          <inverse attribute="relating_shape_aspect" entity="shape_aspect_relationship" name="feature_basis_relationship">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where expression="SIZEOF(QUERY(sar &lt;* SELF\datum_feature.feature_basis_relationship &#10;       | ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF&#10;       (sar\shape_aspect_relationship.related_shape_aspect)))) = 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(sar &lt;* SELF\datum_feature.feature_basis_relationship &#10;      | ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF&#10;      (sar\shape_aspect_relationship.related_shape_aspect)))) = 1" label="WR1"/>
          <where expression="SELF\shape_aspect.product_definitional = TRUE" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference">
@@ -101,6 +98,7 @@
             <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="3"/>
             <typename name="datum_reference_compartment"/>
          </explicit>
+         <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_target" supertypes="shape_aspect">
          <explicit name="target_id" optional="NO">
@@ -109,7 +107,7 @@
          <inverse attribute="relating_shape_aspect" entity="shape_aspect_relationship" name="target_basis_relationship">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where expression="SIZEOF(QUERY(sar &lt;* SELF\datum_target.target_basis_relationship &#10;       | ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF&#10;       (sar\shape_aspect_relationship.related_shape_aspect)))) = 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(sar &lt;* SELF\datum_target.target_basis_relationship &#10;      | ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF&#10;      (sar\shape_aspect_relationship.related_shape_aspect)))) = 1" label="WR1"/>
          <where expression="SELF\shape_aspect.product_definitional = TRUE" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="derived_shape_aspect" super.expression="ONEOF (apex, centre_of_symmetry, geometric_alignment, geometric_contact, geometric_intersection, parallel_offset, perpendicular_to, extension, tangent)" supertypes="shape_aspect">
@@ -120,14 +118,15 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="extension" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)= 1" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="general_datum_reference" super.expression="ONEOF (datum_reference_compartment, datum_reference_element)">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="general_datum_reference" super.expression="ONEOF (datum_reference_compartment, datum_reference_element)" supertypes="shape_aspect">
          <explicit name="base" optional="NO">
             <typename name="datum_or_common_datum"/>
          </explicit>
-         <explicit name="modifiers" optional="NO">
+         <explicit name="modifiers" optional="YES">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="simple_or_complex_datum_reference_modifiers"/>
+            <typename name="datum_reference_modifier"/>
          </explicit>
+         <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_alignment" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)&gt; 1" label="WR1"/>
@@ -168,7 +167,7 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="tangent" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)= 1" label="WR1"/>
       </entity>
-      <subtype.constraint abstract.supertype="NO" entity="shape_aspect" name="sads_shape_aspect_subtypes" super.expression="ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system)"/>
+      <subtype.constraint abstract.supertype="NO" entity="shape_aspect" name="sads_shape_aspect_subtypes" super.expression="ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system, general_datum_reference)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">
             <typename name="datum_reference_element"/>

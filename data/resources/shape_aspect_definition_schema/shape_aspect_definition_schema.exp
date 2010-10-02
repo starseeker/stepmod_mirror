@@ -2,7 +2,8 @@
 SCHEMA shape_aspect_definition_schema;
 
 REFERENCE FROM product_property_definition_schema
-    (shape_aspect,
+    (characterized_object,
+     shape_aspect,
      shape_aspect_relationship);
 REFERENCE FROM measure_schema
     (measure_with_unit);
@@ -135,6 +136,18 @@ WHERE
   WR1: SELF <> usage;
   WR2: EXISTS(usage);   
 END_ENTITY;  
+
+ENTITY feature_definition
+  SUBTYPE OF (characterized_object);
+END_ENTITY; 
+
+ENTITY instanced_feature
+  SUBTYPE OF (feature_definition, shape_aspect);
+WHERE
+  WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN 
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SELF.product_definitional;
+END_ENTITY;
 
 ENTITY referenced_modified_datum
   SUBTYPE OF (datum_reference);

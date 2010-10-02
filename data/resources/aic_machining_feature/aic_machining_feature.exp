@@ -1,17 +1,8 @@
 (*
-$Id: mim.exp,v 1.17 2009/12/11 13:39:31 mikeward Exp $
+$Id: aic_machining_feature.exp,v 1.1 2009/12/14 22:46:09 lothartklein Exp $
 ISO TC184/SC4/WG3 N4328 - ISO/IS 10303-522e2 
-copy taken from http://www.steptools.com/sc4/archive/AICs/10303-522E2.exp?rev=1.2&content-type=text/vnd.viewcvs-markup
 *) 
-(*
-	WG12 N4328					2006-01-04
 
-
-    AIM long form for ISO/IS 10303-522e2
-    ISO TC184/SC4/WG3 N4328
-    Supercedes: WG3 N3686
-    Author: Len Slovensky (slovensky@scra.org)	
-*)
 SCHEMA aic_machining_feature;
   
   USE FROM external_reference_schema              -- ISO 10303-41
@@ -55,7 +46,9 @@ SCHEMA aic_machining_feature;
        measure_representation_item);
        
   USE FROM shape_aspect_definition_schema          -- ISO 10303-47
-      (composite_shape_aspect);
+      (composite_shape_aspect,
+       feature_definition,
+       instanced_feature);
       
   USE FROM topology_schema                         -- ISO 10303-42
       (edge_curve,
@@ -141,7 +134,7 @@ ENTITY applied_area
 END_ENTITY; -- applied_area
 
 ENTITY boss
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE   
     WR1: SELF\characterized_object.description IN 
          ['circular', 'complex', 'rectangular'];
@@ -757,7 +750,7 @@ ENTITY composite_hole
 END_ENTITY; -- composite_hole
 
 ENTITY compound_feature
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
      WHERE 
     WR1:  SIZEOF( QUERY( pds <* USEDIN( SELF, 
          'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') |
@@ -921,7 +914,7 @@ END_ENTITY; -- edge_round
 
 
 ENTITY externally_defined_feature_definition
-  SUBTYPE OF (feature_definition, externally_defined_item);
+  SUBTYPE OF (machining_feature_definition, externally_defined_item);
    WHERE
     WR1: (((SELF\characterized_object.description = 'thread') AND 
          (SELF\externally_defined_item.item_id='external thread') AND 
@@ -1353,14 +1346,14 @@ ENTITY feature_component_relationship
          'AIC_MACHINING_FEATURE.TRANSITION_FEATURE',
          'AIC_MACHINING_FEATURE.MODIFIED_PATTERN'] * TYPEOF
          (SELF.relating_shape_aspect)) = 1) OR 
-         ('AIC_MACHINING_FEATURE.FEATURE_DEFINITION' 
+         ('AIC_MACHINING_FEATURE.MACHINING_FEATURE_DEFINITION' 
          IN TYPEOF(SELF.relating_shape_aspect.of_shape.definition)) OR 
          ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_DEFINITION' 
          IN TYPEOF(SELF.relating_shape_aspect.of_shape.definition)));
 END_ENTITY; -- feature_component_relationship
 
-ENTITY feature_definition
-  SUBTYPE OF (characterized_object);
+ENTITY machining_feature_definition
+  SUBTYPE OF (feature_definition);
    WHERE
   WR1: SIZEOF(QUERY( pdr <*
        get_property_definition_representations (SELF) |
@@ -1542,7 +1535,7 @@ ENTITY fillet
 END_ENTITY;
 
 ENTITY flat_face
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
          'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -1642,7 +1635,7 @@ END_ENTITY; -- flat_face
 
 
 ENTITY gear
-SUBTYPE OF (feature_definition);
+SUBTYPE OF (machining_feature_definition);
 WHERE
   wr1 : SIZEOF(QUERY(pd <* USEDIN(SELF, 
     'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -2044,14 +2037,6 @@ ENTITY hole_bottom
         = 0)) )) = 0));
  END_ENTITY; -- hole_bottom
 
-ENTITY instanced_feature
-  SUBTYPE OF (feature_definition, shape_aspect);
-WHERE
-  WR1: 'AIC_MACHINING_FEATURE.PRODUCT_DEFINITION' IN 
-       TYPEOF (SELF.of_shape.definition);
-  WR2: SELF.product_definitional;
-END_ENTITY;
-
 ENTITY linear_profile
   SUBTYPE OF (shape_aspect);
    WHERE
@@ -2112,7 +2097,7 @@ ENTITY location_shape_representation
 END_ENTITY; -- location_shape_representation
 
 ENTITY marking
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: SIZEOF( QUERY( pd <* USEDIN( SELF, 
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') |
@@ -2387,7 +2372,7 @@ ENTITY open_path_profile
 END_ENTITY;
 
 ENTITY outer_round
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: ((NOT (SELF\characterized_object.description = 'outer diameter')) OR 
         (SIZEOF( QUERY( pd <* USEDIN( SELF, 
@@ -2513,7 +2498,7 @@ ENTITY outer_round
 END_ENTITY; -- outer_round
 
 ENTITY outside_profile
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: SIZEOF( QUERY( pd <* USEDIN( SELF, 
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') |
@@ -3291,7 +3276,7 @@ WHERE
 END_ENTITY; 
 
 ENTITY pocket
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SELF\characterized_object.description IN 
          ['closed rectangular','open rectangular', 'complex', 
@@ -3748,7 +3733,7 @@ ENTITY profile_floor
 END_ENTITY;   -- profile_floor
 
 ENTITY protrusion
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -3993,7 +3978,7 @@ ENTITY rectangular_pattern
 END_ENTITY; -- rectangular_pattern
 
 ENTITY removal_volume
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
  
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
@@ -4026,7 +4011,7 @@ END_ENTITY; -- removal_volume
 ENTITY replicate_feature
     SUPERTYPE OF (ONEOF (circular_pattern, rectangular_pattern, 
       feature_pattern))
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
   WHERE
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
          'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION')
@@ -4061,7 +4046,7 @@ ENTITY replicate_feature
 END_ENTITY;  -- replicate_feature
 
 ENTITY revolved_profile
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SELF\characterized_object.description IN 
         ['groove','flat','round','open profile']);
@@ -4173,7 +4158,7 @@ ENTITY revolved_profile
 END_ENTITY; -- revolved_profile
 
 ENTITY rib_top
-   SUBTYPE OF (feature_definition);
+   SUBTYPE OF (machining_feature_definition);
   WHERE
     WR1: SIZEOF (QUERY (pds <* QUERY (pd <* USEDIN (SELF,
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') |
@@ -4268,7 +4253,7 @@ ENTITY rib_top_floor
 END_ENTITY;  -- rib_top_floor
 
 ENTITY round_hole
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SIZEOF(QUERY ( pds <* QUERY ( pd <* USEDIN(SELF,
        'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION')|
@@ -4342,7 +4327,7 @@ ENTITY round_hole
 END_ENTITY; -- round_hole
 
 ENTITY rounded_end
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -4478,7 +4463,7 @@ ENTITY shape_representation_with_parameters
 END_ENTITY; -- shape_representation_with_parameters
 
 ENTITY spherical_cap
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
   
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
@@ -4670,7 +4655,7 @@ ENTITY square_u_profile
 END_ENTITY; -- Square_U_profile
 
 ENTITY step
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -4733,7 +4718,7 @@ ENTITY step
 END_ENTITY; -- step
 
   ENTITY slot
-    SUBTYPE OF (feature_definition);
+    SUBTYPE OF (machining_feature_definition);
     WHERE
       wr1: SIZEOF(QUERY ( pd <* USEDIN(SELF,'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION')
                 | (NOT (SIZEOF(QUERY ( impl_rep <* QUERY ( pdr <* USEDIN(pd,
@@ -5237,7 +5222,7 @@ ENTITY tee_profile
 END_ENTITY;   -- tee_profile
 
 ENTITY thread
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1 : (SIZEOF(QUERY ( pd <* USEDIN(SELF,
         'AIC_MACHINING_FEATURE.PROPERTY_DEFINITION.DEFINITION') | 
@@ -5545,7 +5530,7 @@ ENTITY transition_feature
 END_ENTITY; -- transition_feature
 
 ENTITY turned_knurl
-  SUBTYPE OF (feature_definition);
+  SUBTYPE OF (machining_feature_definition);
    WHERE
     WR1: (SELF\characterized_object.description IN
         ['diamond','diagonal','straight']);

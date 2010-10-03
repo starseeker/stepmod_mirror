@@ -8,7 +8,7 @@
 #
 # Usage:
 #
-#   perl {-part_list=<part_list>} {-html-out=<out_file>} check_parts <source_root> 
+#   perl check_parts {-part_list=<part_list>} {-html-out=<out_file>} <source_root> 
 #
 # where:
 #

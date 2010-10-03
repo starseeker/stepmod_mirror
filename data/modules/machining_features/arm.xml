@@ -1,12 +1,1146 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Machining_features_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="machining_features_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Machining_features_arm">
+      <interface kind="use" schema="Shape_feature_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <interface kind="use" schema="Measure_representation_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <type name="angle_or_directed_taper">
+         <select selectitems="Directed_taper Angle_taper"/>
+      </type>
+      <type name="compound_feature_select">
+         <select selectitems="Machining_feature Transition_feature"/>
+      </type>
+      <type name="end_type_select">
+         <select selectitems="General_path Complete_circular_path"/>
+      </type>
+      <type name="hole_bottom_condition_select">
+         <select selectitems="Through_bottom_condition Blind_bottom_condition"/>
+      </type>
+      <type name="manufacturing_group_select">
+         <select selectitems="Manufacturing_feature Manufacturing_feature_group"/>
+      </type>
+      <type name="pocket_bottom_condition_select">
+         <select selectitems="Through_pocket_bottom_condition Pocket_bottom_condition"/>
+      </type>
+      <type name="profile_select">
+         <select selectitems="Through_profile_floor Profile_floor"/>
+      </type>
+      <type name="replicate_base_select">
+         <select selectitems="Replicate_feature Machining_feature"/>
+      </type>
+      <type name="taper_select">
+         <select selectitems="Directed_taper Angle_taper Diameter_taper"/>
+      </type>
+      <type name="volume_select">
+         <select selectitems="Protrusion Boss"/>
+      </type>
+      <entity name="Angle_taper">
+         <explicit name="angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Bevel_gear" super.expression="ONEOF (Straight_bevel_gear, Helical_bevel_gear)" supertypes="Defined_gear">
+         <explicit name="tip_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="root_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Blind_bottom_condition" super.expression="ONEOF (Flat_hole_bottom, Flat_with_radius_hole_bottom, Flat_with_taper_hole_bottom, Spherical_hole_bottom, Conical_hole_bottom)">
+         <explicit name="start_or_end">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Boss" super.expression="ONEOF (General_boss, Rectangular_boss, Circular_boss)" supertypes="Multi_axis_feature">
+         <explicit name="boss_height">
+            <typename name="Linear_path"/>
+         </explicit>
+         <explicit name="fillet_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="top_condition">
+            <typename name="Boss_top_condition"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Boss_top_condition" super.expression="ONEOF (General_top_condition, Planar_top_condition)">
+         <explicit name="top_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="start_or_end">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Catalogue_gear" supertypes="Gear">
+         <explicit name="documentation">
+            <typename name="Specification_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Catalogue_knurl" supertypes="Knurl">
+         <explicit name="documentation">
+            <typename name="Specification_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Catalogue_marking" supertypes="Marking">
+         <explicit name="documentation">
+            <typename name="Specification_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Catalogue_thread" supertypes="Thread">
+         <explicit name="documentation">
+            <typename name="Specification_definition"/>
+         </explicit>
+         <explicit name="major_diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Chamfer" supertypes="Transition_feature">
+         <explicit name="chamfer_face">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Chamfer_angle" supertypes="Second_chamfer_offset">
+         <explicit name="angle_amount">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_boss" supertypes="Boss">
+         <explicit name="circular_profile">
+            <typename name="Circular_closed_profile"/>
+         </explicit>
+         <explicit name="change_in_dimater" optional="YES">
+            <typename name="taper_select"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_closed_profile" supertypes="Closed_profile">
+         <explicit name="diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_closed_shape_profile" supertypes="Shape_profile">
+         <explicit name="closed_boundary">
+            <typename name="Circular_closed_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_cutout" supertypes="Cutout">
+         <explicit name="circular_boundary">
+            <typename name="Circular_closed_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_offset_pattern">
+         <explicit name="index_number">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="angular_offset">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <inverse attribute="relocated_base_feature" entity="Circular_pattern" name="relocated_base_feature_for">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Circular_omit_pattern">
+         <explicit name="omit_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <inverse attribute="missing_base_feature" entity="Circular_pattern" name="missing_base_feature_for">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity abstract.supertype="YES" name="Circular_path" super.expression="ONEOF (Complete_circular_path, Partial_circular_path)" supertypes="Path">
+         <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_pattern" supertypes="Replicate_feature">
+         <explicit name="relocated_base_feature">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Circular_offset_pattern"/>
+         </explicit>
+         <explicit name="missing_base_feature">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Circular_omit_pattern"/>
+         </explicit>
+         <explicit name="base_feature_rotation">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="number_of_features">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="base_feature_diameter" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="angular_spacing">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Closed_profile" super.expression="ONEOF (Circular_closed_profile, General_closed_profile, Rectangular_closed_profile, Ngon_profile)" supertypes="Profile"/>
+      <entity name="Closed_slot" supertypes="Slot">
+         <explicit name="end_condition">
+            <typename name="Loop_slot_end_type"/>
+         </explicit>
+         <explicit name="cource_of_travel">
+            <typename name="end_type_select"/>
+         </explicit>
+      </entity>
+      <entity name="Complete_circular_path" supertypes="Circular_path"/>
+      <entity name="Compund_feature" supertypes="Machining_feature">
+         <explicit name="element">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Compund_feature_element"/>
+         </explicit>
+      </entity>
+      <entity name="Compund_feature_element">
+         <explicit name="element">
+            <typename name="compound_feature_select"/>
+         </explicit>
+      </entity>
+      <entity name="Compund_feature_relationship">
+         <explicit name="predecssor">
+            <typename name="Compund_feature"/>
+         </explicit>
+         <explicit name="successor">
+            <typename name="Compund_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Conical_hole_bottom" supertypes="Blind_bottom_condition">
+         <explicit name="tip_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="tip_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Constant_radius_edge_round" supertypes="Edge_round">
+         <explicit name="first_face_offset" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_face_offset" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Constant_radius_fillet" supertypes="Fillet">
+         <explicit name="first_face_offset" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_face_offset" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Counterbore_hole" supertypes="Hole">
+         <explicit name="smaller_hole">
+            <typename name="Round_hole"/>
+         </explicit>
+         <explicit name="larger_hole">
+            <typename name="Round_hole"/>
+         </explicit>
+      </entity>
+      <entity name="Countersunk_hole" supertypes="Hole">
+         <explicit name="constant_diameter_hole">
+            <typename name="Round_hole"/>
+         </explicit>
+         <explicit name="tapered_hole">
+            <typename name="Round_hole"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Cutout" super.expression="ONEOF (Circular_cutout, General_cutout)" supertypes="Pocket">
+         <explicit name="bottom_condition">
+            <typename name="Through_pocket_bottom_condition"/>
+            <redeclaration entity-ref="Pocket"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Defined_gear" super.expression="ONEOF (Bevel_gear, Spur_gear, Helical_gear)" supertypes="Gear"/>
+      <entity name="Defined_marking" supertypes="Marking">
+         <explicit name="font_name" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="special_instruction" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="character_spacing" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="character_height" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Defined_thread" supertypes="Thread">
+         <explicit name="crest" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="minor_diamter" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="pitch_diameter" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="major_diameter" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Diagonal_knurl" supertypes="Turned_knurl">
+         <explicit name="helix_hand">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="helix_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Diameter_taper">
+         <explicit name="final_diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Diamond_knurl" supertypes="Turned_knurl">
+         <explicit name="helix_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Directed_taper">
+         <explicit name="direction">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Direction_element" supertypes="Shape_element"/>
+      <entity name="Edge_round" supertypes="Transition_feature">
+         <explicit name="edge_round_face">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="first_face_shape">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="second_face_shape">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Face_shape_element" supertypes="Shape_element"/>
+      <entity name="Face_shape_element_relationship" supertypes="Shape_element_relationship">
+         <explicit name="related">
+            <typename name="Face_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Face_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Fillet" supertypes="Transition_feature">
+         <explicit name="fillet_face">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="first_face_shape">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="second_face_shape">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="First_offset">
+         <explicit name="face_shape">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="ofset_amount">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Flat_hole_bottom" supertypes="Blind_bottom_condition"/>
+      <entity name="Flat_slot_end_type" supertypes="Slot_end_type">
+         <explicit name="first_radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Flat_with_radius_hole_bottom" supertypes="Blind_bottom_condition">
+         <explicit name="corner_radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Flat_with_taper_hole_bottom" supertypes="Blind_bottom_condition">
+         <explicit name="taper_diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="final_diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Gear" super.expression="ONEOF (Defined_gear, Catalogue_gear)" supertypes="Machining_feature">
+         <explicit name="nominal_tooth_depth">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="reference_preassure_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="profile_shift">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="number_of_teeth">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="face_width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="tip_diaeter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="normal_attribute">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="applied_shape">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="internal_or_external_gear">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="module_or_diametrical_pitch">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="root_fillet_radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="General_boss" supertypes="Boss">
+         <explicit name="enclosed_boundary">
+            <typename name="Closed_profile"/>
+         </explicit>
+         <explicit name="change_in_boundary" optional="YES">
+            <typename name="angle_or_directed_taper"/>
+         </explicit>
+      </entity>
+      <entity name="General_closed_profile" supertypes="Closed_profile">
+         <explicit name="closed_profile_shape">
+            <typename name="Path_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_cutout" supertypes="Cutout">
+         <explicit name="boundary">
+            <typename name="Profile"/>
+         </explicit>
+      </entity>
+      <entity name="General_open_profile" supertypes="Open_profile">
+         <explicit name="enclosed_boundary">
+            <typename name="Path_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_outside_profile" supertypes="Profile_feature">
+         <explicit name="profile_swept_shape">
+            <typename name="Linear_path"/>
+         </explicit>
+      </entity>
+      <entity name="General_path" supertypes="Path">
+         <explicit name="sweep_path">
+            <typename name="Path_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_pattern" supertypes="Replicate_feature">
+         <explicit name="feature_placement">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="General_pocket" supertypes="Pocket">
+         <explicit name="volumne_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+         <explicit name="boundary">
+            <typename name="Profile"/>
+         </explicit>
+      </entity>
+      <entity name="General_pocket_bottom_condition" supertypes="Pocket_bottom_condition">
+         <explicit name="floor">
+            <typename name="Face_shape_element"/>
+         </explicit>
+         <explicit name="floor_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="General_profile_floor" supertypes="Profile_floor">
+         <explicit name="floor">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_removal_volumne" supertypes="Multi_axis_feature">
+         <explicit name="removal_volume">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_revolution" supertypes="Revolved_feature">
+         <explicit name="outer_edge_shape">
+            <typename name="General_open_profile"/>
+         </explicit>
+      </entity>
+      <entity name="General_rib_top_floor" supertypes="Rib_top_floor">
+         <explicit name="rib_top_face">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_shape_profile" supertypes="Shape_profile">
+         <explicit name="profile_boundary">
+            <typename name="Profile"/>
+         </explicit>
+      </entity>
+      <entity name="General_top_condition" supertypes="Boss_top_condition">
+         <explicit name="top_face">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Groove" supertypes="Revolved_feature">
+         <explicit name="sweep">
+            <typename name="Open_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Helical_bevel_gear" supertypes="Bevel_gear">
+         <explicit name="reference_helix_agle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="left_or_right_hand_tooth">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Helical_gear" supertypes="Defined_gear">
+         <explicit name="left_or_right_hand_tooth">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="reference_helix_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Hole" super.expression="ONEOF (Round_hole, Countersunk_hole, Counterbore_hole)" supertypes="Multi_axis_feature"/>
+      <entity abstract.supertype="YES" name="Knurl" super.expression="ONEOF (Catalogue_knurl, Turned_knurl)" supertypes="Machining_feature">
+         <explicit name="partial_profile" optional="YES">
+            <typename name="Partial_area_definition"/>
+         </explicit>
+         <explicit name="applied_shape">
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Linear_path" supertypes="Path">
+         <explicit name="distance">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="direction">
+            <typename name="Direction_element"/>
+         </explicit>
+      </entity>
+      <entity name="Linear_profile" supertypes="Open_profile">
+         <explicit name="profile_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Location_element" supertypes="Shape_element"/>
+      <entity name="Loop_slot_end_type"/>
+      <entity abstract.supertype="YES" name="Machining_feature" super.expression="ONEOF (Gear, Knurl, Marking, Thread, Outer_round, Multi_axis_feature, Spherical_cap, Revolved_feature, Compund_feature)" supertypes="Manufacturing_feature">
+         <explicit name="placement">
+            <typename name="Axis_placement_3d"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Manufacturing_feature" super.expression="ONEOF (Machining_feature, Transition_feature, Replicate_feature)" supertypes="Shape_element"/>
+      <entity name="Manufacturing_feature_group">
+         <explicit name="group_name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="group_description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="feature_group">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="manufacturing_group_select"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Marking" super.expression="ONEOF (Catalogue_marking, Defined_marking)" supertypes="Machining_feature">
+         <explicit name="text">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="applied_to_shape">
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Multi_axis_feature" super.expression="ONEOF (Hole, Rib_top, Boss, Slot, Pocket, Step, General_removal_volumne, Rounded_end, Profile_feature, Planar_face, Protrusion)" supertypes="Machining_feature">
+         <explicit name="maximum_feature_limit" optional="YES">
+            <typename name="Planar_element"/>
+         </explicit>
+      </entity>
+      <entity name="Ngon_profile" supertypes="Closed_profile">
+         <explicit name="diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="number_of_sides">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="corner_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="circumscribed_or_across_flat">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Open_profile" super.expression="ONEOF (Vee_profile, General_open_profile, Tee_profile, Partial_circular_profile, Linear_profile, Rounded_u_profile, Square_u_profile)" supertypes="Profile">
+         <explicit name="profile_limit" optional="YES">
+            <typename name="Planar_element"/>
+         </explicit>
+      </entity>
+      <entity name="Open_slot" supertypes="Slot">
+         <explicit name="course_of_travel">
+            <typename name="Path"/>
+         </explicit>
+         <explicit name="end_conditions">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Slot_end_type"/>
+         </explicit>
+      </entity>
+      <entity name="Open_slot_end_type" supertypes="Slot_end_type"/>
+      <entity name="Outer_diameter" supertypes="Outer_round">
+         <explicit name="feature_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="reduced_size">
+            <typename name="taper_select"/>
+         </explicit>
+      </entity>
+      <entity name="Outer_diameter_to_shoulder" supertypes="Outer_round">
+         <explicit name="feature_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="v_shape_boundary">
+            <typename name="Vee_profile"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Outer_round" super.expression="ONEOF (Outer_diameter, Outer_diameter_to_shoulder)" supertypes="Machining_feature"/>
+      <entity name="Partial_area_definition">
+         <explicit name="maximum_length" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="effective_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Partial_circular_path" supertypes="Circular_path">
+         <explicit name="sweep_angle">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Partial_circular_profile" supertypes="Open_profile">
+         <explicit name="sweep_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Partial_circular_shape_profile" supertypes="Shape_profile">
+         <explicit name="open_boundary">
+            <typename name="Partial_circular_profile"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Path" super.expression="ONEOF (General_path, Linear_path, Circular_path)">
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Path_element" supertypes="Shape_element"/>
+      <entity name="Planar_element" supertypes="Shape_element">
+         <explicit name="normal">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="location">
+            <typename name="Location_element"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_face" supertypes="Multi_axis_feature">
+         <explicit name="removed_boundary">
+            <typename name="Linear_profile"/>
+         </explicit>
+         <explicit name="course_of_travel">
+            <typename name="Linear_path"/>
+         </explicit>
+         <explicit name="face_boundary" optional="YES">
+            <typename name="Closed_profile"/>
+         </explicit>
+         <explicit name="removal_direction">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="volume_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+         <explicit name="removal_depth" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_pocket_bottom_condition" supertypes="Pocket_bottom_condition">
+         <explicit name="floor_normal">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="floor_location">
+            <typename name="Location_element"/>
+         </explicit>
+         <explicit name="floor_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_profile_floor" supertypes="Profile_floor">
+         <explicit name="floor">
+            <typename name="Planar_element"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_rib_top_floor" supertypes="Rib_top_floor">
+         <explicit name="floor_face">
+            <typename name="Planar_element"/>
+         </explicit>
+         <explicit name="boundary">
+            <typename name="Closed_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_top_condition" supertypes="Boss_top_condition">
+         <explicit name="top_normal">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="top_location">
+            <typename name="Location_element"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Pocket" super.expression="ONEOF (General_pocket, Rectangular_closed_pocket, Rectangular_open_pocket, Recess, Cutout)" supertypes="Multi_axis_feature">
+         <explicit name="base_radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="change_in_boundardy" optional="YES">
+            <typename name="angle_or_directed_taper"/>
+         </explicit>
+         <explicit name="bottom_condition">
+            <typename name="pocket_bottom_condition_select"/>
+         </explicit>
+         <explicit name="pocket_depth">
+            <typename name="Linear_path"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Pocket_bottom_condition" super.expression="ONEOF (General_pocket_bottom_condition, Planar_pocket_bottom_condition)">
+         <explicit name="start_or_end">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Profile" super.expression="ONEOF (Closed_profile, Open_profile)"/>
+      <entity abstract.supertype="YES" name="Profile_feature" super.expression="ONEOF (Shape_profile, General_outside_profile)" supertypes="Multi_axis_feature"/>
+      <entity abstract.supertype="YES" name="Profile_floor" super.expression="ONEOF (Planar_profile_floor, General_profile_floor)">
+         <explicit name="floor_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="start_or_end">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Protrusion" supertypes="Multi_axis_feature">
+         <explicit name="shape_volume">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Radiused_slot_end_type" supertypes="Slot_end_type"/>
+      <entity name="Recess" supertypes="Pocket">
+         <explicit name="bottom_condition">
+            <typename name="Pocket_bottom_condition"/>
+            <redeclaration entity-ref="Pocket"/>
+         </explicit>
+         <explicit name="volumne_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+         <explicit name="fillet_boundary">
+            <typename name="Profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_boss" supertypes="Boss">
+         <explicit name="rectangular_profile">
+            <typename name="Rectangular_closed_profile"/>
+         </explicit>
+         <explicit name="change_in_boundary" optional="YES">
+            <typename name="angle_or_directed_taper"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_closed_pocket" supertypes="Pocket">
+         <explicit name="volumne_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+         <explicit name="closed_boundary">
+            <typename name="Rectangular_closed_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_closed_profile" supertypes="Closed_profile">
+         <explicit name="profile_width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="profile_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="corner_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_closed_shape_profile" supertypes="Shape_profile">
+         <explicit name="closed_boundary">
+            <typename name="Rectangular_closed_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_offset_pattern">
+         <explicit name="offset_direction">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="offset_distance">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="column_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="row_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <inverse attribute="relocated_base_feature" entity="Rectangular_pattern" name="relocated_base_feature_for">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Rectangular_omit_pattern">
+         <explicit name="row_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="column_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <inverse attribute="missing_base_feature" entity="Rectangular_pattern" name="missing_base_feature_for">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Rectangular_open_pocket" supertypes="Pocket">
+         <explicit name="volumne_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+         <explicit name="open_boundary">
+            <typename name="Square_u_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_open_shape_profile" supertypes="Shape_profile">
+         <explicit name="open_boundary">
+            <typename name="Square_u_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rectangular_pattern" supertypes="Replicate_feature">
+         <explicit name="relocated_base_feature">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Rectangular_offset_pattern"/>
+         </explicit>
+         <explicit name="missing_base_feature">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Rectangular_omit_pattern"/>
+         </explicit>
+         <explicit name="column_layout_direction">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="row_spacing">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="rows">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="row_layout_direction">
+            <typename name="Direction_element"/>
+         </explicit>
+         <explicit name="columns">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="column_spacing">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Replicate_base">
+         <explicit name="base_feature">
+            <typename name="replicate_base_select"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Replicate_feature" super.expression="ONEOF (Rectangular_pattern, Circular_pattern, General_pattern)" supertypes="Manufacturing_feature">
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="replicate_feature_base">
+            <typename name="Replicate_base"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Revolved_feature" super.expression="ONEOF (General_revolution, Revolved_round, Revolved_flat, Groove)" supertypes="Machining_feature">
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="material_side">
+            <typename name="Direction_element"/>
+         </explicit>
+      </entity>
+      <entity name="Revolved_flat" supertypes="Revolved_feature">
+         <explicit name="flat_dge_shape">
+            <typename name="Linear_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Revolved_round" supertypes="Revolved_feature">
+         <explicit name="rounded_edge_shape">
+            <typename name="Partial_circular_profile"/>
+         </explicit>
+      </entity>
+      <entity name="Rib_top" supertypes="Multi_axis_feature">
+         <explicit name="removal_direction">
+            <typename name="Direction"/>
+         </explicit>
+         <explicit name="floor_condition">
+            <typename name="Rib_top_floor"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Rib_top_floor" super.expression="ONEOF (General_rib_top_floor, Planar_rib_top_floor)"/>
+      <entity name="Round_hole" supertypes="Hole">
+         <explicit name="hole_depth">
+            <typename name="Linear_path"/>
+         </explicit>
+         <explicit name="diameter">
+            <typename name="Circular_closed_profile"/>
+         </explicit>
+         <explicit name="charge_in_diameter" optional="YES">
+            <typename name="taper_select"/>
+         </explicit>
+         <explicit name="bottom_condition">
+            <typename name="hole_bottom_condition_select"/>
+         </explicit>
+      </entity>
+      <entity name="Rounded_end" supertypes="Multi_axis_feature">
+         <explicit name="partial_circular_boundary">
+            <typename name="Partial_circular_profile"/>
+         </explicit>
+         <explicit name="course_of_travel">
+            <typename name="Linear_path"/>
+         </explicit>
+      </entity>
+      <entity name="Rounded_u_profile" supertypes="Open_profile">
+         <explicit name="width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="depth" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Second_chamfer_offset" super.expression="ONEOF (Chamfer_angle, Second_offset)">
+         <explicit name="second_face">
+            <typename name="Face_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Second_offset" supertypes="Second_chamfer_offset">
+         <explicit name="ofset_amount">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Shape_profile" super.expression="ONEOF (Partial_circular_shape_profile, Circular_closed_shape_profile, Rectangular_open_shape_profile, Rectangular_closed_shape_profile, General_shape_profile)" supertypes="Profile_feature">
+         <explicit name="floor_condition">
+            <typename name="profile_select"/>
+         </explicit>
+         <explicit name="removal_direction">
+            <typename name="Direction_element"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Slot" super.expression="ONEOF (Open_slot, Closed_slot)" supertypes="Multi_axis_feature"/>
+      <entity abstract.supertype="YES" name="Slot_end_type" super.expression="ONEOF (Flat_slot_end_type, Radiused_slot_end_type, Woodruff_slot_end_type, Open_slot_end_type)">
+         <explicit name="first_or_second">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Spherical_cap" supertypes="Machining_feature">
+         <explicit name="internal_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Spherical_hole_bottom" supertypes="Blind_bottom_condition">
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Spur_gear" supertypes="Defined_gear"/>
+      <entity name="Square_u_profile" supertypes="Open_profile">
+         <explicit name="first_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="first_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="depth">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="width" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Step" supertypes="Multi_axis_feature">
+         <explicit name="removal_boundary">
+            <typename name="Vee_profile"/>
+         </explicit>
+         <explicit name="course_of_travel">
+            <typename name="Linear_path"/>
+         </explicit>
+         <explicit name="volume_not_removed">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="volume_select"/>
+         </explicit>
+      </entity>
+      <entity name="Straight_bevel_gear" supertypes="Bevel_gear"/>
+      <entity name="Straight_knurl" supertypes="Turned_knurl"/>
+      <entity name="Tee_profile" supertypes="Open_profile">
+         <explicit name="first_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="first_offset">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_offset">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="depth">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="cross_bar_width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="cross_bar_depth">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Thread" super.expression="ONEOF (Catalogue_thread, Defined_thread)" supertypes="Machining_feature">
+         <explicit name="partial_profile">
+            <typename name="Partial_area_definition"/>
+         </explicit>
+         <explicit name="runout" optional="YES">
+            <typename name="Thread_runout"/>
+         </explicit>
+         <explicit name="fit_class">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="form">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="number_of_threads">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="thread_hand">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="inner_or_outer_thread">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="qulifier">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="nominal_size">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="applied_shape">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="fit_class_2">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="Thread_runout">
+         <explicit name="length_of_runout">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="pitch_or_dimension">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="included_or_extract">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Through_bottom_condition"/>
+      <entity name="Through_pocket_bottom_condition"/>
+      <entity name="Through_profile_floor"/>
+      <entity name="Transition_feature" super.expression="ONEOF (Edge_round, Fillet, Chamfer)" supertypes="Manufacturing_feature"/>
+      <entity abstract.supertype="YES" name="Turned_knurl" super.expression="ONEOF (Diagonal_knurl, Straight_knurl, Diamond_knurl)" supertypes="Knurl">
+         <explicit name="nominal_diamter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="diametrical_pitch">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="root_fillet" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="number_of_teeth" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="tooth_depth" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="major_diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Vee_profile" supertypes="Open_profile">
+         <explicit name="profile_radius" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="profile_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="tilt_angle">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="first_length" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="second_length" optional="YES">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Woodruff_slot_end_type" supertypes="Slot_end_type">
+         <explicit name="radius">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Shape_element" name="mf_shape_element_subtypes" super.expression="ONEOF (Manufacturing_feature, Path_element, Planar_element, Direction_element, Location_element, Face_shape_element)"/>
+   </schema>
 </express>

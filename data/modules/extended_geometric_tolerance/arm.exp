@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.62 2009/04/23 10:58:51 liutkuviene Exp $
+   $Id: arm.exp,v 1.63 2010/09/21 22:40:28 lothartklein Exp $
    ISO TC184/SC4/WG12 N6363 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5638
 *)
@@ -80,7 +80,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   SUBTYPE_CONSTRAINT egt_non_feature_shape_element_subtypes FOR Non_feature_shape_element; 
 	(ONEOF (
-     Derived_non_feature_shape_element,
+     Derived_shape_element,
      Directed_axis,
      Positional_boundary,
      Positional_boundary_member,
@@ -113,40 +113,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     Func);
   END_TYPE;
 
-  ENTITY Apex
-    SUBTYPE OF (Derived_non_feature_shape_element);
-  END_ENTITY;
-
   ENTITY Boundary_size_characteristic
     ABSTRACT SUPERTYPE OF (ONEOF (Diametrical_boundary_size_characteristic,
       Opposing_boundary_set_size_characteristic));
       tolerance_value         : Length_data_element;
       maximum_tolerance_value : OPTIONAL Length_data_element;
-  END_ENTITY;
-
-  ENTITY Centre_axis
-    SUBTYPE OF (Centre_of_symmetry);
-  WHERE
-    WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Centre_of_symmetry
-    ABSTRACT SUPERTYPE OF (ONEOF (Centre_axis,
-    Centre_plane,
-    Centre_point))
-    SUBTYPE OF (Derived_non_feature_shape_element);
-  END_ENTITY;
-
-  ENTITY Centre_plane
-    SUBTYPE OF (Centre_of_symmetry);
-  WHERE
-    WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Centre_point
-    SUBTYPE OF (Centre_of_symmetry);
-  WHERE
-    WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Composite_linear_profile_refinement_tolerance
@@ -254,18 +225,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	SUBTYPE OF (Datum, Non_feature_shape_element);
   END_ENTITY;
 
-  ENTITY Derived_non_feature_shape_element
-    ABSTRACT SUPERTYPE OF (ONEOF (Apex,
-      Centre_of_symmetry,
-      Linear_extension,
-      Geometric_intersection,
-      Geometric_alignment,
-      Tangent_shape_element))
-    SUBTYPE OF (Non_feature_shape_element);
-    INVERSE
-      deriving_relationships : SET[1:?] OF shape_element_deriving_relationship FOR relating;
-  END_ENTITY; 
-
   ENTITY Diametrical_boundary_size_characteristic
     SUBTYPE OF (Boundary_size_characteristic);
       sized_boundary : Tolerance_zone_circular_or_cylindrical_or_spherical_boundary;
@@ -331,14 +290,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       definitions			: SET[1:?] OF External_source_identification FOR item;
   END_ENTITY;
 
-  ENTITY Geometric_alignment
-    SUBTYPE OF (Derived_non_feature_shape_element);
-  END_ENTITY;
-
-  ENTITY Geometric_intersection
-    SUBTYPE OF (Derived_non_feature_shape_element);
-  END_ENTITY;
-
   ENTITY Geometric_tolerance_qualifier
     ABSTRACT SUPERTYPE OF (ONEOF (Pre_defined_geometric_tolerance_qualifier,
       User_defined_geometric_tolerance_qualifier));
@@ -354,10 +305,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Shape_dimension_representation);
       upper_dimension_value : Value_with_unit;
       lower_dimension_value : Value_with_unit;
-  END_ENTITY;
-
-  ENTITY Linear_extension
-    SUBTYPE OF (Derived_non_feature_shape_element);
   END_ENTITY;
 
   ENTITY Maximum_dimension_representation
@@ -508,7 +455,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Shape_element_deriving_relationship
     SUBTYPE OF (Shape_element_relationship);
-      SELF\Shape_element_relationship.relating : Derived_non_feature_shape_element;
+      SELF\Shape_element_relationship.relating : Derived_shape_element;
     UNIQUE
       UR1 : SELF\Shape_element_relationship.related, 
         SELF\Shape_element_relationship.relating;
@@ -554,17 +501,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       get_rvd(SELF, 'statistical control requirement');
 	WHERE
       WR1 : (SIZEOF(statistical_control_requirement) = 1);
-  END_ENTITY;
-
-  ENTITY Tangent_plane
-    SUBTYPE OF (Tangent_shape_element);
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Tangent_shape_element
-    SUPERTYPE OF (Tangent_plane)
-    SUBTYPE OF (Derived_non_feature_shape_element);
   END_ENTITY;
 
   ENTITY Theoretically_exact_dimension_representation

@@ -1,5 +1,5 @@
 (* 
-$Id: arm.exp,v 1.10 2010/09/21 21:27:34 lothartklein Exp $  
+$Id: arm.exp,v 1.11 2010/09/21 22:40:28 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -17,15 +17,115 @@ TYPE dse_shape_model = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON shape_model WIT
    Constructive_geometry);
 END_TYPE;
 
-ENTITY Derived_shape_element
-  SUBTYPE OF (Shape_element);
-  derived_from : SET[1:?] OF Shape_element;
-  SELF\Shape_element.description RENAMED role : STRING;
+ENTITY Apex
+  SUBTYPE OF (Derived_shape_element);
 END_ENTITY;
+
+ENTITY Centre_axis
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+ENTITY Centre_of_symmetry
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Centre_axis,
+    Centre_plane,
+    Centre_point))
+  SUBTYPE OF (Derived_shape_element);
+END_ENTITY;
+
+ENTITY Centre_plane
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+ENTITY Centre_point
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+  
+ENTITY Geometric_alignment
+  SUBTYPE OF (Derived_shape_element);
+END_ENTITY;
+
+ENTITY Geometric_intersection
+  SUBTYPE OF (Derived_shape_element);
+END_ENTITY;
+
+ENTITY Linear_extension
+  SUBTYPE OF (Derived_shape_element);
+END_ENTITY;
+
+ENTITY Tangent_plane
+  SUBTYPE OF (Tangent_shape_element);
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+ENTITY Tangent_shape_element
+  SUPERTYPE OF (Tangent_plane)
+  SUBTYPE OF (Derived_shape_element);
+END_ENTITY;
+
+ENTITY Derived_shape_element
+  ABSTRACT SUPERTYPE OF (ONEOF (Apex,
+    Centre_of_symmetry,
+    Linear_extension,
+    Geometric_intersection,
+    Geometric_alignment,
+    Tangent_shape_element))
+  SUBTYPE OF (Non_feature_shape_element);
+  derived_from : SET[1:?] OF Shape_element;
+--  SELF\Shape_element.description RENAMED role : STRING;
+-- DERIVE
+--  geometric_element : Detailed_geometric_model_element := dse_get_geometric_element(SELF);
+INVERSE
+  item_specific_usage  : SET [0:1] OF Geometric_item_specific_usage FOR definition;
+  representation_usage : SET [0:1] OF Shape_description_association FOR represented_characteristic;  
+WHERE
+  WR1 : NOT((SIZEOF(item_specific_usage)  = 1) AND (SIZEOF(representation_usage) = 1));
+--  WR2 : SIZEOF(geometry) <= 1;
+  WR3 : NOT ('EXTERNAL_MODEL_ARM.EXTERNAL_GEOMETRIC_MODEL' IN
+    TYPEOF(representation_usage[1]\Shape_description_association.representation));
+END_ENTITY;
+
+(*
+FUNCTION dse_get_geometric_element(Derived_shape_element,
+dse_pre_defined_geometric_element_types) : Detailed_geometric_model_element;
+--for now this is just the function prototype
+--This function returns the Detailed_geometric_model_element specified by
+either the item_specific_usage or the representation_usage.
+--For the case of item_specific_usage the item specified by
+Geometric_item_specific_usage is returned regardless of it's TYPE.
+--For the case of representation_usage, the first
+Detailed_geometric_model_element in Shape_representation that matches a TYPE in
+dse_pre_defined_geometric_element_types is returned
+--
+RETURN(?);
+END_FUNCTION;
+*)
 
 ENTITY Offset_shape_element
   SUBTYPE OF (Derived_shape_element);
   offset : Value_with_unit;
+END_ENTITY;
+
+ENTITY Non_feature_shape_element
+  SUBTYPE OF (Shape_element);
+--    SELF\Shape_element.element_name : STRING;
+--    SELF\Shape_element.containing_shape RENAMED scope : ee_product_definition_with_annotation_elements;
+--  INVERSE
+--    element_shape            : SET[0:?] OF non_feature_shape_model FOR associated_element;
+--    associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
+UNIQUE
+--      UR1 : SELF\Shape_element.element_name, scope;
+  UR1 : SELF\Shape_element.element_name, SELF\Shape_element.containing_shape;
+--    WHERE
+--      WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) OR (SIZEOF(element_shape) > 0));
+--      WR2 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
 END_ENTITY;
 
 END_SCHEMA;  -- Derived_shape_element_arm

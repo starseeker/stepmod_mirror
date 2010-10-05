@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.61 2009/02/12 18:56:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.62 2009/04/23 11:52:12 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6453 - ISO/TS 10303-1706 Non feature shape element - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5719
 *)
@@ -8,9 +8,6 @@ SCHEMA Non_feature_shape_element_arm;
 
 	USE FROM Physical_unit_shape_with_parameters_arm;	-- ISO/TS 10303-1730
   
-  TYPE ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
 	TYPE nfse_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
 		(Non_feature_shape_element);
 	END_TYPE;
@@ -50,20 +47,6 @@ SCHEMA Non_feature_shape_element_arm;
       WR1 : TYPEOF(SELF) <> TYPEOF(model_shape);
       WR2 : NOT EXISTS(SELF\Representation.id);
       WR3 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            
-  END_ENTITY;
-
-  ENTITY Non_feature_shape_element
-    SUBTYPE OF (Shape_element);
-      SELF\Shape_element.element_name : STRING;
-      SELF\Shape_element.containing_shape RENAMED scope : ee_product_definition_with_annotation_elements;
-    INVERSE
-      element_shape            : SET[0:?] OF non_feature_shape_model FOR associated_element;
-      associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
-    UNIQUE
-      UR1 : SELF\Shape_element.element_name, scope;
-    WHERE
-      WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) OR (SIZEOF(element_shape) > 0));
-      WR2 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
   END_ENTITY;
 
   ENTITY Non_feature_shape_element_relationship

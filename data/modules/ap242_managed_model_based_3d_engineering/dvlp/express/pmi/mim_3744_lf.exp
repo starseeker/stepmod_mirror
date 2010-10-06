@@ -1,5 +1,5 @@
 (*
-// $Id: mim_3744_lf.exp,v 1.5 2010/09/29 22:04:15 thomasrthurman Exp $
+// $Id: mim_3744_lf.exp,v 1.6 2010/10/02 13:47:39 thomasrthurman Exp $
 In development. This schema is for testing purposes only.
 This schema is located at stepmod/data/modules/ap242*/dvlp/express!!
 filename: mim_3744_lf.exp
@@ -6323,6 +6323,8 @@ TYPE geometric_tolerance_target = SELECT (
   shape_aspect_relationship,
   dimensional_size);
 END_TYPE;  
+--tt shape_aspect_relationship is a SUPERTYPE of dimensional_location
+
   
 
 
@@ -6359,9 +6361,12 @@ TYPE datum_system_or_reference = SELECT (
 END_TYPE;
 
 --tt added from shape_aspect_definition_schema v1.6
+-- bug #3744
 ENTITY datum_system
   SUBTYPE OF (shape_aspect);
   constituents : LIST [1:3] OF datum_reference_compartment;
+WHERE
+   WR1: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;    
 
 --tt added from shape_aspect_definition_schema v1.9
@@ -6373,7 +6378,7 @@ ENTITY general_datum_reference
   ABSTRACT SUPERTYPE OF (ONEOF (datum_reference_compartment, datum_reference_element))
   SUBTYPE OF (shape_aspect);
   base : datum_or_common_datum;
-  modifiers : OPTIONAL SET [1:?] OF simple_or_complex_datum_reference_modifiers;
+  modifiers : SET [0:?] OF simple_or_complex_datum_reference_modifiers;
 WHERE
    WR1: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;  

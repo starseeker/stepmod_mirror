@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1130">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="derived_shape_element_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Derived_shape_element_arm">
       <interface kind="use" schema="Construction_geometry_arm"/>
@@ -11,21 +11,43 @@
       <type name="dse_shape_model">
          <select basedon="shape_model" extensible="YES" genericentity="YES" selectitems="Constructive_geometry"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Derived_shape_element" supertypes="Shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Apex" supertypes="Derived_shape_element"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Centre_axis" supertypes="Centre_of_symmetry">
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Centre_of_symmetry" super.expression="ONEOF (Centre_axis, Centre_plane, Centre_point)" supertypes="Derived_shape_element"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Centre_plane" supertypes="Centre_of_symmetry">
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Centre_point" supertypes="Centre_of_symmetry">
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Derived_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)" supertypes="Shape_element">
          <explicit name="derived_from" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Shape_element"/>
          </explicit>
-         <explicit name="role" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-            <redeclaration entity-ref="Shape_element" old_name="description"/>
-         </explicit>
+         <inverse attribute="definition" entity="Geometric_item_specific_usage" name="item_specific_usage">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <inverse attribute="represented_characteristic" entity="Shape_description_association" name="representation_usage">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <where expression="NOT((SIZEOF(item_specific_usage)  = 1) AND (SIZEOF(representation_usage) = 1))" label="WR1"/>
+         <where expression="NOT ('EXTERNAL_MODEL_ARM.EXTERNAL_GEOMETRIC_MODEL' IN&#10;    TYPEOF(representation_usage[1]\Shape_description_association.representation))" label="WR3"/>
       <where label="IP1"/>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Geometric_alignment" supertypes="Derived_shape_element"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Geometric_intersection" supertypes="Derived_shape_element"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Linear_extension" supertypes="Derived_shape_element"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Offset_shape_element" supertypes="Derived_shape_element">
          <explicit name="offset" optional="NO">
             <typename name="Value_with_unit"/>
          </explicit>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Tangent_plane" supertypes="Tangent_shape_element">
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Tangent_shape_element" super.expression="Tangent_plane" supertypes="Derived_shape_element"/>
    </schema>
 </express>

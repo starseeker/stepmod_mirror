@@ -1,5 +1,5 @@
 (* 
-$Id: arm.exp,v 1.12 2010/10/05 18:35:25 lothartklein Exp $  
+$Id: arm.exp,v 1.13 2010/10/06 21:23:32 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -49,39 +49,59 @@ END_ENTITY;
   
 ENTITY Geometric_alignment
   SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
 END_ENTITY;
 
 ENTITY Geometric_intersection
   SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
 END_ENTITY;
 
-ENTITY Linear_extension
+ENTITY Extension
   SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
+END_ENTITY;
+
+ENTITY Parallel_offset
+  SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
+END_ENTITY;
+
+ENTITY Perpendicular_to
+  SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
+END_ENTITY;
+
+ENTITY Geometric_contact
+  SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[2:2] OF Shape_element;
 END_ENTITY;
 
 ENTITY Tangent_plane
-  SUBTYPE OF (Tangent_shape_element);
+  SUBTYPE OF (Tangent);
   WHERE
     WR1 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
 
-ENTITY Tangent_shape_element
+ENTITY Tangent
   SUPERTYPE OF (Tangent_plane)
   SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
 END_ENTITY;
 
 ENTITY Derived_shape_element
-  ABSTRACT SUPERTYPE OF (ONEOF (Apex,
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Apex,
     Centre_of_symmetry,
-    Linear_extension,
+    Geometric_contact,    
+    Extension,
     Geometric_intersection,
     Geometric_alignment,
-    Tangent_shape_element))
+    Parallel_offset,
+    Perpendicular_to,
+    Tangent))
   SUBTYPE OF (Shape_element);
   derived_from : SET[1:?] OF Shape_element;
---  SELF\Shape_element.description RENAMED role : STRING;
--- DERIVE
---  geometric_element : Detailed_geometric_model_element := dse_get_geometric_element(SELF);
 INVERSE
   item_specific_usage  : SET [0:1] OF Geometric_item_specific_usage FOR definition;
   representation_usage : SET [0:1] OF Shape_description_association FOR represented_characteristic;  

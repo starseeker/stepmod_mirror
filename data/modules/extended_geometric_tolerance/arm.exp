@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.64 2010/10/05 18:35:25 lothartklein Exp $
+   $Id: arm.exp,v 1.65 2010/10/06 21:16:58 lothartklein Exp $
    ISO TC184/SC4/WG12 N6363 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5638
 *)
@@ -225,11 +225,9 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	SUBTYPE OF (Datum, Non_feature_shape_element);
   END_ENTITY;
 
-ENTITY Derived_non_feature_shape_element 	 
-  SUBTYPE OF (Derived_shape_element, Non_feature_shape_element); 	 
-INVERSE 	 
-  deriving_relationships : SET[1:?] OF shape_element_deriving_relationship FOR relating; 	 
-END_ENTITY;
+  ENTITY Derived_non_feature_shape_element 	 
+    SUBTYPE OF (Derived_shape_element, Non_feature_shape_element); 	 
+  END_ENTITY;
 	   
   ENTITY Diametrical_boundary_size_characteristic
     SUBTYPE OF (Boundary_size_characteristic);
@@ -325,18 +323,6 @@ END_ENTITY;
     SUBTYPE OF (Boundary_size_characteristic);
       sized_boundary_set : Tolerance_zone_opposing_boundary_set;
   END_ENTITY;
-
-  ENTITY Parallel_shape_element_relationship
-    SUBTYPE OF (Shape_element_relationship);
-    WHERE
-      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
-  END_ENTITY;
-
-  ENTITY Perpendicular_shape_element_relationship
-    SUBTYPE OF (Shape_element_relationship);
-    WHERE
-      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
-  END_ENTITY; 
 
   ENTITY Positional_boundary
     ABSTRACT SUPERTYPE OF (ONEOF (Profile_related_positional_boundary,
@@ -457,14 +443,6 @@ END_ENTITY;
     ABSTRACT SUPERTYPE OF (ONEOF (Limit_dimension_representation,
       Singular_dimension_representation,
       externally_defined_dimension_representation));
-  END_ENTITY;
-
-  ENTITY Shape_element_deriving_relationship
-    SUBTYPE OF (Shape_element_relationship);
-      SELF\Shape_element_relationship.relating : Derived_non_feature_shape_element;
-    UNIQUE
-      UR1 : SELF\Shape_element_relationship.related, 
-        SELF\Shape_element_relationship.relating;
   END_ENTITY;
 
   ENTITY Simultaneous_geometric_tolerance_requirement;

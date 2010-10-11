@@ -64,6 +64,7 @@
 ################################################################################
 
 use strict;
+use Utils;
 use File::Basename;
 use File::Copy;
 use File::Spec;
@@ -83,77 +84,6 @@ BEGIN {
 }
 
 my $arg_count = 0;
-
-sub text_to_number {
-    my ($txt) = @_;
-    if ($txt eq "first") {
-	return 1;
-    }
-    elsif ($txt eq "second") {
-	return 2;
-    }
-    elsif ($txt eq "third") {
-	return 3;
-    }
-    elsif ($txt eq "fourth") {
-	return 4;
-    }
-    elsif ($txt eq "fifth") {
-	return 5;
-    }
-    elsif ($txt eq "sixth") {
-	return 6;
-    }
-    elsif ($txt eq "seventh") {
-	return 7;
-    }
-    elsif ($txt eq "eighth") {
-	return 8;
-    }
-    elsif ($txt eq "ninth") {
-	return 9;
-    }
-    elsif ($txt eq "tenth") {
-	return 10;
-    }
-    else {
-	return $txt;
-    }
-}
-
-sub is_html {
-    my ($file_path) = @_;
-    if ($file_path =~ m/\.htm$/) {
-	return 1;
-    }
-    return 0;
-}
-
-sub my_normalize {
-    my ($source_dir_uri, $original_link) = @_;
-    my $uri = URI->new_abs($original_link,$source_dir_uri);
-    my $modified_link = $uri->rel($source_dir_uri);
-    return $modified_link;
-}
-
-sub my_denormalize {
-    my ($source_dir_uri, $original_link) = @_;
-    my $modified_link = $original_link;
-    if (!($modified_link =~ m|^http:|)) {
-	if ($source_dir_uri =~ m|/sys$|) {
-	    $modified_link =~ s|^(\w)|../sys/\1|;
-	}
-	else {
-	    $modified_link =~ s|^([A-Za-z0-9])|./\1|;
-	    if ($modified_link =~ s|^\.\./sys|./sys|) {
-	    }
-	    else {
-		$modified_link =~ s|^\.\./(\w)|../../../data/modules/\1|;
-	    }
-	}
-    }
-    return $modified_link;
-}
 
 sub process_part_list {
     my ($source_root, $dest_root, $part_list_path, $pub_date) = @_;
@@ -193,7 +123,9 @@ sub process_node {
     my $source_node_path = "$source_root/$node_rel_path";
     my $dest_node_path = "$dest_root/$node_rel_path";
     if (-d $source_node_path) {
-	mkdir($dest_node_path, "777");
+	unless (-d $dest_node_path) {
+	    mkdir($dest_node_path, "777") or die "Could not create directory";
+	}
 	opendir my($dh), $source_node_path or die "cannot open dir $source_node_path: $!";
 	my @children = grep { /^[^\.]/ } readdir($dh);
 	closedir $dh;
@@ -224,7 +156,7 @@ sub process_file {
     my $source_dir_abs_path = File::Spec->rel2abs($source_dir_path);
     my $source_dir_uri = URI::file->new($source_dir_abs_path);
     my $dest_file_path = "$dest_root/$node_rel_path";
-    if (is_html($source_file_path)) {
+    if (Utils::is_html($source_file_path)) {
 	my $content;
 	{
 	    local($/, *SOURCE_FILE);
@@ -252,7 +184,7 @@ sub process_file {
 	close DEST_FILE;
     }
     else {
-	copy($source_file_path,$dest_file_path) or die "Copy failed: $!";	
+	copy($source_file_path,$dest_file_path) or die "Copy failed: $!";
     }
 }
 
@@ -271,8 +203,8 @@ sub process_foreword {
 	    my $previous_standard_no = $7;
 	    my $previous_part_no = $8;
 	    my $previous_year = $9;
-	    my $current_edition = text_to_number($current_edition);
-	    my $previous_edition = text_to_number($previous_edition);
+	    my $current_edition = Utils::text_to_number($current_edition);
+	    my $previous_edition = Utils::text_to_number($previous_edition);
 	    if ($current_prefix ne "ISO/TS") {
 		print "Warning: current prefix $current_prefix not \"ISO/TS\".";
 	    }
@@ -307,12 +239,19 @@ sub apply_special_edits {
     $pub_year_mo =~ s/-[0-9]+$//;
     my $pub_year = $pub_year_mo;
     $pub_year =~ s/-[0-9]+$//;
+    my $pub_for_header;
+    if ($pub_year < 2010) {
+	$pub_for_header = $pub_year;
+    }
+    else {
+	$pub_for_header = $pub_year_mo;
+    }
 
     while ($content =~ s%\(ISO/TS 10303-$part_number:([0-9]+(:?-[0-9]{2})?)\)%xxxx$1xxxx%) {}
     # change 1: replace "ISO/CD-TS" with "ISO/TS"
     $content =~ s|ISO/CD-TS|ISO/TS|g;
     # change 2: replace date in part number with <pub_year_mo>
-    $content =~ s|10303-$part_number:[0-9]{4}(:?[-][9]{2})?|10303-$part_number:$pub_year_mo|g;
+    $content =~ s|10303-$part_number:[0-9]{4}(:?[-][9]{2})?|10303-$part_number:$pub_for_header|g;
     # change 2a: replace date placeholder with <pub_date>
     $content =~ s|$date_placeholder|$pub_date|;
     # change 3: remove superscript reference to "To be published" footnote

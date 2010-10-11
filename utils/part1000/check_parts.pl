@@ -29,6 +29,8 @@
 ################################################################################
 
 use strict;
+use Foreword;
+use Utils;
 use File::Spec;
 use Getopt::Long;
 
@@ -42,6 +44,14 @@ my $arg_count = 0;
 sub is_html {
     my ($file_path) = @_;
     if ($file_path =~ m/\.htm$/) {
+	return 1;
+    }
+    return 0;
+}
+
+sub is_foreword {
+    my ($file_path) = @_;
+    if ($file_path =~ m|/foreword\.htm$|) {
 	return 1;
     }
     return 0;
@@ -62,6 +72,13 @@ sub check_content {
     }
     if ($content =~ m^(Jim Long)^) {
 	print_error("Jim Long", $source_file_path, $designator);
+    }
+    if (is_foreword($source_file_path)) {
+	my $foreword = new Foreword($content, $source_file_path, $designator);
+	$foreword->print();
+	if (!$foreword->check()) {
+	    print BAD_FILE "$source_file_path\n";
+	}
     }
 }
 
@@ -110,6 +127,9 @@ sub process_node {
 	    else {
 		$child_rel_path = "$node_rel_path/$child";
 	    }
+	    if ($node_rel_path =~ m|/data/[^/]+$|) {
+		print "processing $child_rel_path\n";
+	    }
 	    process_node($source_root, $child_rel_path);
 	}
     }
@@ -130,6 +150,11 @@ sub process_file {
 	    $content = <SOURCE_FILE>;
 	    close SOURCE_FILE;
 	}
+
+	$content =~ s/&nbsp;/ /g;
+	$content =~ s/\s+/ /g;
+	$content =~ s/ :/:/g;
+
 	if ($content =~ m%<(?:TITLE|title)>(ISO(?:/TS)?\s+[0-9]+(:?-[0-9]+)?:[0-9]{4}(:?-[0-9]{2})?)\s*([^<]+)</(TITLE|title)>%) {
 	    my $designator = $1;
 	    my $title = $2;
@@ -146,12 +171,16 @@ sub main {
 
     my $source_root = $ARGV[0];
 
+    open BAD_FILE, ">bad.txt";
+
     if ($part_list_path eq "") {
 	process_node($source_root, "");
     }
     else {
 	process_part_list($source_root, $part_list_path);
     }
+
+    close BAD_FILE;
 }
 
 main();

@@ -51,6 +51,7 @@
 
 #use strict;
 #use re 'debug';
+use Utils;
 use File::Spec;
 use Getopt::Long;
 use Desig_info;
@@ -111,14 +112,6 @@ sub main {
 }
 
 my $arg_count = 0;
-
-sub trim($)
-{
-    my ($string) = @_;
-    $string =~ s/^\s+//;
-    $string =~ s/\s+$//;
-    return $string;
-}
 
 sub ord_to_card {
     my ($card) = @_;
@@ -207,7 +200,7 @@ sub process_file {
     $content =~ s/&nbsp;/ /g;
     $content =~ s/\s+/ /g;
     $content =~ s/ :/:/g;
-    $content =~ m|Part ([0-9]+):|;
+    #$content =~ m|Part ([0-9]+):|;
     my $part_number;
     my $french_title;
     my $english_title;
@@ -220,7 +213,7 @@ sub process_file {
 
     if ($content =~ m@(?:TECHNICAL SPECIFICATION|INTERNATIONAL STANDARD) ([^<]+)<@) {
 	$top_desig = $1;
-	$top_desig = trim($top_desig);
+	$top_desig = Utils::trim($top_desig);
     }
     else {
 	print "Error: could not find top\n";
@@ -250,7 +243,7 @@ sub process_file {
     }
     if ($content =~ m|<a href="./contents.htm" target="_self">([^<]*)</a>|) {
 	$gateway_desig = $1;
-	$gateway_desig = trim($gateway_desig);
+	$gateway_desig = Utils::trim($gateway_desig);
     }
     else {
 	print "Error: could not find gateway.\n";
@@ -322,5 +315,5 @@ sub process_file {
     print HTMLFILE "<td class=\"english_title\">$english_title</english_title>\n";
     print HTMLFILE "<td class=\"french_title\">$french_title</french_title>\n";
     print HTMLFILE "</tr>\n";
-    print CSVFILE "$source_file_path\t$part_number\t$edition\t$date\t$english_title\t$french_title\t$gateway_desig\n";
+    print CSVFILE "\"$source_file_path\",$part_number,$edition,$date,\"$top_desig\",\"$english_title\",\"$french_title\",$error\n";
 }

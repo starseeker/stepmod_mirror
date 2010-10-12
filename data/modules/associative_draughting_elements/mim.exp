@@ -16,16 +16,22 @@ USE FROM draughting_dimension_schema(dimension_callout); --  ISO 10303-101
 
 USE FROM product_property_definition_schema(shape_definition); -- ISO 10303-41
 
-  TYPE draughting_model_item_association_select = SELECT
-    (annotation_occurrence,
-     draughting_callout);
-  END_TYPE;
+TYPE draughting_model_item_association_select = SELECT (
+  annotation_occurrence,
+  draughting_callout);
+END_TYPE;
 
-  ENTITY draughting_model_item_association
-    SUBTYPE OF(item_identified_representation_usage);
-      SELF\item_identified_representation_usage.definition          : shape_definition;
-      SELF\item_identified_representation_usage.used_representation : draughting_model;
-      SELF\item_identified_representation_usage.identified_item     : draughting_model_item_association_select;
-  END_ENTITY;
+TYPE draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
+  product_definition_shape, 
+  shape_aspect, 
+  shape_aspect_relationship);
+END_TYPE;
+  
+ENTITY draughting_model_item_association
+  SUBTYPE OF(item_identified_representation_usage);
+  SELF\item_identified_representation_usage.definition          : draughting_model_item_definition;
+  SELF\item_identified_representation_usage.used_representation : draughting_model;
+  SELF\item_identified_representation_usage.identified_item     : draughting_model_item_association_select;
+END_ENTITY;
 
 END_SCHEMA;  

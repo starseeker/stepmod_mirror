@@ -1,16 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-06-04 04:40:29 -0700 (Pr, 04 Bir 2007) $" rcs.revision="$Revision: 1131 $" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="dimension_and_tolerance_callouts_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1362">
+   <application name="JSDAI" owner="LKSoft" source="dimension_and_tolerance_callouts_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Dimension_and_tolerance_callouts_mim">
-      <interface kind="use" schema="Dimension_tolerance_mim"/>
-      <interface kind="use" schema="Draughting_element_specialisations_mim"/>
-      <interface kind="use" schema="Draughting_annotation_mim"/>
       <interface kind="use" schema="Associative_draughting_elements_mim"/>
+      <interface kind="use" schema="Dimension_tolerance_mim"/>
+      <interface kind="use" schema="Draughting_annotation_mim"/>
+      <interface kind="use" schema="Draughting_element_specialisations_mim"/>
+      <interface kind="use" schema="Geometric_tolerance_mim"/>
+      <type name="datc_draughting_model_item_definition">
+         <select basedon="draughting_model_item_definition" genericentity="YES" selectitems="dimensional_size geometric_tolerance"/>
+      </type>
       <type name="dimensioning_standard_document_reference_item">
-         <select extensible="YES" basedon="document_reference_item" selectitems="product_definition"/>
+         <select basedon="document_reference_item" extensible="YES" selectitems="product_definition"/>
       </type>
       <entity name="dimension_curve_terminator_to_projection_curve_associativity" supertypes="annotation_occurrence_associativity">
          <explicit name="relating_annotation_occurrence">
@@ -22,9 +26,9 @@
             <redeclaration entity-ref="annotation_occurrence_relationship"/>
          </explicit>
       </entity>
-      <rule name="draughting_model_items_constraint" appliesto="draughting_model">
-         <where label="WR1" expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;        NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;        (('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE' IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' IN TYPEOF(it1)))&#10;          )) = 0)&#10;        )) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;        NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;        (('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS' IN TYPEOF(it1)))&#10;          )) = 0)&#10;        )) = 0"/>
+      <rule appliesto="draughting_model" name="draughting_model_items_constraint">
+         <where expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;    NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;    (('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE' IN TYPEOF(it1))&#10;    AND&#10;    NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' IN TYPEOF(it1)))&#10;      )) = 0)&#10;    )) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;    NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;    (('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(it1))&#10;    AND&#10;    NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS' IN TYPEOF(it1)))&#10;      )) = 0)&#10;    )) = 0" label="WR2"/>
       </rule>
    </schema>
 </express>

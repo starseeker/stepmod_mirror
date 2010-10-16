@@ -30,6 +30,24 @@
       <type name="shapeable_item">
          <select extensible="YES" genericentity="YES" selectitems="Product_occurrence_definition_relationship Product_view_definition View_definition_usage"/>
       </type>
+      <entity name="Associated_item_shape" supertypes="Item_shape">
+         <derived expression="association.representation" name="associated_model">
+            <typename name="shape_model"/>
+         </derived>
+         <inverse attribute="represented_characteristic" entity="Shape_description_association" name="association"/>
+      </entity>
+      <entity name="Associated_shape_element" supertypes="Shape_element">
+         <explicit name="containing_shape">
+            <typename name="Associated_item_shape"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <derived expression="association.identified_item" name="associated_item">
+            <typename name="Detailed_geometric_model_element"/>
+         </derived>
+         <inverse attribute="definition" entity="Geometric_item_specific_usage" name="association"/>
+         <where expression="EXISTS(associated_item)" label="wr1"/>
+         <where expression="association.used_model.context_of_items = SELF\Shape_element.containing_shape\Associated_shape_element.association.representation.context_of_items" label="wr2"/>
+      </entity>
       <entity name="Chain_based_geometric_item_specific_usage" supertypes="Geometric_item_specific_usage">
          <explicit name="nodes">
             <aggregate lower="2" type="LIST" unique="YES" upper="?"/>
@@ -109,7 +127,7 @@
          <explicit name="id" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="element_name" optional="YES">
+         <explicit name="element_name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="description" optional="YES">
@@ -141,16 +159,16 @@
          </parameter>
          <typename name="Product_view_definition"/>
          <algorithm>IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'
-      IN TYPEOF(input\Item_shape.described_element))
-      THEN
-        RETURN(input\Item_shape.described_element\View_definition_relationship.related_view);
-    END_IF;
-    IF ('ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP' IN
-        TYPEOF(input\Item_shape.described_element))
-      THEN
-        RETURN(input\Item_shape.described_element\Product_occurrence_definition_relationship.related_view);
-    END_IF;    
-    RETURN(?);</algorithm>
+    IN TYPEOF(input\Item_shape.described_element))
+    THEN
+      RETURN(input\Item_shape.described_element\View_definition_relationship.related_view);
+  END_IF;
+  IF ('ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP' IN
+      TYPEOF(input\Item_shape.described_element))
+    THEN
+      RETURN(input\Item_shape.described_element\Product_occurrence_definition_relationship.related_view);
+  END_IF;    
+  RETURN(?);</algorithm>
       </function>
    </schema>
 </express>

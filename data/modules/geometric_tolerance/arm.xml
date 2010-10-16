@@ -7,11 +7,33 @@
    <schema name="Geometric_tolerance_arm">
       <interface kind="use" schema="Derived_shape_element_arm"/>
       <interface kind="use" schema="Measure_representation_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm">
+         <interfaced.item name="Length_data_element"/>
+      </interface>
+      <type name="Affected_plane_geometric_tolerance_select">
+         <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance"/>
+      </type>
+      <entity name="Affected_plane_tolerance_zone" supertypes="Tolerance_zone">
+         <explicit name="zone_for">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Affected_plane_geometric_tolerance_select"/>
+            <redeclaration entity-ref="Tolerance_zone"/>
+         </explicit>
+         <explicit name="affected_plane">
+            <typename name="Axis_placement_shape_element"/>
+         </explicit>
+      </entity>
       <entity name="Angularity_tolerance" supertypes="Geometric_tolerance">
          <explicit name="reference_datum">
             <aggregate lower="1" type="SET" upper="2"/>
             <typename name="Datum_reference"/>
          </explicit>
+      </entity>
+      <entity name="Axis_placement_shape_element" supertypes="Associated_shape_element">
+         <derived expression="association.identified_item" name="associated_item">
+            <typename name="Axis_placement"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
       </entity>
       <entity name="Circular_runout_tolerance" supertypes="Geometric_tolerance">
          <explicit name="angle" optional="YES">
@@ -115,31 +137,32 @@
          </explicit>
       </entity>
       <entity name="Line_profile_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="reference_datum">
             <aggregate lower="0" type="SET" upper="3"/>
             <typename name="Datum_reference"/>
          </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
+      <entity name="Non_uniform_zone_definition" supertypes="Tolerance_zone_definition"/>
       <entity name="Parallelism_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="reference_datum">
             <aggregate lower="1" type="SET" upper="2"/>
             <typename name="Datum_reference"/>
          </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Perpendicularity_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="reference_datum">
             <aggregate lower="1" type="SET" upper="3"/>
             <typename name="Datum_reference"/>
          </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
       <entity abstract.supertype="YES" name="Placed_target" super.expression="ONEOF (Target_circle, Target_circular_curve, Target_point, Target_rectangle, Target_straight_line)" supertypes="Datum_target">
          <explicit name="defined_in">
@@ -150,20 +173,25 @@
          </explicit>
       </entity>
       <entity name="Position_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="reference_datum">
             <aggregate lower="0" type="SET" upper="3"/>
             <typename name="Datum_reference"/>
          </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
-      <entity name="Projection" supertypes="Tolerance_zone_definition">
+      <entity name="Projected_zone_definition" supertypes="Tolerance_zone_definition">
          <explicit name="projection_end">
             <typename name="Shape_element"/>
          </explicit>
          <explicit name="projection_length">
-            <typename name="Value_with_unit"/>
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
+      <entity name="Projected_zone_definition_with_offset" supertypes="Projected_zone_definition">
+         <explicit name="offset">
+            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Roundness_tolerance" supertypes="Geometric_tolerance"/>
@@ -173,9 +201,9 @@
          </explicit>
       </entity>
       <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Surface_profile_tolerance" supertypes="Geometric_tolerance">
          <explicit name="reference_datum">
@@ -184,13 +212,13 @@
          </explicit>
       </entity>
       <entity name="Symmetry_tolerance" supertypes="Geometric_tolerance">
-         <explicit name="affected_plane" optional="YES">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="reference_datum">
             <aggregate lower="1" type="SET" upper="3"/>
             <typename name="Datum_reference"/>
          </explicit>
+         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Target_area" supertypes="Datum_target">
          <explicit name="is_defined_by">
@@ -231,7 +259,7 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Tolerance_zone">
+      <entity name="Tolerance_zone" supertypes="Shape_element">
          <explicit name="form_type">
             <builtintype type="STRING"/>
          </explicit>

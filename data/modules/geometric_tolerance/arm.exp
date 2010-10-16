@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.23 2009/12/23 13:26:59 liutkuviene Exp $
+$Id: arm.exp,v 1.24 2010/09/21 22:40:28 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -9,6 +9,29 @@ SCHEMA Geometric_tolerance_arm;
 
 USE FROM Derived_shape_element_arm;    -- ISO/TS 10303-1130
 USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
+USE FROM Value_with_unit_extension_arm (  -- ISO/TS 10303-1753
+  Length_data_element);
+
+TYPE Affected_plane_geometric_tolerance_select = SELECT (
+  Line_profile_tolerance,
+  Parallelism_tolerance,
+  Perpendicularity_tolerance,
+  Position_tolerance,
+  Straightness_tolerance,
+  Symmetry_tolerance);
+END_TYPE;
+
+ENTITY Affected_plane_tolerance_zone
+  SUBTYPE OF (Tolerance_zone);
+  SELF\Tolerance_zone.zone_for : SET[1:?] OF affected_plane_geometric_tolerance_select;
+  affected_plane : Axis_placement_shape_element;
+END_ENTITY;
+
+ENTITY Axis_placement_shape_element
+  SUBTYPE OF (Associated_shape_element);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Axis_placement := association.identified_item;
+END_ENTITY;
 
 ENTITY Angularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
@@ -110,20 +133,23 @@ END_ENTITY;
 
 ENTITY Line_profile_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
   reference_datum : SET[0:3] OF Datum_reference;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Parallelism_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
   reference_datum : SET[1:2] OF Datum_reference;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Perpendicularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
   reference_datum : SET[1:3] OF Datum_reference;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Placed_target
@@ -139,14 +165,24 @@ END_ENTITY;
 
 ENTITY Position_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
   reference_datum : SET[0:3] OF Datum_reference;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
-ENTITY Projection
+ENTITY Projected_zone_definition
   SUBTYPE OF (Tolerance_zone_definition);
   projection_end : Shape_element;
-  projection_length : Value_with_unit;
+  projection_length : Length_data_element;
+END_ENTITY;
+
+ENTITY Projected_zone_definition_with_offset
+  SUBTYPE OF (Projected_zone_definition);
+  offset : Length_data_element;
+END_ENTITY;
+
+ENTITY Non_uniform_zone_definition  
+  SUBTYPE OF (tolerance_zone_definition);  
 END_ENTITY;
 
 ENTITY Roundness_tolerance
@@ -161,7 +197,8 @@ END_ENTITY;
 
 ENTITY Straightness_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Surface_profile_tolerance
@@ -171,8 +208,9 @@ END_ENTITY;
 
 ENTITY Symmetry_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  affected_plane : OPTIONAL Axis_placement;
   reference_datum : SET[1:3] OF Datum_reference;
+INVERSE
+  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Target_area
@@ -214,7 +252,8 @@ ENTITY Tolerance_condition;
   condition : STRING;
 END_ENTITY;
 
-ENTITY Tolerance_zone;
+ENTITY Tolerance_zone
+  SUBTYPE OF (Shape_element);
   form_type : STRING;
   zone_for : SET[1:?] OF Geometric_tolerance;
 END_ENTITY;

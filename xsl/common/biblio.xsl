@@ -394,7 +394,7 @@
 						<xsl:with-param name="module" select="$module"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xsl:variable name="module_xml" select="concat($module_dir,'/module.xml')"/>
+				<xsl:variable name="module_xml" select="concat('../',$module_dir,'/module.xml')"/>
 				<xsl:variable name="module_nodes" select="document(string($module_xml))"/>
 				<xsl:variable name="number" select="position()"/>
 				<p>

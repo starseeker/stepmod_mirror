@@ -13,7 +13,8 @@ REFERENCE FROM measure_schema
     dimensional_exponents,
     length_measure_with_unit,
     measure_with_unit,
-    measure_value);
+    measure_value,
+    plane_angle_measure_with_unit);
 REFERENCE FROM representation_schema
     (representation);
 REFERENCE FROM support_resource_schema
@@ -71,7 +72,7 @@ ENTITY geometric_tolerance
     ANDOR unequally_disposed_geometric_tolerance ); 
   name                    : label;
   description             : text;
-  magnitude               : OPTIONAL measure_with_unit; 
+  magnitude               : OPTIONAL length_measure_with_unit; 
   toleranced_shape_aspect : geometric_tolerance_target; 
 WHERE
   WR1: ('NUMBER' IN TYPEOF
@@ -87,8 +88,13 @@ ENTITY geometric_tolerance_relationship;
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_datum_reference
-   SUBTYPE OF (geometric_tolerance);
-   datum_system : SET [1:?] OF datum_system_or_reference;
+  SUBTYPE OF (geometric_tolerance);
+  datum_system : SET [1:?] OF datum_system_or_reference;
+WHERE
+  wr1: NOT(
+    SIZEOF(QUERY(ds <* datum_system | 'SHAPE_TOLERANCE_SCHEMA.' + 'DATUM_SYSTEM' in TYPEOF(ds))>0)
+    AND NOT (SIZEOF(datum_system)=1)
+       );
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_defined_area_unit
@@ -108,10 +114,10 @@ WHERE
        (unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
 
-  ENTITY geometric_tolerance_with_modifiers
-    SUBTYPE OF (geometric_tolerance);
-    modifiers : SET[1:?] OF geometrical_tolerance_modifier;
-  END_ENTITY;
+ENTITY geometric_tolerance_with_modifiers
+  SUBTYPE OF (geometric_tolerance);
+  modifiers : SET[1:?] OF geometrical_tolerance_modifier;
+END_ENTITY;
 
 TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF
     (maximum_material_requirement,     -- "(M)" or MMR in ISO 2692, MMC in ASME
@@ -164,7 +170,7 @@ ENTITY runout_zone_definition
 END_ENTITY;
 
 ENTITY runout_zone_orientation;
-  angle : measure_with_unit;
+  angle : plane_angle_measure_with_unit;
 END_ENTITY;
 
 ENTITY runout_zone_orientation_reference_direction
@@ -210,7 +216,7 @@ ENTITY limits_and_fits;
   source          : text;
 END_ENTITY;
 
-ENTITY  plus_minus_tolerance;
+ENTITY plus_minus_tolerance;
   range                : tolerance_method_definition; 
   toleranced_dimension : dimensional_characteristic;
 UNIQUE
@@ -231,7 +237,7 @@ END_ENTITY;
 
 ENTITY unequally_disposed_geometric_tolerance
   SUBTYPE OF (geometric_tolerance);
-  displacement : measure_with_unit;
+  displacement : length_measure_with_unit;
 WHERE
   WR1: ('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;

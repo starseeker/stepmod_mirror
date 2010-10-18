@@ -7,64 +7,69 @@
    <schema name="Composite_surface_arm">
       <interface kind="use" schema="Basic_geometry_arm"/>
       <interface kind="use" schema="B_spline_geometry_arm"/>
-      <entity name="Rectangular_composite_surface" supertypes="Bounded_surface">
-         <explicit name="segments">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="1" type="LIST" upper="?"/>
+      <type name="surface_transition_code">
+         <enumeration extensible="NO" items="discontinuous continuous cont_same_gradient cont_same_gradient_same_curvature"/>
+      </type>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Rectangular_composite_surface" supertypes="Bounded_surface">
+         <explicit name="segments" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
             <typename name="Surface_patch"/>
          </explicit>
          <derived expression="SIZEOF(segments)" name="n_u">
-            <builtintype type="INTEGER"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </derived>
          <derived expression="SIZEOF(segments[1])" name="n_v">
-            <builtintype type="INTEGER"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </derived>
          <where expression="SIZEOF(QUERY (s &lt;* segments | n_v &lt;&gt; SIZEOF (s))) = 0" label="WR1"/>
       </entity>
-      <entity name="Surface_patch">
-         <explicit name="parent_surface">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Surface_patch">
+         <explicit name="parent_surface" optional="NO">
             <typename name="Bounded_surface"/>
          </explicit>
-         <explicit name="u_transition">
-            <typename name="transition_code"/>
+         <explicit name="u_transition" optional="NO">
+            <typename name="surface_transition_code"/>
          </explicit>
-         <explicit name="v_transition">
-            <typename name="transition_code"/>
+         <explicit name="v_transition" optional="NO">
+            <typename name="surface_transition_code"/>
          </explicit>
-         <explicit name="u_sense">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="u_sense" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <explicit name="v_sense">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="v_sense" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
          <inverse attribute="segments" entity="Rectangular_composite_surface" name="using_surfaces">
             <inverse.aggregate lower="1" type="BAG" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Trimmed_surface" supertypes="Bounded_surface">
-         <explicit name="basis_surface">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Trimmed_surface" supertypes="Bounded_surface">
+         <explicit name="basis_surface" optional="NO">
             <typename name="Surface"/>
          </explicit>
-         <explicit name="u1">
+         <explicit name="u1" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="u2">
+         <explicit name="u2" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="v1">
+         <explicit name="v1" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="v2">
+         <explicit name="v2" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="usense">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="usense" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <explicit name="vsense">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="vsense" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
          <where expression="u1 &lt;&gt; u2" label="WR1"/>
          <where expression="v1 &lt;&gt; v2" label="WR2"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
    </schema>
 </express>

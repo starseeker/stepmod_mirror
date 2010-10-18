@@ -1,11 +1,11 @@
 (*
- $Id: arm.exp,v 1.4 2009/12/23 13:26:11 liutkuviene Exp $
+ $Id: arm.exp,v 1.5 2010/09/22 17:56:54 lothartklein Exp $
  ISO TC184/SC4/WG12 N7046 - ISO/TS 10303-1789 Geometric constraints - EXPRESS ARM
 *)
 
-
 SCHEMA Geometric_constraints_arm;
 
+USE FROM Basic_curve_arm;
 USE FROM Composite_surface_arm;
 USE FROM Explicit_constraints_arm;
 USE FROM Primitive_solids_arm;
@@ -131,22 +131,16 @@ WHERE
   WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
 END_ENTITY;
 
-ENTITY Curve_segment;
-  transition   : transition_code;
-  same_sense   : BOOLEAN;
-  parent_curve : Curve; 
-END_ENTITY;
-
 ENTITY Curve_segment_set
   SUBTYPE OF (Detailed_geometric_model_element);
-  segments : SET[1:?] OF Curve_segment;
+  segments : SET[1:?] OF Composite_curve_segment;
 END_ENTITY;
 
 ENTITY Curve_smoothness_constraint
   SUBTYPE OF (Explicit_geometric_constraint);
   SELF\Explicit_constraint.constrained_elements : 
     SET[1:1] OF Curve_segment_set;
-  smoothness : transition_code;
+  smoothness : curve_transition_code;
 WHERE
   WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
 END_ENTITY;
@@ -387,8 +381,8 @@ ENTITY Surface_smoothness_constraint
   SUBTYPE OF (Explicit_geometric_constraint);
   SELF\Explicit_constraint.constrained_elements : 
     SET [1:1] OF surface_patch_set;
-  u_smoothness : transition_code;
-  v_smoothness : transition_code;
+  u_smoothness : surface_transition_code;
+  v_smoothness : surface_transition_code;
 WHERE
   WR1: SIZEOF(SELF\Explicit_constraint.reference_elements) = 0;
 END_ENTITY;

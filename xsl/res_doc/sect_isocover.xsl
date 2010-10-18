@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.4 2005/07/11 17:46:00 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.5 2006/02/28 01:06:30 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -476,12 +476,14 @@ $Id: sect_isocover.xsl,v 1.4 2005/07/11 17:46:00 thendrix Exp $
               &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.date"/>
             </span>
           </td>
-
+          <!-- RBN - ISO no longer require price on front page - left here and commented in case
+            it is needed again
           <td width="220" align="right" valign="top">
             <span style="font-size:14; font-family:sans-serif;">
               <b>Price based on <xsl:value-of select="$page_count"/>  pages</b> 
             </span>
-          </td>
+          </td> -->
+          <td width="220" align="right" valign="top">&#160;</td>
         </tr>
 
         <tr>

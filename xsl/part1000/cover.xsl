@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: cover.xsl,v 1.2 2010/09/27 00:50:30 radack Exp $
+    $Id: cover.xsl,v 1.3 2010/10/18 21:46:31 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -16,7 +16,7 @@
             	</span></div>
       <div align="center" style="margin-top:20pt"><span style="font-size:30; font-family:sans-serif; font-weight:bold"><xsl:value-of select="document('../part.xml',.)/part/@title"/></span></div>
       <div align="center" style="margin-top:25pt"><span style="font-size:14; font-family:sans-serif;"><i><xsl:value-of select="document('../part.xml',.)/part/@title.fr"/></i></span></div>
-      <div align="center" style="margin-top:30pt"><span style="font-size:30; font-family:sans-serif;"><a href="../index.htm" target="_top">SMRL <xsl:value-of select="document('../part.xml',.)/part/@publication.year"/>(E)</a></span></div>
+      <div align="center" style="margin-top:30pt"><span style="font-size:30; font-family:sans-serif;"><a href="list_by_name.htm">SMRL <xsl:value-of select="document('../part.xml',.)/part/@publication.year"/>(E)</a></span></div>
       <div align="center" style="margin-top:50pt"><span style="font-size:12; font-family:sans-serif;"><b>
                	    Version <xsl:value-of select="document('../part.xml',.)/part/@version.number"/>: <xsl:value-of select="document('../part.xml',.)/part/@publication.date"/></b></span></div>
       <hr/>

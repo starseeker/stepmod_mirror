@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: cover.xsl,v 1.1 2010/09/01 01:25:26 radack Exp $
+    $Id: cover.xsl,v 1.2 2010/09/27 00:50:30 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -26,7 +26,7 @@
             <td width="310" align="center" valign="top"><span style="font-size:12; font-family:sans-serif;">
                   ©&#160;&#160;&#160;ISO&#160;2010
                   	      </span></td>
-            <td width="220" align="right" valign="top"></td>
+            <td width="220" align="right" valign="top">Price group: <xsl:value-of select="document('../part.xml',.)/part/@price_group"/></td>
          </tr>
          <tr>
             <td width="220"><br/></td>

@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?> 
-<!-- $Id: arm.xml,v 1.16 2005/05/02 11:30:44 rocc Exp $ -->
+<!-- $Id: arm.xml,v 1.17 2009/07/28 14:34:11 philsp Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2005/05/02 11:30:44 $"
-  rcs.revision="$Revision: 1.16 $">
+  rcs.date="$Date: 2009/07/28 14:34:11 $"
+  rcs.revision="$Revision: 1.17 $">
 
   <application
     name="express2xml2.js"
@@ -135,44 +135,30 @@
       <builtintype
         type="BOOLEAN"/>
       <algorithm>
-LOCAL
-result: BOOLEAN;
-END_LOCAL;
-IF ('GENERIC_EXPRESSION_ARM.SIMPLE_GENERIC_EXPRESSION'
-IN TYPEOF (arg1))
-THEN
-RETURN (TRUE);
-END_IF;
-IF arg1 IN arg2
-THEN
-RETURN (FALSE);
-END_IF;
-IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
-IN TYPEOF (arg1)
-THEN
-RETURN
-(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
-END_IF;
-IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
-IN TYPEOF (arg1)
-THEN
-RETURN
-(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
-AND
-Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
-END_IF;
-IF
-'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
-IN TYPEOF (arg1)
-THEN
-result := TRUE;
-REPEAT i := 1 TO
-SIZEOF (arg1\Multiple_arity_generic_expression.operands);
-result := result AND
-Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
-END_REPEAT;
-RETURN (result);
-END_IF;
+      LOCAL
+        result : BOOLEAN;
+      END_LOCAL;
+
+      IF (&apos;GENERIC_EXPRESSION_ARM.SIMPLE_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1)) THEN
+        RETURN (TRUE);
+      END_IF;
+      IF arg1 IN arg2 THEN
+        RETURN (FALSE);
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+        RETURN (Acyclic(arg1\Unary_generic_expression.operand, arg2 + [arg1]));
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+        RETURN (Acyclic(arg1\Binary_generic_expression.operands[1], arg2 + [arg1]) AND 
+                Acyclic(arg1\Binary_generic_expression.operands[2], arg2 + [arg1]));
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+        result := TRUE;
+        REPEAT i := 1 TO SIZEOF(arg1\Multiple_arity_generic_expression.operands);
+          result := result AND Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2 + [arg1]);
+        END_REPEAT;
+        RETURN (result);
+      END_IF;
       </algorithm>
     </function>
 
@@ -186,7 +172,7 @@ END_IF;
       <builtintype
         type="BOOLEAN"/>
       <algorithm>
-RETURN (Acyclic (arg, []));
+      RETURN (Acyclic(arg, []));
       </algorithm>
     </function>
 
@@ -202,37 +188,27 @@ RETURN (Acyclic (arg, []));
       <typename
         name="Generic_variable"/>
       <algorithm>
-LOCAL
-result : SET OF Generic_variable := [];
-END_LOCAL;
-IF 'GENERIC_EXPRESSION_ARM.GENERIC_VARIABLE'
-IN TYPEOF (arg)
-THEN
-RETURN ([arg]);
-END_IF;
-IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
-IN TYPEOF (arg)
-THEN
-RETURN (Used_variables (arg\Unary_generic_expression.operand));
-END_IF;
-IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
-IN TYPEOF (arg)
-THEN
-RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
-+ Used_variables (arg\Binary_generic_expression.operands[2]));
-END_IF;
-IF
-'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
-IN TYPEOF (arg)
-THEN
-REPEAT i := 1 TO
-SIZEOF(arg\Multiple_arity_generic_expression.operands);
-result := result + Used_variables(
-arg\Multiple_arity_generic_expression.operands[i]);
-END_REPEAT;
-RETURN (result);
-END_IF;
-RETURN ([ ]);
+      LOCAL
+        result : SET OF Generic_variable := [];
+      END_LOCAL;
+
+      IF &apos;GENERIC_EXPRESSION_ARM.GENERIC_VARIABLE&apos; IN TYPEOF(arg) THEN
+        RETURN ([arg]);
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg) THEN
+        RETURN (Used_variables(arg\Unary_generic_expression.operand));
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg) THEN
+        RETURN (Used_variables(arg\Binary_generic_expression.operands[1]) + 
+                Used_variables(arg\Binary_generic_expression.operands[2]));
+      END_IF;
+      IF &apos;GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg) THEN
+        REPEAT i := 1 TO SIZEOF(arg\Multiple_arity_generic_expression.operands);
+          result := result + Used_variables(arg\Multiple_arity_generic_expression.operands[i]);
+        END_REPEAT;
+        RETURN (result);
+      END_IF;
+      RETURN ([]);
       </algorithm>
     </function>
 

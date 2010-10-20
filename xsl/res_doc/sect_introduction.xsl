@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.11 2008/05/21 20:50:25 abf Exp $
+$Id: sect_introduction.xsl,v 1.12 2009/10/20 09:11:46 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -46,7 +46,7 @@ $Id: sect_introduction.xsl,v 1.11 2008/05/21 20:50:25 abf Exp $
     products throughout their life cycle. This mechanism is suitable not only
     for neutral file exchange, but also as a basis for implementing and
     sharing product databases, and as a basis 
-    for archiving.
+    for retention and archiving.
   </p>
   <xsl:variable name="doctype" >
     <xsl:apply-templates select="ancestor::*[last()]" mode="doctype"/>

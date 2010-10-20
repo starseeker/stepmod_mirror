@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.221 2010/03/17 10:53:17 robbod Exp $
+$Id: module.xsl,v 1.222 2010/09/04 17:59:41 radack Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1188,7 +1188,7 @@ o=isocs; s=central<br/>
     products throughout their life cycle. This mechanism is suitable not only
     for neutral file exchange, but also as a basis for implementing and
     sharing product databases, and as a basis 
-    for archiving.
+    for retention and archiving.
   </p>
 
   <!-- output any issues -->

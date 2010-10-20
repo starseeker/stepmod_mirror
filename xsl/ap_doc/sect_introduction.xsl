@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.27 2010/03/18 21:09:03 abf Exp $
+     $Id: sect_introduction.xsl,v 1.28 2010/03/19 13:10:33 abf Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -57,7 +57,7 @@
      The objective is to provide a neutral mechanism capable of describing
      products throughout their life cycle. This mechanism is suitable not only
       for neutral file exchange, but also as a basis for implementing and
-     sharing product databases, and as a basis for archiving.
+      sharing product databases, and as a basis for retention and archiving.
    </p>
    
    <xsl:if test="string-length($purpose)=0">

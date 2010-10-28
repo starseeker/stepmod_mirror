@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.222 2010/09/04 17:59:41 radack Exp $
+$Id: module.xsl,v 1.223 2010/10/20 07:44:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -708,15 +708,16 @@ o=isocs; s=central<br/>
           of which it constitutes a technical revision. 
           
           
-          <xsl:choose>
-            <!-- only changed a section of the document -->
+          <!-- No longer use @revision.complete
+           <xsl:choose>
+            <!-\- only changed a section of the document -\->
             <xsl:when test="@revision.complete='NO'">
               <xsl:value-of select="@revision.scope"/>
               of the <xsl:value-of select="$prev_edition"/> 
               edition  
               <xsl:choose>
-                <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                  then must be plural-->
+                <!-\- will be Clauses/Figures/ etc so if contains 'es' 
+                  then must be plural-\->
                 <xsl:when test="contains(@revision.scope,'es')">
                   have
                 </xsl:when>
@@ -727,9 +728,9 @@ o=isocs; s=central<br/>
               been technically revised.
             </xsl:when>
             <xsl:otherwise>
-              <!-- complete revision so no extra text -->
+              <!-\- complete revision so no extra text -\->
             </xsl:otherwise>
-          </xsl:choose>
+          </xsl:choose>-->
           
         </xsl:when>
         

@@ -1,5 +1,7 @@
-(* Genenerated from: ../../irs/wg12n548.exp *)
-(* This file incorporates the proposed solution for SEDS #1286. *)
+(*
+ $Id: mim.exp,v 1.13 2004/10/21 14:45:33 darla Exp $
+ ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
+*)
 
 SCHEMA shape_tolerance_schema;
 REFERENCE FROM product_property_definition_schema
@@ -38,6 +40,23 @@ TYPE datum_system_or_reference = SELECT (
   datum_system);
 END_TYPE;
 
+TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF
+    (maximum_material_requirement,     -- "(M)" or MMR in ISO 2692, MMC in ASME
+     least_material_requirement,       -- "(L)" or LMR in ISO 2692, LMC in ASME
+     reciprocity_requirement,          -- "(R)" or RPR in ISO 2692
+     any_cross_section,                -- "ACS"
+     free_state,                       -- "(F)"
+     common_zone,                      -- "<CZ>"
+     minor_diameter,                   -- "LD"
+     major_diameter,                   -- "MD"
+     pitch_diameter,                   -- "PD"
+     line_element,                     -- "LE"
+     not_convex,                       -- "NC"
+     statistical_tolerance,            -- "<ST>"
+     tangent_plane                     -- "(T)"  ASME Y14.5 only
+    );
+END_TYPE;
+
 TYPE geometric_tolerance_target = SELECT (
   dimensional_size,
   product_definition_shape,
@@ -50,7 +69,7 @@ TYPE tolerance_method_definition = SELECT
    limits_and_fits);
 END_TYPE;
 
-TYPE  shape_tolerance_select = SELECT
+TYPE shape_tolerance_select = SELECT
      (geometric_tolerance,
       plus_minus_tolerance);
 END_TYPE;
@@ -71,7 +90,7 @@ ENTITY geometric_tolerance
     ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance)
     ANDOR unequally_disposed_geometric_tolerance ); 
   name                    : label;
-  description             : text;
+  description             : OPTIONAL text;
   magnitude               : OPTIONAL length_measure_with_unit; 
   toleranced_shape_aspect : geometric_tolerance_target; 
 WHERE
@@ -114,28 +133,20 @@ WHERE
        (unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
 
+ENTITY geometric_tolerance_with_maximum_tolerance
+  SUBTYPE OF (geometric_tolerance_with_modifiers);
+  maximum_upper_tolerance : length_measure_with_unit;
+WHERE
+  wr1 : ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.MAXIMUM_MATERIAL_REQUIREMENT' IN
+          SELF\geometric_tolerance_with_modifiers.modifiers) OR
+        ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.LEAST_MATERIAL_REQUIREMENT' IN
+          SELF\geometric_tolerance_with_modifiers.modifiers);
+END_ENTITY;
+
 ENTITY geometric_tolerance_with_modifiers
   SUBTYPE OF (geometric_tolerance);
   modifiers : SET[1:?] OF geometrical_tolerance_modifier;
 END_ENTITY;
-
-TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF
-    (maximum_material_requirement,     -- "(M)" or MMR in ISO 2692, MMC in ASME
-     least_material_requirement,       -- "(L)" or LMR in ISO 2692, LMC in ASME
-     reciprocity_requirement,          -- "(R)" or RPR in ISO 2692
-     any_cross_section,                -- "ACS"
-     free_state,                       -- "(F)"
-     continuous_feature,               -- "<CZ>"
-     minor_diameter,                   -- "LD"
-     major_diameter,                   -- "MD"
-     pitch_diameter,                   -- "PD"
-     line_element,                     -- "LE"
-     not_convex,                       -- "NC"
-     statistical_tolerance,            -- "<ST>"
-     tangent_plane,                    -- "(T)"  ASME Y14.5 only
-     maximum_geometric_tolerance_value -- "MAX"  ASME Y14.5 only
-    );
-END_TYPE;
 
 ENTITY modified_geometric_tolerance
   SUBTYPE OF (geometric_tolerance);

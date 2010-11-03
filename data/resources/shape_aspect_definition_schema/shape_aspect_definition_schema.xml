@@ -11,6 +11,7 @@
          <interfaced.item name="shape_aspect_relationship"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="length_measure_with_unit"/>
          <interfaced.item name="measure_with_unit"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
@@ -36,14 +37,17 @@
       <type name="datum_or_common_datum">
          <select extensible="NO" genericentity="NO" selectitems="datum common_datum_list"/>
       </type>
+      <type name="datum_reference_boundary_constraint_type">
+         <enumeration extensible="YES" items="circular rectangular"/>
+      </type>
       <type name="datum_reference_modifier">
-         <select extensible="YES" genericentity="NO" selectitems="simple_datum_reference_modifier"/>
+         <select extensible="YES" genericentity="NO" selectitems="simple_datum_reference_modifier datum_reference_boundary_constraint"/>
       </type>
       <type name="limit_condition">
          <enumeration extensible="NO" items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
       </type>
       <type name="simple_datum_reference_modifier">
-         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable"/>
+         <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable constrained_degree_of_freedom_x constrained_degree_of_freedom_y constrained_degree_of_freedom_z constrained_degree_of_freedom_u constrained_degree_of_freedom_v constrained_degree_of_freedom_w"/>
       </type>
       <entity abstract.entity="NO" abstract.supertype="NO" name="all_around_shape_aspect" supertypes="composite_shape_aspect"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="apex" supertypes="derived_shape_aspect"/>
@@ -90,6 +94,18 @@
             <typename name="datum"/>
          </explicit>
          <where expression="precedence &gt; 0" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_boundary_constraint">
+         <explicit name="constrain_type" optional="NO">
+            <typename name="datum_reference_boundary_constraint_type"/>
+         </explicit>
+         <explicit name="constrain_value_1" optional="NO">
+            <typename name="length_measure_with_unit"/>
+         </explicit>
+         <explicit name="constrain_value_2" optional="YES">
+            <typename name="length_measure_with_unit"/>
+         </explicit>
+         <where expression="(constrain_value_1\measure_with_unit.value_component &gt; 0.0) AND (constrain_value_2\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_compartment" supertypes="general_datum_reference">
          <inverse attribute="constituents" entity="datum_system" name="owner"/>

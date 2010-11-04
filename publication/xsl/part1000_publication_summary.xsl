@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.7 2010/02/19 14:30:32 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.8 2010/02/21 10:29:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -106,6 +106,10 @@ $Id: part1000_publication_summary.xsl,v 1.7 2010/02/19 14:30:32 robbod Exp $
           </li>
           <li>
             <a> SC4: Modules error check <a href="modules_check{$FILE_EXT}">check</a>
+            </a>
+          </li>
+          <li>
+            <a> SC4: Modules summary <a href="wgn_summary{$FILE_EXT}">check</a>
             </a>
           </li>
           <li>

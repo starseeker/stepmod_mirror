@@ -1,5 +1,5 @@
 (*
-$Id: arm_lf.exp,v 1.23 2010/04/28 16:21:48 philsp Exp $
+$Id: arm_lf.exp,v 1.24 2010/06/10 21:54:05 philsp Exp $
 ISO TC184/SC4/WG3 N2755 - ISO/TS 10303-1467 Risk management - EXPRESS ARM Long form
 Supersedes ISO TC184/SC4/WG3 N2695
 *) 
@@ -165,6 +165,7 @@ TYPE classification_item = SELECT
     Digital_file, 
     Document_assignment, 
     Hardcopy, 
+    Probability_distribution, 
     Product, 
     Product_relationship, 
     Product_version, 
@@ -1200,6 +1201,12 @@ ENTITY Digital_file
   SUBTYPE OF (File);
 END_ENTITY;
 
+ENTITY Distribution_by_value
+  SUBTYPE OF (Probability_distribution);
+  defined_function : Value_function;
+  distribution_function : STRING;
+END_ENTITY;
+
 ENTITY Document
   SUBTYPE OF (Product);
 END_ENTITY;
@@ -1270,6 +1277,11 @@ ENTITY File_location_identification
   SUBTYPE OF (External_item_identification);
 WHERE
   WR1: 'RISK_MANAGEMENT_ARM_LF.FILE' IN TYPEOF(SELF\External_source_identification.item);
+END_ENTITY;
+
+ENTITY Function_value_pair;
+  function_value : Probability_function_value;
+  variable_value : Random_variable;
 END_ENTITY;
 
 ENTITY Hardcopy
@@ -1399,6 +1411,12 @@ ENTITY Organization_relationship;
   related_organization : Organization;
 END_ENTITY;
 
+ENTITY Parameterized_distribution
+  SUBTYPE OF (Probability_distribution);
+  has_parameters : LIST[1:?] OF Probability_distribution_parameter;
+  parameterization_name : STRING;
+END_ENTITY;
+
 ENTITY Partial_document_assignment
   SUBTYPE OF (Document_assignment);
   document_portion : STRING;
@@ -1447,6 +1465,23 @@ ENTITY Probability_derived
   SUBTYPE OF (Probability_numeric);
   derives_from : Probability_generator;
   has_parameter : LIST[1:?] OF Probability_derivation_parameter;
+END_ENTITY;
+
+ENTITY Probability_distribution
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Probability_generator);
+  distribution_name : OPTIONAL STRING;
+  is_continuous : STRING;
+  mean : REAL;
+  variance : REAL;
+END_ENTITY;
+
+ENTITY Probability_distribution_parameter
+  SUBTYPE OF (Numerical_item_with_global_unit);
+END_ENTITY;
+
+ENTITY Probability_function_value
+  SUBTYPE OF (Numerical_item_with_global_unit);
 END_ENTITY;
 
 ENTITY Probability_generator
@@ -1534,6 +1569,10 @@ END_ENTITY;
 ENTITY Property_value_representation
   SUBTYPE OF (Representation);
   SELF\Representation.context_of_items : Numerical_representation_context;
+END_ENTITY;
+
+ENTITY Random_variable
+  SUBTYPE OF (Numerical_item_with_global_unit);
 END_ENTITY;
 
 ENTITY Ratio_unit
@@ -1884,6 +1923,10 @@ ENTITY Unit
                        Time_unit));
   name : STRING;
   si_unit : BOOLEAN;
+END_ENTITY;
+
+ENTITY Value_function;
+  function_element : LIST[1:?] OF Function_value_pair;
 END_ENTITY;
 
 ENTITY Value_with_unit;

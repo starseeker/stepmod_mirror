@@ -1,0 +1,30 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- characterized_representation - EXPRESS ARM
+*)
+
+SCHEMA Characterized_representation_arm;
+
+USE FROM Characterizable_object_arm; -- ISO/TS 10303-1765
+USE FROM Foundation_representation_arm;  -- ISO/TS 10303-1006;
+REFERENCE FROM Foundation_representation_arm(using_representations);  -- ISO/TS 10303-1006;
+USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
+
+TYPE cr_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
+  Characterized_representation,
+  Characterized_item_within_representation);
+END_TYPE; 
+
+ENTITY Characterized_representation 
+  SUBTYPE OF (Representation, Characterizable_object);
+END_ENTITY;
+
+ENTITY Characterized_item_within_representation
+  SUBTYPE OF (Characterizable_object);
+  item : Representation_item;
+  rep : Representation;
+WHERE
+  WR1: rep IN using_representations(item);
+END_ENTITY;
+ 
+END_SCHEMA;

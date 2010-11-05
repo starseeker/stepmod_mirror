@@ -1,5 +1,5 @@
 (*
- $Id: shape_aspect_definition_schema.exp,v 1.20 2010/11/03 17:26:37 lothartklein Exp $
+ $Id: shape_aspect_definition_schema.exp,v 1.21 2010/11/04 09:32:45 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -35,7 +35,7 @@ END_TYPE;
 
 TYPE datum_reference_modifier = EXTENSIBLE SELECT (
   simple_datum_reference_modifier,
-  datum_reference_boundary_constraint);
+  datum_feature_simulator_constraint);
 END_TYPE;
 
 -- for details see ISO/FDIS 5459:2009, table 2 "Modifier symbols"
@@ -61,19 +61,12 @@ TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF (
 );  
 END_TYPE;
 
-TYPE datum_reference_boundary_constraint_type = EXTENSIBLE ENUMERATION OF (
-  circular,
-  rectangular
+TYPE datum_feature_simulator_constraint_type = EXTENSIBLE ENUMERATION OF (
+  circular_or_cylindrical,
+  spherical,
+  distance
 );
 END_TYPE;
-
-ENTITY datum_reference_boundary_constraint;
-  constrain_type : datum_reference_boundary_constraint_type;
-  constrain_value_1 : length_measure_with_unit;
-  constrain_value_2 : OPTIONAL length_measure_with_unit;
-WHERE
-  WR1: (constrain_value_1\measure_with_unit.value_component > 0.0) AND (constrain_value_2\measure_with_unit.value_component > 0.0); 
-END_ENTITY;
 
 ENTITY common_datum 
   SUBTYPE OF ( composite_shape_aspect , datum );
@@ -117,6 +110,13 @@ WHERE
   WR2: SELF\shape_aspect.product_definitional = TRUE;
 END_ENTITY;
 
+ENTITY datum_feature_simulator_constraint;
+  constraint_type : datum_feature_simulator_constraint_type;
+  constraint_value: length_measure_with_unit;
+WHERE
+  WR1: (constraint_value\measure_with_unit.value_component > 0.0); 
+END_ENTITY;
+ 
 ENTITY datum_target
   SUBTYPE OF (shape_aspect);
   target_id             : identifier; 

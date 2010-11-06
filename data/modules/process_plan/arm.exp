@@ -1,0 +1,74 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- process_plan - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Process_plan_arm;
+
+ENTITY process_operation_definition;
+  id : STRING;
+  name : OPTIONAL string_select;
+  process_type : STRING;
+  description : OPTIONAL string_select;
+  version_id : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY process_operation_definition_relationship;
+  related : process_operation_definition;
+  relation_type : STRING;
+  relating : process_operation_definition;
+END_ENTITY;
+
+ENTITY process_operation_input_or_output;
+  role : STRING;
+  description : OPTIONAL string_select;
+  operation : process_operation_occurrence;
+  element : process_operation_input_or_output_select;
+  placement : OPTIONAL transformation;
+  concerned_shape : SET [0:?] OF shape_element;
+END_ENTITY;
+
+ENTITY process_operation_occurrence;
+  plan : process_plan;
+  is_defined_in : OPTIONAL cartesian_coordinate_space;
+  operation_definition : process_operation_definition;
+  id : STRING;
+END_ENTITY;
+
+ENTITY process_operation_occurrence_relationship;
+  related : process_operation_occurrence;
+  relation_type : STRING;
+  relating : process_operation_occurrence;
+  waiting_time : OPTIONAL property_value;
+  description : OPTIONAL string_select;
+  cycle_time : OPTIONAL duration;
+END_ENTITY;
+
+ENTITY process_operation_resource_assignment;
+  reference_tool : BOOLEAN;
+  operation : process_operation_occurrence;
+  reason : OPTIONAL string_select;
+  resource_definition : resource_definition_select;
+  placement : OPTIONAL transformation;
+END_ENTITY;
+
+ENTITY process_plan;
+  plan_id : STRING;
+  name : OPTIONAL string_select;
+  description : OPTIONAL string_select;
+  produced_output : OPTIONAL SET [1:?] OF item_version;
+END_ENTITY;
+
+ENTITY process_plan_relationship;
+  relating : process_plan;
+  related : process_plan;
+  description : OPTIONAL string_select;
+  relation_type : STRING;
+END_ENTITY;
+
+ENTITY same_time_machining_relationship
+  SUBTYPE OF (item_instance_relationship);
+  description : OPTIONAL string_select;
+  placement : OPTIONAL transformation_select;
+END_ENTITY;
+
+END_SCHEMA;

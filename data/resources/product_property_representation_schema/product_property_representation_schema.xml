@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="product_property_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="product_property_representation_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -10,6 +10,9 @@
          <interfaced.item name="get_description_value"/>
          <interfaced.item name="get_name_value"/>
          <interfaced.item name="name_attribute"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_object"/>
       </interface>
       <interface kind="reference" schema="material_property_definition_schema">
          <interfaced.item name="property_definition_relationship"/>
@@ -77,6 +80,19 @@
          <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;             SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_2))) + &#10;             SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;             SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_2)))) = 2" label="WR6"/>
          <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR&#10;                (root IN using_representations(undirected_link[1]))" label="WR7"/>
          <where expression="SIZEOF(undirected_link) = SIZEOF(directed_link)" label="WR8"/>
+      </entity>
+      <entity name="characterized_item_within_representation" supertypes="characterized_object">
+         <explicit name="item">
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="rep">
+            <typename name="representation"/>
+         </explicit>
+         <unique label="WR1">
+            <unique.attribute attribute="item"/>
+            <unique.attribute attribute="rep"/>
+         </unique>
+         <where expression="rep IN using_representations(item)" label="WR2"/>
       </entity>
       <entity name="context_dependent_shape_representation">
          <explicit name="representation_relation">

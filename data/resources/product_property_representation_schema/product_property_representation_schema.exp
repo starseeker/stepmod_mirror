@@ -12,6 +12,7 @@ changes to product_property_representation_schema and to measure_schema as per T
 
 SCHEMA product_property_representation_schema;
   REFERENCE FROM basic_attribute_schema (description_attribute, get_description_value, get_name_value, name_attribute);
+  REFERENCE FROM product_property_definition_schema(characterized_object);
   REFERENCE FROM material_property_definition_schema (property_definition_relationship);
   REFERENCE FROM product_definition_schema (product_definition, product_definition_relationship);
   REFERENCE FROM product_property_definition_schema (characterized_definition, general_property, product_definition_shape, property_definition, shape_aspect, shape_aspect_relationship);
@@ -63,6 +64,16 @@ SCHEMA product_property_representation_schema;
       WR8 : SIZEOF(undirected_link) = SIZEOF(directed_link);
   END_ENTITY;
  
+  ENTITY characterized_item_within_representation
+    SUBTYPE OF (characterized_object);
+    item : representation_item;
+    rep : representation;
+  UNIQUE
+    WR1: item, rep;
+  WHERE
+    WR2: rep IN using_representations(item);
+  END_ENTITY;
+
   ENTITY context_dependent_shape_representation;
     representation_relation : shape_representation_relationship;
     represented_product_relation : product_definition_shape;

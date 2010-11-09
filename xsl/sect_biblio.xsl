@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_biblio.xsl,v 1.10 2010/09/04 17:59:41 radack Exp $
+$Id: sect_biblio.xsl,v 1.11 2010/09/11 20:23:18 radack Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -36,26 +36,9 @@ $Id: sect_biblio.xsl,v 1.10 2010/09/04 17:59:41 radack Exp $
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- output the defaults -->
-				<xsl:variable name="bibliography_dummy">
-					<bibliography/>
-				</xsl:variable>
-				<xsl:choose>
-					<xsl:when test="function-available('msxsl:node-set')">
-						<xsl:variable name="bibliography_dummy_nodes" select="msxsl:node-set($bibliography_dummy)"/>
-						<xsl:apply-templates select="$bibliography_dummy_nodes/bibliography">
-							<xsl:with-param name="doc_type">module</xsl:with-param>
-						</xsl:apply-templates>
-					</xsl:when>
-					<xsl:when test="function-available('exslt:node-set')">
-						<xsl:variable name="bibliography_dummy_nodes" select="exslt:node-set($bibliography_dummy)"/>
-						<xsl:apply-templates select="$bibliography_dummy_nodes/bibliography">
-							<xsl:with-param name="doc_type">module</xsl:with-param>
-						</xsl:apply-templates>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:message>Only support SAXON and MXSL XSL parsers.</xsl:message>
-					</xsl:otherwise>
-				</xsl:choose>
+				<xsl:apply-templates select="document('../../basic/bibliography_default.xml',.)/bibliography">
+					<xsl:with-param name="doc_type">module</xsl:with-param>
+				</xsl:apply-templates>
 			</xsl:otherwise>
 		</xsl:choose>
 		<!-- check that all bibitems have been published, if not output footnote -->

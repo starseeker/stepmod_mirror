@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: biblio.xsl,v 1.4 2010/10/17 20:08:36 robbod Exp $
+    $Id: biblio.xsl,v 1.5 2010/11/09 00:51:07 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:exslt="http://exslt.org/common" exclude-result-prefixes="msxsl exslt" version="1.0">
 	<xsl:variable name="bib_file">../../data/basic/bibliography.xml</xsl:variable>
@@ -16,6 +16,32 @@
 				<xsl:with-param name="doc_type" select="$doc_type"/>
 			</xsl:call-template>
 		</xsl:variable>
+		<xsl:choose>
+			<xsl:when test="./bibitem.inc[@ref='ref8824-1']">
+				<!-- bibliography contains reference to ISO/IEC 8824-1 -->
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="error_message">
+					<xsl:with-param name="message" select="'Bibliography error: missing reference to ISO/IEC 8824-1#Add &lt;bibitem.inc ref=&quot;ref8824-1&quot;/&gt;'"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+		<xsl:choose>
+			<xsl:when test="$doc_type='module'">
+				<xsl:if test="not(./bibitem.inc[@ref='AMConGde06'])">
+					<xsl:call-template name="error_message">
+						<xsl:with-param name="message" select="'Bibliography error: missing reference to Guidelines for the content of application modules#Add &lt;bibitem.inc ref=&quot;AMConGde06&quot;/&gt;'"/>
+					</xsl:call-template>
+				</xsl:if>
+			</xsl:when>
+			<xsl:when test="$doc_type='AP'">
+				<xsl:if test="not(./bibitem.inc[@ref='APConGde'])">
+					<xsl:call-template name="error_message">
+						<xsl:with-param name="message" select="'Bibliography error: missing reference to Guidelines for the content of application protocols that use application modules#Add &lt;bibitem.inc ref=&quot;APConGde&quot;/&gt;'"/>
+					</xsl:call-template>
+				</xsl:if>
+			</xsl:when>
+		</xsl:choose>
 		<xsl:apply-templates select="./*">
 			<xsl:with-param name="number_start" select="0"/>
 			<xsl:with-param name="bib_file" select="$bib_file"/>

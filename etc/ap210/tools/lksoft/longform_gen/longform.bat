@@ -1,1 +1,0 @@
-@java -cp longform.jar modules.LongForm longform.exp longform.prop

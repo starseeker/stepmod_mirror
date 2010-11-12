@@ -1,5 +1,5 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.13 2010/11/03 23:04:05 lothartklein Exp $
+ $Id: shape_tolerance_schema.exp,v 1.14 2010/11/12 18:41:49 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -95,8 +95,7 @@ ENTITY geometric_tolerance
   magnitude               : OPTIONAL length_measure_with_unit; 
   toleranced_shape_aspect : geometric_tolerance_target; 
 WHERE
-  WR1: ('NUMBER' IN TYPEOF(magnitude\measure_with_unit.value_component)) AND
-       (magnitude\measure_with_unit.value_component >= 0.0);
+  WR1: magnitude\measure_with_unit.value_component >= 0.0;
 END_ENTITY;
 
 ENTITY geometric_tolerance_relationship;
@@ -110,10 +109,8 @@ ENTITY geometric_tolerance_with_datum_reference
   SUBTYPE OF (geometric_tolerance);
   datum_system : SET [1:?] OF datum_system_or_reference;
 WHERE
-  wr1: NOT(
-    SIZEOF(QUERY(ds <* datum_system | 'SHAPE_TOLERANCE_SCHEMA.' + 'DATUM_SYSTEM' in TYPEOF(ds))>0)
-    AND NOT (SIZEOF(datum_system)=1)
-       );
+  wr1: (SIZEOF(QUERY(ds <* datum_system | 'SHAPE_TOLERANCE_SCHEMA.' + 'DATUM_SYSTEM' in TYPEOF(ds)))=0)
+       OR (SIZEOF(datum_system)=1);
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_defined_area_unit
@@ -141,7 +138,7 @@ WHERE
           SELF\geometric_tolerance_with_modifiers.modifiers) OR
         ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.LEAST_MATERIAL_REQUIREMENT' IN
           SELF\geometric_tolerance_with_modifiers.modifiers);
-  WR2: (maximum_upper_tolerance.unit_component = SELF\geometric_tolerance.unit_component) AND
+  WR2: (maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.unit_component) AND
         maximum_upper_tolerance\measure_with_unit.value_component > SELF\geometric_tolerance.magnitude\measure_with_unit.value_component;
 END_ENTITY;
 

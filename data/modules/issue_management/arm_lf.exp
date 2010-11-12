@@ -1,5 +1,5 @@
 (*
-$Id: arm_lf.exp,v 1.22 2009/08/11 14:03:49 abhpf Exp $
+$Id: arm_lf.exp,v 1.23 2010/06/10 22:30:25 philsp Exp $
 ISO TC184/SC4/WG3 N2735 - ISO/TS 10303-1489 Issue management - EXPRESS ARM Long form
 Supersedes ISO TC184/SC4/WG3 N2488
 *) 
@@ -642,6 +642,16 @@ END_TYPE;
 TYPE plane_angle_measure = REAL;
 END_TYPE; 
 
+TYPE product_design_view_or_configuration = SELECT
+   (Product_configuration, 
+    Product_view_definition);
+END_TYPE; 
+
+TYPE product_version_or_configuration = SELECT
+   (Product_configuration, 
+    Product_version);
+END_TYPE; 
+
 TYPE project_item = SELECT
    (Activity, 
     Activity_method, 
@@ -749,6 +759,11 @@ TYPE string_select = SELECT
     Project_relationship, 
     Work_order, 
     Work_request);
+END_TYPE; 
+
+TYPE version_or_definition = SELECT
+   (Product_version, 
+    Product_view_definition);
 END_TYPE; 
 
 TYPE year_number = INTEGER;
@@ -1108,6 +1123,13 @@ ENTITY Issue_reference
   SUBTYPE OF (Observation_assignment);
 END_ENTITY;
 
+ENTITY Item_design_association;
+  configuration : Product_configuration;
+  design : version_or_definition;
+UNIQUE
+  UR1: configuration, design;
+END_ENTITY;
+
 ENTITY Language;
   language_code : STRING;
   country_code : OPTIONAL STRING;
@@ -1134,6 +1156,11 @@ END_ENTITY;
 
 ENTITY Luminous_intensity_unit
   SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Market;
+  name : STRING;
+  market_segment_type : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Mass_unit
@@ -1235,19 +1262,56 @@ ENTITY Product_as_realized
   SUBTYPE OF (Product_as_individual_version);
 END_ENTITY;
 
+ENTITY Product_concept;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  target_market : OPTIONAL Market;
+UNIQUE
+  UR1: id;
+END_ENTITY;
+
+ENTITY Product_configuration;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  item_context : Product_concept;
+INVERSE
+  corresponding_design : SET[0:1] OF Item_design_association FOR configuration;
+END_ENTITY;
+
+ENTITY Product_configuration_hierarchical_relationship
+  SUBTYPE OF (Product_configuration_relationship);
+  SELF\Product_configuration_relationship.related_product_configuration RENAMED child : Product_configuration;
+  SELF\Product_configuration_relationship.relating_product_configuration RENAMED parent : Product_configuration;
+END_ENTITY;
+
+ENTITY Product_configuration_relationship
+  SUPERTYPE OF (ONEOF (Product_configuration_hierarchical_relationship,
+                       Product_configuration_revision_sequence));
+  relating_product_configuration : Product_configuration;
+  related_product_configuration : Product_configuration;
+END_ENTITY;
+
+ENTITY Product_configuration_revision_sequence
+  SUBTYPE OF (Product_configuration_relationship);
+  SELF\Product_configuration_relationship.relating_product_configuration RENAMED predecessor : Product_configuration;
+  SELF\Product_configuration_relationship.related_product_configuration RENAMED successor : Product_configuration;
+END_ENTITY;
+
 ENTITY Product_design_to_individual;
   product_design : Product;
   individual_product : Product_as_individual;
 END_ENTITY;
 
 ENTITY Product_design_version_to_individual;
-  product_design_version : Product_version;
+  product_design_version : product_version_or_configuration;
   individual_product : Product_as_individual_version;
 END_ENTITY;
 
 ENTITY Product_design_view_to_individual;
   product_as_individual_view : Product_as_individual_view;
-  product_view_definition : Product_view_definition;
+  product_view_definition : product_design_view_or_configuration;
 END_ENTITY;
 
 ENTITY Product_planned_to_realized;

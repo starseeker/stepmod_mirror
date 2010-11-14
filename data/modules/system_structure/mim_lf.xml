@@ -328,7 +328,7 @@
 
     <type name="identification_item">
       <select
-        selectitems="action_directive action_method action_property address applied_action_assignment applied_action_request_assignment applied_document_reference applied_document_usage_constraint_assignment applied_external_identification_assignment applied_organization_assignment applied_person_and_organization_assignment applied_security_classification_assignment approval approval_status assembly_component_usage_substitute certification class configuration_item contract contract_relationship descriptive_representation_item document_file effectivity environment_assignment environment_definition environment_definition_version environment_view_definition_relationship event_occurrence executed_action external_class_library general_property general_property_relationship interface_connection interface_connector_occurrence measure_representation_item observed_environment observed_environment_assignment observed_environment_version observed_environment_view_definition_relationship organization organizational_project person person_and_organization product product_as_individual product_as_individual_version product_concept product_concept_context product_definition product_definition_context product_definition_formation product_definition_relationship property_definition representation security_classification security_classification_level shape_aspect_relationship shape_representation versioned_action_request"
+        selectitems="action_directive action_method action_property address applied_action_assignment applied_action_request_assignment applied_document_reference applied_document_usage_constraint_assignment applied_external_identification_assignment applied_organization_assignment applied_person_and_organization_assignment applied_security_classification_assignment approval approval_status assembly_component_usage_substitute certification class configuration_item contract contract_relationship descriptive_representation_item document_file effectivity environment_assignment environment_definition environment_definition_version environment_view_definition_relationship event_occurrence executed_action external_class_library general_property general_property_relationship interface_connection interface_connector_occurrence measure_representation_item observed_environment observed_environment_assignment observed_environment_version observed_environment_view_definition_relationship organization organizational_project person person_and_organization product product_concept product_concept_context product_definition product_definition_context product_definition_formation product_definition_relationship property_definition representation security_classification security_classification_level shape_aspect_relationship shape_representation versioned_action_request"
       />
     </type>
 
@@ -544,7 +544,7 @@
 
     <type name="product_select">
       <select
-        selectitems="action_method environment_definition_view executed_action location organization person product product_as_individual product_concept product_definition_formation product_group"
+        selectitems="action_method environment_definition_view executed_action location organization person product product_concept product_definition_formation product_group"
       />
     </type>
 
@@ -5606,47 +5606,8 @@
       </explicit>
     </entity>
 
-    <entity name="product_as_individual"
-      supertypes="product"
-    >
-    </entity>
-
-    <entity name="product_as_individual_version"
-      abstract.supertype="YES"
-      supertypes="product_definition_formation"
-      super.expression="ONEOF(product_as_planned, product_as_realized)"
-    >
-      <explicit
-        name="of_product">
-        <typename name="product_as_individual"/>
-        <redeclaration
-          entity-ref="product_definition_formation"/>
-      </explicit>
-    </entity>
-
-    <entity name="product_as_individual_view"
-      supertypes="product_definition"
-    >
-      <explicit
-        name="formation">
-        <typename name="product_as_individual_version"/>
-        <redeclaration
-          entity-ref="product_definition"/>
-      </explicit>
-      <derived
-        name="defined_version"
-        expression="SELF\product_definition.formation">
-        <typename name="product_as_individual_version"/>
-      </derived>
-    </entity>
-
     <entity name="product_as_planned"
-      supertypes="product_as_individual_version"
-    >
-    </entity>
-
-    <entity name="product_as_realized"
-      supertypes="product_as_individual_version"
+      supertypes="product_definition_formation"
     >
     </entity>
 
@@ -5949,63 +5910,38 @@
       supertypes="product_relationship"
     >
       <explicit
-        name="related_product">
-        <typename name="product_as_individual"/>
-        <redeclaration
-          entity-ref="product_relationship"/>
-      </explicit>
-      <derived
-        name="individual_product"
-        expression="SELF\product_relationship.related_product">
-        <typename name="product_as_individual"/>
-      </derived>
-      <derived
-        name="product_design"
-        expression="SELF\product_relationship.relating_product">
+        name="individual_product">
         <typename name="product"/>
-      </derived>
+        <redeclaration
+          entity-ref="product_relationship"
+          old_name="related_product"/>
+      </explicit>
+      <explicit
+        name="product_design">
+        <typename name="product"/>
+        <redeclaration
+          entity-ref="product_relationship"
+          old_name="relating_product"/>
+      </explicit>
     </entity>
 
     <entity name="product_design_version_to_individual"
       supertypes="product_definition_formation_relationship"
     >
       <explicit
-        name="related_product_definition_formation">
-        <typename name="product_as_individual_version"/>
-        <redeclaration
-          entity-ref="product_definition_formation_relationship"/>
-      </explicit>
-      <derived
-        name="individual_product"
-        expression="SELF\product_definition_formation_relationship.related_product_definition_formation">
-        <typename name="product_as_individual_version"/>
-      </derived>
-      <derived
-        name="product_design_version"
-        expression="SELF\product_definition_formation_relationship.relating_product_definition_formation">
+        name="individual_product">
         <typename name="product_definition_formation"/>
-      </derived>
-    </entity>
-
-    <entity name="product_design_view_to_individual"
-      supertypes="product_definition_relationship"
-    >
-      <explicit
-        name="related_product_definition">
-        <typename name="product_as_individual_view"/>
         <redeclaration
-          entity-ref="product_definition_relationship"/>
+          entity-ref="product_definition_formation_relationship"
+          old_name="related_product_definition_formation"/>
       </explicit>
-      <derived
-        name="product_as_individual_view"
-        expression="SELF\product_definition_relationship.related_product_definition">
-        <typename name="product_as_individual_view"/>
-      </derived>
-      <derived
-        name="product_definition"
-        expression="SELF\product_definition_relationship.relating_product_definition">
-        <typename name="product_definition"/>
-      </derived>
+      <explicit
+        name="product_design_version">
+        <typename name="product_definition_formation"/>
+        <redeclaration
+          entity-ref="product_definition_formation_relationship"
+          old_name="relating_product_definition_formation"/>
+      </explicit>
     </entity>
 
     <entity name="product_group"
@@ -6132,27 +6068,19 @@
       supertypes="product_definition_formation_relationship"
     >
       <explicit
-        name="relating_product_definition_formation">
-        <typename name="product_as_planned"/>
+        name="planned_product">
+        <typename name="product_definition_formation"/>
         <redeclaration
-          entity-ref="product_definition_formation_relationship"/>
+          entity-ref="product_definition_formation_relationship"
+          old_name="relating_product_definition_formation"/>
       </explicit>
       <explicit
-        name="related_product_definition_formation">
-        <typename name="product_as_realized"/>
+        name="realized_product">
+        <typename name="product_definition_formation"/>
         <redeclaration
-          entity-ref="product_definition_formation_relationship"/>
+          entity-ref="product_definition_formation_relationship"
+          old_name="related_product_definition_formation"/>
       </explicit>
-      <derived
-        name="planned_product"
-        expression="SELF\product_definition_formation_relationship.relating_product_definition_formation">
-        <typename name="product_as_planned"/>
-      </derived>
-      <derived
-        name="realized_product"
-        expression="SELF\product_definition_formation_relationship.related_product_definition_formation">
-        <typename name="product_as_realized"/>
-      </derived>
     </entity>
 
     <entity name="product_related_product_category"
@@ -8034,7 +7962,7 @@
         volt:
           RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
         farad:
-          RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+          RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 2.000000, 0.000000, 0.000000, 0.000000));
         ohm:
           RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
         siemens:
@@ -8726,7 +8654,7 @@
         END_IF;
       END_IF;
       IF &apos;SYSTEM_STRUCTURE_MIM_LF.CAPACITANCE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
-        IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
+        IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 2.000000, 0.000000, 0.000000, 0.000000) THEN
           RETURN (FALSE);
         END_IF;
       END_IF;

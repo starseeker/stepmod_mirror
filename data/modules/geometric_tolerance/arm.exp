@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.26 2010/11/12 21:40:43 lothartklein Exp $
+$Id: arm.exp,v 1.28 2010/11/13 11:03:39 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -96,14 +96,14 @@ END_TYPE;
 ENTITY Affected_plane_tolerance_zone
   SUBTYPE OF (Tolerance_zone);
   SELF\Tolerance_zone.zone_for : SET[1:?] OF affected_plane_geometric_tolerance_select;
-  affected_plane : Axis_placement_shape_aspect;
+  affected_plane : Axis_placement_shape_element;
 END_ENTITY;
 
-ENTITY All_around_shape_aspect
+ENTITY All_around_shape_element
   SUBTYPE OF (Composite_shape_element);
 END_ENTITY;
 
-ENTITY Axis_placement_shape_aspect
+ENTITY Axis_placement_shape_element
   SUBTYPE OF (Associated_shape_element);
 DERIVE
   SELF\Associated_shape_element.associated_item : Axis_placement := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
@@ -111,31 +111,27 @@ END_ENTITY;
 
 ENTITY Angularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 END_ENTITY;
 
-ENTITY Between_shape_aspect
-  SUBTYPE OF (Continuous_shape_aspect);
+ENTITY Between_shape_element
+  SUBTYPE OF (Continuous_shape_element);
 END_ENTITY;
 
 ENTITY Circular_runout_tolerance
   SUBTYPE OF (Geometric_tolerance);
   angle : OPTIONAL REAL;
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Coaxiality_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
-END_ENTITY;
-
-ENTITY Composite_group_shape_aspect
-  SUBTYPE OF (Composite_shape_element);
+  datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Concentricity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Contacting_feature
@@ -144,7 +140,7 @@ ENTITY Contacting_feature
 --  WR1: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;
 
-ENTITY Continuous_shape_aspect
+ENTITY Continuous_shape_element
   SUBTYPE OF (Composite_shape_element);
 END_ENTITY;
 
@@ -239,15 +235,15 @@ ENTITY Geometric_tolerance
   applied_to : geometric_tolerance_target;
   modifiers : SET[1:?] OF geometrical_tolerance_modifier;
   qualifying_note : OPTIONAL STRING;
-  segment_size : OPTIONAL Value_with_unit;
+  first_unit_size : OPTIONAL Length_data_element;
+  area_unit_type : OPTIONAL area_unit_type;
+  second_unit_size : OPTIONAL Length_data_element;
   significant_digits : OPTIONAL INTEGER;
   tolerance_value : Value_with_unit;
   value_determination : OPTIONAL STRING;
-  area_type : OPTIONAL area_unit_type;
-  second_unit_size : OPTIONAL Length_data_element;
   unequally_disposed_tolerance_zone_displacement : OPTIONAL Length_data_element;
 WHERE
-  WR1: (NOT (EXISTS(segment_size))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
+  WR1: (NOT (EXISTS(first_unit_size))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(first_unit_size.value_component));
   WR2: (NOT (EXISTS(tolerance_value))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
   WR3: (NOT (EXISTS(significant_digits))) OR (significant_digits > 0);
 END_ENTITY;
@@ -260,7 +256,7 @@ END_ENTITY;
 
 ENTITY Line_profile_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : OPTIONAL Datum_system;
+  datum_system : OPTIONAL Datum_system;
 INVERSE
   tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -271,14 +267,14 @@ END_ENTITY;
 
 ENTITY Parallelism_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 INVERSE
   tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Perpendicularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : OPTIONAL Datum_system;
+  datum_system : OPTIONAL Datum_system;
 INVERSE
   tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -296,7 +292,7 @@ END_ENTITY;
 
 ENTITY Position_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 INVERSE
   tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -324,12 +320,12 @@ END_ENTITY;
 
 ENTITY Surface_profile_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : OPTIONAL Datum_system;
+  datum_system : OPTIONAL Datum_system;
 END_ENTITY;
 
 ENTITY Symmetry_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 INVERSE
   tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -384,18 +380,18 @@ END_ENTITY;
 ENTITY Total_runout_tolerance
   SUBTYPE OF (Geometric_tolerance);
   angle : REAL;
-  reference_datum : Datum_system;
+  datum_system : Datum_system;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT composite_shape_aspect_subtypes FOR Composite_shape_element; 
+SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element; 
   (ONEOF (
-    All_around_shape_aspect,
-    Continuous_shape_aspect,
-    Composite_group_shape_aspect
+    All_around_shape_element,
+    Continuous_shape_element,
+    Composite_group_shape_element
   ));
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT gl_shape_aspect_subtypes FOR Shape_element;
+SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
   ONEOF (Contacting_feature,
          Datum,
          Datum_target,

@@ -33,6 +33,7 @@
       <type name="common_datum_list">
          <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
          <typename name="datum_reference_element"/>
+         <where expression="SIZEOF( QUERY(dre &lt;* SELF | dre\shape_aspect.of_shape &lt;&gt; SELF[1]\shape_aspect.of_shape)) = 0" label="WR1"/>
       </type>
       <type name="datum_feature_simulator_constraint_type">
          <enumeration extensible="YES" items="circular_or_cylindrical spherical distance"/>
@@ -76,8 +77,13 @@
          <inverse attribute="related_shape_aspect" entity="shape_aspect_relationship" name="established_by_relationships">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
+         <unique label="UR1">
+            <unique.attribute attribute="identification"/>
+            <unique.attribute attribute="SELF\shape_aspect.of_shape"/>
+         </unique>
          <where expression="('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM' IN TYPEOF(SELF)) XOR&#10;       ((SIZEOF(QUERY(x &lt;* SELF\datum.established_by_relationships |&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_FEATURE' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) = 1) XOR&#10;       (SIZEOF(QUERY(x &lt;* SELF\datum.established_by_relationships |&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET' IN TYPEOF(x\shape_aspect_relationship.relating_shape_aspect)))) &gt;= 1))" label="WR1"/>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR2"/>
+         <where expression="SELF\shape_aspect.name = ''" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_feature" supertypes="shape_aspect">
          <inverse attribute="relating_shape_aspect" entity="shape_aspect_relationship" name="feature_basis_relationship">
@@ -108,17 +114,21 @@
          <inverse attribute="constituents" entity="datum_system" name="owner"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_element" supertypes="general_datum_reference">
-         <derived expression="sts_get_general_datum_reference(SELF)" name="usage">
+         <derived expression="sts_get_general_datum_reference(SELF)" name="owner">
             <typename name="general_datum_reference"/>
          </derived>
-         <where expression="SELF &lt;&gt; usage" label="WR1"/>
-         <where expression="EXISTS(usage)" label="WR2"/>
+         <where expression="SELF &lt;&gt; owner" label="WR1"/>
+         <where expression="EXISTS(owner)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_system" supertypes="shape_aspect">
          <explicit name="constituents" optional="NO">
             <aggregate lower="1" optional="NO" type="LIST" unique="YES" upper="3"/>
             <typename name="datum_reference_compartment"/>
          </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\shape_aspect.of_shape"/>
+            <unique.attribute attribute="SELF\shape_aspect.name"/>
+         </unique>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_target" supertypes="shape_aspect">
@@ -149,6 +159,7 @@
             <typename name="datum_reference_modifier"/>
          </explicit>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
+         <where expression="(('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape)) OR&#10;   (('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM_LIST' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base[1]\shape_aspect.of_shape))" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_alignment" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)&gt; 1" label="WR1"/>
@@ -202,8 +213,7 @@
          <algorithm>LOCAL
       general_datum_reference_bag : BAG OF general_datum_reference :=
 (USEDIN(input, 
-      'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF_3744_2010_09_25_0.' +
-'GENERAL_DATUM_REFERENCE.' + 'BASE'));
+      'SHAPE_ASPECT_DEFINITION_SCHEMA.' + 'GENERAL_DATUM_REFERENCE.' + 'BASE'));
     END_LOCAL;
 
     IF SIZEOF(general_datum_reference_bag) = 1 THEN

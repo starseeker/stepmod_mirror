@@ -44,11 +44,11 @@
       <type name="datum_system_or_reference">
          <select extensible="NO" genericentity="NO" selectitems="datum_reference datum_system"/>
       </type>
+      <type name="geometric_tolerance_modifier">
+         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element"/>
+      </type>
       <type name="geometric_tolerance_target">
          <select extensible="NO" genericentity="NO" selectitems="dimensional_location dimensional_size product_definition_shape shape_aspect"/>
-      </type>
-      <type name="geometrical_tolerance_modifier">
-         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element"/>
       </type>
       <type name="shape_tolerance_select">
          <select extensible="NO" genericentity="NO" selectitems="geometric_tolerance plus_minus_tolerance"/>
@@ -122,13 +122,13 @@
          <explicit name="maximum_upper_tolerance" optional="NO">
             <typename name="length_measure_with_unit"/>
          </explicit>
-         <where expression="('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.MAXIMUM_MATERIAL_REQUIREMENT' IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers) OR&#10;        ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.LEAST_MATERIAL_REQUIREMENT' IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers)" label="WR1"/>
-         <where expression="(maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.unit_component) AND&#10;        maximum_upper_tolerance\measure_with_unit.value_component &gt; SELF\geometric_tolerance.magnitude\measure_with_unit.value_component" label="WR2"/>
+         <where expression="(geometric_tolerance_modifier.maximum_material_requirement IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers) OR&#10;        (geometric_tolerance_modifier.least_material_requirement IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers)" label="WR1"/>
+         <where expression="(maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.magnitude\measure_with_unit.unit_component) AND&#10;        maximum_upper_tolerance\measure_with_unit.value_component &gt; SELF\geometric_tolerance.magnitude\measure_with_unit.value_component" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_modifiers" supertypes="geometric_tolerance">
          <explicit name="modifiers" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="geometrical_tolerance_modifier"/>
+            <typename name="geometric_tolerance_modifier"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="limits_and_fits">

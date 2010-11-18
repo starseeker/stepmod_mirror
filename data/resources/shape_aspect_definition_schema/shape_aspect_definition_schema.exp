@@ -1,14 +1,10 @@
 (*
- $Id: shape_aspect_definition_schema.exp,v 1.23 2010/11/12 18:39:47 lothartklein Exp $
+ $Id: shape_aspect_definition_schema.exp,v 1.24 2010/11/15 19:33:04 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
 SCHEMA shape_aspect_definition_schema;
 
-REFERENCE FROM product_property_definition_schema
-    (characterized_object,
-     shape_aspect,
-     shape_aspect_relationship);
 REFERENCE FROM measure_schema
     (length_measure_with_unit,
      measure_with_unit);
@@ -18,6 +14,13 @@ REFERENCE FROM representation_schema
     (representation, using_representations);
 REFERENCE FROM geometry_schema
     (geometric_representation_context, axis2_placement, cartesian_point, line, plane);    
+REFERENCE FROM product_property_definition_schema
+    (characterized_object,
+     shape_aspect,
+     shape_aspect_relationship);
+REFERENCE FROM product_property_representation_schema  -- ISO 10303-41
+    (shape_representation);
+    
 
 TYPE common_datum_list = LIST [1:?] OF datum_reference_element;
 WHERE
@@ -314,6 +317,17 @@ END_ENTITY;
 SUBTYPE_CONSTRAINT sads_shape_aspect_subtypes FOR shape_aspect;
           ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system, general_datum_reference);
 END_SUBTYPE_CONSTRAINT; 
+
+ENTITY shape_representation_with_parameters
+  SUBTYPE OF (shape_representation);
+   WHERE
+    WR1: (SIZEOF(QUERY ( it <* SELF.items | 
+        (NOT (SIZEOF([
+        'GEOMETRY_SCHEMA.PLACEMENT',
+        'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+        'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM'] *
+        TYPEOF(it)) = 1)) )) = 0);
+END_ENTITY; -- shape_representation_with_parameters
 
 FUNCTION sts_get_general_datum_reference(input : datum_reference_element) :
 general_datum_reference;

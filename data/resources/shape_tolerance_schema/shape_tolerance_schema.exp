@@ -1,5 +1,5 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.15 2010/11/12 19:54:13 lothartklein Exp $
+ $Id: shape_tolerance_schema.exp,v 1.16 2010/11/17 18:53:01 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -40,7 +40,7 @@ TYPE datum_system_or_reference = SELECT (
   datum_system);
 END_TYPE;
 
-TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF
+TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF
     (maximum_material_requirement,     -- "(M)" or MMR in ISO 2692, MMC in ASME
      least_material_requirement,       -- "(L)" or LMR in ISO 2692, LMC in ASME
      reciprocity_requirement,          -- "(R)" or RPR in ISO 2692
@@ -134,17 +134,17 @@ ENTITY geometric_tolerance_with_maximum_tolerance
   SUBTYPE OF (geometric_tolerance_with_modifiers);
   maximum_upper_tolerance : length_measure_with_unit;
 WHERE
-  WR1 : ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.MAXIMUM_MATERIAL_REQUIREMENT' IN
+  WR1 : (geometric_tolerance_modifier.maximum_material_requirement IN
           SELF\geometric_tolerance_with_modifiers.modifiers) OR
-        ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRICAL_TOLERANCE_MODIFIER.LEAST_MATERIAL_REQUIREMENT' IN
+        (geometric_tolerance_modifier.least_material_requirement IN
           SELF\geometric_tolerance_with_modifiers.modifiers);
-  WR2: (maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.unit_component) AND
+  WR2: (maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.magnitude\measure_with_unit.unit_component) AND
         maximum_upper_tolerance\measure_with_unit.value_component > SELF\geometric_tolerance.magnitude\measure_with_unit.value_component;
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_modifiers
   SUBTYPE OF (geometric_tolerance);
-  modifiers : SET[1:?] OF geometrical_tolerance_modifier;
+  modifiers : SET[1:?] OF geometric_tolerance_modifier;
 END_ENTITY;
 
 ENTITY modified_geometric_tolerance

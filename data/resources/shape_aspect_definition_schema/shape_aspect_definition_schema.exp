@@ -1,5 +1,5 @@
 (*
- $Id: shape_aspect_definition_schema.exp,v 1.25 2010/11/18 23:44:57 lothartklein Exp $
+ $Id: shape_aspect_definition_schema.exp,v 1.26 2010/11/24 21:11:46 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -161,8 +161,7 @@ ENTITY general_datum_reference
   modifiers : OPTIONAL SET [1:?] OF datum_reference_modifier;
 WHERE
   WR1: SELF\shape_aspect.product_definitional = FALSE;
-  WR2: (('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape)) OR
-   (('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM_LIST' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base[1]\shape_aspect.of_shape));
+  WR2: NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape);
 END_ENTITY;  
 
 ENTITY datum_reference_compartment
@@ -177,7 +176,8 @@ ENTITY datum_reference_element
   owner : general_datum_reference := sts_get_general_datum_reference(SELF);
 WHERE
   WR1: SELF <> owner;
-  WR2: EXISTS(owner);   
+  WR2: EXISTS(owner);
+  WR3: SELF\shape_aspect.of_shape = owner\shape_aspect.of_shape;
 END_ENTITY;  
 
 ENTITY feature_definition

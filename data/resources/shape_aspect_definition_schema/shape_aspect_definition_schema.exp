@@ -1,27 +1,39 @@
 (*
- $Id: shape_aspect_definition_schema.exp,v 1.26 2010/11/24 21:11:46 thomasrthurman Exp $
+ $Id: shape_aspect_definition_schema.exp,v 1.27 2010/12/01 22:30:11 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
 SCHEMA shape_aspect_definition_schema;
 
-REFERENCE FROM measure_schema
-    (length_measure_with_unit,
-     measure_with_unit);
-REFERENCE FROM support_resource_schema
-    (bag_to_set, label, identifier);
-REFERENCE FROM representation_schema
-    (representation, using_representations);
-REFERENCE FROM geometry_schema
-    (geometric_representation_context, axis2_placement, cartesian_point, line, plane);    
-REFERENCE FROM product_property_definition_schema
-    (characterized_object,
-     shape_aspect,
-     shape_aspect_relationship);
-REFERENCE FROM product_property_representation_schema  -- ISO 10303-41
-    (shape_representation);
+REFERENCE FROM measure_schema (
+  length_measure_with_unit,
+  measure_with_unit);
+REFERENCE FROM support_resource_schema (
+  bag_to_set, 
+  label, 
+  identifier);
+REFERENCE FROM representation_schema (
+  representation, using_representations);
+REFERENCE FROM geometry_schema (
+  axis2_placement, 
+  cartesian_point, 
+  direction,
+  geometric_representation_context, 
+  line, 
+  placement,
+  plane);
+REFERENCE FROM qualified_measure_schema (
+  descriptive_representation_item,
+  Measure_representation_item);  
+REFERENCE FROM product_property_definition_schema (
+  characterized_object,
+  shape_aspect,
+  shape_aspect_relationship);
+REFERENCE FROM product_property_representation_schema ( -- ISO 10303-41
+  shape_representation);
+REFERENCE FROM shape_dimension_schema ( -- ISO 10303-47    
+  dimensional_characteristic);
     
-
 TYPE common_datum_list = LIST [1:?] OF datum_reference_element;
 WHERE
   WR1 : SIZEOF( QUERY(dre <* SELF | dre\shape_aspect.of_shape <> SELF[1]\shape_aspect.of_shape)) = 0; 
@@ -71,6 +83,13 @@ TYPE datum_feature_simulator_constraint_type = EXTENSIBLE ENUMERATION OF (
   spherical,
   distance
 );
+END_TYPE;
+
+TYPE shape_representation_with_parameters_items = SELECT (
+  direction,
+  placement,
+  measure_representation_item,
+  descriptive_representation_item);
 END_TYPE;
 
 ENTITY common_datum 
@@ -125,6 +144,11 @@ WHERE
   WR1: (constraint_value\measure_with_unit.value_component > 0.0); 
 END_ENTITY;
  
+ENTITY datum_of_size
+  SUBTYPE OF (datum);
+  defining_dimension : dimensional_characteristic;
+END_ENTITY;
+    
 ENTITY datum_target
   SUBTYPE OF (shape_aspect);
   target_id             : identifier; 
@@ -303,6 +327,11 @@ ENTITY shape_aspect_deriving_relationship
   SELF\shape_aspect_relationship.relating_shape_aspect : derived_shape_aspect;
 END_ENTITY;
 
+ENTITY shape_representation_with_parameters
+  SUBTYPE OF (shape_representation);
+  SELF\representation.items : SET[1:?] OF shape_representation_with_parameters_items;
+END_ENTITY; -- shape_representation_with_parameters
+
 ENTITY symmetric_shape_aspect
   SUBTYPE OF (shape_aspect);
 INVERSE
@@ -317,17 +346,6 @@ END_ENTITY;
 SUBTYPE_CONSTRAINT sads_shape_aspect_subtypes FOR shape_aspect;
           ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system, general_datum_reference);
 END_SUBTYPE_CONSTRAINT; 
-
-ENTITY shape_representation_with_parameters
-  SUBTYPE OF (shape_representation);
-   WHERE
-    WR1: (SIZEOF(QUERY ( it <* SELF.items | 
-        (NOT (SIZEOF([
-        'GEOMETRY_SCHEMA.PLACEMENT',
-        'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
-        'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM'] *
-        TYPEOF(it)) = 1)) )) = 0);
-END_ENTITY; -- shape_representation_with_parameters
 
 FUNCTION sts_get_general_datum_reference(input : datum_reference_element) :
 general_datum_reference;

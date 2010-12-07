@@ -19,11 +19,17 @@
          <interfaced.item name="using_representations"/>
       </interface>
       <interface kind="reference" schema="geometry_schema">
-         <interfaced.item name="geometric_representation_context"/>
          <interfaced.item name="axis2_placement"/>
          <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="direction"/>
+         <interfaced.item name="geometric_representation_context"/>
          <interfaced.item name="line"/>
+         <interfaced.item name="placement"/>
          <interfaced.item name="plane"/>
+      </interface>
+      <interface kind="reference" schema="qualified_measure_schema">
+         <interfaced.item name="descriptive_representation_item"/>
+         <interfaced.item name="measure_representation_item"/>
       </interface>
       <interface kind="reference" schema="product_property_definition_schema">
          <interfaced.item name="characterized_object"/>
@@ -32,6 +38,9 @@
       </interface>
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="shape_representation"/>
+      </interface>
+      <interface kind="reference" schema="shape_dimension_schema">
+         <interfaced.item name="dimensional_characteristic"/>
       </interface>
       <type name="common_datum_list">
          <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
@@ -49,6 +58,9 @@
       </type>
       <type name="limit_condition">
          <enumeration extensible="NO" items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
+      </type>
+      <type name="shape_representation_with_parameters_items">
+         <select extensible="NO" genericentity="NO" selectitems="direction placement measure_representation_item descriptive_representation_item"/>
       </type>
       <type name="simple_datum_reference_modifier">
          <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable degree_of_freedom_constraint_x degree_of_freedom_constraint_y degree_of_freedom_constraint_z degree_of_freedom_constraint_u degree_of_freedom_constraint_v degree_of_freedom_constraint_w"/>
@@ -104,6 +116,11 @@
          </explicit>
          <where expression="(constraint_value\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_of_size" supertypes="datum">
+         <explicit name="defining_dimension" optional="NO">
+            <typename name="dimensional_characteristic"/>
+         </explicit>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference">
          <explicit name="precedence" optional="NO">
             <builtintype fixed="NO" type="INTEGER"/>
@@ -122,6 +139,7 @@
          </derived>
          <where expression="SELF &lt;&gt; owner" label="WR1"/>
          <where expression="EXISTS(owner)" label="WR2"/>
+         <where expression="SELF\shape_aspect.of_shape = owner\shape_aspect.of_shape" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_system" supertypes="shape_aspect">
          <explicit name="constituents" optional="NO">
@@ -162,7 +180,7 @@
             <typename name="datum_reference_modifier"/>
          </explicit>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
-         <where expression="(('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape)) OR&#10;   (('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM_LIST' IN TYPEOF(base)) AND (SELF\shape_aspect.of_shape = base[1]\shape_aspect.of_shape))" label="WR2"/>
+         <where expression="NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_alignment" supertypes="derived_shape_aspect">
          <where expression="SIZEOF (SELF\derived_shape_aspect.deriving_relationships)&gt; 1" label="WR1"/>
@@ -199,7 +217,11 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="shape_representation_with_parameters" supertypes="shape_representation">
-         <where expression="(SIZEOF(QUERY ( it &lt;* SELF.items | &#10;        (NOT (SIZEOF([&#10;        'GEOMETRY_SCHEMA.PLACEMENT',&#10;        'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',&#10;        'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM'] *&#10;        TYPEOF(it)) = 1)) )) = 0)" label="WR1"/>
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="shape_representation_with_parameters_items"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="symmetric_shape_aspect" supertypes="shape_aspect">
          <inverse attribute="relating_shape_aspect" entity="shape_aspect_relationship" name="basis_relationships">

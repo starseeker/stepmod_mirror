@@ -1,0 +1,319 @@
+author: T. Thurman
+
+Tue Apr 12 10:30:08 2005
+
+EXPRESS Data Manager EXPRESS compiler version 9.5B.2004.01.23 diagnostics
+
+
+Input files:C:\workspace\stepmod\etc\ap210\tools\lksoft\longform_gen\mim_20050410v1_with_resources.exp
+==================================================================================================================
+
+Compilation result of
+    EXPRESS Schema   : AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM
+    in source file   : C:\workspace\stepmod\etc\ap210\tools\lksoft\longform_gen\mim_20050410v1_with_resources.exp
+==================================================================================================================
+NOTE NOTE NOTE:::This is an augmented diagnostic file!!!!!!!!!!!!!
+
+WARNING: Line 24892: ABSTRACT ENTITY (SUPERTYPE) has no SUBTYPE, cannot be instantiated.
+         Entity    : GENERIC_VARIABLE
+
+WARNING: Line 24909: ABSTRACT ENTITY (SUPERTYPE) has no SUBTYPE, cannot be instantiated.
+         Entity    : UNARY_GENERIC_EXPRESSION
+
+WARNING: Line 24915: ABSTRACT ENTITY (SUPERTYPE) has no SUBTYPE, cannot be instantiated.
+         Entity    : BINARY_GENERIC_EXPRESSION
+
+WARNING: Line 24921: ABSTRACT ENTITY (SUPERTYPE) has no SUBTYPE, cannot be instantiated.
+         Entity    : MULTIPLE_ARITY_GENERIC_EXPRESSION
+
+
+    4 WARNINGS detected.
+    0 ERRORS detected.
+following are additional errors and warnings from the evaluation of the long form once generated.
+file:
+Input files:C:\workspace\stepmod\etc\ap210\tools\lksoft\longform_gen\mim_20050410v1_with_resources.dia
+
+
+--tt epm reports that there are no subtypes of the following entity type in the schema.
+ENTITY binary_generic_expression
+ ABSTRACT SUPERTYPE
+
+ENTITY connected_area_component
+ SUBTYPE OF (assembly_component);
+WHERE
+(* invalid csa
+ WR1: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (sfi.relating_shape_aspect))) = 1;
+ WR2: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'associated layer connection point') |
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+       'LAYER_CONNECTION_POINT' IN
+       TYPEOF (sfi.relating_shape_aspect))) >= 1; *)
+ WR3: SELF\product_definition.description = 'stratum feature template component';
+--tt had to modify wr4::
+ WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\component_definition||
+       SELF\connected_area_component)) = 0;
+END_ENTITY;
+
+ENTITY fiducial
+  SUBTYPE OF (assembly_component);
+WHERE
+--tt had to fix this next line.
+  WR1: (SELF\product_definition.description = 'laminate component');
+END_ENTITY;
+
+ENTITY general_material_property 
+SUBTYPE OF (general_property); 
+--tt wr1 refers to non-existent SCHEMA and non-existent ENTITY.
+(*
+WHERE 
+WR1: SIZEOF( QUERY( gpa <* USEDIN(SELF,'MATERIAL_ASPECTS_MIM.GENERAL_PROPERTY_ASSOCIATION.BASE_DEFINITION') | 
+  NOT ('MATERIAL_ASPECTS_MIM.MATERIAL_PROPERTY' IN TYPEOF(gpa.derived_definition)) )) = 0; 
+*)
+END_ENTITY;
+
+--tt epm reports no subtypes are included in the schema
+ENTITY generic_literal
+ ABSTRACT SUPERTYPE
+
+SUBTYPE OF (simple_generic_expression);
+END_ENTITY;
+
+--tt epm reports no subtypes are included in the schema
+ENTITY generic_variable
+ ABSTRACT SUPERTYPE
+--tt epm reports no subtype exist in the schema
+ENTITY multiple_arity_generic_expression
+ ABSTRACT SUPERTYPE
+
+ENTITY printed_part_template_terminal
+  SUPERTYPE OF (
+              PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL)
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['interface terminal', 'join terminal'];
+  WR2: SIZEOF (QUERY (ga <* USEDIN (SELF, 
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'PRINTED_PART_TEMPLATE_TERMINAL_CONNECTION_ZONE_CATEGORY' IN
+       TYPEOF (ga.assigned_group))) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar.related_shape_aspect\shape_aspect.description = 
+       'connection zone')) >= 1;
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) >= 1))) = 0;
+--tt had to reword rule
+  WR5: ((SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed part template')
+       OR
+       (SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed connector template'));
+
+
+ENTITY probe_access_area
+  SUBTYPE OF (assembly_component);
+--tt all rules invalid
+
+ENTITY ruled_surface_swept_area_solid
+  SUBTYPE OF(surface_curve_swept_area_solid);
+  WHERE
+--tt had to fix wr1
+  WR1: ('B_SPLINE_SURFACE' IN TYPEOF(SELF.reference_surface)) AND
+         (SELF.reference_surface\b_spline_surface.u_degree = 1);
+  WR2: ('PCURVE' IN TYPEOF(SELF.directrix)) OR
+        (('B_SPLINE_CURVE' IN TYPEOF(SELF.directrix\surface_curve.curve_3d))
+         AND
+         (SELF.directrix\surface_curve.curve_3d\b_spline_curve.degree =
+         SELF.reference_surface\b_spline_surface.v_degree));
+END_ENTITY;
+
+--tt epm reports no subtypes of the following in the schema
+ENTITY unary_generic_expression
+ ABSTRACT SUPERTYPE
+
+--tt this appears to be a short to long form error in not
+--tt replacing schema name.  see line 18948
+(*
+FUNCTION categories_of_product
+ (obj : product) : SET OF STRING; 
+LOCAL
+category_assignments: BAG OF product_category;
+categories: SET OF STRING:=[];
+i: INTEGER;
+END_LOCAL;
+category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+categories := categories + category_assignments[i].name;
+END_REPEAT;
+RETURN(categories);
+
+      END_FUNCTION;
+
+--tt the reference to product_occurrence_mim is invalid.  it should be to product_property_definition_schema.
+(*
+FUNCTION valid_selected_instance_representation (pd: product_definition_or_assembly_relationship): LOGICAL;
+LOCAL
+  properties: SET OF property_definition :=[];
+  property_definition_representations: SET OF property_definition_representation :=[];
+  selected_representation: representation;
+END_LOCAL;
+
+properties :=QUERY( prd<* USEDIN ( pd ,'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
+ (prd.name = 'occurrence selection' ));
+IF (SIZEOF( properties)<>1) THEN
+	RETURN(FALSE);
+END_IF;
+
+property_definition_representations := QUERY ( pdr <* USEDIN ( properties[1] , 'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+	( pdr.used_representation.name = 'selection criteria' ));
+IF (SIZEOF(property_definition_representations)<>1) THEN
+	RETURN(FALSE);
+END_IF;
+
+selected_representation := property_definition_representations[1].used_representation;
+
+IF (SIZEOF(selected_representation.items) <1) OR (SIZEOF(selected_representation.items) >2) THEN
+	RETURN(FALSE);
+END_IF;
+
+IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
+	( SIZEOF (['PRODUCT_OCCURRENCE_MIM.MEASURE_REPRESENTATION_ITEM' ,
+			'PRODUCT_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
+ 	( i.name = 'selection quantity' ))) <> 1 ) THEN
+	RETURN(FALSE);
+END_IF;
+
+IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
+	( 'PRODUCT_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
+ 	( i.name = 'selection control' )))> 1) THEN
+	RETURN(FALSE);
+END_IF; --the selection control is not specified then the quantity shall be a qualified_representation_item or a value_range
+IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
+	( 'PRODUCT_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
+ 	( i.name = 'selection control' ) ))= 0) AND 
+   (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
+      ( i.name = 'selection quantity' ) AND  
+      ( SIZEOF(['PRODUCT_OCCURRENCE_MIM.QUALIFIED_REPRESENTATION_ITEM' ,
+		'PRODUCT_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) > 0 ) THEN
+	RETURN(FALSE);
+END_IF;
+	
+RETURN(TRUE);
+
+END_FUNCTION;
+*)
+--tt comment out obsolete rule
+(*
+
+RULE default_passage_based_land_physical_template_unique_constraint FOR
+ ( land_physical_template );
+LOCAL
+
+--tt comment out obsolete rule
+(*
+RULE internal_stratum_access_unique_constraint FOR
+ ( shape_aspect_relationship );
+
+--tt comment out obsolete rule
+(*
+RULE land_physical_template_unique_constraint FOR
+ ( land_physical_template );
+
+--tt commented out rule with express error
+(*
+RULE land_template_terminal_unique_constraint FOR
+ ( land_template_terminal );
+
+--tt comment out rule that includes invalid schema refs.
+--tt how does this ..mim_lf... get into the schema name?
+(*
+RULE registered_font_constraint FOR ( externally_defined_text_font );
+WHERE
+  WR1: SIZEOF(QUERY(edtf <* externally_defined_text_font |
+       (SIZEOF(QUERY(adr <* USEDIN(edtf,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       (adr.assigned_document.kind\document_type.product_data_type =
+                     'font registration document')
+       )) = 0))) = 0;
+END_RULE;
+*)
+--tt comment out rule that includes invalid schema refs.
+--tt how does this ..mim_lf... get into the schema name?
+(*
+RULE registered_font_unique_constraint FOR
+ ( externally_defined_text_font );
+LOCAL
+  ii_bag : BAG OF STRING := [];
+  edtf_bag : BAG OF externally_defined_text_font;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  es_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(externally_defined_text_font) by 1;
+  IF EXISTS( externally_defined_text_font[i].item_id ) THEN
+    IF ( NOT ( externally_defined_text_font[i].item_id IN ii_bag ) ) THEN
+      ii_bag := ii_bag + externally_defined_text_font[i].item_id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ii_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  edtf_bag := QUERY( edtf <* externally_defined_text_font |
+            (edtf.item_id = ii_bag[i]) );
+  REPEAT j := 1 to SIZEOF(edtf_bag) by 1;
+    adr_bag := QUERY( adr <* USEDIN( edtf_bag[j],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) |
+         (adr.assigned_document.kind\document_type.product_data_type =
+'font registration document') );
+    es_bag := [];
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN es_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          es_bag := es_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+*)
+--tt comment out rule with invalid schema reference
+(*
+RULE restrict_part_occurrence_category FOR (product_definition);
+LOCAL
+  part_occurrences: SET OF product_definition := [];
+END_LOCAL;
+  part_occurrences :=  QUERY( pd <* product_definition |(
+		pd.frame_of_reference.name = 'part occurrence'));
+WHERE
+WR1: SIZEOF( QUERY( pd <* part_occurrences | 
+(SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+  prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0;
+END_RULE;
+*)

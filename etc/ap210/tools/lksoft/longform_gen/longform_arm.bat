@@ -1,0 +1,1 @@
+@java -cp longform.jar modules.LongForm longform_arm.exp longform_arm.prop >out 2>outerr

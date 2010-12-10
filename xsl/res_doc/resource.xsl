@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.76 2010/02/03 23:18:58 lothartklein Exp $
+$Id: resource.xsl,v 1.77 2010/02/21 07:08:23 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1396,8 +1396,8 @@ the types, entity specializations, and functions that are specific to this part 
     <!-- output the intro and fundamental contants.! -->
     <xsl:call-template name="clause_header">
       <xsl:with-param name="heading" 
-		      select="concat(($schema_no+3),'.1 Introduction')"/>
-      <xsl:with-param name="aname" select="'intro'"/>
+		      select="concat(($schema_no+3),'.1 General')"/>
+      <xsl:with-param name="aname" select="'gen'"/>
     </xsl:call-template>
 
     <!-- output any issues -->

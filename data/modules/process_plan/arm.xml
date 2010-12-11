@@ -1,12 +1,134 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Process_plan_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" >
+   <application name="JSDAI" owner="LKSoft" source="process_plan_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Process_plan_arm">
+      <interface kind="use" schema="Activity_method_arm"/>
+      <interface kind="use" schema="Product_view_definition_arm"/>
+      <interface kind="use" schema="Support_resource_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="use" schema="Mating_structure_arm"/>
+      <interface kind="use" schema="Part_occurrence_arm"/>
+      <interface kind="use" schema="Specification_control_arm"/>
+      <type name="process_operation_input_or_output_select">
+         <select selectitems="Part_view_definition Mated_item_association Assembly_component_relationship Part_occurrence"/>
+      </type>
+      <entity name="Process_operation_definition">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="process_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="version_id" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Process_operation_definition_relationship">
+         <explicit name="related">
+            <typename name="Process_operation_definition"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Process_operation_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Process_operation_input_or_output">
+         <explicit name="role">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="operation">
+            <typename name="Process_operation_occurrence"/>
+         </explicit>
+         <explicit name="element">
+            <typename name="process_operation_input_or_output_select"/>
+         </explicit>
+         <explicit name="concerned_shape">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Process_operation_occurrence">
+         <explicit name="plan">
+            <typename name="Process_plan"/>
+         </explicit>
+         <explicit name="operation_definition">
+            <typename name="Process_operation_definition"/>
+         </explicit>
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Process_operation_occurrence_relationship">
+         <explicit name="related">
+            <typename name="Process_operation_occurrence"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Process_operation_occurrence"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="cycle_time" optional="YES">
+            <typename name="Duration"/>
+         </explicit>
+      </entity>
+      <entity name="Process_operation_resource_assignment">
+         <explicit name="reference_tool">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="operation">
+            <typename name="Process_operation_occurrence"/>
+         </explicit>
+         <explicit name="reason" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Process_plan">
+         <explicit name="plan_id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="produced_output" optional="YES">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Part_version"/>
+         </explicit>
+      </entity>
+      <entity name="Process_plan_relationship">
+         <explicit name="relating">
+            <typename name="Process_plan"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Process_plan"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Same_time_machining_relationship" supertypes="Part_occurrence_relationship"/>
+   </schema>
 </express>

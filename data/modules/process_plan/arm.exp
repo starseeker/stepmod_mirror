@@ -1,74 +1,89 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2010/11/06 10:39:42 lothartklein Exp $
    N - ISO/CD-TS - 10303- process_plan - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Process_plan_arm;
 
-ENTITY process_operation_definition;
+USE FROM Activity_method_arm; -- ISO/TS 10303-1049
+USE FROM Product_view_definition_arm; -- ISO/TS 10303-1019
+USE FROM Support_resource_arm; -- ISO/TS 10303-1800
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
+USE FROM Mating_structure_arm;
+USE FROM Part_occurrence_arm; --          ISO/TS 10303-1715
+USE FROM Specification_control_arm; -- ???? ecause of Part_occurrence_relationship
+
+TYPE process_operation_input_or_output_select = SELECT (
+  Part_view_definition,
+  Mated_item_association,
+  Assembly_component_relationship,
+  Part_occurrence);
+END_TYPE; 
+
+ENTITY Process_operation_definition;
   id : STRING;
-  name : OPTIONAL string_select;
+  name : OPTIONAL label;
   process_type : STRING;
-  description : OPTIONAL string_select;
+  description : OPTIONAL text;
   version_id : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY process_operation_definition_relationship;
+ENTITY Process_operation_definition_relationship;
   related : process_operation_definition;
   relation_type : STRING;
   relating : process_operation_definition;
 END_ENTITY;
 
-ENTITY process_operation_input_or_output;
+ENTITY Process_operation_input_or_output;
   role : STRING;
-  description : OPTIONAL string_select;
+  description : OPTIONAL text;
   operation : process_operation_occurrence;
   element : process_operation_input_or_output_select;
-  placement : OPTIONAL transformation;
-  concerned_shape : SET [0:?] OF shape_element;
+--  placement : OPTIONAL transformation;
+  concerned_shape : SET [0:?] OF Shape_element;
 END_ENTITY;
 
-ENTITY process_operation_occurrence;
+ENTITY Process_operation_occurrence;
   plan : process_plan;
-  is_defined_in : OPTIONAL cartesian_coordinate_space;
-  operation_definition : process_operation_definition;
+--  is_defined_in : OPTIONAL cartesian_coordinate_space;
+  operation_definition : Process_operation_definition;
   id : STRING;
 END_ENTITY;
 
-ENTITY process_operation_occurrence_relationship;
-  related : process_operation_occurrence;
+ENTITY Process_operation_occurrence_relationship;
+  related : Process_operation_occurrence;
   relation_type : STRING;
-  relating : process_operation_occurrence;
-  waiting_time : OPTIONAL property_value;
-  description : OPTIONAL string_select;
+  relating : Process_operation_occurrence;
+--  waiting_time : OPTIONAL property_value;
+  description : OPTIONAL text;
   cycle_time : OPTIONAL duration;
 END_ENTITY;
 
-ENTITY process_operation_resource_assignment;
+ENTITY Process_operation_resource_assignment;
   reference_tool : BOOLEAN;
-  operation : process_operation_occurrence;
-  reason : OPTIONAL string_select;
-  resource_definition : resource_definition_select;
-  placement : OPTIONAL transformation;
+  operation : Process_operation_occurrence;
+  reason : OPTIONAL STRING;
+--  resource_definition : resource_definition_select;
+--  placement : OPTIONAL transformation;
 END_ENTITY;
 
-ENTITY process_plan;
+ENTITY Process_plan;
   plan_id : STRING;
-  name : OPTIONAL string_select;
-  description : OPTIONAL string_select;
-  produced_output : OPTIONAL SET [1:?] OF item_version;
+  name : OPTIONAL label;
+  description : OPTIONAL text;
+  produced_output : OPTIONAL SET [1:?] OF Part_version;
 END_ENTITY;
 
-ENTITY process_plan_relationship;
-  relating : process_plan;
-  related : process_plan;
-  description : OPTIONAL string_select;
+ENTITY Process_plan_relationship;
+  relating : Process_plan;
+  related : Process_plan;
+  description : OPTIONAL text;
   relation_type : STRING;
 END_ENTITY;
 
-ENTITY same_time_machining_relationship
-  SUBTYPE OF (item_instance_relationship);
-  description : OPTIONAL string_select;
-  placement : OPTIONAL transformation_select;
+ENTITY Same_time_machining_relationship
+  SUBTYPE OF (Part_occurrence_relationship);  -- was item_instance_relationship
+--  description : OPTIONAL text;
+--  placement : OPTIONAL transformation_select;
 END_ENTITY;
 
 END_SCHEMA;

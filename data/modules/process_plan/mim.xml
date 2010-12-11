@@ -1,12 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Process_plan_mim">
-  </schema>
+
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="process_plan_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Process_plan_mim">
+      <interface kind="use" schema="Activity_method_mim"/>
+      <interface kind="use" schema="Product_view_definition_mim"/>
+      <interface kind="use" schema="Support_resource_mim"/>
+      <interface kind="use" schema="action_schema">
+         <interfaced.item name="action"/>
+         <interfaced.item name="action_resource"/>
+      </interface>
+      <interface kind="use" schema="process_property_representation_schema">
+         <interfaced.item name="action_property_representation"/>
+         <interfaced.item name="resource_property_representation"/>
+      </interface>
+      <interface kind="use" schema="process_property_schema">
+         <interfaced.item name="action_property"/>
+         <interfaced.item name="action_resource_requirement"/>
+         <interfaced.item name="process_product_association"/>
+         <interfaced.item name="process_property_association"/>
+         <interfaced.item name="product_definition_process"/>
+         <interfaced.item name="property_process"/>
+         <interfaced.item name="requirement_for_action_resource"/>
+         <interfaced.item name="resource_property"/>
+         <interfaced.item name="resource_requirement_type"/>
+      </interface>
+      <entity name="process_operation" supertypes="action_method">
+         <where expression="SIZEOF( QUERY( amr &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.ACTION_METHOD_RELATIONSHIP.' +&#10;                     'RELATING_METHOD') |&#10;               NOT('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN&#10;                   TYPEOF(amr.related_method)) OR&#10;               (SELF :=: amr.related_method)&#10;              )) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( amr &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.ACTION_METHOD_RELATIONSHIP.' +&#10;                     'RELATED_METHOD') |&#10;               NOT('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN&#10;                   TYPEOF(amr.relating_method)) OR&#10;               (SELF :=: amr.relating_method)&#10;              )) = 0" label="WR2"/>
+      </entity>
+      <entity name="process_plan" supertypes="action">
+         <where expression="SIZEOF( QUERY( ar &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                      'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;               SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',&#10;                       'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *&#10;                       TYPEOF(ar.relating_action)) &lt;&gt; 1&#10;              )) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( ar &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                      'ACTION_RELATIONSHIP.RELATING_ACTION') |&#10;               (SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',&#10;                        'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *&#10;                        TYPEOF(ar.related_action)) = 1) OR&#10;               ((ar.name = 'process operation occurrence') AND&#10;                ('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN&#10;                 TYPEOF(ar.related_action.chosen_method)))&#10;              )) = &#10;             SIZEOF(USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                    'ACTION_RELATIONSHIP.RELATING_ACTION'))" label="WR2"/>
+      </entity>
+      <entity name="product_definition_resource" supertypes="action_resource product_definition">
+         <where expression="SIZEOF( USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;               'REQUIREMENT_FOR_ACTION_RESOURCE.RESOURCES')&#10;               ) &gt; 0" label="WR1"/>
+         <where expression="SELF.frame_of_reference.name IN &#10;        ['part_definition','part occurrence','physical occurrence']" label="WR2"/>
+      </entity>
+      <entity name="product_process_plan" supertypes="product_definition_process">
+         <where expression="SIZEOF( QUERY( ar &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                     'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;               SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',&#10;                       'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *&#10;                       TYPEOF(ar.relating_action)&#10;                ) &lt;&gt; 1&#10;              )) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( ar &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                      'ACTION_RELATIONSHIP.RELATING_ACTION') |&#10;               (SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',&#10;                        'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *&#10;                        TYPEOF(ar.related_action)) = 1) OR&#10;               ((ar.name = 'process operation occurrence') AND&#10;                ('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN&#10;                 TYPEOF(ar.related_action.chosen_method)))&#10;              )) = &#10;             SIZEOF(USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                    'ACTION_RELATIONSHIP.RELATING_ACTION'))" label="WR2"/>
+         <where expression="SIZEOF( QUERY( ppa &lt;* USEDIN(SELF,'PROCESS_PLAN_MIM.' +&#10;                     'PROCESS_PRODUCT_ASSOCIATION.PROCESS') |&#10;               (ppa.name &lt;&gt; 'produced output') OR&#10;               NOT('PROCESS_PLAN_MIM.PRODUCT_DEFINITION' IN&#10;                   TYPEOF(ppa.defined_product))&#10;              )) = 0" label="WR3"/>
+      </entity>
+   </schema>
 </express>

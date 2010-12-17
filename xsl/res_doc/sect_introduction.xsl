@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.12 2009/10/20 09:11:46 lothartklein Exp $
+$Id: sect_introduction.xsl,v 1.13 2010/10/20 07:44:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -165,14 +165,14 @@ $Id: sect_introduction.xsl,v 1.12 2009/10/20 09:11:46 lothartklein Exp $
 
 		<xsl:when test="$used-count > 1" >
 			<p>
-			The following schemas shown in Figure 1 are not found in this part of ISO 10303, but are found in ISO 10303-41:
+			The following schemas shown in Figure 1 are not found in this part of ISO 10303, but are found as specified:
 			</p>
 			<ul>
 			  <xsl:for-each select="used-schema[not(.=preceding-sibling::used-schema)]">
 			  	<xsl:sort />
 				<li>
-				<xsl:value-of select="." /> <!-- is found in
-				<xsl:apply-templates select="." mode="reference" /> -->
+				<xsl:value-of select="." /> is found in
+				<xsl:apply-templates select="." mode="reference" /> 
                                   <xsl:choose>
                                     <xsl:when test="position()!=last()">
                                       <xsl:value-of select="';'"/>

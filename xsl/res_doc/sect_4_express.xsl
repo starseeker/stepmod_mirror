@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.32 2009/11/07 11:58:10 lothartklein Exp $
+     $Id: sect_4_express.xsl,v 1.33 2009/11/07 20:27:21 lothartklein Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -357,8 +357,17 @@
     <p class="note">
       <small>
         NOTE&#160;1&#160;&#160;
-        The schemas referenced above are specified in the following 
-        part of ISO 10303:
+	<xsl:variable name="used-count" select="count(used-schema[not(.=preceding-sibling::used-schema)])" />
+	<xsl:choose>
+		<xsl:when test="$used-count = 1" >
+		        The schemas referenced above are specified in the following 
+		        part:
+		</xsl:when>
+		<xsl:otherwise >
+		        The schemas referenced above are specified in the following 
+		        parts:
+		</xsl:otherwise>
+	</xsl:choose>
       </small>
     </p>
     <blockquote>

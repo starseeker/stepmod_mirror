@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.77 2010/02/21 07:08:23 robbod Exp $
+$Id: resource.xsl,v 1.78 2010/12/10 18:07:09 philsp Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -633,12 +633,12 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </xsl:call-template>           
     </xsl:variable>
 
-    <!-- THX deleted per ISO review of part 107 
-	 <P>
-	 <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
-	 <xsl:value-of select="$resdoc_name"/>.
-	 </P>
-    -->
+    <!-- THX deleted per ISO review of part 107
+         PS Added back in following review of Part 61 -->
+ <P>
+   <xsl:value-of select="$resdoc_stdnumber"/> specifies the integrated resource constructs for 
+   <xsl:value-of select="$resdoc_name"/>.
+ </P>
 
     <xsl:choose>
       <xsl:when test="./abstract">

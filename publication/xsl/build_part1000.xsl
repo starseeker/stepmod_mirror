@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.15 2010/02/22 17:01:26 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.16 2010/04/21 12:21:40 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -66,6 +66,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:apply-templates select="." mode="target_modules_check"/>					
 					<xsl:apply-templates select="." mode="target_normref_check"/>					
 					<xsl:apply-templates select="." mode="target_bibliography_check"/>
+					<xsl:apply-templates select="." mode="target_wgn_summary"/>
 					<xsl:apply-templates select="." mode="target_init"/>
 					<xsl:apply-templates select="." mode="target_isoindex"/>
 					<xsl:apply-templates select="." mode="target_zip"/>
@@ -5126,7 +5127,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:text>
 	 </xsl:text>
 		<xsl:variable name="target1">
-			normref_check bibliography_check modules_check
+			normref_check bibliography_check modules_check wgn_summary
 			<xsl:apply-templates select="./resource_docs" mode="target_all"/>
 			<xsl:apply-templates select="./modules" mode="target_all"/>
 			<xsl:apply-templates select="./application_protocols" mode="target_all"/>
@@ -6468,6 +6469,41 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/bibliography_check.xsl'"/>
+				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
+				<param name="stepmodhome" expression="."/>
+				<xsl:element name="param">
+					<xsl:attribute name="name">
+						<xsl:value-of select="'date'"/>
+					</xsl:attribute>
+					<xsl:attribute name="expression">
+						<xsl:value-of select="'${DATE}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+		</target>
+	</xsl:template>
+	
+	<xsl:template match="part1000.publication_index" mode="target_wgn_summary">
+		<xsl:text>
+		</xsl:text>
+		<target name="wgn_summary" depends="variables" 
+			description="Create WG number summary">
+			<xsl:element name="xslt">
+				<xsl:attribute name="in">
+					<xsl:value-of select="'${PUBSRCDIR}/sys/wgn_summary.xml'"/>
+				</xsl:attribute>
+				<xsl:attribute name="out">
+					<xsl:value-of select="'${PUBDIR}/wgn_summary.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="'${PUBDIR}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${PUBSRCSTYLES}/wgn_summary.xsl'"/>
 				</xsl:attribute>
 				<param name="output_type" expression="HTM"/>
 				<param name="stepmodhome" expression="."/>

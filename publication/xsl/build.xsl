@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.32 2010/02/05 09:12:19 robbod Exp $
+<!--  $Id: build.xsl,v 1.33 2010/06/11 13:53:57 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -75,7 +75,8 @@ Purpose: To build the initial ANT publication file.
 		  <xsl:apply-templates select="." mode="target_variables"/>
 		  <xsl:apply-templates select="." mode="target_init"/>
 		  <xsl:apply-templates select="." mode="target_isoindex"/>
-		  <xsl:apply-templates select="." mode="target_normref_check"/>
+			<!-- See: http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3786#c1
+		  	<xsl:apply-templates select="." mode="target_normref_check"/>-->
 		  <xsl:apply-templates select="." mode="target_finish"/>
 		  <xsl:apply-templates select="." mode="target_resources"/>
 		  <xsl:if test="./modules/module">
@@ -1399,7 +1400,8 @@ Purpose: To build the initial ANT publication file.
   <!-- generate the target "normref_check" -->
   <!-- Note - that this target should be included in isoindex, but left out
 	   as not all publication packages have a normref_check file yet -->
-  <xsl:template match="publication_index" mode="target_normref_check">
+	<!-- See: http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3786#c1 
+ 	<xsl:template match="publication_index" mode="target_normref_check">
 	<xsl:text>
 	</xsl:text>
 	<target name="normref_check" depends="init" 
@@ -1468,7 +1470,7 @@ Purpose: To build the initial ANT publication file.
 	</target>
   </xsl:template>
 
-
+-->
   <!-- generate the target "isoindex" -->
   <xsl:template match="publication_index" mode="target_isoindex">
 	<xsl:text>
@@ -5297,7 +5299,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:variable>
 	 <xsl:element name="target">
 	   <xsl:attribute name="name">all</xsl:attribute>
-	   <xsl:attribute name="depends"><xsl:value-of select="$target"/>, normref_check, finish</xsl:attribute>
+	   <xsl:attribute name="depends"><xsl:value-of select="$target"/>, finish</xsl:attribute>
 	   <xsl:attribute name="description">Generate the HTML for ISO publication</xsl:attribute>
 	 </xsl:element>
    </xsl:template>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.8 2004/12/01 09:29:08 robbod Exp $
+$Id: publication_summary.xsl,v 1.9 2005/07/22 22:43:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -86,11 +86,12 @@ $Id: publication_summary.xsl,v 1.8 2004/12/01 09:29:08 robbod Exp $
         </tr>
       </table>
       <hr/>
-      <p>
-        <!-- NOTE - not all packages have normref_check file -->
+      <!-- See: http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3786#c1
+        <p>
+        <!-\- NOTE - not all packages have normref_check file -\->
         Normative reference 
         <a href="normref_check{$FILE_EXT}">check</a>
-      </p>
+      </p>-->
       <xsl:apply-templates select="./modules" mode="table_hdr"/>
       <xsl:apply-templates select="./resource_docs" mode="table_hdr"/>
       <xsl:apply-templates select="./application_protocols" mode="table_hdr"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.33 2010/06/11 13:53:57 robbod Exp $
+<!--  $Id: build.xsl,v 1.34 2010/12/22 08:28:45 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1308,6 +1308,16 @@ Purpose: To build the initial ANT publication file.
 		<xsl:apply-templates select="resource_docs/res_doc" mode="list">
 		  <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 		  <xsl:with-param name="suffix" select="'/sys/examples.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+	  <xsl:attribute name="name">RESDOCCHANGEXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
 		</xsl:apply-templates>
 	  </xsl:attribute>
 	</xsl:element>
@@ -4567,6 +4577,16 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:attribute>
 		 <xsl:attribute name="style">
 		   <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_examples.xsl'"/>
+		 </xsl:attribute>
+		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
+	   </xsl:element>
+
+	   <xsl:element name="xslt">
+		 <xsl:attribute name="includes">
+		   <xsl:value-of select="'${RESDOCCHANGEXML}'"/>
+		 </xsl:attribute>
+		 <xsl:attribute name="style">
+		   <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_g_change.xsl'"/>
 		 </xsl:attribute>
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 	   </xsl:element>

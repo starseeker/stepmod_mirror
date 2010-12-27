@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.39 2005/03/09 21:15:40 thendrix Exp $
+$Id: build.xsl,v 1.40 2006/07/13 17:52:48 hz0wyg Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -412,6 +412,16 @@ $Id: build.xsl,v 1.39 2005/03/09 21:15:40 thendrix Exp $
             <xsl:apply-templates select="ballot_package/resource">
               <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
               <xsl:with-param name="suffix" select="'/sys/examples.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCCHANGEXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/resource">
+              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+              <xsl:with-param name="suffix" select="'/sys/g_change.xml'"/>
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
@@ -4611,6 +4621,63 @@ utable as in buildscript -->
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_examples.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+<!-- LK: didn't get this working so far -->
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESDOCCHANGEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_g_change.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">

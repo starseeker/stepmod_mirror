@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.78 2010/12/10 18:07:09 philsp Exp $
+$Id: resource.xsl,v 1.79 2010/12/17 12:13:32 philsp Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -878,13 +878,13 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </xsl:variable>
       <xsl:choose>
 	<xsl:when test="@previous.revision.cancelled='NO'">
-	  This <xsl:value-of select="$this_edition"/> edition 
+	  This <xsl:value-of select="$this_edition"/> edition of
+      <xsl:value-of select="$part_no"/>
 	  cancels and replaces the
 	  <xsl:value-of select="$prev_edition"/> edition  
 	  (<xsl:value-of
 	  select="concat($part_no,':',@previous.revision.year)"/>),
 	  of which it constitutes a technical revision. 
-
 
 	  <xsl:choose>
 	    <!-- only changed a section of the document -->
@@ -948,6 +948,20 @@ All rights reserved. Unless otherwise specified, no part of this publication may
      <xsl:value-of select="./foreword"/>
    </xsl:otherwise>
    </xsl:choose>
+   
+      <xsl:if test="./changes">
+        <xsl:variable name="annex_letter">
+          <xsl:choose>
+            <xsl:when test="./examples and ./tech_discussion">G</xsl:when>
+            <xsl:when test="./examples or ./tech_discussion">F</xsl:when>
+            <xsl:otherwise>E</xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable> A detailed description of the changes is provided in Annex <a
+          href="g_change{$FILE_EXT}">
+          <xsl:value-of select="$annex_letter"/>
+        </a>. 
+      </xsl:if>
+
     <p>
       ISO 10303 is organized as a series of parts, each
       published separately.  The structure of ISO 10303 is
@@ -983,10 +997,9 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     </div>
     <p>
       <a name="future">
-	<sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 
+ 		<sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 
       </a>      
     </p>
-
   </xsl:template>
 
   <xsl:template match="schema_diag">

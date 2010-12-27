@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.37 2010/02/03 23:18:58 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -101,19 +101,19 @@ $Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
      </xsl:for-each>
    </xsl:if>
    <!-- use #annexa to link direct -->
-     <A HREF="./a_short_names{$FILE_EXT}">A Short names of entities</A>
+     <A HREF="./a_short_names{$FILE_EXT}">Annex A Short names of entities</A>
    <br/>
    <!-- use #annexb to link direct -->
-     <A HREF="./b_obj_reg{$FILE_EXT}">B Information requirements object
+     <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information requirements object
      registration</A>
      <br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b1">B.1 Document identification</A><br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b2">B.2 Schema identification</A><br/>
    <!-- use #annexc to link direct -->
-     <A HREF="./c_exp{$FILE_EXT}">C Computer interpretable listings</A>
+     <A HREF="./c_exp{$FILE_EXT}">Annex C Computer interpretable listings</A>
      <br/>
    <!-- use #annexd to link direct -->
-     <A HREF="./d_expg{$FILE_EXT}">D EXPRESS-G diagrams</A>
+     <A HREF="./d_expg{$FILE_EXT}">Annex D EXPRESS-G diagrams</A>
      <br/>
 
         <xsl:if test="string-length(./tech_discussion) > 10">
@@ -128,7 +128,7 @@ $Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
 		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
 
    		<A HREF="./tech_discussion{$FILE_EXT}#tech_discssion">
-            	<xsl:value-of select="$annex_letter"/>  Technical discussion</A>
+            	Annex <xsl:value-of select="$annex_letter"/>  Technical discussion</A>
                 <br/>
         </xsl:if>
         <xsl:if test="string-length(./examples) > 10">
@@ -142,7 +142,7 @@ $Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
 
 		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
    		<A HREF="./examples{$FILE_EXT}">
-	            <xsl:value-of select="$annex_letter"/>  Examples</A>
+	          Annex <xsl:value-of select="$annex_letter"/>  Examples</A>
 		<br/>
         </xsl:if>
         <xsl:if test="string-length(./add_scope) > 10">
@@ -163,7 +163,48 @@ $Id: sect_contents.xsl,v 1.36 2009/12/24 17:42:04 lothartklein Exp $
                     <br/>
         </xsl:if>
 
-
+  <xsl:variable name="annex_letter">
+    <xsl:choose>
+            <xsl:when test="./examples and ./tech_discussion">G</xsl:when>
+            <xsl:when test="./examples or ./tech_discussion">F</xsl:when>
+            <xsl:otherwise>E</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+    <xsl:if test="./changes">
+      <A HREF="./g_change{$FILE_EXT}"> Annex <xsl:value-of select="$annex_letter"/> Change
+        history</A>
+      <BR/>      
+      &#160; &#160; &#160; 
+      <A HREF="./g_change{$FILE_EXT}#general"><xsl:value-of select="concat($annex_letter,'.1 General')"/></A>
+      <BR/>
+      <xsl:for-each select="./changes/change_edition">
+        <xsl:sort select="@version"/>
+        <xsl:variable name="annex_no" select="concat($annex_letter,' ',position()+1)"/>
+        <xsl:variable name="ahref" select="concat('change_',@version)"/> &#160; &#160;
+        &#160; <A HREF="./g_change{$FILE_EXT}#{$ahref}">
+          <xsl:value-of select="concat($annex_no,' Changes made in edition ',@version)"/>
+        </A>
+        <BR/> &#160; &#160; &#160; &#160; &#160; &#160; <A
+          HREF="./g_change{$FILE_EXT}#summary{@version}">
+          <xsl:value-of select="concat($annex_no,'.1 Summary of changes ')"/>
+        </A>
+        <BR/>
+        <xsl:for-each select="./node()">
+          <xsl:variable name="aahref" select="concat(name(),../@version)"/>
+          <xsl:choose>
+            <xsl:when test="name()='schema.changes'">   
+              <xsl:variable name="aannex_no" select="concat($annex_no,'.2')"/>
+              &#160; &#160; &#160; &#160;
+              &#160; &#160; <A HREF="./g_change{$FILE_EXT}#{$aahref}">
+                <xsl:value-of select="concat($annex_no, '.', position()+1, ' Changes made to schema ', @schema_name)"/>   
+              </A>
+              <BR/>
+            </xsl:when>
+          </xsl:choose>
+        </xsl:for-each>
+      </xsl:for-each>
+    </xsl:if>
+  
    <xsl:if test="./bibliography/*">
 	      <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
 	      <br/>

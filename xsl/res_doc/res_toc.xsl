@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.27 2010/02/03 23:18:58 lothartklein Exp $
+$Id: res_toc.xsl,v 1.28 2010/12/10 18:07:09 philsp Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -583,6 +583,19 @@ $Id: res_toc.xsl,v 1.27 2010/02/03 23:18:58 lothartklein Exp $
             <xsl:value-of select="$annex_letter"/>  Additional scope</A><BR/>
         </xsl:if>
 
+          <xsl:variable name="annex_letter">
+            <xsl:choose>
+              <xsl:when test="./examples and ./tech_discussion">G</xsl:when>
+              <xsl:when test="./examples or ./tech_discussion">F</xsl:when>
+              <xsl:otherwise>E</xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:if test="./changes">
+            <A HREF="{$resdoc_root}/sys/g_change{$FILE_EXT}">
+              <xsl:value-of select="$annex_letter"/> Change history</A><BR/>
+          </xsl:if>
+        
+
         <xsl:if test="./bibliography/*">
 	        <A HREF="{$resdoc_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A><BR/>
 	</xsl:if>
@@ -638,6 +651,7 @@ $Id: res_toc.xsl,v 1.27 2010/02/03 23:18:58 lothartklein Exp $
           <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">
             G Additional scope</A><BR/>
         </xsl:if>
+        
         <!-- use #biblio to link direct -->
 	<xsl:if test="./bibliography/*" >
 	        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">Bibliography</A>

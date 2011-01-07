@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.79 2010/12/17 12:13:32 philsp Exp $
+$Id: resource.xsl,v 1.80 2010/12/27 14:26:23 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1369,7 +1369,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="clause_intro_1">The following EXPRESS declaration begins the </xsl:variable>
+    <xsl:variable name="clause_intro_1">This clause defines the information requirements to which implementations shall conform using the EXPRESS language as defined in ISO 10303-11. The following EXPRESS declaration begins the </xsl:variable>
     <xsl:variable name="clause_intro_2"> 
       <xsl:choose>
 	    <xsl:when  test="$doctype='aic'">

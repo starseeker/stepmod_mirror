@@ -1,6 +1,30 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2010/12/04 08:45:26 lothartklein Exp $
    N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
+
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_arm;
+
+USE FROM Model_based_geometrical_dimensioning_and_tolerancing_arm;
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
+USE FROM Advanced_boundary_representation_arm; -- ISO/TS 10303-1514
+USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
+USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
+
+
+(* a Part-view_definition can have at most one Item_shape.
+  But not every Item_shape and the associated shape_representation is 
+  nessecarily suitable for manufacturing. So we have to ensure that there is
+  an ABREP associated and the requirement is that this ABREP represents the 
+  NOMINAL shape of the product. Let's call this a Pmi_shape and have the word
+  nominal gemetry in the mapping *)
+ENTITY Nominal_3d_model_shape
+  SUBTYPE OF (Associated_item_shape);
+-- mapping: inherited property_definition.name is "nominal 3d model", this attribute is not available on the ARM  
+WHERE
+  WR1: 'xxx.Model_based_view_context' IN TYPEOF(described_element\Product_view_definition.initial_context); 
+        -- shall only be used for part_view_definitions with an initial context of type Model_based_3D_view_context.
+  WR2: TRUE; -- must have an associated ABREP
+END_ENTITY;  
+
 END_SCHEMA;

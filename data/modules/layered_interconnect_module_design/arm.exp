@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.313 2010/10/06 07:37:42 lothartklein Exp $
+   $Id: arm.exp,v 1.314 2010/10/11 04:28:54 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6989 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6435
 *)
@@ -15,8 +15,7 @@ USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634
 
 REFERENCE FROM Physical_unit_design_view_arm(get_assemblies);  -- ISO/TS 10303-1765
 REFERENCE FROM Support_resource_arm(bag_to_set);  
-REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape);  -- ISO/TS 10303-1724
-REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-1724
+REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof);  -- ISO/TS 10303-1724
 
  CONSTANT
    Pre_defined_physical_network_group_types : SET OF STRING := [
@@ -268,9 +267,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal
-    SUBTYPE OF (Laminate_component_feature, Shape_feature);
+    SUBTYPE OF (Laminate_component_feature, Definitional_shape_element);
       SELF\Component_feature.associated_component : Conductive_interconnect_element;
-      SELF\Shape_feature.connection_area          : OPTIONAL SET[1:1] OF Connection_zone_in_design_view;
+      SELF\Definitional_shape_element.connection_area          : OPTIONAL SET[1:1] OF Connection_zone_in_design_view;
       location                                    : Layer_connection_point;
     UNIQUE
       UR1 : SELF\Component_feature.element_name, SELF\Component_feature.associated_component;
@@ -960,14 +959,14 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-
 
   ENTITY Probe_access_area
     SUPERTYPE OF (Internal_probe_access_area)
-    SUBTYPE OF (Laminate_component, Shape_feature);
+    SUBTYPE OF (Laminate_component, Definitional_shape_element);
     	SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
         probed_layout_item                                    : stratum_feature_or_stratum;
-        SELF\Shape_feature.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
+        SELF\Definitional_shape_element.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
     	stratum_feature_material_stackup                      : OPTIONAL Stratum_feature_based_derived_pattern;
     DERIVE
       SELF\Shape_element.containing_shape : Probe_access_area := SELF;
-      SELF\Shape_feature.element_name : STRING := '';      
+      SELF\Definitional_shape_element.element_name : STRING := '';      
     INVERSE
       network : Routed_physical_network FOR probe;
     WHERE

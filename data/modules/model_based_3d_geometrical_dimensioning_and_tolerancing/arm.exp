@@ -1,15 +1,33 @@
 (*
-   $Id: arm.exp,v 1.1 2010/12/04 08:45:26 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2011/01/26 11:30:19 lothartklein Exp $
    N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing - EXPRESS ARM*)
 
 
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_arm;
 
-USE FROM Model_based_geometrical_dimensioning_and_tolerancing_arm;
+USE FROM Product_manufacturing_information_view_context_arm;
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Advanced_boundary_representation_arm; -- ISO/TS 10303-1514
 USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
+USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
 USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
+
+TYPE advanced_face_model = SELECT (
+  Advanced_brep_shape_representation, 
+  Manifold_surface_shape_representation, 
+  Manifold_subsurface_model);
+END_TYPE;
+
+
+(*
+ENTITY Associated_item_shape
+          SUBTYPE OF (Item_shape);
+DERIVE
+  associated_model : shape_model := association\Shape_description_association.representation;
+INVERSE
+  association : Shape_description_association FOR represented_characteristic;
+END_ENTITY
+*)
 
 
 (* a Part-view_definition can have at most one Item_shape.
@@ -21,10 +39,25 @@ USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
 ENTITY Nominal_3d_model_shape
   SUBTYPE OF (Associated_item_shape);
 -- mapping: inherited property_definition.name is "nominal 3d model", this attribute is not available on the ARM  
+DERIVE
+  associated_abrep : Advanced_brep_shape_representation := get_advanced_brep(associated_model);
+  associated_construction_geometry_models : SET[0:?] OF Constructive_geometry := get_construction_geometry(associated_model);
 WHERE
   WR1: 'xxx.Model_based_view_context' IN TYPEOF(described_element\Product_view_definition.initial_context); 
         -- shall only be used for part_view_definitions with an initial context of type Model_based_3D_view_context.
   WR2: TRUE; -- must have an associated ABREP
+  WR3: EXISTS(associated_abrep);
+  
 END_ENTITY;  
+
+FUNCTION get_advanced_brep(m : shape_model) : Advanced_brep_shape_representation;
+-- see bug #3943 -  GD&T document rule in AP 242, comment #14
+  RETURN;
+END_FUNCTION; 
+
+FUNCTION get_construction_geometry(m : shape_model) : Constructive_geometry;
+-- see bug #3943 -  GD&T document rule in AP 242, comment #14
+  RETURN;
+END_FUNCTION; 
 
 END_SCHEMA;

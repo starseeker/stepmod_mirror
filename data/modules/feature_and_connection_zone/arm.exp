@@ -1,51 +1,51 @@
 (*
-   $Id: arm.exp,v 1.31 2009/12/23 13:26:11 liutkuviene Exp $
+   $Id: arm.exp,v 1.32 2010/01/26 19:44:56 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6965 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6375
 *)
 
 SCHEMA Feature_and_connection_zone_arm; 
 
-	USE FROM Shape_feature_arm; -- ISO/TS 10303-1764
-	USE FROM Surface_conditions_arm; -- ISO/TS 10303-1110
-    REFERENCE FROM Support_resource_arm(bag_to_set);
+	USE FROM Shape_feature_arm; 
+	USE FROM Surface_conditions_arm;
+    REFERENCE FROM Support_resource_arm(bag_to_set); 
 
-  ENTITY Connection_zone
-  	ABSTRACT SUPERTYPE
-  	SUBTYPE OF (Shape_feature_occurrence);
-   DERIVE
-      surface_conditions : SET OF Surface_condition := 
-	       bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
-    WHERE
-      WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
-             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
-            = 1;
-      WR2 : NOT EXISTS (SELF\Shape_element.description);
-      WR3 : NOT EXISTS (SELF\Shape_element.element_name);
-  END_ENTITY;
+ENTITY Connection_zone
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Shape_element);
+DERIVE
+  surface_conditions : SET OF Surface_condition := 
+  bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
+WHERE
+  WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
+         SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
+         = 1;
+  WR2 : NOT EXISTS (SELF\Shape_element.description);
+  WR3 : NOT EXISTS (SELF\Shape_element.element_name);
+END_ENTITY;
 
-  ENTITY Feature_definition_with_connection_area
-    SUBTYPE OF (Shape_feature_definition);
-    connection_area : OPTIONAL SET [1:?] OF Connection_zone;
-  END_ENTITY;
+ENTITY Definitional_shape_element
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Shape_element);
+  connection_area : OPTIONAL SET[1:?] OF Connection_zone;
+  SELF\Shape_element.element_name : STRING;
+DERIVE
+  surface_conditions : SET OF Surface_condition := facz_get_sc(SELF);		
+UNIQUE
+  UR1 : SELF\Shape_element.element_name, 
+        SELF\shape_element.containing_shape;
+END_ENTITY;
 
-  ENTITY Location_shape_model
-    SUBTYPE OF (Geometric_model);
-  END_ENTITY;
-  
-  ENTITY Shape_feature
-  	ABSTRACT SUPERTYPE
-       SUBTYPE OF (Shape_element);
-   		connection_area : OPTIONAL SET[1:?] OF Connection_zone;
-   		SELF\Shape_element.element_name : STRING;
-   DERIVE
-      surface_conditions : SET OF Surface_condition := facz_get_sc(SELF);		
-    UNIQUE
-      UR1 : SELF\Shape_element.element_name, 
-      SELF\shape_element.containing_shape;
-  END_ENTITY;
+ENTITY Feature_definition_with_connection_area
+  SUBTYPE OF (Shape_feature_definition);
+  connection_area : OPTIONAL SET [1:?] OF Connection_zone;
+END_ENTITY;
 
-FUNCTION facz_get_sc (input : Shape_feature) : SET OF Surface_condition;
+ENTITY Non_definitional_shape_element 	 
+  SUBTYPE OF (Shape_element); 	 
+END_ENTITY;
+
+FUNCTION facz_get_sc (input : Definitional_shape_element) : SET OF Surface_condition;
   LOCAL
     sca : SET OF Surface_condition_association := 
 	         bag_to_set(USEDIN(input,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
@@ -57,5 +57,9 @@ FUNCTION facz_get_sc (input : Shape_feature) : SET OF Surface_condition;
    RETURN (sc);
 END_FUNCTION;
 
+SUBTYPE_CONSTRAINT fac_shape_element FOR Shape_element;
+  ONEOF (Instanced_feature, Placed_feature) ANDOR
+  ONEOF (Definitional_shape_element, Non_definitional_shape_element);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

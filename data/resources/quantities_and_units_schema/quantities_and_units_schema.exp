@@ -1,0 +1,191 @@
+(* $Id: quantities_and_units_schema.exp,v 1.5 2009/07/21 22:04:43 thomasrthurman Exp $ 
+*)
+
+SCHEMA quantities_and_units_schema;
+
+-- REFERENCE FROM measure_schema(si_prefix);
+
+CONSTANT
+valid_quantity_units : SET[0:?] OF qus := [ 
+qus(mass,(kilogram,tonne))
+];
+END_CONSTANT;
+
+TYPE unit_multiplier = ENUMERATION (
+  yotta,  -- e+24
+  zetta,  -- e+21          
+  exa,    -- e+18
+  peta,   -- e+15
+  tera,   -- e+12
+  giga,   -- e+9
+  mega,   -- e+6
+  kilo,   -- e+3
+  hecto,  -- e+2
+  deca,   -- e+1
+  deci,   -- e-1
+  centi,  -- e-2
+  milli,  -- e-3
+  micro,  -- e-6
+  nano,   -- e-9
+  pico,   -- e-12
+  femto,  -- e-15
+  atto,   -- e-18
+  zepto,  -- e-21
+  yocto,  -- e-24 
+  
+  yobi, -- Yi 8 1 208 925 819 614 629 174 706 176 
+  zebi, -- Zi     7 1 180 591 620 717 411 303 424 
+  exbi, -- Ei         6 1 152 921 504 606 846 976 
+  pebi, -- Pi             5 1 125 899 906 842 624 
+  tebi, -- Ti                 4 1 099 511 627 776 
+  gibi, -- Gi                     3 1 073 741 824 
+  mebi, -- Mi                         2 1 048 576 
+  kibi  -- Ki                             1 1 024   
+  );
+END_TYPE;
+
+
+TYPE iso80000_quantity = ENUMERATION (
+action, -- 4-37
+angular_impulse, -- 4-14
+bending_moment_of_force, -- 4-13.3
+compressibility, -- 4-19
+dynamic_friction_factor, -- 4-22.1
+dynamic_viscosity, --4-23
+efficiency, -- 4-28
+force, -- 4-9.1
+gravitational_constant, -- 4-10
+hamilton_function, -- 4-36
+impulse, -- 4-11
+kinematic_viscosity, -- 4-24
+kinetic_energy, -- 4-27.3
+lagrange_function, -- 4-34
+linear_density, -- 4-6
+linear_strain, -- 4-16.1
+mass, -- 4-1
+mass_density, -- 4-2
+mass_flow_rate, -- 4-29
+mass_moment_of_inertia, -- 4-7
+mechanical_energy, -- 4-27.4
+modulus_of_compression, -- 4-18.3
+modulus_of_elasticity, -- 4-18.1
+modulus_of_rigidity, -- 4-18.2
+momentum, -- 4-8
+moment_of_force, -- 4-13.1
+moment_of_momentum, -- 4-12
+normal_stress, -- 4-15.2
+poisson_number, -- 4-17
+potential_energy, -- 4-27.2
+power, -- 4-26
+pressure, -- 4-15.1
+relative_mass_density, -- 4-3
+second_axial_moment_of_area, -- 4-20.1
+second_polar_moment_of_area, -- 4-20.2
+section_modulus, -- 4-21
+shear_strain, -- 4-16.2
+shear_stress, -- 4-15.3
+specific_volume, -- 4-4
+static_friction_factor, -- 4-22.2
+surface_density, -- 4-5
+surface_tension, -- 4-25
+torque, -- 4-13.2
+volume_flow_rate, -- 4-30
+volume_strain, -- 4-16.3
+weight, -- 4-9.2
+work, -- 4-27.1
+zzz
+);
+END_TYPE;
+
+(* Issues
+"The unit depends on the dimension of the quantity.":
+4-31 generalized coordinate
+4-32 generalized velocity
+4-33 generalized force
+4-35 generalized momentum
+*)
+
+TYPE iso80000_unit = ENUMERATION (
+conventional_millimetre_of_water, -- 4-15.C.d
+conventional_millimetre_of_mercury, -- 4-15.C.e
+cubic_metre_per_kilogram, -- 4-4.a
+cubic_metre_per_second, -- 4-30.a
+dyne, -- 4-9.A.a
+erg, -- 4-27.A.a
+foot_pound_force, -- 4-13.B.a
+grain, -- 4-1.B.b
+hundredweight_uk, -- 4-1.B.d
+hundredweight_us, -- 4-1.B.e
+joule, -- 4-27.a, 4-34.a, 4-36.a
+joule_second, -- 4-37.a
+kilogram, -- 4-1.a
+kilogram_force, -- 4-9.C.a
+kilogram_force_metre, -- 4-13.C.a, 4-27.C.a
+kilogram_force_metre_per_second, -- 4-26.C.a
+kilogram_force_per_square_metre, -- 4-15.C.b
+kilogram_metre_per_second, -- 4-8.a
+kilogram_metre_squared, -- 4-7.a
+kilogram metre_squared_per_second, -- 4-12.a
+kilogram_per_cubic_metre, -- 4-2.a
+kilogram_per_litre, -- 4-2.c
+kilogram_per_metre, -- 4-6.a
+kilogram_per_second, -- 4-29.a
+kilogram_per_square_metre, -- 4-5.a
+metre_cubed, -- 4-21.a
+metre_squared_per_second, -- 4-24.a
+metre_to_the_power_four, -- 4-20.a
+metric_carat, -- 4-1.C.a
+metric_horsepower, -- 4-26.C.b
+newton, -- 4-9.a
+newton_metre, -- 4-10.a, 4-13.a
+newton_metre_second, -- 4-14.a
+newton_metre_squared_per_kilogram_squared,
+newton_per_metre, -- 4-25.a
+newton_second, -- 4-11.a
+one, -- 4-3.a, 4-16.a, 4-17.a, 4-22.a, 4-28.a
+ounce, -- 4-1.B.c
+pascal, -- 4-15.a, 4-18.a
+pascal_second, -- 4-23.a
+pascal_to_the_power_minus_one, -- 4-19.a
+poise, -- 4-23.A.a
+pound, -- 4-1.B.a
+pound_force, -- 4-9.B.a
+pound_per_cubic_foot, -- 4-2.B.a
+standard_atmosphere, -- 4-15.C.a
+stokes, -- 4-24.A.a
+technical_atmosphere, -- 4-15.C.c
+tex, -- 4-6.C.a
+ton_uk, -- 4-1.B.f
+ton_us, -- 4-1.B.g
+torr, -- 4-15.C.f
+tonne, -- 4-1.b
+tonne_per_cubic_metre, -- 4-2.b
+troy_ounce, -- 4-1.B.h
+watt, -- 4-26.a
+);
+END_TYPE;
+
+ENTITY qus -- stands for "quantity units", but need a very short name
+  q : physical_quantitiy;
+  us : SET[1:?} OF physical_unit;
+UNIQUE
+  q;  
+END_ENTITY;  
+
+ENTITY general_quantitiy_value
+  ABSTRACT SUPERTYPE;
+END_ENTITY;
+
+ENTITY iso80000_quantity_value
+  SUBTYPE OF (general_quantitiy_value);
+  kind_component : iso80000_quantity;
+  value_component : REAL;
+  unit_component : iso80000_unit;
+  multiplier_component : OPTIONAL unit_multiplier;  
+WHERE;
+  wr1: TRUE; -- nu
+END_ENTITY;
+
+END_SCHEMA; -- quantities_and_units_schema
+ 
+ 

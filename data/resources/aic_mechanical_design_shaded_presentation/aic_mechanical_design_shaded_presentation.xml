@@ -46,8 +46,6 @@
       </interface>
       <interface kind="use" schema="presentation_organization_schema">
          <interfaced.item name="area_in_set"/>
-      </interface>
-      <interface kind="use" schema="presentation_organization_schema">
          <interfaced.item name="background_colour"/>
          <interfaced.item name="camera_image_3d_with_scale"/>
          <interfaced.item name="camera_model_d3"/>
@@ -80,14 +78,14 @@
          <interfaced.item name="aspect_ratio"/>
       </interface>
       <type name="mechanical_design_shaded_presentation_area_items">
-         <select selectitems="axis2_placement mapped_item"/>
+         <select extensible="NO" genericentity="NO" selectitems="axis2_placement mapped_item"/>
       </type>
       <type name="mechanical_design_shaded_presentation_representation_items">
-         <select selectitems="axis2_placement camera_model_d3 mapped_item styled_item"/>
+         <select extensible="NO" genericentity="NO" selectitems="axis2_placement camera_model_d3 mapped_item styled_item"/>
       </type>
-      <entity name="mechanical_design_shaded_presentation_area" supertypes="presentation_area">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="mechanical_design_shaded_presentation_area" supertypes="presentation_area">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="mechanical_design_shaded_presentation_area_items"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
@@ -97,9 +95,9 @@
          <where expression="(SIZEOF(QUERY( psize &lt;* USEDIN (SELF, &#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' + &#10;        'PRESENTATION_SIZE.UNIT') &#10;        | 'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' +&#10;        'AXIS2_PLACEMENT_2D' &#10;        IN TYPEOF (psize.size.placement))) = 1)&#10;        AND&#10;        (* check secondly for presentation_set, via area_in_set *)&#10;        (SIZEOF (QUERY(pset &lt;* QUERY(ais &lt;* &#10;        USEDIN (SELF, 'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' +&#10;        'AREA_IN_SET.AREA')&#10;        | 'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' +&#10;        'PRESENTATION_SET' IN TYPEOF (ais.in_set)) |&#10;        (* after having collected all presentation_set, check their &#10;           dimension *)&#10;        SIZEOF (QUERY(psize &lt;* USEDIN(pset, &#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' + &#10;        'PRESENTATION_SIZE.UNIT')&#10;        | NOT ('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.' + &#10;        'AXIS2_PLACEMENT_2D' &#10;        IN TYPEOF (psize.size.placement)) )) = 0)) = 0)" label="WR4"/>
          <where expression="SIZEOF (QUERY (pv &lt;* QUERY (mi1 &lt;* QUERY (it1 &lt;* SELF.items |&#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.MAPPED_ITEM' &#10;        IN TYPEOF (it1)) |&#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.PRESENTATION_VIEW' &#10;        IN TYPEOF &#10;        (mi1\mapped_item.mapping_source.mapped_representation)) |&#10;        (* search in all presentation_views for &#10;           mapped_items and for the subtype of mapped_item,&#10;           camera_image_3d_with_scale; the latter shall reference&#10;           a camera_usage that shall have as its mapping_origin either&#10;           camera_model_d3, camera_model_d3_with_hlhsr, or&#10;           camera_model_with_light_sources. *)&#10;        NOT (SIZEOF(QUERY(ci &lt;* pv\mapped_item.mapping_source.&#10;        mapped_representation\representation.items |&#10;        ('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+&#10;         'CAMERA_IMAGE_3D_WITH_SCALE' IN TYPEOF(ci))&#10;        AND&#10;        (SIZEOF(['AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+&#10;        'CAMERA_MODEL_D3',&#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+&#10;        'CAMERA_MODEL_D3_WITH_HLHSR',&#10;        'AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+&#10;        'CAMERA_MODEL_WITH_LIGHT_SOURCES'] * TYPEOF&#10;        (ci\mapped_item.mapping_source.mapping_origin))&#10;        = 1))) = 0))) = 0" label="WR5"/>
       </entity>
-      <entity name="mechanical_design_shaded_presentation_representation" supertypes="representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="mechanical_design_shaded_presentation_representation" supertypes="representation">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="mechanical_design_shaded_presentation_representation_items"/>
             <redeclaration entity-ref="representation"/>
          </explicit>

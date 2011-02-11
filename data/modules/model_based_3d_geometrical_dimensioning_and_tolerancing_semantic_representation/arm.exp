@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2011/01/26 11:30:18 lothartklein Exp $
    N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing_semantic_representation - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_semantic_representation_arm;
@@ -7,13 +7,77 @@ SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_semantic_represen
 USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_arm;
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
 
-ENTITY Gdt_semantic_representation_shape
+TYPE nominal_3d_integral_feature_geometry = SELECT (
+  Advanced_face, 
+  Edge_curve,
+  Vertex_point, 
+  Manifold_subsurface_model,
+  Edge_loop);
+END_TYPE;
+
+-- similar to constructive_element_select in Construction_geometry_arm
+TYPE nominal_3d_derived_feature_geometry = SELECT (
+  Curve,
+  point_select,
+  Surface);
+END_TYPE;
+
+
+TYPE mb3gdtsr_geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_tolerance_target WITH (
+  Nominal_3d_integral_feature,
+  Nominal_3d_derived_feature);
+END_TYPE;
+
+TYPE mb3gdtsr_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
+  Nominal_3d_integral_feature,
+  Nominal_3d_derived_feature);
+END_TYPE;
+
+
+(*
+TYPE gdt_shape_element = SELECT (
+  Nominal_3d_feature,
+  Tolerance_zone,
+  Contacting_feature,
+  General_datum_feature,
+  Datum_system,
+  
+  );
+END_TYPE;  
+*)
+
+ENTITY Gdt_representation_shape
   SUBTYPE OF (Nominal_3d_model_shape);
 WHERE
   WR1: 'xxx.Gdt_semantic_representation_view_context' IN TYPEOF(described_element\Product_view_definition.additional_context); 
 --  WR2: TRUE; -- must have at least one datum system, or dimension or geometric_tolerance ... ???
 END_ENTITY;  
   
+
+(* 
+   we discussed this, but are not ready to include it
+   it is redunant to Shape_feature from AP210
+*)
+
+ENTITY Nominal_3d_feature 
+  ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
+  SUBTYPE OF (Associated_shape_element);
+  SELF\Shape_element.containing_shape : Gdt_representation_shape;
+END_ENTITY;    
+
+ENTITY Nominal_3d_integral_feature SUBTYPE OF (Nominal_3d_feature);
+DERIVE
+  SELF\Associated_shape_element.associated_item : nominal_3d_integral_feature_geometry := association\Geometric_item_specific_usage.identified_item;
+WHERE
+  WR1: EXISTS(associated_item);
+END_ENTITY;    
+
+ENTITY Nominal_3d_derived_feature SUBTYPE OF (Nominal_3d_feature, Derived_shape_element);
+DERIVE
+  SELF\Associated_shape_element.associated_item : nominal_3d_derived_feature_geometry := association\Geometric_item_specific_usage.identified_item;
+WHERE
+  WR1: EXISTS(associated_item);
+END_ENTITY;   
 
 
 END_SCHEMA;

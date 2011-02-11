@@ -1,5 +1,5 @@
 (* 
-$Id: arm.exp,v 1.13 2010/10/06 21:23:32 lothartklein Exp $  
+$Id: arm.exp,v 1.14 2010/10/07 22:38:44 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -8,9 +8,7 @@ Supersedes ISO TC184/SC4/WG12 N4278
 SCHEMA Derived_shape_element_arm;
 
 USE FROM Construction_geometry_arm;  -- ISO/TS 10303-1131
-
 USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
-
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
 TYPE dse_shape_model = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON shape_model WITH (
@@ -47,6 +45,29 @@ WHERE
   WR1 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
   
+ENTITY Derived_shape_element
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Apex,
+    Centre_of_symmetry,
+    Geometric_contact,    
+    Extension,
+    Geometric_intersection,
+    Geometric_alignment,
+    Parallel_offset,
+    Perpendicular_to,
+    Tangent))
+  SUBTYPE OF (Shape_element);
+  derived_from : SET[1:?] OF Shape_element;
+INVERSE
+  item_specific_usage  : SET [0:1] OF Geometric_item_specific_usage FOR definition;
+  representation_usage : SET [0:1] OF Shape_description_association FOR represented_characteristic;  
+WHERE
+  WR1 : NOT((SIZEOF(item_specific_usage)  = 1) AND (SIZEOF(representation_usage) = 1));
+--  WR2 : SIZEOF(geometry) <= 1;
+  WR3 : NOT ('EXTERNAL_MODEL_ARM.EXTERNAL_GEOMETRIC_MODEL' IN
+    TYPEOF(representation_usage[1]\Shape_description_association.representation));
+END_ENTITY;
+
 ENTITY Geometric_alignment
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
@@ -87,29 +108,6 @@ ENTITY Tangent
   SUPERTYPE OF (Tangent_plane)
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
-END_ENTITY;
-
-ENTITY Derived_shape_element
-  ABSTRACT SUPERTYPE OF (ONEOF (
-    Apex,
-    Centre_of_symmetry,
-    Geometric_contact,    
-    Extension,
-    Geometric_intersection,
-    Geometric_alignment,
-    Parallel_offset,
-    Perpendicular_to,
-    Tangent))
-  SUBTYPE OF (Shape_element);
-  derived_from : SET[1:?] OF Shape_element;
-INVERSE
-  item_specific_usage  : SET [0:1] OF Geometric_item_specific_usage FOR definition;
-  representation_usage : SET [0:1] OF Shape_description_association FOR represented_characteristic;  
-WHERE
-  WR1 : NOT((SIZEOF(item_specific_usage)  = 1) AND (SIZEOF(representation_usage) = 1));
---  WR2 : SIZEOF(geometry) <= 1;
-  WR3 : NOT ('EXTERNAL_MODEL_ARM.EXTERNAL_GEOMETRIC_MODEL' IN
-    TYPEOF(representation_usage[1]\Shape_description_association.representation));
 END_ENTITY;
 
 (*

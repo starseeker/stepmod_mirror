@@ -49,7 +49,7 @@
          <enumeration extensible="NO" items="towards_material away_from_material"/>
       </type>
       <type name="orientation_select">
-         <select extensible="NO" genericentity="NO" selectitems="Datum_axis_related_orientation Viewing_plane_based_orientation Datum_based_vector_orientation"/>
+         <select extensible="NO" genericentity="NO" selectitems="Datum_axis_related_orientation Datum_based_vector_orientation"/>
       </type>
       <type name="physical_feature_or_part_template">
          <select extensible="YES" genericentity="YES" selectitems="Shape_element"/>
@@ -60,14 +60,6 @@
       <type name="true_profile_representations">
          <select extensible="YES" genericentity="NO" selectitems="Dimension_set Document_definition Func"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Boundary_size_characteristic" super.expression="ONEOF (Diametrical_boundary_size_characteristic, Opposing_boundary_set_size_characteristic)">
-         <explicit name="tolerance_value" optional="NO">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="maximum_tolerance_value" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Composite_linear_profile_refinement_tolerance" supertypes="Line_profile_tolerance">
          <explicit name="refined_control" optional="NO">
             <typename name="locating_or_refinement_linear_profile_tolerance"/>
@@ -186,13 +178,6 @@
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Datum_plane" supertypes="Situation_feature"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Datum_point" supertypes="Situation_feature"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Datum_shape_element" supertypes="Datum Non_feature_shape_element"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Derived_non_feature_shape_element" supertypes="Derived_shape_element Non_feature_shape_element"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Diametrical_boundary_size_characteristic" supertypes="Boundary_size_characteristic">
-         <explicit name="sized_boundary" optional="NO">
-            <typename name="Tolerance_zone_circular_or_cylindrical_or_spherical_boundary"/>
-         </explicit>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Dimension_qualifier" super.expression="ONEOF (Pre_defined_dimension_qualifier, User_defined_dimension_qualifier)">
          <explicit name="qualified_dimensions" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -249,7 +234,7 @@
          </explicit>
       <where label="IP1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Directed_axis" supertypes="Non_feature_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Directed_axis" supertypes="Non_definitional_shape_element">
          <explicit name="axis_to_be_oriented" optional="NO">
             <typename name="Centre_axis"/>
          </explicit>
@@ -296,12 +281,7 @@
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Maximum_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Minimum_dimension_representation" supertypes="Singular_dimension_representation"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Opposing_boundary_set_size_characteristic" supertypes="Boundary_size_characteristic">
-         <explicit name="sized_boundary_set" optional="NO">
-            <typename name="Tolerance_zone_opposing_boundary_set"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Positional_boundary" super.expression="ONEOF (Profile_related_positional_boundary, Dimension_related_positional_boundary)" supertypes="Non_feature_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Positional_boundary" super.expression="ONEOF (Profile_related_positional_boundary, Dimension_related_positional_boundary)" supertypes="Non_definitional_shape_element">
          <inverse attribute="defined_positional_boundary" entity="Positional_boundary_definition" name="boundary_definition"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
@@ -319,7 +299,7 @@
             <typename name="Positional_boundary"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Positional_boundary_member" supertypes="Non_feature_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Positional_boundary_member" supertypes="Non_definitional_shape_element">
          <inverse attribute="boundary_members" entity="Dimension_related_positional_boundary" name="composed_positional_boundary"/>
          <inverse attribute="defined_positional_boundary_member" entity="Positional_boundary_member_definition" name="boundary_member_definition"/>
       </entity>
@@ -437,7 +417,7 @@
             <typename name="Value_with_unit"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Situation_feature" super.expression="ONEOF (Datum_axis, Datum_plane, Datum_point)" supertypes="Non_feature_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Situation_feature" super.expression="ONEOF (Datum_axis, Datum_plane, Datum_point)" supertypes="Non_definitional_shape_element">
          <explicit name="owner" optional="NO">
             <typename name="Datum_reference_compartment"/>
          </explicit>
@@ -482,17 +462,10 @@
             <typename name="geometric_or_dimension_select"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_and_viewing_plane_orienting_relationship">
-         <explicit name="orienting_viewing_plane" optional="NO">
-            <typename name="Viewing_plane"/>
-         </explicit>
-         <explicit name="oriented_tolerance_zone" optional="NO">
-            <typename name="Tolerance_zone"/>
-         </explicit>
-         <inverse attribute="orienting_relationship" entity="Viewing_plane_based_orientation" name="zone_orientation"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_zone_boundary" super.expression="ONEOF (Tolerance_zone_circular_or_cylindrical_or_spherical_boundary, Tolerance_zone_opposing_boundary_set, Conical_tolerance_zone_boundary)" supertypes="Non_definitional_shape_element">
+         <inverse attribute="boundaries" entity="Tolerance_zone_definition" name="parent"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_zone_boundary" super.expression="ONEOF (Tolerance_zone_circular_or_cylindrical_or_spherical_boundary, Tolerance_zone_opposing_boundary_set, Conical_tolerance_zone_boundary)" supertypes="Non_feature_shape_element"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_boundary_member" supertypes="Non_feature_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_boundary_member" supertypes="Non_definitional_shape_element">
          <inverse attribute="boundary_members" entity="Tolerance_zone_explicit_opposing_boundary_set" name="explicit_opposing_boundary_set"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
@@ -508,7 +481,6 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_circular_or_cylindrical_or_spherical_boundary" supertypes="Tolerance_zone_boundary">
-         <inverse attribute="sized_boundary" entity="Diametrical_boundary_size_characteristic" name="size_characteristic"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_definition_with_per_unit_size_specification" supertypes="Tolerance_zone_definition">
@@ -536,9 +508,7 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_implicit_opposing_boundary_set" supertypes="Tolerance_zone_opposing_boundary_set"/>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_zone_opposing_boundary_set" super.expression="ONEOF (Tolerance_zone_explicit_opposing_boundary_set, Tolerance_zone_implicit_opposing_boundary_set)" supertypes="Tolerance_zone_boundary">
-         <inverse attribute="sized_boundary_set" entity="Opposing_boundary_set_size_characteristic" name="size_characteristic"/>
-      </entity>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_zone_opposing_boundary_set" super.expression="ONEOF (Tolerance_zone_explicit_opposing_boundary_set, Tolerance_zone_implicit_opposing_boundary_set)" supertypes="Tolerance_zone_boundary"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_zone_per_unit_size_specification">
          <explicit name="specified_tolerance_zone" optional="NO">
             <typename name="Tolerance_zone"/>
@@ -577,27 +547,6 @@
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Viewing_plane" supertypes="Non_feature_shape_element">
-         <inverse attribute="defined_viewing_plane" entity="Viewing_plane_definition" name="viewing_plane_specification"/>
-         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Viewing_plane_based_orientation">
-         <explicit name="orienting_relationship" optional="NO">
-            <typename name="Tolerance_zone_and_viewing_plane_orienting_relationship"/>
-         </explicit>
-         <explicit name="viewing_plane_specification" optional="NO">
-            <typename name="Viewing_plane_definition"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Viewing_plane_definition">
-         <explicit name="defined_viewing_plane" optional="NO">
-            <typename name="Viewing_plane"/>
-         </explicit>
-         <explicit name="viewing_plane_representation" optional="NO">
-            <typename name="Axis_placement"/>
-         </explicit>
-         <inverse attribute="viewing_plane_specification" entity="Viewing_plane_based_orientation" name="zone_orientation"/>
-      </entity>
-      <subtype.constraint abstract.supertype="NO" entity="Non_feature_shape_element" name="egt_non_feature_shape_element_subtypes" super.expression="ONEOF (Derived_non_feature_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Reference_graphic_registration_mark)"/>
+      <subtype.constraint abstract.supertype="NO" entity="Non_definitional_shape_element" name="egt_non_definitional_shape_element_subtypes" super.expression="ONEOF (Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Situation_feature)"/>
    </schema>
 </express>

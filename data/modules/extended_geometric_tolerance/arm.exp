@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.70 2011/02/12 09:51:47 lothartklein Exp $
+   $Id: arm.exp,v 1.71 2011/02/12 09:57:43 lothartklein Exp $
    ISO TC184/SC4/WG12 N6363 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5638
 *)
@@ -8,6 +8,8 @@ SCHEMA Extended_geometric_tolerance_arm;
 USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
 USE FROM Default_tolerance_arm;	-- ISO/TS 10303-1052
 USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
+-- USE FROM Feature_and_connection_zone_arm;
+USE FROM Non_feature_shape_element_arm; -- ISO/TS 10303-1706
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	
@@ -77,18 +79,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
      normal);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT egt_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element; 
-	(ONEOF (
-     Directed_axis,
-     Positional_boundary,
-     Positional_boundary_member,
-     Tolerance_zone_boundary,
-     Tolerance_zone_boundary_member,
-     Seating_plane,
-     Situation_feature,
-     Reference_graphic_registration_mark));
-  END_SUBTYPE_CONSTRAINT;
-
   TYPE offset_types = ENUMERATION OF
     (towards_material,
      away_from_material);
@@ -109,13 +99,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     Document_definition,
     Func);
   END_TYPE;
-
-  ENTITY Boundary_size_characteristic
-    ABSTRACT SUPERTYPE OF (ONEOF (Diametrical_boundary_size_characteristic,
-      Opposing_boundary_set_size_characteristic));
-      tolerance_value         : Length_data_element;
-      maximum_tolerance_value : OPTIONAL Length_data_element;
-  END_ENTITY;
 
   ENTITY Composite_linear_profile_refinement_tolerance
     SUBTYPE OF (Line_profile_tolerance);
@@ -218,11 +201,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Situation_feature);
   END_ENTITY;
 
-  ENTITY Diametrical_boundary_size_characteristic
-    SUBTYPE OF (Boundary_size_characteristic);
-      sized_boundary : Tolerance_zone_circular_or_cylindrical_or_spherical_boundary;
-  END_ENTITY; 
-
   ENTITY Dimension_qualifier
     ABSTRACT SUPERTYPE OF (ONEOF (Pre_defined_dimension_qualifier,
       User_defined_dimension_qualifier));
@@ -306,11 +284,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Minimum_dimension_representation
     SUBTYPE OF (Singular_dimension_representation);
-  END_ENTITY;
-
-  ENTITY Opposing_boundary_set_size_characteristic
-    SUBTYPE OF (Boundary_size_characteristic);
-      sized_boundary_set : Tolerance_zone_opposing_boundary_set;
   END_ENTITY;
 
   ENTITY Positional_boundary
@@ -500,6 +473,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       Tolerance_zone_opposing_boundary_set,
       Conical_tolerance_zone_boundary))
     SUBTYPE OF (Non_definitional_shape_element);
+  INVERSE    
+     parent : Tolerance_zone_definition FOR boundaries;
   END_ENTITY;
 
   ENTITY Tolerance_zone_boundary_member
@@ -518,8 +493,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tolerance_zone_circular_or_cylindrical_or_spherical_boundary
     SUBTYPE OF (Tolerance_zone_boundary);
-    INVERSE
-      size_characteristic : diametrical_boundary_size_characteristic FOR sized_boundary;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -552,8 +525,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Tolerance_zone_explicit_opposing_boundary_set,
       Tolerance_zone_implicit_opposing_boundary_set))
     SUBTYPE OF (Tolerance_zone_boundary);
-    INVERSE
-      size_characteristic : opposing_boundary_set_size_characteristic FOR sized_boundary_set;
   END_ENTITY;
 
   ENTITY Tolerance_zone_per_unit_size_specification;
@@ -583,5 +554,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       name        : STRING; 
       description : STRING; 
   END_ENTITY;
+
+  SUBTYPE_CONSTRAINT egt_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element; 
+	(ONEOF (
+     Directed_axis,
+     Positional_boundary,
+     Positional_boundary_member,
+     Tolerance_zone_boundary,
+     Tolerance_zone_boundary_member,
+--     Seating_plane,
+     Situation_feature
+--     Reference_graphic_registration_mark
+     ));
+  END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

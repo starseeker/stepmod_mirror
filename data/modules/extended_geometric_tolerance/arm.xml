@@ -21,20 +21,11 @@
       <type name="dimension_qualifiers">
          <enumeration extensible="NO" items="free_state average"/>
       </type>
-      <type name="dimensional_location_or_dimensional_size">
-         <select extensible="NO" genericentity="NO" selectitems="Size_dimension Location_dimension"/>
-      </type>
-      <type name="egt_external_identification_item">
-         <select basedon="external_identification_item" extensible="YES" genericentity="YES" selectitems="Externally_defined_dimension_representation"/>
-      </type>
       <type name="egt_requirement_assignment_item">
          <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Restraint_condition Statistical_dimensional_location Statistical_dimensional_size Statistical_geometric_tolerance"/>
       </type>
       <type name="geometric_or_dimension_select">
          <select extensible="NO" genericentity="NO" selectitems="Geometric_tolerance Geometric_dimension"/>
-      </type>
-      <type name="geometric_tolerance_qualifiers">
-         <enumeration extensible="NO" items="pitch_diameter minor_diameter each_element major_diameter each_radial_element not_concave not_convex free_state"/>
       </type>
       <type name="locating_or_refinement_linear_profile_tolerance">
          <select extensible="NO" genericentity="NO" selectitems="Line_profile_tolerance Composite_linear_profile_refinement_tolerance"/>
@@ -213,17 +204,6 @@
             <typename name="Geometric_dimension"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Dimensional_characteristic_representation">
-         <explicit name="representation" optional="NO">
-            <typename name="Shape_dimension_representation"/>
-         </explicit>
-         <explicit name="dimension" optional="NO">
-            <typename name="dimensional_location_or_dimensional_size"/>
-         </explicit>
-         <explicit name="auxiliary_dimension_representation" optional="NO">
-            <builtintype fixed="NO" type="BOOLEAN"/>
-         </explicit>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Dimensional_size_based_on_opposing_boundaries" supertypes="Size_dimension">
          <explicit name="boundary_separation" optional="NO">
             <typename name="Shape_element_relationship"/>
@@ -252,35 +232,11 @@
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Edge_segment_vertex" supertypes="Datum_point"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Externally_defined_dimension_representation" supertypes="Shape_dimension_representation">
-         <explicit name="dimension_value" optional="YES">
-            <typename name="Value_with_unit"/>
-         </explicit>
-         <inverse attribute="item" entity="External_source_identification" name="definitions">
-            <inverse.aggregate lower="1" type="SET" upper="?"/>
-         </inverse>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Geometric_tolerance_qualifier" super.expression="ONEOF (Pre_defined_geometric_tolerance_qualifier, User_defined_geometric_tolerance_qualifier)">
-         <explicit name="qualified_geometric_tolerances" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Geometric_tolerance"/>
-         </explicit>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Geometric_tolerance_with_applied_material_condition_property" supertypes="Geometric_tolerance">
          <explicit name="applied_material_condition_property_name" optional="NO">
             <typename name="material_condition_property_names"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Limit_dimension_representation" supertypes="Shape_dimension_representation">
-         <explicit name="upper_dimension_value" optional="NO">
-            <typename name="Value_with_unit"/>
-         </explicit>
-         <explicit name="lower_dimension_value" optional="NO">
-            <typename name="Value_with_unit"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Maximum_dimension_representation" supertypes="Singular_dimension_representation"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Minimum_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Positional_boundary" super.expression="ONEOF (Profile_related_positional_boundary, Dimension_related_positional_boundary)" supertypes="Non_definitional_shape_element">
          <inverse attribute="defined_positional_boundary" entity="Positional_boundary_definition" name="boundary_definition"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
@@ -327,11 +283,6 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="Pre_defined_dimension_qualifier" supertypes="Dimension_qualifier">
          <explicit name="description" optional="NO">
             <typename name="dimension_qualifiers"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Pre_defined_geometric_tolerance_qualifier" supertypes="Geometric_tolerance_qualifier">
-         <explicit name="description" optional="NO">
-            <typename name="geometric_tolerance_qualifiers"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Profile_related_positional_boundary" supertypes="Positional_boundary">
@@ -405,16 +356,10 @@
             <typename name="Geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Shape_dimension_representation" super.expression="ONEOF (Limit_dimension_representation, Singular_dimension_representation, Externally_defined_dimension_representation)"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Simultaneous_geometric_tolerance_requirement">
          <explicit name="grouped_geometric_tolerances" optional="NO">
             <aggregate lower="2" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Geometric_tolerance"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Singular_dimension_representation" super.expression="ONEOF (Theoretically_exact_dimension_representation, Maximum_dimension_representation, Minimum_dimension_representation)" supertypes="Shape_dimension_representation">
-         <explicit name="dimension_value" optional="NO">
-            <typename name="Value_with_unit"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Situation_feature" super.expression="ONEOF (Datum_axis, Datum_plane, Datum_point)" supertypes="Non_definitional_shape_element">
@@ -455,7 +400,6 @@
          </derived>
          <where expression="(SIZEOF(statistical_control_requirement) = 1)" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Theoretically_exact_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Tolerance_specific_restraint_condition" supertypes="Restraint_condition">
          <explicit name="affected_tolerances" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -532,14 +476,6 @@
          <where expression="NOT EXISTS(profiled_surface_datum) OR &#10;          (profiled_surface :=: profiled_surface_datum\Datum_defined_by_feature.defined_by)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="User_defined_dimension_qualifier" supertypes="Dimension_qualifier">
-         <explicit name="name" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="User_defined_geometric_tolerance_qualifier" supertypes="Geometric_tolerance_qualifier">
          <explicit name="name" optional="NO">
             <builtintype fixed="NO" type="STRING"/>
          </explicit>

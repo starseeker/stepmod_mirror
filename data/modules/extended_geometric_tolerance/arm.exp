@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.72 2011/02/12 13:17:43 lothartklein Exp $
+   $Id: arm.exp,v 1.73 2011/02/12 13:25:00 lothartklein Exp $
    ISO TC184/SC4/WG12 N6363 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5638
 *)
@@ -30,15 +30,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   TYPE dimension_qualifiers = ENUMERATION OF
     (free_state,
      average);
-  END_TYPE;
-
-  TYPE dimensional_location_or_dimensional_size = SELECT
-    (Size_dimension,
-     Location_dimension);
-  END_TYPE;
-
-  TYPE egt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-    (Externally_defined_dimension_representation);
   END_TYPE;
 
   TYPE egt_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
@@ -216,12 +207,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     associated_dimensions : SET[1:?] OF Geometric_dimension;
   END_ENTITY;
 
-  ENTITY Dimensional_characteristic_representation;
-    representation                     : Shape_dimension_representation;
-    dimension                          : dimensional_location_or_dimensional_size;
-    auxiliary_dimension_representation : BOOLEAN;
-  END_ENTITY;
-
   ENTITY Dimensional_size_based_on_opposing_boundaries
     SUBTYPE OF (Size_dimension);
       boundary_separation           		: Shape_element_relationship;
@@ -243,32 +228,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Datum_point);
   END_ENTITY;
 
-  ENTITY Externally_defined_dimension_representation
-    SUBTYPE OF (Shape_dimension_representation);
-      dimension_value : OPTIONAL Value_with_unit;
-    INVERSE
-      definitions			: SET[1:?] OF External_source_identification FOR item;
-  END_ENTITY;
-
   ENTITY Geometric_tolerance_with_applied_material_condition_property
     SUBTYPE OF (Geometric_tolerance);
       applied_material_condition_property_name : material_condition_property_names;
   END_ENTITY; 
   
-  ENTITY Limit_dimension_representation
-    SUBTYPE OF (Shape_dimension_representation);
-      upper_dimension_value : Value_with_unit;
-      lower_dimension_value : Value_with_unit;
-  END_ENTITY;
-
-  ENTITY Maximum_dimension_representation
-    SUBTYPE OF (Singular_dimension_representation);
-  END_ENTITY;
-
-  ENTITY Minimum_dimension_representation
-    SUBTYPE OF (Singular_dimension_representation);
-  END_ENTITY;
-
   ENTITY Positional_boundary
     ABSTRACT SUPERTYPE OF (ONEOF (Profile_related_positional_boundary,
       Dimension_related_positional_boundary))
@@ -379,22 +343,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     separated_geometric_tolerances : SET[1:?] OF Geometric_tolerance;
   END_ENTITY;
 
-  ENTITY Shape_dimension_representation
-    ABSTRACT SUPERTYPE OF (ONEOF (Limit_dimension_representation,
-      Singular_dimension_representation,
-      externally_defined_dimension_representation));
-  END_ENTITY;
-
   ENTITY Simultaneous_geometric_tolerance_requirement;
     grouped_geometric_tolerances : SET[2:?] OF Geometric_tolerance;
-  END_ENTITY;
-
-  ENTITY Singular_dimension_representation
-    ABSTRACT SUPERTYPE OF (ONEOF (Theoretically_exact_dimension_representation,
-      Maximum_dimension_representation,
-      Minimum_dimension_representation))
-    SUBTYPE OF (Shape_dimension_representation);
-      dimension_value : Value_with_unit;
   END_ENTITY;
 
   ENTITY Situation_feature
@@ -435,10 +385,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       get_rvd(SELF, 'statistical control requirement');
 	WHERE
       WR1 : (SIZEOF(statistical_control_requirement) = 1);
-  END_ENTITY;
-
-  ENTITY Theoretically_exact_dimension_representation
-    SUBTYPE OF (Singular_dimension_representation);
   END_ENTITY;
 
   ENTITY Tolerance_specific_restraint_condition

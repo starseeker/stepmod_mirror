@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.67 2010/11/13 11:15:21 lothartklein Exp $
+   $Id: arm.exp,v 1.68 2011/02/11 11:25:52 lothartklein Exp $
    ISO TC184/SC4/WG12 N6363 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5638
 *)
@@ -8,7 +8,6 @@ SCHEMA Extended_geometric_tolerance_arm;
 USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
 USE FROM Default_tolerance_arm;	-- ISO/TS 10303-1052
 USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
-USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	
@@ -78,9 +77,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
      normal);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT egt_non_feature_shape_element_subtypes FOR Non_feature_shape_element; 
+  SUBTYPE_CONSTRAINT egt_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element; 
 	(ONEOF (
-     Derived_non_feature_shape_element,
      Directed_axis,
      Positional_boundary,
      Positional_boundary_member,
@@ -88,6 +86,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
      Tolerance_zone_boundary_member,
      Viewing_plane,
      Seating_plane,
+     Situation_feature,
      Reference_graphic_registration_mark));
   END_SUBTYPE_CONSTRAINT;
 
@@ -222,13 +221,9 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Datum_shape_element
-	SUBTYPE OF (Datum, Non_feature_shape_element);
+	SUBTYPE OF (Datum, Non_definitional_shape_element);
   END_ENTITY;
 
-  ENTITY Derived_non_feature_shape_element 	 
-    SUBTYPE OF (Derived_shape_element, Non_feature_shape_element); 	 
-  END_ENTITY;
-	   
   ENTITY Diametrical_boundary_size_characteristic
     SUBTYPE OF (Boundary_size_characteristic);
       sized_boundary : Tolerance_zone_circular_or_cylindrical_or_spherical_boundary;
@@ -273,7 +268,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Directed_axis
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
       axis_to_be_oriented : Centre_axis;
       start_shape_element : Shape_element;
       end_shape_element   : Shape_element;
@@ -327,7 +322,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Positional_boundary
     ABSTRACT SUPERTYPE OF (ONEOF (Profile_related_positional_boundary,
       Dimension_related_positional_boundary))
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
     INVERSE
       boundary_definition : positional_boundary_definition FOR defined_positional_boundary;
     WHERE
@@ -348,7 +343,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Positional_boundary_member
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
     INVERSE
       composed_positional_boundary : dimension_related_positional_boundary FOR boundary_members;
       boundary_member_definition   : positional_boundary_member_definition FOR defined_positional_boundary_member;
@@ -459,7 +454,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Situation_feature
     ABSTRACT SUPERTYPE OF (ONEOF (Datum_axis, Datum_plane, Datum_point))
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
     owner : Datum_reference_compartment;
   WHERE
     WR1: SIZEOF( USEDIN(owner, 'EXTENDED_GEOMETRIC_TOLERANCE.DATUM_AXIS.OWNER') ) <= 1;
@@ -517,11 +512,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Tolerance_zone_circular_or_cylindrical_or_spherical_boundary,
       Tolerance_zone_opposing_boundary_set,
       Conical_tolerance_zone_boundary))
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
   END_ENTITY;
 
   ENTITY Tolerance_zone_boundary_member
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
     INVERSE
       explicit_opposing_boundary_set : tolerance_zone_explicit_opposing_boundary_set FOR boundary_members;
     WHERE
@@ -603,7 +598,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Viewing_plane
-    SUBTYPE OF (Non_feature_shape_element);
+    SUBTYPE OF (Non_definitional_shape_element);
     INVERSE
       viewing_plane_specification : viewing_plane_definition FOR defined_viewing_plane;
     WHERE

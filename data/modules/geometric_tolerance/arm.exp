@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.34 2011/02/11 12:08:01 lothartklein Exp $
+$Id: arm.exp,v 1.35 2011/02/12 14:21:10 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -13,6 +13,7 @@ USE FROM Value_with_unit_extension_arm;  -- ISO/TS 10303-1753
 USE FROM Support_resource_arm;
 USE FROM Shape_composition_arm;         --  ISO/TS 10303-1742
 USE FROM Dimension_tolerance_arm;    -- ISO/TS 10303-1050
+USE FROM Feature_and_connection_zone_arm;
 
 TYPE affected_plane_geometric_tolerance_select = SELECT (
   Line_profile_tolerance,
@@ -49,8 +50,8 @@ TYPE datum_reference_modifier = EXTENSIBLE SELECT (
 END_TYPE;
 
 TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT (
-  Location_dimension,
-  Size_dimension);
+  Dimensional_location,
+  Dimensional_size);
 END_TYPE;
 
 TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF ( 
@@ -146,9 +147,7 @@ ENTITY Concentricity_tolerance
 END_ENTITY;
 
 ENTITY Contacting_feature
-  SUBTYPE OF (Shape_element);
---WHERE
---  WR1: SELF\shape_aspect.product_definitional = FALSE;
+  SUBTYPE OF (Non_definitional_shape_element);
 END_ENTITY;
 
 ENTITY Continuous_shape_element
@@ -193,19 +192,21 @@ INVERSE
 END_ENTITY;
 
 ENTITY Datum_system
-  SUBTYPE OF (Shape_element);
+  SUBTYPE OF (Non_definitional_shape_element);
   constituents : LIST [1:3] OF UNIQUE Datum_reference_compartment;
 --WHERE
 --  WR1: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;    
 
+ENTITY Datum_system_with_associated_model_coordinate_system
+  SUBTYPE OF (Axis_placement_shape_element, Datum_system);
+END_ENTITY;  
+
 ENTITY General_datum_reference
   ABSTRACT SUPERTYPE OF (ONEOF (Datum_reference_compartment, Datum_reference_element))
-  SUBTYPE OF (Shape_element);
+  SUBTYPE OF (Non_definitional_shape_element);
   base : datum_or_common_datum;
   modifiers : OPTIONAL SET [1:?] OF datum_reference_modifier;
---WHERE
---  WR1: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;  
 
 ENTITY Datum_reference_compartment
@@ -412,14 +413,16 @@ SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
-  ONEOF (Contacting_feature,
-         Datum,
+  ONEOF (Datum,
          Datum_target,
-         Datum_system,
-         General_datum_reference,
          Tolerance_zone);
 END_SUBTYPE_CONSTRAINT;
 
+SUBTYPE_CONSTRAINT gl_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element;
+  ONEOF (Contacting_feature,
+         Datum_system,
+         General_datum_reference);
+END_SUBTYPE_CONSTRAINT;
 
 FUNCTION sts_get_general_datum_reference(input : Datum_reference_element) : General_datum_reference;
     LOCAL

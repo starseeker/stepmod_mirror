@@ -11,6 +11,7 @@
       <interface kind="use" schema="Support_resource_arm"/>
       <interface kind="use" schema="Shape_composition_arm"/>
       <interface kind="use" schema="Dimension_tolerance_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
       <type name="affected_plane_geometric_tolerance_select">
          <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance"/>
       </type>
@@ -31,7 +32,7 @@
          <select extensible="YES" selectitems="Datum_feature_simulator_constraint simple_datum_reference_modifier"/>
       </type>
       <type name="geometric_tolerance_target">
-         <select extensible="YES" genericentity="YES" selectitems="Location_dimension Size_dimension"/>
+         <select extensible="YES" genericentity="YES" selectitems="Dimensional_location Dimensional_size"/>
       </type>
       <type name="geometrical_tolerance_modifier">
          <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element"/>
@@ -83,7 +84,7 @@
             <typename name="Datum_system"/>
          </explicit>
       </entity>
-      <entity name="Contacting_feature" supertypes="Shape_element"/>
+      <entity name="Contacting_feature" supertypes="Non_definitional_shape_element"/>
       <entity name="Continuous_shape_element" supertypes="Composite_shape_element"/>
       <entity name="Cylindricity_tolerance" supertypes="Geometric_tolerance"/>
       <entity abstract.supertype="YES" name="Datum" super.expression="Datum_defined_by_feature ANDOR Datum_defined_by_targets" supertypes="Shape_element">
@@ -123,12 +124,13 @@
          <where expression="SELF &lt;&gt; usage" label="WR1"/>
          <where expression="EXISTS(usage)" label="WR2"/>
       </entity>
-      <entity name="Datum_system" supertypes="Shape_element">
+      <entity name="Datum_system" supertypes="Non_definitional_shape_element">
          <explicit name="constituents">
             <aggregate lower="1" type="LIST" unique="YES" upper="3"/>
             <typename name="Datum_reference_compartment"/>
          </explicit>
       </entity>
+      <entity name="Datum_system_with_associated_model_coordinate_system" supertypes="Axis_placement_shape_element Datum_system"/>
       <entity abstract.supertype="YES" name="Datum_target" super.expression="ONEOF (Placed_target, Target_area, Target_curve)" supertypes="Shape_element">
          <explicit name="target_id">
             <builtintype type="STRING"/>
@@ -139,7 +141,7 @@
          <inverse attribute="defined_by" entity="Datum_defined_by_targets" name="of_datum"/>
       </entity>
       <entity name="Flatness_tolerance" supertypes="Geometric_tolerance"/>
-      <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Shape_element">
+      <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Non_definitional_shape_element">
          <explicit name="base">
             <typename name="datum_or_common_datum"/>
          </explicit>
@@ -253,6 +255,14 @@
          </explicit>
       </entity>
       <entity name="Roundness_tolerance" supertypes="Geometric_tolerance"/>
+      <entity name="Runout_zone_definition" supertypes="Tolerance_zone_definition">
+         <explicit name="angle">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="orientation_defining_relationship" optional="YES">
+            <typename name="Shape_element_relationship"/>
+         </explicit>
+      </entity>
       <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">
          <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
@@ -314,27 +324,26 @@
             <typename name="Geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity name="Tolerance_zone_definition">
-         <explicit name="defining">
+      <entity name="Tolerance_zone_definition" super.expression="ONEOF (Projected_zone_definition, Non_uniform_zone_definition, Runout_zone_definition)">
+         <explicit name="zone">
             <typename name="Tolerance_zone"/>
          </explicit>
-         <explicit name="first_element">
-            <typename name="Shape_element"/>
-         </explicit>
-         <explicit name="second_element" optional="YES">
+         <explicit name="boundaries">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Shape_element"/>
          </explicit>
       </entity>
       <entity name="Total_runout_tolerance" supertypes="Geometric_tolerance">
          <explicit name="angle">
-            <builtintype type="REAL"/>
+            <typename name="Angle_data_element"/>
          </explicit>
          <explicit name="datum_system">
             <typename name="Datum_system"/>
          </explicit>
       </entity>
       <subtype.constraint entity="Composite_shape_element" name="composite_shape_element_subtypes" super.expression="ONEOF (All_around_shape_element, Continuous_shape_element, Composite_group_shape_element)"/>
-      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum, Datum_target, Datum_system, General_datum_reference, Tolerance_zone)"/>
+      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_target, Tolerance_zone)"/>
+      <subtype.constraint entity="Non_definitional_shape_element" name="gl_non_definitional_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum_system, General_datum_reference)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">
             <typename name="Datum_reference_element"/>

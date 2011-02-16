@@ -8,44 +8,38 @@
       <interface kind="use" schema="Derived_shape_element_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
-      <type name="dimension_tolerance_document_element_select">
-         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Externally_defined_size_dimension"/>
+      <type name="angle_relator">
+         <enumeration items="equal large small"/>
+      </type>
+      <type name="dimension_target">
+         <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="dimension_value_select">
          <select selectitems="Dimension_value_with_limitation Numerical_item_with_unit Tolerance_range Value_limit"/>
       </type>
-      <type name="element_with_dimension_select">
-         <select extensible="YES" genericentity="YES" selectitems="Shape_element"/>
-      </type>
       <type name="limitation_definition_select">
          <select selectitems="Limits_and_fits Plus_minus_bounds"/>
-      </type>
-      <type name="placed_element_select">
-         <select extensible="YES" selectitems="constructive_element_select Derived_shape_element element_with_dimension_select"/>
       </type>
       <type name="tolerance_principle_type">
          <enumeration items="envelope_requirement independency default"/>
       </type>
-      <entity name="Angular_location_dimension" supertypes="Location_dimension">
-         <explicit name="orientation">
-            <typename name="Axis_placement"/>
+      <entity name="Angular_location" supertypes="Dimensional_location">
+         <explicit name="angle_selection">
+            <typename name="angle_relator"/>
          </explicit>
       </entity>
-      <entity name="Angular_size_dimension" supertypes="Size_dimension">
-         <explicit name="full">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <explicit name="major_angle">
-            <builtintype type="BOOLEAN"/>
+      <entity name="Angular_size" supertypes="Dimensional_size">
+         <explicit name="angle_selection">
+            <typename name="angle_relator"/>
          </explicit>
       </entity>
-      <entity name="Curved_distance_dimension" supertypes="Location_dimension">
+      <entity name="Curved_distance" supertypes="Dimensional_location">
          <explicit name="used_path">
             <typename name="Measurement_path"/>
          </explicit>
       </entity>
-      <entity name="Curved_size_dimension" supertypes="Size_dimension"/>
-      <entity name="Diameter_size_dimension" supertypes="Size_dimension"/>
+      <entity name="Curved_size" supertypes="Dimensional_size"/>
+      <entity name="Diameter_size" supertypes="Dimensional_size"/>
       <entity name="Dimension_value_with_limitation">
          <explicit name="defined_by">
             <typename name="limitation_definition_select"/>
@@ -54,15 +48,26 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
       </entity>
-      <entity name="Externally_defined_size_dimension" supertypes="Size_dimension">
-         <explicit name="name">
+      <entity abstract.supertype="YES" name="Dimensional_location" super.expression="ONEOF (Angular_location, Curved_distance, Linear_distance)" supertypes="Geometric_dimension">
+         <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="used_path" optional="YES">
-            <typename name="Measurement_path"/>
+         <explicit name="directed" optional="YES">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="origin">
+            <typename name="dimension_target"/>
+         </explicit>
+         <explicit name="target">
+            <typename name="dimension_target"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Geometric_dimension" super.expression="ONEOF (Location_dimension, Size_dimension)">
+      <entity abstract.supertype="YES" name="Dimensional_size" super.expression="ONEOF (Angular_size, Curved_size, Diameter_size, Machining_feature_dimension, Radial_size, Spherical_diameter_size, Spherical_radial_size, Thickness_size)" supertypes="Geometric_dimension">
+         <explicit name="is_applied_to">
+            <typename name="dimension_target"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Geometric_dimension" super.expression="ONEOF (Dimensional_location, Dimensional_size)">
          <explicit name="id">
             <builtintype type="STRING"/>
          </explicit>
@@ -83,16 +88,6 @@
             <typename name="tolerance_principle_type"/>
          </explicit>
       </entity>
-      <entity name="Height_size_dimension" supertypes="Size_dimension">
-         <explicit name="used_path" optional="YES">
-            <typename name="Measurement_path"/>
-         </explicit>
-      </entity>
-      <entity name="Length_size_dimension" supertypes="Size_dimension">
-         <explicit name="used_path" optional="YES">
-            <typename name="Measurement_path"/>
-         </explicit>
-      </entity>
       <entity name="Limits_and_fits">
          <explicit name="deviation">
             <builtintype type="STRING"/>
@@ -104,23 +99,14 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Linear_distance_dimension" supertypes="Location_dimension">
+      <entity name="Linear_distance" supertypes="Dimensional_location">
          <explicit name="orientation" optional="YES">
             <typename name="Axis_placement"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Location_dimension" super.expression="ONEOF (Angular_location_dimension, Curved_distance_dimension, Linear_distance_dimension)" supertypes="Geometric_dimension">
-         <explicit name="description" optional="YES">
+      <entity name="Machining_feature_dimension" supertypes="Dimensional_size">
+         <explicit name="considered_attribute">
             <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="directed" optional="YES">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <explicit name="origin">
-            <typename name="placed_element_select"/>
-         </explicit>
-         <explicit name="target">
-            <typename name="placed_element_select"/>
          </explicit>
       </entity>
       <entity name="Measurement_path">
@@ -145,17 +131,14 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Radial_size_dimension" supertypes="Size_dimension">
+      <entity name="Radial_size" supertypes="Dimensional_size">
          <explicit name="radius_type">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Size_dimension" super.expression="ONEOF (Angular_size_dimension, Curved_size_dimension, Diameter_size_dimension, Externally_defined_size_dimension, Height_size_dimension, Length_size_dimension, Radial_size_dimension, Thickness_size_dimension, Width_size_dimension)" supertypes="Geometric_dimension">
-         <explicit name="is_applied_to">
-            <typename name="element_with_dimension_select"/>
-         </explicit>
-      </entity>
-      <entity name="Thickness_size_dimension" supertypes="Size_dimension">
+      <entity name="Spherical_diameter_size" supertypes="Dimensional_size"/>
+      <entity name="Spherical_radial_size" supertypes="Dimensional_size"/>
+      <entity name="Thickness_size" supertypes="Dimensional_size">
          <explicit name="used_path" optional="YES">
             <typename name="Measurement_path"/>
          </explicit>
@@ -169,11 +152,6 @@
          </explicit>
          <explicit name="upper_range">
             <typename name="Numerical_item_with_unit"/>
-         </explicit>
-      </entity>
-      <entity name="Width_size_dimension" supertypes="Size_dimension">
-         <explicit name="used_path" optional="YES">
-            <typename name="Measurement_path"/>
          </explicit>
       </entity>
    </schema>

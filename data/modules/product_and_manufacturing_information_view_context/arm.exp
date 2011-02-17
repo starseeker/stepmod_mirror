@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2011/02/16 08:47:29 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_arm;
@@ -9,8 +9,8 @@ USE FROM Document_assignment_arm; -- ISO/TS 10303-1122
 
 TYPE mbgdt_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select  WITH (
   Model_based_view_context,
-  Gdt_semantic_representation_view_context,
-  Gdt_presentation_view_context);
+  Gdt_representation_view_context,
+  Model_based_3d_annotation_presentation_view_context);
 END_TYPE;
 
 ENTITY Part_view_definition_context
@@ -34,10 +34,10 @@ END_ENTITY;
 -- TYPE dimensioning_document = ENUMERATION (ISO, ASME);
 -- END_TYPE;
 
-ENTITY Gdt_semantic_representation_view_context 
+ENTITY Gdt_representation_view_context 
   SUBTYPE OF (Part_view_definition_context);
 DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'geometrically dimensioning and tolerancing semantic representation';
+  SELF\View_definition_context.application_domain : STRING := 'geometrically dimensioning and tolerancing representation';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 --  dimensioning_standard : dimensioning_document := ISO; -- some expression through the documents, see wr4, may help writing further rules
 -- note: when we write the rules we will decide which derived attribute to use
@@ -48,10 +48,10 @@ WHERE
   WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
 END_ENTITY;
 
-ENTITY Gdt_presentation_view_context 
+ENTITY Model_based_3d_annotation_presentation_view_context
   SUBTYPE OF (Part_view_definition_context);
 DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'geometrically dimensioning and tolerancing presentation';
+  SELF\View_definition_context.application_domain : STRING := 'model based 3D annotation presentation';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 WHERE
   WR1: TRUE; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
@@ -64,6 +64,13 @@ ENTITY Surface_finish_view_context
   SUBTYPE OF (Part_view_definition_context);
 DERIVE
   SELF\View_definition_context.application_domain : STRING := 'surface finish';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+END_ENTITY;
+
+ENTITY Machining_feature_view_context 
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'machining feature';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 END_ENTITY;
 
@@ -83,10 +90,11 @@ END_ENTITY;
 
 SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_context;
   ONEOF (
+    Gdt_representation_view_context, 
     Model_based_view_context, 
-    Gdt_semantic_representation_view_context, 
-    Gdt_presentation_view_context,
+    Model_based_3d_annotation_presentation_view_context,
     Surface_finish_view_context,
+    Machining_feature_view_context,
     Material_specification_view_context,
     Process_state_view_context);
 END_SUBTYPE_CONSTRAINT;

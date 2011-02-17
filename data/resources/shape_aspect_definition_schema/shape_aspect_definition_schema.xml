@@ -47,14 +47,14 @@
          <typename name="datum_reference_element"/>
          <where expression="SIZEOF( QUERY(dre &lt;* SELF | dre\shape_aspect.of_shape &lt;&gt; SELF[1]\shape_aspect.of_shape)) = 0" label="WR1"/>
       </type>
-      <type name="datum_feature_simulator_constraint_type">
-         <enumeration extensible="YES" items="circular_or_cylindrical spherical distance"/>
-      </type>
       <type name="datum_or_common_datum">
          <select extensible="NO" genericentity="NO" selectitems="datum common_datum_list"/>
       </type>
       <type name="datum_reference_modifier">
-         <select extensible="YES" genericentity="NO" selectitems="simple_datum_reference_modifier datum_feature_simulator_constraint"/>
+         <select extensible="YES" genericentity="NO" selectitems="simple_datum_reference_modifier datum_reference_modifier_with_value"/>
+      </type>
+      <type name="datum_reference_modifier_type">
+         <enumeration extensible="YES" items="circular_or_cylindrical spherical distance"/>
       </type>
       <type name="limit_condition">
          <enumeration extensible="NO" items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
@@ -107,15 +107,6 @@
          <where expression="SIZEOF(QUERY(sar &lt;* SELF\datum_feature.feature_basis_relationship &#10;      | ('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF&#10;      (sar\shape_aspect_relationship.related_shape_aspect)))) = 1" label="WR1"/>
          <where expression="SELF\shape_aspect.product_definitional = TRUE" label="WR2"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_feature_simulator_constraint">
-         <explicit name="constraint_type" optional="NO">
-            <typename name="datum_feature_simulator_constraint_type"/>
-         </explicit>
-         <explicit name="constraint_value" optional="NO">
-            <typename name="length_measure_with_unit"/>
-         </explicit>
-         <where expression="(constraint_value\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
-      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_of_size" supertypes="datum">
          <explicit name="defining_dimension" optional="NO">
             <typename name="dimensional_characteristic"/>
@@ -140,6 +131,15 @@
          <where expression="SELF &lt;&gt; owner" label="WR1"/>
          <where expression="EXISTS(owner)" label="WR2"/>
          <where expression="SELF\shape_aspect.of_shape = owner\shape_aspect.of_shape" label="WR3"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="datum_reference_modifier_with_value">
+         <explicit name="modifier_type" optional="NO">
+            <typename name="datum_reference_modifier_type"/>
+         </explicit>
+         <explicit name="modifier_value" optional="NO">
+            <typename name="length_measure_with_unit"/>
+         </explicit>
+         <where expression="(modifier_value\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="datum_system" supertypes="shape_aspect">
          <explicit name="constituents" optional="NO">

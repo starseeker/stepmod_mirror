@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.28 2010/12/10 18:07:09 philsp Exp $
+$Id: res_toc.xsl,v 1.29 2010/12/27 14:26:23 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -450,20 +450,23 @@ $Id: res_toc.xsl,v 1.28 2010/12/10 18:07:09 philsp Exp $
         <!-- Assumption that every resdoc use a set of terms and
              abbreviations from the normref.inc so only check for local
              definitions aka terms -->
-        <xsl:choose>
+<!--        <xsl:choose>
           <xsl:when test="./definition/term">
-            <!-- use #defns to link direct -->
+            <!-\- use #defns to link direct -\->
             <A HREF="{$resdoc_root}/sys/3_defs{$FILE_EXT}">
               3 Terms, definitions and abbreviated terms
             </A>
           </xsl:when>
           <xsl:otherwise>
-            <!-- use #defns to link direct -->
+            <!-\- use #defns to link direct -\->
             <A HREF="{$resdoc_root}/sys/3_defs{$FILE_EXT}">
               3 Terms and abbreviated terms
             </A>            
           </xsl:otherwise>
-        </xsl:choose>
+        </xsl:choose> -->
+        <A HREF="{$resdoc_root}/sys/3_defs{$FILE_EXT}">
+          3 Terms, definitions and abbreviated terms
+        </A>
 
       <xsl:if test="$col1 &gt; 0 ">
         <br/>

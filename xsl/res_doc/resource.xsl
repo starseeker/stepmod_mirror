@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.80 2010/12/27 14:26:23 lothartklein Exp $
+$Id: resource.xsl,v 1.81 2011/01/07 19:33:22 philsp Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -976,14 +976,17 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       abstract test suites, application interpreted constructs, and application
       modules. This part of ISO 10303 is a member of the 
       <xsl:choose>
+	    <xsl:when test="$part_no &gt; 500"> <!-- AIC -->
+          application interpreted construct
+        </xsl:when>
 	    <xsl:when test="string-length($part_no) &lt; 13"> <!-- if it is 100 series, it is 1 number longer and should have a different name -->
-          integrated generic
+          integrated generic resources
         </xsl:when>
         <xsl:otherwise>
-          integrated application
+          integrated application resources
         </xsl:otherwise>
       </xsl:choose>
-      resources series. The integrated generic resources and the integrated application resources specify a single conceptual product data model. 
+      series. The integrated generic resources, integrated application resources and the application interpreted constructs specify a single conceptual product data model. 
     </p>
     <p>
       A complete list of parts of ISO 10303 is available from the following URL: 

@@ -1,5 +1,5 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.19 2010/11/24 17:28:40 thomasrthurman Exp $
+ $Id: shape_tolerance_schema.exp,v 1.20 2010/11/24 17:43:39 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -93,9 +93,14 @@ ENTITY geometric_tolerance
   name                    : label;
   description             : OPTIONAL text;
   magnitude               : OPTIONAL length_measure_with_unit; 
-  toleranced_shape_aspect : geometric_tolerance_target; 
+  toleranced_shape_aspect : geometric_tolerance_target;
+DERIVE
+ controlling_shape : product_definition_shape := sts_get_product_definition_shape(toleranced_shape_aspect); 
+UNIQUE
+ ur1 : name, controlling_shape;
 WHERE
   WR1: magnitude\measure_with_unit.value_component >= 0.0;
+  WR2: EXISTS(controlling_shape);
 END_ENTITY;
 
 ENTITY geometric_tolerance_relationship;
@@ -251,5 +256,24 @@ ENTITY unequally_disposed_geometric_tolerance
 WHERE
   WR1: ('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
+
+
+RULE value_unique_geometric_tolerance_with_datum_reference FOR (geometric_tolerance_with_datum_reference); 
+WHERE
+wr1 : VALUE_UNIQUE(geometric_tolerance_with_datum_reference);
+END_RULE;
+
+FUNCTION sts_get_product_definition_shape( input : geometric_tolerance_target) : product_definition_shape;
+  CASE TRUE OF ('SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION' IN TYPEOF(input)) : 
+                 RETURN(input\shape_aspect_relationship.relating_shape_aspect\shape_aspect.of_shape);
+               ('SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN TYPEOF(input)) : 
+                 RETURN(input\dimensional_size.applies_to\shape_aspect.of_shape);
+               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(input)) : 
+                 RETURN(input);
+               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.shape_aspect' IN TYPEOF(input)) : 
+                 RETURN(input\shape_aspect.of_shape);
+  OTHERWISE : RETURN(?);
+  END_CASE;
+END_FUNCTION;
 
 END_SCHEMA;   -- End of shape_tolerance_schema

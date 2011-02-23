@@ -54,7 +54,7 @@
          <select extensible="NO" genericentity="NO" selectitems="geometric_tolerance plus_minus_tolerance"/>
       </type>
       <type name="sts_item_identified_representation_usage_definition">
-         <select basedon="item_identified_representation_usage_definition" extensible="NO" genericentity="YES" selectitems="geometric_tolerance"/>
+         <select basedon="item_identified_representation_usage_definition" extensible="YES" genericentity="YES" selectitems="geometric_tolerance"/>
       </type>
       <type name="tolerance_method_definition">
          <select extensible="NO" genericentity="NO" selectitems="tolerance_value limits_and_fits"/>
@@ -80,7 +80,15 @@
          <explicit name="toleranced_shape_aspect" optional="NO">
             <typename name="geometric_tolerance_target"/>
          </explicit>
+         <derived expression="sts_get_product_definition_shape(toleranced_shape_aspect)" name="controlling_shape">
+            <typename name="product_definition_shape"/>
+         </derived>
+         <unique label="ur1">
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="controlling_shape"/>
+         </unique>
          <where expression="magnitude\measure_with_unit.value_component &gt;= 0.0" label="WR1"/>
+         <where expression="EXISTS(controlling_shape)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_relationship">
          <explicit name="name" optional="NO">
@@ -123,7 +131,7 @@
             <typename name="length_measure_with_unit"/>
          </explicit>
          <where expression="(geometric_tolerance_modifier.maximum_material_requirement IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers) OR&#10;        (geometric_tolerance_modifier.least_material_requirement IN&#10;          SELF\geometric_tolerance_with_modifiers.modifiers)" label="WR1"/>
-         <where expression="(maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.magnitude\measure_with_unit.unit_component) AND&#10;        maximum_upper_tolerance\measure_with_unit.value_component &gt; SELF\geometric_tolerance.magnitude\measure_with_unit.value_component" label="WR2"/>
+         <where expression="(maximum_upper_tolerance\measure_with_unit.unit_component = SELF\geometric_tolerance.magnitude\measure_with_unit.unit_component) AND&#10;       (maximum_upper_tolerance\measure_with_unit.value_component &gt; SELF\geometric_tolerance.magnitude\measure_with_unit.value_component)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_modifiers" supertypes="geometric_tolerance">
          <explicit name="modifiers" optional="NO">
@@ -251,5 +259,24 @@
          </explicit>
          <where expression="('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
+      <rule appliesto="geometric_tolerance_with_datum_reference" name="value_unique_geometric_tolerance_with_datum_reference">
+         <where expression="VALUE_UNIQUE(geometric_tolerance_with_datum_reference)" label="wr1"/>
+      </rule>
+      <function name="sts_get_product_definition_shape">
+         <parameter name="input">
+            <typename name="geometric_tolerance_target"/>
+         </parameter>
+         <typename name="product_definition_shape"/>
+         <algorithm>CASE TRUE OF ('SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION' IN TYPEOF(input)) : 
+                 RETURN(input\shape_aspect_relationship.relating_shape_aspect\shape_aspect.of_shape);
+               ('SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN TYPEOF(input)) : 
+                 RETURN(input\dimensional_size.applies_to\shape_aspect.of_shape);
+               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(input)) : 
+                 RETURN(input);
+               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.shape_aspect' IN TYPEOF(input)) : 
+                 RETURN(input\shape_aspect.of_shape);
+  OTHERWISE : RETURN(?);
+  END_CASE;</algorithm>
+      </function>
    </schema>
 </express>

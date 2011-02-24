@@ -32,6 +32,9 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <interface kind="reference" schema="topology_schema"/>
+      <type name="shape_data_quality_assessment_specification_select">
+         <select selectitems="shape_data_quality_assessment_by_logical_test shape_data_quality_assessment_by_numerical_test"/>
+      </type>
       <type name="shape_data_quality_value_limit_type_select">
          <select selectitems="shape_data_quality_value_range shape_data_quality_value_limit"/>
       </type>
@@ -56,9 +59,9 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
-         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
+         <where expression="validate_inspected_elements_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_OR_COMPOSITE_CURVE_SELECT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR5"/>
       </entity>
@@ -67,13 +70,13 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.POINT_ON_CURVE'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.LENGTH_MEASURE'])" label="WR5"/>
       </entity>
-      <entity name="disconnected_face_set" supertypes="inapt_topology">
+      <entity name="disconnected_face_set" supertypes="erroneous_topology">
          <explicit name="assessment_specification">
             <typename name="shape_data_quality_assessment_by_logical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
@@ -89,7 +92,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -140,7 +143,7 @@
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
          <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.BOOLEAN_VALUE')" label="WR1"/>
-         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR2"/>
+         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE_WITH_KNOTS'])" label="WR2"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR3"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR4"/>
       </entity>
@@ -150,21 +153,21 @@
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
          <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.BOOLEAN_VALUE')" label="WR1"/>
-         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR2"/>
+         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE_WITH_KNOTS'])" label="WR2"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR3"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR4"/>
       </entity>
       <entity abstract.supertype="YES" name="erroneous_data" super.expression="ONEOF (erroneous_topology, erroneous_geometry, erroneous_topology_and_geometry_relationship, erroneous_manifold_solid_brep)" supertypes="shape_data_quality_criterion"/>
       <entity abstract.supertype="YES" name="erroneous_geometry" super.expression="ONEOF (inconsistent_curve_transition_code, erroneous_b_spline_curve_definition, inconsistent_surface_transition_code, erroneous_b_spline_surface_definition)" supertypes="erroneous_data"/>
       <entity abstract.supertype="YES" name="erroneous_manifold_solid_brep" super.expression="ONEOF (wrongly_oriented_void, wrongly_placed_void, intersecting_shells_in_solid, solid_with_wrong_number_of_voids)" supertypes="erroneous_data"/>
-      <entity abstract.supertype="YES" name="erroneous_topology" super.expression="ONEOF (open_edge_loop, open_closed_shell, inconsistent_adjacent_face_normals)" supertypes="erroneous_data"/>
+      <entity abstract.supertype="YES" name="erroneous_topology" super.expression="ONEOF (open_edge_loop, open_closed_shell, inconsistent_adjacent_face_normals, disconnected_face_set)" supertypes="erroneous_data"/>
       <entity abstract.supertype="YES" name="erroneous_topology_and_geometry_relationship" super.expression="ONEOF (inconsistent_edge_and_curve_directions, inconsistent_face_and_surface_normals, inconsistent_face_and_closed_shell_normals, intersecting_loops_in_face, wrongly_placed_loop)" supertypes="erroneous_data"/>
       <entity name="excessively_high_degree_curve" supertypes="overcomplex_geometry">
          <explicit name="assessment_specification">
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -175,7 +178,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -186,7 +189,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.RATIO_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_KNOT_LOCATOR'])" label="WR4"/>
@@ -197,7 +200,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -212,13 +215,14 @@
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR2"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR4"/>
+         <where expression="SIZEOF(QUERY(sdqr &lt;* bag_to_set(USEDIN(SELF,&#10;             'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'DATA_QUALITY_INSPECTION_RESULT.'+&#10;             'CRITERION_INSPECTED'))|&#10;             ('SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;              'SHAPE_DATA_QUALITY_INSPECTION_RESULT'&#10;              IN TYPEOF(sdqr)) AND&#10;              (SIZEOF(QUERY(sdqiir &lt;* bag_to_set(USEDIN(sdqr,&#10;                 'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;                 'DATA_QUALITY_INSPECTION_REPORT.'+&#10;                 'INSPECTION_RESULT'))|&#10;                 ('SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;                  'SHAPE_DATA_QUALITY_INSPECTION_INSTANCE_REPORT'&#10;                   IN TYPEOF(sdqiir)) AND&#10;                 (SIZEOF(QUERY(sdqiri &lt;* sdqiir.inspected_instances|&#10;                          ('TOPOLOGY_SCHEMA.CLOSED_SHELL'&#10;                   IN TYPEOF(sdqiri.inspected_elements[1])))) = 0)&#10;               )) = 0)&#10;            )) = 0" label="WR5"/>
       </entity>
       <entity name="g1_discontinuity_between_adjacent_faces" supertypes="non_smooth_geometry_transition_across_edge">
          <explicit name="assessment_specification">
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR4"/>
@@ -229,7 +233,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_CURVE_KNOT_LOCATOR'])" label="WR4"/>
@@ -240,7 +244,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_KNOT_LOCATOR'])" label="WR4"/>
@@ -257,8 +261,8 @@
          <explicit name="flat_curvature_radius_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF.assessment_specification_2.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(SELF.assessment_specification_2.threshold))" label="WR2"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR2"/>
          <where expression="validate_measured_data_type(SELF,&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'PLANE_ANGLE_AND_RATIO_PAIR')" label="WR3"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR4"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR5"/>
@@ -275,8 +279,8 @@
          <explicit name="flat_curvature_radius_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF.assessment_specification_2.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(SELF.assessment_specification_2.threshold))" label="WR2"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR2"/>
          <where expression="validate_measured_data_type(SELF,&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'PLANE_ANGLE_AND_RATIO_PAIR')" label="WR3"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR4"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_CURVE_KNOT_LOCATOR'])" label="WR5"/>
@@ -293,8 +297,8 @@
          <explicit name="flat_curvature_radius_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF.assessment_specification_2.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(SELF.assessment_specification_2.threshold))" label="WR2"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.RATIO_MEASURE'&#10;            IN value_limit_type(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR2"/>
          <where expression="validate_measured_data_type(SELF,&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'PLANE_ANGLE_AND_RATIO_PAIR')" label="WR3"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR4"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_KNOT_LOCATOR'])" label="WR5"/>
@@ -305,7 +309,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_LOOP'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.ORIENTED_EDGE'])" label="WR4"/>
@@ -316,7 +320,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE'])" label="WR4"/>
@@ -327,7 +331,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR4"/>
@@ -338,7 +342,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.POINT_ON_SURFACE',&#10;             'GEOMETRY_SCHEMA.POINT_ON_SURFACE'])" label="WR4"/>
@@ -349,7 +353,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.VERTEX_POINT',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE'])" label="WR4"/>
@@ -360,7 +364,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.VERTEX_POINT',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR4"/>
@@ -377,7 +381,7 @@
          <explicit name="approximation_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -391,7 +395,7 @@
          <explicit name="approximation_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -405,7 +409,7 @@
          <explicit name="approximation_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -419,7 +423,7 @@
          <explicit name="approximation_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -428,7 +432,7 @@
       <entity abstract.supertype="YES" name="inapt_data" super.expression="ONEOF (inapt_topology, inapt_geometry, inapt_topology_and_geometry_relationship, inapt_manifold_solid_brep)" supertypes="shape_data_quality_criterion"/>
       <entity abstract.supertype="YES" name="inapt_geometry" super.expression="ONEOF (nearly_degenerate_geometry, discontinuous_geometry, self_intersecting_geometry, geometry_with_local_near_degeneracy, overlapping_geometry, multiply_defined_geometry, geometry_with_local_irregularity, overcomplex_geometry)" supertypes="inapt_data"/>
       <entity abstract.supertype="YES" name="inapt_manifold_solid_brep" super.expression="ONEOF (partly_overlapping_solids, small_volume_solid, multiply_defined_solids, entirely_narrow_solid, solid_with_excessive_number_of_voids)" supertypes="inapt_data"/>
-      <entity abstract.supertype="YES" name="inapt_topology" super.expression="ONEOF (free_edge, non_manifold_at_edge, non_manifold_at_vertex, disconnected_face_set, over_used_vertex)" supertypes="inapt_data"/>
+      <entity abstract.supertype="YES" name="inapt_topology" super.expression="ONEOF (free_edge, non_manifold_at_edge, non_manifold_at_vertex, over_used_vertex)" supertypes="inapt_data"/>
       <entity abstract.supertype="YES" name="inapt_topology_and_geometry_relationship" super.expression="ONEOF (topology_related_to_nearly_degenerate_geometry, geometric_gap_in_topology, non_smooth_geometry_transition_across_edge, topology_related_to_self_intersecting_geometry, steep_geometry_transition_across_edge, topology_related_to_overlapping_geometry, topology_related_to_multiply_defined_geometry, overcomplex_topology_and_geometry_relationship)" supertypes="inapt_data"/>
       <entity name="inconsistent_adjacent_face_normals" supertypes="erroneous_topology">
          <explicit name="assessment_specification">
@@ -522,7 +526,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PARAMETER_VALUE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PARAMETER_VALUE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PARAMETER_VALUE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE_WITH_KNOTS'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_CURVE_KNOT_LOCATOR'])" label="WR4"/>
@@ -533,11 +537,24 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PARAMETER_VALUE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PARAMETER_VALUE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PARAMETER_VALUE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE_WITH_KNOTS'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_KNOT_LOCATOR'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR5"/>
+      </entity>
+      <entity name="intersecting_connected_face_sets" supertypes="topology_related_to_self_intersecting_geometry">
+         <explicit name="assessment_specification">
+            <typename name="shape_data_quality_assessment_by_logical_test"/>
+            <redeclaration entity-ref="shape_data_quality_criterion"/>
+         </explicit>
+         <explicit name="interference_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.BOOLEAN_VALUE')" label="WR1"/>
+         <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET',&#10;             'TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR2"/>
+         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE'])" label="WR3"/>
+         <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.LENGTH_MEASURE'])" label="WR4"/>
       </entity>
       <entity name="intersecting_loops_in_face" supertypes="erroneous_topology_and_geometry_relationship">
          <explicit name="assessment_specification">
@@ -550,19 +567,6 @@
          <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.BOOLEAN_VALUE')" label="WR1"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE'])" label="WR2"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR3"/>
-         <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.LENGTH_MEASURE'])" label="WR4"/>
-      </entity>
-      <entity name="intersecting_shells" supertypes="topology_related_to_self_intersecting_geometry">
-         <explicit name="assessment_specification">
-            <typename name="shape_data_quality_assessment_by_logical_test"/>
-            <redeclaration entity-ref="shape_data_quality_criterion"/>
-         </explicit>
-         <explicit name="interference_tolerance">
-            <typename name="length_measure"/>
-         </explicit>
-         <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.BOOLEAN_VALUE')" label="WR1"/>
-         <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET',&#10;             'TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR2"/>
-         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.LENGTH_MEASURE'])" label="WR4"/>
       </entity>
       <entity name="intersecting_shells_in_solid" supertypes="erroneous_manifold_solid_brep">
@@ -583,7 +587,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CARTESIAN_POINT','GEOMETRY_SCHEMA.CARTESIAN_POINT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -594,7 +598,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CURVE','GEOMETRY_SCHEMA.CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -605,7 +609,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.DIRECTION','GEOMETRY_SCHEMA.DIRECTION'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -616,7 +620,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE',&#10;             'TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -627,7 +631,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE',&#10;             'TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -642,8 +646,8 @@
          <explicit name="assessment_specification_2">
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF.assessment_specification_2.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF.assessment_specification_2.threshold))" label="WR2"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(assessment_specification_2\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR2"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;            'PLANE_ANGLE_AND_LENGTH_PAIR')" label="WR3"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.PLACEMENT','GEOMETRY_SCHEMA.PLACEMENT'])" label="WR4"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR5"/>
@@ -655,7 +659,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP',&#10;             'GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -666,7 +670,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold)) AND&#10;            ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold)) AND&#10;            ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.SURFACE','GEOMETRY_SCHEMA.SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -677,7 +681,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold)) AND&#10;            ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold)) AND&#10;            ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.VERTEX_POINT',&#10;             'TOPOLOGY_SCHEMA.VERTEX_POINT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -702,7 +706,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_VALUE_RANGE'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_VALUE_RANGE'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_OR_RECTANGULAR_COMPOSITE_SURFACE_SELECT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'BOUNDARY_CURVE_OF_B_SPLINE_OR_RECTANGULAR_COMPOSITE_SURFACE'])" label="WR4"/>
@@ -713,7 +717,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_VALUE_RANGE'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_PATCH'])" label="WR4"/>
@@ -765,7 +769,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.VERTEX_POINT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -782,7 +786,7 @@
          <explicit name="interference_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CURVE','GEOMETRY_SCHEMA.CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.TRIMMED_CURVE','GEOMETRY_SCHEMA.TRIMMED_CURVE'])" label="WR4"/>
@@ -796,10 +800,10 @@
          <explicit name="interference_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE',&#10;             'TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
-         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'TRIMMED_EDGE_CURVE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'TRIMMED_EDGE_CURVE'])" label="WR4"/>
+         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.SUBEDGE','TOPOLOGY_SCHEMA.SUBEDGE'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.LENGTH_MEASURE'])" label="WR5"/>
       </entity>
       <entity name="partly_overlapping_faces" supertypes="topology_related_to_overlapping_geometry">
@@ -810,10 +814,10 @@
          <explicit name="interference_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE',&#10;             'TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
-         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'CURVE_BOUNDED_FACE_SURFACE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'CURVE_BOUNDED_FACE_SURFACE'])" label="WR4"/>
+         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.SUBFACE','TOPOLOGY_SCHEMA.SUBFACE'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.AREA_MEASURE'])" label="WR5"/>
       </entity>
       <entity name="partly_overlapping_solids" supertypes="inapt_manifold_solid_brep">
@@ -824,10 +828,10 @@
          <explicit name="interference_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;             AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;             AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP',&#10;             'GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP'])" label="WR3"/>
-         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'CURVE_BOUNDED_FACE_SURFACE',&#10;             'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'CURVE_BOUNDED_FACE_SURFACE'])" label="WR4"/>
+         <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.SUBFACE','TOPOLOGY_SCHEMA.SUBFACE'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['MEASURE_SCHEMA.AREA_MEASURE'])" label="WR5"/>
       </entity>
       <entity name="partly_overlapping_surfaces" supertypes="overlapping_geometry">
@@ -838,7 +842,7 @@
          <explicit name="interference_tolerance">
             <typename name="length_measure"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.SURFACE','GEOMETRY_SCHEMA.SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE',&#10;             'GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE'])" label="WR4"/>
@@ -915,19 +919,18 @@
             <typename name="shape_measurement_accuracy"/>
          </explicit>
       </entity>
-      <entity name="shape_data_quality_assessment_by_logical_test" supertypes="shape_data_quality_assessment_specification"/>
-      <entity name="shape_data_quality_assessment_by_numerical_test" supertypes="shape_data_quality_assessment_specification">
+      <entity name="shape_data_quality_assessment_by_logical_test" supertypes="data_quality_assessment_specification"/>
+      <entity name="shape_data_quality_assessment_by_numerical_test" supertypes="data_quality_assessment_specification">
          <explicit name="threshold">
             <typename name="shape_data_quality_value_limit_type_select"/>
          </explicit>
       </entity>
-      <entity name="shape_data_quality_assessment_specification" super.expression="ONEOF (shape_data_quality_assessment_by_numerical_test, shape_data_quality_assessment_by_logical_test)" supertypes="data_quality_assessment_specification"/>
       <entity name="shape_data_quality_criteria_representation" supertypes="data_quality_criteria_representation">
          <where expression="SIZEOF( QUERY( q &lt;* SELF\representation.items|&#10;                               'SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;                               'SHAPE_DATA_QUALITY_CRITERION' IN TYPEOF(q))) &gt; 0" label="WR1"/>
       </entity>
       <entity name="shape_data_quality_criterion" super.expression="ONEOF (erroneous_data, inapt_data)" supertypes="data_quality_criterion data_quality_measurement_requirement">
          <explicit name="assessment_specification">
-            <typename name="shape_data_quality_assessment_specification"/>
+            <typename name="shape_data_quality_assessment_specification_select"/>
          </explicit>
          <where expression="SIZEOF(USEDIN(SELF,&#10;            'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+&#10;            'DATA_QUALITY_CRITERION_ASSESSMENT_ASSOCIATION.'+&#10;            'CRITERION'&#10;            )) = 0" label="WR1"/>
          <where expression="SIZEOF(QUERY(i1&lt;*bag_to_set(&#10;              USEDIN(SELF,&#10;                    'REPRESENTATION_SCHEMA.'+&#10;                    'REPRESENTATION_ITEM_RELATIONSHIP.'+&#10;                    'RELATED_REPRESENTATION_ITEM'))|&#10;             'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+&#10;             'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION'&#10;              IN TYPEOF(i1))) = 0" label="WR2"/>
@@ -947,7 +950,7 @@
       <entity name="shape_data_quality_upper_value_limit" supertypes="shape_data_quality_value_limit">
          <where expression="SELF\qualified_representation_item.qualifiers[1].name = 'maximum'" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="shape_data_quality_value_limit" super.expression="ONEOF (shape_data_quality_upper_value_limit, shape_data_quality_lower_value_limit)" supertypes="value_representation_item qualified_representation_item"/>
+      <entity abstract.supertype="YES" name="shape_data_quality_value_limit" super.expression="ONEOF (shape_data_quality_upper_value_limit, shape_data_quality_lower_value_limit)" supertypes="measure_representation_item qualified_representation_item"/>
       <entity name="shape_data_quality_value_range" supertypes="compound_representation_item">
          <where expression="('REPRESENTATION_SCHEMA.SET_REPRESENTATION_ITEM'&#10;               IN TYPEOF (SELF\compound_representation_item.item_element)) AND&#10;            ((SIZEOF(SELF\compound_representation_item.item_element) = 2) AND &#10;            ((SIZEOF(QUERY (i1 &lt;* SELF\compound_representation_item.item_element | &#10;              ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)))) = 2)&#10;             OR (SIZEOF(QUERY (i2 &lt;* SELF\compound_representation_item.item_element | &#10;              ('REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF(i2)))) = 2)))" label="WR1"/>
          <where expression="(SIZEOF(QUERY (i &lt;* SELF\compound_representation_item.item_element&#10;             | (i.name = 'upper limit'))) = 1)&#10;            AND (SIZEOF(QUERY (i &lt;* SELF\compound_representation_item.item_element&#10;             | (i.name = 'lower limit'))) = 1)" label="WR2"/>
@@ -961,12 +964,13 @@
             <typename name="shape_data_quality_value_limit_type_select"/>
          </explicit>
       </entity>
+      <entity name="shape_summary_request_with_representative_value" supertypes="summary_report_request"/>
       <entity name="short_length_curve" supertypes="nearly_degenerate_geometry">
          <explicit name="assessment_specification">
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -977,7 +981,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_CURVE_SEGMENT'])" label="WR4"/>
@@ -988,7 +992,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;             AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;             AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -999,7 +1003,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -1010,7 +1014,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -1021,7 +1025,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.AREA_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.AREA_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_PATCH'])" label="WR4"/>
@@ -1032,7 +1036,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.VOLUME_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.VOLUME_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.VOLUME_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -1043,7 +1047,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRIC_MODEL_SCHEMA.MANIFOLD_SOLID_BREP'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
@@ -1064,7 +1068,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.EDGE_LOOP'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.ORIENTED_EDGE'])" label="WR4"/>
@@ -1075,7 +1079,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.CONNECTED_FACE_SET'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'POINT_ON_EDGE_CURVE'])" label="WR4"/>
@@ -1087,9 +1091,9 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
-         <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.B_SPLINE_SURFACE'])" label="WR3"/>
+         <where expression="validate_inspected_elements_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_OR_RECTANGULAR_COMPOSITE_SURFACE_SELECT'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            [])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            [])" label="WR5"/>
       </entity>
@@ -1098,7 +1102,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'&#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.LENGTH_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.LENGTH_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.POINT_ON_SURFACE'])" label="WR4"/>
@@ -1107,13 +1111,13 @@
       <entity abstract.supertype="YES" name="topology_related_to_multiply_defined_geometry" super.expression="ONEOF (multiply_defined_faces, multiply_defined_vertices, multiply_defined_edges)" supertypes="inapt_topology_and_geometry_relationship"/>
       <entity abstract.supertype="YES" name="topology_related_to_nearly_degenerate_geometry" super.expression="ONEOF (short_length_edge, small_area_face, entirely_narrow_face)" supertypes="inapt_topology_and_geometry_relationship"/>
       <entity abstract.supertype="YES" name="topology_related_to_overlapping_geometry" super.expression="ONEOF (partly_overlapping_faces, partly_overlapping_edges)" supertypes="inapt_topology_and_geometry_relationship"/>
-      <entity abstract.supertype="YES" name="topology_related_to_self_intersecting_geometry" super.expression="ONEOF (self_intersecting_loop, self_intersecting_shell, intersecting_shells)" supertypes="inapt_topology_and_geometry_relationship"/>
+      <entity abstract.supertype="YES" name="topology_related_to_self_intersecting_geometry" super.expression="ONEOF (self_intersecting_loop, self_intersecting_shell, intersecting_connected_face_sets)" supertypes="inapt_topology_and_geometry_relationship"/>
       <entity name="unused_patches" supertypes="overcomplex_topology_and_geometry_relationship">
          <explicit name="assessment_specification">
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;             AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_LOWER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;             AND ('MEASURE_SCHEMA.COUNT_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.COUNT_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['TOPOLOGY_SCHEMA.FACE_SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+&#10;             'B_SPLINE_SURFACE_STRIP'])" label="WR4"/>
@@ -1154,7 +1158,7 @@
             <typename name="shape_data_quality_assessment_by_numerical_test"/>
             <redeclaration entity-ref="shape_data_quality_criterion"/>
          </explicit>
-         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification.threshold))" label="WR1"/>
+         <where expression="('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.' +&#10;            'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT' &#10;            IN TYPEOF(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))&#10;            AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE'&#10;            IN value_limit_type(SELF\shape_data_quality_criterion.assessment_specification\shape_data_quality_assessment_by_numerical_test.threshold))" label="WR1"/>
          <where expression="validate_measured_data_type(SELF,&#10;            'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE')" label="WR2"/>
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['GEOMETRY_SCHEMA.SURFACE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['GEOMETRY_SCHEMA.POINT_ON_SURFACE'])" label="WR4"/>
@@ -1175,8 +1179,6 @@
        sma: BAG OF SHAPE_MEASUREMENT_ACCURACY:=[];
        sdqir: SET OF
         SHAPE_DATA_QUALITY_INSPECTION_RESULT:=[];
-       sdcr: SET OF
-        SHAPE_DATA_QUALITY_INSPECTION_CRITERION_REPORT:=[];
        scraa: BAG OF
         SHAPE_INSPECTION_RESULT_ACCURACY_ASSOCIATION:=[];
        t_logic:BOOLEAN;
@@ -1195,9 +1197,9 @@
        END_REPEAT;
   
        -- STEP-2
-       -- check if the collected types are exactly coincident with 
-       -- the type names in the type list given as an input argument 
-       -- of this function. 
+       -- check whether the collected types include all the type names
+       -- in the type list given as an input argument of this function
+       -- and they do not include any other type names. 
        IF(SIZEOF(type_list) &lt; SIZEOF(sma)) THEN
          RETURN(FALSE);
        END_IF;
@@ -1218,8 +1220,8 @@
   
      -- STEP-3
      -- collect types of range attribute of shape_measurement_accuracy
-     -- referred from shape_inspection_criterion_report_accuracy_association
-     -- that refers to the shape_data_quality_inspection_criterion_report
+     -- referred from shape_inspection_result_accuracy_association
+     -- that refers to shape_data_quality_inspection_result
      -- for the given shape_data_quality_criterion.
      sdqir := QUERY(q &lt;* bag_to_set(USEDIN(ei,
                    'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
@@ -1231,24 +1233,11 @@
      IF(SIZEOF(sdqir) = 0) THEN
        RETURN(TRUE);
      END_IF;
+  
      REPEAT i:= 1 TO SIZEOF(sdqir);
-       sdcr := sdcr + QUERY(q &lt;* bag_to_set(USEDIN(sdqir[i],
-                   'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
-                   'DATA_QUALITY_INSPECTION_REPORT.'+
-                   'INSPECTION_RESULT'))|
-           'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
-           'SHAPE_DATA_QUALITY_INSPECTION_CRITERION_REPORT'
-            IN TYPEOF(q));
-     END_REPEAT;
-  
-     IF(SIZEOF(sdcr) = 0) THEN
-       RETURN(TRUE);
-     END_IF;
-  
-     REPEAT i:= 1 TO SIZEOF(sdcr);
-       scraa := USEDIN(sdcr[i],
+       scraa := USEDIN(sdqir[i],
                'SHAPE_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
-               'SHAPE_INSPECTION_CRITERION_REPORT_ACCURACY_ASSOCIATION.'+
+               'SHAPE_INSPECTION_RESULT_ACCURACY_ASSOCIATION.'+
                'SHAPE_DATA_QUALITY_RESULT');
        IF(SIZEOF(scraa) &lt;&gt; 0) THEN
          sma := [];
@@ -1257,9 +1246,9 @@
          END_REPEAT;
   
          -- STEP-4
-         -- check if the collected types are exactly coincident with 
-         -- the type names in the type list given as an input argument 
-         -- of this function. 
+         -- check whether the collected types include all the type
+         -- names in the type list given as an input argument of
+         -- this function and they do not include any other type names.
          IF(SIZEOF(type_list) &lt; SIZEOF(sma)) THEN
            RETURN(FALSE);
          END_IF;
@@ -1596,7 +1585,7 @@
     END_IF;
     IF(('SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.'
        +'SHAPE_DATA_QUALITY_VALUE_LIMIT') IN TYPEOF(iv)) THEN
-      retval := TYPEOF(iv\value_representation_item.value_component);
+      retval := TYPEOF(iv\measure_representation_item.value_component);
     END_IF;
     RETURN(retval);</algorithm>
       </function>

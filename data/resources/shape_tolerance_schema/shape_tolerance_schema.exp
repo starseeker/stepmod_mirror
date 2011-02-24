@@ -89,7 +89,16 @@ ENTITY geometric_tolerance
   SUPERTYPE OF (geometric_tolerance_with_datum_reference 
     ANDOR geometric_tolerance_with_defined_unit
     ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance)
-    ANDOR unequally_disposed_geometric_tolerance ); 
+    ANDOR unequally_disposed_geometric_tolerance 
+    ANDOR ONEOF (
+      cylindricity_tolerance,
+      flatness_tolerance,
+      line_profile_tolerance,
+      position_tolerance,
+      roundness_tolerance,
+      straightness_tolerance,
+      surface_profile_tolerance
+    )); 
   name                    : label;
   description             : OPTIONAL text;
   magnitude               : OPTIONAL length_measure_with_unit; 
@@ -111,6 +120,16 @@ ENTITY geometric_tolerance_relationship;
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_datum_reference
+  SUPERTYPE OF ( ONEOF (
+    angularity_tolerance,
+    circular_runout_tolerance,
+    coaxiality_tolerance,
+    concentricity_tolerance,
+    parallelism_tolerance,
+    perpendicularity_tolerance,
+    symmetry_tolerance,
+    total_runout_tolerance
+  ))
   SUBTYPE OF (geometric_tolerance);
   datum_system : SET [1:?] OF datum_system_or_reference;
 WHERE
@@ -257,10 +276,45 @@ WHERE
   WR1: ('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
 
+ENTITY angularity_tolerance 
+  SUBTYPE OF (geometric_tolerance_with_datum_reference);
+END_ENTITY ;
+
+ENTITY circular_runout_tolerance 
+  SUBTYPE OF (geometric_tolerance_with_datum_reference);
+END_ENTITY ;
+
+ENTITY coaxiality_tolerance 
+  SUBTYPE OF (geometric_tolerance_with_datum_reference);
+END_ENTITY ;
+
+ENTITY concentricity_tolerance 
+  SUBTYPE OF (geometric_tolerance_with_datum_reference);
+END_ENTITY ;
+
+ENTITY cylindricity_tolerance 
+  SUBTYPE OF (geometric_tolerance);
+WHERE 
+  WR1 : NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF));
+END_ENTITY ;
+
+ENTITY flatness_tolerance 
+  SUBTYPE OF (geometric_tolerance);
+WHERE 
+  WR1 : NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF));
+END_ENTITY ;
+
+ENTITY line_profile_tolerance 
+  SUBTYPE OF (geometric_tolerance);
+END_ENTITY ;
+
+ENTITY parallelism_tolerance 
+  SUBTYPE OF (geometric_tolerance_with_datum_reference);
+END_ENTITY ;
 
 RULE value_unique_geometric_tolerance_with_datum_reference FOR (geometric_tolerance_with_datum_reference); 
 WHERE
-WR1 : VALUE_UNIQUE(geometric_tolerance_with_datum_reference);
+  WR1 : VALUE_UNIQUE(geometric_tolerance_with_datum_reference);
 END_RULE;
 
 FUNCTION sts_get_product_definition_shape( input : geometric_tolerance_target) : product_definition_shape;

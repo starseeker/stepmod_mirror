@@ -59,6 +59,13 @@
       <type name="tolerance_method_definition">
          <select extensible="NO" genericentity="NO" selectitems="tolerance_value limits_and_fits"/>
       </type>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="angularity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="circular_runout_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="coaxiality_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="concentricity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="cylindricity_tolerance" supertypes="geometric_tolerance">
+         <where expression="NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="dimension_related_tolerance_zone_element">
          <explicit name="related_dimension" optional="NO">
             <typename name="dimensional_location"/>
@@ -67,7 +74,10 @@
             <typename name="tolerance_zone_definition"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance" super.expression="geometric_tolerance_with_datum_reference ANDOR geometric_tolerance_with_defined_unit ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance) ANDOR unequally_disposed_geometric_tolerance">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="flatness_tolerance" supertypes="geometric_tolerance">
+         <where expression="NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance" super.expression="geometric_tolerance_with_datum_reference ANDOR geometric_tolerance_with_defined_unit ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance) ANDOR unequally_disposed_geometric_tolerance ANDOR ONEOF (cylindricity_tolerance, flatness_tolerance, line_profile_tolerance, position_tolerance, roundness_tolerance, straightness_tolerance, surface_profile_tolerance)">
          <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
@@ -104,7 +114,7 @@
             <typename name="geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_datum_reference" supertypes="geometric_tolerance">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_datum_reference" super.expression="ONEOF (angularity_tolerance, circular_runout_tolerance, coaxiality_tolerance, concentricity_tolerance, parallelism_tolerance, perpendicularity_tolerance, symmetry_tolerance, total_runout_tolerance)" supertypes="geometric_tolerance">
          <explicit name="datum_system" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="datum_system_or_reference"/>
@@ -153,6 +163,7 @@
             <typename name="text"/>
          </explicit>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="line_profile_tolerance" supertypes="geometric_tolerance"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="modified_geometric_tolerance" supertypes="geometric_tolerance">
          <explicit name="modifier" optional="NO">
             <typename name="limit_condition"/>
@@ -160,6 +171,8 @@
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="non_uniform_zone_definition" supertypes="tolerance_zone_definition"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="parallelism_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="perpendicularity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="plus_minus_tolerance">
          <explicit name="range" optional="NO">
             <typename name="tolerance_method_definition"/>
@@ -171,6 +184,7 @@
             <unique.attribute attribute="toleranced_dimension"/>
          </unique>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="position_tolerance" supertypes="geometric_tolerance"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="projected_zone_definition" supertypes="tolerance_zone_definition">
          <explicit name="projection_end" optional="NO">
             <typename name="shape_aspect"/>
@@ -185,6 +199,9 @@
          <explicit name="offset" optional="NO">
             <typename name="length_measure_with_unit"/>
          </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="roundness_tolerance" supertypes="geometric_tolerance">
+         <where expression="NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="runout_zone_definition" supertypes="tolerance_zone_definition">
          <explicit name="orientation" optional="NO">
@@ -206,6 +223,11 @@
          <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       NOT ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' &#10;       IN TYPEOF (item)))) = 0" label="WR1"/>
       <where label="IP1"/>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="straightness_tolerance" supertypes="geometric_tolerance">
+         <where expression="NOT ('AIC_GEOMETRIC_TOLERANCES.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="surface_profile_tolerance" supertypes="geometric_tolerance"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="symmetry_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_value">
          <explicit name="lower_bound" optional="NO">
             <typename name="measure_with_unit"/>
@@ -253,6 +275,7 @@
             <typename name="label"/>
          </explicit>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="total_runout_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="unequally_disposed_geometric_tolerance" supertypes="geometric_tolerance">
          <explicit name="displacement" optional="NO">
             <typename name="length_measure_with_unit"/>

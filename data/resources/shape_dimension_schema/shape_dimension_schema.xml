@@ -10,8 +10,10 @@
       </interface>
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="representation"/>
+         <interfaced.item name="compound_representation_item"/>
       </interface>
       <interface kind="reference" schema="qualified_measure_schema">
+         <interfaced.item name="descriptive_representation_item"/>
          <interfaced.item name="measure_representation_item"/>
          <interfaced.item name="qualified_representation_item"/>
       </interface>
@@ -34,7 +36,10 @@
          <select selectitems="dimensional_location dimensional_size"/>
       </type>
       <type name="sds_item_identified_representation_usage_definition">
-         <select basedon="item_identified_representation_usage_definition" genericentity="YES" selectitems="dimensional_size"/>
+         <select basedon="item_identified_representation_usage_definition" extensible="YES" genericentity="YES" selectitems="dimensional_size"/>
+      </type>
+      <type name="shape_dimension_representation_item">
+         <select selectitems="measure_representation_item descriptive_representation_item compound_representation_item"/>
       </type>
       <entity name="angular_location" supertypes="dimensional_location">
          <explicit name="angle_selection">
@@ -75,9 +80,12 @@
          </explicit>
       </entity>
       <entity name="shape_dimension_representation" supertypes="shape_representation">
-         <where expression="SIZEOF (QUERY (temp &lt;* SELF\representation.items | &#10;    NOT ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' &#10;        IN TYPEOF (temp)))) = 0" label="WR1"/>
-         <where expression="SIZEOF (SELF\representation.items) &lt;= 3" label="WR2"/>
-         <where expression="SIZEOF (QUERY (pos_mri &lt;* QUERY (real_mri &lt;*&#10;        SELF\representation.items | 'REAL' IN TYPEOF&#10;        (real_mri\measure_with_unit.value_component) ) |        &#10;     NOT  (pos_mri\measure_with_unit.value_component &gt; 0.0 ))) = 0" label="WR3"/>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="shape_dimension_representation_item"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (temp &lt;* items | &#10;    NOT (&#10;        NOT('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (temp)) OR&#10;         (('MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT' IN TYPEOF (temp)) OR&#10;          ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF (temp)))&#10;        )&#10;        )) = 0" label="WR1"/>
       </entity>
    </schema>
 </express>

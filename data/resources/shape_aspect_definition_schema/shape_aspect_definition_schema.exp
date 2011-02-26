@@ -1,5 +1,5 @@
 (*
- $Id: shape_aspect_definition_schema.exp,v 1.31 2011/02/21 21:12:18 thomasrthurman Exp $
+ $Id: shape_aspect_definition_schema.exp,v 1.32 2011/02/23 09:44:35 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -114,7 +114,7 @@ INVERSE
   established_by_relationships : SET [1:?] OF shape_aspect_relationship
                                  FOR related_shape_aspect;
 UNIQUE
-  UR1 : identification , SELF\shape_aspect.of_shape; 
+  UR1 : identification, SELF\shape_aspect.of_shape; 
 WHERE
   WR1: ('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM' IN TYPEOF(SELF)) XOR
        ((SIZEOF(QUERY(x <* SELF\datum.established_by_relationships |
@@ -187,9 +187,12 @@ ENTITY general_datum_reference
 UNIQUE
   UR1: SELF\shape_aspect.of_shape, SELF\shape_aspect.name;
 WHERE
-  WR1: SELF\shape_aspect.product_definitional = FALSE;
-  WR2: NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape);
-  WR3: NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM_LIST' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base[1]\shape_aspect.of_shape);
+  WR1: SELF\shape_aspect.name = '';
+  WR2: NOT EXISTS(SELF\shape_aspect.description);
+  WR3: NOT EXISTS(SELF\shape_aspect.id);
+  WR4: SELF\shape_aspect.product_definitional = FALSE;
+  WR5: NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base\shape_aspect.of_shape);
+  WR6: NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.COMMON_DATUM_LIST' IN TYPEOF(base)) OR (SELF\shape_aspect.of_shape = base[1]\shape_aspect.of_shape);
 END_ENTITY;  
 
 ENTITY datum_reference_compartment
@@ -351,94 +354,22 @@ SUBTYPE_CONSTRAINT sads_shape_aspect_subtypes FOR shape_aspect;
           ONEOF (contacting_feature, datum, datum_feature, datum_target, datum_system, general_datum_reference);
 END_SUBTYPE_CONSTRAINT; 
 
-RULE unique_datum_system_constituent FOR(datum_system);
+RULE unique_datum_system FOR(datum_system);
 LOCAL
-  ds1 : SET OF datum_system := []; --only one element
-  ds2 : SET OF datum_system := []; --two elements
-  ds3 : SET OF datum_system := []; --three elements
-  ds21 : SET OF datum_system := []; --first element is same
-  ds31 : SET OF datum_system := []; --first element is same
-  ds32 : SET OF datum_system := []; -- first and second elements are same
   pass : BOOLEAN := TRUE;
 END_LOCAL; 
-(*
-iterate over all datum_system.
-only one datum system for each actual combination of LIST OF datum_reference_compartment
-so if we separate into case of 1, 2, 3
-for case of one, there is no sub case.
-for case of two, if first element duplicates then we must look at second element.
-for case of three, if first element dupicates then we must look at second element.
-for case of three where the first and second elements are duplicate, we look at third element.*)
 REPEAT i := 1 TO SIZEOF(datum_system);
-  CASE (SIZEOF(datum_system[i].constituents)) OF
-        1 : ds1 := ds1 + datum_system[i];
-        2 : ds2 := ds2 + datum_system[i];
-        3 : ds3 := ds3 + datum_system[i];
-  OTHERWISE : RETURN(?);
-END_CASE;
-END_REPEAT;
-REPEAT i := 1 TO SIZEOF(ds1);
- REPEAT j := 1 TO SIZEOF(ds1);
+ REPEAT j := 1 TO SIZEOF(datum_system);
   IF (i <> j) THEN
-   IF (ds1[i]\datum_system.constituents = ds1[j]\datum_system.constituents) THEN
+   IF datum_system[i]\datum_system.constituents = 
+      datum_system[j]\datum_system.constituents  THEN
     pass := FALSE;
    END_IF;
   END_IF;
  END_REPEAT;
 END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(ds2);
- REPEAT j := 1 TO SIZEOF(ds2);
-  IF (i <> j) THEN
-   IF (ds2[i]\datum_system.constituents[1] = ds2[j]\datum_system.constituents[1]) THEN
-    ds21 := ds21 + ds2[i] + ds2[j];
-   END_IF;
-  END_IF;
- END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(ds21);
- REPEAT j := 1 TO SIZEOF(ds21);
-  IF (i <> j) THEN
-   IF (ds21[i]\datum_system.constituents[2] = ds21[j]\datum_system.constituents[2]) THEN
-    pass := FALSE;
-   END_IF;
-  END_IF;
- END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(ds3);
- REPEAT j := 1 TO SIZEOF(ds3);
-  IF (i <> j) THEN
-   IF (ds3[i]\datum_system.constituents[1] = ds3[j]\datum_system.constituents[1]) THEN
-    ds31 := ds31 + ds3[i] + ds3[j];
-   END_IF;
-  END_IF;
- END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(ds31);
- REPEAT j := 1 TO SIZEOF(ds31);
-  IF (i <> j) THEN
-   IF (ds31[i]\datum_system.constituents[2] = ds31[j]\datum_system.constituents[2]) THEN
-   ds32 := ds32 + ds31[i] + ds31[j];    
-   END_IF;
-  END_IF;
- END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(ds32);
- REPEAT j := 1 TO SIZEOF(ds32);
-  IF (i <> j) THEN
-   IF (ds32[i]\datum_system.constituents[3] = ds32[j]\datum_system.constituents[3]) THEN
-    pass := FALSE;
-   END_IF;
-  END_IF;
- END_REPEAT;
-END_REPEAT;
-
 WHERE
- WR1 : pass;
+  WR1 : pass;
 END_RULE;
 
 FUNCTION sts_get_general_datum_reference(input : datum_reference_element) :

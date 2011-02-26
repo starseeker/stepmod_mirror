@@ -1,5 +1,5 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.23 2011/02/24 10:35:01 lothartklein Exp $
+ $Id: shape_tolerance_schema.exp,v 1.24 2011/02/25 17:49:02 lothartklein Exp $
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-47 Shape variation tolerances 
 *)
 
@@ -21,7 +21,8 @@ REFERENCE FROM representation_schema
     (representation);
 REFERENCE FROM support_resource_schema
     (label,
-     text);
+     text,
+     type_check_function);
 REFERENCE FROM shape_aspect_definition_schema
     (datum_reference,
      datum_system,
@@ -86,7 +87,7 @@ ENTITY dimension_related_tolerance_zone_element;
 END_ENTITY;
 
 ENTITY geometric_tolerance
-  SUPERTYPE OF (geometric_tolerance_with_datum_reference 
+  ABSTRACT SUPERTYPE OF (geometric_tolerance_with_datum_reference 
     ANDOR geometric_tolerance_with_defined_unit
     ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance)
     ANDOR unequally_disposed_geometric_tolerance 
@@ -344,10 +345,31 @@ ENTITY total_runout_tolerance
   SUBTYPE OF (geometric_tolerance_with_datum_reference);
 END_ENTITY ;
 
-
 RULE value_unique_geometric_tolerance_with_datum_reference FOR (geometric_tolerance_with_datum_reference); 
 WHERE
   WR1 : VALUE_UNIQUE(geometric_tolerance_with_datum_reference);
+END_RULE;
+
+RULE subtype_exclusiveness_geometric_tolerance FOR
+    (geometric_tolerance);
+WHERE
+  WR1: SIZEOF(QUERY (gt <* geometric_tolerance | NOT (type_check_function(gt, 
+   ['SHAPE_TOLERANCE_SCHEMA.ANGULARITY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.CIRCULAR_RUNOUT_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.COAXIALITY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.CONCENTRICITY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.CYLINDRICITY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.FLATNESS_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.LINE_PROFILE_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.PARALLELISM_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.PERPENDICULARITY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.POSITION_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.STRAIGHTNESS_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.SURFACE_PROFILE_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.SYMMETRY_TOLERANCE',
+    'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE'] , 2 )
+               ))) = 0;
 END_RULE;
 
 FUNCTION sts_get_product_definition_shape( input : geometric_tolerance_target) : product_definition_shape;

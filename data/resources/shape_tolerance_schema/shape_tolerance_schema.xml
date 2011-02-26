@@ -27,6 +27,7 @@
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="label"/>
          <interfaced.item name="text"/>
+         <interfaced.item name="type_check_function"/>
       </interface>
       <interface kind="reference" schema="shape_aspect_definition_schema">
          <interfaced.item name="datum_reference"/>
@@ -77,7 +78,7 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="flatness_tolerance" supertypes="geometric_tolerance">
          <where expression="NOT ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance" super.expression="geometric_tolerance_with_datum_reference ANDOR geometric_tolerance_with_defined_unit ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance) ANDOR unequally_disposed_geometric_tolerance ANDOR ONEOF (cylindricity_tolerance, flatness_tolerance, line_profile_tolerance, position_tolerance, roundness_tolerance, straightness_tolerance, surface_profile_tolerance)">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="geometric_tolerance" super.expression="geometric_tolerance_with_datum_reference ANDOR geometric_tolerance_with_defined_unit ANDOR ONEOF (geometric_tolerance_with_modifiers, modified_geometric_tolerance) ANDOR unequally_disposed_geometric_tolerance ANDOR ONEOF (cylindricity_tolerance, flatness_tolerance, line_profile_tolerance, position_tolerance, roundness_tolerance, straightness_tolerance, surface_profile_tolerance)">
          <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
@@ -282,6 +283,9 @@
          </explicit>
          <where expression="('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
+      <rule appliesto="geometric_tolerance" name="subtype_exclusiveness_geometric_tolerance">
+         <where expression="SIZEOF(QUERY (gt &lt;* geometric_tolerance | NOT (type_check_function(gt, &#10;   ['SHAPE_TOLERANCE_SCHEMA.ANGULARITY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.CIRCULAR_RUNOUT_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.COAXIALITY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.CONCENTRICITY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.CYLINDRICITY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.FLATNESS_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.LINE_PROFILE_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.PARALLELISM_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.PERPENDICULARITY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.POSITION_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.STRAIGHTNESS_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.SURFACE_PROFILE_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.SYMMETRY_TOLERANCE',&#10;    'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE'] , 2 )&#10;               ))) = 0" label="WR1"/>
+      </rule>
       <rule appliesto="geometric_tolerance_with_datum_reference" name="value_unique_geometric_tolerance_with_datum_reference">
          <where expression="VALUE_UNIQUE(geometric_tolerance_with_datum_reference)" label="WR1"/>
       </rule>

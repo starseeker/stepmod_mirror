@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
+$Id: sect_foreword.xsl,v 1.25 2010/02/03 14:30:47 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -129,12 +129,11 @@ $Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
 
       <xsl:choose>
         <xsl:when test="@previous.revision.cancelled='NO'">
-          This <xsl:value-of select="$this_edition"/> edition of  
+          This <xsl:value-of select="$this_edition"/> edition of 
         <xsl:value-of select="$part_no"/> 
         cancels and replaces the
         <xsl:value-of select="$prev_edition"/> edition  
-        (<xsl:value-of
-        select="@previous.revision.number"/>),
+          (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
         which has been technically revised.        
 <!--    <xsl:choose>
           <xsl:when test="@revision.complete='NO'">
@@ -161,8 +160,7 @@ $Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
         This <xsl:value-of select="$this_edition"/> edition of 
         <xsl:value-of select="$part_no"/> cancels and replaces the
         <xsl:value-of select="@previous.revision.year"/> edition
-        (<xsl:value-of
-          select="@previous.revision.number"/>), 
+          (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
         <xsl:choose>
           <!-- only changed a section of the document -->
           <xsl:when test="@revision.complete='NO'">
@@ -426,8 +424,7 @@ $Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
 	      <xsl:value-of select="$part_no"/> 
 	      cancels and replaces the
 	      <xsl:value-of select="$prev_edition"/> edition  
-	      (<xsl:value-of
-	      select="@previous.revision.number"/>),
+          (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
 	      of which it constitutes a technical revision. 
 <!--       <xsl:choose>
 		<xsl:when test="@revision.complete='NO'">
@@ -451,11 +448,10 @@ $Id: sect_foreword.xsl,v 1.24 2009/09/04 04:00:21 thomasrthurman Exp $
 
 	    <xsl:otherwise>
 	      <!-- cancelled -->
-	      This <xsl:value-of select="$this_edition"/> edition of 
+	      This <xsl:value-of select="$this_edition"/> edition of
 	      <xsl:value-of select="$part_no"/> cancels and replaces the
-	      <xsl:value-of select="@previous.revision.year"/> edition
-	      (<xsl:value-of
-	      select="@previous.revision.number"/>), 
+          <xsl:value-of select="$prev_edition"/> edition
+          (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
 	      <xsl:choose>
 		<!-- only changed a section of the document -->
 		<xsl:when test="@revision.complete='NO'">

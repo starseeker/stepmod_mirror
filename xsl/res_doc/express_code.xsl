@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.14 2009/08/17 14:43:22 robbod Exp $
+     $Id: express_code.xsl,v 1.15 2009/11/07 11:58:10 lothartklein Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -629,7 +629,7 @@ data/resources/',$resource,'/',$resource,'.xml.')"/>
     </xsl:call-template><xsl:value-of select="concat('.',@attribute,$suffix)"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:value-of select="concat(@attribute,';')"/>
+      <xsl:value-of select="concat(@attribute,$suffix)"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

@@ -82,7 +82,7 @@ This file is a copy of the file data/xsl/sect_g_changes.xsl for application modu
 		</li>
 		<li>
 			interfaces that conform to ISO 10303-22 and to an ISO 10303 application protocol based on the
-			previous edition of this part of ISO 0303, also conform to a revision of that application protocol 
+			previous edition of this part of ISO 10303, also conform to a revision of that application protocol 
 			based on this edition of this part of ISO 10303;
 		</li>
 		<li>

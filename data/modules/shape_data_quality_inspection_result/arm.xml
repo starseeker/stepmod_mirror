@@ -319,7 +319,6 @@
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
     local_s_d_a: SET OF Shape_description_association := [];
- --   local_p_d_s: SET OF Item_shape := [];
     local_p_d: SET OF Product_view_definition := [];
     i : INTEGER;
   END_LOCAL;
@@ -330,13 +329,12 @@
   
   -- find Product_view_definitions
   REPEAT i := 1 TO HIINDEX (local_s_d_a);
-     IF (('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
-       TYPEOF (local_s_d_a[i].represented_characteristic))
-       AND
-       ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
-         (local_s_d_a[i].represented_characteristic.described_element))) 
-     THEN
-      local_p_d := local_p_d + local_s_d_a[i].represented_characteristic.described_element;
+     IF ('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
+       TYPEOF (local_s_d_a[i].represented_characteristic)) THEN
+       IF ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
+         (local_s_d_a[i].represented_characteristic\Item_shape.described_element))  THEN
+         local_p_d := local_p_d + local_s_d_a[i].represented_characteristic\Item_shape.described_element;
+       END_IF;
      END_IF;
   END_REPEAT;
 

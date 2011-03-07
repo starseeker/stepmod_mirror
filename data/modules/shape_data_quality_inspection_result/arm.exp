@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2010/10/19 03:47:28 fumikitanaka Exp $
+   $Id: arm.exp,v 1.5 2010/11/03 20:35:03 lothartklein Exp $
    WG12N7187 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
 *)
 
@@ -22,7 +22,6 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   USE FROM Shape_data_quality_criteria_arm;
   
   USE FROM Shape_property_assignment_arm;
---  USE FROM Value_with_unit_arm;
   
   REFERENCE FROM Foundation_representation_arm
     (using_representations);
@@ -75,8 +74,6 @@ SCHEMA Shape_data_quality_inspection_result_arm;
      Face_bound,
      Point_on_edge_curve,
      Point_on_face_surface
--- F.Tanaka      ,subedge,
--- F.Tanaka      subface
      );
   END_TYPE;
 
@@ -89,12 +86,10 @@ SCHEMA Shape_data_quality_inspection_result_arm;
      vertex_point,
      closed_or_open_shell_select,
      b_spline_or_rectangular_composite_surface_select,
--- F.Tanaka      point,
      point_select,
      connected_face_set,
  	 manifold_solid_brep,
      direction,
--- F.Tanaka      placement,
     Axis_placement,
      b_spline_or_composite_curve_select);
   END_TYPE;
@@ -295,7 +290,6 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   (item: Geometric_model) : SET OF Product_view_definition;
   LOCAL
     local_s_d_a: SET OF Shape_description_association := [];
- --   local_p_d_s: SET OF Item_shape := [];
     local_p_d: SET OF Product_view_definition := [];
     i : INTEGER;
   END_LOCAL;
@@ -306,13 +300,12 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   
   -- find Product_view_definitions
   REPEAT i := 1 TO HIINDEX (local_s_d_a);
-     IF (('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
-       TYPEOF (local_s_d_a[i].represented_characteristic))
-       AND
-       ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
-         (local_s_d_a[i].represented_characteristic.described_element))) 
-     THEN
-      local_p_d := local_p_d + local_s_d_a[i].represented_characteristic.described_element;
+     IF ('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
+       TYPEOF (local_s_d_a[i].represented_characteristic)) THEN
+       IF ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
+         (local_s_d_a[i].represented_characteristic\Item_shape.described_element))  THEN
+         local_p_d := local_p_d + local_s_d_a[i].represented_characteristic\Item_shape.described_element;
+       END_IF;
      END_IF;
   END_REPEAT;
 

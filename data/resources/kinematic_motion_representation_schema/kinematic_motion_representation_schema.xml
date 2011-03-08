@@ -1,263 +1,141 @@
-<?xml version="1.0"?>
-<!-- $Id: kinematic_motion_representation_schema.xml,v 1.6 2009/08/20 11:39:38 liutkuviene Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-105"
-  rcs.date="$Date: 2009/08/20 11:39:38 $"
-  rcs.revision="$Revision: 1.6 $"
-  description.file="descriptions.xml">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/kinematic_motion_representation_schema/kinematic_motion_representation_schema.exp"/>
-
-  <schema name="kinematic_motion_representation_schema">
-    <interface
-      kind="reference"
-      schema="geometry_schema">
-      <interfaced.item
-        name="cartesian_point"/>
-      <interfaced.item
-        name="curve"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="length_measure"/>
-      <interfaced.item
-        name="measure_with_unit"/>
-      <interfaced.item
-        name="parameter_value"/>
-      <interfaced.item
-        name="plane_angle_measure"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="functionally_defined_transformation"/>
-      <interfaced.item
-        name="representation_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="kinematic_structure_schema">
-      <interfaced.item
-        name="rotation_about_direction"/>
-      <interfaced.item
-        name="spatial_rotation"/>
-      <interfaced.item
-        name="ypr_rotation"/>
-    </interface>
-
-    <type name="motion_parameter_measure">
-      <select
-        selectitems="parameter_value measure_with_unit">
-      </select>
-
-    </type>
-    <entity
-      name="translation">
-      <explicit
-        name="x">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="y">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="z">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="transform"
-      supertypes="functionally_defined_transformation">
-      <explicit
-        name="rotation_component">
-        <typename
-          name="spatial_rotation"/>
-      </explicit>
-      <explicit
-        name="translation_component">
-        <typename
-          name="translation"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="path_node">
-      <explicit
-        name="control_transform">
-        <typename
-          name="transform"/>
-      </explicit>
-      <explicit
-        name="t_parameter">
-        <typename
-          name="motion_parameter_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="kinematic_path"
-      super.expression="ONEOF (path_element, composite_path)"
-      supertypes="representation_item">
-    </entity>
-
-    <entity
-      name="path_element_connection">
-      <explicit
-        name="previous_element">
-        <typename
-          name="path_element"/>
-      </explicit>
-      <explicit
-        name="next_element">
-        <typename
-          name="path_element"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="previous_element.node_to = next_element.node_from">
-      </where>
-      <where
-        label="WR2"
-        expression="compare_unit_components (previous_element.node_to.t_parameter,                                next_element.node_from.t_parameter)">
-      </where>
-    </entity>
-
-    <entity
-      name="composite_path"
-      supertypes="kinematic_path">
-      <explicit
-        name="elements">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="path_element_connection"/>
-      </explicit>
-      <explicit
-        name="t_start">
-        <typename
-          name="motion_parameter_measure"/>
-      </explicit>
-      <explicit
-        name="t_end">
-        <typename
-          name="motion_parameter_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="increasing_measure_value (t_start, t_end)">
-      </where>
-      <where
-        label="WR2"
-        expression="compare_unit_components (t_start, t_end)">
-      </where>
-      <where
-        label="WR3"
-        expression="connected_in_simple_path (elements)">
-      </where>
-    </entity>
-
-    <entity
-      name="path_element"
-      super.expression="ONEOF (point_to_point_path,                       circular_path,                       linear_path,                       curve_based_path)"
-      supertypes="kinematic_path">
-      <explicit
-        name="node_from">
-        <typename
-          name="path_node"/>
-      </explicit>
-      <explicit
-        name="node_to">
-        <typename
-          name="path_node"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="compare_unit_components (node_from.t_parameter,                                node_to.t_parameter)">
-      </where>
-      <where
-        label="WR2"
-        expression="increasing_measure_value (node_from.t_parameter,                                 node_to.t_parameter)">
-      </where>
-    </entity>
-
-    <entity
-      name="point_to_point_path"
-      supertypes="path_element">
-    </entity>
-
-    <entity
-      name="circular_path"
-      supertypes="path_element">
-      <explicit
-        name="via_point">
-        <typename
-          name="cartesian_point"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\path_element.node_to.control_transform.translation_component &lt;&gt;       SELF\path_element.node_from.control_transform.translation_component">
-      </where>
-      <where
-        label="WR2"
-        expression="non_coincident_coordinates (via_point,         SELF\path_element.node_from.control_transform.translation_component)       AND       non_coincident_coordinates (via_point,         SELF\path_element.node_to.control_transform.translation_component)">
-      </where>
-    </entity>
-
-    <entity
-      name="linear_path"
-      supertypes="path_element">
-    </entity>
-
-    <entity
-      name="curve_based_path"
-      supertypes="path_element">
-      <explicit
-        name="path_curve">
-        <typename
-          name="curve"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\path_element.node_to.control_transform.translation_component &lt;&gt;       SELF\path_element.node_from.control_transform.translation_component">
-      </where>
-      <where label="IP1"/>
-      <where label="IP2"/>
-    </entity>
-
-    <function
-      name="connected_in_simple_path">
-      <parameter
-        name="connections">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="path_element_connection"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  LOCAL
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-105">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_motion_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="kinematic_motion_representation_schema">
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="curve"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="length_measure"/>
+         <interfaced.item name="measure_with_unit"/>
+         <interfaced.item name="parameter_value"/>
+         <interfaced.item name="plane_angle_measure"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="functionally_defined_transformation"/>
+         <interfaced.item name="representation_item"/>
+      </interface>
+      <interface kind="reference" schema="kinematic_structure_schema">
+         <interfaced.item name="rotation_about_direction"/>
+         <interfaced.item name="spatial_rotation"/>
+         <interfaced.item name="ypr_rotation"/>
+      </interface>
+      <type name="motion_parameter_measure">
+         <select selectitems="parameter_value measure_with_unit"/>
+      </type>
+      <entity name="circular_path" supertypes="path_element">
+         <explicit name="via_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="SELF\path_element.node_to.control_transform.translation_component &lt;&gt;&#10;       SELF\path_element.node_from.control_transform.translation_component" label="WR1"/>
+         <where expression="non_coincident_coordinates (via_point,&#10;         SELF\path_element.node_from.control_transform.translation_component)&#10;       AND&#10;       non_coincident_coordinates (via_point,&#10;         SELF\path_element.node_to.control_transform.translation_component)" label="WR2"/>
+      </entity>
+      <entity name="composite_path" supertypes="kinematic_path">
+         <explicit name="elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="path_element_connection"/>
+         </explicit>
+         <explicit name="t_start">
+            <typename name="motion_parameter_measure"/>
+         </explicit>
+         <explicit name="t_end">
+            <typename name="motion_parameter_measure"/>
+         </explicit>
+         <where expression="increasing_measure_value (t_start, t_end)" label="WR1"/>
+         <where expression="compare_unit_components (t_start, t_end)" label="WR2"/>
+         <where expression="connected_in_simple_path (elements)" label="WR3"/>
+      </entity>
+      <entity name="curve_based_path" supertypes="path_element">
+         <explicit name="path_curve">
+            <typename name="curve"/>
+         </explicit>
+         <where expression="SELF\path_element.node_to.control_transform.translation_component &lt;&gt;&#10;       SELF\path_element.node_from.control_transform.translation_component" label="WR1"/>
+      </entity>
+      <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="representation_item"/>
+      <entity name="linear_path" supertypes="path_element"/>
+      <entity name="path_element" super.expression="ONEOF (point_to_point_path, circular_path, linear_path, curve_based_path)" supertypes="kinematic_path">
+         <explicit name="node_from">
+            <typename name="path_node"/>
+         </explicit>
+         <explicit name="node_to">
+            <typename name="path_node"/>
+         </explicit>
+         <where expression="compare_unit_components (node_from.t_parameter,&#10;                                node_to.t_parameter)" label="WR1"/>
+         <where expression="increasing_measure_value (node_from.t_parameter,&#10;                                 node_to.t_parameter)" label="WR2"/>
+      </entity>
+      <entity name="path_element_connection">
+         <explicit name="previous_element">
+            <typename name="path_element"/>
+         </explicit>
+         <explicit name="next_element">
+            <typename name="path_element"/>
+         </explicit>
+         <where expression="previous_element.node_to = next_element.node_from" label="WR1"/>
+         <where expression="compare_unit_components (previous_element.node_to.t_parameter,&#10;                                next_element.node_from.t_parameter)" label="WR2"/>
+      </entity>
+      <entity name="path_node">
+         <explicit name="control_transform">
+            <typename name="transform"/>
+         </explicit>
+         <explicit name="t_parameter">
+            <typename name="motion_parameter_measure"/>
+         </explicit>
+      </entity>
+      <entity name="point_to_point_path" supertypes="path_element"/>
+      <entity name="transform" supertypes="functionally_defined_transformation">
+         <explicit name="rotation_component">
+            <typename name="spatial_rotation"/>
+         </explicit>
+         <explicit name="translation_component">
+            <typename name="translation"/>
+         </explicit>
+      </entity>
+      <entity name="translation">
+         <explicit name="x">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="y">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="z">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <function name="compare_unit_components">
+         <parameter name="parm1">
+            <typename name="motion_parameter_measure"/>
+         </parameter>
+         <parameter name="parm2">
+            <typename name="motion_parameter_measure"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF (('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) AND
+       ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm2))) THEN
+         RETURN (TRUE);
+   ELSE
+     IF (('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) AND
+         ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm2))) THEN
+        IF (parm1.unit_component :=: parm2.unit_component) THEN
+           RETURN (TRUE);
+        ELSE
+           RETURN (FALSE);
+        END_IF;
+     ELSE
+       RETURN (FALSE);
+     END_IF;
+  END_IF;</algorithm>
+      </function>
+      <function name="connected_in_simple_path">
+         <parameter name="connections">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="path_element_connection"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
      connection_set : SET [0 : ?] OF path_element_connection;
      nec0           : INTEGER;
      pec0           : INTEGER;
@@ -293,61 +171,17 @@
     END_IF;
   ELSE
     RETURN (TRUE);
-  END_IF;
-      </algorithm>
-
-    </function>
-
-    <function
-      name="compare_unit_components">
-      <parameter
-        name="parm1">
-        <typename
-          name="motion_parameter_measure"/>
-      </parameter>
-      <parameter
-        name="parm2">
-        <typename
-          name="motion_parameter_measure"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-   IF (('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) AND
-       ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm2))) THEN
-         RETURN (TRUE);
-   ELSE
-     IF (('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) AND
-         ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm2))) THEN
-        IF (parm1.unit_component :=: parm2.unit_component) THEN
-           RETURN (TRUE);
-        ELSE
-           RETURN (FALSE);
-        END_IF;
-     ELSE
-       RETURN (FALSE);
-     END_IF;
-  END_IF;
-      </algorithm>
-
-    </function>
-
-    <function
-      name="increasing_measure_value">
-      <parameter
-        name="parm1">
-        <typename
-          name="motion_parameter_measure"/>
-      </parameter>
-      <parameter
-        name="parm2">
-        <typename
-          name="motion_parameter_measure"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  IF ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) THEN
+  END_IF;</algorithm>
+      </function>
+      <function name="increasing_measure_value">
+         <parameter name="parm1">
+            <typename name="motion_parameter_measure"/>
+         </parameter>
+         <parameter name="parm2">
+            <typename name="motion_parameter_measure"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) THEN
     IF (parm1 &lt; parm2)  THEN
       RETURN (TRUE);
     ELSE
@@ -363,37 +197,23 @@
     ELSE
       RETURN (FALSE);
     END_IF;
-  END_IF;
-      </algorithm>
-
-    </function>
-
-    <function
-      name="non_coincident_coordinates">
-      <parameter
-        name="crtpt">
-        <typename
-          name="cartesian_point"/>
-      </parameter>
-      <parameter
-        name="trltn">
-        <typename
-          name="translation"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  IF ((crtpt.coordinates[1] = trltn.x) AND
+  END_IF;</algorithm>
+      </function>
+      <function name="non_coincident_coordinates">
+         <parameter name="crtpt">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="trltn">
+            <typename name="translation"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ((crtpt.coordinates[1] = trltn.x) AND
       (crtpt.coordinates[2] = trltn.y) AND
       (crtpt.coordinates[3] = trltn.z)) THEN
     RETURN (FALSE);
   ELSE
     RETURN (TRUE);
-  END_IF;
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+  END_IF;</algorithm>
+      </function>
+   </schema>
 </express>

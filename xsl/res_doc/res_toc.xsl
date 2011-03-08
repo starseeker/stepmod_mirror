@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.29 2010/12/27 14:26:23 lothartklein Exp $
+$Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -468,8 +468,15 @@ $Id: res_toc.xsl,v 1.29 2010/12/27 14:26:23 lothartklein Exp $
           3 Terms, definitions and abbreviated terms
         </A>
 
-      <xsl:if test="$col1 &gt; 0 ">
-        <br/>
+          <br/>
+          &#160; &#160;
+          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#termsdefns">3.1 Terms and definitions</a>
+          <br/>
+          &#160; &#160;
+          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#abbrv">3.2 Abbreviated terms</a>
+          <br/> 
+
+     <xsl:if test="$col1 &gt; 0 ">
         <xsl:for-each select="./schema[position() &lt;= $col1 ]">          
           <xsl:call-template name="schema_section">
             <xsl:with-param name="schema_no" select="position()+ 3" />
@@ -478,13 +485,6 @@ $Id: res_toc.xsl,v 1.29 2010/12/27 14:26:23 lothartklein Exp $
         </xsl:for-each>
      </xsl:if>
  
-          <br/>
-          &#160; &#160;
-          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#termsdefns">3.1 Terms and definitions</a>
-          <br/>
-          &#160; &#160;
-          <a href="{$resdoc_root}/sys/3_defs{$FILE_EXT}#abbrv">3.2 Abbreviated terms</a>
-          <br/> 
      </p> 
 
    </TD>

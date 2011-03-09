@@ -55,6 +55,9 @@
       <type name="kinematic_frame_background">
          <select selectitems="point curve surface"/>
       </type>
+      <type name="kinematic_link_representation_items">
+         <select selectitems="rigid_placement surface"/>
+      </type>
       <type name="rigid_placement">
          <select selectitems="axis2_placement_3d su_parameters"/>
       </type>
@@ -166,16 +169,31 @@
          </explicit>
          <inverse attribute="used_representation" entity="kinematic_property_representation_relation" name="property"/>
       </entity>
+      <entity name="kinematic_link_link_relationship" supertypes="representation_relationship_with_transformation">
+         <explicit name="rep_1">
+            <typename name="kinematic_link_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="kinematic_link_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="transformation_operator">
+            <typename name="kinematic_pair"/>
+            <redeclaration entity-ref="representation_relationship_with_transformation"/>
+         </explicit>
+      </entity>
       <entity name="kinematic_link_representation" supertypes="representation">
          <explicit name="context_of_items">
             <typename name="geometric_representation_context"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <derived expression="SELF\representation.context_of_items" name="link_frame">
-            <typename name="geometric_representation_context"/>
-         </derived>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="kinematic_link_representation_items"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
          <inverse attribute="geometric_aspects" entity="kinematic_link_representation_relation" name="link_representation_relation"/>
-         <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;               NOT (('KINEMATIC_STRUCTURE_SCHEMA.RIGID_PLACEMENT' IN&#10;                      TYPEOF (item))&#10;                    OR&#10; ('GEOMETRY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D' IN&#10;                      TYPEOF (item))) )) = 0" label="WR1"/>
       </entity>
       <entity name="kinematic_link_representation_association" supertypes="representation_relationship">
          <explicit name="rep_1">
@@ -192,9 +210,6 @@
          <explicit name="geometric_aspects">
             <typename name="kinematic_link_representation"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="topological_aspects"/>
-         </unique>
       </entity>
       <entity abstract.supertype="YES" name="kinematic_pair" supertypes="item_defined_transformation">
          <explicit name="joint">
@@ -208,11 +223,17 @@
             <typename name="rigid_placement"/>
             <redeclaration entity-ref="item_defined_transformation"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="joint"/>
-         </unique>
-         <where expression="coordinated_pair_link_representation&#10;         (joint.first_link, transform_item_1)" label="WR1"/>
-         <where expression="coordinated_pair_link_representation&#10;         (joint.second_link, transform_item_2)" label="WR2"/>
+         <derived expression="related_link_representations.rep_1" name="link_representation_1">
+            <typename name="kinematic_link_representation"/>
+         </derived>
+         <derived expression="related_link_representations.rep_2" name="link_representation_2">
+            <typename name="kinematic_link_representation"/>
+         </derived>
+         <inverse attribute="transformation_operator" entity="kinematic_link_link_relationship" name="related_link_representations"/>
+         <where expression="joint.first_link = link_representation_1.link_representation_relation.topological_aspects" label="WR1"/>
+         <where expression="joint.second_link = link_representation_2.link_representation_relation.topological_aspects" label="WR2"/>
+         <where expression="transform_item_1 IN link_representation_1.items" label="WR3"/>
+         <where expression="transform_item_2 IN link_representation_2.items" label="WR4"/>
       </entity>
       <entity name="kinematic_property_definition" supertypes="property_definition">
          <explicit name="ground_definition">
@@ -903,30 +924,6 @@
   ra := ra * ucf;
 
   RETURN ([ya, pa, ra]);</algorithm>
-      </function>
-      <function name="coordinated_pair_link_representation">
-         <parameter name="link">
-            <typename name="kinematic_link"/>
-         </parameter>
-         <parameter name="pair_placement">
-            <typename name="rigid_placement"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    link_rep : kinematic_link_representation;
-  END_LOCAL;
-
-  link_rep := representation_of_link (link);
-
-  IF (link_rep = ?) THEN
-    RETURN (FALSE);
-  ELSE
-    IF NOT (pair_placement IN link_rep\representation.items) THEN
-      RETURN (FALSE);
-    ELSE
-      RETURN (TRUE);
-    END_IF;
-  END_IF;</algorithm>
       </function>
       <function name="frame_associated_to_background">
          <parameter name="frame">

@@ -175,29 +175,25 @@ WHERE
        SELF\representation_relationship.rep_1.items;
 END_ENTITY;
 
-ENTITY kinematic_link_representation_relation;
-  topological_aspects : kinematic_link;
-  geometric_aspects   : kinematic_link_representation;
-UNIQUE
-  UR1: topological_aspects;
+ENTITY kinematic_link_link_relationship
+  SUBTYPE OF (representation_relationship_with_transformation);
+  SELF\representation_relationship.rep_1 : kinematic_link_representation;
+  SELF\representation_relationship.rep_2 : kinematic_link_representation;
+  SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
 END_ENTITY;
 
+TYPE kinematic_link_representation_items = SELECT (
+  rigid_placement,
+  surface);
+END_TYPE;
+  
 ENTITY kinematic_link_representation
   SUBTYPE OF (representation);
-  SELF\representation.context_of_items :  geometric_representation_context;
-DERIVE
-  link_frame                  :  geometric_representation_context
-                              := SELF\representation.context_of_items;
+  SELF\representation.context_of_items : geometric_representation_context;
+  SELF\representation.items : SET[1:?] OF kinematic_link_representation_items;
 INVERSE
   link_representation_relation :
         kinematic_link_representation_relation FOR geometric_aspects;
-WHERE
-  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
-               NOT (('KINEMATIC_STRUCTURE_SCHEMA.RIGID_PLACEMENT' IN
-                      TYPEOF (item))
-                    OR
- ('GEOMETRY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D' IN
-                      TYPEOF (item))) )) = 0;
 END_ENTITY;
 
 ENTITY kinematic_link_representation_association
@@ -210,6 +206,11 @@ WHERE
   WR2: SIZEOF (['KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION',
                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION'] *
                TYPEOF (SELF\representation_relationship.rep_2)) = 0;
+END_ENTITY;
+
+ENTITY kinematic_link_representation_relation;
+  topological_aspects : kinematic_link;
+  geometric_aspects   : kinematic_link_representation;
 END_ENTITY;
 
 ENTITY kinematic_frame_background_representation
@@ -271,14 +272,25 @@ DERIVE
   pair_placement_in_second_link_context
         : rigid_placement
         := SELF\item_defined_transformation.transform_item_2;
-*)        
 UNIQUE
   UR1: joint;
+*)        
+DERIVE
+  link_representation_1 : kinematic_link_representation := related_link_representations.rep_1; 
+  link_representation_2 : kinematic_link_representation := related_link_representations.rep_2; 
+INVERSE
+  related_link_representations : kinematic_link_link_relationship FOR transformation_operator;
 WHERE
+  WR1: joint.first_link = link_representation_1.link_representation_relation.topological_aspects;
+  WR2: joint.second_link = link_representation_2.link_representation_relation.topological_aspects;
+  WR3: transform_item_1 IN link_representation_1.items;
+  WR4: transform_item_2 IN link_representation_2.items;
+(* LK  
   WR1: coordinated_pair_link_representation
          (joint.first_link, transform_item_1);
   WR2: coordinated_pair_link_representation
          (joint.second_link, transform_item_2);
+*)         
 END_ENTITY;
 
 ENTITY pair_actuator;
@@ -726,6 +738,7 @@ FUNCTION ypr_index (ypr : ypr_enumeration) : INTEGER;
   RETURN (?);
 END_FUNCTION;
 
+
 FUNCTION representation_of_link (link : kinematic_link)
     : kinematic_link_representation;
   LOCAL
@@ -741,6 +754,7 @@ FUNCTION representation_of_link (link : kinematic_link)
     RETURN (link_rep_rel[1].geometric_aspects);
   END_IF;
 END_FUNCTION;
+
 
 FUNCTION suitably_based_mechanism (mbp  : mechanism_base_placement;
                                    mech : mechanism) : BOOLEAN;
@@ -823,6 +837,7 @@ FUNCTION unique_link_usage (link : kinematic_link) : BOOLEAN;
 
 END_FUNCTION;
 
+(*
 FUNCTION coordinated_pair_link_representation
     (link           : kinematic_link;
      pair_placement : rigid_placement) : BOOLEAN;
@@ -842,6 +857,7 @@ FUNCTION coordinated_pair_link_representation
     END_IF;
   END_IF;
 END_FUNCTION;
+*)
 
 FUNCTION frame_associated_to_background
   (frame      : rigid_placement;

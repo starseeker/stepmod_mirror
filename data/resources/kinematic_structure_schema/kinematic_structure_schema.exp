@@ -33,7 +33,8 @@ REFERENCE FROM product_property_definition_schema
      property_definition);
 
 REFERENCE FROM product_property_representation_schema
-    (property_definition_representation);
+    (property_definition_representation,
+     shape_representation);
 
 REFERENCE FROM representation_schema
     (definitional_representation_relationship,
@@ -175,7 +176,7 @@ WHERE
        SELF\representation_relationship.rep_1.items;
 END_ENTITY;
 
-ENTITY kinematic_link_link_relationship
+ENTITY kinematic_link_representation_relationship
   SUBTYPE OF (representation_relationship_with_transformation);
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
   SELF\representation_relationship.rep_2 : kinematic_link_representation;
@@ -199,13 +200,15 @@ END_ENTITY;
 ENTITY kinematic_link_representation_association
   SUBTYPE OF (representation_relationship);
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
---  SELF\representation_relationship.rep_2 : shape_representation; -- LK
+  SELF\representation_relationship.rep_2 : shape_representation; 
 WHERE
   WR1: SELF\representation_relationship.rep_2.context_of_items :=:
-       SELF\representation_relationship.rep_1\representation.context_of_items;
+       SELF\representation_relationship.rep_1.context_of_items;
+(* LK
   WR2: SIZEOF (['KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION',
                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION'] *
                TYPEOF (SELF\representation_relationship.rep_2)) = 0;
+*)               
 END_ENTITY;
 
 ENTITY kinematic_link_representation_relation;
@@ -259,7 +262,22 @@ WHERE
 END_ENTITY;
 
 ENTITY kinematic_pair
-  ABSTRACT SUPERTYPE
+  ABSTRACT SUPERTYPE OF( ONEOF (
+    revolute_pair,
+    screw_pair,
+    cylindrical_pair,
+    spherical_pair,
+    universal_pair,
+    planar_pair,
+    unconstrained_pair,
+    fully_constrained_pair,
+    point_on_surface_pair,
+    point_on_planar_curve_pair,
+    planar_curve_pair,
+    prismatic_pair,
+    gear_pair,
+    rack_and_pinion_pair,
+    surface_pair))  
   SUBTYPE OF (item_defined_transformation);
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
@@ -275,16 +293,13 @@ DERIVE
 UNIQUE
   UR1: joint;
 *)        
-DERIVE
-  link_representation_1 : kinematic_link_representation := related_link_representations.rep_1; 
-  link_representation_2 : kinematic_link_representation := related_link_representations.rep_2; 
 INVERSE
-  related_link_representations : kinematic_link_link_relationship FOR transformation_operator;
+  related_link_representations : kinematic_link_representation_relationship FOR transformation_operator;
 WHERE
-  WR1: joint.first_link = link_representation_1.link_representation_relation.topological_aspects;
-  WR2: joint.second_link = link_representation_2.link_representation_relation.topological_aspects;
-  WR3: transform_item_1 IN link_representation_1.items;
-  WR4: transform_item_2 IN link_representation_2.items;
+  WR1: joint.first_link  = related_link_representations.rep_1.link_representation_relation.topological_aspects;
+  WR2: joint.second_link = related_link_representations.rep_2.link_representation_relation.topological_aspects;
+  WR3: transform_item_1 IN related_link_representations.rep_1.items;
+  WR4: transform_item_2 IN related_link_representations.rep_2.items;
 (* LK  
   WR1: coordinated_pair_link_representation
          (joint.first_link, transform_item_1);
@@ -293,15 +308,26 @@ WHERE
 *)         
 END_ENTITY;
 
-ENTITY pair_actuator;
-  name          : label;
-  actuated_pair : kinematic_pair; 
-UNIQUE
-  UR1: actuated_pair;
+ENTITY pair_actuator
+  SUBTYPE OF (simple_pair_range);
 END_ENTITY;
 
 ENTITY simple_pair_range
--- LK  ABSTRACT SUPERTYPE
+  SUPERTYPE OF ( ONEOF(
+    revolute_pair_range,
+    prismatic_pair_range,
+    screw_pair_range,
+    cylindrical_pair_range,
+    spherical_pair_range,
+    universal_pair_range,
+    planar_pair_range,
+    point_on_surface_pair_range,
+    surface_pair_range,
+    point_on_planar_curve_pair_range,
+    planar_curve_pair_range,
+    gear_pair_range,
+    rack_and_pinion_pair_range
+    ) ANDOR pair_actuator)
   SUBTYPE OF (geometric_representation_item);
   applies_to_pair : kinematic_pair;
 END_ENTITY;
@@ -341,7 +367,7 @@ ENTITY revolute_pair
 END_ENTITY;
 
 ENTITY prismatic_pair
-  SUBTYPE OF ( kinematic_pair);
+  SUBTYPE OF (kinematic_pair);
 END_ENTITY;
 
 ENTITY screw_pair
@@ -554,7 +580,7 @@ WHERE
 END_ENTITY;
 
 ENTITY surface_pair
-  SUBTYPE OF ( kinematic_pair);
+  SUBTYPE OF (kinematic_pair);
   surface_1   : surface;
   surface_2   : surface;
   orientation : BOOLEAN;
@@ -1312,8 +1338,11 @@ END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
   ONEOF (kinematic_frame_background_representation,
+         kinematic_ground_representation,
          kinematic_link_representation,
-         kinematic_ground_representation);
+         kinematic_topology_representation,
+         mechanism_representation,
+         shape_representation);
 END_SUBTYPE_CONSTRAINT;
 
 

@@ -36,7 +36,8 @@ REFERENCE FROM product_property_representation_schema
     (property_definition_representation);
 
 REFERENCE FROM representation_schema
-    (functionally_defined_transformation,
+    (definitional_representation_relationship,
+     functionally_defined_transformation,
      item_defined_transformation,
      representation,
      representation_context,
@@ -91,6 +92,8 @@ END_TYPE;
 ENTITY mechanism_representation -- LK
   SUBTYPE OF (representation);
   SELF\representation.items : SET[1:1] OF simple_pair_range; 
+INVERSE
+  related_topology : kinematic_topology_to_mechanism_relationship FOR rep_2;
 END_ENTITY;
 
 ENTITY rotation_about_direction
@@ -131,6 +134,12 @@ WHERE
   WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN
        TYPEOF (SELF\representation.context_of_items);
 *)
+END_ENTITY;
+
+ENTITY kinematic_topology_to_mechanism_relationship  -- LK
+  SUBTYPE OF (definitional_representation_relationship);
+  SELF\representation_relationship.rep_1 : kinematic_topology_representation;
+  SELF\representation_relationship.rep_2 : mechanism_representation;
 END_ENTITY;
 
 ENTITY mechanism;

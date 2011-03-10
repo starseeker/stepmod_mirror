@@ -19,6 +19,7 @@
       </interface>
       <interface kind="reference" schema="kinematic_state_schema">
          <interfaced.item name="pair_value"/>
+         <interfaced.item name="mechanism_state_representation"/>
       </interface>
       <interface kind="reference" schema="geometry_schema">
          <interfaced.item name="geometric_representation_context"/>
@@ -36,43 +37,34 @@
       <type name="kinematic_result">
          <select selectitems="interpolated_configuration_sequence resulting_path"/>
       </type>
-      <entity name="configuration_definition">
-         <explicit name="pair_values">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="pair_value"/>
-         </explicit>
+      <entity name="configuration_definition" supertypes="mechanism_state_representation">
          <explicit name="t_parameter">
             <typename name="motion_parameter_measure"/>
          </explicit>
       </entity>
-      <entity name="configuration_interpolation">
-         <explicit name="previous_configuration_definition">
+      <entity name="configuration_interpolation" supertypes="representation_relationship">
+         <explicit name="previous_state">
             <typename name="configuration_definition"/>
+            <redeclaration entity-ref="representation_relationship" old_name="rep_1"/>
          </explicit>
-         <explicit name="next_configuration_definition">
+         <explicit name="next_state">
             <typename name="configuration_definition"/>
+            <redeclaration entity-ref="representation_relationship" old_name="rep_2"/>
          </explicit>
          <explicit name="interpolation">
             <typename name="interpolation_type"/>
          </explicit>
       </entity>
       <entity name="founded_kinematic_path" supertypes="representation">
-         <explicit name="items">
+         <explicit name="paths">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="kinematic_path"/>
-            <redeclaration entity-ref="representation"/>
+            <redeclaration entity-ref="representation" old_name="items"/>
          </explicit>
-         <explicit name="context_of_items">
+         <explicit name="founding">
             <typename name="geometric_representation_context"/>
-            <redeclaration entity-ref="representation"/>
+            <redeclaration entity-ref="representation" old_name="context_of_items"/>
          </explicit>
-         <derived expression="SELF\representation.items" name="paths">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="kinematic_path"/>
-         </derived>
-         <derived expression="SELF\representation.context_of_items" name="founding">
-            <typename name="geometric_representation_context"/>
-         </derived>
       </entity>
       <entity name="interpolated_configuration_sequence">
          <explicit name="interpolation">
@@ -109,23 +101,17 @@
          </explicit>
       </entity>
       <entity name="motion_link_relationship" super.expression="ONEOF (prescribed_path, resulting_path)" supertypes="representation_relationship">
-         <explicit name="rep_1">
+         <explicit name="motion">
             <typename name="founded_kinematic_path"/>
-            <redeclaration entity-ref="representation_relationship"/>
+            <redeclaration entity-ref="representation_relationship" old_name="rep_1"/>
          </explicit>
-         <explicit name="rep_2">
+         <explicit name="frame_link">
             <typename name="kinematic_link_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
+            <redeclaration entity-ref="representation_relationship" old_name="rep_2"/>
          </explicit>
          <explicit name="related_frame">
             <typename name="rigid_placement"/>
          </explicit>
-         <derived expression="SELF\representation_relationship.rep_1" name="motion">
-            <typename name="founded_kinematic_path"/>
-         </derived>
-         <derived expression="SELF\representation_relationship.rep_2" name="frame_link">
-            <typename name="kinematic_link_representation"/>
-         </derived>
          <where expression="related_frame IN frame_link\representation.items" label="WR1"/>
       </entity>
       <entity name="prescribed_path" supertypes="motion_link_relationship">

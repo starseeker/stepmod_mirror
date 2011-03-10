@@ -16,7 +16,8 @@ REFERENCE FROM kinematic_structure_schema
      rigid_placement);
 
 REFERENCE FROM kinematic_state_schema
-    (pair_value);
+    (pair_value,
+     mechanism_state_representation);
 
 REFERENCE FROM geometry_schema
     (geometric_representation_context);
@@ -41,10 +42,11 @@ TYPE kinematic_result = SELECT
    resulting_path);
 END_TYPE;
 
-ENTITY configuration_interpolation;
-  previous_configuration_definition : configuration_definition;
-  next_configuration_definition     : configuration_definition;
-  interpolation                     : interpolation_type;
+ENTITY configuration_interpolation
+  SUBTYPE OF (representation_relationship);
+  SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
+  SELF\representation_relationship.rep_2 RENAMED next_state : configuration_definition;
+  interpolation : interpolation_type;
 END_ENTITY ;
 
 ENTITY kinematic_control;
@@ -54,33 +56,24 @@ END_ENTITY;
 
 ENTITY founded_kinematic_path
   SUBTYPE OF (representation);
-  SELF\representation.items : SET [1 : ?] OF kinematic_path;
-  SELF\representation.context_of_items :
+  SELF\representation.items RENAMED paths: SET [1 : ?] OF kinematic_path;
+  SELF\representation.context_of_items RENAMED founding:
        geometric_representation_context;
-DERIVE
-  paths : SET [1 : ?] OF kinematic_path := SELF\representation.items;
-  founding : geometric_representation_context
-           := SELF\representation.context_of_items;
 END_ENTITY;
 
 ENTITY motion_link_relationship
   SUPERTYPE OF (ONEOF (prescribed_path, resulting_path))
   SUBTYPE OF (representation_relationship);
-  SELF\representation_relationship.rep_1 : founded_kinematic_path;
-  SELF\representation_relationship.rep_2 :
+  SELF\representation_relationship.rep_1 RENAMED motion : founded_kinematic_path;
+  SELF\representation_relationship.rep_2 RENAMED frame_link :
        kinematic_link_representation;
   related_frame                          : rigid_placement;
-DERIVE
-  motion     : founded_kinematic_path
-             := SELF\representation_relationship.rep_1;
-  frame_link : kinematic_link_representation
-             := SELF\representation_relationship.rep_2;
 WHERE
   WR1: related_frame IN frame_link\representation.items;
 END_ENTITY;
 
-ENTITY configuration_definition;
-  pair_values : SET [1 : ?] OF pair_value;
+ENTITY configuration_definition
+  SUBTYPE OF (mechanism_state_representation);
   t_parameter : motion_parameter_measure;
 END_ENTITY;
 

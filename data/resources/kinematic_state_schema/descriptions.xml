@@ -3,13 +3,87 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="kinematic_state_schema" schema_file="kinematic_state_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2004/11/16 07:30:26 $" rcs.revision="$Revision: 1.13 $">
+<ext_descriptions module_directory="kinematic_state_schema" schema_file="kinematic_state_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/03/09 12:59:11 $" rcs.revision="$Revision: 1.2 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: kinematic_state_schema
    <express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <ext_description linkend="kinematic_state_schema">
-</ext_description><!-- 
+</ext_description>
+
+<!-- +++++++++++ ypr_enumeration +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.ypr_enumeration">
+	The <b>ypr_enumeration</b> is a means by which the angles of rotation about the origin in Cartesian
+	coordinate space R<sup>3</sup> are distinguished.
+	The <b>yaw</b> represents the angle by which the original frame (<i>x</i><sub>0</sub>; <i>y</i><sub>0</sub>; <i>z</i><sub>0</sub>) 
+	is rotated first about the z-axis to yield an intermediate 
+	(<i>x</i>&#8242;, <i>y</i>&#8242;, <i>z</i>&#8242;) frame.
+	The <b>pitch</b> represents the angle by which the intermediate frame 
+	(<i>x</i>&#8242;, <i>y</i>&#8242;, <i>z</i>&#8242;) 
+	then is rotated about the y&#8242;-axis to yield another intermediate 
+	(<i>x</i>&#8243;, <i>y</i>&#8243;, <i>z</i>&#8243;) frame.
+	The <b>roll</b> represents the angle by which the
+	(<i>x</i>&#8243;, <i>y</i>&#8243;, <i>z</i>&#8243;) 
+	frame is rotated about the x&#8243; -axis to yield the desired final (x, y, z) frame.
+	<note>
+		For more detailed information on yaw, pitch, and roll convention see ISO 8855:1991
+	</note>
+</ext_description>
+
+<!-- yaw -->
+<ext_description linkend="kinematic_state_schema.ypr_enumeration.yaw">
+	the angle of rotation about the z-axis;
+</ext_description>
+
+<!-- pitch -->
+<ext_description linkend="kinematic_state_schema.ypr_enumeration.pitch">
+	the angle of rotation about the y&#8242;-axis;
+</ext_description>
+
+<!-- roll -->
+<ext_description linkend="kinematic_state_schema.ypr_enumeration.roll">
+	the angle of rotation about the x&#8242;-axis.
+</ext_description>
+
+<!-- +++++++++++ ypr_rotation +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.ypr_rotation">
+	The <b>ypr_rotation</b> type is a means for specifying an ordered sequence of the angles of rotation.
+	The 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.yaw"/> 
+	value is the first, the 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.pitch"/> 
+	value the second, and the 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.roll"/> 
+	value the last element in the array.
+	The yaw rotation shall be performed first, followed by the pitch rotation.
+	The roll rotation shall be performed as the last action of a <b>ypr_rotation</b>.
+	<note>
+		An <i>EXPRESS</i> function which returns the rotation matrix corresponding to an input
+		<b>ypr_rotation</b> is given in annex E.
+		This function has been provided for applications that use this part of ISO 10303, 
+		but need the rotational transformation to be expressed in terms of a rotation
+		matrix rather than in terms of a sequence of rotation angles.
+	</note>
+</ext_description>
+
+<!-- IP1 -->
+<ext_description linkend="kinematic_state_schema.ypr_rotation.wr:IP1">
+	<p>
+	The values of the yaw, pitch, and roll angle shall be in the ranges equivalent
+	to the following ranges, where the angles are measured in radians:
+	</p>
+	<p> <i>yaw angle</i> &#8712; &#93;- &#960;, &#960;&#93;</p>
+	<p>	<i>pitch angle</i> &#8712; &#91;- &#960;/2, &#960;/2&#93;</p> 
+	<p>	<i>roll angle</i> &#8712; &#93;- &#960;, &#960;&#93;</p>	
+</ext_description>
+
+<!-- IP2 -->
+<ext_description linkend="kinematic_state_schema.ypr_rotation.wr:IP2">
+	If the absolute value of the pitch angle is equal to the equivalent
+	value of &#960;/2, the roll angle shall be zero.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: kinematic_state_schema  Entity: cylindrical_pair_value  
    <express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.cylindrical_pair_value"/>
@@ -194,10 +268,24 @@
 	shall be redeclared as the
 	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.pair_value" />
 	for the <b>mechanism_state_representation</b>.
-	There shall exist exactly one
+	There shall exist at least one
 	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.pair_value" />
 	for the <b>mechanism_state_representation</b>.
 </ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: kinematic_state_schema  Entity: mechanism_state_representation  Attribute: mechanism_relationship 
+   <express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.mechanism_state_representation.mechanism_relationship"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+  <ext_description linkend="kinematic_state_schema.mechanism_state_representation.mechanism_relationship">
+  	specifies an inverse relationship that specifies that the existence of the <b>mechanism_state_representation</b> is dependent on the existence of the  
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.mechanism_to_state_relationship"/> 
+	that specifies the <b>mechanism_state_representation</b> as its 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.mechanism_to_state_relationship.rep_2"/>.
+  	
+  </ext_description>
 
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -387,9 +475,9 @@
 <ext_description linkend="kinematic_state_schema.point_on_planar_curve_pair_value.input_orientation">
 	the input specification of the rotational pair parameter values from which the <b>actual_orientation</b> is derived.
 	An <b>input_orientation</b> is either a 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.ypr_rotation"/> 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
 	or a 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.rotation_about_direction"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -402,7 +490,7 @@
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.point_on_planar_curve_pair"/> 
 	according to the ypr notation.
 	This is derived from <b>input_orientation</b> by the function 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.convert_spatial_to_ypr_rotation"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.convert_spatial_to_ypr_rotation"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -460,9 +548,9 @@
 <ext_description linkend="kinematic_state_schema.point_on_surface_pair_value.input_orientation">
 	the input specification of the rotational pair parameter values from which the <b>actual_orientation</b> is derived.
 	An <b>input_orientation</b> is either an 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.ypr_rotation"/> 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
 	or a 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.rotation_about_direction"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -475,7 +563,7 @@
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.point_on_surface_pair"/>
 	according to the ypr notation.
 	This is derived from <b>input_orientation</b> by the function 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.convert_spatial_to_ypr_rotation"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.convert_spatial_to_ypr_rotation"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -704,6 +792,35 @@
 	of the 
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.surface_pair"/>
 	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+
+<!-- +++++++++++ rotation_about_direction +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.rotation_about_direction">
+	A <b>rotation_about_direction</b> is a type of
+	<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_item"/>
+	that specifies a rotation in Cartesian coordinate space <i>R</i><sup>3</sup>.
+	The axis of rotation passes the origin of the related coordinate system; 
+	its direction is given explicitely as <b>direction_of_axis</b>.
+	Furthermore, the amount of rotation is specified by <b>rotation_angle</b> which may have any finite value;
+	i.e., its absolute value in radians is not restricted to be less than &#960;.
+	A positive value of <b>rotation_angle</b> indicates a counter-clockwise rotation when looking in the
+	negative direction with respect to the <b>direction_of_axis</b>.
+</ext_description>
+
+<!-- direction_of_axis -->
+<ext_description linkend="kinematic_state_schema.rotation_about_direction.direction_of_axis">
+	the three-dimensional direction of the axis of rotation.
+</ext_description>
+
+<!-- rotation_angle -->
+<ext_description linkend="kinematic_state_schema.rotation_about_direction.rotation_angle">
+	the angle of rotation about the axis of rotation.
+</ext_description>
+
+<!-- WR1 -->
+<ext_description linkend="kinematic_state_schema.rotation_about_direction.wr:WR1">
+	The <b>direction_of_axis</b> shall be a three-dimensional direction.
 </ext_description>
 
 <!-- 
@@ -935,9 +1052,9 @@
 <ext_description linkend="kinematic_state_schema.spherical_pair_value.input_orientation">
 	the input specification of the pair parameter values from which the <b>actual_orientation</b> is derived.
 	An <b>input_orientation</b> is either an 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.ypr_rotation"/> 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
 	or a 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.rotation_about_direction"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -950,7 +1067,7 @@
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.spherical_pair"/> 
 	according to the ypr notation.
 	This is derived from <b>input_orientation</b> by the function 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.convert_spatial_to_ypr_rotation"/>.
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.convert_spatial_to_ypr_rotation"/>.
 </ext_description>
 
 <!-- 
@@ -1028,4 +1145,91 @@
 <ext_description linkend="kinematic_state_schema.universal_pair_value.second_rotation_angle">
 	the angle of rotation around the second axis.
 </ext_description>
+
+<!-- +++++++++++ kss_geometric_representation_item_subtypes +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.kss_geometric_representation_item_subtypes">
+	A <b>kss_geometric_representation_item_subtypes</b> is a constraint that specifies the subtypes 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/>
+	and
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.su_parameters"/>
+	of
+	<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_item"/>
+	are mutually exclusive.
+</ext_description>
+
+<!-- +++++++++++ convert_spatial_to_ypr_rotation +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.convert_spatial_to_ypr_rotation">
+	The <b>convert_spatial_to_ypr_rotation</b> function converts the specified <b>rotation</b>, which is either an 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
+	or a 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/>, 
+	to its equivalent representation as an 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/>.
+	The units for the yaw, pitch, and roll angles of the 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
+	are evaluated from the 
+	<express_ref linkend="measure_schema:ir_express:measure_schema.plane_angle_unit"/> 
+	in the 
+	<express_ref linkend="measure_schema:ir_express:measure_schema.global_unit_assigned_context.units"/> 
+	set of a 
+	<express_ref linkend="measure_schema:ir_express:measure_schema.global_unit_assigned_context"/> 
+	which is the 
+	<express_ref linkend="representation_schema:ir_express:representation_schema.representation.context_of_items"/> 
+	of the 
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_joint.edge_start"/> 
+	of the 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair.joint"/>
+	of the specified <b>pair</b>.
+	This evaluation is done by a call to the function 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.plane_angle_for_pair_in_radian"/>.
+	<p>
+		If <b>rotation</b> is already of type 
+		<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/>, 
+		it is returned immediately.
+		Otherwise, <b>convert_spatial_to_ypr_rotation</b> returns either an 
+		<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/> 
+		that is equivalent to the 
+		<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.rotation_about_direction"/> 
+		which has been used as the <b>rotation</b> argument, or an indeterminate value (?), if the unit evaluation has not been successful.
+		The type of the function is 
+		<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_rotation"/>.
+	</p>
+</ext_description>
+
+<!-- pair -->
+<ext_description linkend="kinematic_state_schema.convert_spatial_to_ypr_rotation.pair">
+	the 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>
+	the context of whose 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair.pair_placement_in_first_link_context"/> 
+	is to be evaluated with regard to the 
+	<express_ref linkend="measure_schema:ir_express:measure_schema.plane_angle_unit"/>.
+</ext_description>
+
+<!-- rotation -->
+<ext_description linkend="kinematic_state_schema.convert_spatial_to_ypr_rotation.rotation">
+	the 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.spatial_rotation"/> 
+	that is to be converted by the function.
+</ext_description>
+
+<!-- +++++++++++ ypr_index +++++++++++ -->
+<ext_description linkend="kinematic_state_schema.ypr_index">
+	The <b>ypr_index</b> function establishes an ordered sequence of angles of rotation for a linear transformation.
+	The function returns 1 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.yaw"/>.
+	The function returns 2 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.pitch"/>.
+	The function returns 3 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration.roll"/>.
+	The type of the function is INTEGER.
+</ext_description>
+
+<!-- ypr -->
+<ext_description linkend="kinematic_state_schema.ypr_index.ypr">
+	one axis of rotation as specified by the 
+	<express_ref linkend="kinematic_state_schema:ir_express:kinematic_state_schema.ypr_enumeration"/>.
+</ext_description>
+
+
 </ext_descriptions>

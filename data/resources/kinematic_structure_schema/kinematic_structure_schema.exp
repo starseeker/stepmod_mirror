@@ -92,7 +92,7 @@ END_TYPE;
 
 ENTITY mechanism_representation -- LK
   SUBTYPE OF (representation);
-  SELF\representation.items : SET[1:1] OF simple_pair_range; 
+  SELF\representation.items : SET[1:?] OF simple_pair_range; 
 INVERSE
   related_topology : kinematic_topology_to_mechanism_relationship FOR rep_2;
 END_ENTITY;
@@ -110,10 +110,23 @@ ENTITY kinematic_property_definition
   ground_definition : characterized_definition;
 END_ENTITY;
 
+TYPE kinematic_representation_select = SELECT (
+  mechanism_representation,
+  kinematic_topology_representation
+  -- mechanism_state_representation
+  );
+END_TYPE;  
+
+TYPE mechanism_representation_select = SELECT (
+  mechanism_representation
+  -- mechanism_state_representation
+  );
+END_TYPE;  
+
 ENTITY kinematic_property_representation_relation
   SUBTYPE OF (property_definition_representation);
   SELF\property_definition_representation.definition : kinematic_property_definition; -- LK
-  SELF\property_definition_representation.used_representation  : kinematic_ground_representation; -- LK
+  SELF\property_definition_representation.used_representation  : kinematic_representation_select; -- LK
 UNIQUE
   UR1: SELF\property_definition_representation.definition;
 (* LK
@@ -125,12 +138,24 @@ WHERE
 *)         
 END_ENTITY;
 
+ENTITY kinematic_property_topology_representation_with_base
+  SUBTYPE OF (kinematic_property_representation_relation);
+  SELF\property_definition_representation.used_representation  : kinematic_topology_representation; 
+  base : kinematic_link;
+END_ENTITY;
+
+ENTITY kinematic_property_mechanism_representation_relation_with_base
+  SUBTYPE OF (kinematic_property_representation_relation);
+  SELF\property_definition_representation.used_representation  : mechanism_representation_select; 
+  base : kinematic_link_representation;
+END_ENTITY;
+
 ENTITY kinematic_ground_representation
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context;
+(* LK
 INVERSE
   property : kinematic_property_representation_relation FOR used_representation;
-(* LK
 WHERE
   WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN
        TYPEOF (SELF\representation.context_of_items);
@@ -195,6 +220,8 @@ ENTITY kinematic_link_representation
 INVERSE
   link_representation_relation :
         kinematic_link_representation_relation FOR geometric_aspects;
+  associated_shape_representation : SET[0:1] OF -- LK       
+        kinematic_link_representation_association FOR rep_1;
 END_ENTITY;
 
 ENTITY kinematic_link_representation_association
@@ -238,12 +265,16 @@ ENTITY kinematic_frame_background_representation_association
   SUBTYPE OF (representation_relationship_with_transformation);
   SELF\representation_relationship_with_transformation.
     transformation_operator : kinematic_frame_based_transformation;
+  SELF\representation_relationship.rep_1 : kinematic_link_representation; -- LK for WR1
+  SELF\representation_relationship.rep_2 : kinematic_frame_background_representation; -- LK for WR2
 WHERE
+(* LK
   WR1: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN
          TYPEOF (SELF\representation_relationship.rep_1);
   WR2: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_FRAME_BACKGROUND_REPRESENTATION'
          IN TYPEOF (SELF\representation_relationship.rep_2);
-  WR3: SELF\representation_relationship_with_transformation.
+*)         
+  WR1: SELF\representation_relationship_with_transformation.   -- LK was WR3
            transformation_operator\kinematic_frame_based_transformation.
            transformator IN
          SELF\representation_relationship.rep_1.items;
@@ -539,7 +570,7 @@ ENTITY point_on_surface_pair
   pair_surface : surface;
 WHERE
   WR1: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_first_link_context, 
+         (SELF\item_defined_transformation.transform_item_1, 
          pair_surface);
 END_ENTITY;
 
@@ -586,10 +617,10 @@ ENTITY surface_pair
   orientation : BOOLEAN;
 WHERE
   WR1: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_first_link_context,
+         (SELF\item_defined_transformation.transform_item_1,
           surface_1);
   WR2: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_second_link_context,
+         (SELF\item_defined_transformation.transform_item_2,
           surface_2);
 END_ENTITY;
 
@@ -628,7 +659,7 @@ ENTITY point_on_planar_curve_pair
   orientation : BOOLEAN;
 WHERE
   WR1: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_first_link_context,
+         (SELF\item_defined_transformation.transform_item_1,
          pair_curve);
 END_ENTITY;
 
@@ -676,10 +707,10 @@ ENTITY planar_curve_pair
   orientation : BOOLEAN;
 WHERE
   WR1: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_first_link_context,
+         (SELF\item_defined_transformation.transform_item_1,
           curve_1);
   WR2: frame_associated_to_background
-         (SELF\kinematic_pair.pair_placement_in_second_link_context,
+         (SELF\item_defined_transformation.transform_item_2,
           curve_2);
 END_ENTITY;
 

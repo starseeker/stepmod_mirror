@@ -53,11 +53,8 @@
          <interfaced.item name="bag_to_set"/>
          <interfaced.item name="label"/>
       </interface>
-      <type name="kinematic_frame_background">
-         <select selectitems="point curve surface"/>
-      </type>
       <type name="kinematic_link_representation_items">
-         <select selectitems="rigid_placement surface"/>
+         <select selectitems="curve point rigid_placement surface"/>
       </type>
       <type name="rigid_placement">
          <select selectitems="axis2_placement_3d su_parameters"/>
@@ -65,21 +62,11 @@
       <type name="rotational_range_measure">
          <select selectitems="plane_angle_measure unlimited_range"/>
       </type>
-      <type name="spatial_rotation">
-         <select selectitems="ypr_rotation rotation_about_direction"/>
-      </type>
       <type name="translational_range_measure">
          <select selectitems="length_measure unlimited_range"/>
       </type>
       <type name="unlimited_range">
          <enumeration items="unlimited"/>
-      </type>
-      <type name="ypr_enumeration">
-         <enumeration items="yaw pitch roll"/>
-      </type>
-      <type name="ypr_rotation">
-         <aggregate lower="0" type="ARRAY" upper="0"/>
-         <typename name="plane_angle_measure"/>
       </type>
       <entity name="cylindrical_pair" supertypes="kinematic_pair"/>
       <entity name="cylindrical_pair_range" supertypes="simple_pair_range">
@@ -401,15 +388,6 @@
       </entity>
       <entity name="rolling_curve_pair" supertypes="planar_curve_pair"/>
       <entity name="rolling_surface_pair" supertypes="surface_pair"/>
-      <entity name="rotation_about_direction" supertypes="geometric_representation_item">
-         <explicit name="direction_of_axis">
-            <typename name="direction"/>
-         </explicit>
-         <explicit name="rotation_angle">
-            <typename name="plane_angle_measure"/>
-         </explicit>
-         <where expression="SIZEOF (direction_of_axis.direction_ratios) = 3" label="WR1"/>
-      </entity>
       <entity name="screw_pair" supertypes="kinematic_pair">
          <explicit name="pitch">
             <typename name="length_measure"/>
@@ -548,7 +526,6 @@
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_first_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_first_rotation)))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_second_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_second_rotation)))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
       </entity>
-      <subtype.constraint entity="geometric_representation_item" name="kss_geometric_representation_item_subtypes" super.expression="ONEOF (rotation_about_direction, su_parameters)"/>
       <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_representation, mechanism_representation, shape_representation)"/>
       <function name="convert_plane_angle_for_pair_from_radian">
          <parameter name="pair">
@@ -628,217 +605,12 @@
   result := angle_expr / conv_factor;
   RETURN (result);</algorithm>
       </function>
-      <function name="convert_spatial_to_ypr_rotation">
-         <parameter name="pair">
-            <typename name="kinematic_pair"/>
-         </parameter>
-         <parameter name="rotation">
-            <typename name="spatial_rotation"/>
-         </parameter>
-         <typename name="ypr_rotation"/>
-         <algorithm>LOCAL
-    axis       : direction;
-    angle      : plane_angle_measure;   -- rotation angle in application
-                                        -- specific units
-    conv_angle : plane_angle_measure;   -- rotation angle in radians
-    ya, pa, ra : plane_angle_measure;   -- yaw, pitch, and roll angle
-    ucf        : REAL;                  -- unit conversion factor
-    dx, dy, dz : REAL;                  -- components of direction vector
-    s_a, c_a   : REAL;                  -- sine and cosine of rotation angle
-    rotmat     : ARRAY [1 : 3] OF
-                 ARRAY [1 : 3] OF REAL; -- rotation matrix
-    cm1        : REAL;
-    s_y, c_y   : REAL;
-    s_r, c_r   : REAL;
-  END_LOCAL;
-
-  -- If rotation is already a ypr_rotation, return it immediately
-  IF 'KINEMATIC_STRUCTURE_SCHEMA.YPR_ROTATION' IN TYPEOF (rotation) THEN
-    RETURN (rotation);
-  END_IF;
-
-  -- rotation is a rotation_about_direction
-
-  axis  := normalise (rotation\rotation_about_direction.direction_of_axis);
-  angle := rotation\rotation_about_direction.rotation_angle;
-
-  -- a zero rotation is converted trivially
-  IF (angle = 0.0) THEN
-    RETURN ([0.0, 0.0, 0.0]);
-  END_IF;
-
-  dx := axis.direction_ratios[1];
-  dy := axis.direction_ratios[2];
-  dz := axis.direction_ratios[3];
-
-  -- provide angle measured in radian
-
-  conv_angle := plane_angle_for_pair_in_radian (pair, angle);
-
-  IF (conv_angle = ?) THEN
-    RETURN (?);
-  END_IF;
-
-  ucf := angle / conv_angle;
-  s_a := SIN (conv_angle);
-  c_a := COS (conv_angle);
-
-  -- axis parallel either to x-axis or to z-axis?
-  IF (dy = 0.0) AND (dx * dz = 0.0) THEN
-    REPEAT WHILE (conv_angle &lt;= - PI);
-      conv_angle := conv_angle + 2.0 * PI;
-    END_REPEAT;
-    REPEAT WHILE (conv_angle &gt; PI);
-      conv_angle := conv_angle - 2.0 * PI;
-    END_REPEAT;
-
-    ya := ucf * conv_angle;
-    IF (conv_angle &lt;&gt; PI) THEN
-      ra := - ya;
-    ELSE
-      ra := ya;
-    END_IF;
-
-    IF (dx &lt;&gt; 0.0) THEN
-      -- axis parallel to x-axis - use x-axis as roll axis
-      IF (dx &gt; 0.0) THEN
-        RETURN ([0.0, 0.0, ya]);
-      ELSE
-        RETURN ([0.0, 0.0, ra]);
-      END_IF;
-    ELSE
-      -- axis parallel to z-axis - use z-axis as yaw axis
-      IF (dz &gt; 0.0) THEN
-        RETURN ([ya, 0.0, 0.0]);
-      ELSE
-        RETURN ([ra, 0.0, 0.0]);
-      END_IF;
-    END_IF;
-  END_IF;
-
-  -- axis parallel to y-axis - use y-axis as pitch axis
-  IF ((dy &lt;&gt; 0.0) AND (dx = 0.0) AND (dz = 0.0)) THEN
-    IF (c_a &gt;= 0.0) THEN
-      ya := 0.0;
-      ra := 0.0;
-    ELSE
-      ya := ucf * PI;
-      ra := ya;
-    END_IF;
-
-    pa := ucf * ATAN (s_a, ABS (c_a));
-    IF (dy &lt; 0.0) THEN
-      pa := - pa;
-    END_IF;
-
-    RETURN ([ya, pa, ra]);
-  END_IF;
-
-  -- axis not parallel to any axis of coordinate system
-  -- compute rotation matrix
-
-  cm1 := 1.0 - c_a;
-
-  rotmat := [ [ dx * dx * cm1 + c_a,
-                dx * dy * cm1 - dz * s_a,
-                dx * dz * cm1 + dy * s_a ],
-              [ dx * dy * cm1 + dz * s_a,
-                dy * dy * cm1 + c_a,
-                dy * dz * cm1 - dx * s_a ],
-              [ dx * dz * cm1 - dy * s_a,
-                dy * dz * cm1 + dx * s_a,
-                dz * dz * cm1 + c_a ] ];
-
-  -- rotmat[1][3] equals SIN (pitch_angle)
-  IF (ABS (rotmat[1][3]) = 1.0) THEN
-    -- |pa| = PI/2
-    BEGIN
-      IF (rotmat[1][3] = 1.0) THEN
-        pa := 0.5 * PI;
-      ELSE
-        pa := -0.5 * PI;
-      END_IF;
-
-      -- In this case, only the sum or difference of roll and yaw angles
-      -- is relevant and can be evaluated from the matrix.
-      -- According to IP `rectangular pitch angle' for ypr_rotation,
-      -- the roll angle is set to zero.
-
-      ra := 0.0;
-      ya := ATAN (rotmat[2][1], rotmat[2][2]);
-
-      -- result of ATAN is in the range [-PI/2, PI/2].
-      -- Here all four quadrants are needed.
-
-      IF (rotmat[2][2] &lt; 0.0) THEN
-        IF ya &lt;= 0.0 THEN
-          ya := ya + PI;
-        ELSE
-          ya := ya - PI;
-        END_IF;
-      END_IF;
-    END;
-  ELSE
-    -- COS (pitch_angle) not equal to zero
-    BEGIN
-      ya := ATAN (- rotmat[1][2], rotmat[1][1]);
-
-      IF (rotmat[1][1] &lt; 0.0) THEN
-        IF (ya &lt;= 0.0) THEN
-          ya := ya + PI;
-        ELSE
-          ya := ya - PI;
-        END_IF;
-      END_IF;
-
-      ra := ATAN (-rotmat[2][3], rotmat[3][3]);
-
-      IF (rotmat[3][3] &lt; 0.0) THEN
-        IF (ra &lt;= 0.0) THEN
-          ra := ra + PI;
-        ELSE
-          ra := ra - PI;
-        END_IF;
-      END_IF;
-
-      s_y := SIN (ya);
-      c_y := COS (ya);
-      s_r := SIN (ra);
-      c_r := COS (ra);
-
-      IF ((ABS (s_y) &gt; ABS (c_y)) AND
-          (ABS (s_y) &gt; ABS (s_r)) AND
-          (ABS (s_y) &gt; ABS (c_r))) THEN
-        cm1 := - rotmat[1][2] / s_y;
-      ELSE
-        IF ((ABS (c_y) &gt; ABS (s_r)) AND (ABS (c_y) &gt; ABS (c_r))) THEN
-          cm1 := rotmat[1][1] / c_y;
-        ELSE
-          IF (ABS (s_r) &gt; ABS (c_r)) THEN
-            cm1 := - rotmat[2][3] / s_r;
-          ELSE
-            cm1 := rotmat[3][3] / c_r;
-          END_IF;
-        END_IF;
-      END_IF;
-
-      pa := ATAN (rotmat[1][3], cm1);
-
-    END;
-  END_IF;
-
-  ya := ya * ucf;
-  pa := pa * ucf;
-  ra := ra * ucf;
-
-  RETURN ([ya, pa, ra]);</algorithm>
-      </function>
       <function name="frame_associated_to_background">
          <parameter name="frame">
             <typename name="rigid_placement"/>
          </parameter>
          <parameter name="background">
-            <typename name="kinematic_frame_background"/>
+            <typename name="kinematic_link_representation_items"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>RETURN (FALSE);</algorithm>
@@ -935,18 +707,6 @@
   ELSE
     RETURN (link_rep_rel[1].geometric_aspects);
   END_IF;</algorithm>
-      </function>
-      <function name="ypr_index">
-         <parameter name="ypr">
-            <typename name="ypr_enumeration"/>
-         </parameter>
-         <builtintype type="INTEGER"/>
-         <algorithm>CASE ypr OF
-    yaw    : RETURN (1);
-    pitch  : RETURN (2);
-    roll   : RETURN (3);
-  END_CASE;
-  RETURN (?);</algorithm>
       </function>
    </schema>
 </express>

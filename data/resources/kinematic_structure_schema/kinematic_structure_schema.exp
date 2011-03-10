@@ -105,100 +105,10 @@ WHERE
   WR1: SIZEOF (direction_of_axis.direction_ratios) = 3;
 END_ENTITY;
 
-ENTITY kinematic_property_definition
-  SUBTYPE OF (property_definition);
-  ground_definition : characterized_definition;
-END_ENTITY;
-
-TYPE kinematic_representation_select = SELECT (
-  mechanism_representation,
-  kinematic_topology_representation
-  -- mechanism_state_representation
-  );
-END_TYPE;  
-
-TYPE mechanism_representation_select = SELECT (
-  mechanism_representation
-  -- mechanism_state_representation
-  );
-END_TYPE;  
-
-ENTITY kinematic_property_representation_relation
-  SUBTYPE OF (property_definition_representation);
-  SELF\property_definition_representation.definition : kinematic_property_definition; -- LK
-  SELF\property_definition_representation.used_representation  : kinematic_representation_select; -- LK
-UNIQUE
-  UR1: SELF\property_definition_representation.definition;
-(* LK
-WHERE
-  WR1: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_PROPERTY_DEFINITION'
-         IN TYPEOF (SELF\property_definition_representation.definition);
-  WR2: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION'
-         IN TYPEOF (SELF\property_definition_representation.used_representation);
-*)         
-END_ENTITY;
-
-ENTITY kinematic_property_topology_representation_with_base
-  SUBTYPE OF (kinematic_property_representation_relation);
-  SELF\property_definition_representation.used_representation  : kinematic_topology_representation; 
-  base : kinematic_link;
-END_ENTITY;
-
-ENTITY kinematic_property_mechanism_representation_relation_with_base
-  SUBTYPE OF (kinematic_property_representation_relation);
-  SELF\property_definition_representation.used_representation  : mechanism_representation_select; 
-  base : kinematic_link_representation;
-END_ENTITY;
-
-ENTITY kinematic_ground_representation
-  SUBTYPE OF (representation);
-  SELF\representation.context_of_items : geometric_representation_context;
-(* LK
-INVERSE
-  property : kinematic_property_representation_relation FOR used_representation;
-WHERE
-  WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN
-       TYPEOF (SELF\representation.context_of_items);
-*)
-END_ENTITY;
-
 ENTITY kinematic_topology_to_mechanism_relationship  -- LK
   SUBTYPE OF (definitional_representation_relationship);
   SELF\representation_relationship.rep_1 : kinematic_topology_representation;
   SELF\representation_relationship.rep_2 : mechanism_representation;
-END_ENTITY;
-
-ENTITY mechanism;
-  structure_definition : kinematic_topology_structure;
-  base                 : kinematic_link;
-  containing_property  : kinematic_property_definition;
-WHERE
-  WR1: SIZEOF (QUERY (joint <* structure_definition.joints |
-               (base :=: joint.first_link) OR
-               (base :=: joint.second_link) )) > 0;
-END_ENTITY;
-
-ENTITY mechanism_base_placement
-  SUBTYPE OF (representation_relationship_with_transformation);
-  base_of_mechanism         : mechanism;
-  SELF\representation_relationship_with_transformation.
-    transformation_operator : cartesian_transformation_operator_3d;
-DERIVE
-  SELF\representation_relationship.rep_2
-                            : kinematic_link_representation
-                            := representation_of_link (base_of_mechanism.base);
-UNIQUE
-  UR1: base_of_mechanism;
-WHERE
-  WR1: ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_1))
-       OR
-       ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_1));
-  WR2: suitably_based_mechanism (SELF, base_of_mechanism);
-  WR3: SELF\representation_relationship_with_transformation.
-         transformation_operator IN
-       SELF\representation_relationship.rep_1.items;
 END_ENTITY;
 
 ENTITY kinematic_link_representation_relationship
@@ -241,43 +151,6 @@ END_ENTITY;
 ENTITY kinematic_link_representation_relation;
   topological_aspects : kinematic_link;
   geometric_aspects   : kinematic_link_representation;
-END_ENTITY;
-
-ENTITY kinematic_frame_background_representation
-  SUBTYPE OF (representation);
-  SELF\representation.items            : SET [1 : ?] OF
-                                         kinematic_frame_background;
-  SELF\representation.context_of_items : geometric_representation_context;
-WHERE
-  WR1: SELF\representation.context_of_items\
-         geometric_representation_context.coordinate_space_dimension = 3;
-END_ENTITY;
-
-ENTITY kinematic_frame_based_transformation
-  SUBTYPE OF (geometric_representation_item,
-     functionally_defined_transformation);
-  transformator : rigid_placement;
-WHERE
-  WR1: SELF\geometric_representation_item.dim=3;
-END_ENTITY;
-
-ENTITY kinematic_frame_background_representation_association
-  SUBTYPE OF (representation_relationship_with_transformation);
-  SELF\representation_relationship_with_transformation.
-    transformation_operator : kinematic_frame_based_transformation;
-  SELF\representation_relationship.rep_1 : kinematic_link_representation; -- LK for WR1
-  SELF\representation_relationship.rep_2 : kinematic_frame_background_representation; -- LK for WR2
-WHERE
-(* LK
-  WR1: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_1);
-  WR2: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_FRAME_BACKGROUND_REPRESENTATION'
-         IN TYPEOF (SELF\representation_relationship.rep_2);
-*)         
-  WR1: SELF\representation_relationship_with_transformation.   -- LK was WR3
-           transformation_operator\kinematic_frame_based_transformation.
-           transformator IN
-         SELF\representation_relationship.rep_1.items;
 END_ENTITY;
 
 ENTITY su_parameters
@@ -813,6 +686,7 @@ FUNCTION representation_of_link (link : kinematic_link)
 END_FUNCTION;
 
 
+(*                                   
 FUNCTION suitably_based_mechanism (mbp  : mechanism_base_placement;
                                    mech : mechanism) : BOOLEAN;
   LOCAL
@@ -864,8 +738,10 @@ FUNCTION suitably_based_mechanism (mbp  : mechanism_base_placement;
       END_IF;
     END_IF;
   END_IF;
+  RETURN (TRUE);
 END_FUNCTION;
-
+*)
+(*
 FUNCTION unique_link_usage (link : kinematic_link) : BOOLEAN;
   LOCAL
     mechs  : SET OF mechanism;
@@ -893,7 +769,7 @@ FUNCTION unique_link_usage (link : kinematic_link) : BOOLEAN;
   RETURN (TRUE);
 
 END_FUNCTION;
-
+*)
 (*
 FUNCTION coordinated_pair_link_representation
     (link           : kinematic_link;
@@ -919,6 +795,7 @@ END_FUNCTION;
 FUNCTION frame_associated_to_background
   (frame      : rigid_placement;
    background : kinematic_frame_background) : BOOLEAN;
+(*   
   LOCAL
     rep_bag : BAG OF kinematic_frame_background_representation;
     trf_bag : BAG OF kinematic_frame_based_transformation;
@@ -975,7 +852,7 @@ ass_bag := QUERY ( kfbra <* USEDIN ( rep,
       END_REPEAT;
     END_IF;
   END_REPEAT;
-
+*)
   RETURN (FALSE);
 
 END_FUNCTION;
@@ -1362,14 +1239,16 @@ END_FUNCTION;
 *)
 
 SUBTYPE_CONSTRAINT kss_geometric_representation_item_subtypes FOR geometric_representation_item;
-  ONEOF (kinematic_frame_based_transformation,
+  ONEOF (
+-- kinematic_frame_based_transformation,
          rotation_about_direction,
          su_parameters);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
-  ONEOF (kinematic_frame_background_representation,
-         kinematic_ground_representation,
+  ONEOF (
+--       kinematic_frame_background_representation,
+--       kinematic_ground_representation,
          kinematic_link_representation,
          kinematic_topology_representation,
          mechanism_representation,

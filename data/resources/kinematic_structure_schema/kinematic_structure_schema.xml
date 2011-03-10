@@ -59,12 +59,6 @@
       <type name="kinematic_link_representation_items">
          <select selectitems="rigid_placement surface"/>
       </type>
-      <type name="kinematic_representation_select">
-         <select selectitems="mechanism_representation kinematic_topology_representation"/>
-      </type>
-      <type name="mechanism_representation_select">
-         <select selectitems="mechanism_representation"/>
-      </type>
       <type name="rigid_placement">
          <select selectitems="axis2_placement_3d su_parameters"/>
       </type>
@@ -142,45 +136,6 @@
       <entity name="homokinetic_pair" supertypes="universal_pair">
          <where expression="NOT EXISTS(SELF.input_skew_angle)" label="WR1"/>
       </entity>
-      <entity name="kinematic_frame_background_representation" supertypes="representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="kinematic_frame_background"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <explicit name="context_of_items">
-            <typename name="geometric_representation_context"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <where expression="SELF\representation.context_of_items\&#10;         geometric_representation_context.coordinate_space_dimension = 3" label="WR1"/>
-      </entity>
-      <entity name="kinematic_frame_background_representation_association" supertypes="representation_relationship_with_transformation">
-         <explicit name="transformation_operator">
-            <typename name="kinematic_frame_based_transformation"/>
-            <redeclaration entity-ref="representation_relationship_with_transformation"/>
-         </explicit>
-         <explicit name="rep_1">
-            <typename name="kinematic_link_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
-         </explicit>
-         <explicit name="rep_2">
-            <typename name="kinematic_frame_background_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
-         </explicit>
-         <where expression="SELF\representation_relationship_with_transformation.   -- LK was WR3&#10;           transformation_operator\kinematic_frame_based_transformation.&#10;           transformator IN&#10;         SELF\representation_relationship.rep_1.items" label="WR1"/>
-      </entity>
-      <entity name="kinematic_frame_based_transformation" supertypes="geometric_representation_item functionally_defined_transformation">
-         <explicit name="transformator">
-            <typename name="rigid_placement"/>
-         </explicit>
-         <where expression="SELF\geometric_representation_item.dim=3" label="WR1"/>
-      </entity>
-      <entity name="kinematic_ground_representation" supertypes="representation">
-         <explicit name="context_of_items">
-            <typename name="geometric_representation_context"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-      </entity>
       <entity name="kinematic_link_representation" supertypes="representation">
          <explicit name="context_of_items">
             <typename name="geometric_representation_context"/>
@@ -247,42 +202,6 @@
          <where expression="transform_item_1 IN related_link_representations.rep_1.items" label="WR3"/>
          <where expression="transform_item_2 IN related_link_representations.rep_2.items" label="WR4"/>
       </entity>
-      <entity name="kinematic_property_definition" supertypes="property_definition">
-         <explicit name="ground_definition">
-            <typename name="characterized_definition"/>
-         </explicit>
-      </entity>
-      <entity name="kinematic_property_mechanism_representation_relation_with_base" supertypes="kinematic_property_representation_relation">
-         <explicit name="used_representation">
-            <typename name="mechanism_representation_select"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-         <explicit name="base">
-            <typename name="kinematic_link_representation"/>
-         </explicit>
-      </entity>
-      <entity name="kinematic_property_representation_relation" supertypes="property_definition_representation">
-         <explicit name="definition">
-            <typename name="kinematic_property_definition"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-         <explicit name="used_representation">
-            <typename name="kinematic_representation_select"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="definition"/>
-         </unique>
-      </entity>
-      <entity name="kinematic_property_topology_representation_with_base" supertypes="kinematic_property_representation_relation">
-         <explicit name="used_representation">
-            <typename name="kinematic_topology_representation"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-         <explicit name="base">
-            <typename name="kinematic_link"/>
-         </explicit>
-      </entity>
       <entity name="kinematic_topology_to_mechanism_relationship" supertypes="definitional_representation_relationship">
          <explicit name="rep_1">
             <typename name="kinematic_topology_representation"/>
@@ -292,37 +211,6 @@
             <typename name="mechanism_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
-      </entity>
-      <entity name="mechanism">
-         <explicit name="structure_definition">
-            <typename name="kinematic_topology_structure"/>
-         </explicit>
-         <explicit name="base">
-            <typename name="kinematic_link"/>
-         </explicit>
-         <explicit name="containing_property">
-            <typename name="kinematic_property_definition"/>
-         </explicit>
-         <where expression="SIZEOF (QUERY (joint &lt;* structure_definition.joints |&#10;               (base :=: joint.first_link) OR&#10;               (base :=: joint.second_link) )) &gt; 0" label="WR1"/>
-      </entity>
-      <entity name="mechanism_base_placement" supertypes="representation_relationship_with_transformation">
-         <explicit name="base_of_mechanism">
-            <typename name="mechanism"/>
-         </explicit>
-         <explicit name="transformation_operator">
-            <typename name="cartesian_transformation_operator_3d"/>
-            <redeclaration entity-ref="representation_relationship_with_transformation"/>
-         </explicit>
-         <derived expression="representation_of_link (base_of_mechanism.base)" name="rep_2">
-            <typename name="kinematic_link_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
-         </derived>
-         <unique label="UR1">
-            <unique.attribute attribute="base_of_mechanism"/>
-         </unique>
-         <where expression="('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_1))&#10;       OR&#10;       ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_1))" label="WR1"/>
-         <where expression="suitably_based_mechanism (SELF, base_of_mechanism)" label="WR2"/>
-         <where expression="SELF\representation_relationship_with_transformation.&#10;         transformation_operator IN&#10;       SELF\representation_relationship.rep_1.items" label="WR3"/>
       </entity>
       <entity name="mechanism_representation" supertypes="representation">
          <explicit name="items">
@@ -660,8 +548,8 @@
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_first_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_first_rotation)))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_second_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_second_rotation)))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
       </entity>
-      <subtype.constraint entity="geometric_representation_item" name="kss_geometric_representation_item_subtypes" super.expression="ONEOF (kinematic_frame_based_transformation, rotation_about_direction, su_parameters)"/>
-      <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_frame_background_representation, kinematic_ground_representation, kinematic_link_representation, kinematic_topology_representation, mechanism_representation, shape_representation)"/>
+      <subtype.constraint entity="geometric_representation_item" name="kss_geometric_representation_item_subtypes" super.expression="ONEOF (rotation_about_direction, su_parameters)"/>
+      <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_representation, mechanism_representation, shape_representation)"/>
       <function name="convert_plane_angle_for_pair_from_radian">
          <parameter name="pair">
             <typename name="kinematic_pair"/>
@@ -953,64 +841,7 @@
             <typename name="kinematic_frame_background"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    rep_bag : BAG OF kinematic_frame_background_representation;
-    trf_bag : BAG OF kinematic_frame_based_transformation;
-    trm_bag : BAG OF kinematic_frame_based_transformation;
-    ass_bag : BAG OF
-              kinematic_frame_background_representation_association;
-    rep     : kinematic_frame_background_representation;
-    ass     : kinematic_frame_background_representation_association;
-  END_LOCAL;
-
-  rep_bag := QUERY ( bg &lt;* USEDIN (background,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'REPRESENTATION.ITEMS')|
-                     'KINEMATIC_STRUCTURE_SCHEMA.'+
-                     'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION' 
-                      IN TYPEOF (bg) );
-
-  IF SIZEOF (rep_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  trf_bag := USEDIN (frame,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'KINEMATIC_FRAME_BASED_TRANSFORMATION.' +
-                     'TRANSFORMATOR');
-
-  IF SIZEOF (trf_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  REPEAT i := 1 TO HIINDEX (rep_bag);
-    rep := rep_bag[i];
-
-ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
-             'KINEMATIC_STRUCTURE_SCHEMA.' +
-             'REPRESENTATION_RELATIONSHIP.REP_2') |
-             'KINEMATIC_STRUCTURE_SCHEMA.'+
-             'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION_ASSOCIATION'
-             IN TYPEOF ( kfbra ) );
-
-    IF SIZEOF (ass_bag) &gt; 0 THEN
-      REPEAT j:= 1 TO HIINDEX (ass_bag);
-        ass := ass_bag[j];
-
-        trm_bag := QUERY (trm &lt;* trf_bag |
-          (trm :=:
-           ass\representation_relationship_with_transformation.
-           transformation_operator));
-
-        IF SIZEOF (trm_bag) &gt; 0 THEN
-          RETURN (TRUE);
-        END_IF;
-
-      END_REPEAT;
-    END_IF;
-  END_REPEAT;
-
-  RETURN (FALSE);</algorithm>
+         <algorithm>RETURN (FALSE);</algorithm>
       </function>
       <function name="plane_angle_for_pair_in_radian">
          <parameter name="pair">
@@ -1104,94 +935,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
   ELSE
     RETURN (link_rep_rel[1].geometric_aspects);
   END_IF;</algorithm>
-      </function>
-      <function name="suitably_based_mechanism">
-         <parameter name="mbp">
-            <typename name="mechanism_base_placement"/>
-         </parameter>
-         <parameter name="mech">
-            <typename name="mechanism"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    kprop  : kinematic_property_definition;
-    kgrep  : kinematic_ground_representation;
-    klrep  : kinematic_link_representation;
-    klnk   : kinematic_link;
-    kjnts  : BAG OF kinematic_joint;
-    nmechs : BAG OF mechanism;
-    nmbps  : BAG OF mechanism_base_placement;
-  END_LOCAL;
-
-  kprop := mech.containing_property;
-
-  IF ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION' IN
-      TYPEOF (mbp\representation_relationship.rep_1)) THEN
-      kgrep := mbp\representation_relationship.rep_1;
-
-    IF (kgrep.property\property_definition_representation.definition
-        :=: kprop) THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  ELSE
-    klrep := mbp\representation_relationship.rep_1;
-    klnk   := klrep.link_representation_relation.topological_aspects;
-    kjnts  := USEDIN (klnk,
-            'KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_JOINT.EDGE_START') +
-              USEDIN (klnk,
-            'KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_JOINT.EDGE_END');
-    nmechs := USEDIN (kjnts[1].structure,
-         'KINEMATIC_STRUCTURE_SCHEMA.MECHANISM.STRUCTURE_DEFINITION');
-
-    IF (nmechs[1] :=: mech) THEN
-      RETURN (FALSE);
-    ELSE
-      IF (nmechs[1].containing_property :&lt;&gt;: kprop) THEN
-        RETURN (FALSE);
-      ELSE
-        nmbps := USEDIN (nmechs[1], 'KINEMATIC_STRUCTURE_SCHEMA.'+
-                        'MECHANISM_BASE_PLACEMENT.BASE_OF_MECHANISM');
-
-        IF (SIZEOF (nmbps) = 0) THEN
-          RETURN (FALSE);
-        ELSE
-          RETURN (suitably_based_mechanism (nmbps[1], mech));
-        END_IF;
-      END_IF;
-    END_IF;
-  END_IF;</algorithm>
-      </function>
-      <function name="unique_link_usage">
-         <parameter name="link">
-            <typename name="kinematic_link"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    mechs  : SET OF mechanism;
-    joints : SET OF kinematic_joint;
-    struct : kinematic_topology_structure;
-  END_LOCAL;
-  joints := bag_to_set
-              (USEDIN (link,
-                 'KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_JOINT.EDGE_START') +
-               USEDIN (link,
-                 'KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_JOINT.EDGE_END'));
-  struct := joints[1].structure;
-  REPEAT i := 2 TO SIZEOF (joints);
-    IF (joints[i].structure :&lt;&gt;: struct) THEN
-      RETURN (FALSE);
-    END_IF;
-  END_REPEAT;
-  mechs := bag_to_set
-             (USEDIN (struct,
-                'KINEMATIC_STRUCTURE_SCHEMA.MECHANISM.STRUCTURE_DEFINITION'));
-  IF (SIZEOF (mechs) &lt;&gt; 1) THEN
-    RETURN (FALSE);
-  END_IF;
-
-  RETURN (TRUE);</algorithm>
       </function>
       <function name="ypr_index">
          <parameter name="ypr">

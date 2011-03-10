@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_property_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="kinematic_property_schema">
+      <interface kind="reference" schema="kinematic_structure_schema">
+         <interfaced.item name="kinematic_link_representation"/>
+         <interfaced.item name="mechanism_representation"/>
+      </interface>
+      <interface kind="reference" schema="kinematic_state_schema">
+         <interfaced.item name="mechanism_state_representation"/>
+      </interface>
+      <interface kind="reference" schema="kinematic_topology_schema">
+         <interfaced.item name="kinematic_link"/>
+         <interfaced.item name="kinematic_topology_representation"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="property_definition"/>
+      </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="property_definition_representation"/>
+      </interface>
+      <type name="kinematic_representation_select">
+         <select selectitems="mechanism_representation kinematic_topology_representation mechanism_state_representation"/>
+      </type>
+      <type name="mechanism_representation_select">
+         <select selectitems="mechanism_representation mechanism_state_representation"/>
+      </type>
+      <entity name="kinematic_property_definition" supertypes="property_definition">
+         <inverse attribute="definition" entity="kinematic_property_representation_relation" name="representation_relation"/>
+      </entity>
+      <entity name="kinematic_property_mechanism_representation_relation_with_base" supertypes="kinematic_property_representation_relation">
+         <explicit name="used_representation">
+            <typename name="mechanism_representation_select"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
+         <explicit name="base">
+            <typename name="kinematic_link_representation"/>
+         </explicit>
+      </entity>
+      <entity name="kinematic_property_representation_relation" supertypes="property_definition_representation">
+         <explicit name="definition">
+            <typename name="kinematic_property_definition"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="kinematic_representation_select"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="definition"/>
+         </unique>
+      </entity>
+      <entity name="kinematic_property_topology_representation_with_base" supertypes="kinematic_property_representation_relation">
+         <explicit name="used_representation">
+            <typename name="kinematic_topology_representation"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
+         <explicit name="base">
+            <typename name="kinematic_link"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

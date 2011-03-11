@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_clause.xsl,v 1.8 2003/05/06 21:26:14 thendrix Exp $
+$Id: module_clause.xsl,v 1.9 2004/02/05 14:41:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -64,7 +64,7 @@ $Id: module_clause.xsl,v 1.8 2003/05/06 21:26:14 thendrix Exp $
         <xsl:apply-templates select="$module_xml/module"/>
 
         <br/><br/>
-        <p>&#169; ISO <xsl:value-of select="$module_xml/module/@publication.year"/> &#8212; All rights reserved</p>
+        <p>&#169; ISO <xsl:value-of select="substring($module_xml/module/@publication.year,1,4)"/> &#8212; All rights reserved</p>
       </xsl:element>
     </HTML>
   </xsl:template>

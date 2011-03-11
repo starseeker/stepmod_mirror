@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.47 2010/02/22 08:57:40 robbod Exp $
+$Id: sect_contents.xsl,v 1.48 2010/02/22 10:25:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -33,7 +33,7 @@ $Id: sect_contents.xsl,v 1.47 2010/02/22 08:57:40 robbod Exp $
        <xsl:apply-templates select="../module" mode="copyright"/>
        -->
   <br/><br/>
-  <p>&#169; ISO <xsl:value-of select="@publication.year"/> &#8212; All rights reserved</p>
+  <p>&#169; ISO <xsl:value-of select="substring(@publication.year,1,4)"/> &#8212; All rights reserved</p>
 </xsl:template>
 
 <xsl:template match="module" mode="contents">

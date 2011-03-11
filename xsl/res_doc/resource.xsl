@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.82 2011/02/20 10:52:33 lothartklein Exp $
+$Id: resource.xsl,v 1.83 2011/03/08 13:50:59 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -636,7 +636,8 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     <!-- THX deleted per ISO review of part 107
          PS Added back in following review of Part 61 -->
  <P>
-   <xsl:value-of select="$resdoc_stdnumber"/> specifies the integrated resource constructs for 
+   <xsl:value-of select="substring-before($resdoc_stdnumber,'(E)')"/>
+   specifies the integrated resource constructs for 
    <xsl:value-of select="$resdoc_name"/>.
  </P>
 

@@ -3,12 +3,11 @@
 SCHEMA kinematic_analysis_control_and_result_schema;
 
 REFERENCE FROM kinematic_motion_representation_schema
-    (kinematic_path,
-     motion_parameter_measure);
+    (geometric_representation_context_with_parameter,
+     link_motion_representation_along_path);
 
 REFERENCE FROM kinematic_topology_schema (
-	kinematic_joint
-);
+	kinematic_joint);
 
 REFERENCE FROM kinematic_structure_schema
     (kinematic_link_representation,
@@ -26,6 +25,13 @@ REFERENCE FROM representation_schema
     (representation,
      representation_relationship);
 
+REFERENCE FROM measure_schema
+    (measure_with_unit,
+     parameter_value);
+
+REFERENCE FROM product_property_representation_schema
+    (shape_representation);     
+
 TYPE interpolation_type = ENUMERATION OF
   (undefined,
    synchronous,
@@ -42,6 +48,11 @@ TYPE kinematic_result = SELECT
    resulting_path);
 END_TYPE;
 
+TYPE motion_parameter_measure = SELECT
+  (parameter_value,
+   measure_with_unit);
+END_TYPE;
+
 ENTITY configuration_interpolation
   SUBTYPE OF (representation_relationship);
   SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
@@ -50,26 +61,8 @@ ENTITY configuration_interpolation
 END_ENTITY ;
 
 ENTITY kinematic_control;
-  controlled_mechanism         : mechanism_representation;  -- LK
-  contained_kinematic_programs : SET [1 : ?] OF kinematic_analysis_definition;
-END_ENTITY;
-
-ENTITY founded_kinematic_path
-  SUBTYPE OF (representation);
-  SELF\representation.items RENAMED paths: SET [1 : ?] OF kinematic_path;
-  SELF\representation.context_of_items RENAMED founding:
-       geometric_representation_context;
-END_ENTITY;
-
-ENTITY motion_link_relationship
-  SUPERTYPE OF (ONEOF (prescribed_path, resulting_path))
-  SUBTYPE OF (representation_relationship);
-  SELF\representation_relationship.rep_1 RENAMED motion : founded_kinematic_path;
-  SELF\representation_relationship.rep_2 RENAMED frame_link :
-       kinematic_link_representation;
-  related_frame                          : rigid_placement;
-WHERE
-  WR1: related_frame IN frame_link\representation.items;
+  controlled_mechanism : mechanism_representation; 
+  contained_kinematic_programs : kinematic_analysis_definition;
 END_ENTITY;
 
 ENTITY configuration_definition
@@ -77,23 +70,24 @@ ENTITY configuration_definition
   t_parameter : motion_parameter_measure;
 END_ENTITY;
 
-ENTITY interpolated_configuration_sequence;
+ENTITY interpolated_configuration_sequence
+  SUBTYPE OF (shape_representation);
+--  SELF\representation.items : SET [1:?] OF xxx;
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
   interpolation : SET [1 : ?] OF configuration_interpolation;
 END_ENTITY;
 
 ENTITY prescribed_path
-  SUBTYPE OF (motion_link_relationship);
+  SUBTYPE OF (link_motion_representation_along_path);
   controlling_joints : OPTIONAL SET [1 : 6] OF kinematic_joint;
 END_ENTITY;
 
 ENTITY kinematic_analysis_result;
-  analysed_mechanism          : mechanism_representation; -- LK
-  contained_kinematic_results : SET [1 : ?] OF kinematic_result;
+  analysed_mechanism : mechanism_representation; -- LK
+  result : kinematic_result;
+(*  
 WHERE
-WR1: (SIZEOF (QUERY (result <* contained_kinematic_results |
-       'KINEMATIC_ANALYSIS_CONTROL_AND_RESULT_SCHEMA.RESULTING_PATH'
-       IN TYPEOF (result)))
-       > 0)
+WR1: ('KINEMATIC_ANALYSIS_CONTROL_AND_RESULT_SCHEMA.RESULTING_PATH' IN TYPEOF (result))
      XOR
      (SIZEOF (QUERY (result <* contained_kinematic_results |
        (('KINEMATIC_ANALYSIS_CONTROL_AND_RESULT_SCHEMA.'+
@@ -102,6 +96,7 @@ WR1: (SIZEOF (QUERY (result <* contained_kinematic_results |
        (SIZEOF (QUERY (sequence <* result\
                 interpolated_configuration_sequence.interpolation |
                 (sequence.interpolation <> undefined ))) > 0)))) = 0);
+*)                
 END_ENTITY;
 
 ENTITY kinematic_analysis_consistency;
@@ -112,8 +107,12 @@ WHERE
 END_ENTITY;
 
 ENTITY resulting_path
-  SUBTYPE OF (motion_link_relationship);
+  SUBTYPE OF (link_motion_representation_along_path);
   controlling_joints : SET [1 : ?] OF kinematic_joint;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT link_motion_representation_along_path_subtypes FOR link_motion_representation_along_path;
+          ONEOF (prescribed_path, resulting_path);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;              -- end kinematic_analysis_control_and_result_schema

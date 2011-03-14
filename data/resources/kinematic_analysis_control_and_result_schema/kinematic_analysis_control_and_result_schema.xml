@@ -6,8 +6,8 @@
    <application name="JSDAI" owner="LKSoft" source="kinematic_analysis_control_and_result_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="kinematic_analysis_control_and_result_schema">
       <interface kind="reference" schema="kinematic_motion_representation_schema">
-         <interfaced.item name="kinematic_path"/>
-         <interfaced.item name="motion_parameter_measure"/>
+         <interfaced.item name="geometric_representation_context_with_parameter"/>
+         <interfaced.item name="link_motion_representation_along_path"/>
       </interface>
       <interface kind="reference" schema="kinematic_topology_schema">
          <interfaced.item name="kinematic_joint"/>
@@ -28,6 +28,13 @@
          <interfaced.item name="representation"/>
          <interfaced.item name="representation_relationship"/>
       </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="measure_with_unit"/>
+         <interfaced.item name="parameter_value"/>
+      </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
       <type name="interpolation_type">
          <enumeration items="undefined synchronous linear"/>
       </type>
@@ -36,6 +43,9 @@
       </type>
       <type name="kinematic_result">
          <select selectitems="interpolated_configuration_sequence resulting_path"/>
+      </type>
+      <type name="motion_parameter_measure">
+         <select selectitems="parameter_value measure_with_unit"/>
       </type>
       <entity name="configuration_definition" supertypes="mechanism_state_representation">
          <explicit name="t_parameter">
@@ -55,18 +65,11 @@
             <typename name="interpolation_type"/>
          </explicit>
       </entity>
-      <entity name="founded_kinematic_path" supertypes="representation">
-         <explicit name="paths">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="kinematic_path"/>
-            <redeclaration entity-ref="representation" old_name="items"/>
+      <entity name="interpolated_configuration_sequence" supertypes="shape_representation">
+         <explicit name="context_of_items">
+            <typename name="geometric_representation_context_with_parameter"/>
+            <redeclaration entity-ref="representation"/>
          </explicit>
-         <explicit name="founding">
-            <typename name="geometric_representation_context"/>
-            <redeclaration entity-ref="representation" old_name="context_of_items"/>
-         </explicit>
-      </entity>
-      <entity name="interpolated_configuration_sequence">
          <explicit name="interpolation">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="configuration_interpolation"/>
@@ -85,46 +88,30 @@
          <explicit name="analysed_mechanism">
             <typename name="mechanism_representation"/>
          </explicit>
-         <explicit name="contained_kinematic_results">
-            <aggregate lower="1" type="SET" upper="?"/>
+         <explicit name="result">
             <typename name="kinematic_result"/>
          </explicit>
-         <where expression="(SIZEOF (QUERY (result &lt;* contained_kinematic_results |&#10;       'KINEMATIC_ANALYSIS_CONTROL_AND_RESULT_SCHEMA.RESULTING_PATH'&#10;       IN TYPEOF (result)))&#10;       &gt; 0)&#10;     XOR&#10;     (SIZEOF (QUERY (result &lt;* contained_kinematic_results |&#10;       (('KINEMATIC_ANALYSIS_CONTROL_AND_RESULT_SCHEMA.'+&#10;         'INTERPOLATED_CONFIGURATION_SEQUENCE' IN TYPEOF (result))&#10;              AND&#10;       (SIZEOF (QUERY (sequence &lt;* result\&#10;                interpolated_configuration_sequence.interpolation |&#10;                (sequence.interpolation &lt;&gt; undefined ))) &gt; 0)))) = 0)" label="WR1"/>
       </entity>
       <entity name="kinematic_control">
          <explicit name="controlled_mechanism">
             <typename name="mechanism_representation"/>
          </explicit>
          <explicit name="contained_kinematic_programs">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="kinematic_analysis_definition"/>
          </explicit>
       </entity>
-      <entity name="motion_link_relationship" super.expression="ONEOF (prescribed_path, resulting_path)" supertypes="representation_relationship">
-         <explicit name="motion">
-            <typename name="founded_kinematic_path"/>
-            <redeclaration entity-ref="representation_relationship" old_name="rep_1"/>
-         </explicit>
-         <explicit name="frame_link">
-            <typename name="kinematic_link_representation"/>
-            <redeclaration entity-ref="representation_relationship" old_name="rep_2"/>
-         </explicit>
-         <explicit name="related_frame">
-            <typename name="rigid_placement"/>
-         </explicit>
-         <where expression="related_frame IN frame_link\representation.items" label="WR1"/>
-      </entity>
-      <entity name="prescribed_path" supertypes="motion_link_relationship">
+      <entity name="prescribed_path" supertypes="link_motion_representation_along_path">
          <explicit name="controlling_joints" optional="YES">
             <aggregate lower="1" type="SET" upper="6"/>
             <typename name="kinematic_joint"/>
          </explicit>
       </entity>
-      <entity name="resulting_path" supertypes="motion_link_relationship">
+      <entity name="resulting_path" supertypes="link_motion_representation_along_path">
          <explicit name="controlling_joints">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="kinematic_joint"/>
          </explicit>
       </entity>
+      <subtype.constraint entity="link_motion_representation_along_path" name="link_motion_representation_along_path_subtypes" super.expression="ONEOF (prescribed_path, resulting_path)"/>
    </schema>
 </express>

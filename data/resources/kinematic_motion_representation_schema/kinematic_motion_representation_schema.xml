@@ -6,9 +6,12 @@
    <application name="JSDAI" owner="LKSoft" source="kinematic_motion_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="kinematic_motion_representation_schema">
       <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="axis2_placement"/>
+         <interfaced.item name="placement"/>
          <interfaced.item name="cartesian_point"/>
          <interfaced.item name="curve"/>
          <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="geometric_representation_item"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="length_measure"/>
@@ -38,8 +41,17 @@
          <interfaced.item name="spatial_rotation"/>
          <interfaced.item name="ypr_rotation"/>
       </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <type name="link_or_shape_representation">
+         <select selectitems="kinematic_link_representation shape_representation"/>
+      </type>
       <type name="motion_parameter_measure">
          <select selectitems="parameter_value measure_with_unit"/>
+      </type>
+      <type name="transform_or_placement">
+         <select selectitems="transform axis2_placement"/>
       </type>
       <entity name="circular_path" supertypes="path_element">
          <explicit name="via_point">
@@ -74,7 +86,7 @@
             <typename name="unit"/>
          </explicit>
       </entity>
-      <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="representation_item">
+      <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="geometric_representation_item">
          <where expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF)| &#10;        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0" label="WR1"/>
       </entity>
       <entity name="kinematic_path_representation_with_parameter" supertypes="representation">
@@ -91,7 +103,7 @@
       <entity name="linear_path" supertypes="path_element"/>
       <entity name="link_motion_relationship" supertypes="representation_relationship_with_transformation definitional_representation_relationship">
          <explicit name="rep_1">
-            <typename name="kinematic_link_representation"/>
+            <typename name="link_or_shape_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
          <explicit name="rep_2">
@@ -141,16 +153,16 @@
          <where expression="previous_element.node_to = next_element.node_from" label="WR1"/>
          <where expression="compare_unit_components (previous_element.node_to.t_parameter,&#10;                                next_element.node_from.t_parameter)" label="WR2"/>
       </entity>
-      <entity name="path_node">
+      <entity name="path_node" supertypes="geometric_representation_item">
          <explicit name="control_transform">
-            <typename name="transform"/>
+            <typename name="transform_or_placement"/>
          </explicit>
          <explicit name="t_parameter">
             <typename name="parameter_value"/>
          </explicit>
       </entity>
       <entity name="point_to_point_path" supertypes="path_element"/>
-      <entity name="transform" supertypes="functionally_defined_transformation">
+      <entity name="transform" supertypes="functionally_defined_transformation geometric_representation_item">
          <explicit name="rotation_component">
             <typename name="spatial_rotation"/>
          </explicit>
@@ -158,18 +170,14 @@
             <typename name="translation"/>
          </explicit>
       </entity>
-      <entity name="translation">
-         <explicit name="x">
-            <typename name="length_measure"/>
-         </explicit>
-         <explicit name="y">
-            <typename name="length_measure"/>
-         </explicit>
-         <explicit name="z">
+      <entity name="translation" supertypes="geometric_representation_item">
+         <explicit name="offset">
+            <aggregate lower="2" type="LIST" upper="3"/>
             <typename name="length_measure"/>
          </explicit>
       </entity>
       <subtype.constraint entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path)"/>
+      <subtype.constraint entity="geometric_representation_item" name="kmr_geometric_representation_item_subtypes" super.expression="ONEOF (kinematic_path, path_node, placement, transform, translation)"/>
       <function name="compare_unit_components">
          <parameter name="parm1">
             <typename name="motion_parameter_measure"/>

@@ -5,59 +5,44 @@ REFERENCE FROM kinematic_structure_schema (
   mechanism_representation
 );
 
-REFERENCE FROM kinematic_state_schema (
-  mechanism_state_representation
-);
-
 REFERENCE FROM kinematic_topology_schema (
   kinematic_link,
   kinematic_topology_representation
 );
 
 REFERENCE FROM product_property_definition_schema (
-  property_definition
+  property_definition,
+  product_definition_shape
 );
 
 REFERENCE FROM product_property_representation_schema (
   property_definition_representation
 );
 
-
-TYPE kinematic_representation_select = SELECT (
-  mechanism_representation,
-  kinematic_topology_representation,
-  mechanism_state_representation
-  );
-END_TYPE;  
-
-TYPE mechanism_representation_select = SELECT (
-  mechanism_representation,
-  mechanism_state_representation
-  );
-END_TYPE;  
-
-ENTITY kinematic_property_definition
+ENTITY product_definition_kinematics
   SUBTYPE OF (property_definition);
+  SELF\property_definition.definition : product_definition_shape;
 INVERSE
-  representation_relation : kinematic_property_representation_relation FOR definition; 
+  representation_relation : kinematic_property_definition_representation FOR definition;
+UNIQUE
+  UR1 : definition;   
 END_ENTITY;
 
-ENTITY kinematic_property_representation_relation
-  SUPERTYPE OF ( ONEOF (kinematic_property_topology_representation_with_base, kinematic_property_mechanism_representation_relation_with_base))
+ENTITY kinematic_property_definition_representation
+  ABSTRACT SUPERTYPE OF ( ONEOF (kinematic_property_topology_representation, kinematic_property_mechanism_representation_relation))
   SUBTYPE OF (property_definition_representation);
-  SELF\property_definition_representation.definition : kinematic_property_definition; -- LK
-  SELF\property_definition_representation.used_representation  : kinematic_representation_select; -- LK
+  SELF\property_definition_representation.definition : product_definition_kinematics; -- LK
 END_ENTITY;
 
-ENTITY kinematic_property_topology_representation_with_base
-  SUBTYPE OF (kinematic_property_representation_relation);
+ENTITY kinematic_property_topology_representation
+  SUBTYPE OF (kinematic_property_definition_representation);
   SELF\property_definition_representation.used_representation  : kinematic_topology_representation; 
   base : kinematic_link;
 END_ENTITY;
 
-ENTITY kinematic_property_mechanism_representation_relation_with_base
-  SUBTYPE OF (kinematic_property_representation_relation);
-  SELF\property_definition_representation.used_representation  : mechanism_representation_select; 
+ENTITY kinematic_property_mechanism_representation_relation
+  SUBTYPE OF (kinematic_property_definition_representation);
+  SELF\property_definition_representation.used_representation  : mechanism_representation; 
   base : kinematic_link_representation;
 END_ENTITY;
 

@@ -9,48 +9,33 @@
          <interfaced.item name="kinematic_link_representation"/>
          <interfaced.item name="mechanism_representation"/>
       </interface>
-      <interface kind="reference" schema="kinematic_state_schema">
-         <interfaced.item name="mechanism_state_representation"/>
-      </interface>
       <interface kind="reference" schema="kinematic_topology_schema">
          <interfaced.item name="kinematic_link"/>
          <interfaced.item name="kinematic_topology_representation"/>
       </interface>
       <interface kind="reference" schema="product_property_definition_schema">
          <interfaced.item name="property_definition"/>
+         <interfaced.item name="product_definition_shape"/>
       </interface>
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="property_definition_representation"/>
       </interface>
-      <type name="kinematic_representation_select">
-         <select selectitems="mechanism_representation kinematic_topology_representation mechanism_state_representation"/>
-      </type>
-      <type name="mechanism_representation_select">
-         <select selectitems="mechanism_representation mechanism_state_representation"/>
-      </type>
-      <entity name="kinematic_property_definition" supertypes="property_definition">
-         <inverse attribute="definition" entity="kinematic_property_representation_relation" name="representation_relation"/>
+      <entity abstract.supertype="YES" name="kinematic_property_definition_representation" super.expression="ONEOF (kinematic_property_topology_representation, kinematic_property_mechanism_representation_relation)" supertypes="property_definition_representation">
+         <explicit name="definition">
+            <typename name="product_definition_kinematics"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
       </entity>
-      <entity name="kinematic_property_mechanism_representation_relation_with_base" supertypes="kinematic_property_representation_relation">
+      <entity name="kinematic_property_mechanism_representation_relation" supertypes="kinematic_property_definition_representation">
          <explicit name="used_representation">
-            <typename name="mechanism_representation_select"/>
+            <typename name="mechanism_representation"/>
             <redeclaration entity-ref="property_definition_representation"/>
          </explicit>
          <explicit name="base">
             <typename name="kinematic_link_representation"/>
          </explicit>
       </entity>
-      <entity name="kinematic_property_representation_relation" super.expression="ONEOF (kinematic_property_topology_representation_with_base, kinematic_property_mechanism_representation_relation_with_base)" supertypes="property_definition_representation">
-         <explicit name="definition">
-            <typename name="kinematic_property_definition"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-         <explicit name="used_representation">
-            <typename name="kinematic_representation_select"/>
-            <redeclaration entity-ref="property_definition_representation"/>
-         </explicit>
-      </entity>
-      <entity name="kinematic_property_topology_representation_with_base" supertypes="kinematic_property_representation_relation">
+      <entity name="kinematic_property_topology_representation" supertypes="kinematic_property_definition_representation">
          <explicit name="used_representation">
             <typename name="kinematic_topology_representation"/>
             <redeclaration entity-ref="property_definition_representation"/>
@@ -58,6 +43,16 @@
          <explicit name="base">
             <typename name="kinematic_link"/>
          </explicit>
+      </entity>
+      <entity name="product_definition_kinematics" supertypes="property_definition">
+         <explicit name="definition">
+            <typename name="product_definition_shape"/>
+            <redeclaration entity-ref="property_definition"/>
+         </explicit>
+         <inverse attribute="definition" entity="kinematic_property_definition_representation" name="representation_relation"/>
+         <unique label="UR1">
+            <unique.attribute attribute="definition"/>
+         </unique>
       </entity>
    </schema>
 </express>

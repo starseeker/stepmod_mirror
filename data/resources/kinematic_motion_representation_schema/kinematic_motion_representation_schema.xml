@@ -47,9 +47,6 @@
       <type name="link_or_shape_representation">
          <select selectitems="kinematic_link_representation shape_representation"/>
       </type>
-      <type name="motion_parameter_measure">
-         <select selectitems="parameter_value measure_with_unit"/>
-      </type>
       <type name="transform_or_placement">
          <select selectitems="transform axis2_placement"/>
       </type>
@@ -71,9 +68,8 @@
          <explicit name="t_end">
             <typename name="parameter_value"/>
          </explicit>
-         <where expression="increasing_measure_value (t_start, t_end)" label="WR1"/>
-         <where expression="compare_unit_components (t_start, t_end)" label="WR2"/>
-         <where expression="connected_in_simple_path (elements)" label="WR3"/>
+         <where expression="t_start &lt; t_end" label="WR1"/>
+         <where expression="connected_in_simple_path (elements)" label="WR2"/>
       </entity>
       <entity name="curve_based_path" supertypes="path_element">
          <explicit name="path_curve">
@@ -140,8 +136,7 @@
          <explicit name="node_to">
             <typename name="path_node"/>
          </explicit>
-         <where expression="compare_unit_components (node_from.t_parameter,&#10;                                node_to.t_parameter)" label="WR1"/>
-         <where expression="increasing_measure_value (node_from.t_parameter,&#10;                                 node_to.t_parameter)" label="WR2"/>
+         <where expression="node_from.t_parameter &lt; node_to.t_parameter" label="WR1"/>
       </entity>
       <entity name="path_element_connection" supertypes="founded_item">
          <explicit name="previous_element">
@@ -151,7 +146,6 @@
             <typename name="path_element"/>
          </explicit>
          <where expression="previous_element.node_to = next_element.node_from" label="WR1"/>
-         <where expression="compare_unit_components (previous_element.node_to.t_parameter,&#10;                                next_element.node_from.t_parameter)" label="WR2"/>
       </entity>
       <entity name="path_node" supertypes="geometric_representation_item">
          <explicit name="control_transform">
@@ -178,30 +172,6 @@
       </entity>
       <subtype.constraint entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path)"/>
       <subtype.constraint entity="geometric_representation_item" name="kmr_geometric_representation_item_subtypes" super.expression="ONEOF (kinematic_path, path_node, placement, transform, translation)"/>
-      <function name="compare_unit_components">
-         <parameter name="parm1">
-            <typename name="motion_parameter_measure"/>
-         </parameter>
-         <parameter name="parm2">
-            <typename name="motion_parameter_measure"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>IF (('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) AND
-       ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm2))) THEN
-         RETURN (TRUE);
-   ELSE
-     IF (('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) AND
-         ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm2))) THEN
-        IF (parm1.unit_component :=: parm2.unit_component) THEN
-           RETURN (TRUE);
-        ELSE
-           RETURN (FALSE);
-        END_IF;
-     ELSE
-       RETURN (FALSE);
-     END_IF;
-  END_IF;</algorithm>
-      </function>
       <function name="connected_in_simple_path">
          <parameter name="connections">
             <aggregate lower="0" type="SET" upper="?"/>
@@ -244,32 +214,6 @@
     END_IF;
   ELSE
     RETURN (TRUE);
-  END_IF;</algorithm>
-      </function>
-      <function name="increasing_measure_value">
-         <parameter name="parm1">
-            <typename name="motion_parameter_measure"/>
-         </parameter>
-         <parameter name="parm2">
-            <typename name="motion_parameter_measure"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>IF ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) THEN
-    IF (parm1 &lt; parm2)  THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  ELSE
-    IF ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) THEN
-      IF (parm1.value_component &lt; parm2.value_component) THEN
-        RETURN (TRUE);
-      ELSE
-        RETURN (FALSE);
-      END_IF;
-    ELSE
-      RETURN (FALSE);
-    END_IF;
   END_IF;</algorithm>
       </function>
       <function name="non_coincident_coordinates">

@@ -39,12 +39,7 @@ REFERENCE FROM kinematic_state_schema
      ypr_rotation);
 
 REFERENCE FROM product_property_representation_schema
-    (Shape_representation);     
-
-TYPE motion_parameter_measure = SELECT
-  (parameter_value,
-   measure_with_unit);
-END_TYPE;
+    (shape_representation);     
 
 TYPE link_or_shape_representation = SELECT(
   kinematic_link_representation,
@@ -118,8 +113,6 @@ ENTITY path_element_connection
   next_element         : path_element;
 WHERE
   WR1: previous_element.node_to = next_element.node_from;
-  WR2: compare_unit_components (previous_element.node_to.t_parameter,
-                                next_element.node_from.t_parameter);
 END_ENTITY;
 
 ENTITY composite_path
@@ -128,9 +121,8 @@ ENTITY composite_path
   t_start : parameter_value;
   t_end : parameter_value;
 WHERE
-  WR1: increasing_measure_value (t_start, t_end);
-  WR2: compare_unit_components (t_start, t_end);
-  WR3: connected_in_simple_path (elements);
+  WR1: t_start < t_end;
+  WR2: connected_in_simple_path (elements);
 END_ENTITY;
 
 ENTITY path_element
@@ -142,10 +134,7 @@ ENTITY path_element
   node_from : path_node;
   node_to   : path_node;
 WHERE
-  WR1: compare_unit_components (node_from.t_parameter,
-                                node_to.t_parameter);
-  WR2: increasing_measure_value (node_from.t_parameter,
-                                 node_to.t_parameter);
+  WR1: node_from.t_parameter < node_to.t_parameter;
 END_ENTITY;
 
 ENTITY point_to_point_path
@@ -215,46 +204,6 @@ FUNCTION connected_in_simple_path (connections : SET OF path_element_connection)
     END_IF;
   ELSE
     RETURN (TRUE);
-  END_IF;
-END_FUNCTION;
-
-FUNCTION compare_unit_components (parm1 : motion_parameter_measure;
-                                  parm2 : motion_parameter_measure) : BOOLEAN;
-   IF (('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) AND
-       ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm2))) THEN
-         RETURN (TRUE);
-   ELSE
-     IF (('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) AND
-         ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm2))) THEN
-        IF (parm1.unit_component :=: parm2.unit_component) THEN
-           RETURN (TRUE);
-        ELSE
-           RETURN (FALSE);
-        END_IF;
-     ELSE
-       RETURN (FALSE);
-     END_IF;
-  END_IF;
-END_FUNCTION;
-
-FUNCTION increasing_measure_value (parm1 : motion_parameter_measure;
-                                   parm2 : motion_parameter_measure) : BOOLEAN;
-  IF ('MEASURE_SCHEMA.PARAMETER_VALUE' IN TYPEOF (parm1)) THEN
-    IF (parm1 < parm2)  THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  ELSE
-    IF ('MEASURE_SCHEMA.MEASURE_WITH_UNIT' IN TYPEOF (parm1)) THEN
-      IF (parm1.value_component < parm2.value_component) THEN
-        RETURN (TRUE);
-      ELSE
-        RETURN (FALSE);
-      END_IF;
-    ELSE
-      RETURN (FALSE);
-    END_IF;
   END_IF;
 END_FUNCTION;
 

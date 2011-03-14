@@ -4,17 +4,31 @@ SCHEMA kinematic_motion_representation_schema;
 
 REFERENCE FROM geometry_schema
     (cartesian_point,
-     curve);
+     curve,
+     geometric_representation_context);
 
 REFERENCE FROM measure_schema
     (length_measure,
      measure_with_unit,
      parameter_value,
-     plane_angle_measure);
+     plane_angle_measure,
+     unit);
 
 REFERENCE FROM representation_schema
-    (functionally_defined_transformation,
-     representation_item);
+    (founded_item,
+     functionally_defined_transformation,
+     item_defined_transformation,
+     item_in_context,
+     representation,
+     representation_item,
+     representation_relationship,
+     definitional_representation_relationship,
+     representation_relationship_with_transformation,
+     using_representations);
+     
+REFERENCE FROM kinematic_structure_schema
+	(kinematic_link_representation,
+	 rigid_placement);     
 
 REFERENCE FROM kinematic_state_schema
     (rotation_about_direction,
@@ -25,6 +39,39 @@ TYPE motion_parameter_measure = SELECT
   (parameter_value,
    measure_with_unit);
 END_TYPE;
+
+ENTITY link_motion_relationship
+  SUBTYPE OF (representation_relationship_with_transformation, definitional_representation_relationship);
+  SELF\representation_relationship.rep_1 : kinematic_link_representation;
+  SELF\representation_relationship.rep_2 : link_motion_representation_along_path;
+  SELF\representation_relationship_with_transformation.transformation_operator : link_motion_transformation;
+WHERE
+  WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
+  WR2: item_in_context(transformation_operator\item_defined_transformation.transform_item_2, rep_2);
+END_ENTITY;
+
+ENTITY link_motion_transformation
+  SUBTYPE OF (item_defined_transformation);
+  SELF\item_defined_transformation.transform_item_1 : rigid_placement;
+  SELF\item_defined_transformation.transform_item_2 : kinematic_path;
+END_ENTITY;
+
+ENTITY link_motion_representation_along_path
+  SUBTYPE OF (representation);
+--  SELF\representation.items : SET [1:?] OF xxx;
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
+END_ENTITY;
+
+ENTITY kinematic_path_representation_with_parameter
+  SUBTYPE OF (representation);
+  SELF\representation.items : SET [1:?] OF kinematic_path;
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
+END_ENTITY;
+
+ENTITY geometric_representation_context_with_parameter 
+  SUBTYPE OF (geometric_representation_context);
+  parameter_unit : OPTIONAL unit;
+END_ENTITY;
 
 ENTITY translation;
   x : length_measure;
@@ -40,15 +87,19 @@ END_ENTITY;
 
 ENTITY path_node;
   control_transform : transform;
-  t_parameter       : motion_parameter_measure;
+  t_parameter       : parameter_value;
 END_ENTITY;
 
 ENTITY kinematic_path
   SUPERTYPE OF (ONEOF (path_element, composite_path))
   SUBTYPE OF (representation_item);
+WHERE
+  WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
+        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
 END_ENTITY;
 
-ENTITY path_element_connection;
+ENTITY path_element_connection
+  SUBTYPE OF (founded_item);
   previous_element     : path_element;
   next_element         : path_element;
 WHERE
@@ -59,9 +110,9 @@ END_ENTITY;
 
 ENTITY composite_path
   SUBTYPE OF (kinematic_path);
-  elements : SET [1 : ?] OF path_element_connection;
-  t_start  : motion_parameter_measure;
-  t_end    : motion_parameter_measure;
+  elements : SET [1:?] OF path_element_connection;
+  t_start : parameter_value;
+  t_end : parameter_value;
 WHERE
   WR1: increasing_measure_value (t_start, t_end);
   WR2: compare_unit_components (t_start, t_end);
@@ -203,5 +254,9 @@ FUNCTION non_coincident_coordinates (crtpt : cartesian_point;
     RETURN (TRUE);
   END_IF;
 END_FUNCTION;
+
+SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
+  ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;   -- end kinematic_motion_representation_schema

@@ -8,18 +8,32 @@
       <interface kind="reference" schema="geometry_schema">
          <interfaced.item name="cartesian_point"/>
          <interfaced.item name="curve"/>
+         <interfaced.item name="geometric_representation_context"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="length_measure"/>
          <interfaced.item name="measure_with_unit"/>
          <interfaced.item name="parameter_value"/>
          <interfaced.item name="plane_angle_measure"/>
+         <interfaced.item name="unit"/>
       </interface>
       <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="founded_item"/>
          <interfaced.item name="functionally_defined_transformation"/>
+         <interfaced.item name="item_defined_transformation"/>
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="representation"/>
          <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="definitional_representation_relationship"/>
+         <interfaced.item name="representation_relationship_with_transformation"/>
+         <interfaced.item name="using_representations"/>
       </interface>
       <interface kind="reference" schema="kinematic_structure_schema">
+         <interfaced.item name="kinematic_link_representation"/>
+         <interfaced.item name="rigid_placement"/>
+      </interface>
+      <interface kind="reference" schema="kinematic_state_schema">
          <interfaced.item name="rotation_about_direction"/>
          <interfaced.item name="spatial_rotation"/>
          <interfaced.item name="ypr_rotation"/>
@@ -40,10 +54,10 @@
             <typename name="path_element_connection"/>
          </explicit>
          <explicit name="t_start">
-            <typename name="motion_parameter_measure"/>
+            <typename name="parameter_value"/>
          </explicit>
          <explicit name="t_end">
-            <typename name="motion_parameter_measure"/>
+            <typename name="parameter_value"/>
          </explicit>
          <where expression="increasing_measure_value (t_start, t_end)" label="WR1"/>
          <where expression="compare_unit_components (t_start, t_end)" label="WR2"/>
@@ -55,8 +69,58 @@
          </explicit>
          <where expression="SELF\path_element.node_to.control_transform.translation_component &lt;&gt;&#10;       SELF\path_element.node_from.control_transform.translation_component" label="WR1"/>
       </entity>
-      <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="representation_item"/>
+      <entity name="geometric_representation_context_with_parameter" supertypes="geometric_representation_context">
+         <explicit name="parameter_unit" optional="YES">
+            <typename name="unit"/>
+         </explicit>
+      </entity>
+      <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="representation_item">
+         <where expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF)| &#10;        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0" label="WR1"/>
+      </entity>
+      <entity name="kinematic_path_representation_with_parameter" supertypes="representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="kinematic_path"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+         <explicit name="context_of_items">
+            <typename name="geometric_representation_context_with_parameter"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
       <entity name="linear_path" supertypes="path_element"/>
+      <entity name="link_motion_relationship" supertypes="representation_relationship_with_transformation definitional_representation_relationship">
+         <explicit name="rep_1">
+            <typename name="kinematic_link_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="link_motion_representation_along_path"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="transformation_operator">
+            <typename name="link_motion_transformation"/>
+            <redeclaration entity-ref="representation_relationship_with_transformation"/>
+         </explicit>
+         <where expression="rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1)" label="WR1"/>
+         <where expression="item_in_context(transformation_operator\item_defined_transformation.transform_item_2, rep_2)" label="WR2"/>
+      </entity>
+      <entity name="link_motion_representation_along_path" supertypes="representation">
+         <explicit name="context_of_items">
+            <typename name="geometric_representation_context_with_parameter"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
+      <entity name="link_motion_transformation" supertypes="item_defined_transformation">
+         <explicit name="transform_item_1">
+            <typename name="rigid_placement"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
+         </explicit>
+         <explicit name="transform_item_2">
+            <typename name="kinematic_path"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
+         </explicit>
+      </entity>
       <entity name="path_element" super.expression="ONEOF (point_to_point_path, circular_path, linear_path, curve_based_path)" supertypes="kinematic_path">
          <explicit name="node_from">
             <typename name="path_node"/>
@@ -67,7 +131,7 @@
          <where expression="compare_unit_components (node_from.t_parameter,&#10;                                node_to.t_parameter)" label="WR1"/>
          <where expression="increasing_measure_value (node_from.t_parameter,&#10;                                 node_to.t_parameter)" label="WR2"/>
       </entity>
-      <entity name="path_element_connection">
+      <entity name="path_element_connection" supertypes="founded_item">
          <explicit name="previous_element">
             <typename name="path_element"/>
          </explicit>
@@ -82,7 +146,7 @@
             <typename name="transform"/>
          </explicit>
          <explicit name="t_parameter">
-            <typename name="motion_parameter_measure"/>
+            <typename name="parameter_value"/>
          </explicit>
       </entity>
       <entity name="point_to_point_path" supertypes="path_element"/>
@@ -105,6 +169,7 @@
             <typename name="length_measure"/>
          </explicit>
       </entity>
+      <subtype.constraint entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path)"/>
       <function name="compare_unit_components">
          <parameter name="parm1">
             <typename name="motion_parameter_measure"/>

@@ -48,6 +48,7 @@
          <interfaced.item name="representation_item"/>
          <interfaced.item name="representation_relationship"/>
          <interfaced.item name="representation_relationship_with_transformation"/>
+         <interfaced.item name="using_representations"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="bag_to_set"/>
@@ -133,7 +134,9 @@
             <typename name="kinematic_link_representation_items"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <inverse attribute="geometric_aspects" entity="kinematic_link_representation_relation" name="link_representation_relation"/>
+         <explicit name="represented_link">
+            <typename name="kinematic_link"/>
+         </explicit>
          <inverse attribute="rep_1" entity="kinematic_link_representation_association" name="associated_shape_representation">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
@@ -149,15 +152,36 @@
          </explicit>
          <where expression="SELF\representation_relationship.rep_2.context_of_items :=:&#10;       SELF\representation_relationship.rep_1.context_of_items" label="WR1"/>
       </entity>
-      <entity name="kinematic_link_representation_relation">
-         <explicit name="topological_aspects">
-            <typename name="kinematic_link"/>
+      <entity abstract.supertype="YES" name="kinematic_pair" super.expression="ONEOF (revolute_pair, screw_pair, cylindrical_pair, spherical_pair, universal_pair, planar_pair, unconstrained_pair, fully_constrained_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, prismatic_pair, gear_pair, rack_and_pinion_pair, surface_pair)" supertypes="item_defined_transformation geometric_representation_item">
+         <explicit name="joint">
+            <typename name="kinematic_joint"/>
          </explicit>
-         <explicit name="geometric_aspects">
-            <typename name="kinematic_link_representation"/>
+         <explicit name="transform_item_1">
+            <typename name="rigid_placement"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
+         </explicit>
+         <explicit name="transform_item_2">
+            <typename name="rigid_placement"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
          </explicit>
       </entity>
-      <entity name="kinematic_link_representation_relationship" supertypes="representation_relationship_with_transformation">
+      <entity name="mechanism_representation" supertypes="representation">
+         <explicit name="context_of_items">
+            <typename name="geometric_representation_context"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="pair_representation_relationship"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+         <explicit name="underlying_topology">
+            <typename name="kinematic_topology_representation"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (item &lt;* items | &#10;    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (underlying_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))&#10;    )) = 0" label="WR1"/>
+      </entity>
+      <entity name="pair_actuator" supertypes="simple_pair_range"/>
+      <entity name="pair_representation_relationship" supertypes="representation_relationship_with_transformation geometric_representation_item">
          <explicit name="rep_1">
             <typename name="kinematic_link_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
@@ -170,44 +194,11 @@
             <typename name="kinematic_pair"/>
             <redeclaration entity-ref="representation_relationship_with_transformation"/>
          </explicit>
+         <where expression="rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1)" label="WR1"/>
+         <where expression="rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2)" label="WR2"/>
+         <where expression="rep_1\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.first_link" label="WR3"/>
+         <where expression="rep_2\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.second_link" label="WR4"/>
       </entity>
-      <entity abstract.supertype="YES" name="kinematic_pair" super.expression="ONEOF (revolute_pair, screw_pair, cylindrical_pair, spherical_pair, universal_pair, planar_pair, unconstrained_pair, fully_constrained_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, prismatic_pair, gear_pair, rack_and_pinion_pair, surface_pair)" supertypes="item_defined_transformation">
-         <explicit name="joint">
-            <typename name="kinematic_joint"/>
-         </explicit>
-         <explicit name="transform_item_1">
-            <typename name="rigid_placement"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </explicit>
-         <explicit name="transform_item_2">
-            <typename name="rigid_placement"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </explicit>
-         <inverse attribute="transformation_operator" entity="kinematic_link_representation_relationship" name="related_link_representations"/>
-         <where expression="joint.first_link  = related_link_representations.rep_1.link_representation_relation.topological_aspects" label="WR1"/>
-         <where expression="joint.second_link = related_link_representations.rep_2.link_representation_relation.topological_aspects" label="WR2"/>
-         <where expression="transform_item_1 IN related_link_representations.rep_1.items" label="WR3"/>
-         <where expression="transform_item_2 IN related_link_representations.rep_2.items" label="WR4"/>
-      </entity>
-      <entity name="kinematic_topology_to_mechanism_relationship" supertypes="definitional_representation_relationship">
-         <explicit name="rep_1">
-            <typename name="kinematic_topology_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
-         </explicit>
-         <explicit name="rep_2">
-            <typename name="mechanism_representation"/>
-            <redeclaration entity-ref="representation_relationship"/>
-         </explicit>
-      </entity>
-      <entity name="mechanism_representation" supertypes="representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="simple_pair_range"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <inverse attribute="rep_2" entity="kinematic_topology_to_mechanism_relationship" name="related_topology"/>
-      </entity>
-      <entity name="pair_actuator" supertypes="simple_pair_range"/>
       <entity name="planar_curve_pair" supertypes="kinematic_pair">
          <explicit name="curve_1">
             <typename name="curve"/>
@@ -406,10 +397,22 @@
          </explicit>
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
       </entity>
-      <entity name="simple_pair_range" super.expression="ONEOF (revolute_pair_range, prismatic_pair_range, screw_pair_range, cylindrical_pair_range, spherical_pair_range, universal_pair_range, planar_pair_range, point_on_surface_pair_range, surface_pair_range, point_on_planar_curve_pair_range, planar_curve_pair_range, gear_pair_range, rack_and_pinion_pair_range) ANDOR pair_actuator" supertypes="geometric_representation_item">
+      <entity abstract.supertype="YES" name="simple_pair_range" super.expression="ONEOF (revolute_pair_range, prismatic_pair_range, screw_pair_range, cylindrical_pair_range, spherical_pair_range, universal_pair_range, planar_pair_range, point_on_surface_pair_range, surface_pair_range, point_on_planar_curve_pair_range, planar_curve_pair_range, gear_pair_range, rack_and_pinion_pair_range) ANDOR pair_actuator" supertypes="kinematic_pair">
          <explicit name="applies_to_pair">
             <typename name="kinematic_pair"/>
          </explicit>
+         <derived expression="applies_to_pair.transform_item_1" name="transform_item_1">
+            <typename name="rigid_placement"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
+         </derived>
+         <derived expression="applies_to_pair.transform_item_2" name="transform_item_2">
+            <typename name="rigid_placement"/>
+            <redeclaration entity-ref="item_defined_transformation"/>
+         </derived>
+         <derived expression="applies_to_pair.joint" name="joint">
+            <typename name="kinematic_joint"/>
+            <redeclaration entity-ref="kinematic_pair"/>
+         </derived>
       </entity>
       <entity name="sliding_curve_pair" supertypes="planar_curve_pair"/>
       <entity name="sliding_surface_pair" supertypes="surface_pair"/>
@@ -504,7 +507,6 @@
          <derived expression="NVL (input_skew_angle, 0.0)" name="skew_angle">
             <typename name="plane_angle_measure"/>
          </derived>
-         <where expression="COS (plane_angle_for_pair_in_radian (SELF, skew_angle))&#10;       &gt; 0.0" label="WR1"/>
       </entity>
       <entity name="universal_pair_range" supertypes="simple_pair_range">
          <explicit name="applies_to_pair">
@@ -526,7 +528,7 @@
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_first_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_first_rotation)))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
          <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_second_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_second_rotation)))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
       </entity>
-      <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_representation, mechanism_representation, shape_representation)"/>
+      <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_structure, kinematic_topology_directed_structure, kinematic_topology_network_structure, mechanism_representation, shape_representation)"/>
       <function name="convert_plane_angle_for_pair_from_radian">
          <parameter name="pair">
             <typename name="kinematic_pair"/>
@@ -695,18 +697,7 @@
             <typename name="kinematic_link"/>
          </parameter>
          <typename name="kinematic_link_representation"/>
-         <algorithm>LOCAL
-    link_rep_rel : BAG OF kinematic_link_representation_relation;
-  END_LOCAL;
-
-  link_rep_rel := USEDIN (link, 'KINEMATIC_STRUCTURE_SCHEMA.'+
-                                'KINEMATIC_LINK_REPRESENTATION_RELATION.'+
-                                'TOPOLOGICAL_ASPECTS');
-  IF (SIZEOF (link_rep_rel) = 0) THEN
-    RETURN (?);
-  ELSE
-    RETURN (link_rep_rel[1].geometric_aspects);
-  END_IF;</algorithm>
+         <algorithm>RETURN (?);</algorithm>
       </function>
    </schema>
 </express>

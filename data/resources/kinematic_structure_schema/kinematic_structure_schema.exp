@@ -1,7 +1,7 @@
 
 SCHEMA kinematic_structure_schema;
 
-REFERENCE FROM kinematic_topology_schema; --LK
+REFERENCE FROM kinematic_topology_schema; 
 
 REFERENCE FROM geometry_schema
     (axis2_placement_3d,
@@ -44,7 +44,8 @@ REFERENCE FROM representation_schema
      representation_context,
      representation_item,
      representation_relationship,
-     representation_relationship_with_transformation);
+     representation_relationship_with_transformation,
+     using_representations);
 
 REFERENCE FROM support_resource_schema
     (bag_to_set,
@@ -69,25 +70,32 @@ TYPE unlimited_range = ENUMERATION OF
   (unlimited);
 END_TYPE;
 
-
-ENTITY mechanism_representation -- LK
+ENTITY mechanism_representation 
   SUBTYPE OF (representation);
-  SELF\representation.items : SET[1:?] OF simple_pair_range; 
-INVERSE
-  related_topology : kinematic_topology_to_mechanism_relationship FOR rep_2;
+  SELF\representation.context_of_items : geometric_representation_context;
+  SELF\representation.items : SET[1:?] OF pair_representation_relationship;
+  underlying_topology : kinematic_topology_representation;
+WHERE  
+  WR1: SIZEOF (QUERY (item <* items | 
+    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))
+    OR
+    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))
+    OR
+    NOT (underlying_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))
+    )) = 0;
 END_ENTITY;
+(* WR1: All items that are of type pair_representation_relationship shall refer to kinematic_links and kinematic_joints that are used by the underlying_topology representation.*)
 
-ENTITY kinematic_topology_to_mechanism_relationship  -- LK
-  SUBTYPE OF (definitional_representation_relationship);
-  SELF\representation_relationship.rep_1 : kinematic_topology_representation;
-  SELF\representation_relationship.rep_2 : mechanism_representation;
-END_ENTITY;
-
-ENTITY kinematic_link_representation_relationship
-  SUBTYPE OF (representation_relationship_with_transformation);
+ENTITY pair_representation_relationship
+  SUBTYPE OF (representation_relationship_with_transformation, geometric_representation_item);
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
   SELF\representation_relationship.rep_2 : kinematic_link_representation;
   SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
+WHERE
+  WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
+  WR2: rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2);
+  WR3: rep_1\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.first_link; 
+  WR4: rep_2\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.second_link; 
 END_ENTITY;
 
 TYPE kinematic_link_representation_items = SELECT (
@@ -101,9 +109,8 @@ ENTITY kinematic_link_representation
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF kinematic_link_representation_items;
+  represented_link : kinematic_link;
 INVERSE
-  link_representation_relation :
-        kinematic_link_representation_relation FOR geometric_aspects;
   associated_shape_representation : SET[0:1] OF -- LK       
         kinematic_link_representation_association FOR rep_1;
 END_ENTITY;
@@ -115,16 +122,6 @@ ENTITY kinematic_link_representation_association
 WHERE
   WR1: SELF\representation_relationship.rep_2.context_of_items :=:
        SELF\representation_relationship.rep_1.context_of_items;
-(* LK
-  WR2: SIZEOF (['KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION',
-                'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION'] *
-               TYPEOF (SELF\representation_relationship.rep_2)) = 0;
-*)               
-END_ENTITY;
-
-ENTITY kinematic_link_representation_relation;
-  topological_aspects : kinematic_link;
-  geometric_aspects   : kinematic_link_representation;
 END_ENTITY;
 
 ENTITY su_parameters
@@ -156,34 +153,10 @@ ENTITY kinematic_pair
     gear_pair,
     rack_and_pinion_pair,
     surface_pair))  
-  SUBTYPE OF (item_defined_transformation);
+  SUBTYPE OF (item_defined_transformation, geometric_representation_item);
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
-(* LK
-DERIVE
-  pair_placement_in_first_link_context
-        : rigid_placement
-        := SELF\item_defined_transformation.transform_item_1;
-  pair_placement_in_second_link_context
-        : rigid_placement
-        := SELF\item_defined_transformation.transform_item_2;
-UNIQUE
-  UR1: joint;
-*)        
-INVERSE
-  related_link_representations : kinematic_link_representation_relationship FOR transformation_operator;
-WHERE
-  WR1: joint.first_link  = related_link_representations.rep_1.link_representation_relation.topological_aspects;
-  WR2: joint.second_link = related_link_representations.rep_2.link_representation_relation.topological_aspects;
-  WR3: transform_item_1 IN related_link_representations.rep_1.items;
-  WR4: transform_item_2 IN related_link_representations.rep_2.items;
-(* LK  
-  WR1: coordinated_pair_link_representation
-         (joint.first_link, transform_item_1);
-  WR2: coordinated_pair_link_representation
-         (joint.second_link, transform_item_2);
-*)         
 END_ENTITY;
 
 ENTITY pair_actuator
@@ -191,7 +164,7 @@ ENTITY pair_actuator
 END_ENTITY;
 
 ENTITY simple_pair_range
-  SUPERTYPE OF ( ONEOF(
+  ABSTRACT SUPERTYPE OF ( ONEOF(
     revolute_pair_range,
     prismatic_pair_range,
     screw_pair_range,
@@ -206,8 +179,12 @@ ENTITY simple_pair_range
     gear_pair_range,
     rack_and_pinion_pair_range
     ) ANDOR pair_actuator)
-  SUBTYPE OF (geometric_representation_item);
+  SUBTYPE OF (kinematic_pair);
   applies_to_pair : kinematic_pair;
+DERIVE  
+  SELF\item_defined_transformation.transform_item_1 : rigid_placement := applies_to_pair.transform_item_1;
+  SELF\item_defined_transformation.transform_item_2 : rigid_placement := applies_to_pair.transform_item_2;
+  SELF\kinematic_pair.joint : kinematic_joint := applies_to_pair.joint;
 END_ENTITY;
 
 ENTITY revolute_pair_range
@@ -338,9 +315,11 @@ ENTITY universal_pair
   input_skew_angle : OPTIONAL plane_angle_measure;
 DERIVE
   skew_angle       : plane_angle_measure := NVL (input_skew_angle, 0.0);
+(*  
 WHERE
   WR1: COS (plane_angle_for_pair_in_radian (SELF, skew_angle))
        > 0.0;
+*)
 END_ENTITY;
 
 ENTITY universal_pair_range
@@ -635,6 +614,7 @@ END_ENTITY;
 
 FUNCTION representation_of_link (link : kinematic_link)
     : kinematic_link_representation;
+(*
   LOCAL
     link_rep_rel : BAG OF kinematic_link_representation_relation;
   END_LOCAL;
@@ -647,6 +627,8 @@ FUNCTION representation_of_link (link : kinematic_link)
   ELSE
     RETURN (link_rep_rel[1].geometric_aspects);
   END_IF;
+*)
+  RETURN (?);
 END_FUNCTION;
 
 
@@ -1001,11 +983,10 @@ END_FUNCTION;
 *)
 
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
-  ONEOF (
---       kinematic_frame_background_representation,
---       kinematic_ground_representation,
-         kinematic_link_representation,
-         kinematic_topology_representation,
+  ONEOF (kinematic_link_representation,
+         kinematic_topology_structure,
+         kinematic_topology_directed_structure,
+         kinematic_topology_network_structure,
          mechanism_representation,
          shape_representation);
 END_SUBTYPE_CONSTRAINT;

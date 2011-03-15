@@ -19,100 +19,90 @@ ENTITY kinematic_topology_representation -- LK
   SELF\representation.items : SET[1:1] OF kinematic_topology_structure; 
 END_ENTITY;
 
-(* new potential p42 entity 
-ENTITY connected_edge_sub_set 
-  SUBTYPE OF (connected_edge_set);
-  parent_edge_set : connected_edge_set;
-END_ENTITY; 
-*)
-
 ENTITY kinematic_topology_structure
   SUBTYPE OF (connected_edge_set);
   SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint;
 INVERSE
-	owning_representation : kinematic_topology_representation for items;
-END_ENTITY;
-
-ENTITY kinematic_joint 
-  SUBTYPE OF (edge); -- LK
-  SELF\edge.edge_start : kinematic_link; -- LK
-  SELF\edge.edge_end : kinematic_link;  -- LK
+  owning_representation : kinematic_topology_representation for items;
 WHERE
-  WR1: edge_start :<>: edge_end;
+  WR1: SIZEOF (QUERY (edge <* ces_edges | 'TOPOLOGY_SCHEMA.ORIENTED_EDGE' in TYPEOF(edge))) = 0;
 END_ENTITY;
-
-ENTITY kinematic_link
-  SUBTYPE OF (vertex); -- LK
-WHERE
-  WR1: SIZEOF (USEDIN (SELF,
-                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.FIRST_LINK') +
-               USEDIN (SELF,
-                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.SECOND_LINK')) > 0;
---  WR2: unique_link_usage (SELF);
-END_ENTITY;
-
-ENTITY kinematic_loop
-  SUBTYPE OF (edge_loop); -- LK
-  network : kinematic_topology_network_structure; -- LK, is this really needed, maybe to remove because we have now edge_list
-  SELF\path.edge_list : LIST [1:?] OF UNIQUE oriented_joint; -- LK new
-(* LK, requires further investigation
-WHERE
- WR1 : SIZEOF(USEDIN(SELF,
-   'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')) > 0;
- WR2 : SIZEOF (QUERY( relation_1 <* USEDIN(SELF,
-    'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP') |
-         SIZEOF (QUERY (relation_2 <*  (USEDIN(SELF, 
-         'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')
-              - relation_1) |
-              NOT(connected_in_simple_loop (relation_1, relation_2))
-         )) > 0 
-       )) = 0;
-*)
-END_ENTITY;
-
-(* LK no longer used
-ENTITY joint_logical_relationship;
-  loop                             : kinematic_loop;
-  previous_joint_logical_structure : oriented_joint;
-  next_joint_logical_structure     : oriented_joint;
-UNIQUE
-  UR1: loop, previous_joint_logical_structure;
-  UR2: loop, next_joint_logical_structure;
-WHERE
-  WR1: previous_joint_logical_structure.exit_link :=:
-       next_joint_logical_structure.advent_link;
-END_ENTITY;
-*)
-
-ENTITY oriented_joint
-  SUBTYPE OF (oriented_edge); -- LK
-  SELF\oriented_edge.edge_element : kinematic_joint;
-END_ENTITY;
-
-ENTITY oriented_joint_in_tree
-  SUBTYPE OF (oriented_joint);
-  parent_structure : kinematic_topology_tree_structure;
-END_ENTITY;
-
-ENTITY advent_oriented_joint
-  SUBTYPE OF (oriented_joint);
-END_ENTITY;
+(* WR1: None of the items shall be an oriented_edges *)
 
 ENTITY kinematic_topology_substructure
   SUPERTYPE OF (ONEOF (kinematic_topology_tree_structure,
                        kinematic_topology_network_structure))
---  SUBTYPE OF (kinematic_topology_structure, connected_edge_sub_set); -- LK;
-  SUBTYPE OF (kinematic_topology_structure); -- LK;
---  SELF\connected_edge_sub_set.parent_edge_set : kinematic_topology_structure; -- LK
-  parent_edge_set : kinematic_topology_structure; -- LK
+  SUBTYPE OF (kinematic_topology_structure); 
+  parent_edge_set : kinematic_topology_structure; 
+WHERE
+  WR1: ces_edges IN parent_edge_set.ces_edges;
+  WR2: owning_representation.context_of_items :=: parent_edge_set.owning_representation.context_of_items;
 END_ENTITY;
+(* WR1: The elements of a kinematic_topology_substructure shall be a subset of the elements of the parent_edge_set *)
+(* WR2: A kinematic_topology_substructure shall have the same owning_representation as the one from the parent_edge_set *)  
 
 ENTITY kinematic_topology_network_structure
   SUBTYPE OF (kinematic_topology_substructure);
+  loops : SET[1:?] OF kinematic_loop;
+DERIVE
+  SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint := get_kinematic_joints_from_kinematic_loops(loops);
 END_ENTITY;
 
 ENTITY kinematic_topology_tree_structure
   SUBTYPE OF (kinematic_topology_substructure);
+  oriented_edges : SET[1:?] OF oriented_joint;
+DERIVE
+  SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint := get_kinematic_joints_from_oriented_joints(oriented_joint);
 END_ENTITY;
+
+ENTITY kinematic_joint 
+  SUBTYPE OF (edge); 
+  SELF\edge.edge_start : kinematic_link;
+  SELF\edge.edge_end : kinematic_link;
+UNIQUE
+  UR1: edge_start, edge_end; 
+WHERE
+  WR1: edge_start :<>: edge_end;
+END_ENTITY;
+(* WR1: Edge_start and edge_end shall be different instances. *)
+(* UR1: There shall be at most one kinematic_joint for any two kinematic_links *)
+
+ENTITY kinematic_link
+  SUBTYPE OF (vertex); 
+END_ENTITY;
+
+ENTITY kinematic_loop
+  SUBTYPE OF (edge_loop);
+  SELF\path.edge_list : LIST [1:?] OF UNIQUE oriented_joint; 
+END_ENTITY;
+
+ENTITY oriented_joint
+  SUBTYPE OF (oriented_edge);
+  SELF\oriented_edge.edge_element : kinematic_joint;
+END_ENTITY;
+
+FUNCTION get_kinematic_joints_from_oriented_joints(ors : SET OF oriented_joint) : SET OF kinematic_joint;
+  LOCAL
+    result : SET OF kinematic_joint := [];
+  END_LOCAL;
+  IF SIZEOF(ors) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(ors);
+      result := result + ors[i].edge_element;
+    END_REPEAT;
+  END_IF;
+  RETURN (result);
+END_FUNCTION;
+
+FUNCTION get_kinematic_joints_from_kinematic_loops(kls : SET OF kinematic_loop) : SET OF kinematic_joint;
+  LOCAL
+    result : SET OF oriented_joint := [];
+  END_LOCAL;
+  IF SIZEOF(kls) > 0 THEN
+    REPEAT i := 1 TO HIINDEX(kls);
+      result := result + kls[i].edge_list;
+    END_REPEAT;
+  END_IF;
+  RETURN (get_kinematic_joints_from_oriented_joints(result));
+END_FUNCTION;
 
 END_SCHEMA;

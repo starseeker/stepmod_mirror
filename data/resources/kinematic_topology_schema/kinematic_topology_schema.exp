@@ -14,45 +14,52 @@ REFERENCE FROM topology_schema -- LK
      path,
      vertex);
 
-ENTITY kinematic_topology_representation -- LK
-  SUBTYPE OF (representation);
-  SELF\representation.items : SET[1:1] OF kinematic_topology_structure; 
-END_ENTITY;
+TYPE kinematic_topology_representation = SELECT (
+  kinematic_topology_structure,
+  kinematic_topology_directed_structure,
+  kinematic_topology_network_structure
+);
+END_TYPE;
 
 ENTITY kinematic_topology_structure
-  SUBTYPE OF (connected_edge_set);
-  SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint;
-INVERSE
-  owning_representation : kinematic_topology_representation for items;
+  SUBTYPE OF (representation);
+  SELF\representation.items : SET[1:?] OF kinematic_joint; 
 WHERE
-  WR1: SIZEOF (QUERY (edge <* ces_edges | 'TOPOLOGY_SCHEMA.ORIENTED_EDGE' in TYPEOF(edge))) = 0;
+  WR1: SIZEOF (QUERY (item <* items | 'TOPOLOGY_SCHEMA.ORIENTED_EDGE' in TYPEOF(item))) = 0;
 END_ENTITY;
-(* WR1: None of the items shall be an oriented_edges *)
+(* WR1: None of the items shall be an oriented_edge *)
 
 ENTITY kinematic_topology_substructure
-  SUPERTYPE OF (ONEOF (kinematic_topology_tree_structure,
-                       kinematic_topology_network_structure))
-  SUBTYPE OF (kinematic_topology_structure); 
-  parent_edge_set : kinematic_topology_structure; 
+  SUBTYPE OF (kinematic_topology_structure);
+  parent : kinematic_topology_structure;
 WHERE
-  WR1: ces_edges IN parent_edge_set.ces_edges;
-  WR2: owning_representation.context_of_items :=: parent_edge_set.owning_representation.context_of_items;
+  WR1: context_of_items :=: parent.context_of_items;
+  WR2: items IN parent.items;
 END_ENTITY;
-(* WR1: The elements of a kinematic_topology_substructure shall be a subset of the elements of the parent_edge_set *)
-(* WR2: A kinematic_topology_substructure shall have the same owning_representation as the one from the parent_edge_set *)  
+(* WR1: A kinematic_topology_substructure shall have the same context as the parent *)  
+(* WR2: The items of a kinematic_topology_substructure shall also be items of the parent *)
 
-ENTITY kinematic_topology_network_structure
-  SUBTYPE OF (kinematic_topology_substructure);
-  loops : SET[1:?] OF kinematic_loop;
-DERIVE
-  SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint := get_kinematic_joints_from_kinematic_loops(loops);
+ENTITY kinematic_topology_directed_structure
+  SUBTYPE OF (representation);
+  SELF\representation.items : SET[1:?] OF oriented_joint; 
+  parent : kinematic_topology_structure;
+WHERE
+  WR1: context_of_items :=: parent.context_of_items;
+  WR2: get_kinematic_joints_from_oriented_joints(items) IN parent.items;
 END_ENTITY;
+(* WR1: A kinematic_topology_substructure shall have the same context as the parent *)  
 
 ENTITY kinematic_topology_tree_structure
-  SUBTYPE OF (kinematic_topology_substructure);
-  oriented_edges : SET[1:?] OF oriented_joint;
-DERIVE
-  SELF\connected_edge_set.ces_edges : SET [1 : ?] OF kinematic_joint := get_kinematic_joints_from_oriented_joints(oriented_joint);
+  SUBTYPE OF (kinematic_topology_directed_structure);
+END_ENTITY;
+
+ENTITY kinematic_topology_network_structure
+  SUBTYPE OF (representation);
+  SELF\representation.items : SET[1:?] OF kinematic_loop; 
+  parent : kinematic_topology_structure;
+WHERE
+  WR1: context_of_items :=: parent.context_of_items;
+  WR2: get_kinematic_joints_from_kinematic_loops(items) IN parent.items;
 END_ENTITY;
 
 ENTITY kinematic_joint 
@@ -104,5 +111,13 @@ FUNCTION get_kinematic_joints_from_kinematic_loops(kls : SET OF kinematic_loop) 
   END_IF;
   RETURN (get_kinematic_joints_from_oriented_joints(result));
 END_FUNCTION;
+
+SUBTYPE_CONSTRAINT kts_representation_subtypes FOR representation;
+  ONEOF (
+  kinematic_topology_structure,
+  kinematic_topology_directed_structure,
+  kinematic_topology_network_structure
+  );
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;

@@ -60,35 +60,23 @@
       <type name="rigid_placement">
          <select selectitems="axis2_placement_3d su_parameters"/>
       </type>
-      <type name="rotational_range_measure">
-         <select selectitems="plane_angle_measure unlimited_range"/>
-      </type>
-      <type name="translational_range_measure">
-         <select selectitems="length_measure unlimited_range"/>
-      </type>
-      <type name="unlimited_range">
-         <enumeration items="unlimited"/>
-      </type>
+      <entity name="actuated_kinematic_pair" supertypes="kinematic_pair"/>
       <entity name="cylindrical_pair" supertypes="kinematic_pair"/>
-      <entity name="cylindrical_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="cylindrical_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="cylindrical_pair_with_range" supertypes="cylindrical_pair">
+         <explicit name="lower_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_translation">
-            <typename name="translational_range_measure"/>
+         <explicit name="upper_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_translation">
-            <typename name="translational_range_measure"/>
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_translation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_translation)))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR2"/>
       </entity>
       <entity name="fully_constrained_pair" supertypes="kinematic_pair"/>
       <entity name="gear_pair" supertypes="kinematic_pair">
@@ -108,18 +96,14 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity name="gear_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="gear_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="gear_pair_with_range" supertypes="gear_pair">
+         <explicit name="lower_limit_actual_rotation_1" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation_1">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation_1" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation_1">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation_1))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation_1)))&#10;       XOR&#10;       (lower_limit_actual_rotation_1 &lt;&#10;        upper_limit_actual_rotation_1)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation_1)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation_1))&#10;       XOR&#10;       (lower_limit_actual_rotation_1 &lt; upper_limit_actual_rotation_1)" label="WR1"/>
       </entity>
       <entity name="homokinetic_pair" supertypes="universal_pair">
          <where expression="NOT EXISTS(SELF.input_skew_angle)" label="WR1"/>
@@ -152,7 +136,7 @@
          </explicit>
          <where expression="SELF\representation_relationship.rep_2.context_of_items :=:&#10;       SELF\representation_relationship.rep_1.context_of_items" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="kinematic_pair" super.expression="ONEOF (revolute_pair, screw_pair, cylindrical_pair, spherical_pair, universal_pair, planar_pair, unconstrained_pair, fully_constrained_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, prismatic_pair, gear_pair, rack_and_pinion_pair, surface_pair)" supertypes="item_defined_transformation geometric_representation_item">
+      <entity abstract.supertype="YES" name="kinematic_pair" super.expression="ONEOF (revolute_pair, screw_pair, cylindrical_pair, spherical_pair, universal_pair, planar_pair, unconstrained_pair, fully_constrained_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, prismatic_pair, gear_pair, rack_and_pinion_pair, surface_pair) ANDOR actuated_kinematic_pair" supertypes="item_defined_transformation geometric_representation_item">
          <explicit name="joint">
             <typename name="kinematic_joint"/>
          </explicit>
@@ -175,12 +159,11 @@
             <typename name="pair_representation_relationship"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <explicit name="underlying_topology">
+         <explicit name="represented_topology">
             <typename name="kinematic_topology_representation"/>
          </explicit>
-         <where expression="SIZEOF (QUERY (item &lt;* items | &#10;    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (underlying_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))&#10;    )) = 0" label="WR1"/>
+         <where expression="SIZEOF (QUERY (item &lt;* items | &#10;    NOT (represented_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (represented_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (represented_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))&#10;    )) = 0" label="WR1"/>
       </entity>
-      <entity name="pair_actuator" supertypes="simple_pair_range"/>
       <entity name="pair_representation_relationship" supertypes="representation_relationship_with_transformation geometric_representation_item">
          <explicit name="rep_1">
             <typename name="kinematic_link_representation"/>
@@ -212,47 +195,37 @@
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;          curve_1)" label="WR1"/>
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_2,&#10;          curve_2)" label="WR2"/>
       </entity>
-      <entity name="planar_curve_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="planar_curve_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
-         </explicit>
+      <entity name="planar_curve_pair_range" supertypes="planar_curve_pair">
          <explicit name="range_on_curve_1">
             <typename name="trimmed_curve"/>
          </explicit>
          <explicit name="range_on_curve_2">
             <typename name="trimmed_curve"/>
          </explicit>
-         <where expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_1 :=:&#10;       range_on_curve_1.basis_curve" label="WR1"/>
-         <where expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_2 :=:&#10;       range_on_curve_2.basis_curve" label="WR2"/>
       </entity>
       <entity name="planar_pair" supertypes="kinematic_pair"/>
-      <entity name="planar_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="planar_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="planar_pair_with_range" supertypes="planar_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_actual_translation_x" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_translation_x">
-            <typename name="translational_range_measure"/>
+         <explicit name="upper_limit_actual_translation_x" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_translation_x">
-            <typename name="translational_range_measure"/>
+         <explicit name="lower_limit_actual_translation_y" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_translation_y">
-            <typename name="translational_range_measure"/>
+         <explicit name="upper_limit_actual_translation_y" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_translation_y">
-            <typename name="translational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_translation_x))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_translation_x)))&#10;       XOR&#10;       (lower_limit_actual_translation_x &lt; upper_limit_actual_translation_x)" label="WR2"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_translation_y))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_translation_y)))&#10;       XOR&#10;       (lower_limit_actual_translation_y &lt; upper_limit_actual_translation_y)" label="WR3"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation_x)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation_x))&#10;       XOR&#10;       (lower_limit_actual_translation_x &lt; upper_limit_actual_translation_x)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation_y)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation_y))&#10;       XOR&#10;       (lower_limit_actual_translation_y &lt; upper_limit_actual_translation_y)" label="WR3"/>
       </entity>
       <entity name="point_on_planar_curve_pair" supertypes="kinematic_pair">
          <explicit name="pair_curve">
@@ -263,36 +236,31 @@
          </explicit>
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;         pair_curve)" label="WR1"/>
       </entity>
-      <entity name="point_on_planar_curve_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="point_on_planar_curve_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
-         </explicit>
+      <entity name="point_on_planar_curve_pair_with_range" supertypes="point_on_planar_curve_pair">
          <explicit name="range_on_pair_curve">
             <typename name="trimmed_curve"/>
          </explicit>
-         <explicit name="lower_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_roll">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_roll">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <where expression="SELF\simple_pair_range.applies_to_pair\&#10;           point_on_planar_curve_pair.pair_curve&#10;       :=: range_on_pair_curve.basis_curve" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_yaw))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_yaw)))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_pitch))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_pitch)))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_roll))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_roll)))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
       </entity>
       <entity name="point_on_surface_pair" supertypes="kinematic_pair">
          <explicit name="pair_surface">
@@ -300,82 +268,65 @@
          </explicit>
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1, &#10;         pair_surface)" label="WR1"/>
       </entity>
-      <entity name="point_on_surface_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="point_on_surface_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
-         </explicit>
+      <entity name="point_on_surface_pair_with_range" supertypes="point_on_surface_pair">
          <explicit name="range_on_pair_surface">
             <typename name="rectangular_trimmed_surface"/>
          </explicit>
-         <explicit name="lower_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_roll">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_roll">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <where expression="SELF\simple_pair_range.applies_to_pair\point_on_surface_pair.pair_surface&#10;       :=: range_on_pair_surface.basis_surface" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_yaw))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_yaw)))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_pitch))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_pitch)))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_roll))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_roll)))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
       </entity>
       <entity name="prismatic_pair" supertypes="kinematic_pair"/>
-      <entity name="prismatic_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="prismatic_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="prismatic_pair_with_range" supertypes="prismatic_pair">
+         <explicit name="lower_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_translation">
-            <typename name="translational_range_measure"/>
+         <explicit name="upper_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_translation">
-            <typename name="translational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_translation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_translation)))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
       </entity>
       <entity name="rack_and_pinion_pair" supertypes="kinematic_pair">
          <explicit name="pinion_radius">
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <entity name="rack_and_pinion_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="rack_and_pinion_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="rack_and_pinion_pair_with_range" supertypes="rack_and_pinion_pair">
+         <explicit name="lower_limit_rack_displacement" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="lower_limit_rack_displacement">
-            <typename name="translational_range_measure"/>
+         <explicit name="upper_limit_rack_displacement" optional="YES">
+            <typename name="length_measure"/>
          </explicit>
-         <explicit name="upper_limit_rack_displacement">
-            <typename name="translational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_rack_displacement))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_rack_displacement)))&#10;       XOR&#10;       (lower_limit_rack_displacement &lt; upper_limit_rack_displacement)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_rack_displacement)&#10;        OR&#10;        NOT EXISTS(upper_limit_rack_displacement))&#10;       XOR&#10;       (lower_limit_rack_displacement &lt; upper_limit_rack_displacement)" label="WR1"/>
       </entity>
       <entity name="revolute_pair" supertypes="kinematic_pair"/>
-      <entity name="revolute_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="revolute_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="revolute_pair_with_range" supertypes="revolute_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
       </entity>
       <entity name="rolling_curve_pair" supertypes="planar_curve_pair"/>
       <entity name="rolling_surface_pair" supertypes="surface_pair"/>
@@ -384,65 +335,40 @@
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <entity name="screw_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="screw_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="screw_pair_with_range" supertypes="screw_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
-      </entity>
-      <entity abstract.supertype="YES" name="simple_pair_range" super.expression="ONEOF (revolute_pair_range, prismatic_pair_range, screw_pair_range, cylindrical_pair_range, spherical_pair_range, universal_pair_range, planar_pair_range, point_on_surface_pair_range, surface_pair_range, point_on_planar_curve_pair_range, planar_curve_pair_range, gear_pair_range, rack_and_pinion_pair_range) ANDOR pair_actuator" supertypes="kinematic_pair">
-         <explicit name="applies_to_pair">
-            <typename name="kinematic_pair"/>
-         </explicit>
-         <derived expression="applies_to_pair.transform_item_1" name="transform_item_1">
-            <typename name="rigid_placement"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </derived>
-         <derived expression="applies_to_pair.transform_item_2" name="transform_item_2">
-            <typename name="rigid_placement"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </derived>
-         <derived expression="applies_to_pair.joint" name="joint">
-            <typename name="kinematic_joint"/>
-            <redeclaration entity-ref="kinematic_pair"/>
-         </derived>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
       </entity>
       <entity name="sliding_curve_pair" supertypes="planar_curve_pair"/>
       <entity name="sliding_surface_pair" supertypes="surface_pair"/>
       <entity name="spherical_pair" supertypes="kinematic_pair"/>
-      <entity name="spherical_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="spherical_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="spherical_pair_with_range" supertypes="spherical_pair">
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_yaw">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_pitch">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_roll">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_roll">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_yaw))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_yaw)))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_pitch))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_pitch)))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR2"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_roll))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_roll)))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR3"/>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR3"/>
       </entity>
       <entity name="su_parameters" supertypes="geometric_representation_item">
          <explicit name="a">
@@ -478,26 +404,20 @@
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;          surface_1)" label="WR1"/>
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_2,&#10;          surface_2)" label="WR2"/>
       </entity>
-      <entity name="surface_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="surface_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
-         </explicit>
+      <entity name="surface_pair_with_range" supertypes="surface_pair">
          <explicit name="range_on_surface_1">
             <typename name="rectangular_trimmed_surface"/>
          </explicit>
          <explicit name="range_on_surface_2">
             <typename name="rectangular_trimmed_surface"/>
          </explicit>
-         <explicit name="lower_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_actual_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <where expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_1 :=:&#10;       range_on_surface_1.basis_surface" label="WR1"/>
-         <where expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_2 :=:&#10;       range_on_surface_2.basis_surface" label="WR2"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_actual_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_actual_rotation)))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR3"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR3"/>
       </entity>
       <entity name="unconstrained_pair" supertypes="kinematic_pair"/>
       <entity name="universal_pair" supertypes="kinematic_pair">
@@ -508,25 +428,21 @@
             <typename name="plane_angle_measure"/>
          </derived>
       </entity>
-      <entity name="universal_pair_range" supertypes="simple_pair_range">
-         <explicit name="applies_to_pair">
-            <typename name="universal_pair"/>
-            <redeclaration entity-ref="simple_pair_range"/>
+      <entity name="universal_pair_with_range" supertypes="universal_pair">
+         <explicit name="lower_limit_first_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_first_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_first_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_first_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="lower_limit_second_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="lower_limit_second_rotation">
-            <typename name="rotational_range_measure"/>
+         <explicit name="upper_limit_second_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="upper_limit_second_rotation">
-            <typename name="rotational_range_measure"/>
-         </explicit>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_first_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_first_rotation)))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
-         <where expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (lower_limit_second_rotation))&#10;        OR&#10;        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN&#10;         TYPEOF (upper_limit_second_rotation)))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_first_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_first_rotation))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_second_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_second_rotation))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
       </entity>
       <subtype.constraint entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_structure, kinematic_topology_directed_structure, kinematic_topology_network_structure, mechanism_representation, shape_representation)"/>
       <function name="convert_plane_angle_for_pair_from_radian">

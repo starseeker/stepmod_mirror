@@ -11,17 +11,23 @@ REFERENCE FROM kinematic_topology_schema (
 );
 
 REFERENCE FROM product_property_definition_schema (
-  property_definition,
-  product_definition_shape
+  property_definition
+);
+
+REFERENCE FROM product_definition_schema (
+  product_definition
 );
 
 REFERENCE FROM product_property_representation_schema (
   property_definition_representation
 );
 
+REFERENCE FROM representation_schema
+    (using_representations);
+     
 ENTITY product_definition_kinematics
   SUBTYPE OF (property_definition);
-  SELF\property_definition.definition : product_definition_shape;
+  SELF\property_definition.definition : product_definition;
 INVERSE
   representation_relation : kinematic_property_definition_representation FOR definition;
 UNIQUE
@@ -38,12 +44,16 @@ ENTITY kinematic_property_topology_representation
   SUBTYPE OF (kinematic_property_definition_representation);
   SELF\property_definition_representation.used_representation  : kinematic_topology_representation; 
   base : kinematic_link;
+WHERE
+  WR1: used_representation IN using_representations(base);
 END_ENTITY;
 
 ENTITY kinematic_property_mechanism_representation_relation
   SUBTYPE OF (kinematic_property_definition_representation);
   SELF\property_definition_representation.used_representation  : mechanism_representation; 
   base : kinematic_link_representation;
+WHERE
+  WR1: used_representation IN using_representations(base);
 END_ENTITY;
 
 END_SCHEMA;

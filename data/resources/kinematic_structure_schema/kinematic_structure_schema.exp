@@ -56,32 +56,18 @@ TYPE rigid_placement = SELECT
    su_parameters);
 END_TYPE;
 
-TYPE rotational_range_measure = SELECT
-  (plane_angle_measure,
-   unlimited_range);
-END_TYPE;
-
-TYPE translational_range_measure = SELECT
-  (length_measure,
-   unlimited_range);
-END_TYPE;
-
-TYPE unlimited_range = ENUMERATION OF
-  (unlimited);
-END_TYPE;
-
 ENTITY mechanism_representation 
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF pair_representation_relationship;
-  underlying_topology : kinematic_topology_representation;
+  represented_topology : kinematic_topology_representation;
 WHERE  
   WR1: SIZEOF (QUERY (item <* items | 
-    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))
+    NOT (represented_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))
     OR
-    NOT (underlying_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))
+    NOT (represented_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))
     OR
-    NOT (underlying_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))
+    NOT (represented_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))
     )) = 0;
 END_ENTITY;
 (* WR1: All items that are of type pair_representation_relationship shall refer to kinematic_links and kinematic_joints that are used by the underlying_topology representation.*)
@@ -152,67 +138,37 @@ ENTITY kinematic_pair
     prismatic_pair,
     gear_pair,
     rack_and_pinion_pair,
-    surface_pair))  
+    surface_pair) ANDOR actuated_kinematic_pair)  
   SUBTYPE OF (item_defined_transformation, geometric_representation_item);
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
 END_ENTITY;
 
-ENTITY pair_actuator
-  SUBTYPE OF (simple_pair_range);
-END_ENTITY;
-
-ENTITY simple_pair_range
-  ABSTRACT SUPERTYPE OF ( ONEOF(
-    revolute_pair_range,
-    prismatic_pair_range,
-    screw_pair_range,
-    cylindrical_pair_range,
-    spherical_pair_range,
-    universal_pair_range,
-    planar_pair_range,
-    point_on_surface_pair_range,
-    surface_pair_range,
-    point_on_planar_curve_pair_range,
-    planar_curve_pair_range,
-    gear_pair_range,
-    rack_and_pinion_pair_range
-    ) ANDOR pair_actuator)
+ENTITY actuated_kinematic_pair
   SUBTYPE OF (kinematic_pair);
-  applies_to_pair : kinematic_pair;
-DERIVE  
-  SELF\item_defined_transformation.transform_item_1 : rigid_placement := applies_to_pair.transform_item_1;
-  SELF\item_defined_transformation.transform_item_2 : rigid_placement := applies_to_pair.transform_item_2;
-  SELF\kinematic_pair.joint : kinematic_joint := applies_to_pair.joint;
 END_ENTITY;
 
-ENTITY revolute_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : revolute_pair;
-  lower_limit_actual_rotation            : rotational_range_measure;
-  upper_limit_actual_rotation            : rotational_range_measure;
+ENTITY revolute_pair_with_range
+  SUBTYPE OF (revolute_pair);
+  lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation))
+  WR1: (NOT EXISTS(lower_limit_actual_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation)))
+        NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
 END_ENTITY;
 
-ENTITY prismatic_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : prismatic_pair;
-  lower_limit_actual_translation         : translational_range_measure;
-  upper_limit_actual_translation         : translational_range_measure;
+ENTITY prismatic_pair_with_range
+  SUBTYPE OF (prismatic_pair);
+  lower_limit_actual_translation         : OPTIONAL length_measure;
+  upper_limit_actual_translation         : OPTIONAL length_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_translation))
+  WR1: (NOT EXISTS(lower_limit_actual_translation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_translation)))
+        NOT EXISTS(upper_limit_actual_translation))
        XOR
        (lower_limit_actual_translation < upper_limit_actual_translation);
 END_ENTITY;
@@ -230,17 +186,14 @@ ENTITY screw_pair
   pitch : length_measure;
 END_ENTITY;
 
-ENTITY screw_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : screw_pair;
-  lower_limit_actual_rotation            : rotational_range_measure;
-  upper_limit_actual_rotation            : rotational_range_measure;
+ENTITY screw_pair_with_range
+  SUBTYPE OF (screw_pair);
+  lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation))
+  WR1: (NOT EXISTS(lower_limit_actual_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation)))
+        NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
 END_ENTITY;
@@ -249,26 +202,21 @@ ENTITY cylindrical_pair
   SUBTYPE OF (kinematic_pair);
 END_ENTITY;
 
-ENTITY cylindrical_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : cylindrical_pair;
-  lower_limit_actual_translation         : translational_range_measure;
-  upper_limit_actual_translation         : translational_range_measure;
-  lower_limit_actual_rotation            : rotational_range_measure;
-  upper_limit_actual_rotation            : rotational_range_measure;
+ENTITY cylindrical_pair_with_range
+  SUBTYPE OF (cylindrical_pair);
+  lower_limit_actual_translation         : OPTIONAL length_measure;
+  upper_limit_actual_translation         : OPTIONAL length_measure;
+  lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_translation))
+  WR1: (NOT EXISTS(lower_limit_actual_translation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_translation)))
+        NOT EXISTS(upper_limit_actual_translation))
        XOR
        (lower_limit_actual_translation < upper_limit_actual_translation);
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation))
+  WR2: (NOT EXISTS(lower_limit_actual_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation)))
+        NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
 END_ENTITY;
@@ -277,35 +225,28 @@ ENTITY spherical_pair
   SUBTYPE OF (kinematic_pair);
 END_ENTITY;
 
-ENTITY spherical_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : spherical_pair;
-  lower_limit_yaw                        : rotational_range_measure;
-  upper_limit_yaw                        : rotational_range_measure;
-  lower_limit_pitch                      : rotational_range_measure;
-  upper_limit_pitch                      : rotational_range_measure;
-  lower_limit_roll                       : rotational_range_measure;
-  upper_limit_roll                       : rotational_range_measure;
+ENTITY spherical_pair_with_range
+  SUBTYPE OF (spherical_pair);
+  lower_limit_yaw                        : OPTIONAL plane_angle_measure;
+  upper_limit_yaw                        : OPTIONAL plane_angle_measure;
+  lower_limit_pitch                      : OPTIONAL plane_angle_measure;
+  upper_limit_pitch                      : OPTIONAL plane_angle_measure;
+  lower_limit_roll                       : OPTIONAL plane_angle_measure;
+  upper_limit_roll                       : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_yaw))
+  WR1: (NOT EXISTS(lower_limit_yaw)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_yaw)))
+        NOT EXISTS(upper_limit_yaw))
        XOR
        (lower_limit_yaw < upper_limit_yaw);
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_pitch))
+  WR2: (NOT EXISTS(lower_limit_pitch)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_pitch)))
+        NOT EXISTS(upper_limit_pitch))
        XOR
        (lower_limit_pitch < upper_limit_pitch);
-  WR3: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_roll))
+  WR3: (NOT EXISTS(lower_limit_roll)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_roll)))
+        NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
 END_ENTITY;
@@ -322,26 +263,21 @@ WHERE
 *)
 END_ENTITY;
 
-ENTITY universal_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : universal_pair;
-  lower_limit_first_rotation             : rotational_range_measure;
-  upper_limit_first_rotation             : rotational_range_measure;
-  lower_limit_second_rotation            : rotational_range_measure;
-  upper_limit_second_rotation            : rotational_range_measure;
+ENTITY universal_pair_with_range
+  SUBTYPE OF (universal_pair);
+  lower_limit_first_rotation             : OPTIONAL plane_angle_measure;
+  upper_limit_first_rotation             : OPTIONAL plane_angle_measure;
+  lower_limit_second_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_second_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_first_rotation))
+  WR1: (NOT EXISTS(lower_limit_first_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_first_rotation)))
+        NOT EXISTS(upper_limit_first_rotation))
        XOR
        (lower_limit_first_rotation < upper_limit_first_rotation);
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_second_rotation))
+  WR2: (NOT EXISTS(lower_limit_second_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_second_rotation)))
+        NOT EXISTS(upper_limit_second_rotation))
        XOR
        (lower_limit_second_rotation < upper_limit_second_rotation);
 END_ENTITY;
@@ -350,35 +286,28 @@ ENTITY planar_pair
   SUBTYPE OF (kinematic_pair);
 END_ENTITY;
 
-ENTITY planar_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : planar_pair;
-  lower_limit_actual_rotation            : rotational_range_measure;
-  upper_limit_actual_rotation            : rotational_range_measure;
-  lower_limit_actual_translation_x       : translational_range_measure;
-  upper_limit_actual_translation_x       : translational_range_measure;
-  lower_limit_actual_translation_y       : translational_range_measure;
-  upper_limit_actual_translation_y       : translational_range_measure;
+ENTITY planar_pair_with_range
+  SUBTYPE OF (planar_pair);
+  lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  lower_limit_actual_translation_x       : OPTIONAL length_measure;
+  upper_limit_actual_translation_x       : OPTIONAL length_measure;
+  lower_limit_actual_translation_y       : OPTIONAL length_measure;
+  upper_limit_actual_translation_y       : OPTIONAL length_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation))
+  WR1: (NOT EXISTS(lower_limit_actual_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation)))
+        NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_translation_x))
+  WR2: (NOT EXISTS(lower_limit_actual_translation_x)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_translation_x)))
+        NOT EXISTS(upper_limit_actual_translation_x))
        XOR
        (lower_limit_actual_translation_x < upper_limit_actual_translation_x);
-  WR3: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_translation_y))
+  WR3: (NOT EXISTS(lower_limit_actual_translation_y)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_translation_y)))
+        NOT EXISTS(upper_limit_actual_translation_y))
        XOR
        (lower_limit_actual_translation_y < upper_limit_actual_translation_y);
 END_ENTITY;
@@ -400,38 +329,29 @@ WHERE
          pair_surface);
 END_ENTITY;
 
-ENTITY point_on_surface_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : point_on_surface_pair;
+ENTITY point_on_surface_pair_with_range
+  SUBTYPE OF (point_on_surface_pair);
   range_on_pair_surface                  : rectangular_trimmed_surface;
-  lower_limit_yaw                        : rotational_range_measure;
-  upper_limit_yaw                        : rotational_range_measure;
-  lower_limit_pitch                      : rotational_range_measure;
-  upper_limit_pitch                      : rotational_range_measure;
-  lower_limit_roll                       : rotational_range_measure;
-  upper_limit_roll                       : rotational_range_measure;
+  lower_limit_yaw                        : OPTIONAL plane_angle_measure;
+  upper_limit_yaw                        : OPTIONAL plane_angle_measure;
+  lower_limit_pitch                      : OPTIONAL plane_angle_measure;
+  upper_limit_pitch                      : OPTIONAL plane_angle_measure;
+  lower_limit_roll                       : OPTIONAL plane_angle_measure;
+  upper_limit_roll                       : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: SELF\simple_pair_range.applies_to_pair\point_on_surface_pair.pair_surface
-       :=: range_on_pair_surface.basis_surface;
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_yaw))
+  WR2: (NOT EXISTS(lower_limit_yaw)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_yaw)))
+        NOT EXISTS(upper_limit_yaw))
        XOR
        (lower_limit_yaw < upper_limit_yaw);
-  WR3: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_pitch))
+  WR3: (NOT EXISTS(lower_limit_pitch)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_pitch)))
+        NOT EXISTS(upper_limit_pitch))
        XOR
        (lower_limit_pitch < upper_limit_pitch);
-  WR4: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_roll))
+  WR4: (NOT EXISTS(lower_limit_roll)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_roll)))
+        NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
 END_ENTITY;
@@ -450,23 +370,18 @@ WHERE
           surface_2);
 END_ENTITY;
 
-ENTITY surface_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : surface_pair;
+ENTITY surface_pair_with_range
+  SUBTYPE OF (surface_pair);
   range_on_surface_1                     : rectangular_trimmed_surface;
   range_on_surface_2                     : rectangular_trimmed_surface;
-  lower_limit_actual_rotation            : rotational_range_measure;
-  upper_limit_actual_rotation            : rotational_range_measure;
+  lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: SELF\simple_pair_range.applies_to_pair\surface_pair.surface_1 :=:
-       range_on_surface_1.basis_surface;
-  WR2: SELF\simple_pair_range.applies_to_pair\surface_pair.surface_2 :=:
-       range_on_surface_2.basis_surface;
-  WR3: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation))
+  WR1: SELF\surface_pair.surface_1 :=: range_on_surface_1.basis_surface;
+  WR2: SELF\surface_pair.surface_2 :=: range_on_surface_2.basis_surface;
+  WR3: (NOT EXISTS(lower_limit_actual_rotation)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation)))
+        NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
 END_ENTITY;
@@ -489,39 +404,29 @@ WHERE
          pair_curve);
 END_ENTITY;
 
-ENTITY point_on_planar_curve_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : point_on_planar_curve_pair;
+ENTITY point_on_planar_curve_pair_with_range
+  SUBTYPE OF (point_on_planar_curve_pair);
   range_on_pair_curve                    : trimmed_curve;
-  lower_limit_yaw                        : rotational_range_measure;
-  upper_limit_yaw                        : rotational_range_measure;
-  lower_limit_pitch                      : rotational_range_measure;
-  upper_limit_pitch                      : rotational_range_measure;
-  lower_limit_roll                       : rotational_range_measure;
-  upper_limit_roll                       : rotational_range_measure;
+  lower_limit_yaw                        : OPTIONAL plane_angle_measure;
+  upper_limit_yaw                        : OPTIONAL plane_angle_measure;
+  lower_limit_pitch                      : OPTIONAL plane_angle_measure;
+  upper_limit_pitch                      : OPTIONAL plane_angle_measure;
+  lower_limit_roll                       : OPTIONAL plane_angle_measure;
+  upper_limit_roll                       : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: SELF\simple_pair_range.applies_to_pair\
-           point_on_planar_curve_pair.pair_curve
-       :=: range_on_pair_curve.basis_curve;
-  WR2: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_yaw))
+  WR2: (NOT EXISTS(lower_limit_yaw)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_yaw)))
+        NOT EXISTS(upper_limit_yaw))
        XOR
        (lower_limit_yaw < upper_limit_yaw);
-  WR3: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_pitch))
+  WR3: (NOT EXISTS(lower_limit_pitch)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_pitch)))
+        NOT EXISTS(upper_limit_pitch))
        XOR
        (lower_limit_pitch < upper_limit_pitch);
-  WR4: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_roll))
+  WR4: (NOT EXISTS(lower_limit_roll)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_roll)))
+        NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
 END_ENTITY;
@@ -541,15 +446,12 @@ WHERE
 END_ENTITY;
 
 ENTITY planar_curve_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : planar_curve_pair;
+  SUBTYPE OF (planar_curve_pair);
   range_on_curve_1                       : trimmed_curve;
   range_on_curve_2                       : trimmed_curve;
 WHERE
-  WR1: SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_1 :=:
-       range_on_curve_1.basis_curve;
-  WR2: SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_2 :=:
-       range_on_curve_2.basis_curve;
+  WR1: SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve;
+  WR2: SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve;
 END_ENTITY;
 
 ENTITY sliding_curve_pair
@@ -569,20 +471,16 @@ ENTITY gear_pair
   gear_ratio         : REAL;
 END_ENTITY;
 
-ENTITY gear_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : gear_pair;
-  lower_limit_actual_rotation_1          : rotational_range_measure;
-  upper_limit_actual_rotation_1          : rotational_range_measure;
+ENTITY gear_pair_with_range
+  SUBTYPE OF (gear_pair);
+  lower_limit_actual_rotation_1          : OPTIONAL plane_angle_measure;
+  upper_limit_actual_rotation_1          : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_actual_rotation_1))
+  WR1: (NOT EXISTS(lower_limit_actual_rotation_1)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_actual_rotation_1)))
+        NOT EXISTS(upper_limit_actual_rotation_1))
        XOR
-       (lower_limit_actual_rotation_1 <
-        upper_limit_actual_rotation_1);
+       (lower_limit_actual_rotation_1 < upper_limit_actual_rotation_1);
 END_ENTITY;
 
 ENTITY rack_and_pinion_pair
@@ -590,17 +488,14 @@ ENTITY rack_and_pinion_pair
   pinion_radius : length_measure;
 END_ENTITY;
 
-ENTITY rack_and_pinion_pair_range
-  SUBTYPE OF (simple_pair_range);
-  SELF\simple_pair_range.applies_to_pair : rack_and_pinion_pair;
-  lower_limit_rack_displacement          : translational_range_measure;
-  upper_limit_rack_displacement          : translational_range_measure;
+ENTITY rack_and_pinion_pair_with_range
+  SUBTYPE OF (rack_and_pinion_pair);
+  lower_limit_rack_displacement          : OPTIONAL length_measure;
+  upper_limit_rack_displacement          : OPTIONAL length_measure;
 WHERE
-  WR1: (('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (lower_limit_rack_displacement))
+  WR1: (NOT EXISTS(lower_limit_rack_displacement)
         OR
-        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN
-         TYPEOF (upper_limit_rack_displacement)))
+        NOT EXISTS(upper_limit_rack_displacement))
        XOR
        (lower_limit_rack_displacement < upper_limit_rack_displacement);
 END_ENTITY;

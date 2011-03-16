@@ -36,7 +36,9 @@ REFERENCE FROM kinematic_structure_schema
 REFERENCE FROM kinematic_state_schema
     (rotation_about_direction,
      spatial_rotation,
-     ypr_rotation);
+     ypr_rotation,
+     mechanism_state_representation);
+
 
 REFERENCE FROM product_property_representation_schema
     (shape_representation);     
@@ -45,6 +47,35 @@ TYPE link_or_shape_representation = SELECT(
   kinematic_link_representation,
   shape_representation);
 END_TYPE;
+
+TYPE interpolation_type = ENUMERATION OF
+  (undefined,
+   synchronous,
+   linear);
+END_TYPE;
+
+TYPE motion_parameter_measure = SELECT
+  (parameter_value,
+   measure_with_unit);
+END_TYPE;
+
+ENTITY configuration_interpolation
+  SUBTYPE OF (representation_relationship);
+  SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
+  SELF\representation_relationship.rep_2 RENAMED next_state : configuration_definition;
+  interpolation : interpolation_type;
+END_ENTITY ;
+
+ENTITY configuration_definition
+  SUBTYPE OF (mechanism_state_representation);
+  t_parameter : motion_parameter_measure;
+END_ENTITY;
+
+ENTITY interpolated_configuration_sequence
+  SUBTYPE OF (shape_representation);
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
+  interpolation : SET [1 : ?] OF configuration_interpolation;
+END_ENTITY;
 
 ENTITY link_motion_relationship
   SUBTYPE OF (representation_relationship_with_transformation, definitional_representation_relationship);
@@ -147,11 +178,13 @@ ENTITY circular_path
 WHERE
   WR1: SELF\path_element.node_to.control_transform.translation_component <>
        SELF\path_element.node_from.control_transform.translation_component;
+(*  
   WR2: non_coincident_coordinates (via_point,
          SELF\path_element.node_from.control_transform.translation_component)
        AND
        non_coincident_coordinates (via_point,
          SELF\path_element.node_to.control_transform.translation_component);
+*)         
 END_ENTITY;
 
 ENTITY linear_path
@@ -207,6 +240,7 @@ FUNCTION connected_in_simple_path (connections : SET OF path_element_connection)
   END_IF;
 END_FUNCTION;
 
+(*
 FUNCTION non_coincident_coordinates (crtpt : cartesian_point;
                                      trltn : translation) : BOOLEAN;
   IF ((crtpt.coordinates[1] = trltn.x) AND
@@ -217,6 +251,7 @@ FUNCTION non_coincident_coordinates (crtpt : cartesian_point;
     RETURN (TRUE);
   END_IF;
 END_FUNCTION;
+*)
 
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
   ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path);

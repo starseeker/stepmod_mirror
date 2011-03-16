@@ -3,8 +3,8 @@
 SCHEMA kinematic_analysis_control_and_result_schema;
 
 REFERENCE FROM kinematic_motion_representation_schema
-    (geometric_representation_context_with_parameter,
-     link_motion_representation_along_path);
+    (link_motion_representation_along_path,
+     interpolated_configuration_sequence);
 
 REFERENCE FROM kinematic_topology_schema (
 	kinematic_joint);
@@ -13,10 +13,6 @@ REFERENCE FROM kinematic_structure_schema
     (kinematic_link_representation,
      mechanism_representation,
      rigid_placement);
-
-REFERENCE FROM kinematic_state_schema
-    (pair_value,
-     mechanism_state_representation);
 
 REFERENCE FROM geometry_schema
     (geometric_representation_context);
@@ -32,12 +28,6 @@ REFERENCE FROM measure_schema
 REFERENCE FROM product_property_representation_schema
     (shape_representation);     
 
-TYPE interpolation_type = ENUMERATION OF
-  (undefined,
-   synchronous,
-   linear);
-END_TYPE;
-
 TYPE kinematic_analysis_definition = SELECT
   (interpolated_configuration_sequence,
    prescribed_path);
@@ -48,33 +38,9 @@ TYPE kinematic_result = SELECT
    resulting_path);
 END_TYPE;
 
-TYPE motion_parameter_measure = SELECT
-  (parameter_value,
-   measure_with_unit);
-END_TYPE;
-
-ENTITY configuration_interpolation
-  SUBTYPE OF (representation_relationship);
-  SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
-  SELF\representation_relationship.rep_2 RENAMED next_state : configuration_definition;
-  interpolation : interpolation_type;
-END_ENTITY ;
-
 ENTITY kinematic_control;
   controlled_mechanism : mechanism_representation; 
   contained_kinematic_programs : kinematic_analysis_definition;
-END_ENTITY;
-
-ENTITY configuration_definition
-  SUBTYPE OF (mechanism_state_representation);
-  t_parameter : motion_parameter_measure;
-END_ENTITY;
-
-ENTITY interpolated_configuration_sequence
-  SUBTYPE OF (shape_representation);
---  SELF\representation.items : SET [1:?] OF xxx;
-  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-  interpolation : SET [1 : ?] OF configuration_interpolation;
 END_ENTITY;
 
 ENTITY prescribed_path

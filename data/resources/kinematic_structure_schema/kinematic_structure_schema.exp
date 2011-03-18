@@ -78,7 +78,7 @@ END_ENTITY;
 ENTITY pair_representation_relationship
   SUBTYPE OF (representation_relationship_with_transformation, geometric_representation_item);
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
-  SELF\representation_relationship.rep_2 : kinematic_link_representation;
+  SELF\representation_relationship.rep_2 : rigid_link_representation;
   SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
 WHERE
   WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
@@ -95,6 +95,7 @@ TYPE kinematic_link_representation_items = SELECT (
 END_TYPE;
   
 ENTITY kinematic_link_representation
+  ABSTRACT SUPERTYPE OF ( ONEOF (linear_flexible_link_representation, rigid_link_representation))
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF kinematic_link_representation_items;
@@ -102,6 +103,14 @@ ENTITY kinematic_link_representation
 INVERSE
   associated_shape_representation : SET[0:1] OF -- LK       
         kinematic_link_representation_association FOR rep_1;
+END_ENTITY;
+
+ENTITY linear_flexible_link_representation
+  SUBTYPE OF (kinematic_link_representation);
+END_ENTITY;
+
+ENTITY rigid_link_representation
+  SUBTYPE OF (kinematic_link_representation);
 END_ENTITY;
 
 ENTITY kinematic_link_representation_association
@@ -127,29 +136,72 @@ END_ENTITY;
 
 ENTITY kinematic_pair
   ABSTRACT SUPERTYPE OF( ONEOF (
-    revolute_pair,
-    screw_pair,
-    cylindrical_pair,
-    spherical_pair,
-    universal_pair,
-    planar_pair,
-    unconstrained_pair,
-    fully_constrained_pair,
-    point_on_surface_pair,
-    point_on_planar_curve_pair,
-    planar_curve_pair,
-    prismatic_pair,
-    gear_pair,
-    rack_and_pinion_pair,
-    surface_pair) ANDOR actuated_kinematic_pair)  
+      high_order_kinematic_pair, 
+      low_order_kinematic_pair_with_motion_coupling, 
+      low_order_kinematic_pair) 
+    ANDOR actuated_kinematic_pair)  
   SUBTYPE OF (item_defined_transformation, geometric_representation_item);
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
 END_ENTITY;
 
+ENTITY high_order_kinematic_pair
+  ABSTRACT SUPERTYPE OF( ONEOF (
+    linear_flexible_and_planar_curve_pair,
+    point_on_surface_pair,
+    point_on_planar_curve_pair,
+    planar_curve_pair,
+    surface_pair
+  ))
+  SUBTYPE OF (kinematic_pair);
+END_ENTITY;
+
+ENTITY low_order_kinematic_pair_with_motion_coupling
+  ABSTRACT SUPERTYPE OF( ONEOF (
+    gear_pair,
+    linear_flexible_and_pinion_pair,
+    rack_and_pinion_pair,
+    screw_pair
+  ))
+  SUBTYPE OF (kinematic_pair);
+END_ENTITY;
+
+ENTITY low_order_kinematic_pair
+  SUPERTYPE OF( ONEOF (
+    revolute_pair,
+    cylindrical_pair,
+    spherical_pair,
+    planar_pair,
+    unconstrained_pair,
+    fully_constrained_pair,
+    prismatic_pair,
+    universal_pair
+    ))  
+  SUBTYPE OF (kinematic_pair);
+  t_x : BOOLEAN;
+  t_y : BOOLEAN;
+  t_z : BOOLEAN;
+  r_x : BOOLEAN;
+  r_y : BOOLEAN;
+  r_z : BOOLEAN;
+END_ENTITY;
+
+TYPE actuated_direction = ENUMERATION OF (
+	bidirectional,
+	positive_only,
+	negative_only,
+	not_actuated);
+END_TYPE;
+   
 ENTITY actuated_kinematic_pair
   SUBTYPE OF (kinematic_pair);
+  t_x : OPTIONAL actuated_direction;
+  t_y : OPTIONAL actuated_direction;
+  t_z : OPTIONAL actuated_direction;
+  r_x : OPTIONAL actuated_direction;
+  r_y : OPTIONAL actuated_direction;
+  r_z : OPTIONAL actuated_direction;
 END_ENTITY;
 
 ENTITY revolute_pair_with_range
@@ -177,16 +229,39 @@ WHERE
 END_ENTITY;
 
 ENTITY revolute_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY prismatic_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := FALSE;
 END_ENTITY;
 
 ENTITY screw_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pitch : length_measure;
+(*  
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : degee_of_freedom := CONSTRAINT;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : degee_of_freedom := CONSTRAINT;
+*)
 END_ENTITY;
 
 ENTITY screw_pair_with_range
@@ -202,7 +277,14 @@ WHERE
 END_ENTITY;
 
 ENTITY cylindrical_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY cylindrical_pair_with_range
@@ -225,7 +307,14 @@ WHERE
 END_ENTITY;
 
 ENTITY spherical_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY spherical_pair_with_range
@@ -255,10 +344,16 @@ WHERE
 END_ENTITY;
 
 ENTITY universal_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
   input_skew_angle : OPTIONAL plane_angle_measure;
-DERIVE
-  skew_angle       : plane_angle_measure := NVL (input_skew_angle, 0.0);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := TRUE;     
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
+  skew_angle : plane_angle_measure := NVL (input_skew_angle, 0.0);
 (*  
 WHERE
   WR1: COS (plane_angle_for_pair_in_radian (SELF, skew_angle))
@@ -285,8 +380,21 @@ WHERE
        (lower_limit_second_rotation < upper_limit_second_rotation);
 END_ENTITY;
 
+ENTITY homokinetic_pair
+  SUBTYPE OF (universal_pair);
+WHERE
+  WR1:  NOT EXISTS(SELF.input_skew_angle);       
+END_ENTITY;
+
 ENTITY planar_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY planar_pair_with_range
@@ -316,15 +424,29 @@ WHERE
 END_ENTITY;
 
 ENTITY unconstrained_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY fully_constrained_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := FALSE;
 END_ENTITY;
 
 ENTITY point_on_surface_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (high_order_kinematic_pair);
   pair_surface : surface;
 WHERE
   WR1: frame_associated_to_background
@@ -360,7 +482,8 @@ WHERE
 END_ENTITY;
 
 ENTITY surface_pair
-  SUBTYPE OF (kinematic_pair);
+  ABSTRACT SUPERTYPE OF ( ONEOF (sliding_surface_pair, rolling_surface_pair) ANDOR surface_pair_with_range)
+  SUBTYPE OF (high_order_kinematic_pair);
   surface_1   : surface;
   surface_2   : surface;
   orientation : BOOLEAN;
@@ -398,7 +521,17 @@ ENTITY rolling_surface_pair
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (high_order_kinematic_pair);
+  pair_curve  : curve;
+  orientation : BOOLEAN;
+WHERE
+  WR1: frame_associated_to_background
+         (SELF\item_defined_transformation.transform_item_1,
+         pair_curve);
+END_ENTITY;
+
+ENTITY linear_flexible_and_planar_curve_pair
+  SUBTYPE OF (high_order_kinematic_pair);
   pair_curve  : curve;
   orientation : BOOLEAN;
 WHERE
@@ -435,7 +568,8 @@ WHERE
 END_ENTITY;
 
 ENTITY planar_curve_pair
-  SUBTYPE OF (kinematic_pair);
+  SUPERTYPE OF ( ONEOF(sliding_curve_pair, rolling_curve_pair) ANDOR planar_curve_pair_range)
+  SUBTYPE OF (high_order_kinematic_pair);
   curve_1     : curve;
   curve_2     : curve;
   orientation : BOOLEAN;
@@ -466,7 +600,7 @@ ENTITY rolling_curve_pair
 END_ENTITY;
 
 ENTITY gear_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   radius_first_link  : length_measure;
   radius_second_link : length_measure;
   bevel              : plane_angle_measure;
@@ -487,7 +621,7 @@ WHERE
 END_ENTITY;
 
 ENTITY rack_and_pinion_pair
-  SUBTYPE OF (kinematic_pair);
+  SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pinion_radius : length_measure;
 END_ENTITY;
 
@@ -503,12 +637,10 @@ WHERE
        (lower_limit_rack_displacement < upper_limit_rack_displacement);
 END_ENTITY;
 
-ENTITY homokinetic_pair
-  SUBTYPE OF (universal_pair);
-WHERE
-  WR1:  NOT EXISTS(SELF.input_skew_angle);       
+ENTITY linear_flexible_and_pinion_pair
+  SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
+  pinion_radius : length_measure;
 END_ENTITY;
-
 
 FUNCTION representation_of_link (link : kinematic_link)
     : kinematic_link_representation;

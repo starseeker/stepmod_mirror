@@ -1,0 +1,35 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- general_part_occurrence_feature_joint - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_occurrence_feature_joint_arm;
+
+USE FROM Item_definition_structure_arm;  --        ISO/TS 10303-1345
+USE FROM General_part_feature_arm; 
+
+ENTITY Assembly_item_shape
+  SUBTYPE OF (Part_item_shape);
+  SELF\Item_shape.described_element : Assembly_definition;
+END_ENTITY;  
+
+ENTITY Part_occurrence_item_shape
+  SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element : Definition_based_part_occurrence;
+END_ENTITY;  
+
+ENTITY General_part_occurrence_feature
+  SUBTYPE OF (Definitional_shape_element);
+  SELF\Shape_element.containing_shape : Part_occurrence_item_shape; 
+END_ENTITY;  
+
+ENTITY General_component_feature_joint
+  SUBTYPE OF (Shape_element, Shape_element_relationship);
+  SELF\Shape_element.containing_shape : Assembly_item_shape; 
+  SELF\Shape_element_relationship.relating : General_part_occurrence_feature;
+  SELF\Shape_element_relationship.related : General_part_occurrence_feature;
+WHERE
+  WR1: relating <> related;
+-- WRx : relating and related have to be for Definition_based_part_occurrence that are in the assembly_definition called out by the containing_shape
+END_ENTITY;  
+
+END_SCHEMA;

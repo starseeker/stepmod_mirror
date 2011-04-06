@@ -1,6 +1,299 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id: mim.exp,v 1.1.2.4 2011/04/06 00:29:24 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- schematic_symbol - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Schematic_symbol_mim;
+USE FROM Ap210_electronic_assembly_interconnect_and_packaging_design_mim;
+USE FROM Drawing_definition_mim;  -- ISO/TS 10303-1309
+USE FROM Mechanical_design_presentation_representation_with_draughting_mim; -- ISO/TS 10303-1315
+--USE FROM Picture_representation_mim;  -- ISO/TS 10303-1308
+--USE FROM Shape_feature_mim;    -- ISO/TS 10303-1764
+USE FROM Text_representation_mim;     -- ISO/TS 10303-1750
+--USE FROM Wireframe_2d_mim; -- ISO/TS 10303-1347
+USE FROM Packaged_part_black_box_model_mim;
+USE FROM Associative_text_mim;
+USE FROM draughting_element_schema;
+USE FROM presentation_definition_schema;
+USE FROM Functional_decomposition_to_design_mim;
+USE FROM Functional_assignment_to_part_mim;
+USE FROM aic_draughting_annotation;
+
+--schema collection for schematic symbol project.
+--file mim.exp
+--creation date: 2/9/2011
+--modified date: 3/5/2011
+--changed names of symbol_callouts
+--author: T. Thurman
+--status: addresses schematic symbol requirements for functional terminals for block and part level functional_unit_usage_views
+--status: addresses schematic symbol requirements for packaged_part_terminals for part level symbol.
+--status: addresses schematic symbol requirements for identification of relative positions in the part.
+--status: addresses schematic symbol requirements for concatenating two or more text references.
+--status: references to all types of text_reference  are through the annotation_text_occurrence.item through the subtype tree of text_reference
+--status: explicit_text_reference_occurrence is for schematic level presentation.
+--status: for now including model_parameter and parameter_assignment for property representation. 
+--todo: release to stepmod.
+--todo: decide where to put scms_presented_item_select entries functional_unit, packaged_part.
+--todo: trim unnecessary USE FROMs.
+--todo: population update:
+
+--presented_item_select (USE FROM Presentation_hierarchy_mim);
+--need to evaluate where to put these extensions...
+  TYPE scms_presented_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON presented_item_select WITH (
+     functional_unit,
+     packaged_part);
+  END_TYPE;
+  
+ (*
+ mod to p46:
+  TYPE annotation_text_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT(
+    text_literal, 
+    text_reference,
+    annotation_text, 
+    annotation_text_character, 
+    defined_character_glyph, 
+    composite_text); 
+  END_TYPE; 
+ *) 
+ --in scms
+  ENTITY schematic_symbol_representation
+  SUBTYPE OF (presented_item_representation);
+  SELF\presented_item_representation.presentation : drawing_sheet_revision;
+  SELF\presented_item_representation.item         : applied_presented_item;
+ DERIVE
+  presented_function            : functional_unit                             := scms_get_presented_function(item); 
+  presented_functional_terminal : SET OF functional_unit_terminal_definition  := scms_get_presented_functional_terminal(SELF, presentation);
+  terminal_symbol_map           : SET OF item_identified_representation_usage := bag_to_set(QUERY(iiru <* 
+                                     (USEDIN(presentation, 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.ITEM_IDENTIFIED_REPRESENTATION_USAGE.USED_REPRESENTATION'))| 
+                                     'SCHEMATIC_SYMBOL_MIM.SCHEMATIC_TERMINAL_CALLOUT' IN TYPEOF(iiru\item_identified_representation_usage.identified_item)));
+  schematic_terminal_callout    : SET OF terminal_schematic_symbol_callout    := QUERY( it <* presentation.items | 'SCHEMATIC_SYMBOL_MIM.TERMINAL_SCHEMATIC_SYMBOL_CALLOUT' IN TYPEOF(it));
+ WHERE
+   WR1 : SIZEOF(QUERY(pft <* presented_functional_terminal | NOT (pft\shape_aspect.of_shape = presented_function))) = 0;
+  --each presented_functional_terminal shall specify the presented_function as its of_shape;
+   WR2 : SIZEOF(terminal_symbol_map) = SIZEOF(schematic_terminal_callout);
+--- each schematic_terminal_symbol shall be mapped to a functional terminal.
+---note that the size of the functional terminals need not be the same as the number of symbol callouts to handle
+---the case of a part level symbol.
+   WR3 : ('SCHEMATIC_SYMBOL_MIM.PART_LEVEL_SCHEMATIC_SYMBOL_REPRESENTATION' IN TYPEOF(SELF)) OR
+         (SIZEOF(presented_functional_terminal) = SIZEOF(terminal_symbol_map));
+---Either the symbol shall be a part level symbol or only functional terminals may map to schematic_terminal_symbols;
+END_ENTITY;
+
+
+--in scms
+FUNCTION scms_get_presented_function(input : applied_presented_item) : functional_unit;
+LOCAL
+   fun : SET OF functional_unit := (QUERY(it <* (input\applied_presented_item.items) | 'FUNCTIONAL_USAGE_VIEW_MIM.FUNCTIONAL_UNIT' IN TYPEOF(it)));
+END_LOCAL;
+RETURN(fun[LOINDEX(fun)]);
+END_FUNCTION;
+ 
+--in scms
+FUNCTION scms_get_presented_functional_terminal(input1 : schematic_symbol_representation; 
+                                              input2 : drawing_sheet_revision) : SET OF functional_unit_terminal_definition;
+LOCAL
+ function_only : BOOLEAN := NOT('SCHEMATIC_SYMBOL_MIM.PART_LEVEL_SCHEMATIC_SYMBOL_REPRESENTATION' IN TYPEOF(input1));
+ iiru : SET OF item_identified_representation_usage := bag_to_set(USEDIN(input2, 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.ITEM_IDENTIFIED_REPRESENTATION_USAGE.USED_REPRESENTATION'));
+ futd : SET OF functional_unit_terminal_definition := [];
+ sar  : SET OF shape_aspect_relationship := [];
+END_LOCAL;
+IF function_only
+THEN
+ REPEAT i := LOINDEX(iiru) TO HIINDEX(iiru);
+    IF (('FUNCTIONAL_USAGE_VIEW_MIM.FUNCTIONAL_UNIT_TERMINAL_DEFINITION') IN TYPEOF( iiru[i]\item_identified_representation_usage.definition)) THEN 
+    futd := futd + iiru[i]\item_identified_representation_usage.definition;
+    END_IF;
+END_REPEAT;
+RETURN(futd);
+ELSE
+ REPEAT i := LOINDEX(iiru) TO HIINDEX(iiru);
+    IF ((('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP') IN TYPEOF( iiru[i]\item_identified_representation_usage.definition)) AND
+    ((iiru[i]\item_identified_representation_usage.definition\shape_aspect_relationship.name = 'functional terminal allocation')))
+       THEN 
+    futd := futd + iiru[i]\item_identified_representation_usage.definition\shape_aspect_relationship.relating_shape_aspect;
+    END_IF;
+END_REPEAT;
+RETURN(futd);
+END_IF;
+
+(*
+this function has a switch to look for a functional terminal as either the direct item_identified_representation_usage.definition or
+as the sar.relating_shape_aspect of the item_identified_representation_usage.definition.
+The first case is when the symbol is NOT  part level symbol.
+The second case is when the symbol IS a part level symbol.
+The path is: 
+drawing_sheet_revision <- 
+item_identified_representation_usage.used_representation
+item_identified_representation_usage.definition ->
+functional_unit_terminal_definition;
+or
+drawing_sheet_revision <- 
+item_identified_representation_usage.used_representation
+item_identified_representation_usage.definition ->
+sar
+{sar.name = 'functional terminal allocation'}
+sar.relating_shape_aspect;
+*)
+END_FUNCTION;
+
+--in scms
+ENTITY part_level_schematic_symbol_representation
+  SUBTYPE OF (schematic_symbol_representation);
+ DERIVE
+  presented_part          : packaged_part                 := scms_get_presented_part(SELF\schematic_symbol_representation.item);
+  presented_part_terminal : SET OF packaged_part_terminal := scms_get_presented_part_terminal(SELF\schematic_symbol_representation.presentation);
+WHERE
+   WR1 : SIZEOF(QUERY(pft <* presented_part_terminal | NOT (pft\shape_aspect.of_shape = presented_part))) = 0;
+  --each presented_part_terminal shall specify the presented_part as its of_shape;
+   WR2 : (SIZEOF(presented_part_terminal) = SIZEOF(terminal_symbol_map));
+  --each presented_part_terminal shall have a symbol; 
+END_ENTITY;
+
+--in scms
+FUNCTION scms_get_presented_part_terminal(input : drawing_sheet_revision) : SET OF packaged_part_terminal;
+LOCAL
+ iiru : SET OF item_identified_representation_usage := bag_to_set(USEDIN(input, 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.ITEM_IDENTIFIED_REPRESENTATION_USAGE.USED_REPRESENTATION'));
+ ppt : SET OF packaged_part_terminal     := [];
+ sar  : SET OF shape_aspect_relationship := [];
+END_LOCAL;
+
+ REPEAT i := LOINDEX(iiru) TO HIINDEX(iiru);
+    IF (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF( iiru[i]\item_identified_representation_usage.definition)) AND
+    ((iiru[i]\item_identified_representation_usage.definition\shape_aspect_relationship.name = 'functional terminal allocation')))
+       THEN 
+    ppt := ppt + iiru[i]\item_identified_representation_usage.definition\shape_aspect_relationship.related_shape_aspect;
+    END_IF;
+END_REPEAT;
+RETURN(ppt);
+END_FUNCTION;
+
+--in scms
+FUNCTION scms_get_presented_part(input : applied_presented_item) : packaged_part;
+LOCAL
+   pp : SET OF packaged_part := (QUERY(it <* (input\applied_presented_item.items) | 'PACKAGED_PART_BLACK_BOX_MODEL_MIM.PACKAGED_PART' IN TYPEOF(it)));
+END_LOCAL;
+RETURN(pp[LOINDEX(pp)]);
+END_FUNCTION;
+
+
+(*
+now in draughting_elements_schema --p101
+ENTITY schematic_symbol_callout--  include in p101
+        SUBTYPE OF (geometric_representation_item);
+        contents : SET [1:?] OF draughting_callout_element;
+INVERSE
+   presented_concept : item_identified_representation_usage FOR identified_item;
+END_ENTITY;
+*)
+
+--in scms
+ENTITY terminal_schematic_symbol_callout
+        ABSTRACT SUPERTYPE OF (ONEOF(block_terminal_schematic_symbol_callout, part_terminal_schematic_symbol_callout))
+        SUBTYPE OF (schematic_symbol_callout);
+END_ENTITY;
+
+--in scms
+ENTITY block_terminal_schematic_symbol_callout
+        SUBTYPE OF (terminal_schematic_symbol_callout);
+DERIVE
+ functional_terminal           : functional_unit_terminal_definition    := presented_concept\item_identified_representation_usage.definition;
+ signal_name_data              : SET [1:?] OF explicit_text_reference   := bag_to_set(USEDIN(functional_terminal, 'PRESENTATION_DEFINITION_SCHEMA.EXPLICIT_TEXT_REFERENCE.SOURCE'));
+ annotation_text_occurrence    : SET OF annotation_text_occurrence      := 
+       QUERY(c <* SELF\schematic_symbol_callout.contents | ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF(c)) AND
+                 ('PRESENTATION_DEFINITION_SCHEMA.EXPLICIT_TEXT_REFERENCE' IN TYPEOF(c\annotation_text_occurrence.item)));
+WHERE
+ WR1 : SIZEOF(QUERY(ato <* annotation_text_occurrence | (signal_name_data[1] = ato\annotation_text_occurrence.item\explicit_text_reference.source))) = 1; 
+END_ENTITY;
+
+--in scms
+ENTITY part_terminal_schematic_symbol_callout
+        SUBTYPE OF (terminal_schematic_symbol_callout);
+DERIVE
+ functional_allocation_to_part : shape_aspect_relationship              := SELF\schematic_symbol_callout.presented_concept\item_identified_representation_usage.definition;
+ functional_terminal           : functional_unit_terminal_definition    := functional_allocation_to_part\shape_aspect_relationship.relating_shape_aspect;
+ part_terminal                 : packaged_part_terminal                 := functional_allocation_to_part\shape_aspect_relationship.related_shape_aspect;
+ signal_name_data              : SET [1:?] OF explicit_text_reference   := bag_to_set(USEDIN(functional_terminal, 'PRESENTATION_DEFINITION_SCHEMA.EXPLICIT_TEXT_REFERENCE.SOURCE'));
+ pin_number_data               : SET [1:?] OF explicit_text_reference   := bag_to_set(USEDIN(part_terminal, 'PRESENTATION_DEFINITION_SCHEMA.EXPLICIT_TEXT_REFERENCE.SOURCE'));
+ annotation_text_occurrence    : SET OF annotation_text_occurrence      := 
+       QUERY(c <* SELF\schematic_symbol_callout.contents | ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF(c)) AND
+                 ('PRESENTATION_DEFINITION_SCHEMA.EXPLICIT_TEXT_REFERENCE' IN TYPEOF(c\annotation_text_occurrence.item)));
+WHERE
+ WR1 : SIZEOF(QUERY(ato <* annotation_text_occurrence | (signal_name_data[1] = ato\annotation_text_occurrence.item\explicit_text_reference.source))) = 1; 
+ WR2 : SIZEOF(QUERY(ato <* annotation_text_occurrence | (pin_number_data[1] = ato\annotation_text_occurrence.item\explicit_text_reference.source))) = 1; 
+ WR3 : 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF(SELF\schematic_symbol_callout.presented_concept\item_identified_representation_usage.definition);
+END_ENTITY;
+
+--These will need to be split apart and placed in the appropriate module MIMs.
+TYPE scms_text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON text_reference_source WITH (
+        product,
+        model_parameter,
+        parameter_assignment,
+        functional_unit_terminal_definition,
+        packaged_part_terminal);        
+END_TYPE;
+
+--following are in presentation_definition_schema;
+(*
+TYPE text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT();--will include SELECT type in p46.        
+END_TYPE;
+
+TYPE text_literal_or_text_reference = SELECT(
+     text_literal,
+     text_reference);--will include SELECT type in p46.        
+END_TYPE;
+
+ENTITY text_reference -- include in p46
+  ABSTRACT SUPERTYPE OF (ONEOF(composite_sequential_text_reference, explicit_text_reference, implicit_text_reference))
+  SUBTYPE OF(representation_item);
+END_ENTITY;
+
+ENTITY composite_sequential_text_reference
+  SUBTYPE OF (text_reference);
+    collected_references : LIST[2:?] of text_literal_or_text_reference;
+WHERE
+  WR1 : SIZEOF(QUERY( cr <* collected_references | 'P46_SCHEMA.COMPOSITE_TEXT_REFERENCE' IN TYPEOF(cr))) = 0;
+  --no member of collected_references shall be a composite_text_reference.
+  --the list is one level only, not an array.
+END_ENTITY;
+  
+ENTITY explicit_text_reference-- include in p46
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  geometric_property : text_literal;
+  source             : text_reference_source;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+END_ENTITY;
+
+ENTITY explicit_text_reference_occurrence-- include in p46
+SUBTYPE OF(explicit_text_reference);
+ type_declaration   : implicit_text_reference;
+DERIVE
+  SELF\explicit_text_reference.attribute_name : STRING := type_declaration\implicit_text_reference.attribute_name;
+END_ENTITY;
+
+ENTITY implicit_text_reference -- include in p46
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  entity_name        : STRING;
+  geometric_property : text_literal;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+END_ENTITY;
+*)
+
+(*
+modified entity in aic_draughting_annotation p504:
+ENTITY draughting_annotation_occurrence
+	SUBTYPE OF (annotation_occurrence);
+WHERE
+---...
+	WR7 : (NOT('AP 210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF))) OR 
+	      (SIZEOF (TYPEOF(SELF.item) *
+	              ['AP 210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.COMPOSITE_TEXT',
+	               'AP 210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.TEXT_LITERAL',
+	               'AP 210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.TEXT_REFERENCE']) = 1);
+END_ENTITY;
+*)
+
+
 END_SCHEMA;

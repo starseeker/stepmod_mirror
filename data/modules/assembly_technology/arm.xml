@@ -2,10 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1649">
    <application name="JSDAI" owner="LKSoft" source="assembly_technology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_technology_arm">
-      <interface kind="use" schema="Assembly_module_design_arm"/>
+      <interface kind="use" schema="Component_feature_arm"/>
+      <interface kind="use" schema="Requirement_assignment_arm"/>
+      <interface kind="use" schema="Physical_component_feature_arm"/>
       <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Product_identification_extension_arm"/>
       <type name="at_external_identification_item">
@@ -20,9 +22,6 @@
       <type name="at_requirement_assignment_item">
          <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Assembly_joint"/>
       </type>
-      <type name="bond_feature">
-         <select selectitems="Connection_zone_in_layout_template Connection_zone_in_usage_view Default_attachment_size_based_land_physical_template Feature_definition_with_connection_area Part_feature"/>
-      </type>
       <type name="degree_of_freedom">
          <enumeration items="x y z u v w"/>
       </type>
@@ -33,28 +32,19 @@
          <where expression="SELF\Assembly_joint.assembly_feature_1.definition :=: default_bond_definition.bonded_feature_1" label="WR1"/>
          <where expression="SELF\Assembly_joint.assembly_feature_2.definition :=: default_bond_definition.bonded_feature_2" label="WR2"/>
       </entity>
-      <entity name="Assembled_with_fasteners" supertypes="Assembly_joint">
-         <explicit name="associated_assembly">
-            <typename name="Assembly_group_component"/>
-            <redeclaration entity-ref="Assembly_joint"/>
-         </explicit>
-      </entity>
+      <entity name="Assembled_with_fasteners" supertypes="Assembly_joint"/>
       <entity name="Assembly_bond_definition">
          <explicit name="name">
             <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="analytical_assembly_bond_representation" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Analytical_model_application"/>
          </explicit>
          <explicit name="associated_definition">
             <typename name="Externally_defined_view_definition"/>
          </explicit>
          <explicit name="bonded_feature_1">
-            <typename name="bond_feature"/>
+            <typename name="Physical_component_feature"/>
          </explicit>
          <explicit name="bonded_feature_2">
-            <typename name="bond_feature"/>
+            <typename name="Physical_component_feature"/>
          </explicit>
          <inverse attribute="shape_characterized_definition" entity="Default_assembly_bond_shape_model" name="default_shape">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
@@ -75,26 +65,25 @@
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding" supertypes="Component_feature_joint">
          <explicit name="assembly_feature_1">
-            <typename name="assembled_feature_select"/>
+            <typename name="Physical_component_feature"/>
             <redeclaration entity-ref="Component_feature_joint" old_name="feature_1"/>
          </explicit>
          <explicit name="assembly_feature_2">
-            <typename name="assembled_feature_select"/>
+            <typename name="Physical_component_feature"/>
             <redeclaration entity-ref="Component_feature_joint" old_name="feature_2"/>
          </explicit>
          <explicit name="associated_assembly">
-            <typename name="assembly_module_or_assembly_group_component"/>
+            <typename name="Assembly_item_shape"/>
             <redeclaration entity-ref="Component_feature_joint" old_name="associated_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="element_name" entity-ref="Component_feature_joint"/>
+            <unique.attribute attribute="SELF\Component_feature_joint.element_name"/>
             <unique.attribute attribute="associated_assembly"/>
          </unique>
          <where expression="assembly_feature_1 :&lt;&gt;: assembly_feature_2" label="WR1"/>
          <where expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR &#10;             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND &#10;             (SIZEOF(QUERY(ay &lt;* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view &lt;&gt; associated_assembly)) = 0))" label="WR2"/>
          <where expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR &#10;             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND &#10;             (SIZEOF(QUERY(ay &lt;* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view &lt;&gt; associated_assembly)) = 0))" label="WR3"/>
       </entity>
-      <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
       <entity name="Component_mating_constraint_condition">
          <explicit name="name">
             <builtintype type="STRING"/>
@@ -108,7 +97,7 @@
             <typename name="degree_of_freedom"/>
          </explicit>
          <explicit name="of_context">
-            <typename name="Part_design_view"/>
+            <typename name="Part_view_definition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
@@ -117,10 +106,10 @@
       </entity>
       <entity name="Connection_zone_based_assembly_joint" supertypes="Assembly_joint">
          <explicit name="zone_1">
-            <typename name="Connection_zone_in_design_view"/>
+            <typename name="Connection_zone"/>
          </explicit>
          <explicit name="zone_2">
-            <typename name="Connection_zone_in_design_view"/>
+            <typename name="Connection_zone"/>
          </explicit>
          <where expression="zone_1 :&lt;&gt;: zone_2" label="WR1"/>
       </entity>
@@ -131,6 +120,5 @@
          <where expression="NOT EXISTS(SELF\Representation.description)" label="WR1"/>
          <where expression="SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0" label="WR2"/>
       </entity>
-      <subtype.constraint entity="Process_specification" name="process_specification_subtypes" super.expression="ONEOF (Assembly_technology_specification, Fabrication_technology_specification)"/>
    </schema>
 </express>

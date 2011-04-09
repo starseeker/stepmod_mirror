@@ -1,0 +1,142 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- assembly_component - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Assembly_component_arm;
+
+USE FROM Component_grouping_arm;
+USE FROM General_part_occurrence_feature_joint_arm;
+USE FROM Part_occurrence_arm;
+
+TYPE assembly_component_source = EXTENSIBLE GENERIC_ENTITY SELECT (Part_view_definition);
+END_TYPE;
+
+
+ENTITY Assembly_component
+  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_item_shape);
+ SELF\Definition_based_product_occurrence.derived_from : assembly_component_source;
+  DERIVE
+  SELF\Item_shape.described_element : shapeable_item := SELF;
+  assemblies : SET OF Product_view_definition := ac_get_assemblies(SELF);
+  groups : SET OF Assembly_group_component := ac_get_groups(SELF);
+  versions : SET OF Product_version := ac_get_versions(assemblies);
+  product : SET OF Product := ac_get_products(versions);
+INVERSE
+  SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF Assembly_component_relationship FOR related_view;
+WHERE
+  WR1 : NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) XOR ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR 
+        NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) XOR ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)));
+  WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
+  WR3 : SIZEOF(assemblies) = SIZEOF(versions);
+  WR4 : SIZEOF(product) = 1;
+  WR5 : (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1])) OR
+         (SIZEOF(groups) = 0) OR 
+         (ac_get_group_assemblies(groups) = assemblies));
+END_ENTITY;
+
+ENTITY Component_make_from_relationship
+  SUBTYPE OF (View_definition_relationship);  
+  SELF\View_definition_relationship.relating_view RENAMED reusable_component	: Assembly_component;
+  SELF\View_definition_relationship.related_view RENAMED resultant_component	: Assembly_component;
+WHERE
+  WR1 : resultant_component <> reusable_component;
+END_ENTITY;
+
+ENTITY Physical_component
+  SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);
+END_ENTITY;
+
+ENTITY Thermal_component
+  SUBTYPE OF (Assembly_component);
+END_ENTITY;
+
+  FUNCTION ac_get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);
+  END_FUNCTION;
+
+  FUNCTION ac_get_groups(input : Assembly_component) : SET OF Assembly_group_component;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      agc : SET OF Assembly_group_component := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        agc := agc + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      END_IF;
+    END_REPEAT;
+    RETURN (agc);
+  END_FUNCTION;
+
+  FUNCTION ac_get_group_assemblies(input : SET OF Assembly_group_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := [];
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      acr := input[i]\Assembly_component.occurrence_contexts;
+    END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);
+  END_FUNCTION;
+
+  FUNCTION ac_get_versions(input : SET OF Product_view_definition) : SET OF Product_version;
+    LOCAL
+      pv : SET OF Product_version := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      pv := pv + input[i]\Product_view_definition.defined_version; 
+    END_REPEAT;
+    RETURN (pv);
+  END_FUNCTION;
+
+  FUNCTION ac_get_products(input : SET OF Product_version) : SET OF Product;
+    LOCAL
+      p : SET OF Product := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      p := p + input[i]\Product_version.of_product; 
+    END_REPEAT;
+    RETURN (p);
+  END_FUNCTION;
+  
+  FUNCTION get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+        'STRUCTURED_LAYOUT_COMPONENT' IN
+        TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+
+    RETURN (pvd);
+  END_FUNCTION;
+
+END_SCHEMA;

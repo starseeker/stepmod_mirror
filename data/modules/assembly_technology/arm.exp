@@ -1,12 +1,16 @@
 (*
-   $Id: arm.exp,v 1.54 2009/03/10 15:00:43 thomasrthurman Exp $
+   $Id: arm.exp,v 1.55 2009/04/23 10:43:42 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6330 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5611
 *)
 
 
 SCHEMA Assembly_technology_arm;
-	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+--	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+	USE FROM Component_feature_arm;
+	USE FROM Requirement_assignment_arm;
+	USE FROM Physical_component_feature_arm;
+	
 	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 	USE FROM Product_identification_extension_arm;	-- ISO/TS 10303-1738
 
@@ -26,6 +30,7 @@ SCHEMA Assembly_technology_arm;
 	    (Assembly_joint);
 	END_TYPE; 
 
+(*
   TYPE bond_feature = SELECT
     (Connection_zone_in_layout_template,
     Connection_zone_in_usage_view,
@@ -33,6 +38,7 @@ SCHEMA Assembly_technology_arm;
     Feature_definition_with_connection_area,
     Part_feature);
   END_TYPE;     
+*)
 	
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
@@ -42,12 +48,12 @@ SCHEMA Assembly_technology_arm;
      v,
      w);
   END_TYPE;
-
+(*
 	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
 		(ONEOF (Assembly_technology_specification,
 		Fabrication_technology_specification));
 	END_SUBTYPE_CONSTRAINT; 
-
+*)
   ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
       default_bond_definition : Assembly_bond_definition;
@@ -58,15 +64,15 @@ SCHEMA Assembly_technology_arm;
 
   ENTITY Assembled_with_fasteners
     SUBTYPE OF (Assembly_joint);
-      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
+--      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
   END_ENTITY;
 
   ENTITY Assembly_bond_definition;
       name                                    : STRING;   
-      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
+--      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
       associated_definition                   : Externally_defined_view_definition;
-      bonded_feature_1                        : bond_feature;
-      bonded_feature_2                        : bond_feature;
+      bonded_feature_1                        : Physical_component_feature; -- bond_feature;
+      bonded_feature_2                        : Physical_component_feature; -- bond_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
 	  bond_category	: External_source_identification FOR item;
@@ -97,9 +103,9 @@ SCHEMA Assembly_technology_arm;
     SUPERTYPE OF (Assembled_with_fasteners ANDOR
  Assembled_with_bonding)
     SUBTYPE OF (Component_feature_joint);
-      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : assembled_feature_select;
-      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : assembled_feature_select;
-      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : assembly_module_or_assembly_group_component;
+      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_item_shape; -- assembly_module_or_assembly_group_component;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
         associated_assembly;
@@ -112,16 +118,16 @@ SCHEMA Assembly_technology_arm;
              (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
              (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
   END_ENTITY;
-
+(*
   ENTITY Assembly_technology_specification
     SUBTYPE OF (Process_specification);
   END_ENTITY;
-
+*)
   ENTITY Component_mating_constraint_condition;
       name                          : STRING;  
       constraining_joint            : SET[1:3] OF Assembly_joint;
       constrained_degree_of_freedom : SET[1:6] OF degree_of_freedom;
-      of_context                    : Part_design_view;
+      of_context                    : Part_view_definition; -- Part_design_view;
     UNIQUE
       UR1 : name,
  of_context;
@@ -129,8 +135,8 @@ SCHEMA Assembly_technology_arm;
 
   ENTITY Connection_zone_based_assembly_joint
     SUBTYPE OF (Assembly_joint);
-      zone_1 : Connection_zone_in_design_view;
-      zone_2 : Connection_zone_in_design_view;
+      zone_1 : Connection_zone; -- Connection_zone_in_design_view;
+      zone_2 : Connection_zone; -- Connection_zone_in_design_view;
     WHERE
       WR1 : zone_1 :<>: zone_2;
   END_ENTITY;

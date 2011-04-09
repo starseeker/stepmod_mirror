@@ -2,11 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-442">
    <application name="JSDAI" owner="LKSoft" source="ap242_managed_model_based_3d_engineering_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ap242_managed_model_based_3d_engineering_mim">
       <interface kind="use" schema="Shape_data_quality_inspection_result_mim"/>
       <interface kind="use" schema="Geometric_constraints_mim"/>
+      <interface kind="use" schema="Machining_features_mim"/>
+      <interface kind="use" schema="Assembly_constraints_mim"/>
+      <interface kind="use" schema="Kinematic_motion_representation_mim"/>
+      <interface kind="use" schema="Constructive_solid_geometry_2d_mim"/>
+      <interface kind="use" schema="Characterized_representation_mim"/>
       <interface kind="use" schema="Chemical_substance_mim"/>
       <interface kind="use" schema="Composite_material_aspects_mim"/>
       <interface kind="use" schema="Compound_shape_representation_mim"/>
@@ -26,6 +31,7 @@
       <interface kind="use" schema="Manifold_subsurface_mim"/>
       <interface kind="use" schema="Mechanical_design_presentation_representation_with_draughting_mim"/>
       <interface kind="use" schema="Modified_swept_solid_mim"/>
+      <interface kind="use" schema="Numerical_interface_mim"/>
       <interface kind="use" schema="Part_and_zone_laminate_tables_mim"/>
       <interface kind="use" schema="Picture_representation_mim"/>
       <interface kind="use" schema="Planned_characteristic_mim"/>
@@ -46,7 +52,12 @@
       <interface kind="use" schema="product_concept_schema">
          <interfaced.item name="product_concept_relationship"/>
       </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_definition_context_role"/>
+         <interfaced.item name="product_category_relationship"/>
+      </interface>
       <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
          <interfaced.item name="type_check_function"/>
       </interface>
       <constant expression="['document_with_class',&#10;       'ordinal_date', &#10;       'product_definition_formation_with_specified_source', &#10;       'week_of_year_and_day_date']" name="deprecated_interfaced_data_types">
@@ -145,6 +156,9 @@
       <type name="presented_item_select_242">
          <select basedon="presented_item_select" extensible="YES" genericentity="YES" selectitems="action action_method action_relationship product_concept product_concept_feature product_concept_feature_category product_definition product_definition_formation product_definition_relationship"/>
       </type>
+      <type name="property_variable_rep_select_242">
+         <select basedon="property_variable_rep_select" selectitems="dimensional_size dimensional_location representation"/>
+      </type>
       <type name="security_classification_item_242">
          <select basedon="security_classification_item" selectitems="document_file product_definition product_definition_formation product_definition_usage"/>
       </type>
@@ -233,7 +247,42 @@
       </entity>
       <entity name="supplied_part_relationship" supertypes="product_definition_relationship"/>
       <rule appliesto="application_context" name="application_protocol_definition_required">
-         <where expression="SIZEOF( QUERY( ac &lt;* application_context | &#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | &#10;                apd.application_interpreted_model_schema_name = 'ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies' &#10;                )) &gt; 0) &#10;              )) &gt; 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( ac &lt;* application_context | &#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | &#10;                apd.application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering' &#10;                )) &gt; 0) &#10;              )) &gt; 0" label="WR1"/>
+      </rule>
+      <rule appliesto="applied_document_reference product_definition_context_association role_association" name="dimensioning_data_requires_document">
+         <algorithm>LOCAL
+      adr : SET OF applied_document_reference := (QUERY(adr &lt;* applied_document_reference |
+                         (adr\document_reference.assigned_document\document.kind\document_type.product_data_type = 'Standards Document') AND
+                         ((adr\document_reference.assigned_document\document.id = 'ASME Y14.41-2003') OR 
+                         (adr\document_reference.assigned_document\document.id = 'ASME Y14.5M-1994') OR 
+                         (adr\document_reference.assigned_document\document.id = 'ISO 1101: 2004'))));
+      pdca : SET OF product_definition_context_association := (QUERY(pdca &lt;* product_definition_context_association |
+                         (pdca\product_definition_context_association.role\product_definition_context_role.name = 'additional context') AND
+                         (pdca\product_definition_context_association.frame_of_reference\application_context_element.name = 'Geometric Dimensioning and Tolerancing Product Specification')));
+      ra : SET OF role_association := (QUERY(ra &lt;* role_association |
+                         ra\role_association.role\object_role.name = 'dimensioning standard'));
+      ra1 : SET OF role_association := [];
+      pdpdca : SET OF product_definition := [];
+      pdadr : SET OF product_definition := [];
+      pass : BOOLEAN := TRUE;
+    END_LOCAL;
+
+    REPEAT i := 1 TO HIINDEX(pdca);
+       pdpdca := pdpdca + pdca[i]\product_definition_context_association.definition;
+    END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(adr);
+       ra1 := bag_to_set(USEDIN(adr[i],'BASIC_ATTRIBUTE_SCHEMA.ROLE_ASSOCIATION.ITEM_WITH_ROLE'));
+       IF (ra1 * ra) &lt;&gt; ra1 THEN 
+        pass := FALSE;
+       END_IF;
+      REPEAT j := 1 to HIINDEX(adr[i]\applied_document_reference.items);
+       IF 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(adr[i]\applied_document_reference.items[j]) THEN
+        pdadr := pdadr + adr[i]\applied_document_reference.items[j];
+       END_IF;
+      END_REPEAT;
+    END_REPEAT;</algorithm>
+         <where expression="pass" label="WR1"/>
+         <where expression="pdpdca = pdadr" label="WR2"/>
       </rule>
       <function name="cc_design_person_and_organization_correlation">
          <parameter name="e">
@@ -247,71 +296,71 @@
     CASE po_role OF
       'request_recipient'      : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 SIZEOF(['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'CHANGE_REQUEST',
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'START_REQUEST'] *
                                  TYPEOF (x)) = 1))
                                  THEN RETURN(FALSE);
                                END_IF;
       'initiator'              : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 SIZEOF(['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'CHANGE_REQUEST',
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'START_REQUEST',
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'START_WORK',
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'CHANGE'] *
                                  TYPEOF (x)) = 1))
                                  THEN RETURN(FALSE);
                                END_IF;
       'creator'                : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 SIZEOF (['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 SIZEOF (['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'PRODUCT_DEFINITION_FORMATION',
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'PRODUCT_DEFINITION'] *
                                  TYPEOF (x)) = 1))
                                  THEN RETURN (FALSE);
                                END_IF;
       'part_supplier'          : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'PRODUCT_DEFINITION_FORMATION'
                                  IN TYPEOF (x)))
                                  THEN RETURN(FALSE);
                                END_IF;
       'design_supplier'        : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'PRODUCT_DEFINITION_FORMATION'
                                  IN TYPEOF (x)))
                                  THEN RETURN(FALSE);
                                END_IF;
       'design_owner'           : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.PRODUCT'
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.PRODUCT'
                                  IN TYPEOF (x)))
                                  THEN RETURN(FALSE);
                                END_IF;
       'configuration_manager'  : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'CONFIGURATION_ITEM'
                                  IN TYPEOF (x)))
                                  THEN RETURN(FALSE);
                                END_IF;
       'contractor'             : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.CONTRACT'
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.CONTRACT'
                                  IN TYPEOF (x)))
                                  THEN RETURN(FALSE);
                                END_IF;
       'classification_officer' : IF SIZEOF (e.items) &lt;&gt;
                                  SIZEOF (QUERY (x &lt;* e.items |
-                                 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM.' +
+                                 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM.' +
                                  'SECURITY_CLASSIFICATION'
                                  IN TYPEOF (x))) THEN
                                  RETURN(FALSE);

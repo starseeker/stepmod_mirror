@@ -83,8 +83,8 @@ ENTITY pair_representation_relationship
 WHERE
   WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
   WR2: rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2);
-  WR3: rep_1\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.first_link; 
-  WR4: rep_2\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.second_link; 
+  WR3: rep_1\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_start; 
+  WR4: rep_2\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_end; 
 END_ENTITY;
 
 TYPE kinematic_link_representation_items = SELECT (
@@ -870,7 +870,7 @@ FUNCTION plane_angle_for_pair_in_radian
   LOCAL
     converted_angle : plane_angle_measure := angle;
     link_rep        : kinematic_link_representation
-                    := representation_of_link (pair.joint.first_link);
+                    := representation_of_link (pair.joint.edge_start);
     link_cntxt      : representation_context;
     pa_units        : SET OF unit := [];
     pau             : unit;
@@ -941,7 +941,7 @@ FUNCTION convert_plane_angle_for_pair_from_radian
           angle_expr : REAL) : plane_angle_measure;
   LOCAL
     link_rep    : kinematic_link_representation
-                := representation_of_link (pair.joint.first_link);
+                := representation_of_link (pair.joint.edge_start);
     link_cntxt  : representation_context;
     pa_units    : SET OF unit := [];
     pau         : unit;

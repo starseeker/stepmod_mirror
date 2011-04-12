@@ -52,31 +52,30 @@ END_TYPE;
 
 TYPE interpolation_type = ENUMERATION OF
   (undefined,
+   discontinuous,
    synchronous,
    linear);
 END_TYPE;
 
-TYPE motion_parameter_measure = SELECT
-  (parameter_value,
-   measure_with_unit);
-END_TYPE;
-
-ENTITY configuration_interpolation
-  SUBTYPE OF (representation_relationship);
-  SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
-  SELF\representation_relationship.rep_2 RENAMED next_state : configuration_definition;
-  interpolation : interpolation_type;
-END_ENTITY ;
-
-ENTITY configuration_definition
-  SUBTYPE OF (mechanism_state_representation);
-  t_parameter : motion_parameter_measure;
+ENTITY interpolated_configuration_representation
+  SUBTYPE OF (representation);
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
+  SELF\representation.items : SET[1:1] OF interpolated_configuration_sequence;
 END_ENTITY;
 
 ENTITY interpolated_configuration_sequence
-  SUBTYPE OF (shape_representation);
-  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-  interpolation : SET [1 : ?] OF configuration_interpolation;
+  SUBTYPE OF (representation_item);
+  segments : LIST[1:?] OF interpolated_configuration_segment;
+DERIVE
+  n_segments : INTEGER := SIZEOF(segments);
+  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> discontinuous;
+END_ENTITY;  
+
+ENTITY interpolated_configuration_segment
+  SUBTYPE OF (founded_item);
+  state : mechanism_state_representation;
+  t_parameter : parameter_value;
+  interpolation : interpolation_type;
 END_ENTITY;
 
 ENTITY link_motion_relationship
@@ -96,12 +95,6 @@ ENTITY link_motion_transformation
 END_ENTITY;
 
 ENTITY link_motion_representation_along_path
-  SUBTYPE OF (representation);
---  SELF\representation.items : SET [1:?] OF xxx;
-  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-END_ENTITY;
-
-ENTITY kinematic_path_representation_with_parameter
   SUBTYPE OF (representation);
   SELF\representation.items : SET [1:?] OF kinematic_path;
   SELF\representation.context_of_items : geometric_representation_context_with_parameter;
@@ -256,7 +249,7 @@ END_FUNCTION;
 *)
 
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
-  ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path);
+  ONEOF (interpolated_configuration_representation, link_motion_representation_along_path);
 END_SUBTYPE_CONSTRAINT; 
 
 SUBTYPE_CONSTRAINT kmr_geometric_representation_item_subtypes FOR geometric_representation_item;

@@ -46,13 +46,10 @@
          <interfaced.item name="shape_representation"/>
       </interface>
       <type name="interpolation_type">
-         <enumeration items="undefined synchronous linear"/>
+         <enumeration items="undefined discontinuous synchronous linear"/>
       </type>
       <type name="link_or_shape_representation">
          <select selectitems="kinematic_link_representation shape_representation"/>
-      </type>
-      <type name="motion_parameter_measure">
-         <select selectitems="parameter_value measure_with_unit"/>
       </type>
       <type name="transform_or_placement">
          <select selectitems="transform axis2_placement"/>
@@ -77,24 +74,6 @@
          <where expression="t_start &lt; t_end" label="WR1"/>
          <where expression="connected_in_simple_path (elements)" label="WR2"/>
       </entity>
-      <entity name="configuration_definition" supertypes="mechanism_state_representation">
-         <explicit name="t_parameter">
-            <typename name="motion_parameter_measure"/>
-         </explicit>
-      </entity>
-      <entity name="configuration_interpolation" supertypes="representation_relationship">
-         <explicit name="previous_state">
-            <typename name="configuration_definition"/>
-            <redeclaration entity-ref="representation_relationship" old_name="rep_1"/>
-         </explicit>
-         <explicit name="next_state">
-            <typename name="configuration_definition"/>
-            <redeclaration entity-ref="representation_relationship" old_name="rep_2"/>
-         </explicit>
-         <explicit name="interpolation">
-            <typename name="interpolation_type"/>
-         </explicit>
-      </entity>
       <entity name="curve_based_path" supertypes="path_element">
          <explicit name="path_curve">
             <typename name="curve"/>
@@ -106,29 +85,42 @@
             <typename name="unit"/>
          </explicit>
       </entity>
-      <entity name="interpolated_configuration_sequence" supertypes="shape_representation">
+      <entity name="interpolated_configuration_representation" supertypes="representation">
          <explicit name="context_of_items">
             <typename name="geometric_representation_context_with_parameter"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <explicit name="interpolation">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="configuration_interpolation"/>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="interpolated_configuration_sequence"/>
+            <redeclaration entity-ref="representation"/>
          </explicit>
+      </entity>
+      <entity name="interpolated_configuration_segment" supertypes="founded_item">
+         <explicit name="state">
+            <typename name="mechanism_state_representation"/>
+         </explicit>
+         <explicit name="t_parameter">
+            <typename name="parameter_value"/>
+         </explicit>
+         <explicit name="interpolation">
+            <typename name="interpolation_type"/>
+         </explicit>
+      </entity>
+      <entity name="interpolated_configuration_sequence" supertypes="representation_item">
+         <explicit name="segments">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="interpolated_configuration_segment"/>
+         </explicit>
+         <derived expression="SIZEOF(segments)" name="n_segments">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived expression="segments[n_segments].interpolation &lt;&gt; discontinuous" name="closed_interpoltation">
+            <builtintype type="LOGICAL"/>
+         </derived>
       </entity>
       <entity name="kinematic_path" super.expression="ONEOF (path_element, composite_path)" supertypes="geometric_representation_item">
          <where expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF)| &#10;        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0" label="WR1"/>
-      </entity>
-      <entity name="kinematic_path_representation_with_parameter" supertypes="representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="kinematic_path"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <explicit name="context_of_items">
-            <typename name="geometric_representation_context_with_parameter"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
       </entity>
       <entity name="linear_path" supertypes="path_element"/>
       <entity name="link_motion_relationship" supertypes="representation_relationship_with_transformation definitional_representation_relationship">
@@ -148,6 +140,11 @@
          <where expression="item_in_context(transformation_operator\item_defined_transformation.transform_item_2, rep_2)" label="WR2"/>
       </entity>
       <entity name="link_motion_representation_along_path" supertypes="representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="kinematic_path"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
          <explicit name="context_of_items">
             <typename name="geometric_representation_context_with_parameter"/>
             <redeclaration entity-ref="representation"/>
@@ -204,7 +201,7 @@
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <subtype.constraint entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path)"/>
+      <subtype.constraint entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (interpolated_configuration_representation, link_motion_representation_along_path)"/>
       <subtype.constraint entity="geometric_representation_item" name="kmr_geometric_representation_item_subtypes" super.expression="ONEOF (kinematic_path, path_node, placement, transform, translation)"/>
       <function name="connected_in_simple_path">
          <parameter name="connections">

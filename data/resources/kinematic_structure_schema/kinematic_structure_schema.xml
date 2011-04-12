@@ -237,7 +237,7 @@
          <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;         pair_curve)" label="WR1"/>
       </entity>
       <entity name="linear_flexible_link_representation" supertypes="kinematic_link_representation"/>
-      <entity name="low_order_kinematic_pair" super.expression="ONEOF (revolute_pair, cylindrical_pair, spherical_pair, planar_pair, unconstrained_pair, fully_constrained_pair, prismatic_pair, universal_pair)" supertypes="kinematic_pair">
+      <entity name="low_order_kinematic_pair" super.expression="ONEOF (revolute_pair, cylindrical_pair, spherical_pair, spherical_pair_with_pin, planar_pair, unconstrained_pair, fully_constrained_pair, prismatic_pair, universal_pair)" supertypes="kinematic_pair">
          <explicit name="t_x">
             <builtintype type="BOOLEAN"/>
          </explicit>
@@ -558,6 +558,48 @@
             <builtintype type="BOOLEAN"/>
             <redeclaration entity-ref="low_order_kinematic_pair"/>
          </derived>
+      </entity>
+      <entity name="spherical_pair_with_pin" supertypes="low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="spherical_pair_with_pin_and_range" supertypes="spherical_pair_with_pin">
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR2"/>
       </entity>
       <entity name="spherical_pair_with_range" supertypes="spherical_pair">
          <explicit name="lower_limit_yaw" optional="YES">

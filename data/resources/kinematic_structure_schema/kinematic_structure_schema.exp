@@ -172,6 +172,7 @@ ENTITY low_order_kinematic_pair
     revolute_pair,
     cylindrical_pair,
     spherical_pair,
+    spherical_pair_with_pin,
     planar_pair,
     unconstrained_pair,
     fully_constrained_pair,
@@ -337,6 +338,36 @@ WHERE
        XOR
        (lower_limit_pitch < upper_limit_pitch);
   WR3: (NOT EXISTS(lower_limit_roll)
+        OR
+        NOT EXISTS(upper_limit_roll))
+       XOR
+       (lower_limit_roll < upper_limit_roll);
+END_ENTITY;
+
+ENTITY spherical_pair_with_pin
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
+END_ENTITY;
+
+ENTITY spherical_pair_with_pin_and_range
+  SUBTYPE OF (spherical_pair_with_pin);
+  lower_limit_yaw                        : OPTIONAL plane_angle_measure;
+  upper_limit_yaw                        : OPTIONAL plane_angle_measure;
+  lower_limit_roll                       : OPTIONAL plane_angle_measure;
+  upper_limit_roll                       : OPTIONAL plane_angle_measure;
+WHERE
+  WR1: (NOT EXISTS(lower_limit_yaw)
+        OR
+        NOT EXISTS(upper_limit_yaw))
+       XOR
+       (lower_limit_yaw < upper_limit_yaw);
+  WR2: (NOT EXISTS(lower_limit_roll)
         OR
         NOT EXISTS(upper_limit_roll))
        XOR

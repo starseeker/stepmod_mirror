@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.9 2005/07/22 22:43:54 thendrix Exp $
+$Id: publication_summary.xsl,v 1.10 2010/12/22 08:20:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -530,7 +530,7 @@ $Id: publication_summary.xsl,v 1.9 2005/07/22 22:43:54 thendrix Exp $
                         $resdoc_node/@wg.number.express,
                         'express.exp')"/>
               <xsl:variable name="express_href" 
-                select="concat($resdoc_dir_name,'express/',$express_file)"/>
+                select="concat($resdoc_dir_name,'/inserts/',$express_file)"/>
               <a href="{$express_href}">
                 <xsl:value-of select="$express_file"/>
               </a>

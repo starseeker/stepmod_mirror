@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.6 2010/10/18 06:18:30 robbod Exp $
+$Id: sect_isocover.xsl,v 1.7 2011/03/11 15:57:40 lothartklein Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -411,7 +411,7 @@ $Id: sect_isocover.xsl,v 1.6 2010/10/18 06:18:30 robbod Exp $
           <tr>
             <td colspan="3" align="center" valign="top">
               <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
-                &#169;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
+                &#169;&#160;ISO&#160;<xsl:value-of select="substring(@publication.year,1,4)"/>
               </div>
               <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
                 <a name="copyright"/>
@@ -473,7 +473,7 @@ $Id: sect_isocover.xsl,v 1.6 2010/10/18 06:18:30 robbod Exp $
 
           <td width="310" align="center" valign="top">
             <span style="font-size:12; font-family:sans-serif;">
-              &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
+              &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="substring(@publication.year,1,4)"/>
             </span>
           </td>
           <!-- RBN - ISO no longer require price on front page - left here and commented in case

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.55 2009/04/23 10:43:42 liutkuviene Exp $
+   $Id: arm.exp,v 1.56 2011/04/09 16:56:49 lothartklein Exp $
    ISO TC184/SC4/WG12 N6330 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5611
 *)
@@ -30,15 +30,15 @@ SCHEMA Assembly_technology_arm;
 	    (Assembly_joint);
 	END_TYPE; 
 
-(*
-  TYPE bond_feature = SELECT
-    (Connection_zone_in_layout_template,
-    Connection_zone_in_usage_view,
-    Default_attachment_size_based_land_physical_template,
-    Feature_definition_with_connection_area,
-    Part_feature);
+  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Physical_component_feature); -- added anew
+    -- Connection_zone_in_layout_template,
+    -- Connection_zone_in_usage_view,
+    -- Default_attachment_size_based_land_physical_template,
+    -- Feature_definition_with_connection_area,
+    -- Part_feature);
   END_TYPE;     
-*)
+
 	
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
@@ -71,8 +71,8 @@ SCHEMA Assembly_technology_arm;
       name                                    : STRING;   
 --      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
       associated_definition                   : Externally_defined_view_definition;
-      bonded_feature_1                        : Physical_component_feature; -- bond_feature;
-      bonded_feature_2                        : Physical_component_feature; -- bond_feature;
+      bonded_feature_1                        : bond_feature;
+      bonded_feature_2                        : bond_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
 	  bond_category	: External_source_identification FOR item;

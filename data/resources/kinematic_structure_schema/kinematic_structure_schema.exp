@@ -144,6 +144,8 @@ ENTITY kinematic_pair
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
+INVERSE
+  link_representation_associations : SET[1:?] OF pair_representation_relationship FOR transformation_operator; 
 END_ENTITY;
 
 ENTITY high_order_kinematic_pair
@@ -155,6 +157,11 @@ ENTITY high_order_kinematic_pair
     surface_pair
   ))
   SUBTYPE OF (kinematic_pair);
+DERIVE
+  associated_link_representations_1 : SET[0:?] OF kinematic_link_representation :=
+    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
+  associated_link_representations_2 : SET[0:?] OF kinematic_link_representation :=
+    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
 END_ENTITY;
 
 ENTITY low_order_kinematic_pair_with_motion_coupling
@@ -469,9 +476,7 @@ ENTITY point_on_surface_pair
   SUBTYPE OF (high_order_kinematic_pair);
   pair_surface : surface;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1, 
-         pair_surface);
+  WR1: pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY point_on_surface_pair_with_range
@@ -499,6 +504,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
+  WR5: range_on_pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY surface_pair
@@ -508,12 +514,8 @@ ENTITY surface_pair
   surface_2   : surface;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-          surface_1);
-  WR2: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_2,
-          surface_2);
+  WR1: surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR2: surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY surface_pair_with_range
@@ -530,6 +532,8 @@ WHERE
         NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
+  WR4: range_on_surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR5: range_on_surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY sliding_surface_pair
@@ -540,24 +544,20 @@ ENTITY rolling_surface_pair
   SUBTYPE OF (surface_pair);
 END_ENTITY;
 
-ENTITY point_on_planar_curve_pair
-  SUBTYPE OF (high_order_kinematic_pair);
-  pair_curve  : curve;
-  orientation : BOOLEAN;
-WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-         pair_curve);
-END_ENTITY;
-
 ENTITY linear_flexible_and_planar_curve_pair
   SUBTYPE OF (high_order_kinematic_pair);
   pair_curve  : curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-         pair_curve);
+  WR1: pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+END_ENTITY;
+
+ENTITY point_on_planar_curve_pair
+  SUBTYPE OF (high_order_kinematic_pair);
+  pair_curve  : curve;
+  orientation : BOOLEAN;
+WHERE
+  WR1: pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair_with_range
@@ -585,6 +585,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
+  WR5: range_on_pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY planar_curve_pair
@@ -594,12 +595,8 @@ ENTITY planar_curve_pair
   curve_2     : curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-          curve_1);
-  WR2: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_2,
-          curve_2);
+  WR1: curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR2: curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY planar_curve_pair_range
@@ -609,6 +606,8 @@ ENTITY planar_curve_pair_range
 WHERE
   WR1: SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve;
   WR2: SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve;
+  WR3: range_on_curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR4: range_on_curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY sliding_curve_pair
@@ -788,71 +787,6 @@ FUNCTION coordinated_pair_link_representation
 END_FUNCTION;
 *)
 
-FUNCTION frame_associated_to_background
-  (frame      : rigid_placement;
-   background : kinematic_link_representation_items) : BOOLEAN;
-(*   
-  LOCAL
-    rep_bag : BAG OF kinematic_frame_background_representation;
-    trf_bag : BAG OF kinematic_frame_based_transformation;
-    trm_bag : BAG OF kinematic_frame_based_transformation;
-    ass_bag : BAG OF
-              kinematic_frame_background_representation_association;
-    rep     : kinematic_frame_background_representation;
-    ass     : kinematic_frame_background_representation_association;
-  END_LOCAL;
-
-  rep_bag := QUERY ( bg <* USEDIN (background,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'REPRESENTATION.ITEMS')|
-                     'KINEMATIC_STRUCTURE_SCHEMA.'+
-                     'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION' 
-                      IN TYPEOF (bg) );
-
-  IF SIZEOF (rep_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  trf_bag := USEDIN (frame,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'KINEMATIC_FRAME_BASED_TRANSFORMATION.' +
-                     'TRANSFORMATOR');
-
-  IF SIZEOF (trf_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  REPEAT i := 1 TO HIINDEX (rep_bag);
-    rep := rep_bag[i];
-
-ass_bag := QUERY ( kfbra <* USEDIN ( rep,
-             'KINEMATIC_STRUCTURE_SCHEMA.' +
-             'REPRESENTATION_RELATIONSHIP.REP_2') |
-             'KINEMATIC_STRUCTURE_SCHEMA.'+
-             'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION_ASSOCIATION'
-             IN TYPEOF ( kfbra ) );
-
-    IF SIZEOF (ass_bag) > 0 THEN
-      REPEAT j:= 1 TO HIINDEX (ass_bag);
-        ass := ass_bag[j];
-
-        trm_bag := QUERY (trm <* trf_bag |
-          (trm :=:
-           ass\representation_relationship_with_transformation.
-           transformation_operator));
-
-        IF SIZEOF (trm_bag) > 0 THEN
-          RETURN (TRUE);
-        END_IF;
-
-      END_REPEAT;
-    END_IF;
-  END_REPEAT;
-*)
-  RETURN (FALSE);
-
-END_FUNCTION;
-
 FUNCTION plane_angle_for_pair_in_radian
          (pair  : kinematic_pair;
           angle : plane_angle_measure) : plane_angle_measure;
@@ -1031,6 +965,23 @@ FUNCTION connected_in_simple_loop
   END_IF;
 END_FUNCTION;
 *)
+
+FUNCTION sort_link_associations 
+  (aprr : SET[1:?] OF pair_representation_relationship; one_not_two : boolean) : SET OF kinematic_link_representation;
+LOCAL
+  aklr : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  IF one_not_two THEN
+    REPEAT i := 1 TO HIINDEX(aprr);
+      aklr := aklr + aprr[i].rep_1;
+    END_REPEAT;
+  ELSE  
+    REPEAT i := 1 TO HIINDEX(aprr);
+      aklr := aklr + aprr[i].rep_2;
+    END_REPEAT;
+  END_IF;
+  RETURN(aklr);
+END_FUNCTION;
 
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
   ONEOF (kinematic_link_representation,

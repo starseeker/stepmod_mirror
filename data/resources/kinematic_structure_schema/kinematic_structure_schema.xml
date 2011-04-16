@@ -177,7 +177,16 @@
          </explicit>
          <where expression="(NOT EXISTS(lower_limit_actual_rotation_1)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation_1))&#10;       XOR&#10;       (lower_limit_actual_rotation_1 &lt; upper_limit_actual_rotation_1)" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="high_order_kinematic_pair" super.expression="ONEOF (linear_flexible_and_planar_curve_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, surface_pair)" supertypes="kinematic_pair"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="high_order_kinematic_pair" super.expression="ONEOF (linear_flexible_and_planar_curve_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, surface_pair)" supertypes="kinematic_pair">
+         <derived expression="sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE)" name="associated_link_representations_1">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="kinematic_link_representation"/>
+         </derived>
+         <derived expression="sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE)" name="associated_link_representations_2">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="kinematic_link_representation"/>
+         </derived>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="homokinetic_pair" supertypes="universal_pair">
          <where expression="NOT EXISTS(SELF.input_skew_angle)" label="WR1"/>
       </entity>
@@ -221,6 +230,9 @@
             <typename name="rigid_placement"/>
             <redeclaration entity-ref="item_defined_transformation"/>
          </explicit>
+         <inverse attribute="transformation_operator" entity="pair_representation_relationship" name="link_representation_associations">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="linear_flexible_and_pinion_pair" supertypes="low_order_kinematic_pair_with_motion_coupling">
          <explicit name="pinion_radius" optional="NO">
@@ -234,7 +246,7 @@
          <explicit name="orientation" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;         pair_curve)" label="WR1"/>
+         <where expression="pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="linear_flexible_link_representation" supertypes="kinematic_link_representation"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="low_order_kinematic_pair" super.expression="ONEOF (revolute_pair, cylindrical_pair, spherical_pair, spherical_pair_with_pin, planar_pair, unconstrained_pair, fully_constrained_pair, prismatic_pair, universal_pair)" supertypes="kinematic_pair">
@@ -301,8 +313,8 @@
          <explicit name="orientation" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;          curve_1)" label="WR1"/>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_2,&#10;          curve_2)" label="WR2"/>
+         <where expression="curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR1"/>
+         <where expression="curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items" label="WR2"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>
@@ -316,6 +328,8 @@
          </explicit>
          <where expression="SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve" label="WR1"/>
          <where expression="SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve" label="WR2"/>
+         <where expression="range_on_curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR3"/>
+         <where expression="range_on_curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items" label="WR4"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="planar_pair" supertypes="low_order_kinematic_pair">
          <derived expression="TRUE" name="t_x">
@@ -373,7 +387,7 @@
          <explicit name="orientation" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;         pair_curve)" label="WR1"/>
+         <where expression="pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR1"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>
@@ -403,12 +417,13 @@
          <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
          <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
          <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
+         <where expression="range_on_pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR5"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="point_on_surface_pair" supertypes="high_order_kinematic_pair">
          <explicit name="pair_surface" optional="NO">
             <typename name="surface"/>
          </explicit>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1, &#10;         pair_surface)" label="WR1"/>
+         <where expression="pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR1"/>
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="point_on_surface_pair_with_range" supertypes="point_on_surface_pair">
@@ -436,6 +451,7 @@
          <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
          <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR3"/>
          <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR4"/>
+         <where expression="range_on_pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR5"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="prismatic_pair" supertypes="low_order_kinematic_pair">
          <derived expression="TRUE" name="t_x">
@@ -662,8 +678,8 @@
          <explicit name="orientation" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_1,&#10;          surface_1)" label="WR1"/>
-         <where expression="frame_associated_to_background&#10;         (SELF\item_defined_transformation.transform_item_2,&#10;          surface_2)" label="WR2"/>
+         <where expression="surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR1"/>
+         <where expression="surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items" label="WR2"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>
@@ -683,6 +699,8 @@
          <where expression="SELF\surface_pair.surface_1 :=: range_on_surface_1.basis_surface" label="WR1"/>
          <where expression="SELF\surface_pair.surface_2 :=: range_on_surface_2.basis_surface" label="WR2"/>
          <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR3"/>
+         <where expression="range_on_surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items" label="WR4"/>
+         <where expression="range_on_surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items" label="WR5"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="unconstrained_pair" supertypes="low_order_kinematic_pair">
          <derived expression="TRUE" name="t_x">
@@ -838,16 +856,6 @@
   result := angle_expr / conv_factor;
   RETURN (result);</algorithm>
       </function>
-      <function name="frame_associated_to_background">
-         <parameter name="frame">
-            <typename name="rigid_placement"/>
-         </parameter>
-         <parameter name="background">
-            <typename name="kinematic_link_representation_items"/>
-         </parameter>
-         <builtintype fixed="NO" type="BOOLEAN"/>
-         <algorithm>RETURN (FALSE);</algorithm>
-      </function>
       <function name="plane_angle_for_pair_in_radian">
          <parameter name="pair">
             <typename name="kinematic_pair"/>
@@ -929,6 +937,30 @@
          </parameter>
          <typename name="kinematic_link_representation"/>
          <algorithm>RETURN (?);</algorithm>
+      </function>
+      <function name="sort_link_associations">
+         <parameter name="aprr">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="pair_representation_relationship"/>
+         </parameter>
+         <parameter name="one_not_two">
+            <builtintype fixed="NO" type="BOOLEAN"/>
+         </parameter>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+         <typename name="kinematic_link_representation"/>
+         <algorithm>LOCAL
+  aklr : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  IF one_not_two THEN
+    REPEAT i := 1 TO HIINDEX(aprr);
+      aklr := aklr + aprr[i].rep_1;
+    END_REPEAT;
+  ELSE  
+    REPEAT i := 1 TO HIINDEX(aprr);
+      aklr := aklr + aprr[i].rep_2;
+    END_REPEAT;
+  END_IF;
+  RETURN(aklr);</algorithm>
       </function>
    </schema>
 </express>

@@ -7,17 +7,20 @@
    <schema name="kinematic_property_schema">
       <interface kind="reference" schema="kinematic_structure_schema">
          <interfaced.item name="kinematic_link_representation"/>
+         <interfaced.item name="kinematic_link_representation_association"/>
          <interfaced.item name="mechanism_representation"/>
       </interface>
       <interface kind="reference" schema="kinematic_topology_schema">
          <interfaced.item name="kinematic_link"/>
-         <interfaced.item name="kinematic_topology_representation"/>
+         <interfaced.item name="kinematic_topology_representation_select"/>
       </interface>
       <interface kind="reference" schema="product_property_definition_schema">
          <interfaced.item name="property_definition"/>
+         <interfaced.item name="product_definition_shape"/>
       </interface>
       <interface kind="reference" schema="product_definition_schema">
          <interfaced.item name="product_definition"/>
+         <interfaced.item name="product_definition_relationship"/>
       </interface>
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="property_definition_representation"/>
@@ -25,6 +28,14 @@
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="using_representations"/>
       </interface>
+      <entity name="context_dependent_kinematic_link_representation">
+         <explicit name="representation_relation">
+            <typename name="kinematic_link_representation_association"/>
+         </explicit>
+         <explicit name="represented_product_relation">
+            <typename name="product_definition_relationship_kinematics"/>
+         </explicit>
+      </entity>
       <entity abstract.supertype="YES" name="kinematic_property_definition_representation" super.expression="ONEOF (kinematic_property_topology_representation, kinematic_property_mechanism_representation)" supertypes="property_definition_representation">
          <explicit name="definition">
             <typename name="product_definition_kinematics"/>
@@ -43,7 +54,7 @@
       </entity>
       <entity name="kinematic_property_topology_representation" supertypes="kinematic_property_definition_representation">
          <explicit name="used_representation">
-            <typename name="kinematic_topology_representation"/>
+            <typename name="kinematic_topology_representation_select"/>
             <redeclaration entity-ref="property_definition_representation"/>
          </explicit>
          <explicit name="base">
@@ -61,5 +72,15 @@
             <unique.attribute attribute="definition"/>
          </unique>
       </entity>
+      <entity name="product_definition_relationship_kinematics" supertypes="property_definition">
+         <explicit name="definition">
+            <typename name="product_definition_relationship"/>
+            <redeclaration entity-ref="property_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="definition"/>
+         </unique>
+      </entity>
+      <subtype.constraint entity="property_definition" name="kps_property_definition_subtypes" super.expression="ONEOF (product_definition_kinematics, product_definition_relationship_kinematics, product_definition_shape)"/>
    </schema>
 </express>

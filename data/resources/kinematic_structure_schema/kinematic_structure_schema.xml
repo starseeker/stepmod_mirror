@@ -283,7 +283,11 @@
          <explicit name="represented_topology" optional="NO">
             <typename name="kinematic_topology_representation_select"/>
          </explicit>
-         <where expression="SIZEOF (QUERY (item &lt;* items | &#10;    NOT (represented_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (represented_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))&#10;    OR&#10;    NOT (represented_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))&#10;    )) = 0" label="WR1"/>
+         <derived expression="collect_joints(items)" name="represented_joints">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="kinematic_joint"/>
+         </derived>
+         <where expression="(('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: represented_topology.items)) OR&#10;       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_DIRECTED_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: get_kinematic_joints_from_oriented_joints(represented_topology.items))) OR&#10;       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_NETWORK_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: get_kinematic_joints_from_kinematic_loops(represented_topology.items)))" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="pair_representation_relationship" supertypes="representation_relationship_with_transformation geometric_representation_item">
          <explicit name="rep_1" optional="NO">
@@ -298,8 +302,8 @@
             <typename name="kinematic_pair"/>
             <redeclaration entity-ref="representation_relationship_with_transformation"/>
          </explicit>
-         <where expression="rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1)" label="WR1"/>
-         <where expression="rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2)" label="WR2"/>
+         <where expression="transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items" label="WR1"/>
+         <where expression="transformation_operator\item_defined_transformation.transform_item_2 IN rep_2.items" label="WR2"/>
          <where expression="rep_1\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_start" label="WR3"/>
          <where expression="rep_2\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_end" label="WR4"/>
       </entity>
@@ -778,6 +782,21 @@
          <where expression="(NOT EXISTS(lower_limit_second_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_second_rotation))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="representation" name="kss_representation_subtypes" super.expression="ONEOF (kinematic_link_representation, kinematic_topology_structure, kinematic_topology_directed_structure, kinematic_topology_network_structure, mechanism_representation, shape_representation)"/>
+      <function name="collect_joints">
+         <parameter name="items">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="pair_representation_relationship"/>
+         </parameter>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+         <typename name="kinematic_joint"/>
+         <algorithm>LOCAL
+  result : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  REPEAT i := 1 TO HIINDEX(items);
+    result := result + items[i].transformation_operator.joint;
+  END_REPEAT;
+  RETURN(result);</algorithm>
+      </function>
       <function name="convert_plane_angle_for_pair_from_radian">
          <parameter name="pair">
             <typename name="kinematic_pair"/>
@@ -949,18 +968,18 @@
          <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
          <typename name="kinematic_link_representation"/>
          <algorithm>LOCAL
-  aklr : SET OF kinematic_link_representation := [];
+  result : SET OF kinematic_link_representation := [];
 END_LOCAL;
   IF one_not_two THEN
     REPEAT i := 1 TO HIINDEX(aprr);
-      aklr := aklr + aprr[i].rep_1;
+      result := result + aprr[i].rep_1;
     END_REPEAT;
   ELSE  
     REPEAT i := 1 TO HIINDEX(aprr);
-      aklr := aklr + aprr[i].rep_2;
+      result := result + aprr[i].rep_2;
     END_REPEAT;
   END_IF;
-  RETURN(aklr);</algorithm>
+  RETURN(result);</algorithm>
       </function>
    </schema>
 </express>

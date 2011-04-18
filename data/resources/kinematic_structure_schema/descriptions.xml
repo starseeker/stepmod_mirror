@@ -4,7 +4,7 @@ type="text/xsl"
 href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
 <ext_descriptions module_directory="kinematic_structure_schema" schema_file="kinematic_structure_schema.xml"
-rcs.date="$Date: 2011/04/16 19:20:11 $" rcs.revision="$Revision: 1.5 $"
+rcs.date="$Date: 2011/04/16 22:24:54 $" rcs.revision="$Revision: 1.6 $"
 describe.selects="YES"
 >
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -322,23 +322,29 @@ Schema: kinematic_structure_schema
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>
 	that specifies the capabilities of relative motion of its links under the constraints
 	imposed by its joints.
-	It is a kinematic structure with a single link fixed to the ground or to some other <b>mechanism_representation</b>.
-	The entire <b>mechanism_representation</b> may be subject to the rigid body motion imposed to its base.
-	<note>
-		A <b>mechanism_representation</b> may have different bases at different times.
-		In space applications, worm-like mechanisms have been designed which grab to a space-structure 
-		with one end, move on with the other end, fix themselves with an end-effector establishing 
-		a new base, and then loosen the original grip.
-	</note>
+	A <b>mechanism_representation</b> represents either an
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_topology_directed_structure"/>, a
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_topology_network_structure"/> or a
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_topology_structure"/>.
+	For each 
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_link"/>
+	a corresponding
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>
+	shall be provided.
+	For each 
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_joint"/>
+	a corresponding
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>
+	shall be provided.
+    The association between these objects is estalished by
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.pair_representation_relationship"/>s
+	that are the items of a <b>mechanism_representation</b>. 
 </ext_description>
 
 <!-- context_of_items -->
 <ext_description linkend="kinematic_structure_schema.mechanism_representation.context_of_items">
-	an attribute inherited from the
-	<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>
-	shall be redeclared as the
-	<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_context"/>
-	for the <b>mechanism_representation</b>.
+	an inherited attribute that shall be of type
+	<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_context"/>.
 </ext_description>
 
 <!-- items -->
@@ -355,14 +361,25 @@ Schema: kinematic_structure_schema
 
 <!-- represented_topology -->
 <ext_description linkend="kinematic_structure_schema.mechanism_representation.represented_topology">
-	specifies the role of the
-	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_topology_representation"/>
-	for the <b>mechanism_representation</b>.
+	the represented
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_topology_representation_select"/>.
+</ext_description>
+
+<!-- represented_joints -->
+<ext_description linkend="kinematic_structure_schema.mechanism_representation.represented_joints">
+	the represented
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_joint"/>s.
 </ext_description>
 
 <!-- WR1 -->
 <ext_description linkend="kinematic_structure_schema.mechanism_representation.wr:WR1">
-	
+    The <b>mechanism_representation</b> shall provide exactly one pair of 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.pair_representation_relationship"/>
+    and
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>
+	for each
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_joint"/>
+    of the <b>represented_topology</b>.   
 </ext_description>
 
 <!-- +++++++++++ pair_representation_relationship +++++++++++ -->
@@ -371,38 +388,46 @@ Schema: kinematic_structure_schema
 	<express_ref linkend="geometry_schema:ir_express:geometry_schema.geometric_representation_item"/>
 	and of
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation_relationship_with_transformation"/>.
+	It provides the relationship between two 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>s
+	and a 
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>
+	in such a way, that they match with the underlying
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_link"/>s
+	of a
+	<express_ref linkend="kinematic_topology_schema:ir_express:kinematic_topology_schema.kinematic_joint"/>.
 </ext_description>
 
 <!-- rep_1 -->
 <ext_description linkend="kinematic_structure_schema.pair_representation_relationship.rep_1">
-	an attribute inherited from the
+	an attribute inherited from
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation_relationship"/>
-	shall be redeclared as the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>
-	for the <b>pair_representation_relationship</b>.
+	that shall be of type
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>.
 </ext_description>
 
 <!-- rep_2 -->
 <ext_description linkend="kinematic_structure_schema.pair_representation_relationship.rep_2">
-	an attribute inherited from the
+	an attribute inherited from
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation_relationship"/>
-	shall be redeclared as the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>
-	for the <b>pair_representation_relationship</b>.
+	that shall be of type
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>.
 </ext_description>
 
 <!-- transformation_operator -->
 <ext_description linkend="kinematic_structure_schema.pair_representation_relationship.transformation_operator">
-	an attribute inherited from the
+	an attribute inherited from
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation_relationship_with_transformation"/>
-	shall be redeclared as the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>
-	for the <b>pair_representation_relationship</b>.
+	thatshall be of type
+	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair"/>.
 </ext_description>
 
 <!-- WR1 -->
 <ext_description linkend="kinematic_structure_schema.pair_representation_relationship.wr:WR1">
-	
+	<express_ref linkend="representation_schema:ir_express:representation_schema.item_defined_transformation.transform_item_1"/>
+
+  The inherited
+  <express_ref linkend="representation_schema:ir_express:representation_schema.representation_relationship.rep_1"/>.
 </ext_description>
 
 <!-- WR2 -->
@@ -1341,25 +1366,8 @@ Schema: kinematic_structure_schema
 
 <!-- WR1 -->
 <ext_description linkend="kinematic_structure_schema.point_on_surface_pair.wr:WR1">
-<!-- 
-	The <b>pair_surface</b> of a <b>point_on_surface_pair</b> shall be in the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_frame_background_representation.items"/> 
-	set of a 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_frame_background_representation"/> 
-	which, in turn, is related to the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_link_representation"/>
-	of the first link of the <b>point_on_surface_pair</b> by a
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_frame_background_representation_association"/>.
-	The 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_frame_based_transformation.transformator"/> 
-	in the 
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_frame_background_representation_association.transformation_operator"/>
-	of this relationship shall be the
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.kinematic_pair.pair_placement_in_first_link_context"/>
-	of the <b>point_on_surface_pair</b>.
-	These requirements are checked by the function
-	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.frame_associated_to_background"/>.
- -->
+  The surface referenced by <b>pair_surface</b> shall be a member of
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.high_order_kinematic_pair.associated_link_representations_1"/>.
 </ext_description>
 
 <!-- IP1 -->
@@ -1467,6 +1475,13 @@ Schema: kinematic_structure_schema
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.point_on_surface_pair"/> 
 	shall be positive when both bounds are not given as unlimited.
 </ext_description>
+
+<!-- WR5 -->
+<ext_description linkend="kinematic_structure_schema.point_on_surface_pair_with_range.wr:WR5">
+  The surface referenced by <b>range_on_pair_surface</b> shall be a member of
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.high_order_kinematic_pair.associated_link_representations_1"/>.
+</ext_description>
+
 
 <!-- +++++++++++ surface_pair +++++++++++ -->
 <ext_description linkend="kinematic_structure_schema.surface_pair">
@@ -1694,6 +1709,19 @@ Schema: kinematic_structure_schema
 	<express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.surface_pair"/> 
 	shall be positive when both bounds are not given as unlimited.
 </ext_description>
+
+<!-- WR4 -->
+<ext_description linkend="kinematic_structure_schema.surface_pair_with_range.wr:WR4">
+  The surface referenced by <b>range_on_surface_1</b> shall be a member of
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.high_order_kinematic_pair.associated_link_representations_1"/>.
+</ext_description>
+
+<!-- WR5 -->
+<ext_description linkend="kinematic_structure_schema.surface_pair_with_range.wr:WR5">
+  The surface referenced by <b>range_on_surface_2</b> shall be a member of
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.high_order_kinematic_pair.associated_link_representations_2"/>.
+</ext_description>
+
 
 <!-- +++++++++++ sliding_surface_pair +++++++++++ -->
 <ext_description linkend="kinematic_structure_schema.sliding_surface_pair">
@@ -2171,10 +2199,18 @@ Schema: kinematic_structure_schema
 
 <!-- WR1 -->
 <ext_description linkend="kinematic_structure_schema.planar_curve_pair_range.wr:WR1">
+  The
+  <express_ref linkend="geometry_schema:ir_express:geometry_schema.trimmed_curve.basis_curve"/>
+  of <b>range_on_curve_1</b> shall be the same as 
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.planar_curve_pair.curve_1"/>.
 </ext_description>
 
 <!-- WR2 -->
 <ext_description linkend="kinematic_structure_schema.planar_curve_pair_range.wr:WR2">
+  The
+  <express_ref linkend="geometry_schema:ir_express:geometry_schema.trimmed_curve.basis_curve"/>
+  of <b>range_on_curve_2</b> shall be the same as 
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.planar_curve_pair.curve_2"/>.
 </ext_description>
 
 <!-- WR3 -->
@@ -2397,7 +2433,8 @@ Schema: kinematic_structure_schema
 
 <!-- WR1 -->
 <ext_description linkend="kinematic_structure_schema.linear_flexible_and_planar_curve_pair.wr:WR1">
-
+  The curve referenced by <b>pair_curve</b> shall be a member of
+  <express_ref linkend="kinematic_structure_schema:ir_express:kinematic_structure_schema.high_order_kinematic_pair.associated_link_representations_1"/>.
 </ext_description>
 
 <!-- +++++++++++ rack_and_pinion_pair +++++++++++ -->

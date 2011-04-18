@@ -64,16 +64,16 @@ ENTITY mechanism_representation
   SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF pair_representation_relationship;
   represented_topology : kinematic_topology_representation_select;
+DERIVE
+  represented_joints : SET[1:?] OF kinematic_joint := collect_joints(items); 
 WHERE  
-  WR1: SIZEOF (QUERY (item <* items | 
-    NOT (represented_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))
-    OR
-    NOT (represented_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))
-    OR
-    NOT (represented_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))
-    )) = 0;
+  WR1: (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: represented_topology.items)) OR
+       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_DIRECTED_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: get_kinematic_joints_from_oriented_joints(represented_topology.items))) OR
+       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_NETWORK_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: get_kinematic_joints_from_kinematic_loops(represented_topology.items)));          
 END_ENTITY;
-(* WR1: All items that are of type pair_representation_relationship shall refer to kinematic_links and kinematic_joints that are used by the underlying_topology representation.*)
 
 ENTITY pair_representation_relationship
   SUBTYPE OF (representation_relationship_with_transformation, geometric_representation_item);
@@ -81,8 +81,8 @@ ENTITY pair_representation_relationship
   SELF\representation_relationship.rep_2 : rigid_link_representation;
   SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
 WHERE
-  WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
-  WR2: rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2);
+  WR1: transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items;
+  WR2: transformation_operator\item_defined_transformation.transform_item_2 IN rep_2.items;
   WR3: rep_1\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_start; 
   WR4: rep_2\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_end; 
 END_ENTITY;
@@ -969,18 +969,29 @@ END_FUNCTION;
 FUNCTION sort_link_associations 
   (aprr : SET[1:?] OF pair_representation_relationship; one_not_two : boolean) : SET OF kinematic_link_representation;
 LOCAL
-  aklr : SET OF kinematic_link_representation := [];
+  result : SET OF kinematic_link_representation := [];
 END_LOCAL;
   IF one_not_two THEN
     REPEAT i := 1 TO HIINDEX(aprr);
-      aklr := aklr + aprr[i].rep_1;
+      result := result + aprr[i].rep_1;
     END_REPEAT;
   ELSE  
     REPEAT i := 1 TO HIINDEX(aprr);
-      aklr := aklr + aprr[i].rep_2;
+      result := result + aprr[i].rep_2;
     END_REPEAT;
   END_IF;
-  RETURN(aklr);
+  RETURN(result);
+END_FUNCTION;
+
+FUNCTION collect_joints 
+  (items : SET[1:?] OF pair_representation_relationship) : SET OF kinematic_joint;
+LOCAL
+  result : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  REPEAT i := 1 TO HIINDEX(items);
+    result := result + items[i].transformation_operator.joint;
+  END_REPEAT;
+  RETURN(result);
 END_FUNCTION;
 
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;

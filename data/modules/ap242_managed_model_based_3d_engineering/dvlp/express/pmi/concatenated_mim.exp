@@ -180,7 +180,7 @@ USE FROM measure_schema(
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.14 2011/04/05 05:26:25 thomasrthurman Exp $
+   $Id: mim.exp,v 1.15 2011/04/09 12:01:18 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS MIM*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
@@ -226,18 +226,15 @@ USE FROM Surface_conditions_mim; -- ISO/TS 10303-1110
 USE FROM Text_representation_mim;	-- ISO/TS 10303-1750
 USE FROM Thickened_face_solid_mim; -- ISO/TS 10303-1320
 USE FROM Wireframe_2d_mim; -- ISO/TS 10303-1347
-
-
 USE FROM application_context_schema   -- ISO 10303-41
   (application_context,
    application_protocol_definition,
    product_context,
    product_definition_context); 
-
 USE FROM product_concept_schema(product_concept_relationship); 
-
-USE FROM product_definition_schema(product_definition_context_role); 
-
+USE FROM product_definition_schema(  -- ISO 10303-41
+  product_definition_context_role, 
+  product_category_relationship); 
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    type_check_function); 
@@ -9802,7 +9799,9 @@ USE FROM presentation_definition_schema	-- ISO 10303-46
    text_literal_with_associated_curves,
    text_literal_with_blanking_box,
    text_literal_with_delineation,
-   text_literal_with_extent);
+   text_literal_with_extent,
+--scms
+   text_reference);
 
 USE FROM presentation_resource_schema	-- ISO 10303-46
   (colour_rgb,
@@ -9848,6 +9847,7 @@ END_ENTITY;
 
 ENTITY draughting_annotation_occurrence
   SUBTYPE OF (annotation_occurrence);
+  --modified wr7
 WHERE
   WR1:	-- curve_has_curve_style:
     (NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'
@@ -9901,7 +9901,8 @@ WHERE
              IN TYPEOF (SELF))) OR
          (SIZEOF (TYPEOF(SELF.item) *
              ['AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT',
-              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL']) = 1);
+              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL',
+              'AIC_DRAUGHTING_ANNOTATION.TEXT_REFERENCE']) = 1);
   WR8:	-- text_not_nested:
     (NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'
              IN TYPEOF (SELF)) AND
@@ -18781,8 +18782,7 @@ REFERENCE FROM shape_data_quality_inspection_result_schema; -- ISO 10303-59
 TYPE representing_relationship = SELECT
 (binary_assembly_constraint,
 constrained_kinematic_motion_representation,
-free_kinematic_motion_representation
-);
+free_kinematic_motion_representation);
 END_TYPE;-- representing_relationship
 
 ENTITY shape_aspect_relationship_representation_association;
@@ -20005,6 +20005,11 @@ REFERENCE FROM presentation_appearance_schema
 REFERENCE FROM presentation_resource_schema
     (planar_box);
 
+--scms
+REFERENCE FROM product_property_representation_schema
+    (item_identified_representation_usage);
+
+
   TYPE annotation_plane_element = SELECT 
     (draughting_callout, 
      styled_item); 
@@ -20158,6 +20163,14 @@ REFERENCE FROM presentation_resource_schema
       WR1: SIZEOF(QUERY(d_c<*SELF\draughting_callout.contents | 
         'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN (TYPEOF(d_c))))=1;
       WR2: SIZEOF(SELF\draughting_callout.contents) >= 2;
+  END_ENTITY;
+
+--from scms
+  ENTITY schematic_symbol_callout--  include in p101
+    SUBTYPE OF (geometric_representation_item);
+     contents : SET [1:?] OF draughting_callout_element;
+   INVERSE
+     presented_concept : item_identified_representation_usage FOR identified_item;
   END_ENTITY;
 
   SUBTYPE_CONSTRAINT annotation_curve_subtypes FOR annotation_curve_occurrence;
@@ -24795,11 +24808,15 @@ SCHEMA kinematic_motion_representation_schema;
 
 REFERENCE FROM geometry_schema
     (axis2_placement,
-     placement,
+     b_spline_curve,
+     b_spline_surface,
+     bounded_curve,
      cartesian_point,
      curve,
      geometric_representation_context,
-     geometric_representation_item);
+     geometric_representation_item,
+     placement,
+     transition_code);
 
 REFERENCE FROM measure_schema
     (length_measure,
@@ -24809,10 +24826,12 @@ REFERENCE FROM measure_schema
      unit);
 
 REFERENCE FROM representation_schema
-    (founded_item,
+    (definitional_representation,
+     founded_item,
      functionally_defined_transformation,
      item_defined_transformation,
      item_in_context,
+     parametric_representation_context,
      representation,
      representation_item,
      representation_relationship,
@@ -24841,31 +24860,30 @@ END_TYPE;
 
 TYPE interpolation_type = ENUMERATION OF
   (undefined,
+   discontinuous,
    synchronous,
    linear);
 END_TYPE;
 
-TYPE motion_parameter_measure = SELECT
-  (parameter_value,
-   measure_with_unit);
-END_TYPE;
-
-ENTITY configuration_interpolation
-  SUBTYPE OF (representation_relationship);
-  SELF\representation_relationship.rep_1 RENAMED previous_state : configuration_definition;
-  SELF\representation_relationship.rep_2 RENAMED next_state : configuration_definition;
-  interpolation : interpolation_type;
-END_ENTITY ;
-
-ENTITY configuration_definition
-  SUBTYPE OF (mechanism_state_representation);
-  t_parameter : motion_parameter_measure;
+ENTITY interpolated_configuration_representation
+  SUBTYPE OF (representation);
+  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
+  SELF\representation.items : SET[1:1] OF interpolated_configuration_sequence;
 END_ENTITY;
 
 ENTITY interpolated_configuration_sequence
-  SUBTYPE OF (shape_representation);
-  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-  interpolation : SET [1 : ?] OF configuration_interpolation;
+  SUBTYPE OF (representation_item);
+  segments : LIST[1:?] OF interpolated_configuration_segment;
+DERIVE
+  n_segments : INTEGER := SIZEOF(segments);
+  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> discontinuous;
+END_ENTITY;  
+
+ENTITY interpolated_configuration_segment
+  SUBTYPE OF (founded_item);
+  state : mechanism_state_representation;
+  t_parameter : parameter_value;
+  interpolation : interpolation_type;
 END_ENTITY;
 
 ENTITY link_motion_relationship
@@ -24874,8 +24892,8 @@ ENTITY link_motion_relationship
   SELF\representation_relationship.rep_2 : link_motion_representation_along_path;
   SELF\representation_relationship_with_transformation.transformation_operator : link_motion_transformation;
 WHERE
-  WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
-  WR2: item_in_context(transformation_operator\item_defined_transformation.transform_item_2, rep_2);
+  WR1: transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items;
+  WR2: transformation_operator\item_defined_transformation.transform_item_2 IN rep_2.items;
 END_ENTITY;
 
 ENTITY link_motion_transformation
@@ -24886,12 +24904,6 @@ END_ENTITY;
 
 ENTITY link_motion_representation_along_path
   SUBTYPE OF (representation);
---  SELF\representation.items : SET [1:?] OF xxx;
-  SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-END_ENTITY;
-
-ENTITY kinematic_path_representation_with_parameter
-  SUBTYPE OF (representation);
   SELF\representation.items : SET [1:?] OF kinematic_path;
   SELF\representation.context_of_items : geometric_representation_context_with_parameter;
 END_ENTITY;
@@ -24901,161 +24913,104 @@ ENTITY geometric_representation_context_with_parameter
   parameter_unit : OPTIONAL unit;
 END_ENTITY;
 
-ENTITY translation
-  SUBTYPE OF (geometric_representation_item);
-  offset : LIST [2:3] OF length_measure;
-END_ENTITY;
-
-ENTITY transform
-  SUBTYPE OF (functionally_defined_transformation, geometric_representation_item);
-  rotation_component    : spatial_rotation;
-  translation_component : translation;
-END_ENTITY;
-
-ENTITY path_node
-  SUBTYPE OF (geometric_representation_item);
-  control_transform : transform_or_placement;
-  t_parameter       : parameter_value;
-END_ENTITY;
-
-TYPE transform_or_placement = SELECT (transform, axis2_placement);
-END_TYPE;
-
 ENTITY kinematic_path
-  SUPERTYPE OF (ONEOF (path_element, composite_path))
   SUBTYPE OF (geometric_representation_item);
+  segments : LIST [1:?] OF kinematic_path_segment;
+  t_start : parameter_value;
+DERIVE
+  n_segments : INTEGER := SIZEOF(segments);
+  closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
+  WR2: ('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))
+      OR (n_segments > 1);
+  -- WR2 - parameters are increasing
+  -- WR3 - different end positions
 END_ENTITY;
 
-ENTITY path_element_connection
+ENTITY kinematic_path_segment
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    path_node,
+    curve_based_path_with_orientation) 
+    ANDOR path_parametrization)
   SUBTYPE OF (founded_item);
-  previous_element     : path_element;
-  next_element         : path_element;
-WHERE
-  WR1: previous_element.node_to = next_element.node_from;
-END_ENTITY;
-
-ENTITY composite_path
-  SUBTYPE OF (kinematic_path);
-  elements : SET [1:?] OF path_element_connection;
-  t_start : parameter_value;
   t_end : parameter_value;
-WHERE
-  WR1: t_start < t_end;
-  WR2: connected_in_simple_path (elements);
+  transition : OPTIONAL transition_code;
 END_ENTITY;
 
-ENTITY path_element
-  SUPERTYPE OF (ONEOF (point_to_point_path,
-                       circular_path,
-                       linear_path,
-                       curve_based_path))
-  SUBTYPE OF (kinematic_path);
-  node_from : path_node;
-  node_to   : path_node;
+ENTITY path_parametrization
+  SUBTYPE OF (kinematic_path_segment);
+  parameters : path_parameter_representation;
 WHERE
-  WR1: node_from.t_parameter < node_to.t_parameter;
+  WR1: NOT item_in_context(SELF, parameters.context_of_items);
+END_ENTITY;
+
+ENTITY path_parameter_representation
+  SUBTYPE OF (definitional_representation);
+  SELF\representation.context_of_items : path_parameter_representation_context;
+  SELF\representation.items : SET[1:?] OF bounded_curve;
+WHERE
+  WR1: SELF\representation.context_of_items\geometric_representation_context.coordinate_space_dimension = 2;
+END_ENTITY;
+
+ENTITY path_parameter_representation_context
+  SUBTYPE OF (geometric_representation_context, parametric_representation_context);
+END_ENTITY;  
+
+ENTITY path_node
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    point_to_point_path,
+    circular_path,
+    linear_path,
+    curve_based_path))
+  SUBTYPE OF (kinematic_path_segment);
+  placement_end : placement;
 END_ENTITY;
 
 ENTITY point_to_point_path
-  SUBTYPE OF (path_element);
+  SUBTYPE OF (path_node);
+DERIVE
+  SELF\path_node.transition : transition_code := discontinuous;
 END_ENTITY;
 
 ENTITY circular_path
-  SUBTYPE OF (path_element);
+  SUBTYPE OF (path_node);
   via_point : cartesian_point;
-WHERE
-  WR1: SELF\path_element.node_to.control_transform.translation_component <>
-       SELF\path_element.node_from.control_transform.translation_component;
-(*  
-  WR2: non_coincident_coordinates (via_point,
-         SELF\path_element.node_from.control_transform.translation_component)
-       AND
-       non_coincident_coordinates (via_point,
-         SELF\path_element.node_to.control_transform.translation_component);
-*)         
 END_ENTITY;
 
 ENTITY linear_path
-  SUBTYPE OF (path_element);
+  SUBTYPE OF (path_node);
+DERIVE
+  SELF\path_node.transition : transition_code := continuous;
 END_ENTITY;
 
 ENTITY curve_based_path
-  SUBTYPE OF (path_element);
+  SUBTYPE OF (path_node);
   path_curve : curve;
+END_ENTITY;
+-- IP1 : start and end point shall be on the curve
+
+ENTITY curve_based_path_with_orientation
+  SUBTYPE OF (kinematic_path_segment);
+  position_curve : bounded_curve;
+  orientation_curve : bounded_curve;
 WHERE
-  WR1: SELF\path_element.node_to.control_transform.translation_component <>
-       SELF\path_element.node_from.control_transform.translation_component;
+  WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
 END_ENTITY;
 
-FUNCTION connected_in_simple_path (connections : SET OF path_element_connection)
-                                               : BOOLEAN;
-  LOCAL
-     connection_set : SET [0 : ?] OF path_element_connection;
-     nec0           : INTEGER;
-     pec0           : INTEGER;
-     necbranch      : INTEGER;
-     pecbranch      : INTEGER;
-  END_LOCAL;
-
-  IF SIZEOF (connections) > 1 THEN
-    connection_set := QUERY (pec1 <* connections |
-                        SIZEOF (QUERY (pec2 <* connections - pec1 |
-                          pec1.next_element :=: pec2.previous_element)) = 0);
-    nec0 := SIZEOF (connection_set);
-
-    connection_set := QUERY (pec1 <* connections |
-                        SIZEOF (QUERY (pec2 <* connections - pec1 |
-                          pec2.next_element :=: pec1.previous_element)) = 0);
-    pec0 := SIZEOF (connection_set);
-
-    connection_set := QUERY (pec1 <* connections |
-                        SIZEOF (QUERY (pec2 <* connections - pec1 |
-                          pec1.next_element :=: pec2.previous_element)) > 1);
-    necbranch := SIZEOF (connection_set);
-
-    connection_set := QUERY (pec1 <* connections |
-                        SIZEOF (QUERY (pec2 <* connections - pec1 |
-                          pec2.next_element :=: pec1.previous_element)) > 1);
-    pecbranch := SIZEOF (connection_set);
-
-    IF ((nec0 <> 1) OR (pec0 <> 1) OR (necbranch > 0) OR (pecbranch > 0)) THEN
-      RETURN (FALSE);
-    ELSE
-      RETURN (TRUE);
-    END_IF;
-  ELSE
-    RETURN (TRUE);
-  END_IF;
-END_FUNCTION;
-
-(*
-FUNCTION non_coincident_coordinates (crtpt : cartesian_point;
-                                     trltn : translation) : BOOLEAN;
-  IF ((crtpt.coordinates[1] = trltn.x) AND
-      (crtpt.coordinates[2] = trltn.y) AND
-      (crtpt.coordinates[3] = trltn.z)) THEN
-    RETURN (FALSE);
-  ELSE
-    RETURN (TRUE);
-  END_IF;
-END_FUNCTION;
-*)
-
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
-  ONEOF (kinematic_path_representation_with_parameter, link_motion_representation_along_path);
+  ONEOF (interpolated_configuration_representation, link_motion_representation_along_path);
 END_SUBTYPE_CONSTRAINT; 
 
 SUBTYPE_CONSTRAINT kmr_geometric_representation_item_subtypes FOR geometric_representation_item;
   ONEOF (
     kinematic_path,
-    path_node,
-    placement,
-    transform,
-    translation
-  );
+    placement);
+END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT kmr_geometric_representation_context_subtypes FOR geometric_representation_context;
+  ONEOF (geometric_representation_context_with_parameter, path_parameter_representation_context);
 END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;   -- end kinematic_motion_representation_schema
@@ -25615,17 +25570,17 @@ ENTITY mechanism_representation
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF pair_representation_relationship;
-  represented_topology : kinematic_topology_representation;
+  represented_topology : kinematic_topology_representation_select;
+DERIVE
+  represented_joints : SET[1:?] OF kinematic_joint := collect_joints(items); 
 WHERE  
-  WR1: SIZEOF (QUERY (item <* items | 
-    NOT (represented_topology IN using_representations(item\representation_relationship.rep_1\kinematic_link_representation.represented_link))
-    OR
-    NOT (represented_topology IN using_representations(item\representation_relationship.rep_2\kinematic_link_representation.represented_link))
-    OR
-    NOT (represented_topology IN using_representations(item\representation_relationship_with_transformation.transformation_operator\kinematic_pair.joint))
-    )) = 0;
+  WR1: (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: represented_topology.items)) OR
+       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_DIRECTED_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: get_kinematic_joints_from_oriented_joints(represented_topology.items))) OR
+       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_NETWORK_STRUCTURE' IN TYPEOF(represented_topology))
+         AND (represented_joints :=: get_kinematic_joints_from_kinematic_loops(represented_topology.items)));          
 END_ENTITY;
-(* WR1: All items that are of type pair_representation_relationship shall refer to kinematic_links and kinematic_joints that are used by the underlying_topology representation.*)
 
 ENTITY pair_representation_relationship
   SUBTYPE OF (representation_relationship_with_transformation, geometric_representation_item);
@@ -25633,10 +25588,10 @@ ENTITY pair_representation_relationship
   SELF\representation_relationship.rep_2 : rigid_link_representation;
   SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
 WHERE
-  WR1: rep_1 IN using_representations(transformation_operator\item_defined_transformation.transform_item_1);
-  WR2: rep_2 IN using_representations(transformation_operator\item_defined_transformation.transform_item_2);
-  WR3: rep_1\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.first_link; 
-  WR4: rep_2\kinematic_link_representation.represented_link.mapping_origin = transformation_operator\kinematic_pair.joint.second_link; 
+  WR1: transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items;
+  WR2: transformation_operator\item_defined_transformation.transform_item_2 IN rep_2.items;
+  WR3: rep_1\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_start; 
+  WR4: rep_2\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_end; 
 END_ENTITY;
 
 TYPE kinematic_link_representation_items = SELECT (
@@ -25696,6 +25651,8 @@ ENTITY kinematic_pair
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
+INVERSE
+  link_representation_associations : SET[1:?] OF pair_representation_relationship FOR transformation_operator; 
 END_ENTITY;
 
 ENTITY high_order_kinematic_pair
@@ -25707,6 +25664,11 @@ ENTITY high_order_kinematic_pair
     surface_pair
   ))
   SUBTYPE OF (kinematic_pair);
+DERIVE
+  associated_link_representations_1 : SET[0:?] OF kinematic_link_representation :=
+    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
+  associated_link_representations_2 : SET[0:?] OF kinematic_link_representation :=
+    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
 END_ENTITY;
 
 ENTITY low_order_kinematic_pair_with_motion_coupling
@@ -25724,6 +25686,7 @@ ENTITY low_order_kinematic_pair
     revolute_pair,
     cylindrical_pair,
     spherical_pair,
+    spherical_pair_with_pin,
     planar_pair,
     unconstrained_pair,
     fully_constrained_pair,
@@ -25805,15 +25768,6 @@ END_ENTITY;
 ENTITY screw_pair
   SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pitch : length_measure;
-(*  
-DERIVE  
-  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
-  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
-  SELF\low_order_kinematic_pair.t_z : degee_of_freedom := CONSTRAINT;
-  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
-  SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
-  SELF\low_order_kinematic_pair.r_z : degee_of_freedom := CONSTRAINT;
-*)
 END_ENTITY;
 
 ENTITY screw_pair_with_range
@@ -25895,6 +25849,36 @@ WHERE
        (lower_limit_roll < upper_limit_roll);
 END_ENTITY;
 
+ENTITY spherical_pair_with_pin
+  SUBTYPE OF (low_order_kinematic_pair);
+DERIVE  
+  SELF\low_order_kinematic_pair.t_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_y : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.t_z : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_x : BOOLEAN := FALSE;
+  SELF\low_order_kinematic_pair.r_y : BOOLEAN := TRUE;
+  SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
+END_ENTITY;
+
+ENTITY spherical_pair_with_pin_and_range
+  SUBTYPE OF (spherical_pair_with_pin);
+  lower_limit_yaw                        : OPTIONAL plane_angle_measure;
+  upper_limit_yaw                        : OPTIONAL plane_angle_measure;
+  lower_limit_roll                       : OPTIONAL plane_angle_measure;
+  upper_limit_roll                       : OPTIONAL plane_angle_measure;
+WHERE
+  WR1: (NOT EXISTS(lower_limit_yaw)
+        OR
+        NOT EXISTS(upper_limit_yaw))
+       XOR
+       (lower_limit_yaw < upper_limit_yaw);
+  WR2: (NOT EXISTS(lower_limit_roll)
+        OR
+        NOT EXISTS(upper_limit_roll))
+       XOR
+       (lower_limit_roll < upper_limit_roll);
+END_ENTITY;
+
 ENTITY universal_pair
   SUBTYPE OF (low_order_kinematic_pair);
   input_skew_angle : OPTIONAL plane_angle_measure;
@@ -25906,11 +25890,9 @@ DERIVE
   SELF\low_order_kinematic_pair.r_y : BOOLEAN := FALSE;
   SELF\low_order_kinematic_pair.r_z : BOOLEAN := TRUE;
   skew_angle : plane_angle_measure := NVL (input_skew_angle, 0.0);
-(*  
 WHERE
   WR1: COS (plane_angle_for_pair_in_radian (SELF, skew_angle))
        > 0.0;
-*)
 END_ENTITY;
 
 ENTITY universal_pair_with_range
@@ -26001,9 +25983,7 @@ ENTITY point_on_surface_pair
   SUBTYPE OF (high_order_kinematic_pair);
   pair_surface : surface;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1, 
-         pair_surface);
+  WR1: pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY point_on_surface_pair_with_range
@@ -26031,6 +26011,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
+  WR5: range_on_pair_surface IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY surface_pair
@@ -26040,12 +26021,8 @@ ENTITY surface_pair
   surface_2   : surface;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-          surface_1);
-  WR2: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_2,
-          surface_2);
+  WR1: surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR2: surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY surface_pair_with_range
@@ -26062,6 +26039,8 @@ WHERE
         NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
+  WR4: range_on_surface_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR5: range_on_surface_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY sliding_surface_pair
@@ -26072,24 +26051,20 @@ ENTITY rolling_surface_pair
   SUBTYPE OF (surface_pair);
 END_ENTITY;
 
-ENTITY point_on_planar_curve_pair
-  SUBTYPE OF (high_order_kinematic_pair);
-  pair_curve  : curve;
-  orientation : BOOLEAN;
-WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-         pair_curve);
-END_ENTITY;
-
 ENTITY linear_flexible_and_planar_curve_pair
   SUBTYPE OF (high_order_kinematic_pair);
   pair_curve  : curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-         pair_curve);
+  WR1: pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+END_ENTITY;
+
+ENTITY point_on_planar_curve_pair
+  SUBTYPE OF (high_order_kinematic_pair);
+  pair_curve  : curve;
+  orientation : BOOLEAN;
+WHERE
+  WR1: pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair_with_range
@@ -26117,6 +26092,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
+  WR5: range_on_pair_curve IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
 END_ENTITY;
 
 ENTITY planar_curve_pair
@@ -26126,12 +26102,8 @@ ENTITY planar_curve_pair
   curve_2     : curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_1,
-          curve_1);
-  WR2: frame_associated_to_background
-         (SELF\item_defined_transformation.transform_item_2,
-          curve_2);
+  WR1: curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR2: curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY planar_curve_pair_range
@@ -26141,6 +26113,8 @@ ENTITY planar_curve_pair_range
 WHERE
   WR1: SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve;
   WR2: SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve;
+  WR3: range_on_curve_1 IN SELF\high_order_kinematic_pair.associated_link_representations_1.items;
+  WR4: range_on_curve_2 IN SELF\high_order_kinematic_pair.associated_link_representations_2.items;
 END_ENTITY;
 
 ENTITY sliding_curve_pair
@@ -26320,78 +26294,13 @@ FUNCTION coordinated_pair_link_representation
 END_FUNCTION;
 *)
 
-FUNCTION frame_associated_to_background
-  (frame      : rigid_placement;
-   background : kinematic_link_representation_items) : BOOLEAN;
-(*   
-  LOCAL
-    rep_bag : BAG OF kinematic_frame_background_representation;
-    trf_bag : BAG OF kinematic_frame_based_transformation;
-    trm_bag : BAG OF kinematic_frame_based_transformation;
-    ass_bag : BAG OF
-              kinematic_frame_background_representation_association;
-    rep     : kinematic_frame_background_representation;
-    ass     : kinematic_frame_background_representation_association;
-  END_LOCAL;
-
-  rep_bag := QUERY ( bg <* USEDIN (background,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'REPRESENTATION.ITEMS')|
-                     'KINEMATIC_STRUCTURE_SCHEMA.'+
-                     'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION' 
-                      IN TYPEOF (bg) );
-
-  IF SIZEOF (rep_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  trf_bag := USEDIN (frame,
-                     'KINEMATIC_STRUCTURE_SCHEMA.' +
-                     'KINEMATIC_FRAME_BASED_TRANSFORMATION.' +
-                     'TRANSFORMATOR');
-
-  IF SIZEOF (trf_bag) = 0 THEN
-    RETURN (FALSE);
-  END_IF;
-
-  REPEAT i := 1 TO HIINDEX (rep_bag);
-    rep := rep_bag[i];
-
-ass_bag := QUERY ( kfbra <* USEDIN ( rep,
-             'KINEMATIC_STRUCTURE_SCHEMA.' +
-             'REPRESENTATION_RELATIONSHIP.REP_2') |
-             'KINEMATIC_STRUCTURE_SCHEMA.'+
-             'KINEMATIC_FRAME_BACKGROUND_REPRESENTATION_ASSOCIATION'
-             IN TYPEOF ( kfbra ) );
-
-    IF SIZEOF (ass_bag) > 0 THEN
-      REPEAT j:= 1 TO HIINDEX (ass_bag);
-        ass := ass_bag[j];
-
-        trm_bag := QUERY (trm <* trf_bag |
-          (trm :=:
-           ass\representation_relationship_with_transformation.
-           transformation_operator));
-
-        IF SIZEOF (trm_bag) > 0 THEN
-          RETURN (TRUE);
-        END_IF;
-
-      END_REPEAT;
-    END_IF;
-  END_REPEAT;
-*)
-  RETURN (FALSE);
-
-END_FUNCTION;
-
 FUNCTION plane_angle_for_pair_in_radian
          (pair  : kinematic_pair;
           angle : plane_angle_measure) : plane_angle_measure;
   LOCAL
     converted_angle : plane_angle_measure := angle;
     link_rep        : kinematic_link_representation
-                    := representation_of_link (pair.joint.first_link);
+                    := representation_of_link (pair.joint.edge_start);
     link_cntxt      : representation_context;
     pa_units        : SET OF unit := [];
     pau             : unit;
@@ -26462,7 +26371,7 @@ FUNCTION convert_plane_angle_for_pair_from_radian
           angle_expr : REAL) : plane_angle_measure;
   LOCAL
     link_rep    : kinematic_link_representation
-                := representation_of_link (pair.joint.first_link);
+                := representation_of_link (pair.joint.edge_start);
     link_cntxt  : representation_context;
     pa_units    : SET OF unit := [];
     pau         : unit;
@@ -26564,6 +26473,34 @@ FUNCTION connected_in_simple_loop
 END_FUNCTION;
 *)
 
+FUNCTION sort_link_associations 
+  (aprr : SET[1:?] OF pair_representation_relationship; one_not_two : boolean) : SET OF kinematic_link_representation;
+LOCAL
+  result : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  IF one_not_two THEN
+    REPEAT i := 1 TO HIINDEX(aprr);
+      result := result + aprr[i].rep_1;
+    END_REPEAT;
+  ELSE  
+    REPEAT i := 1 TO HIINDEX(aprr);
+      result := result + aprr[i].rep_2;
+    END_REPEAT;
+  END_IF;
+  RETURN(result);
+END_FUNCTION;
+
+FUNCTION collect_joints 
+  (items : SET[1:?] OF pair_representation_relationship) : SET OF kinematic_joint;
+LOCAL
+  result : SET OF kinematic_link_representation := [];
+END_LOCAL;
+  REPEAT i := 1 TO HIINDEX(items);
+    result := result + items[i].transformation_operator.joint;
+  END_REPEAT;
+  RETURN(result);
+END_FUNCTION;
+
 SUBTYPE_CONSTRAINT kss_representation_subtypes FOR representation;
   ONEOF (kinematic_link_representation,
          kinematic_topology_structure,
@@ -26593,7 +26530,7 @@ REFERENCE FROM topology_schema -- LK
      path,
      vertex);
 
-TYPE kinematic_topology_representation = SELECT (
+TYPE kinematic_topology_representation_select = SELECT (
   kinematic_topology_structure,
   kinematic_topology_directed_structure,
   kinematic_topology_network_structure
@@ -26613,7 +26550,7 @@ ENTITY kinematic_topology_substructure
   parent : kinematic_topology_structure;
 WHERE
   WR1: context_of_items :=: parent.context_of_items;
-  WR2: items IN parent.items;
+  WR2: items <= parent.items;
 END_ENTITY;
 (* WR1: A kinematic_topology_substructure shall have the same context as the parent *)  
 (* WR2: The items of a kinematic_topology_substructure shall also be items of the parent *)
@@ -26624,7 +26561,7 @@ ENTITY kinematic_topology_directed_structure
   parent : kinematic_topology_structure;
 WHERE
   WR1: context_of_items :=: parent.context_of_items;
-  WR2: get_kinematic_joints_from_oriented_joints(items) IN parent.items;
+  WR2: get_kinematic_joints_from_oriented_joints(items) <= parent.items;
 END_ENTITY;
 (* WR1: A kinematic_topology_substructure shall have the same context as the parent *)  
 
@@ -26638,7 +26575,7 @@ ENTITY kinematic_topology_network_structure
   parent : kinematic_topology_structure;
 WHERE
   WR1: context_of_items :=: parent.context_of_items;
-  WR2: get_kinematic_joints_from_kinematic_loops(items) IN parent.items;
+  WR2: get_kinematic_joints_from_kinematic_loops(items) <= parent.items;
 END_ENTITY;
 
 ENTITY kinematic_joint 
@@ -36927,6 +36864,10 @@ REFERENCE FROM presentation_resource_schema
      font_select,
      text_font);
  
+--scms project
+REFERENCE FROM product_definition_schema
+    (product);
+ 
 REFERENCE FROM representation_schema
     (item_in_context,
      mapped_item,
@@ -36988,8 +36929,9 @@ REFERENCE FROM support_resource_schema
     defined_table); 
   END_TYPE; 
 
-  TYPE annotation_text_occurrence_item = SELECT(
-    text_literal, 
+  TYPE annotation_text_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT(
+    text_literal,
+    text_reference, 
     annotation_text, 
     annotation_text_character, 
     defined_character_glyph, 
@@ -36999,6 +36941,16 @@ REFERENCE FROM support_resource_schema
   TYPE presentable_text = STRING;
     WHERE
       WR1: control_characters_free(SELF);
+  END_TYPE;
+
+--scms project
+  TYPE text_literal_or_text_reference = SELECT(
+    text_literal,
+    text_reference);        
+  END_TYPE;
+
+--scms project
+  TYPE text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT(product);        
   END_TYPE;
 
   TYPE text_string_representation_item = SELECT(
@@ -37366,6 +37318,55 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (text_literal);
       extent : planar_extent;
   END_ENTITY;
+
+--new for scms
+ENTITY text_reference
+  ABSTRACT SUPERTYPE OF (ONEOF(composite_sequential_text_reference, explicit_text_reference, implicit_text_reference))
+  SUBTYPE OF(representation_item);
+END_ENTITY;
+
+--new for scms
+ENTITY composite_sequential_text_reference
+  SUBTYPE OF (text_reference);
+    collected_references : LIST[2:?] of text_literal_or_text_reference;
+WHERE
+  WR1 : SIZEOF(QUERY( cr <* collected_references | 'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT_REFERENCE' IN TYPEOF(cr))) = 0;
+  --no member of collected_references shall be a composite_text_reference.
+  --the list is one level only, not an array.
+END_ENTITY;
+  
+--new for scms
+ENTITY explicit_text_reference
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  geometric_property : text_literal;
+  source             : text_reference_source;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+(*
+Formal Propositions:
+WR1     The value of the literal in the text_literal shall be an empty string.
+*)
+END_ENTITY;
+
+--new for scms
+ENTITY explicit_text_reference_occurrence
+SUBTYPE OF(explicit_text_reference);
+ type_declaration   : implicit_text_reference;
+DERIVE
+  SELF\explicit_text_reference.attribute_name : STRING := type_declaration\implicit_text_reference.attribute_name;
+END_ENTITY;
+
+--new for scms
+ENTITY implicit_text_reference
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  entity_name        : STRING;
+  geometric_property : text_literal;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+END_ENTITY;
+--
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);

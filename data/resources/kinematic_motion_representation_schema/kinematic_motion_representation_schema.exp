@@ -74,7 +74,7 @@ ENTITY interpolated_configuration_sequence
   segments : LIST[1:?] OF interpolated_configuration_segment;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> discontinuous;
+  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
 END_ENTITY;  
 
 ENTITY interpolated_configuration_segment
@@ -117,7 +117,7 @@ ENTITY kinematic_path
   t_start : parameter_value;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
+  closed_path : LOGICAL := segments[n_segments].transition <> transition_code.discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
@@ -134,7 +134,7 @@ ENTITY kinematic_path_segment
     ANDOR path_parametrization)
   SUBTYPE OF (founded_item);
   t_end : parameter_value;
-  transition : OPTIONAL transition_code;
+  transition : transition_code;
 END_ENTITY;
 
 ENTITY path_parametrization

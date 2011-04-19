@@ -57,21 +57,11 @@ END_TYPE;
 
 ENTITY mechanism_state_representation 
   SUBTYPE OF (representation);
-  SELF\representation.context_of_items : geometric_representation_context;
   SELF\representation.items : SET[1:?] OF pair_value; 
   represented_mechanism : mechanism_representation;
+DERIVE
+  SELF\representation.context_of_items : geometric_representation_context := represented_mechanism.context_of_items;
 END_ENTITY;
-
-(*
-ENTITY initial_state;
-  applies_to_mechanism : mechanism;
-  pair_values          : SET [1 : ?] OF pair_value;
-WHERE
-  WR1: SIZEOF (QUERY (joint <* applies_to_mechanism.structure_definition.joints |
-               SIZEOF (QUERY (init_val <* pair_values |
-                       init_val.applies_to_pair.joint :=: joint)) <> 1)) = 0;
-END_ENTITY;
-*)
 
 ENTITY pair_value
   ABSTRACT SUPERTYPE OF ( ONEOF (
@@ -161,7 +151,6 @@ DERIVE
                                      (SELF\pair_value.applies_to_pair,
                                       input_orientation);
 END_ENTITY;
-
 
 ENTITY sliding_curve_pair_value
   SUBTYPE OF (pair_value);
@@ -485,7 +474,6 @@ SUBTYPE_CONSTRAINT kss_geometric_representation_item_subtypes FOR geometric_repr
          rotation_about_direction,
          su_parameters);
 END_SUBTYPE_CONSTRAINT;
-
 
 
 END_SCHEMA;

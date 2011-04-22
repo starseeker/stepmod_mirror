@@ -39,6 +39,7 @@ REFERENCE FROM representation_schema
      
 REFERENCE FROM kinematic_structure_schema
 	(kinematic_link_representation,
+	 mechanism_representation,
 	 rigid_placement);     
 
 REFERENCE FROM kinematic_state_schema
@@ -66,7 +67,7 @@ END_TYPE;
 ENTITY interpolated_configuration_representation
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-  SELF\representation.items : SET[1:1] OF interpolated_configuration_sequence;
+  SELF\representation.items : SET[1:?] OF interpolated_configuration_sequence;
 END_ENTITY;
 
 ENTITY interpolated_configuration_sequence
@@ -74,7 +75,10 @@ ENTITY interpolated_configuration_sequence
   segments : LIST[1:?] OF interpolated_configuration_segment;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  closed_interpolation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
+WHERE
+  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
 END_ENTITY;  
 
 ENTITY interpolated_configuration_segment
@@ -169,7 +173,7 @@ END_ENTITY;
 ENTITY point_to_point_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := discontinuous;
+  SELF\kinematic_path_segment.transition : transition_code := transition_code.discontinuous;
 END_ENTITY;
 
 ENTITY circular_path
@@ -180,7 +184,7 @@ END_ENTITY;
 ENTITY linear_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := continuous;
+  SELF\kinematic_path_segment.transition : transition_code := transition_code.continuous;
 END_ENTITY;
 
 ENTITY curve_based_path

@@ -40,6 +40,7 @@
       </interface>
       <interface kind="reference" schema="kinematic_structure_schema">
          <interfaced.item name="kinematic_link_representation"/>
+         <interfaced.item name="mechanism_representation"/>
          <interfaced.item name="rigid_placement"/>
       </interface>
       <interface kind="reference" schema="kinematic_state_schema">
@@ -89,7 +90,7 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
          <explicit name="items" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="1"/>
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="interpolated_configuration_sequence"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
@@ -113,9 +114,13 @@
          <derived expression="SIZEOF(segments)" name="n_segments">
             <builtintype fixed="NO" type="INTEGER"/>
          </derived>
-         <derived expression="segments[n_segments].interpolation &lt;&gt; interpolation_type.discontinuous" name="closed_interpoltation">
+         <derived expression="segments[n_segments].interpolation &lt;&gt; interpolation_type.discontinuous" name="closed_interpolation">
             <builtintype fixed="NO" type="LOGICAL"/>
          </derived>
+         <derived expression="segments[1].state.represented_mechanism" name="configured_mechanism">
+            <typename name="mechanism_representation"/>
+         </derived>
+         <where expression="SIZEOF( QUERY(ics &lt;* segments | NOT(ics.state.represented_mechanism :&lt;&gt;: configured_mechanism))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="kinematic_path" supertypes="geometric_representation_item">
          <explicit name="segments" optional="NO">
@@ -143,7 +148,7 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="linear_path" supertypes="path_node">
-         <derived expression="continuous" name="transition">
+         <derived expression="transition_code.continuous" name="transition">
             <typename name="transition_code"/>
             <redeclaration entity-ref="kinematic_path_segment"/>
          </derived>
@@ -209,7 +214,7 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="point_to_point_path" supertypes="path_node">
-         <derived expression="discontinuous" name="transition">
+         <derived expression="transition_code.discontinuous" name="transition">
             <typename name="transition_code"/>
             <redeclaration entity-ref="kinematic_path_segment"/>
          </derived>

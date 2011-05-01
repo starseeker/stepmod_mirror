@@ -1,5 +1,8 @@
 (*
-$Id: arm.exp,v 1.18 2009/12/11 13:39:31 mikeward Exp $
+// $Id$
+*)
+
+(*
 ISO TC184/SC4/WG12 N2941 - ISO/TS 10303-1047 Activity - EXPRESS ARM
 *) 
 
@@ -40,7 +43,6 @@ END_ENTITY;
 END_SCHEMA;  -- Activity_arm
 
 (*
- $Id: arm.exp,v 1.11 2004/10/28 18:02:36 darla Exp $
  ISO TC184/SC4/WG12 N2943 - ISO/TS 10303-1049 Activity method - EXPRESS ARM
 *)
 
@@ -58,7 +60,6 @@ END_ENTITY;
 END_SCHEMA;  -- Activity_method_arm
 
 (*
- $Id: arm.exp,v 1.5 2004/11/19 21:37:33 robbod Exp $
  ISO TC184/SC4/WG12 N2998 - ISO/TS 10303-1249 Activity method assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2306
 *) 
@@ -87,7 +88,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Activity_method_assignment_arm
 (*
- $Id: arm.exp,v 1.18 2010/01/21 20:45:00 lothartklein Exp $
  ISO TC184/SC4/WG12 N6857 - ISO/TS 10303-1514 Advanced boundary representation - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5272
 *)
@@ -156,7 +156,6 @@ END_SCHEMA;
 
 
 (*
-   $Id: arm.exp,v 1.18 2008/09/12 10:23:46 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5275 - ISO/TS 10303-1025 Alias identification - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4837
 *)
@@ -178,7 +177,6 @@ USE FROM Identification_assignment_arm;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.19 2008/09/12 10:26:23 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5278 - ISO/TS 10303-1109 Alternative solution - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4928
 *)
@@ -227,11 +225,12 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.7 2011/02/20 10:01:28 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS ARM*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
 
+-- USE FROM Assembly_technology_arm; -- now covered by Mating_structure_arm  
+USE FROM Mating_structure_arm;
 USE FROM Shape_data_quality_inspection_result_arm; -- ISO/TS 10303-1524
 USE FROM Geometric_constraints_arm; -- ISO/TS 10303-1789
 USE FROM Machining_features_arm; -- AIC 522 wrapper + ...
@@ -470,7 +469,6 @@ USE FROM Wireframe_2d_arm; -- ISO/TS 10303-1347
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.18 2009/12/21 14:01:27 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6860 - ISO/TS 10303-1001 Appearance assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5281
 *)
@@ -571,7 +569,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
 
 END_SCHEMA;  
 (*
- $Id: arm.exp,v 1.24 2009/08/11 07:43:45 robbod Exp $
  ISO TC184/SC4/WG12 N6022 - ISO/TS 10303-1012 Approval - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5284
 *)
@@ -620,7 +617,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Approval_arm
 (*
-   $Id: arm.exp,v 1.14 2009/04/23 09:59:13 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6279 - ISO/TS 10303-1631 Area 2d - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3840
 *)
@@ -664,6 +660,147 @@ SCHEMA Area_2d_arm;
       x        : Length_data_element;
       y        : Length_data_element;
   END_ENTITY;
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- assembly_component - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Assembly_component_arm;
+
+USE FROM Component_grouping_arm;
+USE FROM General_part_occurrence_feature_joint_arm;
+USE FROM Part_occurrence_arm;
+
+TYPE assembly_component_source = EXTENSIBLE GENERIC_ENTITY SELECT (Part_view_definition);
+END_TYPE;
+
+
+ENTITY Assembly_component
+  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_item_shape);
+ SELF\Definition_based_product_occurrence.derived_from : assembly_component_source;
+  DERIVE
+  SELF\Item_shape.described_element : shapeable_item := SELF;
+  assemblies : SET OF Product_view_definition := ac_get_assemblies(SELF);
+  groups : SET OF Assembly_group_component := ac_get_groups(SELF);
+  versions : SET OF Product_version := ac_get_versions(assemblies);
+  product : SET OF Product := ac_get_products(versions);
+INVERSE
+  SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF Assembly_component_relationship FOR related_view;
+WHERE
+  WR1 : NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) XOR ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR 
+        NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) XOR ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)));
+  WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
+  WR3 : SIZEOF(assemblies) = SIZEOF(versions);
+  WR4 : SIZEOF(product) = 1;
+  WR5 : (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1])) OR
+         (SIZEOF(groups) = 0) OR 
+         (ac_get_group_assemblies(groups) = assemblies));
+END_ENTITY;
+
+ENTITY Component_make_from_relationship
+  SUBTYPE OF (View_definition_relationship);  
+  SELF\View_definition_relationship.relating_view RENAMED reusable_component	: Assembly_component;
+  SELF\View_definition_relationship.related_view RENAMED resultant_component	: Assembly_component;
+WHERE
+  WR1 : resultant_component <> reusable_component;
+END_ENTITY;
+
+ENTITY Physical_component
+  SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);
+END_ENTITY;
+
+ENTITY Thermal_component
+  SUBTYPE OF (Assembly_component);
+END_ENTITY;
+
+  FUNCTION ac_get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);
+  END_FUNCTION;
+
+  FUNCTION ac_get_groups(input : Assembly_component) : SET OF Assembly_group_component;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      agc : SET OF Assembly_group_component := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        agc := agc + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      END_IF;
+    END_REPEAT;
+    RETURN (agc);
+  END_FUNCTION;
+
+  FUNCTION ac_get_group_assemblies(input : SET OF Assembly_group_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := [];
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      acr := input[i]\Assembly_component.occurrence_contexts;
+    END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);
+  END_FUNCTION;
+
+  FUNCTION ac_get_versions(input : SET OF Product_view_definition) : SET OF Product_version;
+    LOCAL
+      pv : SET OF Product_version := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      pv := pv + input[i]\Product_view_definition.defined_version; 
+    END_REPEAT;
+    RETURN (pv);
+  END_FUNCTION;
+
+  FUNCTION ac_get_products(input : SET OF Product_version) : SET OF Product;
+    LOCAL
+      p : SET OF Product := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      p := p + input[i]\Product_version.of_product; 
+    END_REPEAT;
+    RETURN (p);
+  END_FUNCTION;
+  
+  FUNCTION get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+        'STRUCTURED_LAYOUT_COMPONENT' IN
+        TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+
+    RETURN (pvd);
+  END_FUNCTION;
 
 END_SCHEMA;
 (*
@@ -776,7 +913,6 @@ END_FUNCTION;
 
 END_SCHEMA; -- Assembly_constraint_mim
 (*
-  $Id: arm.exp,v 1.1 2009/11/12 08:33:50 lothartklein Exp $
   ISO TC184/SC4/WG12 N4xxx - ISO/CD-TS 10303-1af1 Assembly feature relationship - EXPRESS ARM
 *)
 
@@ -822,7 +958,6 @@ END_SCHEMA;  -- Assembly_feature_relationship_arm
 
 
 (*
-$Id: arm.exp,v 1.25 2009/04/19 11:30:24 mikeward Exp $
 ISO TC184/SC4/WG12 N6111 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N5287
 *) 
@@ -883,7 +1018,158 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Assembly_structure_arm
 (*
- $Id$
+   ISO TC184/SC4/WG12 N6330 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5611
+*)
+
+
+SCHEMA Assembly_technology_arm;
+--	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+	USE FROM Component_feature_arm;
+	USE FROM Requirement_assignment_arm;
+	USE FROM Physical_component_feature_arm;
+	
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+	USE FROM Product_identification_extension_arm;	-- ISO/TS 10303-1738
+
+ 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Assembly_bond_definition);
+	END_TYPE;
+
+	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Assembly_bond_definition);
+	END_TYPE;
+
+  TYPE at_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
+    (Assembly_bond_definition);
+  END_TYPE; 
+
+	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Assembly_joint);
+	END_TYPE; 
+
+  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Physical_component_feature); -- added anew
+    -- Connection_zone_in_layout_template,
+    -- Connection_zone_in_usage_view,
+    -- Default_attachment_size_based_land_physical_template,
+    -- Feature_definition_with_connection_area,
+    -- Part_feature);
+  END_TYPE;     
+
+	
+  TYPE degree_of_freedom = ENUMERATION OF
+    (x,
+     y,
+     z,
+     u,
+     v,
+     w);
+  END_TYPE;
+(*
+	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
+		(ONEOF (Assembly_technology_specification,
+		Fabrication_technology_specification));
+	END_SUBTYPE_CONSTRAINT; 
+*)
+  ENTITY Assembled_with_bonding
+    SUBTYPE OF (Assembly_joint);
+      default_bond_definition : Assembly_bond_definition;
+    WHERE
+      WR1 : SELF\Assembly_joint.assembly_feature_1.definition :=: default_bond_definition.bonded_feature_1;
+      WR2 : SELF\Assembly_joint.assembly_feature_2.definition :=: default_bond_definition.bonded_feature_2;
+  END_ENTITY;
+
+  ENTITY Assembled_with_fasteners
+    SUBTYPE OF (Assembly_joint);
+--      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
+  END_ENTITY;
+
+  ENTITY Assembly_bond_definition;
+      name                                    : STRING;   
+--      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
+      associated_definition                   : Externally_defined_view_definition;
+      bonded_feature_1                        : bond_feature;
+      bonded_feature_2                        : bond_feature;
+    INVERSE
+      default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
+	  bond_category	: External_source_identification FOR item;
+	  bond_material : material_identification FOR items;      
+    UNIQUE
+      UR1 : name;
+      UR2 : associated_definition;
+    WHERE
+      WR1 : bonded_feature_1 <> bonded_feature_2;
+      WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
+      WR3 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)));
+      WR4 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR 
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)));
+      WR5 : NOT((('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN
+        TYPEOF (bonded_feature_1)) OR
+        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))
+        XOR 
+        (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR
+        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));      
+  END_ENTITY;
+
+  ENTITY Assembly_joint
+    SUPERTYPE OF (Assembled_with_fasteners ANDOR
+ Assembled_with_bonding)
+    SUBTYPE OF (Component_feature_joint);
+      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_item_shape; -- assembly_module_or_assembly_group_component;
+    UNIQUE
+      UR1 : SELF\Shape_element.element_name,
+        associated_assembly;
+    WHERE
+      WR1 : assembly_feature_1 :<>: assembly_feature_2;
+      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+  END_ENTITY;
+(*
+  ENTITY Assembly_technology_specification
+    SUBTYPE OF (Process_specification);
+  END_ENTITY;
+*)
+  ENTITY Component_mating_constraint_condition;
+      name                          : STRING;  
+      constraining_joint            : SET[1:3] OF Assembly_joint;
+      constrained_degree_of_freedom : SET[1:6] OF degree_of_freedom;
+      of_context                    : Part_view_definition; -- Part_design_view;
+    UNIQUE
+      UR1 : name,
+ of_context;
+  END_ENTITY;
+
+  ENTITY Connection_zone_based_assembly_joint
+    SUBTYPE OF (Assembly_joint);
+      zone_1 : Connection_zone; -- Connection_zone_in_design_view;
+      zone_2 : Connection_zone; -- Connection_zone_in_design_view;
+    WHERE
+      WR1 : zone_1 :<>: zone_2;
+  END_ENTITY;
+
+  ENTITY Default_assembly_bond_shape_model
+    SUBTYPE OF (Geometric_model);
+      shape_characterized_definition : Assembly_bond_definition;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Representation.description);
+      WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;      
+  END_ENTITY;
+
+END_SCHEMA;
+
+(*
  ISO TC184/SC4/WG12 N6628 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5290
 *)
@@ -933,7 +1219,6 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.17 2009/12/21 14:04:32 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6863 - ISO/TS 10303-1132 Associative text - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5293
 *)
@@ -1011,7 +1296,6 @@ USE FROM Text_appearance_arm; -- ISO/CD-TS 10303-1136
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.12 2004/11/19 21:37:34 robbod Exp $
  ISO TC184/SC4/WG12 N3019 - ISO/TS 10303-1246 Attribute classification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2255
 *) 
@@ -1035,7 +1319,6 @@ END_SCHEMA;  -- Attribute_classification_arm
 
 
 (*
- $Id: arm.exp,v 1.7 2011/03/04 18:23:44 lothartklein Exp $
  ISO TC184/SC4/WG12 N7190 - ISO/TS 10303-1801 B_spline_geometry - EXPRESS ARM
 *)
 
@@ -1164,7 +1447,6 @@ FUNCTION positive_surface_weights(bss: Rational_b_spline_surface) : BOOLEAN;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.24 2010/11/04 18:13:05 lothartklein Exp $
    ISO TC184/SC4/WG12 N7229 - ISO/TS 10303-1651 Basic curve - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6866
 *)
@@ -1217,7 +1499,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.5 2009/04/22 13:00:10 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6216 - ISO/TS 10303-1773 Basic data representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5296
 *)
@@ -1285,7 +1566,6 @@ USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
 
 END_SCHEMA;
 (*
-  $Id: arm.exp,v 1.12 2011/03/04 18:23:44 lothartklein Exp $
   ISO TC184/SC4/WG12 N6872 - ISO/TS 10303-1323 Basic geometric topology - EXPRESS ARM
   Supersedes ISO TC184/SC4/WG12 N5299
 *)
@@ -1321,7 +1601,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.23 2010/11/03 20:47:39 lothartklein Exp $
 ISO TC184/SC4/WG12 N7193 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6869
 *) 
@@ -1485,7 +1764,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Basic_geometry_arm
 (*
-   $Id: arm.exp,v 1.5 2008/09/12 11:01:36 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5305 - ISO/TS 10303-1369 Binary representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4669
 *) 
@@ -1507,7 +1785,6 @@ USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 END_SCHEMA; 
 
 (*
- $Id$
  ISO TC184/SC4/WG12 N6622 - ISO/TS 10303-1316 Camera view 3d - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5308
 *)
@@ -1579,7 +1856,6 @@ USE FROM Presentation_hierarchy_arm; -- ISO/CD-TS 10303-1330
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.8 2004/10/28 17:48:07 darla Exp $
  ISO TC184/SC4/WG12 N2932 - ISO/TS 10303-1044 Certification - EXPRESS ARM
 *)
 
@@ -1605,7 +1881,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Certification_arm
 (*
-   $Id: arm.exp,v 1.59 2010/10/11 03:03:25 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6944 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6219
 *)
@@ -1833,7 +2108,6 @@ SCHEMA Characteristic_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.8 2009/12/21 15:19:48 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6884 - ISO/TS 10303-1765 Characterizable object - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4296
 *)
@@ -1849,7 +2123,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/11/08 17:25:42 lothartklein Exp $
    N - ISO/CD-TS - 10303- characterized_representation - EXPRESS ARM
 *)
 
@@ -1881,7 +2154,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.49 2009/12/23 13:26:11 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6947 - ISO/TS 10303-1655 Chemical substance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6222
 *)
@@ -2102,7 +2374,6 @@ REFERENCE FROM Support_resource_arm (bag_to_set);
 
 END_SCHEMA; 
 (*
- $Id: arm.exp,v 1.8 2004/11/19 21:37:34 robbod Exp $
  ISO TC184/SC4/WG12 N3022 - ISO/TS 10303-1070 Class - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2258
 *) 
@@ -2130,7 +2401,6 @@ END_ENTITY;
 END_SCHEMA;  -- Class_arm
 
 (*
- $Id: arm.exp,v 1.6 2004/11/30 17:13:38 robbod Exp $
  ISO TC184/SC4/WG12 N3248 - ISO/TS 10303-1114 Classification assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2229
 *)
@@ -2151,7 +2421,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Classification_assignment_arm
 (*
- $Id: arm.exp,v 1.23 2008/09/12 11:16:22 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5317 - ISO/TS 10303-1111 Classification with attributes - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4964
 *)
@@ -2235,7 +2504,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.4 2006/03/24 18:09:46 thendrix Exp $
 ISO TC184/SC4/WG12 N4242 - ISO/TS 10303-1002 Colour - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N671
 *) 
@@ -2272,7 +2540,206 @@ END_ENTITY;
 
 END_SCHEMA;  -- Colour_arm
 (*
-   $Id: arm.exp,v 1.16 2010/04/09 20:46:08 lothartklein Exp $
+   ISO TC184/SC4/WG12 N6339 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5623
+*)
+
+SCHEMA Component_feature_arm;
+
+	USE FROM Assembly_component_arm;
+	USE FROM General_part_occurrence_feature_joint_arm;
+
+	TYPE cf_groupable_item = SELECT BASED_ON groupable_item WITH 
+	   (Component_feature);
+	END_TYPE; 
+
+	TYPE feature_select = EXTENSIBLE GENERIC_ENTITY SELECT
+		(General_part_feature);
+	END_TYPE;
+
+  ENTITY Component_feature
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (General_part_occurrence_feature);
+      definition           : OPTIONAL feature_select;
+      SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
+      SELF\Shape_element.element_name : STRING;
+    UNIQUE
+      UR1 : definition,associated_component;
+      UR2 : SELF\Shape_element.element_name, associated_component;
+  END_ENTITY;
+
+  ENTITY Component_feature_joint
+     ABSTRACT SUPERTYPE
+  SUBTYPE OF (Component_feature_relationship, General_component_feature_joint);
+    SELF\Shape_element.element_name : STRING;
+    SELF\Shape_element_relationship.relating RENAMED feature_1 : Component_feature;
+    SELF\Shape_element_relationship.related RENAMED feature_2 : Component_feature;
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Item_shape;
+    WHERE
+      WR1 : feature_1 <> feature_2;
+      WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
+      WR3 : SELF\Shape_element.containing_shape\Item_shape.described_element = feature_1\Shape_element.containing_shape\Item_shape.described_element;      
+  END_ENTITY;
+
+  ENTITY Component_feature_make_from_relationship
+		SUBTYPE OF (Component_feature_relationship);
+      SELF\Shape_element_relationship.relating RENAMED reusable_feature	: Component_feature;
+      SELF\Shape_element_relationship.related RENAMED resultant_feature	: Component_feature;
+  END_ENTITY;
+
+  ENTITY Component_feature_relationship
+    SUPERTYPE OF (ONEOF(Component_feature_joint,
+      Component_feature_make_from_relationship))
+  	SUBTYPE OF (Shape_element_relationship);
+      SELF\Shape_element_relationship.relating : Component_feature;  	
+      SELF\Shape_element_relationship.related  : Component_feature;
+  END_ENTITY;
+
+  ENTITY Component_terminal
+     ABSTRACT SUPERTYPE
+    SUBTYPE OF (Component_feature);
+      local_swappable  : OPTIONAL BOOLEAN;
+      global_swappable : OPTIONAL BOOLEAN;
+      swap_code        : OPTIONAL STRING;
+  END_ENTITY;
+
+END_SCHEMA;
+(*
+   ISO TC184/SC4/WG12 N6953 - ISO/TS 10303-1656 Component grouping - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6342
+*)
+
+SCHEMA Component_grouping_arm;
+
+	USE FROM Assembly_component_arm;	-- ISO/TS 10303-1691
+	REFERENCE FROM Support_resource_arm (bag_to_set); 
+	
+  ENTITY Array_placement_group
+    ABSTRACT SUPERTYPE OF(ONEOF (Linear_array_placement_group_component,
+		Rectangular_array_placement_group_component))
+    SUBTYPE OF (Assembly_group_component);
+  END_ENTITY;
+
+  ENTITY Assembly_component_placement_link;
+      precedent_element  : Assembly_component;
+      subsequent_element : Assembly_component;
+    INVERSE
+      referenced_by : linear_array_placement_group_component FOR element;
+    WHERE
+      WR1:  acyclic_assembly_component_placement_link(SELF,
+         [subsequent_element],
+         'COMPONENT_GROUPING_ARM.ASSEMBLY_COMPONENT_PLACEMENT_LINK');
+  END_ENTITY;
+      
+  ENTITY Assembly_group_component
+    SUBTYPE OF (Assembly_component, Single_instance);
+    INVERSE
+      components : SET[1:?] OF next_assembly_usage FOR relating_view;
+    WHERE
+      WR1: SIZEOF(QUERY(co <* components | NOT(('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT') IN TYPEOF(co\Product_occurrence_definition_relationship.related_view)))) = 0;
+  END_ENTITY;
+
+  ENTITY Linear_array_placement_group_component
+    SUBTYPE OF (Array_placement_group);
+      element                               : SET[1:?] OF Assembly_component_placement_link;
+      initial_node_positive_x_displacement  : Length_data_element;
+      terminus_node_positive_x_displacement : Length_data_element;
+      location_uncertainty                  : Length_data_element;
+    WHERE  
+      WR1 : (1 + SIZEOF(element)) = cg_get_sz_ac(element);
+  END_ENTITY;
+
+  ENTITY Linear_array_placement_group_component_link;
+      precedent_element  : Linear_array_placement_group_component;
+      subsequent_element : Linear_array_placement_group_component;
+    INVERSE
+      referenced_by : rectangular_array_placement_group_component FOR element;
+    WHERE
+      WR1:  acyclic_linear_array_placement_group_component_link(SELF,
+         [subsequent_element],
+         'COMPONENT_GROUPING_ARM.LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK');
+  END_ENTITY;
+
+  ENTITY Rectangular_array_placement_group_component
+    SUBTYPE OF (Array_placement_group);
+      element                              : SET[1:?] OF Linear_array_placement_group_component_link;
+      initial_row_positive_y_displacement  : Length_data_element;
+      terminus_row_positive_y_displacement : Length_data_element;
+      location_uncertainty                 : Length_data_element;
+    WHERE
+      WR1 : (1 + SIZEOF(element)) = cg_get_sz_lapgc(element);
+  END_ENTITY;
+
+FUNCTION acyclic_assembly_component_placement_link
+  (relation : Assembly_component_placement_link; relatives : SET[1:?] OF
+  Assembly_component; specific_relation : STRING) : BOOLEAN; 
+LOCAL
+    x : SET OF Assembly_component_placement_link;
+END_LOCAL;
+
+    IF relation.precedent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_element,
+        'COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_COMPONENT_PLACEMENT_LINK.' +
+        'SUBSEQUENT_ELEMENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_assembly_component_placement_link(x[i], relatives +
+        relation.precedent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION; 
+
+FUNCTION acyclic_linear_array_placement_group_component_link
+  (relation : Linear_array_placement_group_component_link; relatives :
+  SET[1:?] OF Linear_array_placement_group_component; specific_relation : STRING): BOOLEAN; 
+LOCAL
+      x : SET OF Linear_array_placement_group_component_link;
+END_LOCAL;
+
+    IF relation.precedent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+     x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_element,
+       'COMPONENT_GROUPING_ARM.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK.' + 'SUBSEQUENT_ELEMENT'))
+       | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_linear_array_placement_group_component_link(x[i], relatives
+        + relation.precedent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION; 
+
+FUNCTION cg_get_sz_ac (input : SET[1:?] OF Assembly_component_placement_link) : INTEGER;
+LOCAL
+    ac : SET OF Assembly_component := [];
+END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac + input[i]\Assembly_component_placement_link.precedent_element +
+      input[i]\Assembly_component_placement_link.subsequent_element;
+    END_REPEAT;
+  RETURN (SIZEOF(ac));
+END_FUNCTION; 
+
+FUNCTION cg_get_sz_lapgc (input : SET[1:?] OF Linear_array_placement_group_component_link) : INTEGER;
+LOCAL
+  ac : SET OF Linear_array_placement_group_component := [];
+END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac +
+        input[i]\Linear_array_placement_group_component_link.precedent_element +
+        input[i]\Linear_array_placement_group_component_link.subsequent_element;
+    END_REPEAT;
+  RETURN (SIZEOF(ac));
+END_FUNCTION; 
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6881 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5320
 *)
@@ -2421,7 +2888,6 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.15 2009/07/31 11:50:17 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6225 - ISO/TS 10303-1768 Composite material aspects - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5323
 *)
@@ -2448,7 +2914,6 @@ END_SCHEMA;
 
   
 (*
- $Id: arm.exp,v 1.6 2010/11/04 18:23:12 lothartklein Exp $
  ISO TC184/SC4/WG12 N7232 - ISO/TS 10303-1525 - EXPRESS ARM
 *)
 
@@ -2503,7 +2968,6 @@ END_ENTITY;
 END_SCHEMA;  -- Composite_surface_arm
 
 (*
-   $Id: arm.exp,v 1.4 2009/08/17 22:29:37 lothartklein Exp $
    ISO TC184/SC4/WG12 N6761 - ISO/TS 10303-1327 Compound shape representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5326
 *)
@@ -2519,7 +2983,6 @@ USE FROM Non_manifold_surface_arm; -- ISO/CD-TS 10303-1324
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.17 2009/12/18 15:07:47 robbod Exp $
  ISO TC184/SC4/WG12 N6117 - ISO/TS 10303-1058 Configuration effectivity - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2949
 *) 
@@ -2549,7 +3012,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Configuration_effectivity_arm
 (*
- $Id: arm.exp,v 1.12 2009/08/11 07:45:42 robbod Exp $
  ISO TC184/SC4/WG12 N6031 - ISO/TS 10303-1056 Configuration item - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2532
 *) 
@@ -2607,7 +3069,6 @@ END_ENTITY;
 END_SCHEMA;  -- Configuration_item_arm
 
 (*
-	$Id: arm.exp,v 1.18 2008/09/12 11:30:38 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N5329 - ISO/TS 10303-1131 Construction geometry - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N4934
 *) 
@@ -2644,7 +3105,6 @@ USE FROM Basic_curve_arm;    -- ISO/TS 10303-1651
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.15 2009/12/23 13:26:11 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6950 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6345
 *) 
@@ -2729,7 +3189,6 @@ USE FROM Basic_curve_arm; -- ISO/TS 10303-1651
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.18 2009/12/21 15:14:00 liutkuviene Exp $
 ISO TC184/SC4/WG12 N6878 - ISO/TS 10303-1068 Constructive solid geometry 3d - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6228
 *) 
@@ -2746,7 +3205,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Constructive_solid_geometry_3d_arm
 (*
-   $Id: arm.exp,v 1.14 2010/02/17 22:52:38 lothartklein Exp $
    ISO TC184/SC4/WG12 N7086 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6616
 *) 
@@ -2818,7 +3276,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.20 2010/06/10 20:34:11 philsp Exp $
 ISO TC184/SC4/WG12 N7145 - ISO/TS 10303-1062 Contract - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6034
 *) 
@@ -2848,7 +3305,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Contract_arm
 (*
-   $Id: arm.exp,v 1.3 2008/09/12 11:35:48 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5335 - ISO/TS 10303-1775 Currency - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4690
 *)
@@ -2873,7 +3329,6 @@ USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 END_SCHEMA;
 (*
-	$Id: arm.exp,v 1.13 2010/01/05 09:02:53 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N7058 - ISO/TS 10303-1003 Curve appearance - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N5338
 *) 
@@ -2935,7 +3390,6 @@ USE FROM Styled_curve_arm; -- ISO/TS 10303-1749
 
 END_SCHEMA;  
 (*
-   $Id: arm.exp,v 1.8 2006/01/20 08:43:43 liutkuviene Exp $
    ISO TC184/SC4/WG12 N3924 - ISO/TS 10303-1659 Curve swept solid - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3333
 *)
@@ -2950,7 +3404,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.11 2008/10/02 11:57:03 liutkuviene Exp $
  ISO TC184/SC4/WG12 N2913 - ISO/TS 10303-1010 Date time - EXPRESS ARM
 *) 
 
@@ -3029,7 +3482,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Date_time_arm
 (*
- $Id: arm.exp,v 1.9 2004/10/21 16:33:53 darla Exp $
  ISO TC184/SC4/WG12 N1093 - ISO/TS 10303-1014 Date time assignment - EXPRESS ARM
 *)
 SCHEMA Date_time_assignment_arm;
@@ -3049,7 +3501,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*  
-$Id: arm.exp,v 1.10 2010/10/02 11:42:31 lothartklein Exp $ 
 ISO TC184/SC4/WG12 N4260 - ISO/TS 10303-1052 Default tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N2870
 *) 
@@ -3130,7 +3581,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Default_tolerance_arm
 (* 
-$Id: arm.exp,v 1.16 2011/03/20 22:00:30 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -3264,7 +3714,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.28 2011/03/23 14:27:51 lothartklein Exp $
    ISO TC184/SC4/WG12 N6887 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6231
 *)
@@ -3512,31 +3961,42 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
      Information_usage_right_relationship);
   END_TYPE; 
 
+TYPE document_category = EXTENSIBLE ENUMERATION OF (
+  catalogue,
+  manual,
+  specification);
+END_TYPE;
+
 TYPE part_category = EXTENSIBLE ENUMERATION OF (
   application_control,
   assembly,
+  boxed,
   collection,
   completely_knocked_down,
+  continuous,
   detail,
+  discrete,
   in_process,
+  inseparable_assembly,
   prototype,
   raw_material,
-  raw_material_by_length,
   raw_material_by_area,
-  raw_material_by_volumne,
+  raw_material_by_length,
+  raw_material_by_volume,
   regulated,
   safety,
   service,
-  tool,
-  inseparable_assembly,
-  boxed,
-  continious,
-  discrete);
+  tool);
 END_TYPE;
 
 ENTITY Part_with_additional_categories
   SUBTYPE OF (Part);
   categories : SET[1:?] OF part_category;
+END_ENTITY;
+
+ENTITY Document_with_additional_categories
+  SUBTYPE OF (Document);
+  categories : SET[1:?] OF document_category;
 END_ENTITY;
 
   RULE unique_document_id FOR
@@ -3599,7 +4059,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2008/09/12 11:51:07 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5350 - ISO/TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4702
 *)
@@ -3631,7 +4090,6 @@ USE FROM Draughting_element_specialisations_arm; -- ISO/CD-TS 10303-1312
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.35 2011/02/23 22:49:32 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N6890 - ISO/TS 10303-1050 Dimension tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6676
 *) 
@@ -3823,7 +4281,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Dimension_tolerance_arm
 (*
-$Id: arm.exp,v 1.15 2005/06/02 20:42:27 thendrix Exp $
 ISO TC184/SC4/WG12 N2957 - ISO/TS 10303-1121 Document and version identification - EXPRESS ARM
 *)
 
@@ -3852,7 +4309,6 @@ END_RULE;
 
 END_SCHEMA;  -- Document_and_version_identification_arm
 (*
-$Id: arm.exp,v 1.11 2010/06/09 22:14:29 philsp Exp $
 ISO TC184/SC4/WG12 N7106 - ISO/TS 10303-1122 Document assignment - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1189
 *)
@@ -3890,7 +4346,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Document_assignment_arm
 (*
- $Id: arm.exp,v 1.18 2004/11/15 21:22:46 thendrix Exp $
 ISO TC184/SC4/WG12 N3225 - ISO/TS 10303-1123 Document definition - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1192
 *) 
@@ -3943,7 +4398,6 @@ END_RULE;
 
 END_SCHEMA;  -- Document_definition_arm
 (*
- $Id: arm.exp,v 1.13 2009/12/18 15:07:47 robbod Exp $
  ISO TC184/SC4/WG12 N6120 - ISO/TS 10303-1290 Document management - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N3037
 *) 
@@ -4031,7 +4485,6 @@ END_TYPE;
 END_SCHEMA;  -- Document_management_arm
 
  (*
- $Id: arm.exp,v 1.22 2009/08/11 07:51:33 robbod Exp $
  ISO TC184/SC4/WG12 N6037 - ISO/TS 10303-1126 Document properties - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N3226
 *)
@@ -4093,7 +4546,6 @@ END_ENTITY;
 END_SCHEMA;  -- Document_properties_arm
 
 (*
- $Id: arm.exp,v 1.9 2004/10/21 17:26:46 darla Exp $
  ISO TC184/SC4/WG12 N1195 - ISO/TS 10303-1124 Document structure - EXPRESS ARM
 *)
 
@@ -4123,7 +4575,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2008/09/12 11:53:29 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5353 - ISO/TS 10303-1206 Draughting annotation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4705
 *)
@@ -4188,7 +4639,6 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
 END_SCHEMA;
 (*
-   $Id$
    ISO TC184/SC4/WG12 N7064 - ISO/TS 10303-1310 Draughting element - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5356
 *)
@@ -4290,7 +4740,6 @@ USE FROM Curve_appearance_arm; -- ISO/CD-TS 10303-1003
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.5 2010/01/25 18:29:28 lothartklein Exp $
    ISO TC184/SC4/WG12 N7074 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5359
 *)
@@ -4418,7 +4867,6 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
 END_SCHEMA;
 (*
-   $Id$
    ISO TC184/SC4/WG12 N6893 - ISO/TS 10303-1309 Drawing definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5362
 *)
@@ -4496,7 +4944,6 @@ USE FROM Presentation_hierarchy_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.8 2004/10/21 17:28:28 darla Exp $
  ISO TC184/SC4/WG12 N1267 - ISO/TS 10303-1501 Edge based wireframe - EXPRESS ARM
 *)
 
@@ -4510,7 +4957,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.10 2004/10/21 17:46:04 darla Exp $
  ISO TC184/SC4/WG12 N1168 - ISO/TS 10303-1057 Effectivity - EXPRESS ARM
 *)
    
@@ -4559,7 +5005,6 @@ END_ENTITY;
    
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.5 2004/10/21 17:49:23 darla Exp $
  ISO TC184/SC4/WG12 N1174 - ISO/TS 10303-1059 Effectivity application - EXPRESS ARM
 *)
    
@@ -4581,7 +5026,6 @@ END_SCHEMA;
 
 (* Last update -  10 Apr 2002 *)
 (* 
-	$Id: arm.exp,v 1.19 2011/03/04 18:23:44 lothartklein Exp $
 	ISO TC184/SC4/WG12 N7089 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6695
 *)
@@ -4719,7 +5163,6 @@ END_SCHEMA;
 
 
 (*
-$Id: arm.exp,v 1.8 2010/02/01 10:58:22 lothartklein Exp $
 ISO TC184/SC4/WG12 N6896 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6561
 *)
@@ -4851,7 +5294,6 @@ END_SCHEMA;
 
 (* Last update -  24 Aug 2009 *)
 (*
-   $Id: arm.exp,v 1.2 2008/09/15 12:09:10 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5540 - ISO/TS 10303-1329 Elementary boundary representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4717
 *)
@@ -4866,7 +5308,6 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.14 2004/10/21 17:51:29 darla Exp $
  ISO TC184/SC4/WG12 N2114 - ISO/TS 10303-1064 Event - EXPRESS ARM
 *)
 
@@ -4908,7 +5349,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Event_arm
 (*
- $Id: arm.exp,v 1.4 2003/10/14 14:34:41 robbod Exp $
  ISO TC184/SC4/WG12 N2116 - ISO/TS 10303-1364 Event assignment - EXPRESS ARM
 *) 
 
@@ -4930,7 +5370,6 @@ END_ENTITY;
 END_SCHEMA;  -- Event_assignment_arm
 
 (*
- $Id: arm.exp,v 1.5 2010/11/03 20:57:46 lothartklein Exp $
  ISO TC184/SC4/WG12 N7202 - ISO/TS 10303-1788 Explicit constraints - EXPRESS ARM
 *)
 
@@ -5009,7 +5448,6 @@ END_ENTITY;
 
 END_SCHEMA; -- Explicit_constraint_schema_arm
 (*
- $Id: arm.exp,v 1.29 2010/11/04 18:10:19 lothartklein Exp $
  ISO TC184/SC4/WG12 N7214 - ISO/TS 10303-1342 Expression - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2555
 *)
@@ -5127,7 +5565,6 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
 	
 	END_SCHEMA; 
 (*
-   $Id: arm.exp,v 1.20 2009/05/22 10:38:07 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6619 - ISO/TS 10303-1667 Extended basic geometry - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5365
 *)
@@ -5173,7 +5610,6 @@ USE FROM Geometric_model_relationship_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.4 2008/09/12 12:07:37 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5368 - ISO/TS 10303-1776 Extended date - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4696
 *)
@@ -5245,7 +5681,6 @@ USE FROM Date_time_arm;
 
 END_SCHEMA; 
 (*
-$Id: arm.exp,v 1.26 2008/09/12 12:10:30 liutkuviene Exp $
 ISO TC184/SC4/WG12 N5371 - ISO/TS 10303-1106 Extended measure representation - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4834
 *) 
@@ -5310,7 +5745,6 @@ USE FROM Qualified_measure_arm; -- ISO/CD-TS 10303-1782
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.12 2008/09/12 12:13:34 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5374 - ISO/TS 10303-1275 External class - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4732
 *) 
@@ -5341,7 +5775,6 @@ END_SCHEMA;
 
 
 (*
-   $Id: arm.exp,v 1.3 2008/09/12 12:16:32 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5377 - ISO/TS 10303-1777 External currency - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4735
 *)
@@ -5363,7 +5796,6 @@ USE FROM External_unit_arm; -- ISO/CD-TS 10303-1780
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.12 2004/10/21 17:59:15 darla Exp $
  ISO TC184/SC4/WG12 N1207 - ISO/TS 10303-1128 External item identification assignment - EXPRESS ARM
 *)
 
@@ -5387,7 +5819,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2009/04/22 20:07:49 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6234 - ISO/TS 10303-1778 External library - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5380
 *)
@@ -5444,7 +5875,6 @@ USE FROM Plib_class_reference_arm; -- ISO/TS 10303-1291
   
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.3 2004/10/21 18:01:38 darla Exp $
  ISO TC184/SC4/WG12 N1228 - ISO/TS 10303-1033 External model - EXPRESS ARM
 *)
 
@@ -5466,7 +5896,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.12 2009/06/11 09:47:07 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6679 - ISO/TS 10303-1129 External properties - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5543
 *)
@@ -5506,7 +5935,6 @@ USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.3 2008/09/12 12:25:50 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5383 - ISO/TS 10303-1779 External representation item - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4744
 *)
@@ -5529,7 +5957,6 @@ USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.4 2008/09/12 12:28:23 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5386 - ISO/TS 10303-1331 External source - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5075
  *)
@@ -5543,7 +5970,6 @@ SCHEMA External_source_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.4 2008/09/12 12:31:24 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5389 - ISO/TS 10303-1780 External unit - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4747
 *)
@@ -5569,7 +5995,6 @@ USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.8 2004/10/21 18:05:39 darla Exp $
  ISO TC184/SC4/WG12 N1285 - ISO/TS 10303-1512 Faceted boundary representation - EXPRESS ARM
 *)
 
@@ -5584,7 +6009,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.33 2011/02/11 10:08:13 lothartklein Exp $
    ISO TC184/SC4/WG12 N6965 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6375
 *)
@@ -5649,7 +6073,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.16 2010/06/02 13:17:19 philsp Exp $
  ISO TC184/SC4/WG12 N2123 - ISO/TS 10303-1127 File identification - EXPRESS ARM
 *)
 
@@ -5686,7 +6109,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- File_identification_arm
 (*
-   $Id: arm.exp,v 1.15 2009/12/23 11:37:49 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6899 - ISO/TS 10303-1672 Fill area style - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5392
 *)
@@ -5744,7 +6166,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.20 2009/12/21 09:20:21 liutkuviene Exp $
 ISO TC184/SC4/WG12 N6902 - ISO/TS 10303-1006 Foundation representation - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4348
 *) 
@@ -5871,7 +6292,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Foundation_representation_arm
 (*
- $Id: arm.exp,v 1.11 2008/09/12 12:36:40 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5395 - ISO/TS 10303-1216 Functional breakdown - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4937
 *) 
@@ -5918,7 +6338,59 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.9 2010/01/05 09:07:35 liutkuviene Exp $
+   N - ISO/CD-TS - 10303- general_part_feature - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_feature_arm;
+
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
+USE FROM Feature_and_connection_zone_arm; --          ISO/TS 10303-1671
+
+ENTITY Part_item_shape
+  SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element : Part_view_definition;
+END_ENTITY;  
+
+ENTITY General_part_feature
+  SUBTYPE OF (Definitional_shape_element);
+  SELF\Shape_element.containing_shape : Part_item_shape; 
+END_ENTITY;  
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- general_part_occurrence_feature_joint - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_occurrence_feature_joint_arm;
+
+USE FROM Item_definition_structure_arm;  --        ISO/TS 10303-1345
+USE FROM General_part_feature_arm; 
+
+ENTITY Assembly_item_shape
+  SUBTYPE OF (Part_item_shape);
+  SELF\Item_shape.described_element : Assembly_definition;
+END_ENTITY;  
+
+ENTITY Part_occurrence_item_shape
+  SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element : Definition_based_part_occurrence;
+END_ENTITY;  
+
+ENTITY General_part_occurrence_feature
+  SUBTYPE OF (Definitional_shape_element);
+  SELF\Shape_element.containing_shape : Part_occurrence_item_shape; 
+END_ENTITY;  
+
+ENTITY General_component_feature_joint
+  SUBTYPE OF (Shape_element, Shape_element_relationship);
+  SELF\Shape_element.containing_shape : Assembly_item_shape; 
+  SELF\Shape_element_relationship.relating : General_part_occurrence_feature;
+  SELF\Shape_element_relationship.related : General_part_occurrence_feature;
+WHERE
+  WR1: relating <> related;
+-- WRx : relating and related have to be for Definition_based_part_occurrence that are in the assembly_definition called out by the containing_shape
+END_ENTITY;  
+
+END_SCHEMA;
+(*
 ISO TC184/SC4/WG12 N7067 - ISO/TS 10303-1007 General surface appearance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N5398
 *) 
@@ -5983,7 +6455,6 @@ USE FROM Curve_appearance_arm; -- ISO/TS 10303-1003
 	
 END_SCHEMA;
 (* 
- $Id: arm.exp,v 1.16 2010/11/03 22:11:20 lothartklein Exp $
  ISO TC184/SC4/WG12 N7217 - ISO/TS 10303-1341 Generic expression - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2552
 *)
@@ -6155,7 +6626,6 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.19 2008/09/13 12:25:14 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5401 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4979
 *)
@@ -6220,7 +6690,6 @@ USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.18 2008/09/13 12:25:15 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5404 - ISO/TS 10303-1762 Generic product occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4997
 *)
@@ -6292,7 +6761,6 @@ SCHEMA Generic_product_occurrence_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.7 2010/11/03 21:07:30 lothartklein Exp $
  ISO TC184/SC4/WG12 N7205 - ISO/TS 10303-1789 Geometric constraints - EXPRESS ARM
 *)
 
@@ -6723,7 +7191,6 @@ END_ENTITY;
 
 END_SCHEMA; -- Geometric_constraints_arm
 (*
-   $Id: arm.exp,v 1.6 2009/12/23 13:34:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6905 - ISO/TS 10303-1403 Geometric model relationship - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6613
 *)
@@ -6770,7 +7237,6 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.37 2011/02/18 12:49:31 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -7208,7 +7674,6 @@ END_FUNCTION;
 
 END_SCHEMA;  -- Geometric_tolerance_arm
 (*
- $Id: arm.exp,v 1.8 2004/10/22 13:52:32 darla Exp $
  ISO TC184/SC4/WG12 N1210 - ISO/TS 10303-1039 Geometric validation property representation - EXPRESS ARM
 *)
 
@@ -7236,7 +7701,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.9 2010/11/04 18:28:43 lothartklein Exp $
  ISO TC184/SC4/WG12 N7235 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
 *)
 
@@ -7279,7 +7743,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.7 2004/10/22 13:56:41 darla Exp $
  ISO TC184/SC4/WG12 N1279 - ISO/TS 10303-1510 Geometrically bounded wireframe - EXPRESS ARM
 *)
 
@@ -7293,7 +7756,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.9 2006/03/24 18:45:20 thendrix Exp $
  ISO TC184/SC4/WG12 N4275 - ISO/TS 10303-1113 Group - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N3245
  *) 
@@ -7324,7 +7786,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Group_arm
 (*
-$Id: arm.exp,v 1.11 2010/06/09 22:02:45 philsp Exp $
 ISO TC184/SC4/WG12 N7114 - ISO/TS 10303-1021 Identification assignment - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1111
 *)
@@ -7344,7 +7805,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Identification_assignment_arm
 (*  
-   $Id: arm.exp,v 1.15 2008/09/13 12:25:14 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5407 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4940
 *)
@@ -7371,7 +7831,6 @@ USE FROM Part_view_definition_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.11 2004/10/28 19:05:37 darla Exp $
  ISO TC184/SC4/WG12 N2964 - ISO/TS 10303-1036 Independent property - EXPRESS ARM
 *) 
 
@@ -7394,7 +7853,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Independent_property_arm
 (*
- $Id: arm.exp,v 1.10 2006/03/24 18:37:02 thendrix Exp $
  ISO TC184/SC4/WG12 N4371 - ISO/TS 10303-1038 Independent property representation - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2966
 *) 
@@ -7411,7 +7869,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Independent_property_representation_arm
 (*
- $Id: arm.exp,v 1.6 2005/07/04 15:00:42 rocc Exp $
  ISO TC184/SC4/WG12 N2637 - ISO/TS 10303-1350 Inertia characteristics - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2074
 *)
@@ -7454,7 +7911,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.20 2009/04/22 20:17:39 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6237 - ISO/TS 10303-1761 Information product - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4227
 *)
@@ -7490,7 +7946,6 @@ END_RULE;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.14 2010/11/16 22:52:11 mikeward Exp $
  ISO TC184/SC4/WG12 N7264 - ISO/TS 10303-1241 Information rights - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6123
 *) 
@@ -7550,7 +8005,6 @@ END_ENTITY;
 END_SCHEMA;  -- Information_rights_arm
 
 (*
- $Id: arm.exp,v 1.24 2009/12/23 13:26:59 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6911 - ISO/TS 10303-1345 Item definition structure - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6240
 *)
@@ -7613,7 +8067,6 @@ USE FROM Product_structure_arm; -- ISO/TS 10303-1134
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
 
 SCHEMA Kinematic_motion_representation_arm;
@@ -7621,7 +8074,6 @@ USE FROM Kinematic_state_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_state - EXPRESS ARM*)
 
 SCHEMA Kinematic_state_arm;
@@ -7629,7 +8081,6 @@ USE FROM Kinematic_structure_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_structure - EXPRESS ARM*)
 
 SCHEMA Kinematic_structure_arm;
@@ -7637,13 +8088,11 @@ USE FROM Kinematic_topology_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_topology - EXPRESS ARM*)
 
 SCHEMA Kinematic_topology_arm;
 END_SCHEMA;
 (*
-	$Id: arm.exp,v 1.5 2008/09/13 12:25:15 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N5413 - ISO/TS 10303-1008 Layer assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N4750
 *) 
@@ -7672,7 +8121,6 @@ USE FROM Group_arm;	-- ISO/TS 10303-1113
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.5 2011/02/21 22:03:48 liutkuviene Exp $
    N - ISO/CD-TS - 10303- machining_features - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Machining_features_arm;
@@ -8657,7 +9105,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.9 2006/03/24 18:54:48 thendrix Exp $
  ISO TC184/SC4/WG12 N4287 - ISO/TS 10303-1288 Management resource information - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N3079
 *) 
@@ -8739,7 +9186,6 @@ END_SCHEMA;  -- Management_resource_information_arm
 
 
 (*
-   $Id: arm.exp,v 1.18 2008/09/13 12:25:15 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5416 - ISO/TS 10303-1702 Manifold subsurface - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4943
 *)
@@ -8763,7 +9209,6 @@ USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
 END_SCHEMA;
 (*
-	$Id: arm.exp,v 1.12 2010/11/03 20:51:14 lothartklein Exp $
 	ISO TC184/SC4/WG12 N7196 - ISO/TS 10303-1509 Manifold surface - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6243
 *)
@@ -8802,7 +9247,6 @@ USE FROM Topologically_bounded_surface_arm; --ISO/TS 10303-1511:2004
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.6 2004/08/27 12:03:34 davidleal Exp $
  ISO TC184/SC4/WG12 N2798 - ISO/TS 10303-1091 Maths space - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1879
 *)
@@ -8819,7 +9263,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.5 2004/08/27 12:03:56 davidleal Exp $
  ISO TC184/SC4/WG12 N2801 - ISO/TS 10303-1092 Maths value - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1876
 *)
@@ -8855,29 +9298,28 @@ END_TYPE;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/12/11 22:34:46 lothartklein Exp $
    N - ISO/CD-TS - 10303- mating_structure - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Mating_structure_arm;
 
-USE FROM Part_view_definition_arm; -- ISO/TS 10303-1023
-USE FROM Assembly_structure_arm;  -- ISO/TS 10303-1026
+USE FROM Item_definition_structure_arm;
+USE FROM Assembly_technology_arm;
 
 ENTITY Mated_item_association
-  SUBTYPE OF (Product_occurrence_definition_relationship);
-  SELF\Product_occurrence_definition_relationship.relating_view : mating_definition;
+  SUBTYPE OF (Assembled_part_association);
+  SELF\Product_occurrence_definition_relationship.relating_view : Mating_definition;
 --  placement : OPTIONAL transformation_select;
 END_ENTITY;
 
 ENTITY Mated_item_relationship;
---  mated_shape : OPTIONAL shape_element_or_relationship_select;
-  relating : mated_item_association;
-  related : mated_item_association;
+  mated_shape : OPTIONAL SET[1:?] OF Assembly_joint;
+  relating : Mated_item_association;
+  related : Mated_item_association;
 --  mating_material : SET [0:?] OF quantified_instance;
 END_ENTITY;
 
 ENTITY Mating_definition
-  SUBTYPE OF (Part_view_definition);
+  SUBTYPE OF (Assembly_definition);
   mating_type : STRING;
 INVERSE
   mated_items : SET [2:?] OF Mated_item_association FOR relating_view;
@@ -8885,7 +9327,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.11 2004/10/28 19:08:56 darla Exp $
  ISO TC184/SC4/WG12 N2968 - ISO/TS 10303-1118 Measure representation - EXPRESS ARM
 *) 
 
@@ -8922,7 +9363,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Measure_representation_arm
 (* 
-	$Id$
 	ISO TC184/SC4/WG12 N5422 - ISO/TS 10303-1313 Mechanical design geometric presentation - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N4756
 *)
@@ -8943,7 +9383,6 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;  
 (*
-   $Id$
    ISO TC184/SC4/WG12 N6682 - ISO/TS 10303-1315 Mechanical design presentation representation with draughting - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5425
 *)
@@ -8998,7 +9437,6 @@ USE FROM Mechanical_design_shaded_presentation_arm; -- ISO/CD-TS 10303-1314
  
 END_SCHEMA;
 (*
-   $Id$
    ISO TC184/SC4/WG12 N5428 - ISO/TS 10303-1314 Mechanical design shaded presentation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4762
 *)
@@ -9031,7 +9469,6 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.6 2008/09/13 12:25:15 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5431 - ISO/TS 10303-1322 Modified swept solid - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4765
 *)
@@ -9088,7 +9525,6 @@ USE FROM Swept_solid_arm; -- ISO/CD-TS 10303-1321
 END_SCHEMA;
 
 (* 
- $Id: arm.exp,v 1.13 2004/11/30 17:12:57 robbod Exp $
  ISO TC184/SC4/WG12 N3242 - ISO/TS 10303-1105 Multi linguism - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2223
 *)
@@ -9122,7 +9558,6 @@ END_ENTITY;
 
 END_SCHEMA; -- Multi_linguism_arm
 (*
- $Id: arm.exp,v 1.4 2004/11/19 21:37:37 robbod Exp $
  ISO TC184/SC4/WG12 N3085 - ISO/TS 10303-1340 Name assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2282
 *) 
@@ -9144,7 +9579,6 @@ END_SCHEMA;  -- Name_assignment_arm
 
 
 (*
-   $Id: arm.exp,v 1.5 2008/09/13 12:25:15 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5434 - ISO/TS 10303-1324 Non manifold surface - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4768
 *)
@@ -9159,7 +9593,6 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2010/11/04 18:09:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N7220 - ISO/TS 10303-1526 Numeric expression - EXPRESS ARM
 *)
 	
@@ -9691,7 +10124,6 @@ END_FUNCTION;
 	END_SCHEMA;         
       
 (*
- $Id: arm.exp,v 1.12 2011/02/19 21:12:47 lothartklein Exp $
  ISO TC184/SC4/WG12 N2558 - ISO/TS 10303-1344 Numerical interface - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1799
 *)
@@ -9727,7 +10159,6 @@ END_ENTITY;
 END_SCHEMA;   
 
 (*
- $Id: arm.exp,v 1.4 2010/11/03 21:45:16 lothartklein Exp $
  ISO TC184/SC4/WG12 N7208 - ISO/TS 10303-1790 Parameterization and variational representation - EXPRESS ARM
 *)
 
@@ -10010,7 +10441,6 @@ END_FUNCTION;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.22 2009/12/18 15:07:48 robbod Exp $
  ISO TC184/SC4/WG12 N6051 - ISO/TS 10303-1022 Part and version identification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5437
 *) 
@@ -10034,7 +10464,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Part_and_version_identification_arm
 (*
-   $Id: arm.exp,v 1.8 2009/04/23 08:33:37 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6249 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5440
 *)
@@ -10202,7 +10631,6 @@ USE FROM Stock_material_arm; -- ISO/CD-TS 10303-1771
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.18 2009/12/23 13:27:22 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6914 - ISO/TS 10303-1115 Part collection - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6246
 *)
@@ -10224,7 +10652,6 @@ USE FROM Product_occurrence_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.7 2004/10/22 14:34:57 darla Exp $
  ISO TC184/SC4/WG12 N1326 - ISO/TS 10303-1055 Part definition relationship - EXPRESS ARM
 *)
   
@@ -10249,7 +10676,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.35 2010/01/25 18:37:20 lothartklein Exp $
    ISO TC184/SC4/WG12 N7080 - ISO/TS 10303-1714 Part feature location - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6477
 *)
@@ -10282,7 +10708,6 @@ SCHEMA Part_feature_location_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.32 2008/09/13 12:26:55 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5446 - ISO/TS 10303-1715 Part occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4961
 *)
@@ -10316,7 +10741,6 @@ USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
 
 END_SCHEMA; 
 (*
- $Id: arm.exp,v 1.12 2004/11/15 21:22:47 thendrix Exp $
 ISO TC184/SC4/WG12 N3220 - ISO/TS 10303-1023 Part view definition - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N2109
 *) 
@@ -10342,7 +10766,6 @@ END_RULE;
 
 END_SCHEMA;  -- Part_view_definition_arm
 (*
- $Id: arm.exp,v 1.16 2004/10/28 17:08:02 darla Exp $
  ISO TC184/SC4/WG12 N2921 - ISO/TS 10303-1011 Person organization - EXPRESS ARM
 *)
  
@@ -10409,7 +10832,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Person_organization_arm
 (*
-$Id: arm.exp,v 1.10 2010/06/09 21:51:47 philsp Exp $
 ISO TC184/SC4/WG12 N7122 - ISO/TS 10303-1013 Person organization assignment - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1090
 *)
@@ -10430,7 +10852,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Person_organization_assignment_arm
 (*
- $Id: arm.exp,v 1.13 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5449 - ISO/TS 10303-1215 Physical breakdown - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4946
 *) 
@@ -10477,7 +10898,27 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-   $Id$
+   ISO TC184/SC4/WG12 N6492 - ISO/TS 10303-1721 Physical component feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N4110
+*)
+
+SCHEMA Physical_component_feature_arm; 
+
+	USE FROM Component_feature_arm;	-- ISO/TS 10303-1657
+
+  ENTITY Physical_component_feature
+    SUBTYPE OF (Component_feature);
+  END_ENTITY;
+
+  ENTITY Physical_component_terminal
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Component_terminal,
+ 			Physical_component_feature);
+      SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
+  END_ENTITY;
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6252 - ISO/TS 10303-1308 Picture representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5452
 *)
@@ -10536,7 +10977,6 @@ USE FROM Presentation_hierarchy_arm; -- ISO/TS 10303-1330
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.16 2006/01/20 08:43:41 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4146 - ISO/TS 10303-1733 Planned characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3543
 *)
@@ -10587,7 +11027,6 @@ SCHEMA Planned_characteristic_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.9 2008/09/13 12:26:56 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5455 - ISO/TS 10303-1291 Plib class reference - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4840
 *) 
@@ -10612,7 +11051,6 @@ END_SCHEMA;
 
 
 (*
- $Id: arm.exp,v 1.9 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5458 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4780
 *)
@@ -10683,7 +11121,6 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2008/09/15 12:39:18 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5546 - ISO/TS 10303-1760 Pre defined product data management specializations - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5000
 *)
@@ -10988,7 +11425,6 @@ END_CONSTANT;
   
 END_SCHEMA;
 (*
-	$Id$
 	ISO TC184/SC4/WG12 N5461 - ISO/TS 10303-1330 Presentation hierarchy - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N4783
 *)
@@ -11089,7 +11525,6 @@ SCHEMA Presentation_hierarchy_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.5 2011/03/04 18:23:44 lothartklein Exp $
  ISO TC184/SC4/WG12 N6917 - ISO/TS 10303-1791 Primitive solids - EXPRESS ARM
 *)
 
@@ -11162,7 +11597,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA; -- Primitive_solids_arm
 (*
- $Id: arm.exp,v 1.9 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5464 - ISO/TS 10303-1317 Procedural shape model - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4786
 *)
@@ -11220,7 +11654,6 @@ USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.6 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5467 - ISO/TS 10303-1318 Procedural solid model - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4789
 *)
@@ -11247,7 +11680,6 @@ USE FROM Procedural_shape_model_arm; -- ISO/CD-TS 10303-1317
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.2 2010/12/11 22:29:37 lothartklein Exp $
    N - ISO/CD-TS - 10303- process_plan - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Process_plan_arm;
@@ -11256,13 +11688,11 @@ USE FROM Activity_method_arm; -- ISO/TS 10303-1049
 USE FROM Product_view_definition_arm; -- ISO/TS 10303-1019
 USE FROM Support_resource_arm; -- ISO/TS 10303-1800
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
-USE FROM Mating_structure_arm;
 USE FROM Part_occurrence_arm; --          ISO/TS 10303-1715
 USE FROM Specification_control_arm; -- ???? ecause of Part_occurrence_relationship
 
 TYPE process_operation_input_or_output_select = SELECT (
   Part_view_definition,
-  Mated_item_association,
   Assembly_component_relationship,
   Part_occurrence);
 END_TYPE; 
@@ -11336,7 +11766,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.19 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5470 - ISO/TS 10303-1040 Process property assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4952
 *)
@@ -11380,7 +11809,6 @@ END_SCHEMA;
 
 
 (*
- $Id: arm.exp,v 1.20 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5473 - ISO/TS 10303-1248 Product breakdown - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4798
 *) 
@@ -11471,7 +11899,6 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 END_SCHEMA; 
 
 (*
- $Id: arm.exp,v 1.18 2009/04/30 12:26:13 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6255 - ISO/TS 10303-1103 Product class - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5476
 *)
@@ -11578,7 +12005,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.5 2004/10/22 14:44:52 darla Exp $
  ISO TC184/SC4/WG12 N1177 - ISO/TS 10303-1060 Product concept identification - EXPRESS ARM
 *)
    
@@ -11603,7 +12029,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.15 2009/08/11 11:43:40 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6749 - ISO/TS 10303-1231 Product data management - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5479
 *) 
@@ -11815,7 +12240,6 @@ END_TYPE;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.4 2010/11/03 20:29:29 lothartklein Exp $
    WG12N7178 - ISO/TS 10303-1521 product_data_quality_criteria - EXPRESS ARM
 *)
 
@@ -11925,7 +12349,6 @@ SCHEMA Product_data_quality_criteria_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.3 2011/03/03 07:43:08 fumikitanaka Exp $
    WG12N7175 - ISO/TS 10303-1520 product_data_quality_definition - EXPRESS ARM
 *)
 
@@ -11985,7 +12408,6 @@ SCHEMA Product_data_quality_definition_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2010/11/03 20:29:29 lothartklein Exp $
    WG12N7181 - ISO/TS 10303-1522 product_data_quality_inspection_result - EXPRESS ARM
 *)
 
@@ -12128,7 +12550,6 @@ SCHEMA Product_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.19 2009/08/11 07:57:31 robbod Exp $
 ISO TC184/SC4/WG12 N6065 - ISO/TS 10303-1017 Product identification - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N2925
 *) 
@@ -12145,7 +12566,36 @@ END_ENTITY;
 
 END_SCHEMA;  -- Product_identification_arm
 (*
-   $Id: arm.exp,v 1.19 2006/03/24 18:58:38 thendrix Exp $
+   ISO TC184/SC4/WG12 N4161 - ISO/TS 10303-1738 Product identification extension - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N3585
+*)
+
+ SCHEMA Product_identification_extension_arm;
+
+	USE FROM External_item_identification_assignment_arm;	-- ISO/TS 10303-1128
+	USE FROM Product_view_definition_arm;	-- ISO/TS 10303-1019
+
+ 	TYPE pie_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Externally_defined_view_definition);
+	END_TYPE;
+
+
+  ENTITY Externally_defined_view_definition
+    SUBTYPE OF (Product_view_definition);
+    INVERSE
+      source : External_source_identification FOR item;
+  END_ENTITY;
+
+
+
+  ENTITY Library_view_definition
+    SUBTYPE OF (Externally_defined_view_definition);
+    DERIVE
+      library : STRING := SELF\Externally_defined_view_definition.source.source_id;
+  END_ENTITY;
+
+ END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N4266 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N2598
 *) 
@@ -12181,7 +12631,6 @@ END_ENTITY;
 
 END_SCHEMA; 
 (*
- $Id: arm.exp,v 1.10 2010/02/17 22:21:06 lothartklein Exp $
  ISO TC184/SC4/WG12 N7092 - ISO/TS 10303-1343 Product placement - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6685
 *)
@@ -12214,7 +12663,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.7 2006/03/24 18:58:39 thendrix Exp $
  ISO TC184/SC4/WG12 N4360 - ISO/TS 10303-1046 Product replacement - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1144
 *)
@@ -12253,7 +12701,6 @@ END_ENTITY;
    
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.11 2004/02/29 13:11:05 robbod Exp $
  ISO TC184/SC4/WG12 N2546 - ISO/TS 10303-1134 Product structure - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1670
 *) 
@@ -12293,7 +12740,6 @@ END_ENTITY;
 END_SCHEMA;  -- Product_structure_arm
 
 (*
- $Id: arm.exp,v 1.6 2004/01/13 10:15:26 robbod Exp $
  ISO TC184/SC4/WG12 N2527 - ISO/TS 10303-1018 Product version - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1105
 *) 
@@ -12313,7 +12759,6 @@ END_ENTITY;
 END_SCHEMA;  -- Product_version_arm
 
 (*
- $Id: arm.exp,v 1.10 2006/03/24 19:02:40 thendrix Exp $
  ISO TC184/SC4/WG12 N4354 - ISO/TS 10303-1020 Product version relationship - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2937
 *)
@@ -12342,7 +12787,6 @@ END_ENTITY;
 END_SCHEMA;  -- Product_version_relationship_arm
 
 (*
- $Id: arm.exp,v 1.8 2006/03/24 19:03:52 thendrix Exp $
  ISO TC184/SC4/WG12 N4351 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1532
 *)
@@ -12377,7 +12821,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.12 2004/11/15 21:22:47 thendrix Exp $
 ISO TC184/SC4/WG12 N3227 - ISO/TS 10303-1034 Product view definition properties - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1231
 *) 
@@ -12399,7 +12842,6 @@ END_TYPE;
 
 END_SCHEMA;  -- Product_view_definition_properties_arm
 (*
- $Id: arm.exp,v 1.10 2004/10/28 17:55:17 darla Exp $
  ISO TC184/SC4/WG12 N2939 - ISO/TS 10303-1041 Product view definition relationship - EXPRESS ARM
 *)
 
@@ -12423,7 +12865,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Product_view_definition_relationship_arm
 (*
-   $Id: arm.exp,v 1.23 2010/01/26 19:42:15 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7034 - ISO/TS 10303-1739 Production rule - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6540 
 *)
@@ -12795,7 +13236,6 @@ END_RULE;
 END_SCHEMA; 
 
 (*
- $Id: arm.exp,v 1.12 2006/04/08 12:10:36 lothartklein Exp $
  ISO TC184/SC4/WG12 N4263 - ISO/TS 10303-1061 Project - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2930
 *)
@@ -12843,7 +13283,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Project_arm
 (*
- $Id: arm.exp,v 1.14 2006/03/24 19:06:27 thendrix Exp $
  ISO TC184/SC4/WG12 N4374 - ISO/TS 10303-1030 Property assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2972
 *)
@@ -12893,7 +13332,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Property_assignment_arm
 (*
-   $Id: arm.exp,v 1.6 2009/04/30 11:35:45 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6558 - ISO/TS 10303-1782 Qualified measure - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5482
 *)
@@ -12980,7 +13418,6 @@ USE FROM Measure_representation_arm; -- ISO/TS 10303-1118
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.3 2004/02/29 13:12:30 robbod Exp $
  ISO TC184/SC4/WG12 N2549 - ISO/TS 10303-1228 Representation with uncertainty - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1941
 *)
@@ -13012,7 +13449,6 @@ END_ENTITY;
 END_SCHEMA;  -- Representation_with_uncertainty_arm
 
 (*
-$Id: arm.exp,v 1.18 2010/06/09 21:37:43 philsp Exp $
 ISO TC184/SC4/WG12 N7131 - ISO/TS 10303-1233 Requirement assignment - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6129
 *) 
@@ -13057,7 +13493,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Requirement_assignment_arm
 (*
- $Id: arm.exp,v 1.17 2008/10/06 19:13:13 philsp Exp $
  ISO TC184/SC4/WG12 N5944 - ISO/TS 10303-1140 Requirement identification and version - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5488
 *) 
@@ -13092,7 +13527,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.12 2009/12/15 21:14:21 mikeward Exp $
 ISO TC184/SC4/WG12 N6842 - ISO/TS 10303-1141 Requirement view definition - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4284
 *) 
@@ -13113,7 +13547,6 @@ END_ENTITY;
 END_SCHEMA;  -- Requirement_view_definition_arm
 
 (*
- $Id: arm.exp,v 1.11 2009/04/29 19:30:44 robbod Exp $
  ISO TC184/SC4/WG12 N6132 - ISO/TS 10303-1142 Requirement view definition relationship - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N3136
 *) 
@@ -13151,7 +13584,6 @@ END_ENTITY;
 END_SCHEMA;  -- Requirement_view_definition_relationship_arm
 
 (*
- $Id: arm.exp,v 1.11 2004/11/15 21:22:48 thendrix Exp $
 ISO TC184/SC4/WG12 N3221 - ISO/TS 10303-1015 Security classification - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1096
 *) 
@@ -13175,7 +13607,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Security_classification_arm
 (* 
-	$Id: arm.exp,v 1.13 2009/12/23 13:28:43 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N6926 - ISO/TS 10303-1009 Shape appearance layers - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6688
 *)
@@ -13211,7 +13642,6 @@ USE FROM Layer_assignment_arm; -- ISO/CD-TS 10303-1008
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.19 2011/02/11 11:31:32 lothartklein Exp $
    ISO TC184/SC4/WG12 N4173 - ISO/TS 10303-1742 Shape composition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3597
 *)
@@ -13236,7 +13666,6 @@ SCHEMA Shape_composition_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2011/03/31 07:03:14 fumikitanaka Exp $
    WG12N7184 - ISO/TS 10303-1523 shape_data_quality_criteria - EXPRESS ARM
 *)
 
@@ -15538,7 +15967,6 @@ SCHEMA Shape_data_quality_criteria_arm;
   
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2011/03/07 02:10:04 fumikitanaka Exp $
    WG12N7187 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
 *)
 
@@ -15920,7 +16348,6 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.13 2011/02/11 10:06:29 lothartklein Exp $
    ISO TC184/SC4/WG12 N6923 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4236
 *)
@@ -15939,8 +16366,9 @@ TYPE sf_shapeable_item = SELECT BASED_ON shapeable_item WITH
 END_TYPE; 
 
 TYPE sf_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
-  (Shape_element, 
-   Characterizable_object);
+  (Characterizable_object,
+   Shape_element, 
+   Shape_element_relationship);
 END_TYPE; 
 
 ENTITY Shape_feature_definition
@@ -15984,7 +16412,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (* 
-	$Id: arm.exp,v 1.42 2011/02/28 20:50:35 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N6929 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6258
 *)
@@ -16134,7 +16561,6 @@ END_FUNCTION;
 
 END_SCHEMA;  
 (*
- $Id: arm.exp,v 1.6 2004/10/22 15:25:13 darla Exp $
  ISO TC184/SC4/WG12 N1270 - ISO/TS 10303-1502 Shell based wireframe - EXPRESS ARM
 *)
 
@@ -16149,7 +16575,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.12 2010/06/09 15:41:00 philsp Exp $
 ISO TC184/SC4/WG12 N7139 - ISO/TS 10303-1133 Single part representation - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6087
 *) 
@@ -16191,7 +16616,6 @@ END_TYPE;
 
 END_SCHEMA;  -- Single_part_representation_arm
 (*
-   $Id: arm.exp,v 1.23 2009/04/23 08:59:14 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6261 - ISO/TS 10303-1746 Software - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4185
 *)
@@ -16234,7 +16658,6 @@ END_RULE;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.2 2009/12/23 13:29:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6932 - ISO/TS 10303-1793 Solid model - EXPRESS ARM
 *)
 SCHEMA Solid_model_arm;
@@ -16247,7 +16670,6 @@ END_ENTITY;
   
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.10 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5497 - ISO/TS 10303-1319 Solid with local modification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4810
  *)
@@ -16692,7 +17114,6 @@ USE FROM Topologically_bounded_surface_arm; -- ISO/TS 10303-1511
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.16 2006/11/15 21:13:52 sonofre Exp $
  ISO TC184/SC4/WG12 N2595 - ISO/TS 10303-1108 Specification based configuration - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1729
 *)
@@ -16773,7 +17194,6 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.22 2009/06/11 09:31:25 liutkuviene Exp $
  ISO TC184/SC4/WG12 N6673 - ISO/TS 10303-1112 Specification control - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5500
 *)
@@ -16894,7 +17314,6 @@ USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.42 2009/12/23 13:29:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6935 - ISO/TS 10303-1747 Specification document - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5503
 *)
@@ -17007,7 +17426,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 	
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.13 2008/09/13 12:26:54 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5506 - ISO/TS 10303-1104 Specified product - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4816
 *)
@@ -17035,7 +17453,6 @@ USE FROM Product_class_arm; -- ISO/TS 10303-1103
   
 END_SCHEMA;
 (*
-	$Id: arm.exp,v 1.10 2009/08/10 15:38:36 thomasrthurman Exp $
 	ISO TC184/SC4/WG12 N6364 - ISO/TS 10303-1771 Stock material - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N5509
 *)
@@ -17106,7 +17523,6 @@ END_SCHEMA;
 
 
 (*
-   $Id: arm.exp,v 1.19 2010/01/05 09:04:24 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7061 - ISO/TS 10303-1749 Styled curve - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5512
 *)
@@ -17154,7 +17570,6 @@ USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2009/12/23 13:29:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6938 - ISO/TS 10303-1800 Support resource - EXPRESS ARM
 *)
 SCHEMA Support_resource_arm;
@@ -17200,7 +17615,6 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.29 2011/02/16 20:57:38 lothartklein Exp $
  ISO TC184/SC4/WG12 N6267 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5515
 *)
@@ -17315,7 +17729,6 @@ USE FROM Value_with_unit_extension_arm;
  
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.10 2008/09/13 12:26:55 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5518 - ISO/TS 10303-1321 Swept solid - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4822
 *)
@@ -17351,7 +17764,6 @@ USE FROM Topologically_bounded_surface_arm; -- ISO 10303-1511
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.23 2008/09/13 12:26:51 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5521 - ISO/TS 10303-1366 Tagged text representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5009
 *)
@@ -17417,7 +17829,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N4218 - ISO/TS 10303-1757 Test select product - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3679
 *)
@@ -17433,7 +17844,6 @@ SCHEMA Test_select_product_arm;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.11 2008/09/13 12:26:54 liutkuviene Exp $
 ISO TC184/SC4/WG12 N5524 - ISO/TS 10303-1136 Text appearance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4774
 *) 
@@ -17529,7 +17939,6 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
 
 END_SCHEMA;  
 (*
-   $Id: arm.exp,v 1.19 2010/01/25 18:32:14 lothartklein Exp $
    ISO TC184/SC4/WG12 N7077 - ISO/TS 10303-1750 Text representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5527
 *)
@@ -17587,7 +17996,6 @@ USE FROM Text_appearance_arm;
 
 END_SCHEMA;
 (*
-  $Id: arm.exp,v 1.9 2011/02/11 13:48:27 lothartklein Exp $
   ISO TC184/SC4/WG12 N5530 - ISO/TS 10303-1320 Thickened face solid - EXPRESS ARM
   Supersedes ISO TC184/SC4/WG12 N4825
 *)
@@ -17619,7 +18027,6 @@ USE FROM Topologically_bounded_surface_arm; -- ISO/TS 10303-1511
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.14 2004/10/28 18:34:02 darla Exp $
  ISO TC184/SC4/WG12 N2955 - ISO/TS 10303-1065 Time interval - EXPRESS ARM
 *)
 
@@ -17656,7 +18063,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Time_interval_arm
 (*
- $Id: arm.exp,v 1.4 2003/10/14 14:32:49 robbod Exp $ 
  ISO TC184/SC4/WG12 N2120 - ISO/TS 10303-1365 Time interval assignment - EXPRESS ARM
 *) 
 
@@ -17683,7 +18089,6 @@ END_ENTITY;
 END_SCHEMA;  -- Time_interval_assignment_arm
 
 (*
- $Id: arm.exp,v 1.10 2010/11/03 20:54:35 lothartklein Exp $
  ISO TC184/SC4/WG12 N7199 - ISO/TS 10303-1511 Topologically bounded surface - EXPRESS ARM
 *)
 
@@ -17699,7 +18104,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.19 2010/11/04 18:31:31 lothartklein Exp $
 ISO TC184/SC4/WG12 N7238 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
 *) 
 
@@ -17850,7 +18254,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Value_with_unit_arm
 (*
-   $Id: arm.exp,v 1.23 2008/09/13 12:36:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N5533 - ISO/TS 10303-1753 Value with unit extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4976
 *)
@@ -18068,7 +18471,6 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.6 2005/07/04 15:13:17 rocc Exp $
  ISO TC184/SC4/WG12 N2625 - ISO/TS 10303-1347 Wireframe 2d - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1775
 *)
@@ -18083,7 +18485,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.13 2004/10/28 18:03:55 darla Exp $
  ISO TC184/SC4/WG12 N2945 - ISO/TS 10303-1043 Work order - EXPRESS ARM
 *)
 
@@ -18108,7 +18509,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Work_order_arm
 (*
- $Id: arm.exp,v 1.18 2004/10/28 18:13:19 darla Exp $
  ISO TC184/SC4/WG12 N2947 - ISO/TS 10303-1042 Work request - EXPRESS ARM
 *)
 

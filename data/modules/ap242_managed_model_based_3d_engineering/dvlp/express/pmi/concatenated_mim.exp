@@ -1,4 +1,8 @@
 (*
+// $Id$
+*)
+
+(*
 ISO TC184/SC4/WG12 N1157 - ISO/TS 10303-1047 Activity - EXPRESS MIM
 *) 
 
@@ -941,9 +945,9 @@ USE FROM Contextual_shape_positioning_mim;  -- ISO 10303-1pc3
 
 USE FROM Foundation_representation_mim;  -- ISO 10303-1006
 
---USE FROM Kinematic_motion_representation_mim; -- ISO 10303-1xxx
+USE FROM Kinematic_motion_representation_mim; -- ISO 10303-1xxx
  
---USE FROM Kinematic_structure_mim;  -- ISO 10303-1xxy
+USE FROM Kinematic_structure_mim;  -- ISO 10303-1xxy
 
 USE FROM Shape_property_assignment_mim;  -- ISO 10303-1xxy
 
@@ -9586,9 +9590,7 @@ USE FROM presentation_definition_schema	-- ISO 10303-46
    text_literal_with_associated_curves,
    text_literal_with_blanking_box,
    text_literal_with_delineation,
-   text_literal_with_extent,
---scms
-   text_reference);
+   text_literal_with_extent);
 
 USE FROM presentation_resource_schema	-- ISO 10303-46
   (colour_rgb,
@@ -9634,7 +9636,6 @@ END_ENTITY;
 
 ENTITY draughting_annotation_occurrence
   SUBTYPE OF (annotation_occurrence);
-  --modified wr7
 WHERE
   WR1:	-- curve_has_curve_style:
     (NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'
@@ -9688,8 +9689,7 @@ WHERE
              IN TYPEOF (SELF))) OR
          (SIZEOF (TYPEOF(SELF.item) *
              ['AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT',
-              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL',
-              'AIC_DRAUGHTING_ANNOTATION.TEXT_REFERENCE']) = 1);
+              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL']) = 1);
   WR8:	-- text_not_nested:
     (NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'
              IN TYPEOF (SELF)) AND
@@ -19111,7 +19111,6 @@ SCHEMA certification_schema;
 
 END_SCHEMA;
 (* 
-$Id: classification_schema.exp,v 1.10 2005/01/05 00:07:15 thendrix Exp $
 ISO TC184/SC4/WG12 N3213 - ISO/IS 10303-54 Classification and set theory - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N1510
 *) 
@@ -19786,11 +19785,6 @@ REFERENCE FROM presentation_appearance_schema
 REFERENCE FROM presentation_resource_schema
     (planar_box);
 
---scms
-REFERENCE FROM product_property_representation_schema
-    (item_identified_representation_usage);
-
-
   TYPE annotation_plane_element = SELECT 
     (draughting_callout, 
      styled_item); 
@@ -19944,14 +19938,6 @@ REFERENCE FROM product_property_representation_schema
       WR1: SIZEOF(QUERY(d_c<*SELF\draughting_callout.contents | 
         'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN (TYPEOF(d_c))))=1;
       WR2: SIZEOF(SELF\draughting_callout.contents) >= 2;
-  END_ENTITY;
-
---from scms
-  ENTITY schematic_symbol_callout--  include in p101
-    SUBTYPE OF (geometric_representation_item);
-     contents : SET [1:?] OF draughting_callout_element;
-   INVERSE
-     presented_concept : item_identified_representation_usage FOR identified_item;
   END_ENTITY;
 
   SUBTYPE_CONSTRAINT annotation_curve_subtypes FOR annotation_curve_occurrence;
@@ -24619,6 +24605,7 @@ REFERENCE FROM representation_schema
      
 REFERENCE FROM kinematic_structure_schema
 	(kinematic_link_representation,
+	 mechanism_representation,
 	 rigid_placement);     
 
 REFERENCE FROM kinematic_state_schema
@@ -24646,15 +24633,18 @@ END_TYPE;
 ENTITY interpolated_configuration_representation
   SUBTYPE OF (representation);
   SELF\representation.context_of_items : geometric_representation_context_with_parameter;
-  SELF\representation.items : SET[1:1] OF interpolated_configuration_sequence;
+  SELF\representation.items : SET[1:?] OF interpolated_configuration_sequence;
 END_ENTITY;
 
 ENTITY interpolated_configuration_sequence
   SUBTYPE OF (representation_item);
-  segments : LIST[1:?] OF interpolated_configuration_segment;
+  segments : LIST[2:?] OF interpolated_configuration_segment;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_interpoltation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  closed_interpolation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
+WHERE
+  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
 END_ENTITY;  
 
 ENTITY interpolated_configuration_segment
@@ -24749,7 +24739,7 @@ END_ENTITY;
 ENTITY point_to_point_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := discontinuous;
+  SELF\kinematic_path_segment.transition : transition_code := transition_code.discontinuous;
 END_ENTITY;
 
 ENTITY circular_path
@@ -24760,7 +24750,7 @@ END_ENTITY;
 ENTITY linear_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := continuous;
+  SELF\kinematic_path_segment.transition : transition_code := transition_code.continuous;
 END_ENTITY;
 
 ENTITY curve_based_path
@@ -25763,22 +25753,22 @@ ENTITY point_on_surface_pair_with_range
   lower_limit_roll                       : OPTIONAL plane_angle_measure;
   upper_limit_roll                       : OPTIONAL plane_angle_measure;
 WHERE
+  WR1: (NOT EXISTS(lower_limit_pitch)
+        OR
+        NOT EXISTS(upper_limit_pitch))
+       XOR
+       (lower_limit_pitch < upper_limit_pitch);
   WR2: (NOT EXISTS(lower_limit_yaw)
         OR
         NOT EXISTS(upper_limit_yaw))
        XOR
        (lower_limit_yaw < upper_limit_yaw);
-  WR3: (NOT EXISTS(lower_limit_pitch)
-        OR
-        NOT EXISTS(upper_limit_pitch))
-       XOR
-       (lower_limit_pitch < upper_limit_pitch);
-  WR4: (NOT EXISTS(lower_limit_roll)
+  WR3: (NOT EXISTS(lower_limit_roll)
         OR
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
-  WR5: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_surface IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_surface IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY surface_pair
@@ -25844,22 +25834,22 @@ ENTITY point_on_planar_curve_pair_with_range
   lower_limit_roll                       : OPTIONAL plane_angle_measure;
   upper_limit_roll                       : OPTIONAL plane_angle_measure;
 WHERE
+  WR1: (NOT EXISTS(lower_limit_pitch)
+        OR
+        NOT EXISTS(upper_limit_pitch))
+       XOR
+       (lower_limit_pitch < upper_limit_pitch);
   WR2: (NOT EXISTS(lower_limit_yaw)
         OR
         NOT EXISTS(upper_limit_yaw))
        XOR
        (lower_limit_yaw < upper_limit_yaw);
-  WR3: (NOT EXISTS(lower_limit_pitch)
-        OR
-        NOT EXISTS(upper_limit_pitch))
-       XOR
-       (lower_limit_pitch < upper_limit_pitch);
-  WR4: (NOT EXISTS(lower_limit_roll)
+  WR3: (NOT EXISTS(lower_limit_roll)
         OR
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
-  WR5: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_curve IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_curve IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY planar_curve_pair
@@ -36412,10 +36402,6 @@ REFERENCE FROM presentation_resource_schema
      font_select,
      text_font);
  
---scms project
-REFERENCE FROM product_definition_schema
-    (product);
- 
 REFERENCE FROM representation_schema
     (item_in_context,
      mapped_item,
@@ -36477,9 +36463,8 @@ REFERENCE FROM support_resource_schema
     defined_table); 
   END_TYPE; 
 
-  TYPE annotation_text_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT(
-    text_literal,
-    text_reference, 
+  TYPE annotation_text_occurrence_item = SELECT(
+    text_literal, 
     annotation_text, 
     annotation_text_character, 
     defined_character_glyph, 
@@ -36489,16 +36474,6 @@ REFERENCE FROM support_resource_schema
   TYPE presentable_text = STRING;
     WHERE
       WR1: control_characters_free(SELF);
-  END_TYPE;
-
---scms project
-  TYPE text_literal_or_text_reference = SELECT(
-    text_literal,
-    text_reference);        
-  END_TYPE;
-
---scms project
-  TYPE text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT(product);        
   END_TYPE;
 
   TYPE text_string_representation_item = SELECT(
@@ -36866,55 +36841,6 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (text_literal);
       extent : planar_extent;
   END_ENTITY;
-
---new for scms
-ENTITY text_reference
-  ABSTRACT SUPERTYPE OF (ONEOF(composite_sequential_text_reference, explicit_text_reference, implicit_text_reference))
-  SUBTYPE OF(representation_item);
-END_ENTITY;
-
---new for scms
-ENTITY composite_sequential_text_reference
-  SUBTYPE OF (text_reference);
-    collected_references : LIST[2:?] of text_literal_or_text_reference;
-WHERE
-  WR1 : SIZEOF(QUERY( cr <* collected_references | 'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT_REFERENCE' IN TYPEOF(cr))) = 0;
-  --no member of collected_references shall be a composite_text_reference.
-  --the list is one level only, not an array.
-END_ENTITY;
-  
---new for scms
-ENTITY explicit_text_reference
-SUBTYPE OF(text_reference);
-  attribute_name     : STRING;
-  geometric_property : text_literal;
-  source             : text_reference_source;
-WHERE
-  WR1 : geometric_property\text_literal.literal = '';
-(*
-Formal Propositions:
-WR1     The value of the literal in the text_literal shall be an empty string.
-*)
-END_ENTITY;
-
---new for scms
-ENTITY explicit_text_reference_occurrence
-SUBTYPE OF(explicit_text_reference);
- type_declaration   : implicit_text_reference;
-DERIVE
-  SELF\explicit_text_reference.attribute_name : STRING := type_declaration\implicit_text_reference.attribute_name;
-END_ENTITY;
-
---new for scms
-ENTITY implicit_text_reference
-SUBTYPE OF(text_reference);
-  attribute_name     : STRING;
-  entity_name        : STRING;
-  geometric_property : text_literal;
-WHERE
-  WR1 : geometric_property\text_literal.literal = '';
-END_ENTITY;
---
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);

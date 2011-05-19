@@ -19,90 +19,90 @@
          <interfaced.item name="text"/>
       </interface>
       <type name="ahead_or_behind">
-         <enumeration items="ahead exact behind"/>
+         <enumeration extensible="NO" items="ahead exact behind"/>
       </type>
       <type name="date_time_or_event_occurrence">
-         <select selectitems="date_time_select event_occurrence"/>
+         <select extensible="NO" genericentity="NO" selectitems="date_time_select event_occurrence"/>
       </type>
       <type name="date_time_select">
-         <select selectitems="date date_and_time local_time"/>
+         <select extensible="NO" genericentity="NO" selectitems="date date_and_time local_time"/>
       </type>
       <type name="day_in_month_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{1 &lt;= SELF &lt;= 31}" label="WR1"/>
       </type>
       <type name="day_in_week_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{ 1 &lt;= SELF &lt;= 7 }" label="WR1"/>
       </type>
       <type name="day_in_year_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{1 &lt;= SELF &lt;= 366}" label="WR1"/>
       </type>
       <type name="hour_in_day">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{ 0 &lt;= SELF &lt; 24 }" label="WR1"/>
       </type>
       <type name="minute_in_hour">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{ 0 &lt;= SELF &lt;= 59 }" label="WR1"/>
       </type>
       <type name="month_in_year_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{ 1 &lt;= SELF &lt;= 12 }" label="WR1"/>
       </type>
       <type name="second_in_minute">
-         <builtintype type="REAL"/>
+         <builtintype fixed="NO" type="REAL"/>
          <where expression="{ 0 &lt;= SELF &lt;= 60.0 }" label="WR1"/>
       </type>
       <type name="week_in_year_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
          <where expression="{ 1 &lt;= SELF &lt;= 53 }" label="WR1"/>
       </type>
       <type name="year_number">
-         <builtintype type="INTEGER"/>
+         <builtintype fixed="NO" type="INTEGER"/>
       </type>
-      <entity name="calendar_date" supertypes="date">
-         <explicit name="day_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="calendar_date" supertypes="date">
+         <explicit name="day_component" optional="NO">
             <typename name="day_in_month_number"/>
          </explicit>
-         <explicit name="month_component">
+         <explicit name="month_component" optional="NO">
             <typename name="month_in_year_number"/>
          </explicit>
          <where expression="valid_calendar_date (SELF)" label="WR1"/>
       </entity>
-      <entity name="coordinated_universal_time_offset">
-         <explicit name="hour_offset">
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="coordinated_universal_time_offset">
+         <explicit name="hour_offset" optional="NO">
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <explicit name="minute_offset" optional="YES">
-            <builtintype type="INTEGER"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="sense">
+         <explicit name="sense" optional="NO">
             <typename name="ahead_or_behind"/>
          </explicit>
          <derived expression="NVL(minute_offset,0)" name="actual_minute_offset">
-            <builtintype type="INTEGER"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </derived>
          <where expression="{ 0 &lt;= hour_offset &lt; 24 }" label="WR1"/>
          <where expression="{ 0 &lt;= actual_minute_offset &lt;= 59 }" label="WR2"/>
          <where expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt;0)) AND (sense = exact))" label="WR3"/>
       </entity>
-      <entity name="date" super.expression="ONEOF (calendar_date, ordinal_date, week_of_year_and_day_date, year_month)">
-         <explicit name="year_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="date" super.expression="ONEOF (calendar_date, ordinal_date, week_of_year_and_day_date, year_month)">
+         <explicit name="year_component" optional="NO">
             <typename name="year_number"/>
          </explicit>
       </entity>
-      <entity name="date_and_time">
-         <explicit name="date_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="date_and_time">
+         <explicit name="date_component" optional="NO">
             <typename name="date"/>
          </explicit>
-         <explicit name="time_component">
+         <explicit name="time_component" optional="NO">
             <typename name="local_time"/>
          </explicit>
       </entity>
-      <entity name="date_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="date_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <derived expression="get_description_value (SELF)" name="description">
@@ -110,8 +110,8 @@
          </derived>
          <where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR1"/>
       </entity>
-      <entity name="date_time_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="date_time_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <derived expression="get_description_value (SELF)" name="description">
@@ -119,49 +119,49 @@
          </derived>
          <where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR1"/>
       </entity>
-      <entity name="event_occurrence">
-         <explicit name="id">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="event_occurrence">
+         <explicit name="id" optional="NO">
             <typename name="identifier"/>
          </explicit>
-         <explicit name="name">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="event_occurrence_context_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="event_occurrence_context_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="event_occurrence_relationship">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="event_occurrence_relationship">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
-         <explicit name="relating_event">
+         <explicit name="relating_event" optional="NO">
             <typename name="event_occurrence"/>
          </explicit>
-         <explicit name="related_event">
+         <explicit name="related_event" optional="NO">
             <typename name="event_occurrence"/>
          </explicit>
       </entity>
-      <entity name="event_occurrence_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="event_occurrence_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="local_time">
-         <explicit name="hour_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="local_time">
+         <explicit name="hour_component" optional="NO">
             <typename name="hour_in_day"/>
          </explicit>
          <explicit name="minute_component" optional="YES">
@@ -170,59 +170,59 @@
          <explicit name="second_component" optional="YES">
             <typename name="second_in_minute"/>
          </explicit>
-         <explicit name="zone">
+         <explicit name="zone" optional="NO">
             <typename name="coordinated_universal_time_offset"/>
          </explicit>
          <where expression="valid_time (SELF)" label="WR1"/>
       </entity>
-      <entity name="ordinal_date" supertypes="date">
-         <explicit name="day_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="ordinal_date" supertypes="date">
+         <explicit name="day_component" optional="NO">
             <typename name="day_in_year_number"/>
          </explicit>
          <where expression="(NOT leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 365 }) OR (leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 366 })" label="WR1"/>
       </entity>
-      <entity name="relative_event_occurrence" supertypes="event_occurrence">
-         <explicit name="base_event">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="relative_event_occurrence" supertypes="event_occurrence">
+         <explicit name="base_event" optional="NO">
             <typename name="event_occurrence"/>
          </explicit>
-         <explicit name="offset">
+         <explicit name="offset" optional="NO">
             <typename name="time_measure_with_unit"/>
          </explicit>
       </entity>
-      <entity name="time_interval">
-         <explicit name="id">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="time_interval">
+         <explicit name="id" optional="NO">
             <typename name="identifier"/>
          </explicit>
-         <explicit name="name">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="time_interval_relationship">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="time_interval_relationship">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
-         <explicit name="relating_time_interval">
+         <explicit name="relating_time_interval" optional="NO">
             <typename name="time_interval"/>
          </explicit>
-         <explicit name="related_time_interval">
+         <explicit name="related_time_interval" optional="NO">
             <typename name="time_interval"/>
          </explicit>
       </entity>
-      <entity name="time_interval_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="time_interval_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <explicit name="description" optional="YES">
             <typename name="text"/>
          </explicit>
       </entity>
-      <entity name="time_interval_with_bounds" supertypes="time_interval">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="time_interval_with_bounds" supertypes="time_interval">
          <explicit name="primary_bound" optional="YES">
             <typename name="date_time_or_event_occurrence"/>
          </explicit>
@@ -234,9 +234,10 @@
          </explicit>
          <where expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration))" label="WR1"/>
          <where expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)" label="WR2"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="time_role">
-         <explicit name="name">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="time_role">
+         <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
          <derived expression="get_description_value (SELF)" name="description">
@@ -244,16 +245,17 @@
          </derived>
          <where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1" label="WR1"/>
       </entity>
-      <entity name="week_of_year_and_day_date" supertypes="date">
-         <explicit name="week_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="week_of_year_and_day_date" supertypes="date">
+         <explicit name="week_component" optional="NO">
             <typename name="week_in_year_number"/>
          </explicit>
          <explicit name="day_component" optional="YES">
             <typename name="day_in_week_number"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      <entity name="year_month" supertypes="date">
-         <explicit name="month_component">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="year_month" supertypes="date">
+         <explicit name="month_component" optional="NO">
             <typename name="month_in_year_number"/>
          </explicit>
       </entity>
@@ -262,13 +264,13 @@
             <typename name="event_occurrence_relationship"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate lower="1" type="SET" upper="?"/>
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="event_occurrence"/>
          </parameter>
          <parameter name="specific_relation">
-            <builtintype type="STRING"/>
+            <builtintype fixed="NO" type="STRING"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
       x : SET OF event_occurrence_relationship;
     END_LOCAL;
@@ -289,13 +291,13 @@
             <typename name="time_interval_relationship"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate lower="1" type="SET" upper="?"/>
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="time_interval"/>
          </parameter>
          <parameter name="specific_relation">
-            <builtintype type="STRING"/>
+            <builtintype fixed="NO" type="STRING"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
       x : SET OF time_interval_relationship;
     END_LOCAL;
@@ -315,7 +317,7 @@
          <parameter name="year">
             <typename name="year_number"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF ((((year MOD 4) = 0) AND ((year MOD 100) &lt;&gt; 0)) OR ((year MOD 400) = 0)) THEN
     RETURN (TRUE);
   ELSE
@@ -326,7 +328,7 @@
          <parameter name="date">
             <typename name="calendar_date"/>
          </parameter>
-         <builtintype type="LOGICAL"/>
+         <builtintype fixed="NO" type="LOGICAL"/>
          <algorithm>CASE date.month_component OF
     1  : RETURN({ 1 &lt;= date.day_component &lt;= 31 });
     2  : BEGIN
@@ -353,7 +355,7 @@
          <parameter name="time">
             <typename name="local_time"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF EXISTS(time.second_component) THEN
     RETURN (EXISTS(time.minute_component));
   ELSE

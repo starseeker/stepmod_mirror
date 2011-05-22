@@ -7,31 +7,23 @@
    <schema name="Mating_structure_arm">
       <interface kind="use" schema="Item_definition_structure_arm"/>
       <interface kind="use" schema="Assembly_technology_arm"/>
-      <entity name="Mated_item_association" supertypes="Assembled_part_association">
-         <explicit name="relating_view">
-            <typename name="Mating_definition"/>
-            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
-         </explicit>
-      </entity>
       <entity name="Mated_item_relationship">
-         <explicit name="mated_shape" optional="YES">
+         <explicit name="mating_joints" optional="YES">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Assembly_joint"/>
          </explicit>
+         <explicit name="mating_material" optional="YES">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Quantified_instance"/>
+         </explicit>
          <explicit name="relating">
-            <typename name="Mated_item_association"/>
+            <typename name="Assembled_part_association"/>
          </explicit>
          <explicit name="related">
-            <typename name="Mated_item_association"/>
+            <typename name="Assembled_part_association"/>
          </explicit>
-      </entity>
-      <entity name="Mating_definition" supertypes="Assembly_definition">
-         <explicit name="mating_type">
-            <builtintype type="STRING"/>
-         </explicit>
-         <inverse attribute="relating_view" entity="Mated_item_association" name="mated_items">
-            <inverse.aggregate lower="2" type="SET" upper="?"/>
-         </inverse>
+         <where expression="relating.relating_view :=: related.relating_view" label="WR1"/>
+         <where expression="SIZEOF(QUERY(mj &lt;* mating_joints | NOT(mj.associated_assembly.described_element :=: relating.relating_view)))= 0" label="WR2"/>
       </entity>
    </schema>
 </express>

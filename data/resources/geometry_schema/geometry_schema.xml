@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-42" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="geometry_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-42">
+   <application name="JSDAI" owner="LKSoft" source="geometry_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="geometry_schema">
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="definitional_representation"/>
@@ -11,8 +11,8 @@
          <interfaced.item name="functionally_defined_transformation"/>
          <interfaced.item name="item_in_context"/>
          <interfaced.item name="representation"/>
-         <interfaced.item name="representation_item"/>
          <interfaced.item name="representation_context"/>
+         <interfaced.item name="representation_item"/>
          <interfaced.item name="using_representations"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
@@ -53,7 +53,7 @@
          <interfaced.item name="sphere"/>
          <interfaced.item name="torus"/>
       </interface>
-      <constant name="dummy_gri" expression="representation_item('')||&#10;                                   geometric_representation_item()">
+      <constant expression="representation_item('')||&#10;                                   geometric_representation_item()" name="dummy_gri">
          <typename name="geometric_representation_item"/>
       </constant>
       <type name="axis2_placement">
@@ -70,7 +70,7 @@
       </type>
       <type name="dimension_count">
          <builtintype type="INTEGER"/>
-         <where label="WR1" expression="SELF &gt; 0"/>
+         <where expression="SELF &gt; 0" label="WR1"/>
       </type>
       <type name="extent_enumeration">
          <enumeration items="invalid zero finite_non_zero infinite"/>
@@ -103,20 +103,20 @@
          <explicit name="axis" optional="YES">
             <typename name="direction"/>
          </explicit>
-         <derived name="z" expression="NVL(normalise(axis), dummy_gri ||&#10;                                 direction([0.0,0.0,1.0]))">
+         <derived expression="NVL(normalise(axis), dummy_gri ||&#10;                                 direction([0.0,0.0,1.0]))" name="z">
             <typename name="direction"/>
          </derived>
-         <where label="WR1" expression="SELF\geometric_representation_item.dim  = 3"/>
+         <where expression="SELF\geometric_representation_item.dim  = 3" label="WR1"/>
       </entity>
       <entity name="axis2_placement_2d" supertypes="placement">
          <explicit name="ref_direction" optional="YES">
             <typename name="direction"/>
          </explicit>
-         <derived name="p" expression="build_2axes(ref_direction)">
-            <aggregate type="LIST" lower="2" upper="2"/>
+         <derived expression="build_2axes(ref_direction)" name="p">
+            <aggregate lower="2" type="LIST" upper="2"/>
             <typename name="direction"/>
          </derived>
-         <where label="WR1" expression="SELF\geometric_representation_item.dim = 2"/>
+         <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
       </entity>
       <entity name="axis2_placement_3d" supertypes="placement">
          <explicit name="axis" optional="YES">
@@ -125,21 +125,21 @@
          <explicit name="ref_direction" optional="YES">
             <typename name="direction"/>
          </explicit>
-         <derived name="p" expression="build_axes(axis,ref_direction)">
-            <aggregate type="LIST" lower="3" upper="3"/>
+         <derived expression="build_axes(axis,ref_direction)" name="p">
+            <aggregate lower="3" type="LIST" upper="3"/>
             <typename name="direction"/>
          </derived>
-         <where label="WR1" expression="SELF\placement.location.dim = 3"/>
-         <where label="WR2" expression="(NOT (EXISTS (axis))) OR (axis.dim = 3)"/>
-         <where label="WR3" expression="(NOT (EXISTS (ref_direction))) OR (ref_direction.dim = 3)"/>
-         <where label="WR4" expression="(NOT (EXISTS (axis))) OR (NOT (EXISTS (ref_direction))) OR&#10;          (cross_product(axis,ref_direction).magnitude &gt; 0.0)"/>
+         <where expression="SELF\placement.location.dim = 3" label="WR1"/>
+         <where expression="(NOT (EXISTS (axis))) OR (axis.dim = 3)" label="WR2"/>
+         <where expression="(NOT (EXISTS (ref_direction))) OR (ref_direction.dim = 3)" label="WR3"/>
+         <where expression="(NOT (EXISTS (axis))) OR (NOT (EXISTS (ref_direction))) OR&#10;          (cross_product(axis,ref_direction).magnitude &gt; 0.0)" label="WR4"/>
       </entity>
-      <entity name="b_spline_curve" supertypes="bounded_curve" super.expression="ONEOF (uniform_curve, b_spline_curve_with_knots, quasi_uniform_curve, bezier_curve) ANDOR rational_b_spline_curve">
+      <entity name="b_spline_curve" super.expression="ONEOF (uniform_curve, b_spline_curve_with_knots, quasi_uniform_curve, bezier_curve) ANDOR rational_b_spline_curve" supertypes="bounded_curve">
          <explicit name="degree">
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="control_points_list">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
          <explicit name="curve_form">
@@ -151,34 +151,34 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <derived name="upper_index_on_control_points" expression="(SIZEOF(control_points_list) - 1)">
+         <derived expression="(SIZEOF(control_points_list) - 1)" name="upper_index_on_control_points">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="control_points" expression="list_to_array(control_points_list,0,&#10;                                             upper_index_on_control_points)">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="list_to_array(control_points_list,0,&#10;                                             upper_index_on_control_points)" name="control_points">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.BEZIER_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(self))"/>
+         <where expression="('GEOMETRY_SCHEMA.UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.BEZIER_CURVE' IN TYPEOF(self)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(self))" label="WR1"/>
       </entity>
       <entity name="b_spline_curve_with_knots" supertypes="b_spline_curve">
          <explicit name="knot_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
          <explicit name="knot_spec">
             <typename name="knot_type"/>
          </explicit>
-         <derived name="upper_index_on_knots" expression="SIZEOF(knots)">
+         <derived expression="SIZEOF(knots)" name="upper_index_on_knots">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="WR1" expression="constraints_param_b_spline(degree, upper_index_on_knots,&#10;                               upper_index_on_control_points,&#10;                               knot_multiplicities, knots)"/>
-         <where label="WR2" expression="SIZEOF(knot_multiplicities) = upper_index_on_knots"/>
+         <where expression="constraints_param_b_spline(degree, upper_index_on_knots,&#10;                               upper_index_on_control_points,&#10;                               knot_multiplicities, knots)" label="WR1"/>
+         <where expression="SIZEOF(knot_multiplicities) = upper_index_on_knots" label="WR2"/>
       </entity>
-      <entity name="b_spline_surface" supertypes="bounded_surface" super.expression="ONEOF (b_spline_surface_with_knots, uniform_surface, quasi_uniform_surface, bezier_surface) ANDOR rational_b_spline_surface">
+      <entity name="b_spline_surface" super.expression="ONEOF (b_spline_surface_with_knots, uniform_surface, quasi_uniform_surface, bezier_surface) ANDOR rational_b_spline_surface" supertypes="bounded_surface">
          <explicit name="u_degree">
             <builtintype type="INTEGER"/>
          </explicit>
@@ -186,8 +186,8 @@
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="control_points_list">
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
          <explicit name="surface_form">
@@ -202,51 +202,51 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <derived name="u_upper" expression="SIZEOF(control_points_list) - 1">
+         <derived expression="SIZEOF(control_points_list) - 1" name="u_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="v_upper" expression="SIZEOF(control_points_list[1]) - 1">
+         <derived expression="SIZEOF(control_points_list[1]) - 1" name="v_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="control_points" expression="make_array_of_array(control_points_list,&#10;                                              0,u_upper,0,v_upper)">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="make_array_of_array(control_points_list,&#10;                                              0,u_upper,0,v_upper)" name="control_points">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.BEZIER_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_SURFACE_WITH_KNOTS' IN TYPEOF(SELF))"/>
+         <where expression="('GEOMETRY_SCHEMA.UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.BEZIER_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_SURFACE_WITH_KNOTS' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
       <entity name="b_spline_surface_with_knots" supertypes="b_spline_surface">
          <explicit name="u_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="v_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="u_knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
          <explicit name="v_knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
          <explicit name="knot_spec">
             <typename name="knot_type"/>
          </explicit>
-         <derived name="knot_u_upper" expression="SIZEOF(u_knots)">
+         <derived expression="SIZEOF(u_knots)" name="knot_u_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="knot_v_upper" expression="SIZEOF(v_knots)">
+         <derived expression="SIZEOF(v_knots)" name="knot_v_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="WR1" expression="constraints_param_b_spline(SELF\b_spline_surface.u_degree,&#10;                   knot_u_upper, SELF\b_spline_surface.u_upper,&#10;                               u_multiplicities, u_knots)"/>
-         <where label="WR2" expression="constraints_param_b_spline(SELF\b_spline_surface.v_degree,&#10;                   knot_v_upper, SELF\b_spline_surface.v_upper,&#10;                               v_multiplicities, v_knots)"/>
-         <where label="WR3" expression="SIZEOF(u_multiplicities) = knot_u_upper"/>
-         <where label="WR4" expression="SIZEOF(v_multiplicities) = knot_v_upper"/>
+         <where expression="constraints_param_b_spline(SELF\b_spline_surface.u_degree,&#10;                   knot_u_upper, SELF\b_spline_surface.u_upper,&#10;                               u_multiplicities, u_knots)" label="WR1"/>
+         <where expression="constraints_param_b_spline(SELF\b_spline_surface.v_degree,&#10;                   knot_v_upper, SELF\b_spline_surface.v_upper,&#10;                               v_multiplicities, v_knots)" label="WR2"/>
+         <where expression="SIZEOF(u_multiplicities) = knot_u_upper" label="WR3"/>
+         <where expression="SIZEOF(v_multiplicities) = knot_v_upper" label="WR4"/>
       </entity>
-      <entity name="b_spline_volume" supertypes="volume" super.expression="ONEOF (b_spline_volume_with_knots, uniform_volume, quasi_uniform_volume, bezier_volume) ANDOR rational_b_spline_volume">
+      <entity name="b_spline_volume" super.expression="ONEOF (b_spline_volume_with_knots, uniform_volume, quasi_uniform_volume, bezier_volume) ANDOR rational_b_spline_volume" supertypes="volume">
          <explicit name="u_degree">
             <builtintype type="INTEGER"/>
          </explicit>
@@ -257,68 +257,68 @@
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="control_points_list">
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
-         <derived name="u_upper" expression="SIZEOF(control_points_list) - 1">
+         <derived expression="SIZEOF(control_points_list) - 1" name="u_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="v_upper" expression="SIZEOF(control_points_list[1]) - 1">
+         <derived expression="SIZEOF(control_points_list[1]) - 1" name="v_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="w_upper" expression="SIZEOF(control_points_list[1][1]) - 1">
+         <derived expression="SIZEOF(control_points_list[1][1]) - 1" name="w_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="control_points" expression="make_array_of_array_of_array (control_points_list,&#10;                                              0,u_upper,0,v_upper,&#10;                                              0,w_upper )">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="make_array_of_array_of_array (control_points_list,&#10;                                              0,u_upper,0,v_upper,&#10;                                              0,w_upper )" name="control_points">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.BEZIER_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.UNIFORM_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_VOLUME_WITH_KNOTS' IN TYPEOF(SELF))"/>
+         <where expression="('GEOMETRY_SCHEMA.BEZIER_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.UNIFORM_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.QUASI_UNIFORM_VOLUME' IN TYPEOF(SELF)) OR&#10;        ('GEOMETRY_SCHEMA.B_SPLINE_VOLUME_WITH_KNOTS' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
       <entity name="b_spline_volume_with_knots" supertypes="b_spline_volume">
          <explicit name="u_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="v_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="w_multiplicities">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="u_knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
          <explicit name="v_knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
          <explicit name="w_knots">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </explicit>
-         <derived name="knot_u_upper" expression="SIZEOF(u_knots)">
+         <derived expression="SIZEOF(u_knots)" name="knot_u_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="knot_v_upper" expression="SIZEOF(v_knots)">
+         <derived expression="SIZEOF(v_knots)" name="knot_v_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="knot_w_upper" expression="SIZEOF(w_knots)">
+         <derived expression="SIZEOF(w_knots)" name="knot_w_upper">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="WR1" expression="constraints_param_b_spline(SELF\b_spline_volume.u_degree,&#10;                   knot_u_upper, SELF\b_spline_volume.u_upper,&#10;                               u_multiplicities, u_knots)"/>
-         <where label="WR2" expression="constraints_param_b_spline(SELF\b_spline_volume.v_degree,&#10;                   knot_v_upper, SELF\b_spline_volume.v_upper,&#10;                               v_multiplicities, v_knots)"/>
-         <where label="WR3" expression="constraints_param_b_spline(SELF\b_spline_volume.w_degree,&#10;                   knot_w_upper, SELF\b_spline_volume.w_upper,&#10;                               w_multiplicities, w_knots)"/>
-         <where label="WR4" expression="SIZEOF(u_multiplicities) = knot_u_upper"/>
-         <where label="WR5" expression="SIZEOF(v_multiplicities) = knot_v_upper"/>
-         <where label="WR6" expression="SIZEOF(w_multiplicities) = knot_w_upper"/>
+         <where expression="constraints_param_b_spline(SELF\b_spline_volume.u_degree,&#10;                   knot_u_upper, SELF\b_spline_volume.u_upper,&#10;                               u_multiplicities, u_knots)" label="WR1"/>
+         <where expression="constraints_param_b_spline(SELF\b_spline_volume.v_degree,&#10;                   knot_v_upper, SELF\b_spline_volume.v_upper,&#10;                               v_multiplicities, v_knots)" label="WR2"/>
+         <where expression="constraints_param_b_spline(SELF\b_spline_volume.w_degree,&#10;                   knot_w_upper, SELF\b_spline_volume.w_upper,&#10;                               w_multiplicities, w_knots)" label="WR3"/>
+         <where expression="SIZEOF(u_multiplicities) = knot_u_upper" label="WR4"/>
+         <where expression="SIZEOF(v_multiplicities) = knot_v_upper" label="WR5"/>
+         <where expression="SIZEOF(w_multiplicities) = knot_w_upper" label="WR6"/>
       </entity>
       <entity name="bezier_curve" supertypes="b_spline_curve"/>
       <entity name="bezier_surface" supertypes="b_spline_surface"/>
@@ -338,23 +338,23 @@
          </explicit>
       </entity>
       <entity name="boundary_curve" supertypes="composite_curve_on_surface">
-         <where label="WR1" expression="SELF\composite_curve.closed_curve"/>
+         <where expression="SELF\composite_curve.closed_curve" label="WR1"/>
       </entity>
-      <entity name="bounded_curve" supertypes="curve" super.expression="ONEOF (polyline, b_spline_curve, trimmed_curve, bounded_pcurve, bounded_surface_curve, composite_curve)"/>
+      <entity name="bounded_curve" super.expression="ONEOF (polyline, b_spline_curve, trimmed_curve, bounded_pcurve, bounded_surface_curve, composite_curve)" supertypes="curve"/>
       <entity name="bounded_pcurve" supertypes="pcurve bounded_curve">
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN&#10;                   TYPEOF(SELF\pcurve.reference_to_curve.items[1]))"/>
+         <where expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN&#10;                   TYPEOF(SELF\pcurve.reference_to_curve.items[1]))" label="WR1"/>
       </entity>
-      <entity name="bounded_surface" supertypes="surface" super.expression="ONEOF (b_spline_surface, rectangular_trimmed_surface, curve_bounded_surface, rectangular_composite_surface)"/>
+      <entity name="bounded_surface" super.expression="ONEOF (b_spline_surface, rectangular_trimmed_surface, curve_bounded_surface, rectangular_composite_surface)" supertypes="surface"/>
       <entity name="bounded_surface_curve" supertypes="surface_curve bounded_curve">
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN&#10;             TYPEOF(SELF\surface_curve.curve_3d))"/>
+         <where expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN&#10;             TYPEOF(SELF\surface_curve.curve_3d))" label="WR1"/>
       </entity>
-      <entity name="cartesian_point" supertypes="point" super.expression="ONEOF (cylindrical_point, polar_point, spherical_point)">
+      <entity name="cartesian_point" super.expression="ONEOF (cylindrical_point, polar_point, spherical_point)" supertypes="point">
          <explicit name="coordinates">
-            <aggregate type="LIST" lower="1" upper="3"/>
+            <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <entity name="cartesian_transformation_operator" supertypes="geometric_representation_item functionally_defined_transformation" super.expression="ONEOF (cartesian_transformation_operator_2d, cartesian_transformation_operator_3d)">
+      <entity name="cartesian_transformation_operator" super.expression="ONEOF (cartesian_transformation_operator_2d, cartesian_transformation_operator_3d)" supertypes="geometric_representation_item functionally_defined_transformation">
          <explicit name="axis1" optional="YES">
             <typename name="direction"/>
          </explicit>
@@ -367,27 +367,27 @@
          <explicit name="scale" optional="YES">
             <builtintype type="REAL"/>
          </explicit>
-         <derived name="scl" expression="NVL(scale, 1.0)">
+         <derived expression="NVL(scale, 1.0)" name="scl">
             <builtintype type="REAL"/>
          </derived>
-         <where label="WR1" expression="scl &gt; 0.0"/>
+         <where expression="scl &gt; 0.0" label="WR1"/>
       </entity>
       <entity name="cartesian_transformation_operator_2d" supertypes="cartesian_transformation_operator">
-         <derived name="u" expression="base_axis(2,SELF\cartesian_transformation_operator.axis1,&#10;                   SELF\cartesian_transformation_operator.axis2,?)">
-            <aggregate type="LIST" lower="2" upper="2"/>
+         <derived expression="base_axis(2,SELF\cartesian_transformation_operator.axis1,&#10;                   SELF\cartesian_transformation_operator.axis2,?)" name="u">
+            <aggregate lower="2" type="LIST" upper="2"/>
             <typename name="direction"/>
          </derived>
-         <where label="WR1" expression="SELF\geometric_representation_item.dim = 2"/>
+         <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
       </entity>
       <entity name="cartesian_transformation_operator_3d" supertypes="cartesian_transformation_operator">
          <explicit name="axis3" optional="YES">
             <typename name="direction"/>
          </explicit>
-         <derived name="u" expression="base_axis(3,SELF\cartesian_transformation_operator.axis1,&#10;                        SELF\cartesian_transformation_operator.axis2,axis3)">
-            <aggregate type="LIST" lower="3" upper="3"/>
+         <derived expression="base_axis(3,SELF\cartesian_transformation_operator.axis1,&#10;                        SELF\cartesian_transformation_operator.axis2,axis3)" name="u">
+            <aggregate lower="3" type="LIST" upper="3"/>
             <typename name="direction"/>
          </derived>
-         <where label="WR1" expression="SELF\geometric_representation_item.dim = 3"/>
+         <where expression="SELF\geometric_representation_item.dim = 3" label="WR1"/>
       </entity>
       <entity name="circle" supertypes="conic">
          <explicit name="radius">
@@ -412,27 +412,27 @@
       </entity>
       <entity name="composite_curve" supertypes="bounded_curve">
          <explicit name="segments">
-            <aggregate type="LIST" lower="1" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="composite_curve_segment"/>
          </explicit>
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <derived name="n_segments" expression="SIZEOF(segments)">
+         <derived expression="SIZEOF(segments)" name="n_segments">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="closed_curve" expression="segments[n_segments].transition &lt;&gt; discontinuous">
+         <derived expression="segments[n_segments].transition &lt;&gt; discontinuous" name="closed_curve">
             <builtintype type="LOGICAL"/>
          </derived>
-         <where label="WR1" expression="((NOT closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments |&#10;                temp.transition = discontinuous)) = 1)) OR&#10;            ((closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments | &#10;                temp.transition = discontinuous)) = 0))"/>
+         <where expression="((NOT closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments |&#10;                temp.transition = discontinuous)) = 1)) OR&#10;            ((closed_curve) AND (SIZEOF(QUERY(temp &lt;* segments | &#10;                temp.transition = discontinuous)) = 0))" label="WR1"/>
       </entity>
-      <entity name="composite_curve_on_surface" supertypes="composite_curve" super.expression="boundary_curve">
-         <derived name="basis_surface" expression="get_basis_surface(SELF)">
-            <aggregate type="SET" lower="0" upper="2"/>
+      <entity name="composite_curve_on_surface" super.expression="boundary_curve" supertypes="composite_curve">
+         <derived expression="get_basis_surface(SELF)" name="basis_surface">
+            <aggregate lower="0" type="SET" upper="2"/>
             <typename name="surface"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(basis_surface) &gt; 0"/>
-         <where label="WR2" expression="constraints_composite_curve_on_surface(SELF)"/>
+         <where expression="SIZEOF(basis_surface) &gt; 0" label="WR1"/>
+         <where expression="constraints_composite_curve_on_surface(SELF)" label="WR2"/>
       </entity>
       <entity name="composite_curve_segment" supertypes="founded_item">
          <explicit name="transition">
@@ -444,12 +444,12 @@
          <explicit name="parent_curve">
             <typename name="curve"/>
          </explicit>
-         <inverse name="using_curves" entity="composite_curve" attribute="segments">
-            <inverse.aggregate type="BAG" lower="1" upper="?"/>
+         <inverse attribute="segments" entity="composite_curve" name="using_curves">
+            <inverse.aggregate lower="1" type="BAG" upper="?"/>
          </inverse>
-         <where label="WR1" expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN TYPEOF(parent_curve))"/>
+         <where expression="('GEOMETRY_SCHEMA.BOUNDED_CURVE' IN TYPEOF(parent_curve))" label="WR1"/>
       </entity>
-      <entity name="conic" supertypes="curve" super.expression="ONEOF (circle, ellipse, hyperbola, parabola)">
+      <entity name="conic" super.expression="ONEOF (circle, ellipse, hyperbola, parabola)" supertypes="curve">
          <explicit name="position">
             <typename name="axis2_placement"/>
          </explicit>
@@ -461,24 +461,24 @@
          <explicit name="semi_angle">
             <typename name="plane_angle_measure"/>
          </explicit>
-         <where label="WR1" expression="radius &gt;= 0.0"/>
+         <where expression="radius &gt;= 0.0" label="WR1"/>
       </entity>
-      <entity name="curve" supertypes="geometric_representation_item" super.expression="ONEOF (line, conic, clothoid, circular_involute, pcurve, surface_curve, offset_curve_2d, offset_curve_3d, curve_replica)"/>
+      <entity name="curve" super.expression="ONEOF (line, conic, clothoid, circular_involute, pcurve, surface_curve, offset_curve_2d, offset_curve_3d, curve_replica)" supertypes="geometric_representation_item"/>
       <entity name="curve_bounded_surface" supertypes="bounded_surface">
          <explicit name="basis_surface">
             <typename name="surface"/>
          </explicit>
          <explicit name="boundaries">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="boundary_curve"/>
          </explicit>
          <explicit name="implicit_outer">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <where label="WR1" expression="(NOT implicit_outer) OR&#10;         (SIZEOF (QUERY (temp &lt;* boundaries |&#10;           'GEOMETRY_SCHEMA.OUTER_BOUNDARY_CURVE' IN TYPEOF(temp))) = 0)"/>
-         <where label="WR2" expression="(NOT(implicit_outer)) OR&#10;                ('GEOMETRY_SCHEMA.BOUNDED_SURFACE' IN TYPEOF(basis_surface))"/>
-         <where label="WR3" expression="SIZEOF(QUERY(temp &lt;* boundaries |&#10;                  'GEOMETRY_SCHEMA.OUTER_BOUNDARY_CURVE' IN&#10;                                         TYPEOF(temp))) &lt;= 1"/>
-         <where label="WR4" expression="SIZEOF(QUERY(temp &lt;* boundaries |&#10;            (temp\composite_curve_on_surface.basis_surface [1] &lt;&gt;&#10;                                         SELF.basis_surface))) = 0"/>
+         <where expression="(NOT implicit_outer) OR&#10;         (SIZEOF (QUERY (temp &lt;* boundaries |&#10;           'GEOMETRY_SCHEMA.OUTER_BOUNDARY_CURVE' IN TYPEOF(temp))) = 0)" label="WR1"/>
+         <where expression="(NOT(implicit_outer)) OR&#10;                ('GEOMETRY_SCHEMA.BOUNDED_SURFACE' IN TYPEOF(basis_surface))" label="WR2"/>
+         <where expression="SIZEOF(QUERY(temp &lt;* boundaries |&#10;                  'GEOMETRY_SCHEMA.OUTER_BOUNDARY_CURVE' IN&#10;                                         TYPEOF(temp))) &lt;= 1" label="WR3"/>
+         <where expression="SIZEOF(QUERY(temp &lt;* boundaries |&#10;            (temp\composite_curve_on_surface.basis_surface [1] &lt;&gt;&#10;                                         SELF.basis_surface))) = 0" label="WR4"/>
       </entity>
       <entity name="curve_replica" supertypes="curve">
          <explicit name="parent_curve">
@@ -487,8 +487,8 @@
          <explicit name="transformation">
             <typename name="cartesian_transformation_operator"/>
          </explicit>
-         <where label="WR1" expression="transformation.dim = parent_curve.dim"/>
-         <where label="WR2" expression="acyclic_curve_replica (SELF, parent_curve)"/>
+         <where expression="transformation.dim = parent_curve.dim" label="WR1"/>
+         <where expression="acyclic_curve_replica (SELF, parent_curve)" label="WR2"/>
       </entity>
       <entity name="cylindrical_point" supertypes="cartesian_point">
          <explicit name="r">
@@ -500,12 +500,12 @@
          <explicit name="z">
             <typename name="length_measure"/>
          </explicit>
-         <derived name="coordinates" expression="[r*cos(theta), r*sin(theta), z]">
-            <aggregate type="LIST" lower="1" upper="3"/>
+         <derived expression="[r*cos(theta), r*sin(theta), z]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
             <redeclaration entity-ref="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="r &gt;= 0.0"/>
+         <where expression="r &gt;= 0.0" label="WR1"/>
       </entity>
       <entity name="cylindrical_surface" supertypes="elementary_surface">
          <explicit name="radius">
@@ -530,22 +530,22 @@
          <explicit name="reference_to_curve">
             <typename name="definitional_representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(reference_to_curve\representation.items) = 1"/>
-         <where label="WR2" expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])"/>
-         <where label="WR3" expression="reference_to_curve\representation.&#10;                   items[1]\geometric_representation_item.dim =2"/>
+         <where expression="SIZEOF(reference_to_curve\representation.items) = 1" label="WR1"/>
+         <where expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])" label="WR2"/>
+         <where expression="reference_to_curve\representation.&#10;                   items[1]\geometric_representation_item.dim =2" label="WR3"/>
       </entity>
       <entity name="degenerate_toroidal_surface" supertypes="toroidal_surface">
          <explicit name="select_outer">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <where label="WR1" expression="major_radius &lt;   minor_radius"/>
+         <where expression="major_radius &lt;   minor_radius" label="WR1"/>
       </entity>
       <entity name="direction" supertypes="geometric_representation_item">
          <explicit name="direction_ratios">
-            <aggregate type="LIST" lower="2" upper="3"/>
+            <aggregate lower="2" type="LIST" upper="3"/>
             <builtintype type="REAL"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* direction_ratios | tmp &lt;&gt; 0.0)) &gt; 0"/>
+         <where expression="SIZEOF(QUERY(tmp &lt;* direction_ratios | tmp &lt;&gt; 0.0)) &gt; 0" label="WR1"/>
       </entity>
       <entity name="dupin_cyclide_surface" supertypes="elementary_surface">
          <explicit name="generalised_major_radius">
@@ -557,7 +557,7 @@
          <explicit name="skewness">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="skewness &gt;= 0.0"/>
+         <where expression="skewness &gt;= 0.0" label="WR1"/>
       </entity>
       <entity name="eccentric_conical_volume" supertypes="volume">
          <explicit name="position">
@@ -581,9 +581,9 @@
          <explicit name="ratio">
             <builtintype type="REAL"/>
          </explicit>
-         <where label="WR1" expression="ratio &gt;= 0.0"/>
+         <where expression="ratio &gt;= 0.0" label="WR1"/>
       </entity>
-      <entity name="elementary_surface" supertypes="surface" super.expression="ONEOF (plane, cylindrical_surface, conical_surface, spherical_surface, toroidal_surface)">
+      <entity name="elementary_surface" super.expression="ONEOF (plane, cylindrical_surface, conical_surface, spherical_surface, toroidal_surface)" supertypes="surface">
          <explicit name="position">
             <typename name="axis2_placement_3d"/>
          </explicit>
@@ -628,30 +628,30 @@
             <typename name="dimension_count"/>
          </explicit>
       </entity>
-      <entity name="geometric_representation_item" supertypes="representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, half_space_2d, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set)">
-         <derived name="dim" expression="dimension_of(SELF)">
+      <entity name="geometric_representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, half_space_2d, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set)" supertypes="representation_item">
+         <derived expression="dimension_of(SELF)" name="dim">
             <typename name="dimension_count"/>
          </derived>
-         <where label="WR1" expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) |&#10;      NOT ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN&#10;      TYPEOF (using_rep.context_of_items)))) = 0"/>
+         <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) |&#10;      NOT ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN&#10;      TYPEOF (using_rep.context_of_items)))) = 0" label="WR1"/>
       </entity>
       <entity name="hexahedron_volume" supertypes="volume">
          <explicit name="points">
-            <aggregate type="LIST" lower="8" upper="8"/>
+            <aggregate lower="8" type="LIST" upper="8"/>
             <typename name="cartesian_point"/>
          </explicit>
-         <where label="WR1" expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0"/>
-         <where label="WR2" expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0"/>
-         <where label="WR3" expression="above_plane(points[1], points[4], points[8], points[5]) = 0.0"/>
-         <where label="WR4" expression="above_plane(points[4], points[3], points[7], points[8]) = 0.0"/>
-         <where label="WR5" expression="above_plane(points[3], points[2], points[6], points[7]) = 0.0"/>
-         <where label="WR6" expression="above_plane(points[1], points[5], points[6], points[2]) = 0.0"/>
-         <where label="WR7" expression="same_side([points[1], points[2], points[3]],&#10;                     [points[5], points[6], points[7], points[8]])"/>
-         <where label="WR8" expression="same_side([points[1], points[4], points[8]],&#10;                     [points[3], points[7], points[6], points[2]])"/>
-         <where label="WR9" expression="same_side([points[1], points[2], points[5]],&#10;                      [points[3], points[7], points[8], points[4]])"/>
-         <where label="WR10" expression="same_side([points[5], points[6], points[7]],&#10;                     [points[1], points[2], points[3], points[4]])"/>
-         <where label="WR11" expression="same_side([points[3], points[7], points[6]],&#10;                     [points[1], points[4], points[8], points[5]])"/>
-         <where label="WR12" expression="same_side([points[3], points[7], points[8]],&#10;                      [points[1], points[5], points[6], points[2]])"/>
-         <where label="WR13" expression="points[1].dim = 3"/>
+         <where expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0" label="WR1"/>
+         <where expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0" label="WR2"/>
+         <where expression="above_plane(points[1], points[4], points[8], points[5]) = 0.0" label="WR3"/>
+         <where expression="above_plane(points[4], points[3], points[7], points[8]) = 0.0" label="WR4"/>
+         <where expression="above_plane(points[3], points[2], points[6], points[7]) = 0.0" label="WR5"/>
+         <where expression="above_plane(points[1], points[5], points[6], points[2]) = 0.0" label="WR6"/>
+         <where expression="same_side([points[1], points[2], points[3]],&#10;                     [points[5], points[6], points[7], points[8]])" label="WR7"/>
+         <where expression="same_side([points[1], points[4], points[8]],&#10;                     [points[3], points[7], points[6], points[2]])" label="WR8"/>
+         <where expression="same_side([points[1], points[2], points[5]],&#10;                      [points[3], points[7], points[8], points[4]])" label="WR9"/>
+         <where expression="same_side([points[5], points[6], points[7]],&#10;                     [points[1], points[2], points[3], points[4]])" label="WR10"/>
+         <where expression="same_side([points[3], points[7], points[6]],&#10;                     [points[1], points[4], points[8], points[5]])" label="WR11"/>
+         <where expression="same_side([points[3], points[7], points[8]],&#10;                      [points[1], points[5], points[6], points[2]])" label="WR12"/>
+         <where expression="points[1].dim = 3" label="WR13"/>
       </entity>
       <entity name="hyperbola" supertypes="conic">
          <explicit name="semi_axis">
@@ -662,8 +662,8 @@
          </explicit>
       </entity>
       <entity name="intersection_curve" supertypes="surface_curve">
-         <where label="WR1" expression="SIZEOF(SELF\surface_curve.associated_geometry) = 2"/>
-         <where label="WR2" expression="associated_surface(SELF\surface_curve.associated_geometry[1]) &lt;&gt;&#10;             associated_surface(SELF\surface_curve.associated_geometry[2])"/>
+         <where expression="SIZEOF(SELF\surface_curve.associated_geometry) = 2" label="WR1"/>
+         <where expression="associated_surface(SELF\surface_curve.associated_geometry[1]) &lt;&gt;&#10;             associated_surface(SELF\surface_curve.associated_geometry[2])" label="WR2"/>
       </entity>
       <entity name="line" supertypes="curve">
          <explicit name="pnt">
@@ -672,7 +672,7 @@
          <explicit name="dir">
             <typename name="vector"/>
          </explicit>
-         <where label="WR1" expression="dir.dim  = pnt.dim"/>
+         <where expression="dir.dim  = pnt.dim" label="WR1"/>
       </entity>
       <entity name="offset_curve_2d" supertypes="curve">
          <explicit name="basis_curve">
@@ -684,7 +684,7 @@
          <explicit name="self_intersect">
             <builtintype type="LOGICAL"/>
          </explicit>
-         <where label="WR1" expression="basis_curve.dim = 2"/>
+         <where expression="basis_curve.dim = 2" label="WR1"/>
       </entity>
       <entity name="offset_curve_3d" supertypes="curve">
          <explicit name="basis_curve">
@@ -699,7 +699,7 @@
          <explicit name="ref_direction">
             <typename name="direction"/>
          </explicit>
-         <where label="WR1" expression="(basis_curve.dim = 3) AND (ref_direction.dim = 3)"/>
+         <where expression="(basis_curve.dim = 3) AND (ref_direction.dim = 3)" label="WR1"/>
       </entity>
       <entity name="offset_surface" supertypes="surface">
          <explicit name="basis_surface">
@@ -722,7 +722,7 @@
          <explicit name="focal_dist">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="focal_dist &lt;&gt; 0.0"/>
+         <where expression="focal_dist &lt;&gt; 0.0" label="WR1"/>
       </entity>
       <entity name="pcurve" supertypes="curve">
          <explicit name="basis_surface">
@@ -731,17 +731,17 @@
          <explicit name="reference_to_curve">
             <typename name="definitional_representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(reference_to_curve\representation.items) = 1"/>
-         <where label="WR2" expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])"/>
-         <where label="WR3" expression="reference_to_curve\representation.items[1]\&#10;                               geometric_representation_item.dim =2"/>
+         <where expression="SIZEOF(reference_to_curve\representation.items) = 1" label="WR1"/>
+         <where expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF&#10;                    (reference_to_curve\representation.items[1])" label="WR2"/>
+         <where expression="reference_to_curve\representation.items[1]\&#10;                               geometric_representation_item.dim =2" label="WR3"/>
       </entity>
-      <entity name="placement" supertypes="geometric_representation_item" super.expression="ONEOF (axis1_placement, axis2_placement_2d, axis2_placement_3d)">
+      <entity name="placement" super.expression="ONEOF (axis1_placement, axis2_placement_2d, axis2_placement_3d)" supertypes="geometric_representation_item">
          <explicit name="location">
             <typename name="cartesian_point"/>
          </explicit>
       </entity>
       <entity name="plane" supertypes="elementary_surface"/>
-      <entity name="point" supertypes="geometric_representation_item" super.expression="ONEOF (cartesian_point, point_on_curve, point_on_surface, point_in_volume, point_replica, degenerate_pcurve)"/>
+      <entity name="point" super.expression="ONEOF (cartesian_point, point_on_curve, point_on_surface, point_in_volume, point_replica, degenerate_pcurve)" supertypes="geometric_representation_item"/>
       <entity name="point_in_volume" supertypes="point">
          <explicit name="basis_volume">
             <typename name="volume"/>
@@ -782,8 +782,8 @@
          <explicit name="transformation">
             <typename name="cartesian_transformation_operator"/>
          </explicit>
-         <where label="WR1" expression="transformation.dim = parent_pt.dim"/>
-         <where label="WR2" expression="acyclic_point_replica (SELF,parent_pt)"/>
+         <where expression="transformation.dim = parent_pt.dim" label="WR1"/>
+         <where expression="acyclic_point_replica (SELF,parent_pt)" label="WR2"/>
       </entity>
       <entity name="polar_point" supertypes="cartesian_point">
          <explicit name="r">
@@ -792,16 +792,16 @@
          <explicit name="theta">
             <typename name="plane_angle_measure"/>
          </explicit>
-         <derived name="coordinates" expression="[r*cos(theta), r*sin(theta)]">
-            <aggregate type="LIST" lower="1" upper="3"/>
+         <derived expression="[r*cos(theta), r*sin(theta)]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
             <redeclaration entity-ref="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="r &gt;= 0.0"/>
+         <where expression="r &gt;= 0.0" label="WR1"/>
       </entity>
       <entity name="polyline" supertypes="bounded_curve">
          <explicit name="points">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
       </entity>
@@ -824,60 +824,60 @@
       <entity name="quasi_uniform_volume" supertypes="b_spline_volume"/>
       <entity name="rational_b_spline_curve" supertypes="b_spline_curve">
          <explicit name="weights_data">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="REAL"/>
          </explicit>
-         <derived name="weights" expression="list_to_array(weights_data,0,&#10;                                      upper_index_on_control_points)">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="list_to_array(weights_data,0,&#10;                                      upper_index_on_control_points)" name="weights">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <builtintype type="REAL"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(weights_data) = SIZEOF(SELF\b_spline_curve.&#10;                                           control_points_list)"/>
-         <where label="WR2" expression="curve_weights_positive(SELF)"/>
+         <where expression="SIZEOF(weights_data) = SIZEOF(SELF\b_spline_curve.&#10;                                           control_points_list)" label="WR1"/>
+         <where expression="curve_weights_positive(SELF)" label="WR2"/>
       </entity>
       <entity name="rational_b_spline_surface" supertypes="b_spline_surface">
          <explicit name="weights_data">
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="REAL"/>
          </explicit>
-         <derived name="weights" expression="make_array_of_array(weights_data,0,u_upper,0,v_upper)">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="make_array_of_array(weights_data,0,u_upper,0,v_upper)" name="weights">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <builtintype type="REAL"/>
          </derived>
-         <where label="WR1" expression="(SIZEOF(weights_data) =&#10;                     SIZEOF(SELF\b_spline_surface.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                  SIZEOF(SELF\b_spline_surface.control_points_list[1]))"/>
-         <where label="WR2" expression="surface_weights_positive(SELF)"/>
+         <where expression="(SIZEOF(weights_data) =&#10;                     SIZEOF(SELF\b_spline_surface.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                  SIZEOF(SELF\b_spline_surface.control_points_list[1]))" label="WR1"/>
+         <where expression="surface_weights_positive(SELF)" label="WR2"/>
       </entity>
       <entity name="rational_b_spline_volume" supertypes="b_spline_volume">
          <explicit name="weights_data">
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <builtintype type="REAL"/>
          </explicit>
-         <derived name="weights" expression="make_array_of_array_of_array&#10;                             (weights_data,0,u_upper,0,v_upper,0,w_upper)">
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
-            <aggregate type="ARRAY" lower="0" upper="0"/>
+         <derived expression="make_array_of_array_of_array&#10;                             (weights_data,0,u_upper,0,v_upper,0,w_upper)" name="weights">
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <builtintype type="REAL"/>
          </derived>
-         <where label="WR1" expression="(SIZEOF(weights_data) =&#10;                         SIZEOF(SELF\b_spline_volume.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                     SIZEOF(SELF\b_spline_volume.control_points_list[1]))&#10;            AND (SIZEOF(weights_data[1][1]) =&#10;                 SIZEOF(SELF\b_spline_volume.control_points_list[1][1]))"/>
-         <where label="WR2" expression="volume_weights_positive(SELF)"/>
+         <where expression="(SIZEOF(weights_data) =&#10;                         SIZEOF(SELF\b_spline_volume.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                     SIZEOF(SELF\b_spline_volume.control_points_list[1]))&#10;            AND (SIZEOF(weights_data[1][1]) =&#10;                 SIZEOF(SELF\b_spline_volume.control_points_list[1][1]))" label="WR1"/>
+         <where expression="volume_weights_positive(SELF)" label="WR2"/>
       </entity>
       <entity name="rectangular_composite_surface" supertypes="bounded_surface">
          <explicit name="segments">
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <aggregate type="LIST" lower="1" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="surface_patch"/>
          </explicit>
-         <derived name="n_u" expression="SIZEOF(segments)">
+         <derived expression="SIZEOF(segments)" name="n_u">
             <builtintype type="INTEGER"/>
          </derived>
-         <derived name="n_v" expression="SIZEOF(segments[1])">
+         <derived expression="SIZEOF(segments[1])" name="n_v">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(QUERY (s &lt;* segments | n_v &lt;&gt; SIZEOF (s))) = 0"/>
-         <where label="WR2" expression="constraints_rectangular_composite_surface(SELF)"/>
+         <where expression="SIZEOF(QUERY (s &lt;* segments | n_v &lt;&gt; SIZEOF (s))) = 0" label="WR1"/>
+         <where expression="constraints_rectangular_composite_surface(SELF)" label="WR2"/>
       </entity>
       <entity name="rectangular_trimmed_surface" supertypes="bounded_surface">
          <explicit name="basis_surface">
@@ -901,22 +901,22 @@
          <explicit name="vsense">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <where label="WR1" expression="u1 &lt;&gt; u2"/>
-         <where label="WR2" expression="v1 &lt;&gt; v2"/>
-         <where label="WR3" expression="(('GEOMETRY_SCHEMA.ELEMENTARY_SURFACE' IN TYPEOF(basis_surface))&#10;       AND  (NOT ('GEOMETRY_SCHEMA.PLANE' IN TYPEOF(basis_surface)))) OR&#10;      ('GEOMETRY_SCHEMA.SURFACE_OF_REVOLUTION' IN TYPEOF(basis_surface))&#10;          OR (usense = (u2 &gt; u1))"/>
-         <where label="WR4" expression="(('GEOMETRY_SCHEMA.SPHERICAL_SURFACE' IN TYPEOF(basis_surface))&#10;          OR&#10;         ('GEOMETRY_SCHEMA.TOROIDAL_SURFACE' IN TYPEOF(basis_surface)))&#10;          OR (vsense = (v2 &gt; v1))"/>
+         <where expression="u1 &lt;&gt; u2" label="WR1"/>
+         <where expression="v1 &lt;&gt; v2" label="WR2"/>
+         <where expression="(('GEOMETRY_SCHEMA.ELEMENTARY_SURFACE' IN TYPEOF(basis_surface))&#10;       AND  (NOT ('GEOMETRY_SCHEMA.PLANE' IN TYPEOF(basis_surface)))) OR&#10;      ('GEOMETRY_SCHEMA.SURFACE_OF_REVOLUTION' IN TYPEOF(basis_surface))&#10;          OR (usense = (u2 &gt; u1))" label="WR3"/>
+         <where expression="(('GEOMETRY_SCHEMA.SPHERICAL_SURFACE' IN TYPEOF(basis_surface))&#10;          OR&#10;         ('GEOMETRY_SCHEMA.TOROIDAL_SURFACE' IN TYPEOF(basis_surface)))&#10;          OR (vsense = (v2 &gt; v1))" label="WR4"/>
       </entity>
       <entity name="reparametrised_composite_curve_segment" supertypes="composite_curve_segment">
          <explicit name="param_length">
             <typename name="parameter_value"/>
          </explicit>
-         <where label="WR1" expression="param_length &gt; 0.0"/>
+         <where expression="param_length &gt; 0.0" label="WR1"/>
       </entity>
       <entity name="seam_curve" supertypes="surface_curve">
-         <where label="WR1" expression="SIZEOF(SELF\surface_curve.associated_geometry) = 2"/>
-         <where label="WR2" expression="associated_surface(SELF\surface_curve.associated_geometry[1]) =&#10;           associated_surface(SELF\surface_curve.associated_geometry[2])"/>
-         <where label="WR3" expression="'GEOMETRY_SCHEMA.PCURVE' IN&#10;           TYPEOF(SELF\surface_curve.associated_geometry[1])"/>
-         <where label="WR4" expression="'GEOMETRY_SCHEMA.PCURVE' IN&#10;            TYPEOF(SELF\surface_curve.associated_geometry[2])"/>
+         <where expression="SIZEOF(SELF\surface_curve.associated_geometry) = 2" label="WR1"/>
+         <where expression="associated_surface(SELF\surface_curve.associated_geometry[1]) =&#10;           associated_surface(SELF\surface_curve.associated_geometry[2])" label="WR2"/>
+         <where expression="'GEOMETRY_SCHEMA.PCURVE' IN&#10;           TYPEOF(SELF\surface_curve.associated_geometry[1])" label="WR3"/>
+         <where expression="'GEOMETRY_SCHEMA.PCURVE' IN&#10;            TYPEOF(SELF\surface_curve.associated_geometry[2])" label="WR4"/>
       </entity>
       <entity name="spherical_point" supertypes="cartesian_point">
          <explicit name="r">
@@ -928,12 +928,12 @@
          <explicit name="phi">
             <typename name="plane_angle_measure"/>
          </explicit>
-         <derived name="coordinates" expression="[r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)]">
-            <aggregate type="LIST" lower="1" upper="3"/>
+         <derived expression="[r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)]" name="coordinates">
+            <aggregate lower="1" type="LIST" upper="3"/>
             <typename name="length_measure"/>
             <redeclaration entity-ref="cartesian_point"/>
          </derived>
-         <where label="WR1" expression="r &gt;= 0.0"/>
+         <where expression="r &gt;= 0.0" label="WR1"/>
       </entity>
       <entity name="spherical_surface" supertypes="elementary_surface">
          <explicit name="radius">
@@ -948,26 +948,26 @@
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="surface" supertypes="geometric_representation_item" super.expression="ONEOF (elementary_surface, swept_surface, bounded_surface, offset_surface, surface_replica)"/>
-      <entity name="surface_curve" supertypes="curve" super.expression="ONEOF (intersection_curve, seam_curve) ANDOR bounded_surface_curve">
+      <entity name="surface" super.expression="ONEOF (elementary_surface, swept_surface, bounded_surface, offset_surface, surface_replica)" supertypes="geometric_representation_item"/>
+      <entity name="surface_curve" super.expression="ONEOF (intersection_curve, seam_curve) ANDOR bounded_surface_curve" supertypes="curve">
          <explicit name="curve_3d">
             <typename name="curve"/>
          </explicit>
          <explicit name="associated_geometry">
-            <aggregate type="LIST" lower="1" upper="2"/>
+            <aggregate lower="1" type="LIST" upper="2"/>
             <typename name="pcurve_or_surface"/>
          </explicit>
          <explicit name="master_representation">
             <typename name="preferred_surface_curve_representation"/>
          </explicit>
-         <derived name="basis_surface" expression="get_basis_surface(SELF)">
-            <aggregate type="SET" lower="1" upper="2"/>
+         <derived expression="get_basis_surface(SELF)" name="basis_surface">
+            <aggregate lower="1" type="SET" upper="2"/>
             <typename name="surface"/>
          </derived>
-         <where label="WR1" expression="curve_3d.dim = 3"/>
-         <where label="WR2" expression="('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(associated_geometry[1])) OR&#10;                        (master_representation &lt;&gt; pcurve_s1)"/>
-         <where label="WR3" expression="('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(associated_geometry[2])) OR&#10;                        (master_representation &lt;&gt; pcurve_s2)"/>
-         <where label="WR4" expression="NOT ('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(curve_3d))"/>
+         <where expression="curve_3d.dim = 3" label="WR1"/>
+         <where expression="('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(associated_geometry[1])) OR&#10;                        (master_representation &lt;&gt; pcurve_s1)" label="WR2"/>
+         <where expression="('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(associated_geometry[2])) OR&#10;                        (master_representation &lt;&gt; pcurve_s2)" label="WR3"/>
+         <where expression="NOT ('GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(curve_3d))" label="WR4"/>
       </entity>
       <entity name="surface_curve_swept_surface" supertypes="swept_surface">
          <explicit name="directrix">
@@ -976,7 +976,7 @@
          <explicit name="reference_surface">
             <typename name="surface"/>
          </explicit>
-         <where label="WR1" expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR&#10;          (reference_surface IN (directrix\surface_curve.basis_surface))"/>
+         <where expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR&#10;          (reference_surface IN (directrix\surface_curve.basis_surface))" label="WR1"/>
       </entity>
       <entity name="surface_of_linear_extrusion" supertypes="swept_surface">
          <explicit name="extrusion_axis">
@@ -987,7 +987,7 @@
          <explicit name="axis_position">
             <typename name="axis1_placement"/>
          </explicit>
-         <derived name="axis_line" expression="representation_item('')||&#10;                     geometric_representation_item()|| curve()||&#10;                     line(axis_position.location, representation_item('')||&#10;                     geometric_representation_item()||&#10;                     vector(axis_position.z, 1.0))">
+         <derived expression="representation_item('')||&#10;                     geometric_representation_item()|| curve()||&#10;                     line(axis_position.location, representation_item('')||&#10;                     geometric_representation_item()||&#10;                     vector(axis_position.z, 1.0))" name="axis_line">
             <typename name="line"/>
          </derived>
       </entity>
@@ -1007,10 +1007,10 @@
          <explicit name="v_sense">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <inverse name="using_surfaces" entity="rectangular_composite_surface" attribute="segments">
-            <inverse.aggregate type="BAG" lower="1" upper="?"/>
+         <inverse attribute="segments" entity="rectangular_composite_surface" name="using_surfaces">
+            <inverse.aggregate lower="1" type="BAG" upper="?"/>
          </inverse>
-         <where label="WR1" expression="(NOT ('GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE' &#10;                 IN TYPEOF(parent_surface)))"/>
+         <where expression="(NOT ('GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE' &#10;                 IN TYPEOF(parent_surface)))" label="WR1"/>
       </entity>
       <entity name="surface_replica" supertypes="surface">
          <explicit name="parent_surface">
@@ -1019,9 +1019,9 @@
          <explicit name="transformation">
             <typename name="cartesian_transformation_operator_3d"/>
          </explicit>
-         <where label="WR1" expression="acyclic_surface_replica(SELF, parent_surface)"/>
+         <where expression="acyclic_surface_replica(SELF, parent_surface)" label="WR1"/>
       </entity>
-      <entity name="swept_surface" supertypes="surface" super.expression="ONEOF (surface_of_linear_extrusion, surface_of_revolution, surface_curve_swept_surface, fixed_reference_swept_surface)">
+      <entity name="swept_surface" super.expression="ONEOF (surface_of_linear_extrusion, surface_of_revolution, surface_curve_swept_surface, fixed_reference_swept_surface)" supertypes="surface">
          <explicit name="swept_curve">
             <typename name="curve"/>
          </explicit>
@@ -1039,8 +1039,8 @@
          <explicit name="point_4">
             <typename name="cartesian_point"/>
          </explicit>
-         <where label="WR1" expression="point_1.dim = 3"/>
-         <where label="WR2" expression="above_plane(point_1, point_2, point_3, point_4) &lt;&gt; 0.0"/>
+         <where expression="point_1.dim = 3" label="WR1"/>
+         <where expression="above_plane(point_1, point_2, point_3, point_4) &lt;&gt; 0.0" label="WR2"/>
       </entity>
       <entity name="toroidal_surface" supertypes="elementary_surface">
          <explicit name="major_radius">
@@ -1060,18 +1060,18 @@
          <explicit name="minor_radius">
             <typename name="positive_length_measure"/>
          </explicit>
-         <where label="WR1" expression="minor_radius &lt; major_radius"/>
+         <where expression="minor_radius &lt; major_radius" label="WR1"/>
       </entity>
       <entity name="trimmed_curve" supertypes="bounded_curve">
          <explicit name="basis_curve">
             <typename name="curve"/>
          </explicit>
          <explicit name="trim_1">
-            <aggregate type="SET" lower="1" upper="2"/>
+            <aggregate lower="1" type="SET" upper="2"/>
             <typename name="trimming_select"/>
          </explicit>
          <explicit name="trim_2">
-            <aggregate type="SET" lower="1" upper="2"/>
+            <aggregate lower="1" type="SET" upper="2"/>
             <typename name="trimming_select"/>
          </explicit>
          <explicit name="sense_agreement">
@@ -1080,8 +1080,8 @@
          <explicit name="master_representation">
             <typename name="trimming_preference"/>
          </explicit>
-         <where label="WR1" expression="(HIINDEX(trim_1) = 1) OR (TYPEOF(trim_1[1]) &lt;&gt; TYPEOF(trim_1[2]))"/>
-         <where label="WR2" expression="(HIINDEX(trim_2) = 1) OR (TYPEOF(trim_2[1]) &lt;&gt; TYPEOF(trim_2[2]))"/>
+         <where expression="(HIINDEX(trim_1) = 1) OR (TYPEOF(trim_1[1]) &lt;&gt; TYPEOF(trim_1[2]))" label="WR1"/>
+         <where expression="(HIINDEX(trim_2) = 1) OR (TYPEOF(trim_2[1]) &lt;&gt; TYPEOF(trim_2[2]))" label="WR2"/>
       </entity>
       <entity name="uniform_curve" supertypes="b_spline_curve"/>
       <entity name="uniform_surface" supertypes="b_spline_surface"/>
@@ -1093,10 +1093,10 @@
          <explicit name="magnitude">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="magnitude &gt;= 0.0"/>
+         <where expression="magnitude &gt;= 0.0" label="WR1"/>
       </entity>
-      <entity name="volume" supertypes="geometric_representation_item" super.expression="ONEOF (block_volume, wedge_volume, spherical_volume, cylindrical_volume, eccentric_conical_volume, toroidal_volume, pyramid_volume, b_spline_volume, ellipsoid_volume, tetrahedron_volume, hexahedron_volume)">
-         <where label="WR1" expression="SELF\geometric_representation_item.dim = 3"/>
+      <entity name="volume" super.expression="ONEOF (block_volume, wedge_volume, spherical_volume, cylindrical_volume, eccentric_conical_volume, toroidal_volume, pyramid_volume, b_spline_volume, ellipsoid_volume, tetrahedron_volume, hexahedron_volume)" supertypes="geometric_representation_item">
+         <where expression="SELF\geometric_representation_item.dim = 3" label="WR1"/>
       </entity>
       <entity name="wedge_volume" supertypes="volume">
          <explicit name="position">
@@ -1114,11 +1114,11 @@
          <explicit name="ltx">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="((0.0 &lt;= ltx) AND (ltx &lt; x))"/>
+         <where expression="((0.0 &lt;= ltx) AND (ltx &lt; x))" label="WR1"/>
       </entity>
-      <rule name="compatible_dimension" appliesto="cartesian_point direction representation_context geometric_representation_context">
-         <where label="WR1" expression="SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))&#10;       &gt; 0 )) = 0"/>
+      <rule appliesto="cartesian_point direction representation_context geometric_representation_context" name="compatible_dimension">
+         <where expression="SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))&#10;       &gt; 0 )) = 0" label="WR2"/>
       </rule>
       <function name="above_plane">
          <parameter name="p1">
@@ -1242,7 +1242,7 @@
          <parameter name="axis3">
             <typename name="direction"/>
          </parameter>
-         <aggregate type="LIST" lower="2" upper="3"/>
+         <aggregate lower="2" type="LIST" upper="3"/>
          <typename name="direction"/>
          <algorithm>LOCAL
     u      : LIST [2:3] OF direction;
@@ -1283,7 +1283,7 @@
          <parameter name="ref_direction">
             <typename name="direction"/>
          </parameter>
-         <aggregate type="LIST" lower="2" upper="2"/>
+         <aggregate lower="2" type="LIST" upper="2"/>
          <typename name="direction"/>
          <algorithm>LOCAL
      d : direction := NVL(normalise(ref_direction),
@@ -1299,7 +1299,7 @@
          <parameter name="ref_direction">
             <typename name="direction"/>
          </parameter>
-         <aggregate type="LIST" lower="3" upper="3"/>
+         <aggregate lower="3" type="LIST" upper="3"/>
          <typename name="direction"/>
          <algorithm>LOCAL
        d1, d2 : direction;
@@ -1340,11 +1340,11 @@
             <builtintype type="INTEGER"/>
          </parameter>
          <parameter name="knot_mult">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <builtintype type="INTEGER"/>
          </parameter>
          <parameter name="knots">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="parameter_value"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
@@ -1486,7 +1486,7 @@
          <parameter name="up_cp">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
          <builtintype type="REAL"/>
          <algorithm>RETURN([1:up_cp + 1]);</algorithm>
       </function>
@@ -1500,7 +1500,7 @@
          <parameter name="uniform">
             <typename name="knot_type"/>
          </parameter>
-         <aggregate type="LIST" lower="2" upper="?"/>
+         <aggregate lower="2" type="LIST" upper="?"/>
          <builtintype type="INTEGER"/>
          <algorithm>LOCAL
      knot_mult : LIST [1:up_knots] OF INTEGER;
@@ -1535,7 +1535,7 @@
          <parameter name="uniform">
             <typename name="knot_type"/>
          </parameter>
-         <aggregate type="LIST" lower="2" upper="?"/>
+         <aggregate lower="2" type="LIST" upper="?"/>
          <typename name="parameter_value"/>
          <algorithm>LOCAL
     knots  : LIST [1:up_knots] OF parameter_value := [0:up_knots];
@@ -1562,8 +1562,8 @@
          <parameter name="v_upper">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
          <builtintype type="REAL"/>
          <algorithm>RETURN([[1:v_upper + 1]:u_upper +1]);</algorithm>
       </function>
@@ -1602,11 +1602,16 @@
   -- RULE compatible_dimension ensures that the context_of_items
   -- is of type geometric_representation_context and has
   -- the same dimension_count for all values of x.
-  -- The SET x is non-empty since this is required by WR1 of
+  -- The SET x is non-empty for legal instances since this is required by WR1 of
   -- representation_item.
-    y := x[1].context_of_items;
-    dim := y\geometric_representation_context.coordinate_space_dimension;
-    RETURN (dim);</algorithm>
+    IF (SIZEOF(x) &gt; 0) THEN
+       y := x[1].context_of_items;
+      dim := y\geometric_representation_context.coordinate_space_dimension;
+    RETURN (dim);
+    ELSE
+      RETURN(?);
+    -- mark error by returning indeterminate result
+   END_IF;</algorithm>
       </function>
       <function name="dot_product">
          <parameter name="arg1">
@@ -1692,7 +1697,7 @@
          <parameter name="c">
             <typename name="curve_on_surface"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="2"/>
+         <aggregate lower="0" type="SET" upper="2"/>
          <typename name="surface"/>
          <algorithm>LOCAL
     surfs  : SET[0:2] OF surface;
@@ -1728,8 +1733,8 @@
       </function>
       <function name="list_to_array">
          <parameter name="lis">
-            <aggregate type="LIST" lower="0" upper="?"/>
-            <builtintype type="GENERIC"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="GENERIC" typelabel="T"/>
          </parameter>
          <parameter name="low">
             <builtintype type="INTEGER"/>
@@ -1737,8 +1742,8 @@
          <parameter name="u">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <builtintype type="GENERIC"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <builtintype type="GENERIC" typelabel="T"/>
          <algorithm>LOCAL
      n   : INTEGER;
      res : ARRAY [low:u] OF GENERIC : T;
@@ -1757,9 +1762,9 @@
       </function>
       <function name="make_array_of_array">
          <parameter name="lis">
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <builtintype type="GENERIC"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <builtintype type="GENERIC" typelabel="T"/>
          </parameter>
          <parameter name="low1">
             <builtintype type="INTEGER"/>
@@ -1773,9 +1778,9 @@
          <parameter name="u2">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <builtintype type="GENERIC"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <builtintype type="GENERIC" typelabel="T"/>
          <algorithm>LOCAL
      res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF GENERIC : T;
    END_LOCAL;
@@ -1800,10 +1805,10 @@
       </function>
       <function name="make_array_of_array_of_array">
          <parameter name="lis">
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <builtintype type="GENERIC"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <builtintype type="GENERIC" typelabel="T"/>
          </parameter>
          <parameter name="low1">
             <builtintype type="INTEGER"/>
@@ -1823,10 +1828,10 @@
          <parameter name="u3">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <aggregate type="ARRAY" lower="0" upper="0"/>
-         <builtintype type="GENERIC"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <builtintype type="GENERIC" typelabel="T"/>
          <algorithm>LOCAL 
    res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF
              ARRAY[low3:u3] OF GENERIC : T;
@@ -1856,9 +1861,9 @@
          <typename name="vector_or_direction"/>
          <algorithm>LOCAL
       ndim   : INTEGER;
-      v      : direction;
+      v      : direction := dummy_gri || direction ([1.0,0.0,0.0]);
       result : vector_or_direction;
-      vec    : vector;
+      vec    : vector := dummy_gri || vector (v, 1.0);
       mag    : REAL;
     END_LOCAL;
     
@@ -1870,7 +1875,7 @@
       IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg) THEN
         BEGIN
               v := dummy_gri || direction(arg\vector.orientation.direction_ratios);
-          IF arg.magnitude = 0.0 THEN
+          IF arg\vector.magnitude = 0.0 THEN
             RETURN(?);
           ELSE
            vec := dummy_gri || vector (v, 1.0);
@@ -1919,11 +1924,11 @@
       </function>
       <function name="same_side">
          <parameter name="plane_pts">
-            <aggregate type="LIST" lower="3" upper="3"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
             <typename name="cartesian_point"/>
          </parameter>
          <parameter name="test_points">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="cartesian_point"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
@@ -1966,7 +1971,7 @@
      ELSE
       IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF (vec) THEN
         v   := dummy_gri || direction(vec\vector.orientation.direction_ratios);
-        mag := scalar * vec.magnitude;
+        mag := scalar * vec\vector.magnitude;
       ELSE
         v   := dummy_gri || direction(vec.direction_ratios);
         mag := scalar;
@@ -2051,14 +2056,14 @@
      ELSE
       BEGIN
         IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg1) THEN
-          mag1 := arg1.magnitude;
+          mag1 := arg1\vector.magnitude;
           vec1 := arg1\vector.orientation;
         ELSE
           mag1 := 1.0;
           vec1 := arg1;
         END_IF;
         IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg2) THEN
-          mag2 := arg2.magnitude;
+          mag2 := arg2\vector.magnitude;
           vec2 := arg2\vector.orientation;
         ELSE
           mag2 := 1.0;
@@ -2105,14 +2110,14 @@
    ELSE
      BEGIN
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg1) THEN
-         mag1 := arg1.magnitude;
+         mag1 := arg1\vector.magnitude;
          vec1 := arg1\vector.orientation;
        ELSE
          mag1 := 1.0;
          vec1 := arg1;
        END_IF;
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg2) THEN
-         mag2 := arg2.magnitude;
+         mag2 := arg2\vector.magnitude;
          vec2 := arg2\vector.orientation;
        ELSE
          mag2 := 1.0;

@@ -130,9 +130,10 @@ LOCAL
   local_relation2: BAG OF assembly_component_usage := [];
 END_LOCAL;
 -- extraction of related assembly_component_relationships --
-local_relation2 := local_relation2 + (USEDIN (item, 
-    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.'+ 
-    'RELATING_PRODUCT_DEFINITION'));
+local_relation2 := local_relation2 + QUERY(pdr <* USEDIN (item, 
+    'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE' IN
+      TYPEOF(pdr));
 local_relation := bag_to_set (local_relation2);
 IF (SIZEOF (local_relation) = 0) THEN RETURN (TRUE);
   ELSE RETURN (FALSE);

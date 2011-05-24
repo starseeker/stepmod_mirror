@@ -149,9 +149,12 @@ END_ENTITY; -- constrained_kinematic_motion_representation
 FUNCTION assembly_root
   (item: product_definition) : BOOLEAN;
 -- extraction of related assembly_component_relationships --
-IF (SIZEOF(USEDIN (item, 
-   'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.' + 
-   'RELATED_PRODUCT_DEFINITION')) = 0) THEN RETURN(TRUE);
+IF (SIZEOF(QUERY(pdr <* USEDIN (item, 
+   'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 
+   'RELATED_PRODUCT_DEFINITION') |
+    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE' IN
+    TYPEOF(pdr)))
+    = 0) THEN RETURN(TRUE);
 ELSE RETURN (FALSE);
 END_IF;
 END_FUNCTION;
@@ -176,9 +179,11 @@ IF ((SIZEOF (constituent) = 1) AND assembly_root (constituent[1]))
 -- extraction of related assembly_component_relationships --
     ELSE
       REPEAT j:= 1 TO HIINDEX(constituent);
-        local_relation2 := local_relation2 + (USEDIN (constituent[j], 
-                    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.' 
-                    +'RELATED_PRODUCT_DEFINITION'));
+        local_relation2 := local_relation2 + QUERY(pdr <* USEDIN (constituent[j], 
+                    'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' 
+                    +'RELATED_PRODUCT_DEFINITION') |
+                   'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE' IN
+                   TYPEOF(pdr));
       END_REPEAT;
       local_relation := bag_to_set (local_relation2);
       IF (SIZEOF(local_relation) = 0) THEN
@@ -226,14 +231,17 @@ LOCAL
   i : INTEGER;
 END_LOCAL;
 -- find product_definition_shape representing the product_definiton
-  local_p_d_s2 := local_p_d_s2 + (USEDIN (item, 
-  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE.DEFINITION'));
+  local_p_d_s2 := local_p_d_s2 + QUERY(pd <* USEDIN (item, 
+  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |
+  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN
+    TYPEOF(pd));
   local_p_d_s := bag_to_set(local_p_d_s2);
 -- find shape_definition_representations refereing to the local_p_d_s
   REPEAT i := 1 to HIINDEX (local_p_d_s);
-    local_s_d_r2 := local_s_d_r2 + (USEDIN (local_p_d_s[i], 
-                   'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
-                   'SHAPE_DEFINITION_REPRESENTATION.DEFINITION')); 
+    local_s_d_r2 := local_s_d_r2 + QUERY(pdr <* USEDIN (local_p_d_s[i], 
+     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_DEFINITION_REPRESENTATION' IN
+      TYPEOF(pdr)); 
   END_REPEAT;
   local_s_d_r := bag_to_set (local_s_d_r2);
   REPEAT i := 1 to HIINDEX (local_s_d_r);
@@ -259,9 +267,10 @@ END_LOCAL;
    'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
 -- find shape_definition_representations refereing to the local_p_d
   REPEAT i := 1 to HIINDEX (local_p_d);
-    local_s_d_r2 := local_s_d_r2 + (USEDIN (local_p_d[i], 
-                   'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
-                   'SHAPE_DEFINITION_REPRESENTATION.DEFINITION')); 
+    local_s_d_r2 := local_s_d_r2 + QUERY(pdr <* USEDIN (local_p_d[i], 
+     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_DEFINITION_REPRESENTATION' IN
+      TYPEOF(pdr)); 
   END_REPEAT;
     local_s_d_r := bag_to_set (local_s_d_r2);
   REPEAT i := 1 to HIINDEX (local_s_d_r);
@@ -282,9 +291,10 @@ END_LOCAL;
   local_s_r := QUERY 
     ( z <* find_shape_representation_of_product_definition (item)|
       'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
-IF (SIZEOF (local_s_r) = 1) THEN RETURN (local_s_r[1]); 
-   ELSE local_s_r := []; RETURN(local_s_r[1]);
-END_IF;
+  IF (SIZEOF (local_s_r) = 1) 
+    THEN RETURN (local_s_r[1]); 
+    ELSE RETURN(?);
+  END_IF;
 END_FUNCTION;
 
 FUNCTION find_representative_shape_representation_of_shape_aspect
@@ -295,9 +305,10 @@ END_LOCAL;
 -- find representative_shape_representation of the shape_aspect
   local_s_r := QUERY ( z <* find_shape_representation_of_shape_aspect (item)|
                'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
-IF (SIZEOF (local_s_r) = 1) THEN RETURN (local_s_r[1]); 
-   ELSE local_s_r := []; RETURN(local_s_r[1]);
-END_IF;
+  IF (SIZEOF (local_s_r) = 1) 
+    THEN RETURN (local_s_r[1]); 
+    ELSE RETURN(?);
+  END_IF;
 END_FUNCTION;
 
 FUNCTION unique_in_product_definition
@@ -375,9 +386,10 @@ LOCAL
   i : INTEGER;
 END_LOCAL;
 -- find shape_definition_representations 
-  local_s_d_r2  := local_s_d_r2 + (USEDIN (item, 
-  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
-  'SHAPE_DEFINITION_REPRESENTATION.USED_REPRESENTATION')); 
+  local_s_d_r2  := local_s_d_r2 + QUERY(pdr <* USEDIN (item, 
+  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+  'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_DEFINITION_REPRESENTATION' IN
+      TYPEOF(pdr)); 
   local_s_d_r := bag_to_set (local_s_d_r2);
 -- find shape_aspects
 REPEAT i := 1 TO HIINDEX (local_s_d_r);

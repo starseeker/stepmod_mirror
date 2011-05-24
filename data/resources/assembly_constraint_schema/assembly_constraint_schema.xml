@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-109">
    <application name="JSDAI" owner="LKSoft" source="assembly_constraint_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="assembly_constraint_schema">
@@ -28,20 +29,20 @@
             <typename name="representative_shape_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
-         <where expression="(SELF\explicit_constraint.constrained_elements[1]&#xA;      \geometric_representation_item.dim = 3) AND&#xA;     (SELF\explicit_constraint.reference_elements[1]&#xA;      \geometric_representation_item.dim = 3)" label="WR1"/>
-         <where expression="(SELF\representation_relationship.rep_1 IN (using_representations &#xA;     (SELF\representation_relationship_with_transformation.&#xA;      transformation_operator\item_defined_transformation.transform_item_1) +&#xA;      using_representation_with_mapping &#xA;     (SELF\representation_relationship_with_transformation.&#xA;      transformation_operator\item_defined_transformation.transform_item_1))) AND&#xA;     (SELF\representation_relationship.rep_2 IN (using_representations &#xA;     (SELF\representation_relationship_with_transformation.&#xA;       transformation_operator\item_defined_transformation.transform_item_2) +&#xA;      using_representation_with_mapping &#xA;     (SELF\representation_relationship_with_transformation.&#xA;      transformation_operator\item_defined_transformation.transform_item_2)))" label="WR2"/>
-         <where expression="(SIZEOF(SELF\explicit_constraint.constrained_elements)=1) AND&#xA;     (SIZEOF(SELF\explicit_constraint.reference_elements)=1)" label="WR3"/>
-         <where expression="(SELF\representation_relationship_with_transformation.&#xA;      transformation_operator\item_defined_transformation.transform_item_1 =  &#xA;      SELF\explicit_constraint.reference_elements[1]) AND&#xA;     (SELF\representation_relationship_with_transformation.&#xA;      transformation_operator\item_defined_transformation.transform_item_2 =  &#xA;      SELF\explicit_constraint.constrained_elements[1])" label="WR4"/>
+         <where expression="(SELF\explicit_constraint.constrained_elements[1]&#10;      \geometric_representation_item.dim = 3) AND&#10;     (SELF\explicit_constraint.reference_elements[1]&#10;      \geometric_representation_item.dim = 3)" label="WR1"/>
+         <where expression="(SELF\representation_relationship.rep_1 IN (using_representations &#10;     (SELF\representation_relationship_with_transformation.&#10;      transformation_operator\item_defined_transformation.transform_item_1) +&#10;      using_representation_with_mapping &#10;     (SELF\representation_relationship_with_transformation.&#10;      transformation_operator\item_defined_transformation.transform_item_1))) AND&#10;     (SELF\representation_relationship.rep_2 IN (using_representations &#10;     (SELF\representation_relationship_with_transformation.&#10;       transformation_operator\item_defined_transformation.transform_item_2) +&#10;      using_representation_with_mapping &#10;     (SELF\representation_relationship_with_transformation.&#10;      transformation_operator\item_defined_transformation.transform_item_2)))" label="WR2"/>
+         <where expression="(SIZEOF(SELF\explicit_constraint.constrained_elements)=1) AND&#10;     (SIZEOF(SELF\explicit_constraint.reference_elements)=1)" label="WR3"/>
+         <where expression="(SELF\representation_relationship_with_transformation.&#10;      transformation_operator\item_defined_transformation.transform_item_1 =  &#10;      SELF\explicit_constraint.reference_elements[1]) AND&#10;     (SELF\representation_relationship_with_transformation.&#10;      transformation_operator\item_defined_transformation.transform_item_2 =  &#10;      SELF\explicit_constraint.constrained_elements[1])" label="WR4"/>
       </entity>
       <entity name="coaxial_assembly_constraint" supertypes="binary_assembly_constraint coaxial_geometric_constraint"/>
       <entity name="fixed_constituent_assembly_constraint" supertypes="assembly_geometric_constraint fixed_element_geometric_constraint">
          <explicit name="fixed_constituent">
             <typename name="representative_shape_representation"/>
          </explicit>
-         <where expression="SELF\explicit_constraint.constrained_elements[1]&#xA;     \geometric_representation_item.dim = 3" label="WR1"/>
-         <where expression="(assembly_leaf (using_product_definition_of_shape_representation&#xA;     (fixed_constituent)[1]))" label="WR2"/>
-         <where expression="(SIZEOF(SELF\explicit_constraint.constrained_elements) = 1) AND&#xA;     (SIZEOF(SELF\explicit_constraint.reference_elements) = 0)" label="WR3"/>
-         <where expression="fixed_constituent IN (using_representations(SELF\explicit_constraint.constrained_elements[1]&#xA;\representation_item) + using_representation_with_mapping&#xA;(SELF\explicit_constraint.constrained_elements[1]\representation_item))" label="WR4"/>
+         <where expression="SELF\explicit_constraint.constrained_elements[1]&#10;     \geometric_representation_item.dim = 3" label="WR1"/>
+         <where expression="(assembly_leaf (using_product_definition_of_shape_representation&#10;     (fixed_constituent)[1]))" label="WR2"/>
+         <where expression="(SIZEOF(SELF\explicit_constraint.constrained_elements) = 1) AND&#10;     (SIZEOF(SELF\explicit_constraint.reference_elements) = 0)" label="WR3"/>
+         <where expression="fixed_constituent IN (using_representations(SELF\explicit_constraint.constrained_elements[1]&#10;\representation_item) + using_representation_with_mapping&#10;(SELF\explicit_constraint.constrained_elements[1]\representation_item))" label="WR4"/>
       </entity>
       <entity name="incidence_assembly_constraint" supertypes="binary_assembly_constraint incidence_geometric_constraint"/>
       <entity name="parallel_assembly_constraint" supertypes="binary_assembly_constraint parallel_geometric_constraint"/>
@@ -59,9 +60,10 @@
   local_relation2: BAG OF assembly_component_usage := [];
 END_LOCAL;
 -- extraction of related assembly_component_relationships --
-local_relation2 := local_relation2 + (USEDIN (item, 
-    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.'+ 
-    'RELATING_PRODUCT_DEFINITION'));
+local_relation2 := local_relation2 + QUERY(pdr &lt;* USEDIN (item, 
+    'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+    'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE' IN
+      TYPEOF(pdr));
 local_relation := bag_to_set (local_relation2);
 IF (SIZEOF (local_relation) = 0) THEN RETURN (TRUE);
   ELSE RETURN (FALSE);

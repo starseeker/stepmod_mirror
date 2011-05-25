@@ -1,13 +1,14 @@
 (*
-   $Id: arm.exp,v 1.1 2010/11/05 18:35:12 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2010/11/08 17:25:42 lothartklein Exp $
    N - ISO/CD-TS - 10303- characterized_representation - EXPRESS ARM
 *)
 
 SCHEMA Characterized_representation_arm;
 
 USE FROM Characterizable_object_arm; -- ISO/TS 10303-1765
+USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
 USE FROM Foundation_representation_arm;  -- ISO/TS 10303-1006;
-REFERENCE FROM Foundation_representation_arm(using_representations);  -- ISO/TS 10303-1006;
+REFERENCE FROM Foundation_representation_arm(using_representations); -- ISO/TS 10303-1006;
 USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
 
 TYPE cr_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
@@ -15,6 +16,12 @@ TYPE cr_property_assignment_select = SELECT BASED_ON property_assignment_select 
   Characterized_item_within_representation);
 END_TYPE; 
 
+TYPE chained_representation_link = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Geometric_placement_operation,
+  Representation_context,
+  Representation_relationship);
+END_TYPE;
+ 
 ENTITY Characterized_representation 
   SUBTYPE OF (Representation, Characterizable_object);
 END_ENTITY;
@@ -27,6 +34,12 @@ UNIQUE
   WR1: item, rep;
 WHERE
   WR2: rep IN using_representations(item);
+END_ENTITY;
+
+ENTITY Characterized_chain_based_item_within_representation
+  SUBTYPE OF (Characterized_item_within_representation);
+  nodes : LIST [2:?] OF UNIQUE representation;
+  undirected_link : LIST [1:?] OF UNIQUE chained_representation_link;
 END_ENTITY;
 
 END_SCHEMA;

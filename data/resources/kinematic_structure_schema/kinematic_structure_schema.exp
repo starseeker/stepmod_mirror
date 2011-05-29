@@ -78,7 +78,7 @@ END_ENTITY;
 ENTITY pair_representation_relationship
   SUBTYPE OF (representation_relationship_with_transformation, geometric_representation_item);
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
-  SELF\representation_relationship.rep_2 : rigid_link_representation;
+  SELF\representation_relationship.rep_2 : kinematic_link_representation;
   SELF\representation_relationship_with_transformation.transformation_operator : kinematic_pair;
 WHERE
   WR1: transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items;
@@ -144,6 +144,11 @@ ENTITY kinematic_pair
   joint : kinematic_joint;
   SELF\item_defined_transformation.transform_item_1 : rigid_placement;
   SELF\item_defined_transformation.transform_item_2 : rigid_placement;
+DERIVE
+  associated_link_representations_1 : SET[1:?] OF kinematic_link_representation :=
+    sort_link_associations(link_representation_associations, TRUE);
+  associated_link_representations_2 : SET[1:?] OF kinematic_link_representation :=
+    sort_link_associations(link_representation_associations, FALSE);
 INVERSE
   link_representation_associations : SET[1:?] OF pair_representation_relationship FOR transformation_operator; 
 END_ENTITY;
@@ -157,11 +162,9 @@ ENTITY high_order_kinematic_pair
     surface_pair
   ))
   SUBTYPE OF (kinematic_pair);
-DERIVE
-  associated_link_representations_1 : SET[0:?] OF kinematic_link_representation :=
-    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
-  associated_link_representations_2 : SET[0:?] OF kinematic_link_representation :=
-    sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE);
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY low_order_kinematic_pair_with_motion_coupling
@@ -172,6 +175,9 @@ ENTITY low_order_kinematic_pair_with_motion_coupling
     screw_pair
   ))
   SUBTYPE OF (kinematic_pair);
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY low_order_kinematic_pair
@@ -193,6 +199,11 @@ ENTITY low_order_kinematic_pair
   r_x : BOOLEAN;
   r_y : BOOLEAN;
   r_z : BOOLEAN;
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 TYPE actuated_direction = ENUMERATION OF (
@@ -261,6 +272,9 @@ END_ENTITY;
 ENTITY screw_pair
   SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pitch : length_measure;
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY screw_pair_with_range
@@ -477,6 +491,8 @@ ENTITY point_on_surface_pair
   pair_surface : surface;
 WHERE
   WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_surface IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY point_on_surface_pair_with_range
@@ -516,6 +532,8 @@ ENTITY surface_pair
 WHERE
   WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(surface_1 IN r.items))) = 0;
   WR2: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(surface_2 IN r.items))) = 0;
+  WR3: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY surface_pair_with_range
@@ -550,6 +568,8 @@ ENTITY linear_flexible_and_planar_curve_pair
   orientation : BOOLEAN;
 WHERE
   WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair
@@ -558,6 +578,8 @@ ENTITY point_on_planar_curve_pair
   orientation : BOOLEAN;
 WHERE
   WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY point_on_planar_curve_pair_with_range
@@ -597,6 +619,8 @@ ENTITY planar_curve_pair
 WHERE
   WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(curve_1 IN r.items))) = 0;
   WR2: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(curve_2 IN r.items))) = 0;
+  WR3: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY planar_curve_pair_range
@@ -625,6 +649,9 @@ ENTITY gear_pair
   bevel              : plane_angle_measure;
   helical_angle      : plane_angle_measure;
   gear_ratio         : REAL;
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY gear_pair_with_range
@@ -642,6 +669,9 @@ END_ENTITY;
 ENTITY rack_and_pinion_pair
   SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pinion_radius : length_measure;
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 ENTITY rack_and_pinion_pair_with_range
@@ -659,6 +689,9 @@ END_ENTITY;
 ENTITY linear_flexible_and_pinion_pair
   SUBTYPE OF (low_order_kinematic_pair_with_motion_coupling);
   pinion_radius : length_measure;
+WHERE
+  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
 FUNCTION representation_of_link (link : kinematic_link)

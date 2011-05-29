@@ -167,6 +167,7 @@
          <explicit name="gear_ratio" optional="NO">
             <builtintype fixed="NO" type="REAL"/>
          </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="gear_pair_with_range" supertypes="gear_pair">
          <explicit name="lower_limit_actual_rotation_1" optional="YES">
@@ -178,14 +179,7 @@
          <where expression="(NOT EXISTS(lower_limit_actual_rotation_1)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation_1))&#10;       XOR&#10;       (lower_limit_actual_rotation_1 &lt; upper_limit_actual_rotation_1)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="high_order_kinematic_pair" super.expression="ONEOF (linear_flexible_and_planar_curve_pair, point_on_surface_pair, point_on_planar_curve_pair, planar_curve_pair, surface_pair)" supertypes="kinematic_pair">
-         <derived expression="sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE)" name="associated_link_representations_1">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="kinematic_link_representation"/>
-         </derived>
-         <derived expression="sort_link_associations(SELF\kinematic_pair.link_representation_associations, TRUE)" name="associated_link_representations_2">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="kinematic_link_representation"/>
-         </derived>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="homokinetic_pair" supertypes="universal_pair">
          <where expression="NOT EXISTS(SELF.input_skew_angle)" label="WR1"/>
@@ -230,6 +224,14 @@
             <typename name="rigid_placement"/>
             <redeclaration entity-ref="item_defined_transformation"/>
          </explicit>
+         <derived expression="sort_link_associations(link_representation_associations, TRUE)" name="associated_link_representations_1">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="kinematic_link_representation"/>
+         </derived>
+         <derived expression="sort_link_associations(link_representation_associations, FALSE)" name="associated_link_representations_2">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="kinematic_link_representation"/>
+         </derived>
          <inverse attribute="transformation_operator" entity="pair_representation_relationship" name="link_representation_associations">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
@@ -238,6 +240,7 @@
          <explicit name="pinion_radius" optional="NO">
             <typename name="length_measure"/>
          </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="linear_flexible_and_planar_curve_pair" supertypes="high_order_kinematic_pair">
          <explicit name="pair_curve" optional="NO">
@@ -247,6 +250,7 @@
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="linear_flexible_link_representation" supertypes="kinematic_link_representation"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="low_order_kinematic_pair" super.expression="ONEOF (revolute_pair, cylindrical_pair, spherical_pair, spherical_pair_with_pin, planar_pair, unconstrained_pair, fully_constrained_pair, prismatic_pair, universal_pair)" supertypes="kinematic_pair">
@@ -268,8 +272,12 @@
          <explicit name="r_z" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="low_order_kinematic_pair_with_motion_coupling" super.expression="ONEOF (gear_pair, linear_flexible_and_pinion_pair, rack_and_pinion_pair, screw_pair)" supertypes="kinematic_pair"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="low_order_kinematic_pair_with_motion_coupling" super.expression="ONEOF (gear_pair, linear_flexible_and_pinion_pair, rack_and_pinion_pair, screw_pair)" supertypes="kinematic_pair">
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="mechanism_representation" supertypes="representation">
          <explicit name="context_of_items" optional="NO">
             <typename name="geometric_representation_context"/>
@@ -295,7 +303,7 @@
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
          <explicit name="rep_2" optional="NO">
-            <typename name="rigid_link_representation"/>
+            <typename name="kinematic_link_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
          <explicit name="transformation_operator" optional="NO">
@@ -319,6 +327,7 @@
          </explicit>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(curve_1 IN r.items))) = 0" label="WR1"/>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(curve_2 IN r.items))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR3"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>
@@ -392,6 +401,7 @@
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>
@@ -428,6 +438,7 @@
             <typename name="surface"/>
          </explicit>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_surface IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="point_on_surface_pair_with_range" supertypes="point_on_surface_pair">
@@ -496,6 +507,7 @@
          <explicit name="pinion_radius" optional="NO">
             <typename name="length_measure"/>
          </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="rack_and_pinion_pair_with_range" supertypes="rack_and_pinion_pair">
          <explicit name="lower_limit_rack_displacement" optional="YES">
@@ -548,6 +560,7 @@
          <explicit name="pitch" optional="NO">
             <typename name="length_measure"/>
          </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="screw_pair_with_range" supertypes="screw_pair">
          <explicit name="lower_limit_actual_rotation" optional="YES">
@@ -684,6 +697,7 @@
          </explicit>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(surface_1 IN r.items))) = 0" label="WR1"/>
          <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(surface_2 IN r.items))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR3"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>

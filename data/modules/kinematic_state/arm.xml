@@ -1,12 +1,249 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2006/05/18 17:01:14 $"
-   rcs.revision="$Revision: 1.45 $">
-  <schema name="Kinematic_state_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO-TS 10303-1798">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_state_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Kinematic_state_arm">
+      <interface kind="use" schema="Kinematic_structure_arm"/>
+      <type name="spatial_rotation">
+         <select selectitems="ypr_rotation Rotation_about_direction"/>
+      </type>
+      <type name="ypr_enumeration">
+         <enumeration items="yaw pitch roll"/>
+      </type>
+      <type name="ypr_rotation">
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <typename name="plane_angle_measure"/>
+      </type>
+      <entity name="Cylindrical_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Cylindrical_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_translation">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Gear_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Gear_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_rotation_1">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="- actual_rotation_1 *&#10;                                     SELF\pair_value.applies_to_pair\&#10;                                     gear_pair.gear_ratio" name="actual_rotation_2">
+            <typename name="plane_angle_measure"/>
+         </derived>
+      </entity>
+      <entity name="Mechanism_state_representation" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Pair_value"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="represented_mechanism">
+            <typename name="Mechanism_representation"/>
+         </explicit>
+         <derived expression="represented_mechanism.context_of_items" name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
+         </derived>
+      </entity>
+      <entity abstract.supertype="YES" name="Pair_value" super.expression="ONEOF (Sliding_surface_pair_value, Rolling_surface_pair_value, Revolute_pair_value, Prismatic_pair_value, Screw_pair_value, Cylindrical_pair_value, Spherical_pair_value, Sliding_curve_pair_value, Rolling_curve_pair_value, Gear_pair_value, Rack_and_pinion_pair_value, Universal_pair_value, Planar_pair_value, Unconstrained_pair_value, Point_on_surface_pair_value, Point_on_planar_curve_pair_value)" supertypes="Detailed_geometric_model_element">
+         <explicit name="applies_to_pair">
+            <typename name="Kinematic_pair"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Planar_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="actual_translation_x">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="actual_translation_y">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Point_on_planar_curve_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Point_on_planar_curve_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_curve">
+            <typename name="Point_on_curve"/>
+         </explicit>
+         <explicit name="input_orientation">
+            <typename name="spatial_rotation"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve&#10;       :=: actual_point_on_curve.basis_curve" label="WR1"/>
+      </entity>
+      <entity name="Point_on_surface_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Point_on_surface_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_surface">
+            <typename name="Point_on_surface"/>
+         </explicit>
+         <explicit name="input_orientation">
+            <typename name="spatial_rotation"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\Point_on_surface_pair.pair_surface :=:&#10;       actual_point_on_surface.basis_surface" label="WR1"/>
+      </entity>
+      <entity name="Prismatic_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Prismatic_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_translation">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Rack_and_pinion_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Rack_and_pinion_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_displacement">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="0.0" name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </derived>
+      </entity>
+      <entity name="Revolute_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Revolute_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Rolling_curve_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Rolling_curve_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_curve_1">
+            <typename name="Point_on_curve"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:&#10;       actual_point_on_curve_1.basis_curve" label="WR1"/>
+      </entity>
+      <entity name="Rolling_surface_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Rolling_surface_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_surface">
+            <typename name="Point_on_surface"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:&#10;       actual_point_on_surface.basis_surface" label="WR1"/>
+      </entity>
+      <entity name="Rotation_about_direction" supertypes="Detailed_geometric_model_element">
+         <explicit name="direction_of_axis">
+            <typename name="Direction"/>
+         </explicit>
+         <explicit name="rotation_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="SIZEOF (direction_of_axis.direction_ratios) = 3" label="WR1"/>
+      </entity>
+      <entity name="Screw_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Screw_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Sliding_curve_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Sliding_curve_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_curve_1">
+            <typename name="Point_on_curve"/>
+         </explicit>
+         <explicit name="actual_point_on_curve_2">
+            <typename name="Point_on_curve"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:&#10;       actual_point_on_curve_1.basis_curve" label="WR1"/>
+         <where expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:&#10;       actual_point_on_curve_2.basis_curve" label="WR2"/>
+      </entity>
+      <entity name="Sliding_surface_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Sliding_surface_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_point_on_surface_1">
+            <typename name="Point_on_surface"/>
+         </explicit>
+         <explicit name="actual_point_on_surface_2">
+            <typename name="Point_on_surface"/>
+         </explicit>
+         <explicit name="actual_rotation">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:&#10;       actual_point_on_surface_1.basis_surface" label="WR1"/>
+         <where expression="SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:&#10;       actual_point_on_surface_2.basis_surface" label="WR2"/>
+      </entity>
+      <entity name="Spherical_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Spherical_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="input_orientation">
+            <typename name="spatial_rotation"/>
+         </explicit>
+      </entity>
+      <entity name="Unconstrained_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Unconstrained_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="actual_placement">
+            <typename name="Axis_placement_3d"/>
+         </explicit>
+      </entity>
+      <entity name="Universal_pair_value" supertypes="Pair_value">
+         <explicit name="applies_to_pair">
+            <typename name="Universal_pair"/>
+            <redeclaration entity-ref="Pair_value"/>
+         </explicit>
+         <explicit name="first_rotation_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="second_rotation_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="kss_geometric_representation_item_subtypes" super.expression="ONEOF (Rotation_about_direction, Su_parameters)"/>
+      <function name="ypr_index">
+         <parameter name="ypr">
+            <typename name="ypr_enumeration"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>CASE ypr OF
+    yaw    : RETURN (1);
+    pitch  : RETURN (2);
+    roll   : RETURN (3);
+  END_CASE;
+  RETURN (?);</algorithm>
+      </function>
+   </schema>
 </express>

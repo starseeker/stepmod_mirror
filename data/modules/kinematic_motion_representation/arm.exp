@@ -1,8 +1,176 @@
 (*
-   $Id: arm.exp,v 1.1 2009/11/11 15:41:46 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
 
 SCHEMA Kinematic_motion_representation_arm;
+
 USE FROM Kinematic_state_arm;
+USE FROM B_spline_geometry_arm; --  ISO/TS 10303-1801
+USE FROM Parametric_representation_arm;
+USE FROM Contextual_shape_positioning_arm; -- ISO/TS 10303-1027
+REFERENCE FROM Foundation_representation_arm(using_representations);
+
+TYPE link_or_shape_representation = SELECT(
+  Kinematic_link_representation,
+  Geometric_model);
+END_TYPE;
+
+TYPE interpolation_type = ENUMERATION OF
+  (undefined,
+   discontinuous,
+   synchronous,
+   linear);
+END_TYPE;
+
+ENTITY Interpolated_configuration_representation
+  SUBTYPE OF (Representation);
+  SELF\Representation.context_of_items : Geometric_representation_context_with_parameter;
+  SELF\Representation.items : SET[1:?] OF Interpolated_configuration_sequence;
+END_ENTITY;
+
+ENTITY Interpolated_configuration_sequence
+  SUBTYPE OF (Representation_item);
+  segments : LIST[2:?] OF Interpolated_configuration_segment;
+DERIVE
+  n_segments : INTEGER := SIZEOF(segments);
+  closed_interpolation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
+WHERE
+  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
+END_ENTITY;  
+
+ENTITY Interpolated_configuration_segment;
+--  SUBTYPE OF (Founded_item);
+  state : mechanism_state_representation;
+  t_parameter : parameter_value;
+  interpolation : interpolation_type;
+END_ENTITY;
+
+ENTITY Link_motion_relationship
+  SUBTYPE OF (Geometric_model_relationship_with_transformation, Definitional_representation_relationship);
+  SELF\Representation_relationship.rep_1 : link_or_shape_representation;
+  SELF\Representation_relationship.rep_2 : link_motion_representation_along_path;
+  transformation_operator : Link_motion_transformation;
+WHERE
+  WR1: transformation_operator.transform_item_1 IN rep_1.items;
+  WR2: transformation_operator.transform_item_2 IN rep_2.items;
+END_ENTITY;
+
+ENTITY Link_motion_transformation;
+--  SUBTYPE OF (Item_defined_transformation);
+  transform_item_1 : Rigid_placement;
+  transform_item_2 : Kinematic_path;
+END_ENTITY;
+
+ENTITY Link_motion_representation_along_path
+  SUBTYPE OF (Representation);
+  SELF\representation.items : SET [1:?] OF Kinematic_path;
+  SELF\representation.context_of_items : Geometric_representation_context_with_parameter;
+END_ENTITY;
+
+ENTITY Geometric_representation_context_with_parameter 
+  SUBTYPE OF (Geometric_coordinate_space);
+  parameter_unit : OPTIONAL Unit;
+END_ENTITY;
+
+ENTITY Kinematic_path
+  SUBTYPE OF (Detailed_geometric_model_element);
+  segments : LIST [1:?] OF Kinematic_path_segment;
+  t_start : parameter_value;
+DERIVE
+  n_segments : INTEGER := SIZEOF(segments);
+  closed_path : LOGICAL := segments[n_segments].transition <> curve_transition_code.discontinuous;
+WHERE
+  WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
+        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
+  WR2: ('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))
+      OR (n_segments > 1);
+  -- WR2 - parameters are increasing
+  -- WR3 - different end positions
+END_ENTITY;
+
+ENTITY Kinematic_path_segment
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Path_node,
+    Curve_based_path_with_orientation) 
+    ANDOR Path_parametrization);
+--  SUBTYPE OF (founded_item);
+  t_end : parameter_value;
+  transition : curve_transition_code;
+END_ENTITY;
+
+ENTITY Path_parametrization
+  SUBTYPE OF (Kinematic_path_segment);
+  parameters : Path_parameter_representation;
+-- WHERE
+--  WR1: NOT item_in_context(SELF, parameters.context_of_items); -- error: SELF is not a rep_item
+END_ENTITY;
+
+ENTITY Path_parameter_representation
+  SUBTYPE OF (Definitional_representation);
+  SELF\representation.context_of_items : Path_parameter_representation_context;
+  SELF\representation.items : SET[1:?] OF Bounded_curve;
+WHERE
+  WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2;
+END_ENTITY;
+
+ENTITY Path_parameter_representation_context
+  SUBTYPE OF (Geometric_coordinate_space, Parametric_representation_context);
+END_ENTITY;  
+
+ENTITY Path_node
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Point_to_point_path,
+    Circular_path,
+    Linear_path,
+    Curve_based_path))
+  SUBTYPE OF (Kinematic_path_segment);
+  placement_end : Axis_placement;
+END_ENTITY;
+
+ENTITY Point_to_point_path
+  SUBTYPE OF (Path_node);
+DERIVE
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.discontinuous;
+END_ENTITY;
+
+ENTITY Circular_path
+  SUBTYPE OF (Path_node);
+  via_point : cartesian_point;
+END_ENTITY;
+
+ENTITY Linear_path
+  SUBTYPE OF (Path_node);
+DERIVE
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.continuous;
+END_ENTITY;
+
+ENTITY Curve_based_path
+  SUBTYPE OF (Path_node);
+  path_curve : Curve;
+END_ENTITY;
+-- IP1 : start and end point shall be on the curve
+
+ENTITY Curve_based_path_with_orientation
+  SUBTYPE OF (Kinematic_path_segment);
+  position_curve : Bounded_curve;
+  orientation_curve : Bounded_curve;
+WHERE
+  WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR Representation;
+  ONEOF (Interpolated_configuration_representation, Link_motion_representation_along_path);
+END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT kmr_geometric_representation_item_subtypes FOR Detailed_geometric_model_element;
+  ONEOF (
+    Kinematic_path,
+    Axis_placement);
+END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT kmr_geometric_representation_context_subtypes FOR Geometric_coordinate_space;
+  ONEOF (Geometric_representation_context_with_parameter, Path_parameter_representation_context);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;

@@ -1,8 +1,220 @@
 (*
-   $Id: arm.exp,v 1.1 2009/11/23 23:14:25 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2010/12/13 21:26:08 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_state - EXPRESS ARM*)
 
 SCHEMA Kinematic_state_arm;
+
 USE FROM Kinematic_structure_arm;
+
+TYPE spatial_rotation = SELECT
+  (ypr_rotation,
+   rotation_about_direction);
+END_TYPE;
+
+TYPE ypr_rotation = ARRAY [ypr_index(yaw) : ypr_index(roll)]
+                    OF plane_angle_measure;
+END_TYPE;
+
+TYPE ypr_enumeration = ENUMERATION OF
+  (yaw,
+   pitch,
+   roll);
+END_TYPE;
+
+ENTITY Mechanism_state_representation 
+  SUBTYPE OF (Representation);
+  SELF\representation.items : SET[1:?] OF Pair_value; 
+  represented_mechanism : Mechanism_representation;
+DERIVE
+  SELF\representation.context_of_items : Geometric_coordinate_space := represented_mechanism.context_of_items;
+END_ENTITY;
+
+ENTITY Pair_value
+  ABSTRACT SUPERTYPE OF ( ONEOF (
+	Sliding_surface_pair_value,
+	Rolling_surface_pair_value,
+	Revolute_pair_value,
+	Prismatic_pair_value,
+	Screw_pair_value,
+	Cylindrical_pair_value,
+	Spherical_pair_value,
+	Sliding_curve_pair_value,
+	Rolling_curve_pair_value,
+	Gear_pair_value,
+	Rack_and_pinion_pair_value,
+	Universal_pair_value,
+	Planar_pair_value,
+	Unconstrained_pair_value,
+	Point_on_surface_pair_value,
+	Point_on_planar_curve_pair_value
+  ))
+  SUBTYPE OF (Detailed_geometric_model_element);
+  applies_to_pair : Kinematic_pair;
+END_ENTITY;
+
+ENTITY Sliding_surface_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : sliding_surface_pair;
+  actual_point_on_surface_1       : Point_on_surface;
+  actual_point_on_surface_2       : Point_on_surface;
+  actual_rotation                 : plane_angle_measure;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
+       actual_point_on_surface_1.basis_surface;
+  WR2: SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:
+       actual_point_on_surface_2.basis_surface;
+END_ENTITY;
+
+ENTITY Rolling_surface_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Rolling_surface_pair;
+  actual_point_on_surface         : Point_on_surface;
+  actual_rotation                 : plane_angle_measure;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
+       actual_point_on_surface.basis_surface;
+END_ENTITY;
+
+ENTITY Revolute_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Revolute_pair;
+  actual_rotation                 : plane_angle_measure ;
+END_ENTITY;
+
+ENTITY Prismatic_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Prismatic_pair;
+  actual_translation              : length_measure;
+END_ENTITY;
+
+ENTITY Screw_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Screw_pair;
+  actual_rotation                 : plane_angle_measure;
+END_ENTITY;
+
+ENTITY Cylindrical_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Cylindrical_pair;
+  actual_translation              : length_measure;
+  actual_rotation                 : plane_angle_measure;
+END_ENTITY;
+
+ENTITY Spherical_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Spherical_pair;
+  input_orientation               : spatial_rotation;
+END_ENTITY;
+
+ENTITY Sliding_curve_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Sliding_curve_pair;
+  actual_point_on_curve_1         : Point_on_curve;
+  actual_point_on_curve_2         : Point_on_curve;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
+       actual_point_on_curve_1.basis_curve;
+  WR2: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:
+       actual_point_on_curve_2.basis_curve;
+END_ENTITY;
+
+ENTITY Rolling_curve_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Rolling_curve_pair;
+  actual_point_on_curve_1         : Point_on_curve;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
+       actual_point_on_curve_1.basis_curve;
+END_ENTITY;
+
+ENTITY Gear_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Gear_pair;
+  actual_rotation_1               : plane_angle_measure;
+DERIVE
+  actual_rotation_2               : plane_angle_measure
+                                  := - actual_rotation_1 *
+                                     SELF\pair_value.applies_to_pair\
+                                     gear_pair.gear_ratio;
+END_ENTITY;
+
+ENTITY Rack_and_pinion_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Rack_and_pinion_pair;
+  actual_displacement             : length_measure;
+DERIVE
+  actual_rotation : plane_angle_measure
+   := 0.0; (*
+                  := convert_plane_angle_for_pair_from_radian
+                     (SELF\pair_value.applies_to_pair,
+                      (- actual_displacement /
+                       SELF\pair_value.applies_to_pair\
+                       rack_and_pinion_pair.pinion_radius)); *)
+END_ENTITY;
+
+ENTITY Universal_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Universal_pair;
+  first_rotation_angle            : plane_angle_measure;
+  second_rotation_angle           : plane_angle_measure;
+END_ENTITY;
+
+ENTITY Planar_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Planar_pair;
+  actual_rotation                 : plane_angle_measure;
+  actual_translation_x            : length_measure;
+  actual_translation_y            : length_measure;
+END_ENTITY;
+
+ENTITY Unconstrained_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Unconstrained_pair;
+  actual_placement                : Axis_placement_3d;
+END_ENTITY;
+
+ENTITY Point_on_surface_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Point_on_surface_pair;
+  actual_point_on_surface         : Point_on_surface;
+  input_orientation               : spatial_rotation;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\Point_on_surface_pair.pair_surface :=:
+       actual_point_on_surface.basis_surface;
+END_ENTITY;
+
+ENTITY Point_on_planar_curve_pair_value
+  SUBTYPE OF (Pair_value);
+  SELF\pair_value.applies_to_pair : Point_on_planar_curve_pair;
+  actual_point_on_curve           : Point_on_curve;
+  input_orientation               : spatial_rotation;
+WHERE
+  WR1: SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve
+       :=: actual_point_on_curve.basis_curve;
+END_ENTITY;
+
+ENTITY Rotation_about_direction
+  SUBTYPE OF (Detailed_geometric_model_element); -- LK
+  direction_of_axis : Direction;
+  rotation_angle    : plane_angle_measure;
+WHERE
+  WR1: SIZEOF (direction_of_axis.direction_ratios) = 3;
+END_ENTITY;
+
+FUNCTION ypr_index (ypr : ypr_enumeration) : INTEGER;
+  CASE ypr OF
+    yaw    : RETURN (1);
+    pitch  : RETURN (2);
+    roll   : RETURN (3);
+  END_CASE;
+  RETURN (?);
+END_FUNCTION;
+
+
+SUBTYPE_CONSTRAINT kss_geometric_representation_item_subtypes FOR Detailed_geometric_model_element;
+  ONEOF (
+         Rotation_about_direction,
+         Su_parameters);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

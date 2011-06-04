@@ -1,12 +1,149 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2006/05/18 17:01:14 $"
-   rcs.revision="$Revision: 1.45 $">
-  <schema name="Kinematic_topology_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1799">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_topology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Kinematic_topology_arm">
+      <interface kind="use" schema="Elemental_topology_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Property_assignment_arm"/>
+      <interface kind="reference" schema="Foundation_representation_arm">
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <type name="kinematic_topology_representation_select">
+         <select selectitems="Kinematic_topology_structure Kinematic_topology_directed_structure Kinematic_topology_network_structure"/>
+      </type>
+      <entity name="Kinematic_joint" supertypes="Edge">
+         <explicit name="edge_start">
+            <typename name="Kinematic_link"/>
+            <redeclaration entity-ref="Edge"/>
+         </explicit>
+         <explicit name="edge_end">
+            <typename name="Kinematic_link"/>
+            <redeclaration entity-ref="Edge"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="edge_start"/>
+            <unique.attribute attribute="edge_end"/>
+         </unique>
+         <where expression="edge_start :&lt;&gt;: edge_end" label="WR1"/>
+      </entity>
+      <entity name="Kinematic_link" supertypes="Vertex"/>
+      <entity name="Kinematic_loop" supertypes="Edge_loop">
+         <explicit name="edge_list">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="Oriented_joint"/>
+            <redeclaration entity-ref="Path"/>
+         </explicit>
+      </entity>
+      <entity name="Kinematic_property_definition_representation" supertypes="Property_definition_representation">
+         <explicit name="definition">
+            <typename name="Product_definition_kinematics"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+      </entity>
+      <entity name="Kinematic_property_topology_representation" supertypes="Kinematic_property_definition_representation">
+         <explicit name="rep">
+            <typename name="kinematic_topology_representation_select"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+         <explicit name="base">
+            <typename name="Kinematic_link"/>
+         </explicit>
+         <where expression="SELF\property_definition_representation.rep IN using_representations(base)" label="WR1"/>
+      </entity>
+      <entity name="Kinematic_topology_directed_structure" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Oriented_joint"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="parent">
+            <typename name="Kinematic_topology_structure"/>
+         </explicit>
+         <where expression="context_of_items :=: parent.context_of_items" label="WR1"/>
+         <where expression="get_kinematic_joints_from_oriented_joints(items) &lt;= parent.items" label="WR2"/>
+      </entity>
+      <entity name="Kinematic_topology_network_structure" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_loop"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="parent">
+            <typename name="Kinematic_topology_structure"/>
+         </explicit>
+         <where expression="context_of_items :=: parent.context_of_items" label="WR1"/>
+         <where expression="get_kinematic_joints_from_kinematic_loops(items) &lt;= parent.items" label="WR2"/>
+      </entity>
+      <entity name="Kinematic_topology_structure" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_joint"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (item &lt;* items | 'FOUNDATION_REPRESENTATION_ARM.ORIENTED_EDGE' in TYPEOF(item))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Kinematic_topology_substructure" supertypes="Kinematic_topology_structure">
+         <explicit name="parent">
+            <typename name="Kinematic_topology_structure"/>
+         </explicit>
+         <where expression="context_of_items :=: parent.context_of_items" label="WR1"/>
+         <where expression="items &lt;= parent.items" label="WR2"/>
+      </entity>
+      <entity name="Kinematic_topology_tree_structure" supertypes="Kinematic_topology_directed_structure"/>
+      <entity name="Oriented_joint" supertypes="Oriented_edge">
+         <explicit name="edge_definition">
+            <typename name="Kinematic_joint"/>
+            <redeclaration entity-ref="Oriented_edge"/>
+         </explicit>
+      </entity>
+      <entity name="Product_definition_kinematics" supertypes="Assigned_property">
+         <explicit name="described_element">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+         <inverse attribute="definition" entity="Kinematic_property_definition_representation" name="representation_relation"/>
+         <unique label="UR1">
+            <unique.attribute attribute="described_element"/>
+         </unique>
+      </entity>
+      <subtype.constraint entity="Representation" name="kts_representation_subtypes" super.expression="ONEOF (Kinematic_topology_structure, Kinematic_topology_directed_structure, Kinematic_topology_network_structure)"/>
+      <function name="get_kinematic_joints_from_kinematic_loops">
+         <parameter name="kls">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Kinematic_loop"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Kinematic_joint"/>
+         <algorithm>LOCAL
+    result : SET OF Oriented_joint := [];
+  END_LOCAL;
+  IF SIZEOF(kls) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(kls);
+      result := result + kls[i].edge_list;
+    END_REPEAT;
+  END_IF;
+  RETURN (get_kinematic_joints_from_oriented_joints(result));</algorithm>
+      </function>
+      <function name="get_kinematic_joints_from_oriented_joints">
+         <parameter name="ors">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Oriented_joint"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Kinematic_joint"/>
+         <algorithm>LOCAL
+    result : SET OF Kinematic_joint := [];
+  END_LOCAL;
+  IF SIZEOF(ors) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(ors);
+      result := result + ors[i].edge_element;
+    END_REPEAT;
+  END_IF;
+  RETURN (result);</algorithm>
+      </function>
+   </schema>
 </express>

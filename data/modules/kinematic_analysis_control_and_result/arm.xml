@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_analysis_control_and_result_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Kinematic_analysis_control_and_result_arm">
+      <interface kind="use" schema="Kinematic_motion_representation_arm"/>
+      <type name="kinematic_analysis_definition">
+         <select selectitems="Interpolated_configuration_sequence Prescribed_path"/>
+      </type>
+      <type name="kinematic_result">
+         <select selectitems="Interpolated_configuration_sequence Resulting_path"/>
+      </type>
+      <entity name="Kinematic_analysis_consistency">
+         <explicit name="control">
+            <typename name="Kinematic_control"/>
+         </explicit>
+         <explicit name="result">
+            <typename name="Kinematic_analysis_result"/>
+         </explicit>
+         <where expression="control.controlled_mechanism :=: result.analysed_mechanism" label="WR1"/>
+      </entity>
+      <entity name="Kinematic_analysis_result">
+         <explicit name="analysed_mechanism">
+            <typename name="Mechanism_representation"/>
+         </explicit>
+         <explicit name="result">
+            <typename name="kinematic_result"/>
+         </explicit>
+      </entity>
+      <entity name="Kinematic_control">
+         <explicit name="controlled_mechanism">
+            <typename name="Mechanism_representation"/>
+         </explicit>
+         <explicit name="contained_kinematic_programs">
+            <typename name="kinematic_analysis_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Prescribed_path" supertypes="Link_motion_representation_along_path">
+         <explicit name="controlling_joints" optional="YES">
+            <aggregate lower="1" type="SET" upper="6"/>
+            <typename name="Kinematic_joint"/>
+         </explicit>
+      </entity>
+      <entity name="Resulting_path" supertypes="Link_motion_representation_along_path">
+         <explicit name="controlling_joints">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_joint"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Link_motion_representation_along_path" name="link_motion_representation_along_path_subtypes" super.expression="ONEOF (Prescribed_path, Resulting_path)"/>
+   </schema>
+</express>

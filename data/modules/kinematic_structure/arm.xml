@@ -1,12 +1,824 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2006/05/18 17:01:14 $"
-   rcs.revision="$Revision: 1.45 $">
-  <schema name="Kinematic_structure_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1797">
+   <application name="JSDAI" owner="LKSoft" source="kinematic_structure_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Kinematic_structure_arm">
+      <interface kind="use" schema="Kinematic_topology_arm"/>
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Geometric_model_relationship_arm"/>
+      <interface kind="use" schema="Composite_surface_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="reference" schema="Kinematic_topology_arm">
+         <interfaced.item name="get_kinematic_joints_from_oriented_joints"/>
+         <interfaced.item name="get_kinematic_joints_from_kinematic_loops"/>
+      </interface>
+      <interface kind="reference" schema="Foundation_representation_arm">
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <type name="actuated_direction">
+         <enumeration items="bidirectional positive_only negative_only not_actuated"/>
+      </type>
+      <type name="kinematic_link_representation_items">
+         <select selectitems="Curve Cartesian_point rigid_placement Surface"/>
+      </type>
+      <type name="rigid_placement">
+         <select selectitems="Axis_placement_3d Su_parameters"/>
+      </type>
+      <entity name="Actuated_kinematic_pair" supertypes="Kinematic_pair">
+         <explicit name="t_x" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+         <explicit name="t_y" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+         <explicit name="t_z" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+         <explicit name="r_x" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+         <explicit name="r_y" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+         <explicit name="r_z" optional="YES">
+            <typename name="actuated_direction"/>
+         </explicit>
+      </entity>
+      <entity name="Context_dependent_kinematic_link_representation">
+         <explicit name="representation_relation">
+            <typename name="Kinematic_link_representation_association"/>
+         </explicit>
+         <explicit name="represented_product_relation">
+            <typename name="Product_definition_relationship_kinematics"/>
+         </explicit>
+      </entity>
+      <entity name="Cylindrical_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Cylindrical_pair_with_range" supertypes="Cylindrical_pair">
+         <explicit name="lower_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR2"/>
+      </entity>
+      <entity name="Fully_constrained_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Gear_pair" supertypes="Low_order_kinematic_pair_with_motion_coupling">
+         <explicit name="radius_first_link">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="radius_second_link">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="bevel">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="helical_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="gear_ratio">
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Gear_pair_with_range" supertypes="Gear_pair">
+         <explicit name="lower_limit_actual_rotation_1" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation_1" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation_1)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation_1))&#10;       XOR&#10;       (lower_limit_actual_rotation_1 &lt; upper_limit_actual_rotation_1)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="High_order_kinematic_pair" super.expression="ONEOF (Linear_flexible_and_planar_curve_pair, Point_on_surface_pair, Point_on_planar_curve_pair, Planar_curve_pair, Surface_pair)" supertypes="Kinematic_pair">
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Homokinetic_pair" supertypes="Universal_pair">
+         <where expression="NOT EXISTS(SELF.input_skew_angle)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Kinematic_link_representation" super.expression="ONEOF (Linear_flexible_link_representation, Rigid_link_representation)" supertypes="Representation">
+         <explicit name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="kinematic_link_representation_items"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="represented_link">
+            <typename name="Kinematic_link"/>
+         </explicit>
+         <inverse attribute="rep_1" entity="Kinematic_link_representation_association" name="associated_shape_representation">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+      </entity>
+      <entity name="Kinematic_link_representation_association" supertypes="Representation_relationship">
+         <explicit name="rep_1">
+            <typename name="Kinematic_link_representation"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="Geometric_model"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <where expression="SELF\Representation_relationship.rep_2.context_of_items :=:&#10;       SELF\Representation_relationship.rep_1.context_of_items" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Kinematic_pair" super.expression="ONEOF (High_order_kinematic_pair, Low_order_kinematic_pair_with_motion_coupling, Low_order_kinematic_pair) ANDOR Actuated_kinematic_pair" supertypes="Detailed_geometric_model_element">
+         <explicit name="joint">
+            <typename name="Kinematic_joint"/>
+         </explicit>
+         <explicit name="transform_item_1">
+            <typename name="rigid_placement"/>
+         </explicit>
+         <explicit name="transform_item_2">
+            <typename name="rigid_placement"/>
+         </explicit>
+         <derived expression="sort_link_associations(link_representation_associations, TRUE)" name="associated_link_representations_1">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_link_representation"/>
+         </derived>
+         <derived expression="sort_link_associations(link_representation_associations, FALSE)" name="associated_link_representations_2">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_link_representation"/>
+         </derived>
+         <inverse attribute="transformation_operator" entity="Pair_representation_relationship" name="link_representation_associations">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Kinematic_property_mechanism_representation" supertypes="Kinematic_property_definition_representation">
+         <explicit name="rep">
+            <typename name="Mechanism_representation"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+         <explicit name="base">
+            <typename name="Kinematic_link_representation"/>
+         </explicit>
+         <where expression="SELF\property_definition_representation.rep IN using_representations(base)" label="WR1"/>
+      </entity>
+      <entity name="Linear_flexible_and_pinion_pair" supertypes="Low_order_kinematic_pair_with_motion_coupling">
+         <explicit name="pinion_radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Linear_flexible_and_planar_curve_pair" supertypes="High_order_kinematic_pair">
+         <explicit name="pair_curve">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
+      </entity>
+      <entity name="Linear_flexible_link_representation" supertypes="Kinematic_link_representation"/>
+      <entity name="Low_order_kinematic_pair" super.expression="ONEOF (Revolute_pair, Cylindrical_pair, Spherical_pair, Spherical_pair_with_pin, Planar_pair, Unconstrained_pair, Fully_constrained_pair, Prismatic_pair, Universal_pair)" supertypes="Kinematic_pair">
+         <explicit name="t_x">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="t_y">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="t_z">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="r_x">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="r_y">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="r_z">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Low_order_kinematic_pair_with_motion_coupling" super.expression="ONEOF (Gear_pair, Linear_flexible_and_pinion_pair, Rack_and_pinion_pair, Screw_pair)" supertypes="Kinematic_pair">
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_2 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Mechanism_representation" supertypes="Representation">
+         <explicit name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Pair_representation_relationship"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="represented_topology">
+            <typename name="kinematic_topology_representation_select"/>
+         </explicit>
+         <derived expression="collect_joints(items)" name="represented_joints">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Kinematic_joint"/>
+         </derived>
+         <where expression="(('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: represented_topology.items)) OR&#10;       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_DIRECTED_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: get_kinematic_joints_from_oriented_joints(represented_topology.items))) OR&#10;       (('KINEMATIC_TOPOLOGY_SCHEMA.KINEMATIC_TOPOLOGY_NETWORK_STRUCTURE' IN TYPEOF(represented_topology))&#10;         AND (represented_joints :=: get_kinematic_joints_from_kinematic_loops(represented_topology.items)))" label="WR1"/>
+      </entity>
+      <entity name="Pair_representation_relationship" supertypes="Geometric_model_relationship Detailed_geometric_model_element">
+         <explicit name="rep_1">
+            <typename name="Kinematic_link_representation"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="Kinematic_link_representation"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="transformation_operator">
+            <typename name="Kinematic_pair"/>
+         </explicit>
+         <where expression="transformation_operator.transform_item_1 IN rep_1.items" label="WR1"/>
+         <where expression="transformation_operator.transform_item_2 IN rep_2.items" label="WR2"/>
+         <where expression="rep_1\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_start" label="WR3"/>
+         <where expression="rep_2\kinematic_link_representation.represented_link = transformation_operator\kinematic_pair.joint.edge_end" label="WR4"/>
+      </entity>
+      <entity name="Planar_curve_pair" super.expression="ONEOF (Sliding_curve_pair, Rolling_curve_pair) ANDOR Planar_curve_pair_range" supertypes="High_order_kinematic_pair">
+         <explicit name="curve_1">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="curve_2">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(curve_1 IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(curve_2 IN r.items))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR3"/>
+      </entity>
+      <entity name="Planar_curve_pair_range" supertypes="Planar_curve_pair">
+         <explicit name="range_on_curve_1">
+            <typename name="Trimmed_curve"/>
+         </explicit>
+         <explicit name="range_on_curve_2">
+            <typename name="Trimmed_curve"/>
+         </explicit>
+         <where expression="SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve" label="WR1"/>
+         <where expression="SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve" label="WR2"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_curve_1 IN r.items))) = 0" label="WR3"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(range_on_curve_2 IN r.items))) = 0" label="WR4"/>
+      </entity>
+      <entity name="Planar_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="TRUE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Planar_pair_with_range" supertypes="Planar_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_actual_translation_x" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_translation_x" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="lower_limit_actual_translation_y" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_translation_y" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation_x)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation_x))&#10;       XOR&#10;       (lower_limit_actual_translation_x &lt; upper_limit_actual_translation_x)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation_y)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation_y))&#10;       XOR&#10;       (lower_limit_actual_translation_y &lt; upper_limit_actual_translation_y)" label="WR3"/>
+      </entity>
+      <entity name="Point_on_planar_curve_pair" supertypes="High_order_kinematic_pair">
+         <explicit name="pair_curve">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
+      </entity>
+      <entity name="Point_on_planar_curve_pair_with_range" supertypes="Point_on_planar_curve_pair">
+         <explicit name="range_on_pair_curve">
+            <typename name="Trimmed_curve"/>
+         </explicit>
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR3"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_curve IN r.items))) = 0" label="WR4"/>
+      </entity>
+      <entity name="Point_on_surface_pair" supertypes="High_order_kinematic_pair">
+         <explicit name="pair_surface">
+            <typename name="Surface"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_surface IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR2"/>
+      </entity>
+      <entity name="Point_on_surface_pair_with_range" supertypes="Point_on_surface_pair">
+         <explicit name="range_on_pair_surface">
+            <typename name="Trimmed_surface"/>
+         </explicit>
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR3"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_surface IN r.items))) = 0" label="WR4"/>
+      </entity>
+      <entity name="Prismatic_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="TRUE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Prismatic_pair_with_range" supertypes="Prismatic_pair">
+         <explicit name="lower_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_translation" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_translation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_translation))&#10;       XOR&#10;       (lower_limit_actual_translation &lt; upper_limit_actual_translation)" label="WR1"/>
+      </entity>
+      <entity name="Product_definition_relationship_kinematics" supertypes="Assigned_property">
+         <explicit name="described_element">
+            <typename name="Assembly_component_relationship"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="described_element"/>
+         </unique>
+      </entity>
+      <entity name="Rack_and_pinion_pair" supertypes="Low_order_kinematic_pair_with_motion_coupling">
+         <explicit name="pinion_radius">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Rack_and_pinion_pair_with_range" supertypes="Rack_and_pinion_pair">
+         <explicit name="lower_limit_rack_displacement" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="upper_limit_rack_displacement" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_rack_displacement)&#10;        OR&#10;        NOT EXISTS(upper_limit_rack_displacement))&#10;       XOR&#10;       (lower_limit_rack_displacement &lt; upper_limit_rack_displacement)" label="WR1"/>
+      </entity>
+      <entity name="Revolute_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Revolute_pair_with_range" supertypes="Revolute_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
+      </entity>
+      <entity name="Rigid_link_representation" supertypes="Kinematic_link_representation"/>
+      <entity name="Rolling_curve_pair" supertypes="Planar_curve_pair"/>
+      <entity name="Rolling_surface_pair" supertypes="Surface_pair"/>
+      <entity name="Screw_pair" supertypes="Low_order_kinematic_pair_with_motion_coupling">
+         <explicit name="pitch">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Screw_pair_with_range" supertypes="Screw_pair">
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR1"/>
+      </entity>
+      <entity name="Sliding_curve_pair" supertypes="Planar_curve_pair"/>
+      <entity name="Sliding_surface_pair" supertypes="Surface_pair"/>
+      <entity name="Spherical_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Spherical_pair_with_pin" supertypes="Low_order_kinematic_pair">
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Spherical_pair_with_pin_and_range" supertypes="Spherical_pair_with_pin">
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR2"/>
+      </entity>
+      <entity name="Spherical_pair_with_range" supertypes="Spherical_pair">
+         <explicit name="lower_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_yaw" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_pitch" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_roll" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_yaw)&#10;        OR&#10;        NOT EXISTS(upper_limit_yaw))&#10;       XOR&#10;       (lower_limit_yaw &lt; upper_limit_yaw)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_pitch)&#10;        OR&#10;        NOT EXISTS(upper_limit_pitch))&#10;       XOR&#10;       (lower_limit_pitch &lt; upper_limit_pitch)" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_roll)&#10;        OR&#10;        NOT EXISTS(upper_limit_roll))&#10;       XOR&#10;       (lower_limit_roll &lt; upper_limit_roll)" label="WR3"/>
+      </entity>
+      <entity name="Su_parameters" supertypes="Detailed_geometric_model_element">
+         <explicit name="a">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="alpha">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="b">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="beta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="c">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="gamma">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Surface_pair" super.expression="ONEOF (Sliding_surface_pair, Rolling_surface_pair) ANDOR Surface_pair_with_range" supertypes="High_order_kinematic_pair">
+         <explicit name="surface_1">
+            <typename name="Surface"/>
+         </explicit>
+         <explicit name="surface_2">
+            <typename name="Surface"/>
+         </explicit>
+         <explicit name="orientation">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(surface_1 IN r.items))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(surface_2 IN r.items))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY(lr &lt;* SELF\kinematic_pair.associated_link_representations_1 | &#10;    NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0" label="WR3"/>
+      </entity>
+      <entity name="Surface_pair_with_range" supertypes="Surface_pair">
+         <explicit name="range_on_surface_1">
+            <typename name="Trimmed_surface"/>
+         </explicit>
+         <explicit name="range_on_surface_2">
+            <typename name="Trimmed_surface"/>
+         </explicit>
+         <explicit name="lower_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_actual_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="SELF\surface_pair.surface_1 :=: range_on_surface_1.basis_surface" label="WR1"/>
+         <where expression="SELF\surface_pair.surface_2 :=: range_on_surface_2.basis_surface" label="WR2"/>
+         <where expression="(NOT EXISTS(lower_limit_actual_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_actual_rotation))&#10;       XOR&#10;       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)" label="WR3"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_surface_1 IN r.items))) = 0" label="WR4"/>
+         <where expression="SIZEOF( QUERY(r &lt;* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(range_on_surface_2 IN r.items))) = 0" label="WR5"/>
+      </entity>
+      <entity name="Unconstrained_pair" supertypes="Low_order_kinematic_pair">
+         <derived expression="TRUE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+      </entity>
+      <entity name="Universal_pair" supertypes="Low_order_kinematic_pair">
+         <explicit name="input_skew_angle" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="FALSE" name="t_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="t_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_x">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="FALSE" name="r_y">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="TRUE" name="r_z">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Low_order_kinematic_pair"/>
+         </derived>
+         <derived expression="NVL (input_skew_angle, 0.0)" name="skew_angle">
+            <typename name="plane_angle_measure"/>
+         </derived>
+      </entity>
+      <entity name="Universal_pair_with_range" supertypes="Universal_pair">
+         <explicit name="lower_limit_first_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_first_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="lower_limit_second_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="upper_limit_second_rotation" optional="YES">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="(NOT EXISTS(lower_limit_first_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_first_rotation))&#10;       XOR&#10;       (lower_limit_first_rotation &lt; upper_limit_first_rotation)" label="WR1"/>
+         <where expression="(NOT EXISTS(lower_limit_second_rotation)&#10;        OR&#10;        NOT EXISTS(upper_limit_second_rotation))&#10;       XOR&#10;       (lower_limit_second_rotation &lt; upper_limit_second_rotation)" label="WR2"/>
+      </entity>
+      <subtype.constraint entity="Assigned_property" name="kps_property_definition_subtypes" super.expression="ONEOF (Product_definition_kinematics, Product_definition_relationship_kinematics)"/>
+      <subtype.constraint entity="Representation" name="kss_representation_subtypes" super.expression="ONEOF (Kinematic_link_representation, Kinematic_topology_structure, Kinematic_topology_directed_structure, Kinematic_topology_network_structure, Mechanism_representation, Geometric_model)"/>
+      <function name="collect_joints">
+         <parameter name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Pair_representation_relationship"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Kinematic_joint"/>
+         <algorithm>LOCAL
+  result : SET OF kinematic_joint := [];
+END_LOCAL;
+  REPEAT i := 1 TO HIINDEX(items);
+    result := result + items[i].transformation_operator.joint;
+  END_REPEAT;
+  RETURN(result);</algorithm>
+      </function>
+      <function name="representation_of_link">
+         <parameter name="link">
+            <typename name="Kinematic_link"/>
+         </parameter>
+         <typename name="Kinematic_link_representation"/>
+         <algorithm>RETURN (?);</algorithm>
+      </function>
+      <function name="sort_link_associations">
+         <parameter name="aprr">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Pair_representation_relationship"/>
+         </parameter>
+         <parameter name="one_not_two">
+            <builtintype type="BOOLEAN"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Kinematic_link_representation"/>
+         <algorithm>LOCAL
+  result : SET OF Kinematic_link_representation := [];
+END_LOCAL;
+  IF one_not_two THEN
+    REPEAT i := 1 TO HIINDEX(aprr);
+      result := result + aprr[i].rep_1;
+    END_REPEAT;
+  ELSE  
+    REPEAT i := 1 TO HIINDEX(aprr);
+      result := result + aprr[i].rep_2;
+    END_REPEAT;
+  END_IF;
+  RETURN(result);</algorithm>
+      </function>
+   </schema>
 </express>

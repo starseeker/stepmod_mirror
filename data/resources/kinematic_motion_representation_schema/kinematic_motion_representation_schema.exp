@@ -58,10 +58,10 @@ TYPE link_or_shape_representation = SELECT(
 END_TYPE;
 
 TYPE interpolation_type = ENUMERATION OF
-  (undefined,
-   discontinuous,
-   synchronous,
-   linear);
+  (undefined_interpolation_type,
+   discontinuous_interpolation_type,
+   synchronous_interpolation_type,
+   linear_interpolation_type);
 END_TYPE;
 
 ENTITY interpolated_configuration_representation
@@ -75,7 +75,7 @@ ENTITY interpolated_configuration_sequence
   segments : LIST[2:?] OF interpolated_configuration_segment;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_interpolation : LOGICAL := segments[n_segments].interpolation <> interpolation_type.discontinuous;
+  closed_interpolation : LOGICAL := segments[n_segments].interpolation <> discontinuous_interpolation_type;
   configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
 WHERE
   WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
@@ -121,7 +121,7 @@ ENTITY kinematic_path
   t_start : parameter_value;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_path : LOGICAL := segments[n_segments].transition <> transition_code.discontinuous;
+  closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
@@ -173,7 +173,7 @@ END_ENTITY;
 ENTITY point_to_point_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := transition_code.discontinuous;
+  SELF\kinematic_path_segment.transition : transition_code := discontinuous;
 END_ENTITY;
 
 ENTITY circular_path
@@ -184,7 +184,7 @@ END_ENTITY;
 ENTITY linear_path
   SUBTYPE OF (path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : transition_code := transition_code.continuous;
+  SELF\kinematic_path_segment.transition : transition_code := continuous;
 END_ENTITY;
 
 ENTITY curve_based_path

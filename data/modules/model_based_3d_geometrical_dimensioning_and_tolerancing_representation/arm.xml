@@ -8,10 +8,10 @@
       <interface kind="use" schema="Product_and_manufacturing_information_with_nominal_3d_models_arm"/>
       <interface kind="use" schema="Geometric_tolerance_arm"/>
       <type name="mb3gdtsr_dimension_target">
-         <select basedon="dimension_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_integral_feature Nominal_3d_derived_feature"/>
+         <select basedon="dimension_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_feature Datum_reference_compartment"/>
       </type>
       <type name="mb3gdtsr_geometric_tolerance_target">
-         <select basedon="geometric_tolerance_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_integral_feature Nominal_3d_derived_feature"/>
+         <select basedon="geometric_tolerance_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_feature"/>
       </type>
       <type name="nominal_3d_derived_feature_geometry">
          <select selectitems="Curve point_select Surface"/>
@@ -20,9 +20,14 @@
          <select selectitems="Advanced_face Edge_curve Vertex_point Manifold_subsurface_model Edge_loop"/>
       </type>
       <entity name="Gdt_representation_shape" supertypes="Nominal_3d_model_shape">
-         <where expression="'xxx.Gdt_semantic_representation_view_context' IN TYPEOF(described_element\Product_view_definition.additional_context)" label="WR1"/>
+         <where expression="'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_context)" label="WR1"/>
       </entity>
       <entity name="Nominal_3d_derived_feature" supertypes="Nominal_3d_feature Derived_shape_element">
+         <explicit name="derived_from">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Nominal_3d_feature"/>
+            <redeclaration entity-ref="Derived_shape_element"/>
+         </explicit>
          <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
             <typename name="nominal_3d_derived_feature_geometry"/>
             <redeclaration entity-ref="Associated_shape_element"/>

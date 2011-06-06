@@ -1,5 +1,5 @@
 (* 
-$Id: arm.exp,v 1.15 2011/02/11 10:15:00 lothartklein Exp $  
+$Id: arm.exp,v 1.16 2011/03/20 22:00:30 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -8,7 +8,7 @@ Supersedes ISO TC184/SC4/WG12 N4278
 SCHEMA Derived_shape_element_arm;
 
 USE FROM Construction_geometry_arm;  -- ISO/TS 10303-1131
-USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
 TYPE dse_shape_model = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON shape_model WITH (
@@ -58,14 +58,6 @@ ENTITY Derived_shape_element
     Tangent))
   SUBTYPE OF (Shape_element);
   derived_from : SET[1:?] OF Shape_element;
-INVERSE
-  item_specific_usage  : SET [0:1] OF Geometric_item_specific_usage FOR definition;
-  representation_usage : SET [0:1] OF Shape_description_association FOR represented_characteristic;  
-WHERE
-  WR1 : NOT((SIZEOF(item_specific_usage)  = 1) AND (SIZEOF(representation_usage) = 1));
---  WR2 : SIZEOF(geometry) <= 1;
-  WR3 : NOT ('EXTERNAL_MODEL_ARM.EXTERNAL_GEOMETRIC_MODEL' IN
-    TYPEOF(representation_usage[1]\Shape_description_association.representation));
 END_ENTITY;
 
 ENTITY Geometric_alignment
@@ -109,22 +101,6 @@ ENTITY Tangent
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
 END_ENTITY;
-
-(*
-FUNCTION dse_get_geometric_element(Derived_shape_element,
-dse_pre_defined_geometric_element_types) : Detailed_geometric_model_element;
---for now this is just the function prototype
---This function returns the Detailed_geometric_model_element specified by
-either the item_specific_usage or the representation_usage.
---For the case of item_specific_usage the item specified by
-Geometric_item_specific_usage is returned regardless of it's TYPE.
---For the case of representation_usage, the first
-Detailed_geometric_model_element in Shape_representation that matches a TYPE in
-dse_pre_defined_geometric_element_types is returned
---
-RETURN(?);
-END_FUNCTION;
-*)
 
 ENTITY Offset_shape_element
   SUBTYPE OF (Derived_shape_element);

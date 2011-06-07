@@ -26,7 +26,7 @@
          <select selectitems="common_datum_list Datum"/>
       </type>
       <type name="datum_reference_modifier">
-         <select extensible="YES" selectitems="datum_reference_modifier_type simple_datum_reference_modifier"/>
+         <select extensible="YES" selectitems="Datum_reference_modifier_with_value simple_datum_reference_modifier"/>
       </type>
       <type name="datum_reference_modifier_type">
          <enumeration extensible="YES" items="circular_or_cylindrical spherical distance"/>
@@ -87,25 +87,20 @@
       <entity name="Contacting_feature" supertypes="Non_definitional_shape_element"/>
       <entity name="Continuous_shape_element" supertypes="Composite_shape_element"/>
       <entity name="Cylindricity_tolerance" supertypes="Geometric_tolerance"/>
-      <entity abstract.supertype="YES" name="Datum" super.expression="Datum_defined_by_feature ANDOR Datum_defined_by_targets" supertypes="Shape_element">
+      <entity name="Datum" supertypes="Shape_element">
          <explicit name="identification">
             <typename name="identifier"/>
          </explicit>
       </entity>
-      <entity name="Datum_defined_by_feature" supertypes="Datum">
-         <explicit name="defined_by">
-            <typename name="Shape_element"/>
+      <entity abstract.supertype="YES" name="Datum_feature" super.expression="ONEOF (Dimensional_location_with_datum_feature, Dimensional_size_with_datum_feature, Nominal_datum_feature, Datum_feature_of_size)" supertypes="Shape_element">
+         <explicit name="of_datum">
+            <typename name="Datum"/>
          </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="of_datum"/>
+         </unique>
       </entity>
-      <entity name="Datum_defined_by_targets" supertypes="Datum">
-         <explicit name="defined_by">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Datum_target"/>
-         </explicit>
-         <explicit name="rule_description">
-            <builtintype type="STRING"/>
-         </explicit>
-      </entity>
+      <entity name="Datum_feature_of_size" supertypes="Datum_feature Centre_of_symmetry"/>
       <entity name="Datum_reference_compartment" supertypes="General_datum_reference">
          <inverse attribute="constituents" entity="Datum_system" name="owner"/>
       </entity>
@@ -138,8 +133,19 @@
          <explicit name="movement_direction" optional="YES">
             <typename name="Direction"/>
          </explicit>
-         <inverse attribute="defined_by" entity="Datum_defined_by_targets" name="of_datum"/>
+         <explicit name="of_datum">
+            <typename name="Datum"/>
+         </explicit>
+         <explicit name="target_feature" optional="YES">
+            <typename name="Shape_element"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="of_datum"/>
+            <unique.attribute attribute="target_id"/>
+         </unique>
       </entity>
+      <entity name="Dimensional_location_with_datum_feature" supertypes="Datum_feature Dimensional_location"/>
+      <entity name="Dimensional_size_with_datum_feature" supertypes="Datum_feature Dimensional_size"/>
       <entity name="Flatness_tolerance" supertypes="Geometric_tolerance"/>
       <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Non_definitional_shape_element">
          <explicit name="base">
@@ -208,6 +214,7 @@
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
+      <entity name="Nominal_datum_feature" supertypes="Datum_feature Definitional_shape_element"/>
       <entity name="Non_uniform_zone_definition" supertypes="Tolerance_zone_definition"/>
       <entity name="Parallelism_tolerance" supertypes="Geometric_tolerance">
          <explicit name="datum_system">
@@ -342,7 +349,7 @@
          </explicit>
       </entity>
       <subtype.constraint entity="Composite_shape_element" name="composite_shape_element_subtypes" super.expression="ONEOF (All_around_shape_element, Continuous_shape_element, Composite_group_shape_element)"/>
-      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_target, Tolerance_zone)"/>
+      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_feature, Datum_target, Tolerance_zone)"/>
       <subtype.constraint entity="Non_definitional_shape_element" name="gl_non_definitional_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum_system, General_datum_reference)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">

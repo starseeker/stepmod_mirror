@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="drawing_definition_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1309">
+   <application name="JSDAI" owner="LKSoft" source="drawing_definition_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Drawing_definition_arm">
+      <interface kind="use" schema="Draughting_annotation_arm"/>
       <interface kind="use" schema="Presentation_hierarchy_arm"/>
       <type name="dd_view_element_select">
          <select basedon="view_element_select" selectitems="Camera_image_2d_with_scale"/>
@@ -32,14 +33,14 @@
          </explicit>
       </entity>
       <entity name="Draughting_title">
+         <explicit name="contents">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="draughting_titled_item"/>
          </explicit>
          <explicit name="language">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="contents">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
@@ -51,6 +52,10 @@
             <typename name="Drawing_definition"/>
          </explicit>
          <explicit name="intended_scale" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="drawing_specification">
+            <aggregate lower="0" type="SET" upper="?"/>
             <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
@@ -73,13 +78,14 @@
          <explicit name="successor">
             <typename name="Drawing"/>
          </explicit>
-         <where label="WR1" expression="predecessor :&lt;&gt;: successor"/>
+         <where expression="predecessor :&lt;&gt;: successor" label="WR1"/>
       </entity>
       <entity name="Drawing_sheet" supertypes="View_area">
          <explicit name="revision_identifier">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <entity name="Drawing_sheet_layout" supertypes="General_symbol"/>
       <entity name="Drawing_sheet_sequence" supertypes="View_area_relationship">
          <explicit name="relating">
             <typename name="Drawing_sheet"/>
@@ -89,8 +95,8 @@
             <typename name="Drawing_sheet"/>
             <redeclaration entity-ref="View_area_relationship"/>
          </explicit>
-         <where label="WR1" expression="SELF\View_area_relationship.relating :&lt;&gt;: SELF\View_area_relationship.related"/>
+         <where expression="SELF\View_area_relationship.relating :&lt;&gt;: SELF\View_area_relationship.related" label="WR1"/>
       </entity>
-      <subtype.constraint name="dd_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Camera_model_d2, Camera_image_2d_with_scale)"/>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="dd_detailed_geometric_model_element_subtypes" super.expression="ONEOF (Camera_model_d2, Camera_image_2d_with_scale)"/>
    </schema>
 </express>

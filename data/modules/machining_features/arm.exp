@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2011/06/06 17:45:06 lothartklein Exp $
+   $Id: arm.exp,v 1.8 2011/06/10 08:21:26 lothartklein Exp $
    N - ISO/CD-TS - 10303- machining_features - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Machining_features_arm;
@@ -18,7 +18,7 @@ TYPE compound_feature_select = SELECT (
   Transition_feature);
 END_TYPE;
 
-TYPE end_type_select = SELECT(Complete_circular_path_feature_element, General_path_feature_element);
+TYPE end_type_select = SELECT(Complete_circular_path_feature_component, General_path_feature_component);
 END_TYPE;
 
 TYPE hole_bottom_condition_select = SELECT(Blind_bottom_condition, Through_bottom_condition);
@@ -71,7 +71,7 @@ ENTITY Boss
     General_boss,
     Rectangular_boss))
   SUBTYPE OF (Multi_axis_feature);
-  boss_height : Linear_path_feature_element;
+  boss_height : Linear_path_feature_component;
   fillet_radius : OPTIONAL Numerical_item_with_unit;
   top_condition : Boss_top_condition;
 END_ENTITY;  
@@ -149,9 +149,9 @@ INVERSE
   missing_base_feature_for : SET [1:?] OF Circular_pattern FOR missing_base_feature;
 END_ENTITY;    
 
-ENTITY Circular_path_feature_element
-  ABSTRACT SUPERTYPE OF (ONEOF (Complete_circular_path_feature_element, Partial_circular_path_feature_element))
-  SUBTYPE OF (Machining_path_feature_element);
+ENTITY Circular_path_feature_component
+  ABSTRACT SUPERTYPE OF (ONEOF (Complete_circular_path_feature_component, Partial_circular_path_feature_component))
+  SUBTYPE OF (Path_feature_component);
   radius : length_measure;
 END_ENTITY;  
 
@@ -214,8 +214,8 @@ ENTITY Constant_radius_edge_round
   radius : Numerical_item_with_unit;
 END_ENTITY;
 
-ENTITY Complete_circular_path_feature_element
-  SUBTYPE OF (Circular_path_feature_element);
+ENTITY Complete_circular_path_feature_component
+  SUBTYPE OF (Circular_path_feature_component);
 END_ENTITY; 
 
 ENTITY Countersunk_hole
@@ -378,8 +378,8 @@ ENTITY General_pattern
   feature_placement : SET[1:?] OF Axis_placement;
 END_ENTITY; 
 
-ENTITY General_path_feature_element
-  SUBTYPE OF (Machining_path_feature_element);
+ENTITY General_path_feature_component
+  SUBTYPE OF (Path_feature_component);
   sweep_path : Path_element;
 END_ENTITY;  
 
@@ -457,8 +457,8 @@ ENTITY Knurl
   applied_shape : Definitional_shape_element;
 END_ENTITY; 
 
-ENTITY Linear_path_feature_element
-  SUBTYPE OF (Machining_path_feature_element);
+ENTITY Linear_path_feature_component
+  SUBTYPE OF (Path_feature_component);
   distance : length_measure;
   direction : Direction_element;
 END_ENTITY;  
@@ -490,8 +490,8 @@ ENTITY Machining_feature
   placement : Axis_placement_3d;
 END_ENTITY;
 
-ENTITY Machining_path_feature_element
-  ABSTRACT SUPERTYPE OF (ONEOF (Circular_path_feature_element, General_path_feature_element, Linear_path_feature_element))
+ENTITY Path_feature_component
+  ABSTRACT SUPERTYPE OF (ONEOF (Circular_path_feature_component, General_path_feature_component, Linear_path_feature_component))
   SUBTYPE OF (Shape_element);
   placement : Axis_placement;
 END_ENTITY; 
@@ -554,7 +554,7 @@ END_ENTITY;
 
 ENTITY Open_slot
   SUBTYPE OF (Slot);
-  course_of_travel : Machining_path_feature_element;
+  course_of_travel : Path_feature_component;
   end_conditions : SET[2:2] OF Slot_end_type; 
 END_ENTITY;  
 
@@ -587,8 +587,8 @@ ENTITY Partial_area_definition;
   placement : Axis_placement;
 END_ENTITY; 
 
-ENTITY Partial_circular_path_feature_element
-  SUBTYPE OF (Circular_path_feature_element);
+ENTITY Partial_circular_path_feature_component
+  SUBTYPE OF (Circular_path_feature_component);
   sweep_angle : length_measure;
 END_ENTITY; 
 
@@ -616,7 +616,7 @@ END_ENTITY;
 ENTITY Planar_face
   SUBTYPE OF (Multi_axis_feature);
   removal_boundary : Linear_profile;
-  course_of_travel : Linear_path_feature_element;
+  course_of_travel : Linear_path_feature_component;
   face_boundary : OPTIONAL Closed_profile;
   removal_direction : Direction_element;
   volume_not_removed : SET[0:?] OF volume_select;
@@ -658,7 +658,7 @@ ENTITY Pocket
   base_radius : Numerical_item_with_unit;
   change_in_boundardy : OPTIONAL LIST[1:?] OF angle_or_directed_taper;
   bottom_condition : pocket_bottom_condition_select;
-  pocket_depth : Linear_path_feature_element;
+  pocket_depth : Linear_path_feature_component;
 END_ENTITY;  
 
 ENTITY Pocket_bottom_condition
@@ -673,7 +673,7 @@ END_ENTITY;
 ENTITY Profile_feature
   ABSTRACT SUPERTYPE OF (ONEOF( General_outside_profile, Shape_profile))
   SUBTYPE OF (Multi_axis_feature);
-  profile_swept_shape : Linear_path_feature_element;
+  profile_swept_shape : Linear_path_feature_component;
 END_ENTITY;
 
 ENTITY Profile_floor
@@ -808,7 +808,7 @@ END_ENTITY;
 
 ENTITY Round_hole
   SUBTYPE OF (Hole);
-  hole_depth : Linear_path_feature_element;
+  hole_depth : Linear_path_feature_component;
   diameter : Circular_closed_profile;
   change_in_diameter : OPTIONAL taper_select;
   bottom_condition : hole_bottom_condition_select;
@@ -817,7 +817,7 @@ END_ENTITY;
 ENTITY Rounded_end
   SUBTYPE OF (Multi_axis_feature);
   partial_circular_boundary : Partial_circular_profile;
-  course_of_travel : Linear_path_feature_element;
+  course_of_travel : Linear_path_feature_component;
 END_ENTITY; 
 
 ENTITY Rounded_u_profile
@@ -890,7 +890,7 @@ END_ENTITY;
 ENTITY Step
   SUBTYPE OF (Multi_axis_feature);
   removal_boundary : Vee_profile;
-  course_of_travel : Linear_path_feature_element;
+  course_of_travel : Linear_path_feature_component;
   volume_not_removed : SET[0:?] OF Volume_select;
 END_ENTITY;  
 

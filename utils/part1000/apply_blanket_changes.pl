@@ -132,7 +132,7 @@ sub process_node {
 
 	my $child;
 	my $basename = basename($node_rel_path);
-	if ($basename eq "modules" || $basename eq "resource_parts") {
+	if ($basename eq "modules" || $basename eq "resource_parts" || $basename eq "application_protocols") {
 	    foreach $child (@children) {
 		process_part($source_root, $dest_root, "$node_rel_path/$child", $pub_date);
 	    }
@@ -156,6 +156,7 @@ sub process_file {
     my $source_dir_abs_path = File::Spec->rel2abs($source_dir_path);
     my $source_dir_uri = URI::file->new($source_dir_abs_path);
     my $dest_file_path = "$dest_root/$node_rel_path";
+    print "processing file $source_file_path\n";
     if (Utils::is_html($source_file_path)) {
 	my $content;
 	{
@@ -172,9 +173,20 @@ sub process_file {
 	}
 	# Check whether this file has information that needs to be changed.
 	# This can be determined from the presences of a <TITLE> element.
-	if ($special_edits && ($content =~ m%<(TITLE|title)>ISO/TS 10303-([0-9]+):[0-9]{4} ([^<]+)</(TITLE|title)>%)) {
-	    my $part_number = $2;
-	    $content = apply_special_edits($content, $part_number, $pub_date);
+	#print "content = $content\n";
+	if ($content =~ m%(<(TITLE|title)>([^<]*)</(TITLE|title))>%) {
+	    my $title = $3;
+	    print "title = $title\n";
+	    print "special_edits = $special_edits\n";
+	    if ($title =~ m/ISO 10303-(203)/) {
+		print "matches the part number\n";
+		if ($special_edits) {
+		    print "applying special edits\n";
+		    my $part_number = $1;
+		    print "part_number = $part_number\n";
+		    $content = apply_special_edits($content, $part_number, $pub_date);
+		}
+	    }
 	}
 	if (basename($source_file_path) eq 'foreword.htm') {
 	    process_foreword($content);
@@ -246,8 +258,10 @@ sub apply_special_edits {
     else {
 	$pub_for_header = $pub_year_mo;
     }
+    print "in special\n";
 
-    while ($content =~ s%\(ISO/TS 10303-$part_number:([0-9]+(:?-[0-9]{2})?)\)%xxxx$1xxxx%) {}
+    while ($content =~ s|(ISO 10303-203[:0-9]+)|xxxx$1xxxx|) {}
+    #print "after xxx, content = $content\n";
     # change 1: replace "ISO/CD-TS" with "ISO/TS"
     $content =~ s|ISO/CD-TS|ISO/TS|g;
     # change 2: replace date in part number with <pub_year_mo>
@@ -285,6 +299,8 @@ sub main {
 			     "denormalize-url" => \$denormalize_url,
 			     "verbose"       => \$verbose,
 			     "special-edits" => \$special_edits);
+
+    print "special_edits = $special_edits\n";
 
     my $source_root = $ARGV[0];
     my $dest_root = $ARGV[1];

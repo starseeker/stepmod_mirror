@@ -22,7 +22,8 @@
 	</xsl:variable>
 	<xsl:variable name="bibliography_path">../../../basic/bibliography.xml</xsl:variable>
 	<xsl:variable name="desig" select="document('../part.xml',.)/part/designator"/>
-	<xsl:variable name="pub_year" select="document('../part.xml',.)/part/@publication.year"/>
+	<xsl:variable name="pub_year_mo" select="document('../part.xml',.)/part/@publication.year"/>
+	<xsl:variable name="pub_year" select="fn:substring-before($pub_year_mo,'-')"/>
 	<xsl:template match="space" priority="2.0">
 	  <xsl:text> </xsl:text>
 	</xsl:template>
@@ -108,5 +109,11 @@
 	  <a href="{$href}">
 	    <xsl:apply-templates/>
 	  </a>
+	</xsl:template>
+	<xsl:template match="publication-year" priority="2.0">
+	  <xsl:value-of select="$pub_year"/>
+	</xsl:template>
+	<xsl:template match="publication-year-month" priority="2.0">
+	  <xsl:value-of select="$pub_year_mo"/>
 	</xsl:template>
 </xsl:stylesheet>

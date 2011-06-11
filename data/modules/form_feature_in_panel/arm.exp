@@ -1,0 +1,194 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- form_feature_in_panel - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Form_feature_in_panel_arm;
+
+USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
+
+ USE FROM Value_with_unit_extension_arm;    -- ISO/TS 10303-1753
+
+ USE FROM Basic_geometry_arm;    -- ISO/TS 10303-1652
+
+ USE FROM Machining_features_arm;    -- ISO/CD-TS 10303-xxxx
+
+ USE FROM Elemental_topology_arm;    -- ISO/TS 10303-1005
+
+
+TYPE angle_reference_enumeration = ENUMERATION OF 
+   (profile_normal,
+    punch_direction,
+    surface_normal);
+ END_TYPE; 
+
+TYPE compound_in_panel_select = SELECT
+    (Process_feature_in_panel, 
+    Transition_feature);
+ END_TYPE; 
+
+TYPE form_feature_in_panel_type = EXTENSIBLE ENUMERATION OF 
+   (boss,
+    pocket,
+    stairstep);
+ END_TYPE; 
+
+TYPE general_end_select = SELECT
+    (Connected_face_set, 
+    Surface);
+ END_TYPE; 
+
+TYPE profile_or_angle_select = SELECT
+    (Closed_profile_usage, 
+    Directed_angle);
+ END_TYPE; 
+
+TYPE starting_or_ending = ENUMERATION OF 
+   (ending,
+    starting);
+ END_TYPE; 
+
+TYPE straight_or_tapered = ENUMERATION OF 
+   (straight,
+    tapered);
+ END_TYPE; 
+
+ENTITY Bead_end_type
+   ABSTRACT SUPERTYPE OF (ONEOF (Linear_bead_end_type,
+                                Open_bead_end_type,
+                                Radiused_bead_end_type))
+   SUBTYPE OF (Shape_element);
+   is_applied_to : starting_or_ending;
+ END_ENTITY;
+
+ENTITY Bead_feature
+   SUBTYPE OF (Process_feature_in_panel);
+   base_radius : OPTIONAL Length_data_element;
+   bead_profile : Open_profile_usage;
+   end_condition : SET[2:2] OF Bead_end_type;
+   sweep_path : Path_feature_component;
+ END_ENTITY;
+
+ENTITY Closed_profile_usage
+   SUBTYPE OF (Profile_usage);
+ END_ENTITY;
+
+ENTITY Compound_feature_in_panel
+   SUBTYPE OF (Process_feature_in_panel);
+   feature_type : STRING;
+ END_ENTITY;
+
+ENTITY Compound_feature_in_panel_element
+   SUBTYPE OF (Shape_element);
+   element_placement : Geometric_placement_operation;
+   feature : compound_in_panel_select;
+   is_element_for : SET[2:?] OF Compound_feature_in_panel;
+ END_ENTITY;
+
+ENTITY Compound_feature_in_panel_element_relationship
+   SUBTYPE OF (Shape_element_relationship);
+   SELF\Shape_element_relationship.relating RENAMED successor : Compound_feature_in_panel_element;
+   SELF\Shape_element_relationship.related RENAMED predecessor : Compound_feature_in_panel_element;
+ END_ENTITY;
+
+ENTITY Directed_angle
+   SUBTYPE OF (Shape_element);
+   angle : Angle_data_element;
+   angle_reference : angle_reference_enumeration;
+ END_ENTITY;
+
+ENTITY Face_termination
+   SUBTYPE OF (Joggle_termination);
+ END_ENTITY;
+
+ENTITY Form_feature_in_panel
+   SUBTYPE OF (Process_feature_in_panel);
+   base_boundary_defined_by : profile_or_angle_select;
+   base_radius : Length_data_element;
+   feature_type : form_feature_in_panel_type;
+   target_boundary_defined_by : profile_or_angle_select;
+   target_face : OPTIONAL general_end_select;
+   target_radius : Angle_data_element;
+ END_ENTITY;
+
+ENTITY Hole_feature_in_panel
+   SUBTYPE OF (Process_feature_in_panel);
+   hole_profile : Closed_profile_usage;
+   hole_type : OPTIONAL STRING;
+ END_ENTITY;
+
+ENTITY Joggle_feature
+   SUBTYPE OF (Process_feature_in_panel);
+   base_radius_1 : OPTIONAL Length_data_element;
+   base_radius_2 : OPTIONAL Length_data_element;
+   defining_path : Linear_path_feature_component;
+   direction_angle_1 : Angle_data_element;
+   direction_angle_2 : Angle_data_element;
+   height : OPTIONAL Length_data_element;
+   slope_angle_1 : Angle_data_element;
+   slope_angle_2 : Angle_data_element;
+   termination : Joggle_termination;
+   top_radius_1 : OPTIONAL Length_data_element;
+   top_radius_2 : OPTIONAL Length_data_element;
+ END_ENTITY;
+
+ENTITY Joggle_termination
+   ABSTRACT SUPERTYPE OF (ONEOF (Face_termination,
+                                Value_termination))
+   SUBTYPE OF (Shape_element);
+ END_ENTITY;
+
+ENTITY Linear_bead_end_type
+   SUBTYPE OF (Bead_end_type);
+   end_length : Length_data_element;
+   end_shape : straight_or_tapered;
+ END_ENTITY;
+
+ENTITY Locator_feature
+   SUBTYPE OF (Process_feature_in_panel);
+   base_radius : OPTIONAL Length_data_element;
+   diameter : Length_data_element;
+   tip_angle : Angle_data_element;
+   tip_radius : OPTIONAL Length_data_element;
+ END_ENTITY;
+
+ENTITY Open_bead_end_type
+   SUBTYPE OF (Bead_end_type);
+ END_ENTITY;
+
+ENTITY Open_profile_usage
+   SUBTYPE OF (Profile_usage);
+   profile_limit : OPTIONAL Plane;
+   SELF\Profile_usage.used_profile : Open_profile;
+ END_ENTITY;
+
+ENTITY Panel_hole_with_barring
+   SUBTYPE OF (Hole_feature_in_panel);
+   angle_defined_by : Directed_angle;
+   barring_profile : Closed_profile_usage;
+   base_radius : OPTIONAL Length_data_element;
+ END_ENTITY;
+
+ENTITY Process_feature_in_panel
+   SUBTYPE OF (Shape_feature_definition);
+   punch_direction : Direction;
+ END_ENTITY;
+
+ENTITY Profile_usage
+   ABSTRACT SUPERTYPE OF (ONEOF (Closed_profile_usage,
+                                Open_profile_usage))
+   SUBTYPE OF (Shape_element_relationship);
+   profile_placement : Geometric_placement_operation;
+   used_profile : Profile;
+ END_ENTITY;
+
+ENTITY Radiused_bead_end_type
+   SUBTYPE OF (Bead_end_type);
+ END_ENTITY;
+
+ENTITY Value_termination
+   SUBTYPE OF (Joggle_termination);
+   depth : Length_data_element;
+   angle : Angle_data_element;
+ END_ENTITY;
+
+END_SCHEMA;

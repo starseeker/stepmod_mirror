@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="form_feature_in_panel_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Form_feature_in_panel_arm">
+      <interface kind="use" schema="Shape_feature_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="Basic_geometry_arm"/>
+      <interface kind="use" schema="Machining_features_arm"/>
+      <interface kind="use" schema="Elemental_topology_arm"/>
+      <type name="angle_reference_enumeration">
+         <enumeration items="profile_normal punch_direction surface_normal"/>
+      </type>
+      <type name="compound_in_panel_select">
+         <select selectitems="Process_feature_in_panel Transition_feature"/>
+      </type>
+      <type name="form_feature_in_panel_type">
+         <enumeration extensible="YES" items="boss pocket stairstep"/>
+      </type>
+      <type name="general_end_select">
+         <select selectitems="Connected_face_set Surface"/>
+      </type>
+      <type name="profile_or_angle_select">
+         <select selectitems="Closed_profile_usage Directed_angle"/>
+      </type>
+      <type name="starting_or_ending">
+         <enumeration items="ending starting"/>
+      </type>
+      <type name="straight_or_tapered">
+         <enumeration items="straight tapered"/>
+      </type>
+      <entity abstract.supertype="YES" name="Bead_end_type" super.expression="ONEOF (Linear_bead_end_type, Open_bead_end_type, Radiused_bead_end_type)" supertypes="Shape_element">
+         <explicit name="is_applied_to">
+            <typename name="starting_or_ending"/>
+         </explicit>
+      </entity>
+      <entity name="Bead_feature" supertypes="Process_feature_in_panel">
+         <explicit name="base_radius" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="bead_profile">
+            <typename name="Open_profile_usage"/>
+         </explicit>
+         <explicit name="end_condition">
+            <aggregate lower="2" type="SET" upper="2"/>
+            <typename name="Bead_end_type"/>
+         </explicit>
+         <explicit name="sweep_path">
+            <typename name="Path_feature_component"/>
+         </explicit>
+      </entity>
+      <entity name="Closed_profile_usage" supertypes="Profile_usage"/>
+      <entity name="Compound_feature_in_panel" supertypes="Process_feature_in_panel">
+         <explicit name="feature_type">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Compound_feature_in_panel_element" supertypes="Shape_element">
+         <explicit name="element_placement">
+            <typename name="Geometric_placement_operation"/>
+         </explicit>
+         <explicit name="feature">
+            <typename name="compound_in_panel_select"/>
+         </explicit>
+         <explicit name="is_element_for">
+            <aggregate lower="2" type="SET" upper="?"/>
+            <typename name="Compound_feature_in_panel"/>
+         </explicit>
+      </entity>
+      <entity name="Compound_feature_in_panel_element_relationship" supertypes="Shape_element_relationship">
+         <explicit name="successor">
+            <typename name="Compound_feature_in_panel_element"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
+         </explicit>
+         <explicit name="predecessor">
+            <typename name="Compound_feature_in_panel_element"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
+         </explicit>
+      </entity>
+      <entity name="Directed_angle" supertypes="Shape_element">
+         <explicit name="angle">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="angle_reference">
+            <typename name="angle_reference_enumeration"/>
+         </explicit>
+      </entity>
+      <entity name="Face_termination" supertypes="Joggle_termination"/>
+      <entity name="Form_feature_in_panel" supertypes="Process_feature_in_panel">
+         <explicit name="base_boundary_defined_by">
+            <typename name="profile_or_angle_select"/>
+         </explicit>
+         <explicit name="base_radius">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="feature_type">
+            <typename name="form_feature_in_panel_type"/>
+         </explicit>
+         <explicit name="target_boundary_defined_by">
+            <typename name="profile_or_angle_select"/>
+         </explicit>
+         <explicit name="target_face" optional="YES">
+            <typename name="general_end_select"/>
+         </explicit>
+         <explicit name="target_radius">
+            <typename name="Angle_data_element"/>
+         </explicit>
+      </entity>
+      <entity name="Hole_feature_in_panel" supertypes="Process_feature_in_panel">
+         <explicit name="hole_profile">
+            <typename name="Closed_profile_usage"/>
+         </explicit>
+         <explicit name="hole_type" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Joggle_feature" supertypes="Process_feature_in_panel">
+         <explicit name="base_radius_1" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="base_radius_2" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="defining_path">
+            <typename name="Linear_path_feature_component"/>
+         </explicit>
+         <explicit name="direction_angle_1">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="direction_angle_2">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="height" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="slope_angle_1">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="slope_angle_2">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="termination">
+            <typename name="Joggle_termination"/>
+         </explicit>
+         <explicit name="top_radius_1" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="top_radius_2" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Joggle_termination" super.expression="ONEOF (Face_termination, Value_termination)" supertypes="Shape_element"/>
+      <entity name="Linear_bead_end_type" supertypes="Bead_end_type">
+         <explicit name="end_length">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="end_shape">
+            <typename name="straight_or_tapered"/>
+         </explicit>
+      </entity>
+      <entity name="Locator_feature" supertypes="Process_feature_in_panel">
+         <explicit name="base_radius" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="diameter">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="tip_angle">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="tip_radius" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
+      <entity name="Open_bead_end_type" supertypes="Bead_end_type"/>
+      <entity name="Open_profile_usage" supertypes="Profile_usage">
+         <explicit name="profile_limit" optional="YES">
+            <typename name="Plane"/>
+         </explicit>
+         <explicit name="used_profile">
+            <typename name="Open_profile"/>
+            <redeclaration entity-ref="Profile_usage"/>
+         </explicit>
+      </entity>
+      <entity name="Panel_hole_with_barring" supertypes="Hole_feature_in_panel">
+         <explicit name="angle_defined_by">
+            <typename name="Directed_angle"/>
+         </explicit>
+         <explicit name="barring_profile">
+            <typename name="Closed_profile_usage"/>
+         </explicit>
+         <explicit name="base_radius" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
+      <entity name="Process_feature_in_panel" supertypes="Shape_feature_definition">
+         <explicit name="punch_direction">
+            <typename name="Direction"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Profile_usage" super.expression="ONEOF (Closed_profile_usage, Open_profile_usage)" supertypes="Shape_element_relationship">
+         <explicit name="profile_placement">
+            <typename name="Geometric_placement_operation"/>
+         </explicit>
+         <explicit name="used_profile">
+            <typename name="Profile"/>
+         </explicit>
+      </entity>
+      <entity name="Radiused_bead_end_type" supertypes="Bead_end_type"/>
+      <entity name="Value_termination" supertypes="Joggle_termination">
+         <explicit name="depth">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="angle">
+            <typename name="Angle_data_element"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

@@ -4828,9 +4828,9 @@ USE FROM aic_machining_feature; -- ISO 10303-522
 ENTITY face_shape_representation_relationship
   SUBTYPE OF (representation_relationship);
       WHERE
-      wr1: ('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' 
+      wr1: ('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' 
             IN TYPEOF(SELF.rep_1));
-      wr2: ('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' 
+      wr2: ('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' 
             IN TYPEOF(SELF.rep_2));
 END_ENTITY;
 
@@ -4840,7 +4840,7 @@ WHERE
 WR1: (SIZEOF (QUERY (cf <* chamfer |
 NOT (1 = SIZEOF (QUERY (pdr <* property_definition_representation |
 ((pdr.definition.definition = cf) AND
-('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION'
+('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'
 IN TYPEOF (pdr.used_representation)) AND
 (pdr.used_representation.name = 'chamfer face'))
 )))
@@ -4853,7 +4853,7 @@ WHERE
 WR1: (SIZEOF (QUERY (co <* chamfer_offset |
 NOT (1 = SIZEOF (QUERY (pdr <* property_definition_representation |
 ((pdr.definition.definition = co) AND
-('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION'
+('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'
 IN TYPEOF (pdr.used_representation)) AND
 ( ((pdr.definition.definition.description = 'first offset') AND
 (pdr.used_representation.name = 'first face shape'))
@@ -4870,16 +4870,16 @@ RULE edge_round_requires_faces FOR
 WHERE
 WR1: (0 = SIZEOF (QUERY (er <* edge_round |
 NOT (1 = SIZEOF (QUERY (pdr <* property_definition_representation |
-((pdr.definition.definition = er) AND
-('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION'
+((pdr\property_definition_representation.definition\property_definition.definition = er) AND
+('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'
 IN TYPEOF (pdr.used_representation)) AND
 (pdr.used_representation.name = 'edge round face'))
 )))
 )));
 WR2: (SIZEOF (QUERY (er <* edge_round |
 NOT (1 = SIZEOF (QUERY (pdr <* property_definition_representation |
-((pdr.definition.definition = er) AND
-('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION'
+((pdr\property_definition_representation.definition\property_definition.definition = er) AND
+('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'
 IN TYPEOF (pdr.used_representation)) AND
 (pdr.used_representation.name = 'first face shape'))
 )))
@@ -4887,7 +4887,7 @@ IN TYPEOF (pdr.used_representation)) AND
 WR3: (SIZEOF (QUERY (er <* edge_round |
 NOT (1 = SIZEOF (QUERY (pdr <* property_definition_representation |
 ((pdr.definition.definition = er) AND
-('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION'
+('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'
 IN TYPEOF (pdr.used_representation)) AND
 (pdr.used_representation.name = 'second face shape'))
 )))
@@ -25367,7 +25367,7 @@ FUNCTION convert_spatial_to_ypr_rotation (pair     : kinematic_pair;
 
   conv_angle := plane_angle_for_pair_in_radian (pair, angle);
 
-  IF (conv_angle = ?) THEN
+  IF NOT('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PLANE_ANGLE_MEASURE' IN TYPEOF(conv_angle)) THEN
     RETURN (?);
   END_IF;
 
@@ -33663,9 +33663,9 @@ FUNCTION stripped_typeof(arg : GENERIC:G) : SET OF STRING;
   END_LOCAL;
   REPEAT i := 1 TO SIZEOF (types);
     IF types[i][1:n] = schema_prefix THEN
-       stypes := stypes + [types[i][n+1:LENGTH(types[i])]];
+       stypes := stypes + types[i][n+1:LENGTH(types[i])];
     ELSE
-       stypes := stypes + [types[i]];
+       stypes := stypes + types[i];
     END_IF;
   END_REPEAT;
   RETURN (stypes);

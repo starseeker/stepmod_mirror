@@ -24063,9 +24063,11 @@ END_LOCAL;
   dy := axis.direction_ratios[2];
   dz := axis.direction_ratios[3];
   conv_angle := plane_angle_for_pair_in_radian(pair, angle);
-  IF conv_angle = ? THEN
+--tt
+  IF NOT('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PLANE_ANGLE_MEASURE' IN TYPEOF(conv_angle)) THEN
     RETURN (?);
   END_IF;
+
   ucf := angle/conv_angle;
   s_a := SIN(conv_angle);
   c_a := COS(conv_angle);
@@ -32015,9 +32017,11 @@ LOCAL
 END_LOCAL;
   REPEAT i := 1 TO SIZEOF(types);
     IF types[i][1:n] = schema_prefix THEN
-      stypes := stypes + [types[i][n + 1:LENGTH(types[i])]];
+--tt
+      stypes := stypes + types[i][n + 1:LENGTH(types[i])];
     ELSE
-      stypes := stypes + [types[i]];
+--tt
+      stypes := stypes + types[i];
     END_IF;
   END_REPEAT;
   RETURN (stypes);
@@ -34006,8 +34010,7 @@ WHERE
   wr2 : SIZEOF(QUERY(pdf <* product_definition_formation | (SIZEOF(QUERY(prpc
      <* USEDIN(pdf.of_product, 
     'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS'
-    ) | prpc.name = 'conceptual design')) = 1) AND (SIZEOF(QUERY(pd <* USEDIN(
-    pdf, 
+    ) | prpc.name = 'conceptual design')) = 1) AND (SIZEOF(QUERY(pd <* USEDIN(pdf, 
     'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PRODUCT_DEFINITION.FORMATION'
     ) | pd.frame_of_reference.name = 'conceptual definition')) < 1))) = 0;
 END_RULE;
@@ -34016,20 +34019,20 @@ RULE chamfer_offset_requires_faces FOR (chamfer_offset,
   property_definition_representation);
 WHERE
   wr1 : SIZEOF(QUERY(co <* chamfer_offset | NOT (1 = SIZEOF(QUERY(pdr <* 
-    property_definition_representation | (pdr.definition.definition = co) AND (
-    'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.
-    used_representation)) AND ((pdr.definition.definition.description = 
+    property_definition_representation | (pdr\property_definition_representation.definition\property_definition.definition = co) AND 
+    ('FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND 
+    ((pdr\property_definition_representation.definition\property_definition.definition.description = 
     'first offset') AND (pdr.used_representation.name = 'first face shape') OR 
-    (pdr.definition.definition.description = 'second offset') AND (pdr.
-    used_representation.name = 'second face shape'))))))) = 0;
+    (pdr\property_definition_representation.definition\property_definition.definition.description = 'second offset') AND 
+    (pdr.used_representation.name = 'second face shape'))))))) = 0;
 END_RULE;
  
 RULE chamfer_requires_faces FOR (chamfer, property_definition_representation);
 WHERE
   wr1 : SIZEOF(QUERY(cf <* chamfer | NOT (1 = SIZEOF(QUERY(pdr <* 
-    property_definition_representation | (pdr.definition.definition = cf) AND (
-    'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.
-    used_representation)) AND (pdr.used_representation.name = 'chamfer face')))
+    property_definition_representation | (pdr\property_definition_representation.definition\property_definition.definition = cf) AND (
+    'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND 
+    (pdr.used_representation.name = 'chamfer face')))
     ))) = 0;
 END_RULE;
  
@@ -34202,17 +34205,17 @@ RULE edge_round_requires_faces FOR (edge_round,
   property_definition_representation);
 WHERE
   wr1 : 0 = SIZEOF(QUERY(er <* edge_round | NOT (1 = SIZEOF(QUERY(pdr <* 
-    property_definition_representation | (pdr.definition.definition = er) AND (
+    property_definition_representation | (pdr\property_definition_representation.definition\property_definition.definition = er) AND (
     'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.
     used_representation)) AND (pdr.used_representation.name = 'edge round face'
     ))))));
   wr2 : SIZEOF(QUERY(er <* edge_round | NOT (1 = SIZEOF(QUERY(pdr <* 
-    property_definition_representation | (pdr.definition.definition = er) AND (
+    property_definition_representation | (pdr\property_definition_representation.definition\property_definition.definition = er) AND (
     'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.
     used_representation)) AND (pdr.used_representation.name = 
     'first face shape')))))) = 0;
   wr3 : SIZEOF(QUERY(er <* edge_round | NOT (1 = SIZEOF(QUERY(pdr <* 
-    property_definition_representation | (pdr.definition.definition = er) AND (
+    property_definition_representation | (pdr\property_definition_representation.definition\property_definition.definition = er) AND (
     'FEATURE_BASED_PROCESS_PLANNING.FACE_SHAPE_REPRESENTATION' IN TYPEOF(pdr.
     used_representation)) AND (pdr.used_representation.name = 
     'second face shape')))))) = 0;

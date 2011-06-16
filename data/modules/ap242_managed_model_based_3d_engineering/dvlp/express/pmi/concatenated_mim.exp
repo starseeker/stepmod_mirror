@@ -1704,7 +1704,7 @@ USE FROM product_property_representation_schema(shape_representation_relationshi
   ENTITY flat_pattern_ply_representation_relationship
     SUBTYPE OF (shape_representation_relationship);
     WHERE
-      WR1: 'STRUCTURAL_ANALYSIS_DESIGN.SHAPE_REPRESENTATION' IN
+      WR1: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN
         (TYPEOF (SELF\representation_relationship.rep_1) *
          TYPEOF (SELF\representation_relationship.rep_2));
       WR2: SELF\representation_relationship.rep_1.
@@ -3765,7 +3765,7 @@ REFERENCE FROM management_resources_schema(identification_role);
 
   FUNCTION external_version_assignment_is_valid (aia: applied_external_identification_assignment): BOOLEAN;
     LOCAL
-      item: identification_item;
+      item: external_identification_item;
       role: identification_role;
     END_LOCAL;
       role:= aia.role;
@@ -6479,6 +6479,8 @@ USE FROM Support_resource_mim; -- ISO/TS 10303-1800
 
 USE FROM action_schema (   -- ISO 10303-41
    action,
+--   action_method,
+   action_method_relationship,
    action_resource);
    
 USE FROM process_property_representation_schema   -- ISO 10303-49
@@ -6499,31 +6501,31 @@ USE FROM process_property_schema   -- ISO 10303-49
 ENTITY process_operation
   SUBTYPE OF (action_method);
 WHERE
-  WR1:  SIZEOF( QUERY( amr <* USEDIN(SELF,'PROCESS_PLAN_MIM.ACTION_METHOD_RELATIONSHIP.' +
+  WR1:  SIZEOF( QUERY( amr <* USEDIN(SELF,'ACTION_SCHEMA.ACTION_METHOD_RELATIONSHIP.' +
                      'RELATING_METHOD') |
                NOT('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN
-                   TYPEOF(amr.related_method)) OR
-               (SELF :=: amr.related_method)
+                   TYPEOF(amr\action_method_relationship.related_method)) OR
+               (SELF :=: amr\action_method_relationship.related_method)
               )) = 0;	   
-  WR2:  SIZEOF( QUERY( amr <* USEDIN(SELF,'PROCESS_PLAN_MIM.ACTION_METHOD_RELATIONSHIP.' +
+  WR2:  SIZEOF( QUERY( amr <* USEDIN(SELF,'ACTION_SCHEMA.ACTION_METHOD_RELATIONSHIP.' +
                      'RELATED_METHOD') |
                NOT('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN
-                   TYPEOF(amr.relating_method)) OR
-               (SELF :=: amr.relating_method)
+                   TYPEOF(amr\action_method_relationship.relating_method)) OR
+               (SELF :=: amr\action_method_relationship.relating_method)
               )) = 0;   
 END_ENTITY;
 
 ENTITY process_plan
   SUBTYPE OF (action);
 WHERE
-  WR1:  SIZEOF( QUERY( ar <* USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR1:  SIZEOF( QUERY( ar <* USEDIN(SELF,'ACTION_SCHEMA.' +
                       'ACTION_RELATIONSHIP.RELATED_ACTION') |
                SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',
                        'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *
                        TYPEOF(ar.relating_action)) <> 1
               )) = 0;
            
-  WR2:  SIZEOF( QUERY( ar <* USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR2:  SIZEOF( QUERY( ar <* USEDIN(SELF,'ACTION_SCHEMA.' +
                       'ACTION_RELATIONSHIP.RELATING_ACTION') |
                (SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',
                         'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *
@@ -6532,14 +6534,14 @@ WHERE
                 ('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN
                  TYPEOF(ar.related_action.chosen_method)))
               )) = 
-             SIZEOF(USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+             SIZEOF(USEDIN(SELF,'ACTION_SCHEMA.' +
                     'ACTION_RELATIONSHIP.RELATING_ACTION'));   
 END_ENTITY;
 
 ENTITY product_definition_resource
   SUBTYPE OF (action_resource,product_definition);
 WHERE
-  WR1:  SIZEOF( USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR1:  SIZEOF( USEDIN(SELF,'PROCESS_PROPERTY_SCHEMA.' +
                'REQUIREMENT_FOR_ACTION_RESOURCE.RESOURCES')
                ) > 0;
            
@@ -6551,7 +6553,7 @@ END_ENTITY;
 ENTITY product_process_plan
   SUBTYPE OF (product_definition_process);
 WHERE
-  WR1:  SIZEOF( QUERY( ar <* USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR1:  SIZEOF( QUERY( ar <* USEDIN(SELF,'ACTION_SCHEMA.' +
                      'ACTION_RELATIONSHIP.RELATED_ACTION') |
                SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',
                        'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *
@@ -6559,7 +6561,7 @@ WHERE
                 ) <> 1
               )) = 0;
            
-  WR2:  SIZEOF( QUERY( ar <* USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR2:  SIZEOF( QUERY( ar <* USEDIN(SELF,'ACTION_SCHEMA.' +
                       'ACTION_RELATIONSHIP.RELATING_ACTION') |
                (SIZEOF(['PROCESS_PLAN_MIM.PROCESS_PLAN',
                         'PROCESS_PLAN_MIM.PRODUCT_PROCESS_PLAN'] *
@@ -6568,9 +6570,9 @@ WHERE
                 ('PROCESS_PLAN_MIM.PROCESS_OPERATION' IN
                  TYPEOF(ar.related_action.chosen_method)))
               )) = 
-             SIZEOF(USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+             SIZEOF(USEDIN(SELF,'ACTION_SCHEMA.' +
                     'ACTION_RELATIONSHIP.RELATING_ACTION'));   
-  WR3:  SIZEOF( QUERY( ppa <* USEDIN(SELF,'PROCESS_PLAN_MIM.' +
+  WR3:  SIZEOF( QUERY( ppa <* USEDIN(SELF,'PROCESS_PROPERTY_SCHEMA.' +
                      'PROCESS_PRODUCT_ASSOCIATION.PROCESS') |
                (ppa.name <> 'produced output') OR
                NOT('PROCESS_PLAN_MIM.PRODUCT_DEFINITION' IN
@@ -39424,7 +39426,11 @@ SCHEMA product_property_representation_schema;
   END_TYPE;
 
   TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
-    represented_definition);
+    general_property, 
+    property_definition, 
+    property_definition_relationship, 
+    shape_aspect, 
+    shape_aspect_relationship);
   END_TYPE;
 
   ENTITY chain_based_item_identified_representation_usage
@@ -45936,12 +45942,12 @@ WHERE
   WR5: current_result :=: SELF\representation_relationship.rep_2;
 END_ENTITY;
 
-FUNCTION invalidate_vrep_item(item : variational_representation_item) 
+FUNCTION invalidate_vrep_item(item : representation_item) 
                                    : BOOLEAN;
 
   LOCAL
     reps    : SET[1:?] OF representation := using_representations(item);
-    svri    : SET[1:?] OF variational_representation_item;
+    ri    : SET[1:?] OF variational_representation_item;
     iar     : instance_attribute_reference;
     i       : INTEGER;
     n       : INTEGER := HIINDEX(reps);
@@ -45967,9 +45973,9 @@ FUNCTION invalidate_vrep_item(item : variational_representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        svri := QUERY(q <* reps[i]\representation.items | 
+        ri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* svri | 
+        IF SIZEOF(QUERY(r <* ri | 
           item IN (r\free_form_constraint.reference_elements + r\free_form_constraint.constrained_elements))) = 0
         THEN 
           RETURN(TRUE);
@@ -46006,9 +46012,9 @@ FUNCTION invalidate_vrep_item(item : variational_representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        svri := QUERY(q <* reps[i]\representation.items | 
+        ri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.EXPLICIT_GEOMETRIC_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* svri | 
+        IF SIZEOF(QUERY(r <* ri | 
           item IN r\explicit_geometric_constraint.reference_elements)) = 0
         THEN
           RETURN(TRUE);

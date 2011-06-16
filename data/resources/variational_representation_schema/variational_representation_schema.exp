@@ -1,5 +1,5 @@
 (*
-$Id: variational_representation_schema.exp,v 1.6 2010/11/24 19:44:31 thomasrthurman Exp $ 
+$Id: variational_representation_schema.exp,v 1.7 2010/11/30 11:50:41 lothartklein Exp $ 
 ISO TC184/SC4/WG12 N4852 - ISO 10303-108 paramaterization_schema - EXPRESS
 THIS IS DOCUMENT I CONTAINING REVISED EXPRESS FOR 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT GEOMETRIC  
 PRODUCT MODELS' TO TAKE INTO ACCOUNT TC1 FOR THAT DOCUMENT -- 2008-03-17  *) 
@@ -84,12 +84,12 @@ WHERE
   WR5: current_result :=: SELF\representation_relationship.rep_2;
 END_ENTITY;
 
-FUNCTION invalidate_vrep_item(item : variational_representation_item) 
+FUNCTION invalidate_vrep_item(item : representation_item) 
                                    : BOOLEAN;
 
   LOCAL
     reps    : SET[1:?] OF representation := using_representations(item);
-    svri    : SET[1:?] OF variational_representation_item;
+    ri    : SET[1:?] OF variational_representation_item;
     iar     : instance_attribute_reference;
     i       : INTEGER;
     n       : INTEGER := HIINDEX(reps);
@@ -115,9 +115,9 @@ FUNCTION invalidate_vrep_item(item : variational_representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        svri := QUERY(q <* reps[i]\representation.items | 
+        ri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* svri | 
+        IF SIZEOF(QUERY(r <* ri | 
           item IN (r\free_form_constraint.reference_elements + r\free_form_constraint.constrained_elements))) = 0
         THEN 
           RETURN(TRUE);
@@ -154,9 +154,9 @@ FUNCTION invalidate_vrep_item(item : variational_representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        svri := QUERY(q <* reps[i]\representation.items | 
+        ri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.EXPLICIT_GEOMETRIC_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* svri | 
+        IF SIZEOF(QUERY(r <* ri | 
           item IN r\explicit_geometric_constraint.reference_elements)) = 0
         THEN
           RETURN(TRUE);

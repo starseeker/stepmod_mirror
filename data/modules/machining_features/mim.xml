@@ -1,12 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Machining_features_mim">
-  </schema>
+
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="machining_features_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Machining_features_mim">
+      <interface kind="use" schema="Shape_feature_mim"/>
+      <interface kind="use" schema="Elemental_geometric_shape_mim"/>
+      <interface kind="use" schema="Value_with_unit_mim"/>
+      <interface kind="use" schema="Measure_representation_mim"/>
+      <interface kind="use" schema="Specification_document_mim"/>
+      <interface kind="use" schema="aic_machining_feature"/>
+      <entity name="face_shape_representation_relationship" supertypes="representation_relationship">
+         <where expression="('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' &#10;            IN TYPEOF(SELF.rep_1))" label="wr1"/>
+         <where expression="('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' &#10;            IN TYPEOF(SELF.rep_2))" label="wr2"/>
+      </entity>
+      <rule appliesto="chamfer_offset property_definition_representation" name="chamfer_offset_requires_faces">
+         <where expression="(SIZEOF (QUERY (co &lt;* chamfer_offset |&#10;NOT (1 = SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;((pdr\property_definition_representation.definition\property_definition.definition = co) AND&#10;('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' IN TYPEOF (pdr.used_representation)) AND&#10;( ((pdr\property_definition_representation.definition\property_definition.definition.description = 'first offset') AND&#10;(pdr.used_representation.name = 'first face shape'))&#10;OR&#10;((pdr\property_definition_representation.definition\property_definition.definition.description = 'second offset') AND&#10;(pdr.used_representation.name = 'second face shape'))&#10;))&#10;)))&#10;))=0)" label="WR1"/>
+      </rule>
+      <rule appliesto="chamfer property_definition_representation" name="chamfer_requires_faces">
+         <where expression="(SIZEOF (QUERY (cf &lt;* chamfer |&#10;NOT (1 = SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;((pdr\property_definition_representation.definition\property_definition.definition = cf) AND&#10;('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'&#10;IN TYPEOF (pdr.used_representation)) AND&#10;(pdr.used_representation.name = 'chamfer face'))&#10;)))&#10;))=0)" label="WR1"/>
+      </rule>
+      <rule appliesto="edge_round property_definition_representation" name="edge_round_requires_faces">
+         <where expression="(0 = SIZEOF (QUERY (er &lt;* edge_round |&#10;NOT (1 = SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;((pdr\property_definition_representation.definition\property_definition.definition = er) AND&#10;('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'&#10;IN TYPEOF (pdr.used_representation)) AND&#10;(pdr.used_representation.name = 'edge round face'))&#10;)))&#10;)))" label="WR1"/>
+         <where expression="(SIZEOF (QUERY (er &lt;* edge_round |&#10;NOT (1 = SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;((pdr\property_definition_representation.definition\property_definition.definition = er) AND&#10;('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'&#10;IN TYPEOF (pdr.used_representation)) AND&#10;(pdr.used_representation.name = 'first face shape'))&#10;)))&#10;))=0)" label="WR2"/>
+         <where expression="(SIZEOF (QUERY (er &lt;* edge_round |&#10;NOT (1 = SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;((pdr\property_definition_representation.definition\property_definition.definition = er) AND&#10;('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION'&#10;IN TYPEOF (pdr.used_representation)) AND&#10;(pdr.used_representation.name = 'second face shape'))&#10;)))&#10;))=0)" label="WR3"/>
+      </rule>
+      <rule appliesto="instanced_feature" name="machining_feature_life_cycle">
+         <where expression="SIZEOF (QUERY (mf &lt;* instanced_feature |&#10;NOT (mf.of_shape.definition.frame_of_reference.life_cycle_stage =&#10;'manufacturing planning'))) = 0" label="WR1"/>
+      </rule>
+      <rule appliesto="transition_feature" name="transition_feature_life_cycle">
+         <where expression="SIZEOF (QUERY (tf &lt;* transition_feature |&#10;NOT (tf.of_shape.definition.frame_of_reference.life_cycle_stage =&#10;'manufacturing planning'))) = 0" label="WR1"/>
+      </rule>
+      <rule appliesto="transition_feature" name="transition_feature_on_part_boundary">
+         <where expression="SIZEOF (QUERY (tf &lt;* transition_feature |&#10;NOT (tf.product_definitional))) = 0" label="WR1"/>
+      </rule>
+   </schema>
 </express>

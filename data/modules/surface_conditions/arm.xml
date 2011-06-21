@@ -9,6 +9,10 @@
       <interface kind="use" schema="Generic_material_aspects_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <constant expression="[ 'contact ratio',&#10;     'treatment result',&#10;     'visual appearance',&#10;     'tactile appearance',&#10;     'surface texture',&#10;     'hardness' ]" name="surface_condition_property_names">
+         <aggregate lower="0" type="LIST" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
       <type name="measuring_gauge_select">
          <select extensible="YES" genericentity="YES" selectitems="Part_view_definition"/>
       </type>
@@ -50,9 +54,6 @@
          </explicit>
       </entity>
       <entity name="Hardness" supertypes="Surface_condition">
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="depth" optional="YES">
             <typename name="Measure_item"/>
          </explicit>
@@ -70,18 +71,28 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Surface_condition" super.expression="ONEOF (Contact_ratio, Hardness, Tactile_appearance, Treatment_result, Visual_appearance, Surface_texture)">
+      <entity abstract.supertype="YES" name="Surface_condition" super.expression="ONEOF (Contact_ratio, Hardness, Tactile_appearance, Treatment_result, Visual_appearance, Surface_texture)" supertypes="Representation">
          <explicit name="value_determination" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Surface_condition_association">
-         <explicit name="describing_surface_condition">
+      <entity name="Surface_condition_association" supertypes="Shape_dependent_property_representation">
+         <explicit name="used_representation">
             <typename name="Surface_condition"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
+         <explicit name="definition">
+            <typename name="Surface_condition_property"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+      </entity>
+      <entity name="Surface_condition_property" supertypes="Assigned_shape_property">
          <explicit name="described_element">
             <typename name="shaped_element_select"/>
+            <redeclaration entity-ref="Assigned_property"/>
          </explicit>
+         <inverse attribute="definition" entity="Surface_condition_association" name="representation_association"/>
+         <where expression="SELF\Assigned_property.name IN surface_condition_property_names" label="WR1"/>
       </entity>
       <entity name="Surface_texture" supertypes="Surface_condition">
          <explicit name="measuring_method">
@@ -103,41 +114,17 @@
          </explicit>
       </entity>
       <entity name="Tactile_appearance" supertypes="Surface_condition">
-         <explicit name="id" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="name" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="depth" optional="YES">
             <typename name="Measure_item"/>
          </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
       </entity>
       <entity name="Treatment_result" supertypes="Surface_condition">
-         <explicit name="id" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="name" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="purpose" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
       <entity name="Visual_appearance" supertypes="Surface_condition">
-         <explicit name="id" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="colour_id">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="name" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="colour_name" optional="YES">

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.28 2009/04/23 09:26:56 liutkuviene Exp $
+ $Id: arm.exp,v 1.29 2011/02/16 20:57:38 lothartklein Exp $
  ISO TC184/SC4/WG12 N6267 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5515
 *)
@@ -13,6 +13,38 @@ USE FROM Generic_material_aspects_arm;
 USE FROM Part_view_definition_arm;
 
 USE FROM Value_with_unit_extension_arm;
+
+CONSTANT
+  surface_condition_property_names : LIST[0:?] OF STRING := 
+   [ 'contact ratio',
+     'treatment result',
+     'visual appearance',
+     'tactile appearance',
+     'surface texture',
+     'hardness' ];
+END_CONSTANT; 
+
+ENTITY Surface_condition_property
+  SUBTYPE OF (Assigned_shape_property);
+  SELF\Assigned_property.described_element : shaped_element_select;
+INVERSE
+  representation_association : Surface_condition_association FOR definition;
+WHERE
+  WR1: SELF\Assigned_property.name IN surface_condition_property_names;  
+END_ENTITY;
+
+  ENTITY Surface_condition_association
+    SUBTYPE OF (Shape_dependent_property_representation);
+    SELF\Property_definition_representation.used_representation : Surface_condition;
+    SELF\Property_definition_representation.definition : Surface_condition_property;
+  END_ENTITY;
+
+  ENTITY Surface_condition
+    ABSTRACT SUPERTYPE OF (ONEOF(Contact_ratio,Hardness,Tactile_appearance,
+                         Treatment_result,Visual_appearance,Surface_texture))
+    SUBTYPE OF (Representation);                         
+    value_determination : OPTIONAL STRING;
+  END_ENTITY;
 
   TYPE measuring_gauge_select = EXTENSIBLE GENERIC_ENTITY SELECT (
     Part_view_definition);
@@ -54,23 +86,11 @@ USE FROM Value_with_unit_extension_arm;
 
   ENTITY Hardness
     SUBTYPE OF (Surface_condition);
-      description           : OPTIONAL STRING;      
       depth                 : OPTIONAL Measure_item;      
       environment_condition : SET[0:?] OF STRING;
       hardness_value        : Measure_item;
       measuring_method      : STRING;      
       measuring_position    : OPTIONAL STRING;
-  END_ENTITY;
-
-  ENTITY Surface_condition
-    ABSTRACT SUPERTYPE OF (ONEOF(Contact_ratio,Hardness,Tactile_appearance,
-                         Treatment_result,Visual_appearance,Surface_texture));
-      value_determination : OPTIONAL STRING;
-  END_ENTITY;
-
-  ENTITY Surface_condition_association;
-    describing_surface_condition : Surface_condition;
-    described_element            : shaped_element_select;
   END_ENTITY;
 
   ENTITY Surface_texture
@@ -87,25 +107,17 @@ USE FROM Value_with_unit_extension_arm;
 
   ENTITY Tactile_appearance
     SUBTYPE OF (Surface_condition);
-      id          : OPTIONAL STRING;
-      name        : OPTIONAL STRING;
       depth       : OPTIONAL Measure_item;
-      description : OPTIONAL STRING;
   END_ENTITY;
 
   ENTITY Treatment_result
     SUBTYPE OF (Surface_condition);
-      id          : OPTIONAL STRING;
-      name        : OPTIONAL STRING;
-      description : STRING;
       purpose     : OPTIONAL STRING;
   END_ENTITY;
 
   ENTITY Visual_appearance
     SUBTYPE OF (Surface_condition);
-      id           : OPTIONAL STRING;
       colour_id    : STRING;
-      name         : OPTIONAL STRING;
       colour_name  : OPTIONAL STRING;
       lustre       : STRING;
       transparency : OPTIONAL STRING;

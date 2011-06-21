@@ -5,6 +5,7 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1032">
    <application name="JSDAI" owner="LKSoft" source="shape_property_assignment_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Shape_property_assignment_arm">
+      <interface kind="use" schema="Property_assignment_arm"/>
       <interface kind="use" schema="Assembly_structure_arm"/>
       <interface kind="use" schema="External_model_arm"/>
       <interface kind="use" schema="Geometric_model_relationship_arm"/>
@@ -18,23 +19,32 @@
       <type name="geometric_item_specific_usage_select">
          <select selectitems="Shape_element Shape_element_relationship"/>
       </type>
-      <type name="shape_dependent_select">
-         <select selectitems="Item_shape Shape_element"/>
+      <type name="item_shape_or_element_or_relationship_select">
+         <select selectitems="Item_shape Shape_element Shape_element_relationship"/>
+      </type>
+      <type name="shape_element_or_relationship_select">
+         <select selectitems="Shape_element Shape_element_relationship"/>
       </type>
       <type name="shape_model">
          <select extensible="YES" genericentity="YES" selectitems="External_geometric_model Geometric_model"/>
       </type>
-      <type name="shape_select">
-         <select extensible="YES" genericentity="YES" selectitems="Item_shape"/>
-      </type>
       <type name="shapeable_item">
          <select extensible="YES" genericentity="YES" selectitems="Product_occurrence_definition_relationship Product_view_definition View_definition_usage"/>
       </type>
+      <type name="spa_represented_definition">
+         <select basedon="represented_definition" extensible="YES" genericentity="YES" selectitems="Item_shape Shape_element Shape_element_relationship"/>
+      </type>
+      <entity name="Assigned_shape_property" supertypes="Assigned_property">
+         <explicit name="described_element">
+            <typename name="item_shape_or_element_or_relationship_select"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+      </entity>
       <entity name="Associated_item_shape" supertypes="Item_shape">
          <derived expression="association\Shape_description_association.representation" name="associated_model">
             <typename name="shape_model"/>
          </derived>
-         <inverse attribute="represented_characteristic" entity="Shape_description_association" name="association"/>
+         <inverse attribute="definition" entity="Shape_description_association" name="association"/>
       </entity>
       <entity name="Associated_shape_element" supertypes="Shape_element">
          <explicit name="containing_shape">
@@ -95,32 +105,20 @@
             <typename name="shapeable_item"/>
          </explicit>
       </entity>
-      <entity name="Shape_dependent_property_representation">
-         <explicit name="characteristic_type">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="described_element">
-            <typename name="shape_dependent_select"/>
-         </explicit>
-         <explicit name="property_representation">
-            <typename name="Representation"/>
+      <entity name="Shape_dependent_property_representation" supertypes="Property_definition_representation">
+         <explicit name="definition">
+            <typename name="Assigned_shape_property"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
       </entity>
-      <entity name="Shape_description_association">
-         <explicit name="represented_characteristic">
-            <typename name="shape_select"/>
+      <entity name="Shape_description_association" supertypes="Property_definition_representation">
+         <explicit name="definition">
+            <typename name="Item_shape"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
-         <explicit name="representation">
+         <explicit name="used_representation">
             <typename name="shape_model"/>
-         </explicit>
-         <explicit name="role" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
       </entity>
       <entity name="Shape_element">
@@ -138,6 +136,16 @@
          </explicit>
          <where expression="EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
       </entity>
+      <entity name="Shape_element_description_association" supertypes="Property_definition_representation">
+         <explicit name="definition">
+            <typename name="shape_element_or_relationship_select"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="shape_model"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+      </entity>
       <entity name="Shape_element_relationship">
          <explicit name="relation_type" optional="YES">
             <builtintype type="STRING"/>
@@ -153,6 +161,7 @@
          </explicit>
          <where expression="EXISTS(relation_type) OR (TYPEOF(SELF\Shape_element_relationship) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
       </entity>
+      <subtype.constraint entity="Property_definition_representation" name="property_definition_representation_subtype" super.expression="ONEOF (Shape_description_association, Shape_dependent_property_representation, Shape_element_description_association)"/>
       <function name="spa_get_definition">
          <parameter name="input">
             <typename name="Contextual_item_shape"/>

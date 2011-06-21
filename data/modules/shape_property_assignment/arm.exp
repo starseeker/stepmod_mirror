@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.42 2011/02/28 20:50:35 liutkuviene Exp $
+	$Id: arm.exp,v 1.43 2011/06/09 19:10:08 lothartklein Exp $
 	ISO TC184/SC4/WG12 N6929 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6258
 *)
@@ -7,6 +7,7 @@
 
 SCHEMA Shape_property_assignment_arm; 
 
+USE FROM Property_assignment_arm;
 (*REFERENCE FROM*) USE FROM Assembly_structure_arm; -- ISO/TS 10303-1026
 
 (*REFERENCE FROM*) USE FROM External_model_arm; -- ISO/TS 10303-1033
@@ -25,23 +26,32 @@ TYPE described_element_select = SELECT (
   Product_occurrence_definition_relationship);
 END_TYPE;  
 
-TYPE geometric_item_specific_usage_select = SELECT (
+TYPE shape_element_or_relationship_select = SELECT (
   Shape_element,
   Shape_element_relationship);
 END_TYPE;  
 
-TYPE shape_dependent_select = SELECT
-  (Item_shape, 
-   Shape_element);
+TYPE geometric_item_specific_usage_select = SELECT (
+  Shape_element, 
+  Shape_element_relationship);
 END_TYPE; 
+
+
+TYPE spa_represented_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON represented_definition WITH (
+    Item_shape,
+    Shape_element,
+    Shape_element_relationship);
+END_TYPE;
+
+TYPE item_shape_or_element_or_relationship_select = SELECT (
+    Item_shape,
+    Shape_element,
+    Shape_element_relationship);
+END_TYPE;
 
 TYPE shape_model = EXTENSIBLE GENERIC_ENTITY SELECT
   (External_geometric_model, 
    Geometric_model);
-END_TYPE; 
-
-TYPE shape_select = EXTENSIBLE GENERIC_ENTITY SELECT
-  (Item_shape);
 END_TYPE; 
 
 TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -55,7 +65,7 @@ ENTITY Associated_item_shape
 DERIVE
   associated_model : shape_model := association\Shape_description_association.representation;
 INVERSE  
-  association : Shape_description_association FOR represented_characteristic;
+  association : Shape_description_association FOR definition;
 END_ENTITY;  
 
 ENTITY Associated_shape_element 
@@ -99,18 +109,26 @@ ENTITY Item_shape
   described_element : shapeable_item;
 END_ENTITY;
 
-ENTITY Shape_dependent_property_representation;
-  characteristic_type     : STRING;
-  description             : OPTIONAL STRING;
-  described_element       : shape_dependent_select;
-  property_representation : Representation;
+ENTITY Assigned_shape_property
+  SUBTYPE OF (Assigned_property);
+  SELF\Assigned_property.described_element : item_shape_or_element_or_relationship_select;
+END_ENTITY; 
+
+ENTITY Shape_dependent_property_representation -- maps to property_def_rep
+  SUBTYPE OF (Property_definition_representation);
+  SELF\Property_definition_representation.definition : Assigned_shape_property;
 END_ENTITY;
 
-ENTITY Shape_description_association;
-  represented_characteristic : shape_select;
-  representation             : shape_model;
-  role                       : OPTIONAL STRING;
-  description                : OPTIONAL STRING;
+ENTITY Shape_description_association -- maps to shape_def_rep
+  SUBTYPE OF (Property_definition_representation);
+  SELF\Property_definition_representation.definition : Item_shape;
+  SELF\Property_definition_representation.used_representation : shape_model;
+END_ENTITY;
+
+ENTITY Shape_element_description_association -- maps to shape_def_rep
+  SUBTYPE OF (Property_definition_representation);
+  SELF\Property_definition_representation.definition : shape_element_or_relationship_select;
+  SELF\Property_definition_representation.used_representation : shape_model;
 END_ENTITY;
 
 ENTITY Shape_element;
@@ -130,6 +148,10 @@ ENTITY Shape_element_relationship;
   WHERE
     WR1: EXISTS(relation_type) OR (TYPEOF(SELF\Shape_element_relationship) <> TYPEOF(SELF));
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT property_definition_representation_subtype FOR Property_definition_representation;
+  ONEOF (Shape_description_association, Shape_dependent_property_representation, Shape_element_description_association);
+END_SUBTYPE_CONSTRAINT;
 
 FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_definition;
   IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'

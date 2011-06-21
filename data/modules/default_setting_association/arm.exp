@@ -1,21 +1,37 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2011/06/19 09:44:54 lothartklein Exp $
    N - ISO/CD-TS - 10303- default_setting_association - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Default_setting_association_arm;
 
 USE FROM Shape_property_assignment_arm;
+USE FROM Default_tolerance_arm;
+--USE FROM Surface_condition_arm;
 
-TYPE default_context_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Item_shape);
+  CONSTANT 
+  -- normative reference: ISO 31-9, Annex A 
+  -- posistion is identical to Atomic number 
+  default_shape_property_name : LIST OF STRING := [
+      'general tolerance'];
+  END_CONSTANT; 
+
+TYPE default_setting_select = SELECT (
+  General_tolerances);
 END_TYPE; 
 
-TYPE default_setting_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+ENTITY Default_shape_setting_association -- was Default_setting_association
+  SUBTYPE OF (Shape_dependent_property_representation);
+  SELF\Property_definition_representation.definition : Default_shape_property;
+  SELF\Property_definition_representation.used_representation : default_setting_select;
+END_ENTITY;
 
-ENTITY Default_setting_association;
-  default_value : SET[0:?] OF default_setting_select;
-  default_context : default_context_select;
+ENTITY Default_shape_property 
+  SUBTYPE OF (Assigned_property);
+  SELF\Assigned_property.described_element : Item_shape;
+INVERSE
+  used_representation : Default_shape_setting_association FOR definition;
+WHERE
+  WR1: SELF\Assigned_property.name IN default_shape_property_name;
 END_ENTITY;
 
 END_SCHEMA;

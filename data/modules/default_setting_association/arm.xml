@@ -6,19 +6,30 @@
    <application name="JSDAI" owner="LKSoft" source="default_setting_association_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Default_setting_association_arm">
       <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <type name="default_context_select">
-         <select extensible="YES" genericentity="YES" selectitems="Item_shape"/>
-      </type>
+      <interface kind="use" schema="Default_tolerance_arm"/>
+      <constant expression="[&#10;      'general tolerance']" name="default_shape_property_name">
+         <aggregate lower="0" type="LIST" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
       <type name="default_setting_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="General_tolerances"/>
       </type>
-      <entity name="Default_setting_association">
-         <explicit name="default_value">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="default_setting_select"/>
+      <entity name="Default_shape_property" supertypes="Assigned_property">
+         <explicit name="described_element">
+            <typename name="Item_shape"/>
+            <redeclaration entity-ref="Assigned_property"/>
          </explicit>
-         <explicit name="default_context">
-            <typename name="default_context_select"/>
+         <inverse attribute="definition" entity="Default_shape_setting_association" name="used_representation"/>
+         <where expression="SELF\Assigned_property.name IN default_shape_property_name" label="WR1"/>
+      </entity>
+      <entity name="Default_shape_setting_association" supertypes="Shape_dependent_property_representation">
+         <explicit name="definition">
+            <typename name="Default_shape_property"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="default_setting_select"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
       </entity>
    </schema>

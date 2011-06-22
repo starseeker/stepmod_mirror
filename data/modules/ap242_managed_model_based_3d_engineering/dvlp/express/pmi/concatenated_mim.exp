@@ -2344,8 +2344,8 @@ Supersedes ISO TC184/SC4/WG12 N2871
 
 SCHEMA Default_tolerance_mim;
 
+USE FROM File_identification_mim;  -- ISO/TS 10303-1127
 USE FROM Foundation_representation_mim;    -- ISO/TS 10303-1006
-
 USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
 
 USE FROM representation_schema   -- ISO 10303-43
@@ -2353,9 +2353,6 @@ USE FROM representation_schema   -- ISO 10303-43
    compound_representation_item,
    representation,
    set_representation_item); 
-
-USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032
-
 
 ENTITY default_tolerance_table
   SUBTYPE OF (representation);
@@ -4364,7 +4361,45 @@ FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOO
                   ) = 2))) = 1) )) = 1));
     OTHERWISE : RETURN(FALSE);
   END_CASE;
-END_FUNCTION; 
+END_FUNCTION;
+ 
+RULE unique_shape_aspect_constraint for (product_definition_shape, shape_aspect);
+LOCAL
+ bsa : BAG OF shape_aspect := [];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bsa := QUERY(sa <* USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE') | sa\shape_aspect.name <> '');
+IF (SIZEOF(bag_to_set(bsa)) <> SIZEOF(bsa)) THEN pass := FALSE;
+END_IF;
+END_REPEAT;
+WHERE
+  WR1 : pass;
+END_RULE;
+
+
+RULE unique_dimensional_location_constraint for (product_definition_shape, dimensional_location);
+LOCAL
+ ssa : SET OF shape_aspect := [];
+ bdl : BAG OF dimensional_location := [];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bdl := [];
+ ssa := bag_to_set(USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
+ REPEAT i := 1 to SIZEOF (dimensional_location) WHILE pass;
+  IF (dimensional_location[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) AND
+     (dimensional_location[i]\shape_aspect_relationship.name <> '') THEN
+   bdl := bdl + dimensional_location[i];
+  END_IF;
+ END_REPEAT;
+ IF (SIZEOF(bag_to_set(bdl)) <> SIZEOF(bdl)) THEN pass := FALSE;
+ END_IF;
+END_REPEAT;
+WHERE
+  WR1 : pass;
+END_RULE;
+
 
 
 RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);
@@ -24975,7 +25010,7 @@ DERIVE
   closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
-        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITHPARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
+        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
   WR2: ('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))
       OR (n_segments > 1);
   -- WR2 - parameters are increasing
@@ -25368,7 +25403,7 @@ FUNCTION convert_spatial_to_ypr_rotation (pair     : kinematic_pair;
 
   conv_angle := plane_angle_for_pair_in_radian (pair, angle);
 
-  IF NOT('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PLANE_ANGLE_MEASURE' IN TYPEOF(conv_angle)) THEN
+  IF NOT('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' IN TYPEOF(conv_angle)) THEN
     RETURN (?);
   END_IF;
 
@@ -40727,8 +40762,6 @@ ENTITY symmetric_shape_aspect
   SUBTYPE OF (shape_aspect);
 INVERSE
   basis_relationships : SET[1:?] OF shape_aspect_deriving_relationship FOR related_shape_aspect;
-WHERE
-  WR1: SIZEOF (QUERY (x<*SELF\symmetric_shape_aspect.basis_relationships | 'SHAPE_ASPECT_DEFINITION_SCHEMA.CENTRE_OF_SYMMETRY' IN TYPEOF (x\shape_aspect_relationship.relating_shape_aspect)))>=1;
 END_ENTITY;
 
 ENTITY tangent
@@ -43620,6 +43653,8 @@ ENTITY dimensional_location
   SUPERTYPE OF (ONEOF (angular_location,
                        dimensional_location_with_path))
   SUBTYPE OF (shape_aspect_relationship);
+WHERE
+  WR1: SELF\shape_aspect_relationship.relating_shape_aspect :=: SELF\shape_aspect_relationship.related_shape_aspect;
 END_ENTITY;
 
 ENTITY dimensional_location_with_path
@@ -44016,7 +44051,7 @@ CASE TRUE OF ('SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION' IN TYPEOF(input)) :
                  RETURN(input\dimensional_size.applies_to\shape_aspect.of_shape);
                ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(input)) : 
                  RETURN(input);
-               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.shape_aspect' IN TYPEOF(input)) : 
+               ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT' IN TYPEOF(input)) : 
                  RETURN(input\shape_aspect.of_shape);
   OTHERWISE : RETURN(?);
   END_CASE;END_FUNCTION; 

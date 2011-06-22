@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.38 2011/06/05 18:22:22 thomasrthurman Exp $
+$Id: mim.exp,v 1.39 2011/06/05 19:29:16 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N6909 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N6757
 *) 
@@ -200,7 +200,45 @@ FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOO
                   ) = 2))) = 1) )) = 1));
     OTHERWISE : RETURN(FALSE);
   END_CASE;
-END_FUNCTION; 
+END_FUNCTION;
+ 
+RULE unique_shape_aspect_constraint for (product_definition_shape, shape_aspect);
+LOCAL
+ bsa : BAG OF shape_aspect := [];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bsa := QUERY(sa <* USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE') | sa\shape_aspect.name <> '');
+IF (SIZEOF(bag_to_set(bsa)) <> SIZEOF(bsa)) THEN pass := FALSE;
+END_IF;
+END_REPEAT;
+WHERE
+  WR1 : pass;
+END_RULE;
+
+
+RULE unique_dimensional_location_constraint for (product_definition_shape, dimensional_location);
+LOCAL
+ ssa : SET OF shape_aspect := [];
+ bdl : BAG OF dimensional_location := [];
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bdl := [];
+ ssa := bag_to_set(USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
+ REPEAT i := 1 to SIZEOF (dimensional_location) WHILE pass;
+  IF (dimensional_location[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) AND
+     (dimensional_location[i]\shape_aspect_relationship.name <> '') THEN
+   bdl := bdl + dimensional_location[i];
+  END_IF;
+ END_REPEAT;
+ IF (SIZEOF(bag_to_set(bdl)) <> SIZEOF(bdl)) THEN pass := FALSE;
+ END_IF;
+END_REPEAT;
+WHERE
+  WR1 : pass;
+END_RULE;
+
 
 
 RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);

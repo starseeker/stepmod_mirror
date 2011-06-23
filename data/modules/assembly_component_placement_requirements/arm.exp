@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2010/10/06 07:44:10 lothartklein Exp $
+   $Id: arm.exp,v 1.60 2010/10/11 04:35:18 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6941 - ISO/TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6288
 *)
@@ -154,9 +154,11 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
     SUBTYPE OF (Requirement_view_definition);
       design_specific_usage : STRING; 
 	DERIVE
-  		requirement: SET[0:?] OF Requirement_view_definition :=
-  		bag_to_set((QUERY(rvdr <* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-	'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relation_type = 'derived_from'))));
+	    requirement_relationship : SET[0:?] OF requirement_view_definition_relationship :=
+	    bag_to_set((QUERY(rvdr <* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+
+	    'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relation_type = 'derived_from'))));
+	
+  		requirement: SET[0:?] OF Requirement_view_definition := get_acpr_rvd(requirement_relationship);
     INVERSE
       composition : SET [1:?] OF Component_group_assignment FOR associated_group;
 	WHERE
@@ -173,6 +175,19 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
       placed_group : Placement_group_requirement_definition;
       volume       : Mounting_restriction_volume;
   END_ENTITY;
+
+FUNCTION get_acpr_rvd(
+	input : SET OF requirement_view_definition_relationship) : SET OF Requirement_view_definition; 
+LOCAL
+	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
+END_LOCAL;
+	-- iterate over input
+	REPEAT i := 1 to SIZEOF(input) by 1;
+		rvd := rvd + input[i]\requirement_view_definition_relationship.secondary;
+	END_REPEAT;
+
+	RETURN(rvd);
+END_FUNCTION;
 
 END_SCHEMA;
 

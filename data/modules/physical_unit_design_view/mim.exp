@@ -1,13 +1,14 @@
 (*
-   $Id: mim.exp,v 1.35 2009/08/11 11:40:58 liutkuviene Exp $
+   $Id: mim.exp,v 1.36 2009/12/23 13:27:46 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7020 - ISO/TS 10303-1728 Physical unit design view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6514
 *)
 
 SCHEMA Physical_unit_design_view_mim;
 
-(*REFERENCE FROM*) USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
-USE FROM Part_template_mim;	-- ISO/TS 10303-1722
+USE FROM Assembly_component_mim;
+USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
+USE FROM Part_template_mim; -- ISO/TS 10303-1722
 USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
 USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
 
@@ -30,31 +31,11 @@ USE FROM application_context_schema(application_context_element);
      component_material_relationship);
   END_TYPE; 
 
-  ENTITY assembly_component
-    SUBTYPE OF (component_definition, product_definition_shape);
-    DERIVE
-      SELF\property_definition.definition : assembly_component := SELF;
-    WHERE
-      WR1: NOT EXISTS(SELF\property_definition.description);
-  END_ENTITY;
-
   ENTITY assembly_item_number 
     SUBTYPE OF (group, applied_group_assignment);
       SELF\applied_group_assignment.items : SET [1:?] OF assembly_component_usage;
     DERIVE
       SELF\group_assignment.assigned_group : group := SELF;
-  END_ENTITY;
-
-  ENTITY component_definition
-    SUBTYPE OF (product_definition, product_definition_relationship);
-    DERIVE
-      SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
-    WHERE
-      WR1: NOT EXISTS(SELF\product_definition_relationship.description);
-      WR2: NOT EXISTS(SELF\property_definition.description);    
-      WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
-      WR4: SELF\product_definition_relationship.name = 'definition usage';
-      WR5: NOT ('PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_USAGE' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY component_material_relationship 
@@ -75,10 +56,6 @@ USE FROM application_context_schema(application_context_element);
       product_definition_occurrence_relationship);
     DERIVE
       SELF\product_definition_occurrence_relationship.occurrence_usage : next_assembly_usage_occurrence_relationship := SELF;
-  END_ENTITY;
-
-  ENTITY physical_component
-    SUBTYPE OF (assembly_component);
   END_ENTITY;
 
   ENTITY thermal_component

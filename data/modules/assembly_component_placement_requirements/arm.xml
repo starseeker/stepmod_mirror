@@ -133,7 +133,11 @@
          <explicit name="design_specific_usage" optional="NO">
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
-         <derived expression="bag_to_set((QUERY(rvdr &lt;* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+&#10;&#9;'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relation_type = 'derived_from'))))" name="requirement">
+         <derived expression="bag_to_set((QUERY(rvdr &lt;* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+&#10;&#9;    'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relation_type = 'derived_from'))))" name="requirement_relationship">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Requirement_view_definition_relationship"/>
+         </derived>
+         <derived expression="get_acpr_rvd(requirement_relationship)" name="requirement">
             <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Requirement_view_definition"/>
          </derived>
@@ -152,5 +156,22 @@
          </explicit>
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="Predefined_requirement_view_definition" name="acpr_predefined_requirement_view_definition_subtypes" super.expression="ONEOF (Assembly_spacing_requirement, Assembly_group_spacing_requirement, Item_restricted_requirement)"/>
+      <function name="get_acpr_rvd">
+         <parameter name="input">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Requirement_view_definition_relationship"/>
+         </parameter>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+         <typename name="Requirement_view_definition"/>
+         <algorithm>LOCAL
+	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
+END_LOCAL;
+	-- iterate over input
+	REPEAT i := 1 to SIZEOF(input) by 1;
+		rvd := rvd + input[i]\requirement_view_definition_relationship.secondary;
+	END_REPEAT;
+
+	RETURN(rvd);</algorithm>
+      </function>
    </schema>
 </express>

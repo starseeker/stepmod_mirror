@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="kinematic_state" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/06/04 17:28:19 $" rcs.revision="$Revision: 1.1 $">
+<ext_descriptions module_directory="kinematic_state" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/06/05 12:29:23 $" rcs.revision="$Revision: 1.2 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Kinematic_state_arm
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm"/>
@@ -17,6 +17,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.spatial_rotation">
+	The <b>spatial_rotation</b> type enables an arbitrary rotation in 3D space (<i>R<sup>3</sup></i>) to be specified either
+	as a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.ypr_rotation"/> 
+	or as a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -25,6 +30,21 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_enumeration">
+	The <b>ypr_enumeration</b> is a means by which the angles of rotation about the origin in Cartesian
+	coordinate space R<sup>3</sup> are distinguished.
+	The <b>yaw</b> represents the angle by which the original frame (<i>x</i><sub>0</sub>; <i>y</i><sub>0</sub>; <i>z</i><sub>0</sub>) 
+	is rotated first about the z-axis to yield an intermediate 
+	(<i>x</i>&#8242;, <i>y</i>&#8242;, <i>z</i>&#8242;) frame.
+	The <b>pitch</b> represents the angle by which the intermediate frame 
+	(<i>x</i>&#8242;, <i>y</i>&#8242;, <i>z</i>&#8242;) 
+	then is rotated about the y&#8242;-axis to yield another intermediate 
+	(<i>x</i>&#8243;, <i>y</i>&#8243;, <i>z</i>&#8243;) frame.
+	The <b>roll</b> represents the angle by which the
+	(<i>x</i>&#8243;, <i>y</i>&#8243;, <i>z</i>&#8243;) 
+	frame is rotated about the x&#8243;-axis to yield the desired final (x, y, z) frame.
+	<note>
+		For more detailed information on yaw, pitch, and roll convention see ISO 8855:1991
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -33,6 +53,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_enumeration.yaw">
+	the angle of rotation about the z-axis;
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -41,6 +62,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_enumeration.pitch">
+	the angle of rotation about the y&#8242;-axis;
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -49,6 +71,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_enumeration.roll">
+	the angle of rotation about the x&#8242;-axis.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -57,15 +80,53 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_rotation">
-</ext_description><!-- 
+	The <b>ypr_rotation</b> type is a means for specifying an ordered sequence of the angles of rotation.
+	The 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.yaw"/> 
+	value is the first, the 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.pitch"/> 
+	value the second, and the 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.roll"/> 
+	value the last element in the array.
+	The yaw rotation shall be performed first, followed by the pitch rotation.
+	The roll rotation shall be performed as the last action of a <b>ypr_rotation</b>.
+	<note>
+		An <i>EXPRESS</i> function which returns the rotation matrix corresponding to an input
+		<b>ypr_rotation</b> is given in annex E.
+		This function has been provided for applications that use this part of ISO 10303, 
+		but need the rotational transformation to be expressed in terms of a rotation
+		matrix rather than in terms of a sequence of rotation angles.
+	</note>
+</ext_description>
+
+<!-- IP1 -->
+<ext_description linkend="Kinematic_state_arm.ypr_rotation.wr:IP1">
+	<p>
+	The values of the yaw, pitch, and roll angle shall be in the ranges equivalent
+	to the following ranges, where the angles are measured in radians:
+	</p>
+	<p> <i>yaw angle</i> &#8712; &#93;- &#960;, &#960;&#93;</p>
+	<p>	<i>pitch angle</i> &#8712; &#91;- &#960;/2, &#960;/2&#93;</p> 
+	<p>	<i>roll angle</i> &#8712; &#93;- &#960;, &#960;&#93;</p>	
+</ext_description>
+
+<!-- IP2 -->
+<ext_description linkend="Kinematic_state_arm.ypr_rotation.wr:IP2">
+	If the absolute value of the pitch angle is equal to the equivalent
+	value of &#960;/2, the roll angle shall be zero.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Cylindrical_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Cylindrical_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Cylindrical_pair_value">
-        A <b>Cylindrical_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Cylindrical_pair_value</b> is a type of
+    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Cylindrical_pair_value</b> specifies the set of pair parameters for a 
+    <express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Cylindrical_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -74,6 +135,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Cylindrical_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Cylindrical_pair"/> 
+	to which the <b>Cylindrical_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -82,6 +146,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Cylindrical_pair_value.actual_translation">
+	the translation value.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -90,15 +155,35 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Cylindrical_pair_value.actual_rotation">
-</ext_description><!-- 
+	the angle of rotation.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Gear_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Gear_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Gear_pair_value">
-        A <b>Gear_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Gear_pair_value</b> is a type of
+    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Gear_pair_value</b> specifies the pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Gear_pair"/>.
+	<note>
+		<p>
+			If the gear pair is part of a more complex gear mechanism, the gear pair values as defined here may not be the primary design targets.
+			In the case of a planetary gear mechanism, for example, it is more important to know the rotation angles of the planetary gears 
+			with respect to an inertial coordinate system than the rotation angles between the planetary gears and the frames which support them.
+			See [2] for a detailed description of this specific example. ******************* change index later *****************
+		</p>
+		<p>
+			For a given configuration of pairs within a mechanism, the more global motion parameters can be derived, in general, 
+			from the individual pair parameters and vice versa.
+			This is not possible, however, generically without knowledge of the configuration.
+			Therefore, the specification of functions which provide such derivations is left to an application protocol 
+			for which these derivations are required.
+		</p>
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,6 +192,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Gear_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Gear_pair"/> 
+	to which the <b>Gear_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -115,6 +203,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Gear_pair_value.actual_rotation_1">
+	the value of the pair parameter of the first link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -123,15 +212,26 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Gear_pair_value.actual_rotation_2">
-</ext_description><!-- 
+	the value of the pair parameter of the second link.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Mechanism_state_representation  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Mechanism_state_representation"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Mechanism_state_representation">
-        A <b>Mechanism_state_representation</b> is a type of
-        <express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	A <b>Mechanism_state_representation</b> is a type of
+	<express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	that specifies a particular state of a
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Mechanism_representation"/>
+	by applying 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value"/>s
+	for each
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair"/>
+	of the underlying
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Mechanism_representation"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -140,6 +240,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Mechanism_state_representation.items">
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+	There shall exist at least one
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value" />
+	for the <b>Mechanism_state_representation</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -148,6 +253,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Mechanism_state_representation.represented_mechanism">
+	specifies the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Mechanism_representation" />
+	for which a particular state is represented.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -156,15 +264,53 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Mechanism_state_representation.context_of_items">
-</ext_description><!-- 
+	an inherited attribute that shall be of type
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_coordinate_space" />.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Pair_value">
-        A <b>Pair_value</b> is a type of
-        <express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Detailed_geometric_model_element" />
+	A <b>Pair_value</b> is a type of
+	<express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Detailed_geometric_model_element" />
+	that specifies a configuration of the two links that join a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair"/>.
+	Each <b>Pair_value</b> is either a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Sliding_surface_pair_value"/>, 
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rolling_surface_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Revolute_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Prismatic_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Screw_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Cylindrical_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Spherical_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Sliding_curve_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rolling_curve_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Gear_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rack_and_pinion_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Universal_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Planar_pair_value"/>,
+	an
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Unconstrained_pair_value"/>,
+	a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Point_on_surface_pair_value"/>,
+	or a
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Point_on_planar_curve_pair_value"/>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -173,15 +319,22 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Pair_value.applies_to_pair">
-</ext_description><!-- 
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair"/> 
+	to which the <b>Pair_value</b> applies.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Planar_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Planar_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Planar_pair_value">
-        A <b>Planar_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Planar_pair_value</b> is a type of
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+	A <b>Planar_pair_value</b> specifies the set of pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -190,6 +343,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Planar_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_pair"/> 
+	to which the <b>Planar_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -198,6 +354,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Planar_pair_value.actual_rotation">
+	the value of the angle of rotation for a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -206,6 +364,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Planar_pair_value.actual_translation_x">
+	the value of translation in x-direction for a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -214,15 +374,21 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Planar_pair_value.actual_translation_y">
-</ext_description><!-- 
+	the value of translation in y-direction for a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_pair"/>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Point_on_planar_curve_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Point_on_planar_curve_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_planar_curve_pair_value">
-        A <b>Point_on_planar_curve_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Point_on_planar_curve_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Point_on_planar_curve_pair_value</b> specifies the pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_planar_curve_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -231,6 +397,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_planar_curve_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_planar_curve_pair"/> 
+	to which the <b>Point_on_planar_curve_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -239,6 +408,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_planar_curve_pair_value.actual_point_on_curve">
+	the positional value for the point on the curve.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -247,6 +417,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_planar_curve_pair_value.input_orientation">
+	the input specification of the rotational pair parameter values from which the actual orientation is derived.
+	An <b>input_orientation</b> is either a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.ypr_rotation"/> 
+	or a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -256,15 +431,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_planar_curve_pair_value.wr:WR1">
-</ext_description><!-- 
+	The <b>actual_point_on_curve</b> shall be defined as a point on the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_planar_curve_pair.pair_curve"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_planar_curve_pair"/> 
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Point_on_surface_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Point_on_surface_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_surface_pair_value">
-        A <b>Point_on_surface_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Point_on_surface_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Point_on_surface_pair_value</b> specifies the pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_surface_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -273,6 +457,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_surface_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_surface_pair"/> 
+	to which the <b>Point_on_surface_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -281,6 +468,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_surface_pair_value.actual_point_on_surface">
+	the positional value for the point on the surface.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -289,6 +477,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_surface_pair_value.input_orientation">
+	the input specification of the rotational pair parameter values from which the actual orientation is derived.
+	An <b>input_orientation</b> is either an 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.ypr_rotation"/> 
+	or a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rotation_about_direction"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -298,15 +491,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Point_on_surface_pair_value.wr:WR1">
-</ext_description><!-- 
+	The <b>actual_point_on_surface</b> shall be defined as a point on the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_surface_pair.pair_surface"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Point_on_surface_pair"/> 
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Prismatic_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Prismatic_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Prismatic_pair_value">
-        A <b>Prismatic_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Prismatic_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Prismatic_pair_value</b> is the value of the pair parameter for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Prismatic_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -315,6 +517,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Prismatic_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Prismatic_pair"/> 
+	to which the <b>Prismatic_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -323,15 +528,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Prismatic_pair_value.actual_translation">
-</ext_description><!-- 
+	the value of the pair parameter.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Rack_and_pinion_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Rack_and_pinion_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rack_and_pinion_pair_value">
-        A <b>Rack_and_pinion_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Rack_and_pinion_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Rack_and_pinion_pair_value</b> specifies the pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rack_and_pinion_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -340,6 +550,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rack_and_pinion_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rack_and_pinion_pair"/> 
+	to which the <b>Rack_and_pinion_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -348,6 +561,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rack_and_pinion_pair_value.actual_displacement">
+	the value of the pair parameter for the rack.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -356,15 +570,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rack_and_pinion_pair_value.actual_rotation">
-</ext_description><!-- 
+	the resulting rotation of the pinion.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Revolute_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Revolute_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Revolute_pair_value">
-        A <b>Revolute_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Revolute_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Revolute_pair_value</b> specifies the value of the pair parameter for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Revolute_pair"/>. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -373,6 +592,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Revolute_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Revolute_pair"/> 
+	to which the <b>Revolute_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -381,15 +603,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Revolute_pair_value.actual_rotation">
-</ext_description><!-- 
+	the value of the pair parameter.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Rolling_curve_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Rolling_curve_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_curve_pair_value">
-        A <b>Rolling_curve_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Rolling_curve_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Rolling_curve_pair_value</b> specifies the pair parameter for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rolling_curve_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -398,6 +625,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_curve_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rolling_curve_pair"/>
+	to which the <b>Rolling_curve_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -406,6 +636,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_curve_pair_value.actual_point_on_curve_1">
+	the contact point, defined in the parameter space of the curve on the first link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -415,15 +646,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_curve_pair_value.wr:WR1">
-</ext_description><!-- 
+	The <b>actual_point_on_curve_1</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair.curve_1"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair"/> 
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Rolling_surface_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Rolling_surface_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_surface_pair_value">
-        A <b>Rolling_surface_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Rolling_surface_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Rolling_surface_pair_value</b> specifies the set of pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rolling_surface_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -432,6 +672,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_surface_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Rolling_surface_pair"/> 
+	to which the <b>Rolling_surface_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -440,6 +683,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_surface_pair_value.actual_point_on_surface">
+	the contact point of the contact surface 
+	(<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_1"/>) 
+	of the first link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -448,6 +694,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_surface_pair_value.actual_rotation">
+	the angle required to rotate the <i>x<sub>c</sub><sup>p</sup></i>-direction of the first link surface around
+	the <i>z<sub>c</sub></i>-direction of that surface until it coincides with the <i>x<sub>c</sub></i>-direction of the second link surface.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -457,15 +705,29 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rolling_surface_pair_value.wr:WR1">
-</ext_description><!-- 
+	The <b>actual_point_on_surface</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_1"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair"/>
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Rotation_about_direction  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Rotation_about_direction"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rotation_about_direction">
-        A <b>Rotation_about_direction</b> is a type of
-        <express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Detailed_geometric_model_element" />
+	A <b>Rotation_about_direction</b> is a type of
+	<express_ref linkend="elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Detailed_geometric_model_element" />
+	that specifies a rotation in Cartesian coordinate space <i>R</i><sup>3</sup>.
+	The axis of rotation passes the origin of the related coordinate system; 
+	its direction is given explicitely as <b>direction_of_axis</b>.
+	Furthermore, the amount of rotation is specified by <b>rotation_angle</b> which may have any finite value;
+	i.e., its absolute value in radians is not restricted to be less than &#960;.
+	A positive value of <b>rotation_angle</b> indicates a counter-clockwise rotation when looking in the
+	negative direction with respect to the <b>direction_of_axis</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -474,6 +736,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rotation_about_direction.direction_of_axis">
+	the three-dimensional direction of the axis of rotation.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -482,6 +745,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rotation_about_direction.rotation_angle">
+	the angle of rotation about the axis of rotation.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -491,15 +755,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Rotation_about_direction.wr:WR1">
-</ext_description><!-- 
+	The <b>direction_of_axis</b> shall be a three-dimensional direction.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Screw_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Screw_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Screw_pair_value">
-        A <b>Screw_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Screw_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Screw_pair_value</b> specifies the value of the pair parameter of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Screw_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -508,6 +777,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Screw_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Screw_pair"/> 
+	to which the <b>Screw_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -516,15 +788,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Screw_pair_value.actual_rotation">
-</ext_description><!-- 
+	the rotation angle of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Screw_pair"/>.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Sliding_curve_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Sliding_curve_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value">
-        A <b>Sliding_curve_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Sliding_curve_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Sliding_curve_pair_value</b> specifies the pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Sliding_curve_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -533,6 +810,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Sliding_curve_pair"/> 
+	to which the <b>Sliding_curve_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -541,6 +821,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value.actual_point_on_curve_1">
+	the contact point, defined in the parameter space of the curve on the first link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -549,6 +830,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value.actual_point_on_curve_2">
+	the contact point, defined in the parameter space of the curve on the second link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -558,6 +840,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value.wr:WR1">
+	The <b>actual_point_on_curve_1</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair.curve_1"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair"/> 
+	referenced by <b>applies_to_pair</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -567,15 +854,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_curve_pair_value.wr:WR2">
-</ext_description><!-- 
+	The <b>actual_point_on_curve_2</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair.curve_2"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Planar_curve_pair"/> 
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Sliding_surface_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Sliding_surface_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value">
-        A <b>Sliding_surface_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Sliding_surface_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+    A <b>Sliding_surface_pair_value</b> specifies the set of pair parameters for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Sliding_surface_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -584,6 +880,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Sliding_surface_pair"/> 
+	to which the <b>Sliding_surface_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -592,6 +891,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.actual_point_on_surface_1">
+	the contact point of the contact surface 
+	(<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_1"/>) 
+	of the first link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -600,6 +902,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.actual_point_on_surface_2">
+	the contact point of the contact surface 
+	(<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_2"/>)
+	of the second link.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -608,6 +913,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.actual_rotation">
+	the angle required to rotate the <i>x<sub>c</sub><sup>p</sup></i>-direction of the first link surface around
+	the <i>z<sub>c</sub></i>-direction of that surface until it coincides with the <i>x<sub>c</sub></i>-direction of the second link surface.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -617,6 +924,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.wr:WR1">
+	The <b>actual_point_on_surface_1</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_1"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair"/> 
+	referenced by <b>applies_to_pair</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -626,15 +938,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Sliding_surface_pair_value.wr:WR2">
-</ext_description><!-- 
+	The <b>actual_point_on_surface_2</b> shall be defined as a point on 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair.surface_2"/> 
+	of the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Surface_pair"/> 
+	referenced by <b>applies_to_pair</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Spherical_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Spherical_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Spherical_pair_value">
-        A <b>Spherical_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Spherical_pair_value</b> is a type of
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+	A <b>Spherical_pair_value</b> specifies the set of pair parameters for a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Spherical_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -643,6 +964,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Spherical_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Spherical_pair"/> 
+	to which the <b>Spherical_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -651,15 +975,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Spherical_pair_value.input_orientation">
-</ext_description><!-- 
+	the input specification of the pair parameter values from which the actual orientation is derived.
+	An <b>input_orientation</b> is either an 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.ypr_rotation"/> 
+	or a 
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Rotation_about_direction"/>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Unconstrained_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Unconstrained_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Unconstrained_pair_value">
-        A <b>Unconstrained_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	An <b>Unconstrained_pair_value</b> is a type of
+    <express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />
+    An <b>Unconstrained_pair_value</b> specifies the pair parameters for an 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Unconstrained_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -668,6 +1001,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Unconstrained_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Unconstrained_pair"/> 
+	to which the <b>Unconstrained_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -676,15 +1012,21 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Unconstrained_pair_value.actual_placement">
-</ext_description><!-- 
+	the placement of the second pair frame with respect to the first pair frame for the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Unconstrained_pair"/>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_state_arm  Entity: Universal_pair_value  
    <express_ref linkend="kinematic_state:arm:Kinematic_state_arm.Universal_pair_value"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Universal_pair_value">
-        A <b>Universal_pair_value</b> is a type of
-        <express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Pair_value" />
+	A <b>Universal_pair_value</b> is a type of
+	<express_ref linkend="Kinematic_state:arm:Kinematic_state_arm.Pair_value" />.
+	A <b>Universal_pair_value</b> specifies the set of pair parameters for a 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Universal_pair"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -693,6 +1035,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Universal_pair_value.applies_to_pair">
+	the 
+	<express_ref linkend="Kinematic_structure:arm:Kinematic_structure_arm.Universal_pair"/> 
+	to which the <b>Universal_pair_value</b> applies.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -701,6 +1046,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Universal_pair_value.first_rotation_angle">
+	the angle of rotation around the first axis.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -709,6 +1055,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.Universal_pair_value.second_rotation_angle">
+	the angle of rotation around the second axis.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -717,6 +1064,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_state_arm.ypr_index">
+	The <b>ypr_index</b> function establishes an ordered sequence of angles of rotation for a linear transformation.
+	The function returns 1 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.yaw"/>.
+	The function returns 2 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.pitch"/>.
+	The function returns 3 if the angle of rotation is of type 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration.roll"/>.
+	The type of the function is INTEGER.
+</ext_description>
+
+<!--  -->
+<ext_description linkend="Kinematic_state_arm.ypr_index.ypr">
+	one axis of rotation as specified by the 
+	<express_ref linkend="kinematic_state:arm:Kinematic_state_arm.ypr_enumeration"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

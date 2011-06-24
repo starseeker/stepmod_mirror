@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="kinematic_topology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/06/04 17:28:19 $" rcs.revision="$Revision: 1.1 $">
+<ext_descriptions module_directory="kinematic_topology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/06/05 12:29:23 $" rcs.revision="$Revision: 1.2 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Kinematic_topology_arm
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm"/>
@@ -17,15 +17,54 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.kinematic_topology_representation_select">
-</ext_description><!-- 
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_joint  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_joint">
-        A <b>Kinematic_joint</b> is a type of
-        <express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Edge" />
+	A <b>Kinematic_joint</b> is a type of
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Edge" />
+	that is a specification of the topological aspect of an ordered connection between two and only two links.
+	<p>
+	A topological orientation is always implicitly associated with a joint. 
+	This orientation is defined as being from the edge start to the edge end.
+	</p>
+	<p>
+	For a 
+	<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair"/> 
+	referencing a <b>Kinematic_joint</b>, the 
+	<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair.transform_item_1"/> 
+	shall be an item of the 
+	<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_link_representation"/> 
+	of the <b>edge_start</b> of the <b>Kinematic_joint</b>.
+	</p>
+	<p>
+	Similarly, the 
+	<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair.transform_item_2"/> 
+	shall be an item of the 
+	<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_link_representation"/> 
+	of the <b>edge_end</b> of the <b>Kinematic_joint</b>.
+	</p>
+	<note number="1">
+		The type of constraint on the relative motion is defined by the 
+		<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair"/> 
+		that has the joint as its 
+		<express_ref linkend="kinematic_structure:arm:Kinematic_structure_arm.Kinematic_pair.joint"/> 
+		attribute.
+		In a graph representation of the topology, the <b>Kinematic_joint</b> represents an
+		oriented edge connecting two vertices in the graph.
+		The orientation of the <b>Kinematic_joint</b> reflects an implicit orientation which is arbitrary, 
+		except for the rack-and-pinion pair, the point-on-surface pair, and the point-on-planar-curve pair.
+	</note>
+	<note number="2">
+		If the sequence of <b>edge_start</b> and <b>edge_end</b> is interchanged, both, pair values and pair range
+		values, have to be used with the opposite signs  
+		additionally the attributes giving a lower limit are to be interchanged with those giving the corresponding upper limit.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -34,6 +73,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_joint.edge_start">
+	the link through which the joint is entered.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,6 +82,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_joint.edge_end">
+	the link through which the joint is left.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,6 +92,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_joint.wr:WR1">
+	The <b>edge_start</b> and <b>edge_end</b> shall not be identical.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -59,24 +101,46 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_joint.ur:UR1">
-</ext_description><!-- 
+	The combination of <b>edge_start</b> and <b>edge_end</b> shall be unique within a population of <b>Kinematic_joint</b>.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_link  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_link"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_link">
-        A <b>Kinematic_link</b> is a type of
-        <express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Vertex" />
-</ext_description><!-- 
+	A <b>Kinematic_link</b> is a type of
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Vertex" />
+	representation of the topological aspects associated with a rigid part of a mechanism.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_loop  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_loop"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_loop">
-        A <b>Kinematic_loop</b> is a type of
-        <express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Edge_loop" />
+	A <b>Kinematic_loop</b> is a type of
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Edge_loop" />
+	that is a cycle in the subgraph.
+	It is the representation of a closed kinematic chain in a mechanism, where the last link in the chain is again connected to the first
+	link by a joint.
+	The <b>Kinematic_loop</b> is analogous to the loop in the topology model, where the joints correspond to the edges and the links 
+	correspond to the vertices of the topology model.
+	The loop shall be pointed to by at least one 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>.
+	<p>
+		Every 
+		<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint"/> 
+		shall be oriented such that the list of 
+		<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref> 
+		have a common orientation within the loop.
+	</p>
+	<note>
+		This entity is present in an instance of a kinematics model only if the kinematic structure takes the form of a directed graph.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -85,15 +149,26 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_loop.edge_list">
-</ext_description><!-- 
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>
+	There shall exist at least one
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>
+	for the <b>Kinematic_loop</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_property_definition_representation  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_definition_representation"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_property_definition_representation">
-        A <b>Kinematic_property_definition_representation</b> is a type of
-        <express_ref linkend="property_assignment:arm:Property_assignment_arm.Property_definition_representation" />
+	A <b>Kinematic_property_definition_representation</b> is a type of
+	<express_ref linkend="property_assignment:arm:Property_assignment_arm.Property_definition_representation" />
+	that relates a 
+	<express_ref linkend="Foundation_representation:arm:Foundation_representation_arm.Representation"/> 
+	to a 
+	<express_ref linkend="Kinematic_topology:arm:Kinematic_topology_arm.Product_definition_kinematics"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -102,23 +177,35 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_property_definition_representation.definition">
-</ext_description><!-- 
+	an inherited attribute that shall be of type
+	<express_ref linkend="Kinematic_topology:arm:Kinematic_topology_arm.Product_definition_kinematics" />.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_property_topology_representation  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_topology_representation"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_property_topology_representation">
-        A <b>Kinematic_property_topology_representation</b> is a type of
-        <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_definition_representation" />
+	A <b>Kinematic_property_topology_representation</b> is a type of
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_definition_representation" />
+	that relates a
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.kinematic_topology_representation_select" />
+	item
+	to a
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_link" />.
+	
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   Schema: Kinematic_topology_arm  Entity: Kinematic_property_topology_representation  Attribute: rep 
-   <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_topology_representation.rep"/>
+   Schema: Kinematic_topology_arm  Entity: Kinematic_property_topology_representation  Attribute: used_representation 
+   <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_topology_representation.used_representation"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-<ext_description linkend="Kinematic_topology_arm.Kinematic_property_topology_representation.rep">
+<ext_description linkend="Kinematic_topology_arm.Kinematic_property_topology_representation.used_representation">
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.kinematic_topology_representation_select" />.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -127,6 +214,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_property_topology_representation.base">
+	the initial link of the <b>Kinematic_property_topology_representation</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -136,15 +224,21 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_property_topology_representation.wr:WR1">
-</ext_description><!-- 
+	The <b>base</b> shall be founded in the	
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.kinematic_topology_representation_select" />.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_topology_directed_structure  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_directed_structure"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_directed_structure">
-        A <b>Kinematic_topology_directed_structure</b> is a type of
-        <express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	A <b>Kinematic_topology_directed_structure</b> is a type of
+	<express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	that identified a directed structure within a parent
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -153,6 +247,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_directed_structure.items">
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>.
+	There shall exist at least one
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>
+	for the <b>Kinematic_topology_directed_structure</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -161,6 +260,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_directed_structure.parent">
+	the parent
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure"/>
+	in which this <b>Kinematic_topology_directed_structure</b> defines a direct subset.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -170,6 +272,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_directed_structure.wr:WR1">
+	A <b>Kinematic_topology_directed_structure</b> shall have the same context as its <b>parent</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -179,15 +282,33 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_directed_structure.wr:WR2">
-</ext_description><!-- 
+	The
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>s
+	used by the items of a <b>Kinematic_topology_directed_structure</b> shall also be items of its <b>parent</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_topology_network_structure  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_network_structure"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_network_structure">
-        A <b>Kinematic_topology_network_structure</b> is a type of
-        <express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	A <b>Kinematic_topology_network_structure</b> is a type of
+	<express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />.
+	A <b>Kinematic_topology_network_structure</b> represents a subgraph of network type; i.e., the mechanism is composed of closed kinematic chains.
+	<note number="1">
+		See 
+		<module_ref linkend="kinematic_topology:4_entities:figure:fig_example_kinematic_network_structure">Figure 1</module_ref> 
+		for an illustration of a kinematic network structure.
+	</note>
+	<note number="2">
+		This entity is present in an instance of a kinematics model only if the kinematic structure takes the form of a directed graph.
+	</note>
+	<figure id="fig_example_kinematic_network_structure" number="1">
+		<title>Example of a kinematic network structure</title>
+		<img src="example_kinematic_network_structure.gif"/>
+	</figure>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -196,6 +317,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_network_structure.items">
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_loop"/>.
+	There shall exist at least one
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_loop"/>
+	for the <b>Kinematic_topology_network_structure</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -204,6 +330,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_network_structure.parent">
+	the parent
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure"/>
+	in which this <b>Kinematic_topology_network_structure</b> defines a subset with loops.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -213,6 +342,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_network_structure.wr:WR1">
+	A <b>Kinematic_topology_network_structure</b> shall have the same context as the <b>parent</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -222,15 +352,33 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_network_structure.wr:WR2">
-</ext_description><!-- 
+	The
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>s
+	used by the items of a <b>Kinematic_topology_network_structure</b> shall also be items of its <b>parent</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_topology_structure  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_structure">
-        A <b>Kinematic_topology_structure</b> is a type of
-        <express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	A <b>Kinematic_topology_structure</b> is a type of
+	<express_ref linkend="foundation_representation:arm:Foundation_representation_arm.Representation" />
+	that specifies the topological aspects of a kinematic representation.
+	The topology of the <b>Kinematic_topology_structure</b> is represented by means of 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref> 
+	which, in turn, establish a relationship between pairs of 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_link">Kinematic_links</express_ref>.
+	<note>
+		Every kinematic structure can be described in terms of its joints and links. 
+		Joints constrain the motion between two rigid objects called links. 
+		Joints and links are sufficient to describe the topology of kinematic structures, 
+		but for computation it is meaningful to introduce additional levels of structure based on graph theory. 
+		Information related to the graph representation of a kinematic structure is given in
+		<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_substructure"/>.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -239,6 +387,12 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_structure.items">
+	the set of 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref>  
+	that compose the <b>Kinematic_topology_structure</b> of a mechanism.
+	There shall exist one or more
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref> 
+	for the <b>Kinematic_topology_structure</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -248,15 +402,60 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_structure.wr:WR1">
-</ext_description><!-- 
+	None of the items shall be an
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Oriented_edge"/>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_topology_substructure  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_substructure"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_substructure">
-        A <b>Kinematic_topology_substructure</b> is a type of
-        <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure" />
+	A <b>Kinematic_topology_substructure</b> is a type of
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure" />
+	that specifies the topological characteristics of a mechanism in terms of tree or network structures.
+	<note number="1">
+		<p>
+			Using graph theory, the topology of a mechanism is represented by a directed graph, where the links correspond to the nodes, 
+			and the joints correspond to the edges.
+			This graph can be derived from the definition of the links and joints.
+			If the topology of a mechanism is defined only by this minimal information, it is referred to as "lower level topology" 
+			within this part of ISO 10303.
+		</p>
+		<p>
+			Graph theory provides a means to capture connectivity information which may be applied to the describe 
+			the topological structure of mechanisms.
+			The geometrical and mechanical properties are not conveyed.
+			If the full topological information including connectivity information is provided explicitly, 
+			this is referred to as "higher level topology" within this part of ISO 10303.
+		</p>
+		<p>
+			A general graph may be composed of two basic types of subgraphs:
+		</p>
+		<ol>
+			<li>Trees;</li>
+			<li>Networks.</li>
+		</ol>
+		<p>
+			If, in addition to the lower level of topology, the higher level topology is provided in a kinematic model, 
+			this higher level of topology is represented by kinematic substructures.
+			These kinematic substructures are:
+		</p>
+		<ul>
+			<li>
+				a kinematic tree structure, whose graph representation is a single oriented tree and which consists
+				only of oriented kinematic joints connecting the kinematic links;
+			</li>
+			<li>
+				a kinematic network structure, whose graph representation consists of oriented kinematic loops.
+			</li>
+		</ul>
+	</note>
+	<note number="2">
+		See [4]? for methods that can be applied to analyze a kinematic topology substructure.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -265,6 +464,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_substructure.parent">
+	the 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure"/> 
+	of which the <b>Kinematic_topology_substructure</b> forms a component.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -274,6 +476,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_substructure.wr:WR1">
+	 A <b>Kinematic_topology_substructure</b> shall have the same context as the <b>parent</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -283,24 +486,50 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_substructure.wr:WR2">
-</ext_description><!-- 
+	The 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure.items"/> 
+	of a <b>Kinematic_topology_substructure</b> shall also be 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_structure.items"/> 
+	of the <b>parent</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Kinematic_topology_tree_structure  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_tree_structure"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Kinematic_topology_tree_structure">
-        A <b>Kinematic_topology_tree_structure</b> is a type of
-        <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_directed_structure" />
-</ext_description><!-- 
+	A <b>Kinematic_topology_tree_structure</b> is a type of
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_topology_directed_structure" />.
+	A <b>Kinematic_topology_tree_structure</b> represents a subgraph of tree type; i.e., the mechanism is composed of open kinematic chains.
+	<note number="1">
+		See 
+		<module_ref linkend="kinematic_topology:4_entities:figure:fig_example_kinematic_tree_structure">Figure 2</module_ref>  
+		for an illustration of a kinematic topology tree structure.
+	</note>
+	<note number="2">
+		This entity is present in an instance of a kinematics model only if the kinematic topology structure takes the form of a directed graph.
+	</note>
+	<figure id="fig_example_kinematic_tree_structure" number="2">
+		<title>Example of a kinematic topology tree structure</title>
+		<img src="example_kinematic_tree_structure.gif"/>
+	</figure>
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Oriented_joint  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Oriented_joint">
-        A <b>Oriented_joint</b> is a type of
-        <express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Oriented_edge" />
+	An <b>Oriented_joint</b> is a type of
+	<express_ref linkend="elemental_topology:arm:Elemental_topology_arm.Oriented_edge" />
+	that is a direction of traversal of a joint.
+	<note>
+		This entity is present in an instance of a kinematics model only if the kinematic structure takes the form of a directed graph.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -309,15 +538,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Oriented_joint.edge_definition">
-</ext_description><!-- 
+	an inherited attribute that shall be of type
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint"/>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Entity: Product_definition_kinematics  
    <express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Product_definition_kinematics"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Product_definition_kinematics">
-        A <b>Product_definition_kinematics</b> is a type of
-        <express_ref linkend="property_assignment:arm:Property_assignment_arm.Assigned_property" />
+	A <b>Product_definition_kinematics</b> is a type of
+	<express_ref linkend="property_assignment:arm:Property_assignment_arm.Assigned_property" />.
+	The <b>Product_definition_kinematics</b> specifies the kinematic property of a product.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -326,6 +560,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Product_definition_kinematics.described_element">
+	an inherited attribute that shall be of type
+	<express_ref linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition" />.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -334,6 +570,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Product_definition_kinematics.representation_relation">
+	specifies an inverse relationship that specifies that the existence of the <b>Product_definition_kinematics</b> is dependent on the existence of the  
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_definition_representation"/> 
+	that specifies the <b>Product_definition_kinematics</b> as its 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_property_definition_representation.definition"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -342,6 +582,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.Product_definition_kinematics.ur:UR1">
+	The <b>described_element</b> shall be unique within a population of <b>Product_definition_kinematics</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -350,7 +591,19 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.get_kinematic_joints_from_kinematic_loops">
+	The <b>get_kinematic_joints_from_kinematic_loops</b> function returns the set of 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref>
+	associated with the 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_loop"/>
+	as a <b>kls</b>.
 </ext_description>
+
+<!-- kls -->
+<ext_description linkend="Kinematic_topology_arm.get_kinematic_joints_from_kinematic_loops.kls">
+	the specified set of
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_loop">Kinematic_loops</express_ref>.
+</ext_description>
+
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Function: get_kinematic_joints_from_oriented_joints 
@@ -358,7 +611,19 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Kinematic_topology_arm.get_kinematic_joints_from_oriented_joints">
+	The <b>get_kinematic_joints_from_oriented_joints</b> function returns the set of 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Kinematic_joint">Kinematic_joints</express_ref>
+	associated with the 
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint"/>
+	as a <b>ors</b>.
 </ext_description>
+
+<!-- ors -->
+<ext_description linkend="Kinematic_topology_arm.get_kinematic_joints_from_oriented_joints.ors">
+	the specified set of
+	<express_ref linkend="kinematic_topology:arm:Kinematic_topology_arm.Oriented_joint">Oriented_joints</express_ref>.
+</ext_description>
+
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Kinematic_topology_arm  Subtype constraint: kts_representation_subtypes  

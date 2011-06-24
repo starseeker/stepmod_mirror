@@ -39,11 +39,11 @@
 		------------------------------------------------------------
 	  </fail>
       <property name="PUBLICATION" value="YES"/>
-      <property name="PUBDIR" value="publication/isopub/part_61"/>
-      <property name="SC4COVERDIR" value="publication/isopub/part_61/sc4covers"/>
-      <property name="TMPDIR" value="publication/isopub/part_61/tmp"/>
-      <property name="ISOMENU" value="./publication/publication/part_61/menubar_iso.xml"/>
-      <property name="PUBSRCDIR" value="publication/publication/part_61"/>
+      <property name="PUBDIR" value="publication/isopub/part_61_is"/>
+      <property name="SC4COVERDIR" value="publication/isopub/part_61_is/sc4covers"/>
+      <property name="TMPDIR" value="publication/isopub/part_61_is/tmp"/>
+      <property name="ISOMENU" value="./publication/publication/part_61_is/menubar_iso.xml"/>
+      <property name="PUBSRCDIR" value="publication/publication/part_61_is"/>
       <property name="PUBSRCDTD" value="publication/dtd"/>
       <property name="PUBSRCSTYLES" value="publication/xsl"/>
       <property name="APDOCS_INLINE_ERRORS" value="'yes'"/>
@@ -120,7 +120,6 @@
       <property name="RESDOCDEXPGXML" value="data/resource_docs/systems_engineering_representation/sys/d_expg.xml"/>
       <property name="RESDOCTECHDISCUSSIONXML" value="data/resource_docs/systems_engineering_representation/sys/tech_discussion.xml"/>
       <property name="RESDOCEXAMPLESXML" value="data/resource_docs/systems_engineering_representation/sys/examples.xml"/>
-      <property name="RESDOCCHANGEXML" value="data/resource_docs/systems_engineering_representation/sys/g_change.xml"/>
       <property name="RESDOCADDSCOPE" value="data/resource_docs/systems_engineering_representation/sys/add_scope.xml"/>
       <property name="RESDOCFOREWORDXML" value="data/resource_docs/systems_engineering_representation/sys/foreword.xml"/>
       <property name="RESDOCINTRODUCTIONXML" value="data/resource_docs/systems_engineering_representation/sys/introduction.xml"/>
@@ -153,7 +152,21 @@
       <xslt in="${PUBSRCDIR}/publication_index.xml" out="${PUBDIR}/readme.txt" destdir="${PUBDIR}" extension=".txt" style="${PUBSRCSTYLES}/publication_readme.xsl">
          <param name="date" expression="${DATE}"/>
       </xslt>
-      <fixcrlf srcdir="publication/isopub/part_61" includes="readme.txt" eol="crlf"/>
+      <fixcrlf srcdir="publication/isopub/part_61_is" includes="readme.txt" eol="crlf"/>
+   </target>
+	
+   <target name="normref_check" depends="init" description="Create normative reference check">
+      <dependset>
+         <srcfileset dir="${PUBSRCDTD}" includes="**/*.dtd, **/*.ent"/>
+         <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
+         <srcfileset dir="${PUBSRCDIR}" includes="**/*.xml"/>
+         <targetfileset dir="." includes="${PUBSRCDIR}/*.htm*"/>
+      </dependset>
+      <xslt in="${PUBSRCDIR}/sys/normref_check.xml" out="${PUBDIR}/normref_check.htm" destdir="${PUBDIR}" extension=".htm" style="${STEPMODSTYLES}/pub_ballot/normref_check.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="stepmodhome" expression="."/>
+         <param name="date" expression="${DATE}"/>
+      </xslt>
    </target>
     
    <target name="finish" depends="isoindex" description="remove the temporary files and zip&#xA;      the results.">
@@ -542,14 +555,6 @@
          <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
          <param name="menubar_file" expression="${ISOMENU}"/>
       </xslt>
-      <xslt includes="${RESDOCCHANGEXML}" style="${STEPMODSTYLES}/res_doc/sect_g_change.xsl" destdir="${TMPDIR}" extension=".htm">
-         <param name="output_type" expression="HTM"/>
-         <param name="publication" expression="${PUBLICATION}"/>
-         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
-         <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
-         <param name="menubar_file" expression="${ISOMENU}"/>
-      </xslt>
       <xslt includes="${RESDOCADDSCOPEXML}" style="${STEPMODSTYLES}/res_doc/sect_add_scope.xsl" destdir="${TMPDIR}" extension=".htm">
          <param name="output_type" expression="HTM"/>
          <param name="publication" expression="${PUBLICATION}"/>
@@ -668,5 +673,5 @@
       <zip zipfile="${PUBDIR}/zip/iso10303_61inserts.zip" basedir="${PUBDIR}/iso10303_61/inserts/" excludes="**/*.zip" includes="**"/>
    </target>
 	 
-   <target name="all" depends="publish_isoresdocs, finish" description="Generate the HTML for ISO publication"/>
+   <target name="all" depends="publish_isoresdocs, normref_check, finish" description="Generate the HTML for ISO publication"/>
 </project>

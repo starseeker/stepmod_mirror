@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.83 2011/03/08 13:50:59 lothartklein Exp $
+$Id: resource.xsl,v 1.84 2011/03/11 15:26:53 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -649,13 +649,13 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	      <xsl:when  test="count(./abstract/li)=1">
 		<P>
 		  The following is within the scope of 
-		  <xsl:value-of select="$resdoc_stdnumber"/>: 
+		  <xsl:value-of select="substring-before($resdoc_stdnumber,'(E)')"/>: 
 		</P>
 	      </xsl:when>
 	      <xsl:otherwise>
 		<P>
 		  The following are within the scope of 
-		  <xsl:value-of select="$resdoc_stdnumber"/>:
+		  <xsl:value-of select="substring-before($resdoc_stdnumber,'(E)')"/>:
 		</P>
 	      </xsl:otherwise>
 	    </xsl:choose>
@@ -671,7 +671,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       <xsl:otherwise>
 	<P>
 	  The following are within the scope of 
-	  <xsl:value-of select="$resdoc_stdnumber"/>:
+	  <xsl:value-of select="substring-before($resdoc_stdnumber,'(E)')"/>:
 	</P>
 	<UL>
 	  <xsl:apply-templates select="./inscope/li"/>

@@ -2257,7 +2257,8 @@ SCHEMA Assembly_technology_arm;
              associated_assembly\Item_shape.described_element)) = 0));
       WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
              (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
-             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <> 
+             associated_assembly\Item_shape.described_element)) = 0));
   END_ENTITY;
 (*
   ENTITY Assembly_technology_specification
@@ -18140,8 +18141,6 @@ USE FROM Contextual_shape_positioning_arm; -- ISO/TS 10303-1027
 REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
 USE FROM Property_assignment_arm; --  ISO/TS 10303-1030
 
-USE FROM Part_feature_location_arm;
-
 TYPE sf_shapeable_item = SELECT BASED_ON shapeable_item WITH 
   (Characterizable_object);
 END_TYPE; 
@@ -18862,6 +18861,10 @@ CONSTANT
      'surface texture',
      'hardness' ];
 END_CONSTANT; 
+
+TYPE sc_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
+   Coating_layer);
+END_TYPE; 
 
 ENTITY Surface_condition_property
   SUBTYPE OF (Assigned_shape_property);

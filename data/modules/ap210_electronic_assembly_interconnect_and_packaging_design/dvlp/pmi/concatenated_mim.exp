@@ -854,6 +854,40 @@ SCHEMA Assembly_3d_shape_mim;
 END_SCHEMA;
 
 (*
+   N - ISO/CD-TS - 10303- assembly_component - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Assembly_component_mim;
+
+USE FROM Component_grouping_mim;
+USE FROM General_part_occurrence_feature_joint_mim;
+USE FROM Part_occurrence_mim;
+
+ENTITY assembly_component
+  SUBTYPE OF (component_definition, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : assembly_component := SELF;
+  WHERE
+    WR1: NOT EXISTS(SELF\property_definition.description);
+END_ENTITY;
+
+ENTITY component_definition
+  SUBTYPE OF (product_definition, product_definition_relationship);
+  DERIVE
+    SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
+  WHERE
+    WR1: NOT EXISTS(SELF\product_definition_relationship.description);
+    WR2: NOT EXISTS(SELF\property_definition.description);    
+    WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
+    WR4: SELF\product_definition_relationship.name = 'definition usage';
+    WR5: NOT ('PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_USAGE' IN TYPEOF(SELF));
+END_ENTITY;
+
+ENTITY physical_component
+  SUBTYPE OF (assembly_component);
+END_ENTITY;
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6942 - ISO/TS 10303-1634 Assembly component placement requirements - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6289
 *)
@@ -1248,9 +1282,12 @@ END_SCHEMA;  -- Assembly_structure_mim
    Supersedes ISO TC184/SC4/WG12 N5612
 *)
 SCHEMA Assembly_technology_mim;
-	USE FROM Assembly_module_design_mim;	-- ISO/TS 10303-1636
-	USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
-	USE FROM Product_identification_extension_mim;	-- ISO/TS 10303-1738
+
+USE FROM Component_feature_mim;
+USE FROM Requirement_assignment_mim;
+USE FROM Physical_component_feature_mim;
+USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+USE FROM Product_identification_extension_mim;	-- ISO/TS 10303-1738
 
 REFERENCE FROM product_property_definition_schema -- ISO 10303-41
   (acyclic_shape_aspect_relationship);
@@ -1845,7 +1882,8 @@ END_SCHEMA;
 *)
 SCHEMA Component_feature_mim;
 
-	USE FROM Physical_unit_design_view_mim;	-- ISO/TS 10303-1728
+USE FROM Assembly_component_mim;
+USE FROM General_part_occurrence_feature_joint_mim;
 
 TYPE cf_groupable_item = SELECT BASED_ON groupable_item WITH 
    (component_feature);
@@ -1887,8 +1925,8 @@ END_SCHEMA;
 *)
 SCHEMA Component_grouping_mim;
 
-	USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
-    REFERENCE FROM product_definition_schema
+USE FROM Assembly_component_mim;	-- ISO/TS 10303-1691
+REFERENCE FROM product_definition_schema
     (acyclic_product_definition_relationship);
 
 
@@ -2698,6 +2736,9 @@ SCHEMA Dimension_tolerance_mim;
 USE FROM Derived_shape_element_mim;    -- ISO/TS 10303-1130
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 USE FROM Extended_measure_representation_mim;    -- ISO/TS 10303-1106
+USE FROM Value_with_unit_extension_mim;  -- ISO/TS 10303-1753
+
+
 USE FROM external_reference_schema   -- ISO 10303-41
   (external_source,
    externally_defined_item); 
@@ -3094,10 +3135,12 @@ END_SCHEMA;
 
 
 SCHEMA Extended_geometric_tolerance_mim;
+
+
 USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
 USE FROM Default_tolerance_mim;	-- ISO/TS 10303-1052
 USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
-USE FROM Feature_and_connection_zone_mim;	
+USE FROM Non_feature_shape_element_mim; -- ISO/TS 10303-1706
 	
 USE FROM application_context_schema(application_context_element);
 USE FROM material_property_definition_schema(property_definition_relationship);
@@ -4102,6 +4145,24 @@ USE FROM material_property_definition_schema(property_definition_relationship);
 
 END_SCHEMA;
 
+(*
+   N - ISO/CD-TS - 10303- general_part_feature - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_feature_mim;
+
+USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
+USE FROM Feature_and_connection_zone_mim; --          ISO/TS 10303-1671
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- general_part_occurrence_feature_joint - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_occurrence_feature_joint_mim;
+
+USE FROM Item_definition_structure_mim;  --        ISO/TS 10303-1345
+USE FROM General_part_feature_mim; 
+
+END_SCHEMA;
 (*
    ISO TC184/SC4/WG12 N5402 - ISO/TS 10303-1681 Generic material aspects - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4980
@@ -6544,9 +6605,11 @@ END_SCHEMA;
 
 
 SCHEMA Physical_connectivity_definition_mim;
-	USE FROM Part_external_reference_mim;	-- ISO/TS 10303-1711
-	USE FROM Physical_component_feature_mim;	-- ISO/TS 10303-1721
-	USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
+
+USE FROM Part_external_reference_mim;	-- ISO/TS 10303-1711
+USE FROM Physical_component_feature_mim;	-- ISO/TS 10303-1721
+USE FROM Physical_unit_design_view_mim;
+USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
 
 TYPE pcd_groupable_item = SELECT BASED_ON groupable_item WITH 
    (physical_connectivity_definition,
@@ -6716,8 +6779,9 @@ END_SCHEMA;
 
 SCHEMA Physical_unit_design_view_mim;
 
-(*REFERENCE FROM*) USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
-USE FROM Part_template_mim;	-- ISO/TS 10303-1722
+USE FROM Assembly_component_mim;
+USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
+USE FROM Part_template_mim; -- ISO/TS 10303-1722
 USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
 USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
 
@@ -6740,31 +6804,11 @@ USE FROM application_context_schema(application_context_element);
      component_material_relationship);
   END_TYPE; 
 
-  ENTITY assembly_component
-    SUBTYPE OF (component_definition, product_definition_shape);
-    DERIVE
-      SELF\property_definition.definition : assembly_component := SELF;
-    WHERE
-      WR1: NOT EXISTS(SELF\property_definition.description);
-  END_ENTITY;
-
   ENTITY assembly_item_number 
     SUBTYPE OF (group, applied_group_assignment);
       SELF\applied_group_assignment.items : SET [1:?] OF assembly_component_usage;
     DERIVE
       SELF\group_assignment.assigned_group : group := SELF;
-  END_ENTITY;
-
-  ENTITY component_definition
-    SUBTYPE OF (product_definition, product_definition_relationship);
-    DERIVE
-      SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
-    WHERE
-      WR1: NOT EXISTS(SELF\product_definition_relationship.description);
-      WR2: NOT EXISTS(SELF\property_definition.description);    
-      WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
-      WR4: SELF\product_definition_relationship.name = 'definition usage';
-      WR5: NOT ('PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_USAGE' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY component_material_relationship 
@@ -6785,10 +6829,6 @@ USE FROM application_context_schema(application_context_element);
       product_definition_occurrence_relationship);
     DERIVE
       SELF\product_definition_occurrence_relationship.occurrence_usage : next_assembly_usage_occurrence_relationship := SELF;
-  END_ENTITY;
-
-  ENTITY physical_component
-    SUBTYPE OF (assembly_component);
   END_ENTITY;
 
   ENTITY thermal_component
@@ -6825,13 +6865,15 @@ END_SCHEMA;
 
 
 SCHEMA Physical_unit_usage_view_mim;
+
 USE FROM Analytical_model_mim;	-- ISO/TS 10303-1603
 USE FROM Feature_and_connection_zone_mim;	-- ISO/TS 10303-1671
 USE FROM Item_definition_structure_mim;	-- ISO/TS 10303-1345
 USE FROM Part_feature_location_mim;	-- ISO/TS 10303-1714
 USE FROM Requirement_assignment_mim;	-- ISO/TS 10303-1233
 USE FROM Shape_composition_mim;	-- ISO/TS 10303-1742
-	
+USE FROM General_part_feature_mim;
+
 USE FROM application_context_schema(application_context_element);
 USE FROM material_property_definition_schema(property_definition_relationship);
 
@@ -7839,6 +7881,7 @@ END_SCHEMA;
 
 SCHEMA Shape_property_assignment_mim;
 
+USE FROM Property_assignment_mim;
 (*REFERENCE FROM*) USE FROM Assembly_structure_mim; -- ISO/TS 10303-1026
 
 (*REFERENCE FROM*) USE FROM External_model_mim; -- ISO/TS 10303-1033
@@ -26752,7 +26795,11 @@ SCHEMA product_property_representation_schema;
   END_TYPE;
 
   TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
-    represented_definition);
+    general_property, 
+    property_definition, 
+    property_definition_relationship, 
+    shape_aspect, 
+    shape_aspect_relationship);
   END_TYPE;
 
   ENTITY chain_based_item_identified_representation_usage

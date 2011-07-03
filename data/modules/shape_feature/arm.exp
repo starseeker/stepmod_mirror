@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.15 2011/06/23 15:40:11 lothartklein Exp $
+   $Id: arm.exp,v 1.16 2011/06/24 18:56:08 lothartklein Exp $
    ISO TC184/SC4/WG12 N6923 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4236
 *)
@@ -47,11 +47,12 @@ FUNCTION get_geometric_model(input : Item_shape) : SET OF Geometric_model;
   END_LOCAL;
  
   sda := bag_to_set(USEDIN(input,
-	 	'SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 
-	 	'SHAPE_DESCRIPTION_ASSOCIATION.' + 'REPRESENTED_CHARACTERISTIC'));
+	 	'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
  
   REPEAT i := 1 to SIZEOF(sda) BY 1;
-    gm := gm + sda[i]\Property_definition_representation.used_representation;
+    IF 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF (sda[i]) THEN
+      gm := gm + sda[i]\Property_definition_representation.used_representation;
+    END_IF;
   END_REPEAT;
   RETURN(gm);
 END_FUNCTION;

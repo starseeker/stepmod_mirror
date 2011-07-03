@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2009/12/23 13:27:46 liutkuviene Exp $
+   $Id: arm.exp,v 1.37 2011/02/11 10:28:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N7007 - ISO/TS 10303-1720 Part template shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6489
 *)
@@ -54,7 +54,8 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
-      WR2: SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;      
+      WR2 : SIZEOF(QUERY( x <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION')
+                           | 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF(x)))=0;
       WR3 : SIZEOF(principal_part_shape) < 2;
   END_ENTITY;
 
@@ -71,7 +72,8 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
          (gmr\Representation_relationship.relation_type = 'principal part shape')));      
     WHERE
       WR1 : SIZEOF(principal_part_shape) < 2;
-      WR2: SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;      
+      WR2 : SIZEOF(QUERY( x <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION')
+                           | 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF(x)))=0;
   END_ENTITY;
 
   RULE unique_part_template_shape_model_for_geometric_template FOR

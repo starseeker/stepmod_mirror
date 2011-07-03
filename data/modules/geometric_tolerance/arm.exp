@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.38 2011/06/04 17:39:35 lothartklein Exp $
+$Id: arm.exp,v 1.39 2011/06/07 11:32:47 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -163,6 +163,28 @@ ENTITY Datum
   identification : identifier;
 END_ENTITY;
 
+ENTITY Datum_axis
+  SUBTYPE OF (Situation_feature, Axis_placement_shape_element);
+END_ENTITY;
+
+ENTITY Datum_plane
+  SUBTYPE OF (Situation_feature);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+END_ENTITY;
+
+ENTITY Datum_point
+  SUBTYPE OF (Situation_feature);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Cartesian_point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+END_ENTITY;
+
+ENTITY Situation_feature
+  ABSTRACT SUPERTYPE OF (ONEOF (Datum_axis, Datum_plane, Datum_point))
+  SUBTYPE OF (Non_definitional_shape_element, Associated_shape_element);
+  owner : Datum_reference_compartment;
+END_ENTITY;
+
 ENTITY Datum_feature
   ABSTRACT SUPERTYPE OF (ONEOF (
     Dimensional_location_with_datum_feature,
@@ -229,6 +251,9 @@ ENTITY Datum_reference_compartment
   SUBTYPE OF (General_datum_reference);
 INVERSE
   owner : Datum_system FOR constituents;  
+  axis  : SET[0:1] OF Datum_axis for owner;
+  plane : SET[0:1] OF Datum_plane for owner;
+  point : SET[0:1] OF Datum_point for owner;
 END_ENTITY;  
 
 ENTITY Datum_reference_element

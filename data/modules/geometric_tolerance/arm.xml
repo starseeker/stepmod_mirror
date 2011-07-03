@@ -92,6 +92,7 @@
             <typename name="identifier"/>
          </explicit>
       </entity>
+      <entity name="Datum_axis" supertypes="Situation_feature Axis_placement_shape_element"/>
       <entity abstract.supertype="YES" name="Datum_feature" super.expression="ONEOF (Dimensional_location_with_datum_feature, Dimensional_size_with_datum_feature, Nominal_datum_feature, Datum_feature_of_size)" supertypes="Shape_element">
          <explicit name="of_datum">
             <typename name="Datum"/>
@@ -101,8 +102,29 @@
          </unique>
       </entity>
       <entity name="Datum_feature_of_size" supertypes="Datum_feature Centre_of_symmetry"/>
+      <entity name="Datum_plane" supertypes="Situation_feature">
+         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
+            <typename name="Plane"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
+      </entity>
+      <entity name="Datum_point" supertypes="Situation_feature">
+         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
+            <typename name="Cartesian_point"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
+      </entity>
       <entity name="Datum_reference_compartment" supertypes="General_datum_reference">
          <inverse attribute="constituents" entity="Datum_system" name="owner"/>
+         <inverse attribute="owner" entity="Datum_axis" name="axis">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <inverse attribute="owner" entity="Datum_plane" name="plane">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <inverse attribute="owner" entity="Datum_point" name="point">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Datum_reference_element" supertypes="General_datum_reference">
          <derived expression="sts_get_general_datum_reference(SELF)" name="usage">
@@ -268,6 +290,11 @@
          </explicit>
          <explicit name="orientation_defining_relationship" optional="YES">
             <typename name="Shape_element_relationship"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Situation_feature" super.expression="ONEOF (Datum_axis, Datum_plane, Datum_point)" supertypes="Non_definitional_shape_element Associated_shape_element">
+         <explicit name="owner">
+            <typename name="Datum_reference_compartment"/>
          </explicit>
       </entity>
       <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">

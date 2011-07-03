@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2011/06/07 10:56:41 lothartklein Exp $
+   $Id: arm.exp,v 1.35 2011/06/24 17:04:52 lothartklein Exp $
    ISO TC184/SC4/WG12 N6965 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6375
 *)
@@ -13,9 +13,8 @@ SCHEMA Feature_and_connection_zone_arm;
 ENTITY Connection_zone
   ABSTRACT SUPERTYPE
   SUBTYPE OF (Shape_element);
-DERIVE
-  surface_conditions : SET OF Surface_condition := 
-  bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
+INVERSE
+  surface_conditions : SET OF Surface_condition FOR described_element; 		
 WHERE
   WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
          SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
@@ -28,8 +27,8 @@ ENTITY Definitional_shape_element
   ABSTRACT SUPERTYPE
   SUBTYPE OF (Shape_element);
   connection_area : OPTIONAL SET[1:?] OF Connection_zone;
-DERIVE
-  surface_conditions : SET OF Surface_condition := facz_get_sc(SELF);		
+INVERSE
+  surface_conditions : SET OF Surface_condition FOR described_element; 		
 UNIQUE
   UR1 : SELF\Shape_element.element_name, 
         SELF\shape_element.containing_shape;
@@ -43,18 +42,6 @@ END_ENTITY;
 ENTITY Non_definitional_shape_element 	 
   SUBTYPE OF (Shape_element); 	 
 END_ENTITY;
-
-FUNCTION facz_get_sc (input : Definitional_shape_element) : SET OF Surface_condition;
-  LOCAL
-    sca : SET OF Surface_condition_association := 
-	         bag_to_set(USEDIN(input,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
-	sc  : SET OF Surface_condition := [];       
-  END_LOCAL;
-   REPEAT i := 1 TO HIINDEX(sca);
-     sc := sc + sca[i]\Surface_condition_association.used_representation;
-   END_REPEAT;
-   RETURN (sc);
-END_FUNCTION;
 
 SUBTYPE_CONSTRAINT fac_shape_element FOR Shape_element;
   ONEOF (Instanced_feature, Placed_feature) ANDOR

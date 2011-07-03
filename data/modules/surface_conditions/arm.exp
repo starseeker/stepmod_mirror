@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.30 2011/06/21 15:21:56 lothartklein Exp $
+ $Id: arm.exp,v 1.31 2011/06/23 19:48:16 lothartklein Exp $
  ISO TC184/SC4/WG12 N6267 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N5515
 *)
@@ -14,41 +14,10 @@ USE FROM Part_view_definition_arm;
 
 USE FROM Value_with_unit_extension_arm;
 
-CONSTANT
-  surface_condition_property_names : LIST[0:?] OF STRING := 
-   [ 'contact ratio',
-     'treatment result',
-     'visual appearance',
-     'tactile appearance',
-     'surface texture',
-     'hardness' ];
-END_CONSTANT; 
-
 TYPE sc_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
    Coating_layer);
 END_TYPE; 
 
-ENTITY Surface_condition_property
-  SUBTYPE OF (Assigned_shape_property);
-  SELF\Assigned_property.described_element : shaped_element_select;
-INVERSE
-  representation_association : Surface_condition_association FOR definition;
-WHERE
-  WR1: SELF\Assigned_property.name IN surface_condition_property_names;  
-END_ENTITY;
-
-  ENTITY Surface_condition_association
-    SUBTYPE OF (Shape_dependent_property_representation);
-    SELF\Property_definition_representation.used_representation : Surface_condition;
-    SELF\Property_definition_representation.definition : Surface_condition_property;
-  END_ENTITY;
-
-  ENTITY Surface_condition
-    ABSTRACT SUPERTYPE OF (ONEOF(Contact_ratio,Hardness,Tactile_appearance,
-                         Treatment_result,Visual_appearance,Surface_texture))
-    SUBTYPE OF (Representation);                         
-    value_determination : OPTIONAL STRING;
-  END_ENTITY;
 
   TYPE measuring_gauge_select = EXTENSIBLE GENERIC_ENTITY SELECT (
     Part_view_definition);
@@ -59,11 +28,7 @@ END_ENTITY;
   END_TYPE;
 
   TYPE shaped_element_select = SELECT
-    (Shape_element,Item_shape);
-  END_TYPE;
-
-  TYPE texture_select = SELECT
-    (Surface_texture);
+    (Shape_element, Item_shape);
   END_TYPE;
 
   ENTITY Coating_layer
@@ -78,6 +43,8 @@ END_ENTITY;
    SUBTYPE OF (Surface_condition);
      ratio_value     : Measure_item;
      measuring_gauge : measuring_gauge_select;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'contact ratio';
   END_ENTITY;
 
   ENTITY Extended_visual_appearance
@@ -95,28 +62,49 @@ END_ENTITY;
       hardness_value        : Measure_item;
       measuring_method      : STRING;      
       measuring_position    : OPTIONAL STRING;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'hardness';
+  END_ENTITY;
+
+  ENTITY Surface_condition
+    ABSTRACT SUPERTYPE OF ( ONEOF(
+      Contact_ratio,
+      Hardness,
+      Tactile_appearance,
+      Treatment_result,
+      Visual_appearance,
+      Surface_texture))
+    SUBTYPE OF (Assigned_shape_property);
+    value_determination : OPTIONAL STRING;
+    SELF\Assigned_property.described_element : shaped_element_select;
   END_ENTITY;
 
   ENTITY Surface_texture
     SUBTYPE OF (Surface_condition);
       measuring_method    : STRING;
       measuring_direction : OPTIONAL Measurement_path;
+      parameters : SET[0:?] OF Surface_texture_parameter;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'surface texture';
   END_ENTITY;
 
   ENTITY Surface_texture_parameter;
     parameter_value   : Measure_item;
     parameter_name    : STRING;
-    described_texture : texture_select;
   END_ENTITY;
 
   ENTITY Tactile_appearance
     SUBTYPE OF (Surface_condition);
       depth       : OPTIONAL Measure_item;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'tactile appearance';
   END_ENTITY;
 
   ENTITY Treatment_result
     SUBTYPE OF (Surface_condition);
       purpose     : OPTIONAL STRING;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'treatment result';
   END_ENTITY;
 
   ENTITY Visual_appearance
@@ -126,6 +114,8 @@ END_ENTITY;
       lustre       : STRING;
       transparency : OPTIONAL STRING;
       pattern      : OPTIONAL STRING;
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'visual appearance';
   END_ENTITY;
  
 END_SCHEMA;

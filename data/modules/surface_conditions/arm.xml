@@ -9,10 +9,6 @@
       <interface kind="use" schema="Generic_material_aspects_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
-      <constant expression="[ 'contact ratio',&#10;     'treatment result',&#10;     'visual appearance',&#10;     'tactile appearance',&#10;     'surface texture',&#10;     'hardness' ]" name="surface_condition_property_names">
-         <aggregate lower="0" type="LIST" upper="?"/>
-         <builtintype type="STRING"/>
-      </constant>
       <type name="measuring_gauge_select">
          <select extensible="YES" genericentity="YES" selectitems="Part_view_definition"/>
       </type>
@@ -24,9 +20,6 @@
       </type>
       <type name="shaped_element_select">
          <select selectitems="Shape_element Item_shape"/>
-      </type>
-      <type name="texture_select">
-         <select selectitems="Surface_texture"/>
       </type>
       <entity name="Coating_layer" supertypes="Shape_element">
          <inverse attribute="is_applied_to" entity="Thickness_size" name="thickness">
@@ -41,6 +34,10 @@
          <explicit name="measuring_gauge">
             <typename name="measuring_gauge_select"/>
          </explicit>
+         <derived expression="'contact ratio'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
       <entity name="Extended_visual_appearance" supertypes="Visual_appearance">
          <explicit name="opacity" optional="YES">
@@ -73,29 +70,19 @@
          <explicit name="measuring_position" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+         <derived expression="'hardness'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
-      <entity abstract.supertype="YES" name="Surface_condition" super.expression="ONEOF (Contact_ratio, Hardness, Tactile_appearance, Treatment_result, Visual_appearance, Surface_texture)" supertypes="Representation">
+      <entity abstract.supertype="YES" name="Surface_condition" super.expression="ONEOF (Contact_ratio, Hardness, Tactile_appearance, Treatment_result, Visual_appearance, Surface_texture)" supertypes="Assigned_shape_property">
          <explicit name="value_determination" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-      </entity>
-      <entity name="Surface_condition_association" supertypes="Shape_dependent_property_representation">
-         <explicit name="used_representation">
-            <typename name="Surface_condition"/>
-            <redeclaration entity-ref="Property_definition_representation"/>
-         </explicit>
-         <explicit name="definition">
-            <typename name="Surface_condition_property"/>
-            <redeclaration entity-ref="Property_definition_representation"/>
-         </explicit>
-      </entity>
-      <entity name="Surface_condition_property" supertypes="Assigned_shape_property">
          <explicit name="described_element">
             <typename name="shaped_element_select"/>
             <redeclaration entity-ref="Assigned_property"/>
          </explicit>
-         <inverse attribute="definition" entity="Surface_condition_association" name="representation_association"/>
-         <where expression="SELF\Assigned_property.name IN surface_condition_property_names" label="WR1"/>
       </entity>
       <entity name="Surface_texture" supertypes="Surface_condition">
          <explicit name="measuring_method">
@@ -104,6 +91,14 @@
          <explicit name="measuring_direction" optional="YES">
             <typename name="Measurement_path"/>
          </explicit>
+         <explicit name="parameters">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Surface_texture_parameter"/>
+         </explicit>
+         <derived expression="'surface texture'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
       <entity name="Surface_texture_parameter">
          <explicit name="parameter_value">
@@ -112,19 +107,24 @@
          <explicit name="parameter_name">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="described_texture">
-            <typename name="texture_select"/>
-         </explicit>
       </entity>
       <entity name="Tactile_appearance" supertypes="Surface_condition">
          <explicit name="depth" optional="YES">
             <typename name="Measure_item"/>
          </explicit>
+         <derived expression="'tactile appearance'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
       <entity name="Treatment_result" supertypes="Surface_condition">
          <explicit name="purpose" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+         <derived expression="'treatment result'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
       <entity name="Visual_appearance" supertypes="Surface_condition">
          <explicit name="colour_id">
@@ -142,6 +142,10 @@
          <explicit name="pattern" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+         <derived expression="'visual appearance'" name="name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </derived>
       </entity>
    </schema>
 </express>

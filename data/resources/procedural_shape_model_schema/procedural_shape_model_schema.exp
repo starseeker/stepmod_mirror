@@ -59,10 +59,7 @@ END_ENTITY;
 ENTITY procedural_shape_representation_sequence
   SUBTYPE OF (geometric_representation_item, 
               procedural_representation_sequence);
-WHERE
-  WR1 : SIZEOF(QUERY(q <* SELF\procedural_representation_sequence.elements
-    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\procedural_representation_sequence.elements : LIST [1:?] OF shape_representation_item;              
 END_ENTITY; 
 
 ENTITY procedural_solid_representation_sequence
@@ -89,21 +86,13 @@ END_ENTITY;
 
 ENTITY user_selected_shape_elements
   SUBTYPE OF (user_selected_elements);
-WHERE
-  WR1 : SIZEOF(QUERY(q <* 
-    SELF\user_selected_elements.picked_items | NOT
-    ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\user_selected_elements.picked_items : SET [1:?] OF shape_representation_item;
 END_ENTITY; 
 
 ENTITY indirectly_selected_shape_elements
   SUBTYPE OF (indirectly_selected_elements,
               user_selected_shape_elements);
-WHERE
-  WR1 : SIZEOF(QUERY(q <*
-    SELF\indirectly_selected_elements.indirectly_picked_items
-    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\indirectly_selected_elements.indirectly_picked_items : SET [1:?] OF shape_representation_item;              
 END_ENTITY; 
 
 END_SCHEMA; -- procedural_shape_model_schema

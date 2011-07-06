@@ -23,10 +23,10 @@ ENTITY shape_aspect_relationship_representation_association;
   represented_shape_aspect_relationship: shape_aspect_relationship;
   representing_representation_relationship : representation_relationship;
 WHERE
-WR1: ('REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
+WR1: ('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
       TYPEOF(representing_representation_relationship\
       representation_relationship.rep_1)) AND
-     ('REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
+     ('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
       TYPEOF(representing_representation_relationship\
       representation_relationship.rep_2));
 WR2: (represented_shape_aspect_relationship.relating_shape_aspect IN 
@@ -73,7 +73,7 @@ SELF\representation_relationship.rep_2:
    representative_shape_representation;
   motion : kinematic_path;
 WHERE
-WR1: 'ITEM_DEFINED_TRANSFORMATION' IN TYPEOF
+WR1: 'REPRESENTATION_SCHEMA.ITEM_DEFINED_TRANSFORMATION' IN TYPEOF
      (SELF\representation_relationship_with_transformation.
       transformation_operator);
 WR2: ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF
@@ -141,7 +141,7 @@ WR3:(SELF\representation_relationship.rep_1 IN
      using_representation_with_mapping 
      (SELF\representation_relationship_with_transformation.
      transformation_operator\item_defined_transformation.transform_item_2)));
-WR4: 'KINEMATIC_PAIR' IN TYPEOF
+WR4: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_PAIR' IN TYPEOF
      (SELF\representation_relationship_with_transformation.
       transformation_operator);
 END_ENTITY; -- constrained_kinematic_motion_representation
@@ -290,7 +290,7 @@ END_LOCAL;
 -- find representative_shape_representation of the product_definition
   local_s_r := QUERY 
     ( z <* find_shape_representation_of_product_definition (item)|
-      'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
+      'ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
   IF (SIZEOF (local_s_r) = 1) 
     THEN RETURN (local_s_r[1]); 
     ELSE RETURN(?);
@@ -304,7 +304,7 @@ LOCAL
 END_LOCAL;
 -- find representative_shape_representation of the shape_aspect
   local_s_r := QUERY ( z <* find_shape_representation_of_shape_aspect (item)|
-               'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
+               'ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
   IF (SIZEOF (local_s_r) = 1) 
     THEN RETURN (local_s_r[1]); 
     ELSE RETURN(?);
@@ -330,7 +330,7 @@ END_LOCAL;
       local_s_r := find_shape_representation_of_product_definition 
                    (local_p_d[i]);
       REPEAT j := 1 to HIINDEX (local_s_r);
-        IF (('REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
+        IF (('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
              AND (local_s_r[j] :<>: item)) THEN RETURN (FALSE);
         END_IF;
       END_REPEAT;
@@ -358,7 +358,7 @@ END_LOCAL;
       local_s_r := find_shape_representation_of_shape_aspect 
                    (local_s_a[i]);
       REPEAT j := 1 to HIINDEX (local_s_r);
-        IF ((' REPRESENTATIVE_SHAPE_REPRESENTATION ' IN TYPEOF (local_s_r[j])) 
+        IF (('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
            AND (local_s_r[j] :<>: item)) THEN RETURN (FALSE);
         END_IF;
       END_REPEAT;

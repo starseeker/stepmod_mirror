@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-55" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="procedural_shape_model_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-55">
+   <application name="JSDAI" owner="LKSoft" source="procedural_shape_model_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="procedural_shape_model_schema">
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="shape_representation"/>
@@ -39,7 +39,7 @@
             <typename name="geometric_representation_item"/>
             <redeclaration entity-ref="representation_item_relationship"/>
          </explicit>
-         <where label="WR1" expression="NOT (&#10;    'PROCEDURAL_SHAPE_MODEL_SCHEMA.PROCEDURAL_SHAPE_REPRESENTATION_SEQUENCE'&#10;    IN TYPEOF(&#10;      SELF\representation_item_relationship.related_representation_item))"/>
+         <where expression="NOT (&#10;    'PROCEDURAL_SHAPE_MODEL_SCHEMA.PROCEDURAL_SHAPE_REPRESENTATION_SEQUENCE'&#10;    IN TYPEOF(&#10;      SELF\representation_item_relationship.related_representation_item))" label="WR1"/>
       </entity>
       <entity name="explicit_procedural_shape_representation_relationship" supertypes="explicit_procedural_representation_relationship">
          <explicit name="rep_1">
@@ -52,29 +52,41 @@
          </explicit>
       </entity>
       <entity name="indirectly_selected_shape_elements" supertypes="indirectly_selected_elements user_selected_shape_elements">
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;*&#10;    SELF\indirectly_selected_elements.indirectly_picked_items&#10;    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'&#10;    IN TYPEOF(q)))) = 0"/>
+         <explicit name="indirectly_picked_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="shape_representation_item"/>
+            <redeclaration entity-ref="indirectly_selected_elements"/>
+         </explicit>
       </entity>
       <entity name="procedural_shape_representation" supertypes="procedural_representation shape_representation">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="procedural_shape_representation_sequence"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
       </entity>
       <entity name="procedural_shape_representation_sequence" supertypes="geometric_representation_item procedural_representation_sequence">
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* SELF\procedural_representation_sequence.elements&#10;    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'&#10;    IN TYPEOF(q)))) = 0"/>
+         <explicit name="elements">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="shape_representation_item"/>
+            <redeclaration entity-ref="procedural_representation_sequence"/>
+         </explicit>
       </entity>
       <entity name="procedural_solid_representation_sequence" supertypes="procedural_shape_representation_sequence">
-         <where label="WR1" expression="'GEOMETRIC_MODEL_SCHEMA.SOLID_MODEL' IN TYPEOF(SELF)"/>
+         <where expression="'GEOMETRIC_MODEL_SCHEMA.SOLID_MODEL' IN TYPEOF(SELF)" label="WR1"/>
       </entity>
       <entity name="procedural_surface_representation_sequence" supertypes="procedural_shape_representation_sequence">
-         <where label="WR1" expression="('GEOMETRIC_MODEL_SCHEMA.FACE_BASED_SURFACE_MODEL' IN TYPEOF(SELF))&#10;    XOR&#10;    ('GEOMETRIC_MODEL_SCHEMA.SHELL_BASED_SURFACE_MODEL' IN TYPEOF(SELF))"/>
+         <where expression="('GEOMETRIC_MODEL_SCHEMA.FACE_BASED_SURFACE_MODEL' IN TYPEOF(SELF))&#10;    XOR&#10;    ('GEOMETRIC_MODEL_SCHEMA.SHELL_BASED_SURFACE_MODEL' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
       <entity name="procedural_wireframe_representation_sequence" supertypes="procedural_shape_representation_sequence">
-         <where label="WR1" expression="('GEOMETRIC_MODEL_SCHEMA.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF(SELF))&#10;    XOR&#10;    ('GEOMETRIC_MODEL_SCHEMA.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF(SELF))"/>
+         <where expression="('GEOMETRIC_MODEL_SCHEMA.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF(SELF))&#10;    XOR&#10;    ('GEOMETRIC_MODEL_SCHEMA.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
       <entity name="user_selected_shape_elements" supertypes="user_selected_elements">
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* &#10;    SELF\user_selected_elements.picked_items | NOT&#10;    ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'&#10;    IN TYPEOF(q)))) = 0"/>
+         <explicit name="picked_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="shape_representation_item"/>
+            <redeclaration entity-ref="user_selected_elements"/>
+         </explicit>
       </entity>
    </schema>
 </express>

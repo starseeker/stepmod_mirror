@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.20 2010/09/13 22:01:15 lothartklein Exp $
+ $Id: mim.exp,v 1.21 2011/06/16 18:34:21 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N6680 - ISO/TS 10303-1129 External properties - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N5544
 *)
@@ -27,12 +27,6 @@ REFERENCE FROM management_resources_schema(identification_role);
     (externally_defined_general_property);
   END_TYPE;
 
-  TYPE externally_versioned_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE version_for_plib_property = SELECT BASED_ON externally_versioned_item WITH (externally_defined_general_property);
-  END_TYPE;
-
   ENTITY externally_defined_general_property 
     SUBTYPE OF (general_property, externally_defined_item); 
   END_ENTITY; 
@@ -46,7 +40,7 @@ REFERENCE FROM management_resources_schema(identification_role);
       IF role.name='version' THEN
         REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
           item:= aia.items[i];
-          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
+          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.EXTERNALLY_DEFINED_GENERAL_PROPERTY']*TYPEOF(item))=0) THEN
             -- item invalid if item does not belong to versionable types
 	        RETURN(FALSE);
           END_IF;
@@ -69,13 +63,13 @@ REFERENCE FROM management_resources_schema(identification_role);
       known_sourced_properties : SET OF externally_defined_general_property;
     END_LOCAL;
       known_sourced_properties := QUERY( edc <* externally_defined_general_property | 
-	    'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF(edc.source) );
+	    'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF(edc.source) );
     WHERE
       WR1: SIZEOF ( QUERY ( edgp <* known_sourced_properties | 
-        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.' + 'EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
+        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
         ( edir.name =  'name scope' ) AND 
-        ('EXTERNAL_CLASS_MIM.' + 'EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
-        ( 'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
+        ('EXTERNAL_CLASS_MIM.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
+        ( 'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
   END_RULE; 
 
   RULE plib_property_reference_requires_version FOR (externally_defined_general_property); 
@@ -83,11 +77,11 @@ REFERENCE FROM management_resources_schema(identification_role);
 	  plib_properties : SET OF externally_defined_general_property := [];
 	END_LOCAL;
 	  plib_properties := QUERY ( edgp <* externally_defined_general_property | 
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) ); --tt found real problem here
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) ); --tt found real problem here
 	WHERE 
 	  WR1: SIZEOF( QUERY( edgp <* plib_properties | 
-		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.' + 'APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
+		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
 		(edir.role.name = 'version') )) <> 1) )) = 0; 
   END_RULE;
 

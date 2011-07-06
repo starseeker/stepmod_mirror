@@ -22,12 +22,6 @@
       <type name="external_identification_for_plib_property">
          <select basedon="external_identification_item" selectitems="externally_defined_general_property"/>
       </type>
-      <type name="externally_versioned_item">
-         <select extensible="YES" genericentity="YES"/>
-      </type>
-      <type name="version_for_plib_property">
-         <select basedon="externally_versioned_item" selectitems="externally_defined_general_property"/>
-      </type>
       <entity name="externally_defined_general_property" supertypes="general_property externally_defined_item"/>
       <rule appliesto="applied_external_identification_assignment" name="external_version_assignments_are_valid">
          <where expression="SIZEOF(QUERY(aia &lt;* applied_external_identification_assignment | &#10;        NOT external_version_assignment_is_valid(aia)))=0" label="WR1"/>
@@ -37,17 +31,17 @@
       known_sourced_properties : SET OF externally_defined_general_property;
     END_LOCAL;
       known_sourced_properties := QUERY( edc &lt;* externally_defined_general_property | 
-	    'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF(edc.source) );</algorithm>
-         <where expression="SIZEOF ( QUERY ( edgp &lt;* known_sourced_properties | &#10;        ( SIZEOF ( QUERY ( edir &lt;* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.' + 'EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| &#10;        ( edir.name =  'name scope' ) AND &#10;        ('EXTERNAL_CLASS_MIM.' + 'EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND &#10;        ( 'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) &lt;&gt;1 ) ) ) =  0" label="WR1"/>
+	    'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF(edc.source) );</algorithm>
+         <where expression="SIZEOF ( QUERY ( edgp &lt;* known_sourced_properties | &#10;        ( SIZEOF ( QUERY ( edir &lt;* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| &#10;        ( edir.name =  'name scope' ) AND &#10;        ('EXTERNAL_CLASS_MIM.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND &#10;        ( 'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) &lt;&gt;1 ) ) ) =  0" label="WR1"/>
       </rule>
       <rule appliesto="externally_defined_general_property" name="plib_property_reference_requires_version">
          <algorithm>LOCAL
 	  plib_properties : SET OF externally_defined_general_property := [];
 	END_LOCAL;
 	  plib_properties := QUERY ( edgp &lt;* externally_defined_general_property | 
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) );</algorithm>
-         <where expression="SIZEOF( QUERY( edgp &lt;* plib_properties | &#10;&#9;&#9;(SIZEOF( QUERY( edir &lt;* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.' + 'APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | &#10;&#9;&#9;(edir.role.name = 'version') )) &lt;&gt; 1) )) = 0" label="WR1"/>
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) );</algorithm>
+         <where expression="SIZEOF( QUERY( edgp &lt;* plib_properties | &#10;&#9;&#9;(SIZEOF( QUERY( edir &lt;* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | &#10;&#9;&#9;(edir.role.name = 'version') )) &lt;&gt; 1) )) = 0" label="WR1"/>
       </rule>
       <function name="external_version_assignment_is_valid">
          <parameter name="aia">
@@ -62,7 +56,7 @@
       IF role.name='version' THEN
         REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
           item:= aia.items[i];
-          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
+          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.EXTERNALLY_DEFINED_GENERAL_PROPERTY']*TYPEOF(item))=0) THEN
             -- item invalid if item does not belong to versionable types
 	        RETURN(FALSE);
           END_IF;

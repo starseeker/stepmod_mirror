@@ -1,0 +1,43 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- product_as_individual_assembly_and_test - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_as_individual_assembly_and_test_arm;
+
+USE FROM Product_as_individual_arm; -- ISO/TS 10303-1164
+USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
+USE FROM Process_plan_arm;
+USE FROM Activity_arm; -- ISO/TS 10303-1047
+
+ENTITY Product_as_individual_assembly
+  SUBTYPE OF (Assembly_component_relationship);
+  
+  SELF\Product_occurrence_definition_relationship.relating_view: Product_as_individual_view;
+  SELF\Product_occurrence_definition_relationship.related_view: Product_as_individual_view;
+  is_realization_of : Part_occurrence;
+WHERE
+  WR1: NOT(EXISTS(SELF\Assembly_component_relationship.quantity));
+END_ENTITY; 
+
+ENTITY Product_as_individual_test_result
+  SUBTYPE OF (Product_as_individual_view);
+END_ENTITY; 
+
+ENTITY Applied_independent_test_property
+  SUBTYPE OF (Applied_independent_property);
+  SELF\Assigned_property.described_element : Product_as_individual_test_result;
+END_ENTITY; 
+  
+ENTITY Applied_test_activity
+  SUBTYPE OF (Applied_activity_assignment);
+ SELF\Applied_activity_assignment.items : SET [1:?] OF Applied_independent_test_property;
+DERIVE  
+  SELF\Applied_activity_assignment.role : STRING := 'test activity';
+END_ENTITY;
+
+ENTITY Applied_process_operation_occurrence;
+  items : SET [1:?] OF Applied_independent_test_property;
+  source : Process_operation_occurrence;
+END_ENTITY;
+
+END_SCHEMA;

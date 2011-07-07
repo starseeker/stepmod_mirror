@@ -1,12 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Product_as_individual_assembly_and_test_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="product_as_individual_assembly_and_test_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Product_as_individual_assembly_and_test_arm">
+      <interface kind="use" schema="Product_as_individual_arm"/>
+      <interface kind="use" schema="Property_assignment_arm"/>
+      <interface kind="use" schema="Process_plan_arm"/>
+      <interface kind="use" schema="Activity_arm"/>
+      <entity name="Applied_independent_test_result_property" supertypes="Applied_independent_property">
+         <explicit name="described_element">
+            <typename name="Product_as_individual_test_result"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+      </entity>
+      <entity name="Applied_process_operation_occurrence">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Applied_independent_test_result_property"/>
+         </explicit>
+         <explicit name="source">
+            <typename name="Process_operation_occurrence"/>
+         </explicit>
+      </entity>
+      <entity name="Applied_test_activity" supertypes="Applied_activity_assignment">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Applied_independent_test_result_property"/>
+            <redeclaration entity-ref="Applied_activity_assignment"/>
+         </explicit>
+         <derived expression="'test activity'" name="role">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Applied_activity_assignment"/>
+         </derived>
+      </entity>
+      <entity name="Product_as_individual_assembly" supertypes="Assembly_component_relationship">
+         <explicit name="relating_view">
+            <typename name="Product_as_individual_view"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Product_as_individual_view"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
+         </explicit>
+         <explicit name="is_realization_of">
+            <typename name="Part_occurrence"/>
+         </explicit>
+         <where expression="NOT(EXISTS(SELF\Assembly_component_relationship.quantity))" label="WR1"/>
+      </entity>
+      <entity name="Product_as_individual_test_result" supertypes="Product_as_individual_view"/>
+   </schema>
 </express>

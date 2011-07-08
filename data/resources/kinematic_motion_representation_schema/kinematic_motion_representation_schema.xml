@@ -122,7 +122,7 @@
          </derived>
          <where expression="SIZEOF( QUERY(ics &lt;* segments | NOT(ics.state.represented_mechanism :&lt;&gt;: configured_mechanism))) = 0" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="kinematic_path" supertypes="geometric_representation_item">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="kinematic_path" super.expression="ONEOF (kinematic_path_defined_by_nodes, kinematic_path_defined_by_curves)" supertypes="geometric_representation_item">
          <explicit name="segments" optional="NO">
             <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
             <typename name="kinematic_path_segment"/>
@@ -137,7 +137,23 @@
             <builtintype fixed="NO" type="LOGICAL"/>
          </derived>
          <where expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF)| &#10;        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0" label="WR1"/>
-         <where expression="('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))&#10;      OR (n_segments &gt; 1)" label="WR2"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="kinematic_path_defined_by_curves" supertypes="kinematic_path">
+         <explicit name="segments" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <typename name="curve_based_path_with_orientation"/>
+            <redeclaration entity-ref="kinematic_path"/>
+         </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="kinematic_path_defined_by_nodes" supertypes="kinematic_path">
+         <explicit name="segments" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <typename name="path_node"/>
+            <redeclaration entity-ref="kinematic_path"/>
+         </explicit>
+         <explicit name="placement_start" optional="NO">
+            <typename name="placement"/>
+         </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="kinematic_path_segment" super.expression="ONEOF (path_node, curve_based_path_with_orientation) ANDOR path_parametrization" supertypes="founded_item">
          <explicit name="t_end" optional="NO">
@@ -222,5 +238,6 @@
       <subtype.constraint abstract.supertype="NO" entity="representation" name="kmr_representation_subtypes" super.expression="ONEOF (interpolated_configuration_representation, link_motion_representation_along_path)"/>
       <subtype.constraint abstract.supertype="NO" entity="geometric_representation_item" name="kmr_geometric_representation_item_subtypes" super.expression="ONEOF (kinematic_path, placement)"/>
       <subtype.constraint abstract.supertype="NO" entity="geometric_representation_context" name="kmr_geometric_representation_context_subtypes" super.expression="ONEOF (geometric_representation_context_with_parameter, path_parameter_representation_context)"/>
+      <subtype.constraint abstract.supertype="NO" entity="kinematic_path_segment" name="kinematic_path_segment_total_over" totalover="path_node curve_based_path_with_orientation"/>
    </schema>
 </express>

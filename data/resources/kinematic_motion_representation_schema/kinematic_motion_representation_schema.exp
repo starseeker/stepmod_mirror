@@ -116,22 +116,30 @@ ENTITY geometric_representation_context_with_parameter
 END_ENTITY;
 
 ENTITY kinematic_path
+  ABSTRACT SUPERTYPE OF (ONEOF (kinematic_path_defined_by_nodes, kinematic_path_defined_by_curves))
   SUBTYPE OF (geometric_representation_item);
   segments : LIST [1:?] OF kinematic_path_segment;
   t_start : parameter_value;
-  placement_start : OPTIONAL placement;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
   closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
-  WR2: ('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))
-      OR (n_segments > 1);
   -- WR2 - parameters are increasing
   -- WR3 - different end positions
-  -- WR4 - if segments are of type path_node, then placement_start must be given
 END_ENTITY;
+
+ENTITY kinematic_path_defined_by_nodes
+  SUBTYPE OF (kinematic_path);
+  SELF\kinematic_path.segments : LIST [1:?] OF path_node;
+  placement_start : placement;
+END_ENTITY;  
+
+ENTITY kinematic_path_defined_by_curves
+  SUBTYPE OF (kinematic_path);
+  SELF\kinematic_path.segments : LIST [1:?] OF curve_based_path_with_orientation;
+END_ENTITY;  
 
 ENTITY kinematic_path_segment
   ABSTRACT SUPERTYPE OF (ONEOF (
@@ -216,5 +224,9 @@ END_SUBTYPE_CONSTRAINT;
 SUBTYPE_CONSTRAINT kmr_geometric_representation_context_subtypes FOR geometric_representation_context;
   ONEOF (geometric_representation_context_with_parameter, path_parameter_representation_context);
 END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT kinematic_path_segment_total_over FOR kinematic_path_segment;
+  TOTAL_OVER (path_node, curve_based_path_with_orientation);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;   -- end kinematic_motion_representation_schema

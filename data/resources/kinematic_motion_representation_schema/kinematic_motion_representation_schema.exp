@@ -144,18 +144,10 @@ END_ENTITY;
 ENTITY kinematic_path_segment
   ABSTRACT SUPERTYPE OF (ONEOF (
     path_node,
-    curve_based_path_with_orientation) 
-    ANDOR path_parametrization)
+    curve_based_path_with_orientation) )
   SUBTYPE OF (founded_item);
   t_end : parameter_value;
   transition : transition_code;
-END_ENTITY;
-
-ENTITY path_parametrization
-  SUBTYPE OF (kinematic_path_segment);
-  parameters : path_parameter_representation;
--- WHERE
---  WR1: NOT item_in_context(SELF, parameters.context_of_items); -- error: SELF is not a rep_item
 END_ENTITY;
 
 ENTITY path_parameter_representation
@@ -211,6 +203,11 @@ WHERE
   WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
 END_ENTITY;
 
+ENTITY curve_based_path_with_orientation_and_parameters
+  SUBTYPE OF (curve_based_path_with_orientation);
+  parameters : path_parameter_representation;
+END_ENTITY;  
+
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
   ONEOF (interpolated_configuration_representation, link_motion_representation_along_path);
 END_SUBTYPE_CONSTRAINT; 
@@ -224,9 +221,5 @@ END_SUBTYPE_CONSTRAINT;
 SUBTYPE_CONSTRAINT kmr_geometric_representation_context_subtypes FOR geometric_representation_context;
   ONEOF (geometric_representation_context_with_parameter, path_parameter_representation_context);
 END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT kinematic_path_segment_total_over FOR kinematic_path_segment;
-  TOTAL_OVER (path_node, curve_based_path_with_orientation);
-END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;   -- end kinematic_motion_representation_schema

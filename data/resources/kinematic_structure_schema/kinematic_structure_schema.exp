@@ -118,8 +118,9 @@ ENTITY kinematic_link_representation_association
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
   SELF\representation_relationship.rep_2 : shape_representation; 
 WHERE
-  WR1: SELF\representation_relationship.rep_2.context_of_items :=:
-       SELF\representation_relationship.rep_1.context_of_items;
+  WR1: (SELF\representation_relationship.rep_2.context_of_items :=:
+        SELF\representation_relationship.rep_1.context_of_items) OR
+       ('representation_schema.representation_relationship_with_transformation' IN TYPEOF(SELF)); 
 END_ENTITY;
 
 ENTITY su_parameters
@@ -149,6 +150,7 @@ DERIVE
     sort_link_associations(link_representation_associations, TRUE);
   associated_link_representations_2 : SET[1:?] OF kinematic_link_representation :=
     sort_link_associations(link_representation_associations, FALSE);
+  SELF\item_defined_transformation.name : label := SELF\representation_item.name;
 INVERSE
   link_representation_associations : SET[1:?] OF pair_representation_relationship FOR transformation_operator; 
 END_ENTITY;

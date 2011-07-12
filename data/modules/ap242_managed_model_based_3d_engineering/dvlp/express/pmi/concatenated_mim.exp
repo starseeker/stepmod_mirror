@@ -188,6 +188,7 @@ USE FROM Kinematic_analysis_control_and_result_mim;
 USE FROM Process_plan_mim;
 -- geometry model for point clouds
 USE FROM Constructive_solid_geometry_2d_mim; -- ISO/TS 10303-1731
+USE FROM Product_as_individual_assembly_and_test_mim;
 
 USE FROM Characterized_representation_mim;
 USE FROM Chemical_substance_mim; -- ISO/TS 10303-1655 
@@ -221,6 +222,9 @@ USE FROM Surface_conditions_mim; -- ISO/TS 10303-1110
 USE FROM Text_representation_mim;	-- ISO/TS 10303-1750
 USE FROM Thickened_face_solid_mim; -- ISO/TS 10303-1320
 USE FROM Wireframe_2d_mim; -- ISO/TS 10303-1347
+USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_mim;
+USE FROM Product_and_manufacturing_annotation_presentation_mim;
+
 USE FROM application_context_schema   -- ISO 10303-41
   (application_context,
    application_protocol_definition,
@@ -921,6 +925,40 @@ SCHEMA Area_2d_mim;
 		rectangular_area);
 END_SCHEMA;
 (*
+   N - ISO/CD-TS - 10303- assembly_component - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Assembly_component_mim;
+
+USE FROM Component_grouping_mim;
+USE FROM General_part_occurrence_feature_joint_mim;
+USE FROM Part_occurrence_mim;
+
+ENTITY assembly_component
+  SUBTYPE OF (component_definition, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : assembly_component := SELF;
+  WHERE
+    WR1: NOT EXISTS(SELF\property_definition.description);
+END_ENTITY;
+
+ENTITY component_definition
+  SUBTYPE OF (product_definition, product_definition_relationship);
+  DERIVE
+    SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
+  WHERE
+    WR1: NOT EXISTS(SELF\product_definition_relationship.description);
+    WR2: NOT EXISTS(SELF\property_definition.description);    
+    WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
+    WR4: SELF\product_definition_relationship.name = 'definition usage';
+    WR5: NOT ('PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_USAGE' IN TYPEOF(SELF));
+END_ENTITY;
+
+ENTITY physical_component
+  SUBTYPE OF (assembly_component);
+END_ENTITY;
+
+END_SCHEMA;
+(*
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-1049 Activity method - EXPRESS MIM
 *)
 
@@ -980,6 +1018,56 @@ END_SCHEMA;  -- Assembly_structure_mim
 
 
 (*
+   ISO TC184/SC4/WG12 N6331 - ISO/TS 10303-1649 Assembly technology - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N5612
+*)
+SCHEMA Assembly_technology_mim;
+
+USE FROM Component_feature_mim;
+USE FROM Requirement_assignment_mim;
+USE FROM Physical_component_feature_mim;
+USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+USE FROM Product_identification_extension_mim;	-- ISO/TS 10303-1738
+
+REFERENCE FROM product_property_definition_schema -- ISO 10303-41
+  (acyclic_shape_aspect_relationship);
+
+TYPE at_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (assembly_joint);
+END_TYPE;
+
+TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (assembly_bond_definition);
+END_TYPE;
+
+ENTITY assembly_bond_definition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name;
+END_ENTITY;
+
+ENTITY assembly_joint
+  SUBTYPE OF (component_feature_joint);
+WHERE
+  WR1: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'ASSEMBLY_TECHNOLOGY_MIM.'+
+       'ASSEMBLY_JOINT');
+END_ENTITY;
+
+ENTITY component_mating_constraint_condition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
+END_ENTITY;
+
+ENTITY connection_zone_based_assembly_joint
+  SUBTYPE OF (assembly_joint);
+END_ENTITY;
+
+END_SCHEMA;
+
+(*
  ISO TC184/SC4/WG12 N6629 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N5291
 *)
@@ -1010,7 +1098,7 @@ END_TYPE;
 ENTITY draughting_model_item_association
   SUBTYPE OF(item_identified_representation_usage);
   SELF\item_identified_representation_usage.definition          : draughting_model_item_definition;
-  SELF\item_identified_representation_usage.used_representation : draughting_model;
+  SELF\item_identified_representation_usage.used_representation : annotation_representation_select;
   SELF\item_identified_representation_usage.identified_item     : draughting_model_item_association_select;
 END_ENTITY;
 
@@ -1031,8 +1119,12 @@ USE FROM Text_appearance_mim; -- ISO/CD-TS 10303-1136
 
 USE FROM presentation_definition_schema(
 	annotation_occurrence,
+	annotation_text,
 	annotation_text_occurrence,
 	annotation_curve_occurrence,
+	defined_character_glyph,
+	pre_defined_character_glyph,
+    externally_defined_character_glyph,
 	text_literal,
 	text_string_representation,
 	composite_text);
@@ -1041,7 +1133,9 @@ USE FROM presentation_organization_schema(
 	annotation_representation_select);
 	
 USE FROM presentation_appearance_schema(   -- ISO 10303-46
+    box_height,
 	curve_style,
+	presentation_style_assignment,
 	text_style_for_defined_font,
     text_style_with_box_characteristics,
     text_style_with_mirror);
@@ -1118,13 +1212,6 @@ SCHEMA Basic_curve_mim;
 	
 TYPE bc_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
      (trimmed_curve);
-END_TYPE;
-	
-TYPE closed_curve = EXTENSIBLE GENERIC_ENTITY SELECT 
-     (circle,
-      composite_curve);
-  WHERE
-    WR1: NOT('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(SELF)) OR (SELF\composite_curve.closed_curve = TRUE);    
 END_TYPE;
 	
 END_SCHEMA;
@@ -1333,14 +1420,14 @@ END_SCHEMA;  -- Certification_mim
    Supersedes ISO TC184/SC4/WG12 N6220
 *)
 SCHEMA Characteristic_mim;
-    USE FROM Basic_data_representation_mim;  -- ISO/TS 10303-1773
-	USE FROM Document_assignment_mim;	-- ISO/TS 10303-1122
-	USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106
-	USE FROM External_library_mim; -- ISO/TS 10303-1778
-	USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
-	USE FROM External_properties_mim;  -- ISO/TS 10303-1129 LK
-
-USE FROM group_schema(group);
+  USE FROM Basic_data_representation_mim;  -- ISO/TS 10303-1773
+  USE FROM Document_assignment_mim;	-- ISO/TS 10303-1122
+  USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106
+  USE FROM External_library_mim; -- ISO/TS 10303-1778
+  USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
+  USE FROM Property_assignment_mim; -- ISO/TS 10303-1030
+  USE FROM External_properties_mim;  -- ISO/TS 10303-1129 LK
+  USE FROM group_schema(group);
 
   TYPE c_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
      (representation);
@@ -1416,6 +1503,7 @@ END_SCHEMA;
 SCHEMA Characterized_representation_mim;
 
 USE FROM Characterizable_object_mim; -- ISO/TS 10303-1765
+USE FROM Elemental_geometric_shape_mim; -- ISO/TS 10303-1004
 USE FROM Foundation_representation_mim;  -- ISO/TS 10303-1006
 USE FROM Property_assignment_mim; -- ISO/TS 10303-1030
 USE FROM product_property_representation_schema(  -- ISO 10303-41
@@ -1550,9 +1638,6 @@ END_TYPE;
 TYPE classified_item = EXTENSIBLE GENERIC_ENTITY SELECT (product, product_definition_formation, product_definition);
 END_TYPE;
 
-TYPE class_system_item = EXTENSIBLE GENERIC_ENTITY SELECT(characterized_class);
-END_TYPE;
-
 TYPE cwa_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH (characterized_class);
 END_TYPE;
 
@@ -1578,21 +1663,21 @@ LOCAL
 END_LOCAL;
 
 role:= aia\classification_assignment.role;
-IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.' +'CLASS_SYSTEM' IN TYPEOF(aia\classification_assignment.assigned_class)) THEN
+IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS_SYSTEM' IN TYPEOF(aia\classification_assignment.assigned_class)) THEN
   IF(role\classification_role.name <> 'class system membership') THEN
     RETURN(FALSE);
   END_IF;
   REPEAT i:=LOINDEX(aia\applied_classification_assignment.items) TO HIINDEX(aia\applied_classification_assignment.items);
     item:= aia\applied_classification_assignment.items[i];
 
-    IF (SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.' + 'CLASS_SYSTEM_ITEM'] * TYPEOF(item))=0) THEN
+    IF (SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.CHARACTERIZED_CLASS'] * TYPEOF(item))=0) THEN
 -- item invalid if item does not belong to the types that may have a class_system
 	RETURN(FALSE);
     END_IF;
   END_REPEAT;
 END_IF;
 
-IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.' +'CHARACTERIZED_CLASS' IN TYPEOF(aia\classification_assignment.assigned_class)) THEN
+IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CHARACTERIZED_CLASS' IN TYPEOF(aia\classification_assignment.assigned_class)) THEN
   IF	NOT(role\classification_role.name IN ['definitional','non-definitional','']) THEN
     RETURN(FALSE); 
   END_IF;
@@ -1601,7 +1686,7 @@ IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.' +'CHARACTERIZED_CLASS' IN TYPEOF(aia\c
   REPEAT i:=LOINDEX(aia\applied_classification_assignment.items) TO HIINDEX(aia\applied_classification_assignment.items);
     item:= aia\applied_classification_assignment.items[i];
 
-    IF (SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.' + 'CLASSIFIED_ITEM'] * TYPEOF(item))=0) THEN
+    IF (SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASSIFIED_ITEM'] * TYPEOF(item))=0) THEN
 -- item invalid if item does not belong to the types that may have a characterized_class
 	RETURN(FALSE);
     END_IF;
@@ -1653,6 +1738,109 @@ SCHEMA Colour_mim;
  ENTITY externally_defined_colour
   SUBTYPE OF (colour_specification,externally_defined_item);
 END_ENTITY; -- externally_defined_colour
+
+END_SCHEMA;
+
+(*
+   ISO TC184/SC4/WG12 N6340 - ISO/TS 10303-1657 Component feature - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N5624
+*)
+SCHEMA Component_feature_mim;
+
+USE FROM Assembly_component_mim;
+USE FROM General_part_occurrence_feature_joint_mim;
+
+TYPE cf_groupable_item = SELECT BASED_ON groupable_item WITH 
+   (component_feature);
+END_TYPE; 
+
+ENTITY component_feature
+  SUBTYPE OF (shape_aspect);
+    SELF\shape_aspect.of_shape : assembly_component;
+END_ENTITY;
+
+ENTITY component_feature_joint
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+    SELF\shape_aspect_relationship.relating_shape_aspect : component_feature;
+    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;    
+END_ENTITY;
+
+ENTITY component_feature_relationship
+  SUBTYPE OF (shape_aspect_relationship);
+    SELF\shape_aspect_relationship.relating_shape_aspect : component_feature;
+    SELF\shape_aspect_relationship.related_shape_aspect  : component_feature;    
+WHERE
+  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+END_ENTITY; 
+
+ENTITY component_terminal
+  SUBTYPE OF (component_feature);
+END_ENTITY;
+
+ENTITY make_from_feature_relationship
+ SUBTYPE OF (component_feature_relationship);
+END_ENTITY;
+
+END_SCHEMA;
+
+(*
+   ISO TC184/SC4/WG12 N6954 - ISO/TS 10303-1656 Component grouping - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N6343
+*)
+SCHEMA Component_grouping_mim;
+
+USE FROM Assembly_component_mim;	-- ISO/TS 10303-1691
+REFERENCE FROM product_definition_schema
+    (acyclic_product_definition_relationship);
+
+
+
+ENTITY array_placement_group
+  SUPERTYPE OF (ONEOF(linear_array_placement_group_component,
+                      rectangular_array_placement_group_component))
+  SUBTYPE OF (assembly_group_component);
+END_ENTITY;
+
+ENTITY assembly_group_component
+  SUBTYPE OF (assembly_component);
+END_ENTITY;
+
+ENTITY assembly_group_component_definition_placement_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+   SELF\product_definition_relationship.relating_product_definition : assembly_component;  
+   SELF\product_definition_relationship.related_product_definition  : assembly_component;
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: acyclic_product_definition_relationship (SELF,
+      [SELF\product_definition_relationship.related_product_definition],
+      'COMPONENT_GROUPING_MIM.ASSEMBLY_GROUP_COMPONENT_DEFINITION_PLACEMENT_LINK');
+END_ENTITY; 
+
+ENTITY interfaced_group_component
+  SUBTYPE OF (assembly_group_component);
+END_ENTITY;
+
+ENTITY linear_array_component_definition_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+    SELF\product_definition_relationship.relating_product_definition : linear_array_placement_group_component;  
+    SELF\product_definition_relationship.related_product_definition : linear_array_placement_group_component;
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: acyclic_product_definition_relationship (SELF,
+      [SELF\product_definition_relationship.related_product_definition],
+      'COMPONENT_GROUPING_MIM.LINEAR_ARRAY_COMPONENT_DEFINITION_LINK');       
+END_ENTITY; 
+
+ENTITY linear_array_placement_group_component
+  SUBTYPE OF (array_placement_group);
+END_ENTITY;
+
+ENTITY rectangular_array_placement_group_component
+  SUBTYPE OF (array_placement_group);
+END_ENTITY;
 
 END_SCHEMA;
 
@@ -2108,7 +2296,14 @@ FUNCTION open_path_based_inner_boundary (input : SET OF primitive_2d) : BOOLEAN;
   END_LOCAL;
   REPEAT i := 1 TO SIZEOF(input);
       IF ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.PATH_AREA_WITH_PARAMETERS' IN TYPEOF(input[i]))
-        AND ('BASIC_CURVE_MIM.CLOSED_CURVE' IN TYPEOF(input[i]\mapped_item.mapping_source))
+        AND ( 
+         ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF(input[i]\mapped_item.mapping_source\representation_map.mapping_origin))
+          OR
+          (('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(input[i]\mapped_item.mapping_source\representation_map.mapping_origin))
+           AND
+            (input[i]\mapped_item.mapping_source\representation_map.mapping_origin\composite_curve.closed_curve = TRUE) 
+          )
+        )  
       THEN
        pass := FALSE;
       END_IF;
@@ -2789,7 +2984,6 @@ END_SCHEMA;
 SCHEMA Dimension_and_tolerance_callouts_mim;
 
 USE FROM Associative_draughting_elements_mim; -- ISO/TS 10303-1311
-USE FROM Dimension_tolerance_mim; -- ISO/TS 10303-1050
 USE FROM Draughting_annotation_mim; -- ISO/TS 10303-1206
 USE FROM Draughting_element_specialisations_mim; -- ISO/TS 10303-1312
 USE FROM Geometric_tolerance_mim; -- ISO/TS 10303-1051
@@ -2841,6 +3035,9 @@ SCHEMA Dimension_tolerance_mim;
 USE FROM Derived_shape_element_mim;    -- ISO/TS 10303-1130
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 USE FROM Extended_measure_representation_mim;    -- ISO/TS 10303-1106
+USE FROM Value_with_unit_extension_mim;  -- ISO/TS 10303-1753
+
+
 USE FROM external_reference_schema   -- ISO 10303-41
   (external_source,
    externally_defined_item); 
@@ -3750,12 +3947,6 @@ REFERENCE FROM management_resources_schema(identification_role);
     (externally_defined_general_property);
   END_TYPE;
 
-  TYPE externally_versioned_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE version_for_plib_property = SELECT BASED_ON externally_versioned_item WITH (externally_defined_general_property);
-  END_TYPE;
-
   ENTITY externally_defined_general_property 
     SUBTYPE OF (general_property, externally_defined_item); 
   END_ENTITY; 
@@ -3769,7 +3960,7 @@ REFERENCE FROM management_resources_schema(identification_role);
       IF role.name='version' THEN
         REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
           item:= aia.items[i];
-          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
+          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.EXTERNALLY_DEFINED_GENERAL_PROPERTY']*TYPEOF(item))=0) THEN
             -- item invalid if item does not belong to versionable types
 	        RETURN(FALSE);
           END_IF;
@@ -3792,13 +3983,13 @@ REFERENCE FROM management_resources_schema(identification_role);
       known_sourced_properties : SET OF externally_defined_general_property;
     END_LOCAL;
       known_sourced_properties := QUERY( edc <* externally_defined_general_property | 
-	    'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF(edc.source) );
+	    'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF(edc.source) );
     WHERE
       WR1: SIZEOF ( QUERY ( edgp <* known_sourced_properties | 
-        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.' + 'EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
+        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
         ( edir.name =  'name scope' ) AND 
-        ('EXTERNAL_CLASS_MIM.' + 'EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
-        ( 'PLIB_CLASS_REFERENCE_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
+        ('EXTERNAL_CLASS_MIM.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
+        ( 'PLIB_CLASS_REFERENCE_MIM.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
   END_RULE; 
 
   RULE plib_property_reference_requires_version FOR (externally_defined_general_property); 
@@ -3806,11 +3997,11 @@ REFERENCE FROM management_resources_schema(identification_role);
 	  plib_properties : SET OF externally_defined_general_property := [];
 	END_LOCAL;
 	  plib_properties := QUERY ( edgp <* externally_defined_general_property | 
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
-		( 'EXTERNAL_PROPERTIES_MIM.' + 'KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) ); --tt found real problem here
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
+		( 'EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' + '.NAME' = 'ISO 13584 library' ) ); --tt found real problem here
 	WHERE 
 	  WR1: SIZEOF( QUERY( edgp <* plib_properties | 
-		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.' + 'APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
+		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
 		(edir.role.name = 'version') )) <> 1) )) = 0; 
   END_RULE;
 
@@ -3976,6 +4167,605 @@ END_SCHEMA;
    N - ISO/CD-TS - 10303- form_feature_in_panel - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Form_feature_in_panel_mim;
+
+USE FROM Shape_feature_mim;    -- ISO/TS 10303-1764
+USE FROM Value_with_unit_extension_mim;    -- ISO/TS 10303-1753
+USE FROM Basic_geometry_mim;    -- ISO/TS 10303-1652
+USE FROM Machining_features_mim;    -- ISO/CD-TS 10303-xxxx
+USE FROM Elemental_topology_mim;    -- ISO/TS 10303-1005
+REFERENCE FROM product_property_representation_schema (
+  get_property_definition_representations);
+REFERENCE FROM Geometric_tolerance_mim (
+  get_shape_aspect_property_definition_representations);  
+REFERENCE FROM product_property_definition_schema (
+  get_shape_aspects);  
+
+ENTITY barring_hole
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'hole profile') AND
+              (sa.description = 'closed profile occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'profile usage') AND
+                (SIZEOF(['AIC_MACHINING_FEATURE.CIRCULAR_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.NGON_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.RECTANGULAR_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.CLOSED_PATH_PROFILE']
+                  * TYPEOF(sar.relating_shape_aspect)
+                 ) = 1 )
+               )) = 1 )
+             )) = 1;   
+  WR2:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'barring profile') AND
+              (sa.description = 'closed profile occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'profile usage') 
+               )) = 1 )
+             )) = 1;   
+  WR3:  (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              'SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)
+             )) = 1) AND
+             (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+              {1 <= SIZEOF(pdr.used_representation.items) <= 2}
+             )) = 1);   
+  WR4:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+               NOT( i.name IN ['orientation','base radius'])
+               )) > 0)
+             )) = 0;   
+  WR5:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) <> 1)
+             )) = 0;   
+END_ENTITY;
+
+
+ENTITY bead
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              'SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)
+             )) <= 1) AND
+             (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF(pdr.used_representation.items) > 2)
+             )) = 0);   
+  WR2:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+               NOT( i.name IN ['orientation','base radius'])
+               )) > 0)
+             )) = 0;   
+  WR3:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) > 1)
+             )) = 0;   
+  WR4:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'sweep path') AND
+              (sa.description = 'path feature component occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'path feature component usage') AND
+                ('AIC_MACHINING_FEATURE.PATH_FEATURE_COMPONENT' IN
+                 TYPEOF(sar.relating_shape_aspect))
+               )) = 1 )
+             )) = 1;   
+  WR5:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'bead profile') AND
+              (sa.description = 'open profile occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'profile usage') AND
+                (SIZEOF(['AIC_MACHINING_FEATURE.OPEN_PATH_PROFILE',
+                  'AIC_MACHINING_FEATURE.PARTIAL_CIRCULAR_PROFILE',
+                  'AIC_MACHINING_FEATURE.ROUNDED_U_PROFILE',
+                  'AIC_MACHINING_FEATURE.SQUARE_U_PROFILE',
+                  'AIC_MACHINING_FEATURE.TEE_PROFILE',
+                  'AIC_MACHINING_FEATURE.VEE_PROFILE']
+                  * TYPEOF(sar.relating_shape_aspect)
+                 ) = 1 )
+               )) = 1 )
+             )) = 1;   
+  WR6:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'end condition') AND
+              (sa.description = 'bead end occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.name = 'bead end usage') AND
+                (sar.description = 'starting' 
+)  AND
+                ('FORM_FEATURE_IN_PANEL_MIM.BEAD_END' IN
+                 TYPEOF(sar.relating_shape_aspect))
+               )) = 1 )
+             )) = 1;   
+  WR7:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'end condition') AND
+              (sa.description = 'bead end occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.name = 'bead end usage') AND
+                (sar.description = 'ending'
+)  AND
+                ('FORM_FEATURE_IN_PANEL_MIM.BEAD_END' IN
+                 TYPEOF(sar.relating_shape_aspect))
+               )) = 1 )
+             )) = 1;   
+END_ENTITY;
+
+
+ENTITY bead_end
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1:  'AIC_MACHINING_FEATURE.FEATURE_COMPONENT_DEFINITION' IN
+             TYPEOF(SELF.of_shape.definition);   
+  WR2:   SELF.description IN ['linear','open','radiused'];
+           
+  WR3:  (SELF.description <> 'linear') XOR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) 
+              )) > 0);   
+  WR4:  (SELF.description <> 'linear') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF(pdr.used_representation.items) = 2)
+              )) = 1);   
+  WR5:  (SELF.description <> 'linear') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='end length') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);   
+  WR6:  (SELF.description <> 'linear') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+               (i.name = 'end shape') AND 
+               (i\descriptive_representation_item.description IN ['straight','tapered']) AND
+                ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM'
+                 IN TYPEOF(i))
+               )) = 1)
+              )) = 1);   
+  WR7:  SIZEOF( QUERY( sar <* USEDIN( SELF, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+              'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+              ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_RELATIONSHIP' IN
+               TYPEOF(sar)) AND
+              (sar.name = 'bead end usage') AND
+              (sar.description IN ['starting'
+,'ending'
+]) AND
+              ('FORM_FEATURE_IN_PANEL_MIM.BEAD' IN
+               TYPEOF(sar.related_shape_aspect.of_shape.definition)) AND
+              (sar.related_shape_aspect.of_shape.definition\characterized_object.name = 'end condition') AND
+              (sar.related_shape_aspect.of_shape.definition\characterized_object.description = 'bead end occurrence')
+             )) = 1;   
+END_ENTITY;
+
+ENTITY directed_angle
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1:  'AIC_MACHINING_FEATURE.FEATURE_COMPONENT_DEFINITION' IN
+             TYPEOF(SELF.of_shape.definition);   
+  WR2:  SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) 
+              )) = 1;   
+  WR3:  SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF(pdr.used_representation.items) = 1)
+              )) = 1;   
+  WR4:  SELF.description IN ['punch direction','profile normal','surface normal'];   
+  WR5:  SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='angle') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1;   
+END_ENTITY;
+
+ENTITY feature_in_panel
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  SELF.description IN ['pocket','boss','stairstep'];   
+  WR2:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               NOT ({2 <= SIZEOF(pdr.used_representation.items) <= 3})
+             )) = 0;   
+  WR3:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+               NOT( i.name IN ['orientation','base radius','target radius'])
+               )) > 0)
+             )) = 0;   
+  WR4:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR5:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='target radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR6:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'base boundary') AND
+              (sa.description IN ['directed angle occurrence','closed profile occurrence'])
+             )) = 1;   
+  WR7:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'target boundary') AND
+              (sa.description IN ['directed angle occurrence','closed profile occurrence'])
+             )) = 1;   
+  WR8:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.description = 'directed angle occurrence')
+             )) <= 1;   
+  WR9:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+               (sa.description = 'directed angle occurrence') AND
+               (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                 ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                  TYPEOF(sar)) AND
+                 (sar.name = 'directed angle usage')  AND
+                 ('FORM_FEATURE_IN_PANEL_MIM.DIRECTED_ANGLE' IN
+                  TYPEOF(sar.relating_shape_aspect))
+                )) = 1 )
+              )) = 
+              SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+               (sa.description = 'directed angle occurrence')));   
+  WR10: SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+               (sa.description = 'closed profile occurrence') AND
+               (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                 ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                  TYPEOF(sar)) AND
+                 (sar.description = 'profile usage')  AND
+                 (SIZEOF(['AIC_MACHINING_FEATURE.CIRCULAR_CLOSED_PROFILE',
+ 'AIC_MACHINING_FEATURE.NGON_CLOSED_PROFILE',
+ 'AIC_MACHINING_FEATURE.RECTANGULAR_CLOSED_PROFILE',
+ 'AIC_MACHINING_FEATURE.CLOSED_PATH_PROFILE']
+ * TYPEOF(sar.relating_shape_aspect)
+                  ) = 1 )
+                )) = 1 )
+              )) = 
+              SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+               (sa.description = 'closed profile occurrence')));   
+  WR11: (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              'AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' IN 
+              TYPEOF(pdr.used_representation)
+             )) <= 1) AND
+             (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' IN 
+                TYPEOF(pdr.used_representation)) AND
+               NOT(pdr.used_representation.name = 'target face')
+             )) = 0);   
+  WR12: (SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+                (sa.name = 'target boundary') AND
+                (sa.description = 'directed angle occurrence')
+               )) = 0) OR
+              (SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('AIC_MACHINING_FEATURE.FACE_SHAPE_REPRESENTATION' IN 
+                TYPEOF(pdr.used_representation)) 
+              )) = 1);   
+END_ENTITY;
+
+ENTITY hole_in_panel
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'hole profile') AND
+              (sa.description = 'closed profile occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'profile usage') AND
+                (SIZEOF(['AIC_MACHINING_FEATURE.CIRCULAR_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.NGON_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.RECTANGULAR_CLOSED_PROFILE',
+                  'AIC_MACHINING_FEATURE.CLOSED_PATH_PROFILE']
+                  * TYPEOF(sar.relating_shape_aspect)
+                 ) = 1 )
+               )) = 1 )
+             )) = 1;   
+  WR2:  SIZEOF( get_property_definition_representations(SELF)) =
+             SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              SIZEOF( pdr.used_representation.items) = 1));   
+END_ENTITY;
+
+ENTITY joggle
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               NOT({5 <= SIZEOF(pdr.used_representation.items) <= 10})
+             )) = 0;   
+  WR2:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                 NOT(i.name IN ['orientation','base radius 1','base radius 2','direction angle 1',
+       'direction angle 2','height','slope angle 1','slope angle 2',
+       'top radius 1','top radius 2'])
+                )) > 0)
+             )) = 0;   
+  WR3:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='direction angle 1') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR4:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='direction angle 2') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR5:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='height') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) <= 1;   
+  WR6:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='slope angle 1') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR7:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='slope angle 2') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR8:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'defining path') AND
+              (sa.description = 'path feature component occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.description = 'path feature component usage')  AND
+                ('AIC_MACHINING_FEATURE.PATH_FEATURE_COMPONENT' IN
+                 TYPEOF(sar.relating_shape_aspect)) AND
+                (sar.relating_shape_aspect.description = 'linear')
+               )) = 1 )
+             )) = 1;   
+  WR9:  SIZEOF( QUERY( sa <* get_shape_aspects(SELF) |
+              (sa.name = 'termination') AND
+              (sa.description = 'joggle termination occurrence') AND
+              (SIZEOF( QUERY( sar <* USEDIN( sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_RELATIONSHIP' IN
+                 TYPEOF(sar)) AND
+                (sar.name = 'joggle termination usage')  AND
+                ('FORM_FEATURE_IN_PANEL_MIM.JOGGLE_TERMINATION' IN
+                 TYPEOF(sar.relating_shape_aspect)) 
+               )) = 1 )
+             )) = 1;   
+  WR10: SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius 1') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) <= 1;   
+  WR11: SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius 2') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) <= 1;   
+  WR12: SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='top radius 1') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) <= 1;   
+  WR13: SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='top radius 2') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) <= 1;   
+END_ENTITY;
+
+
+ENTITY joggle_termination
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1:  'AIC_MACHINING_FEATURE.FEATURE_COMPONENT_DEFINITION' IN
+              TYPEOF(SELF.of_shape.definition);   
+  WR2:  SELF.description IN ['value termination','face termination'];   
+  WR3:  (SELF.description = 'value termination') XOR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) 
+              )) = 0);   
+  WR4:  (SELF.description <> 'value termination') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF(pdr.used_representation.items) = 2)
+              )) = 1);   
+  WR5:  (SELF.description <> 'value termination') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='depth') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);   
+  WR6:  (SELF.description <> 'value termination') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='angle') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);   
+  WR7:  SIZEOF( QUERY( sar <* USEDIN( SELF, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+               'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+               ('AIC_MACHINING_FEATURE.FEATURE_COMPONENT_RELATIONSHIP' IN
+                TYPEOF(sar)) AND
+               (sar.name = 'joggle termination usage') AND
+               ('FORM_FEATURE_IN_PANEL_MIM.JOGGLE' IN TYPEOF(sar.related_shape_aspect.of_shape.definition)) AND
+               (sar.related_shape_aspect.of_shape.definition\characterized_object.name = 'termination') AND
+               (sar.related_shape_aspect.of_shape.definition\characterized_object.description = 'joggle termination occurrence')
+              )) = 1;   
+END_ENTITY;
+
+ENTITY locator
+  SUBTYPE OF (feature_definition);
+WHERE
+  WR1:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+               ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               NOT ({2 <= SIZEOF(pdr.used_representation.items) <= 5})
+             )) = 0;   
+  WR2:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='diameter') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR3:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='tip radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) <= 1;   
+  WR4:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='tip angle') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) = 1;   
+  WR5:  SIZEOF( QUERY( pdr <* get_property_definition_representations(SELF) |
+              ('SHAPE_ASPECT_DEFINITION_SCHEMA.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='base radius') AND
+                (SIZEOF(['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+'MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+             )) <= 1;   
+END_ENTITY;
+
+
 END_SCHEMA;
 (* 
 ISO TC184/SC4/WG12 N6903 - ISO/TS 10303-1006 Foundation representation - EXPRESS MIM
@@ -4030,6 +4820,24 @@ USE FROM Product_breakdown_mim;    -- ISO/TS 10303-1248
 
 END_SCHEMA;
 
+(*
+   N - ISO/CD-TS - 10303- general_part_feature - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_feature_mim;
+
+USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
+USE FROM Feature_and_connection_zone_mim; --          ISO/TS 10303-1671
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- general_part_occurrence_feature_joint - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_part_occurrence_feature_joint_mim;
+
+USE FROM Item_definition_structure_mim;  --        ISO/TS 10303-1345
+USE FROM General_part_feature_mim; 
+
+END_SCHEMA;
 (*
 ISO TC184/SC4/WG12 N7068 - ISO/TS 10303-1007 General surface appearance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N5399
@@ -4782,6 +5590,7 @@ USE FROM Kinematic_state_mim;
 USE FROM B_spline_geometry_mim; --  ISO/TS 10303-1801
 USE FROM Geometric_model_relationship_mim; -- ISO/TS 10303-1403
 USE FROM Parametric_representation_mim;
+USE FROM Contextual_shape_positioning_mim; -- ISO/TS 10303-1027
 USE FROM kinematic_motion_representation_schema;
 
 END_SCHEMA;
@@ -4853,11 +5662,12 @@ END_SCHEMA;
 (* UNDER DEVELOPMENT *)
 SCHEMA Machining_features_mim;
 
-USE FROM Shape_feature_mim; -- ISO/TS 10303-1764
 USE FROM Elemental_geometric_shape_mim; -- ISO/TS 10303-1004
-USE FROM Value_with_unit_mim;
+USE FROM Feature_and_connection_zone_mim; 
 USE FROM Measure_representation_mim;
 USE FROM Specification_document_mim;
+USE FROM Value_with_unit_mim;
+
 USE FROM aic_machining_feature; -- ISO 10303-522
 
 ENTITY face_shape_representation_relationship
@@ -5144,6 +5954,10 @@ END_SCHEMA;
    N - ISO/CD-TS - 10303- mating_structure - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Mating_structure_mim;
+
+USE FROM Item_definition_structure_mim;
+USE FROM Assembly_technology_mim;
+
 END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N1217 - ISO/TS 10303-1118 Measure representation - EXPRESS MIM
@@ -5242,6 +6056,15 @@ USE FROM Camera_view_3d_mim; -- ISO/CD-TS 10303-1316
 USE FROM Shape_appearance_layers_mim; -- ISO/CD-TS 10303-1009
 
 USE FROM aic_mechanical_design_shaded_presentation; -- ISO 10303-518
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing_representation - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_mim;
+
+USE FROM Product_and_manufacturing_information_with_nominal_3d_models_mim;
+USE FROM Geometric_tolerance_mim; -- ISO/TS 10303-1051
 
 END_SCHEMA;
 (*
@@ -5449,6 +6272,7 @@ SCHEMA Numerical_interface_mim;
 USE FROM Generic_expression_mim;
 USE FROM Expression_mim;
 USE FROM Value_with_unit_mim;
+USE FROM Measure_representation_mim;
 
 USE FROM ISO13584_expressions_schema(
 	numeric_expression,
@@ -6116,6 +6940,26 @@ USE FROM Product_breakdown_mim;    -- ISO/TS 10303-1248
 
 END_SCHEMA;  
 (*
+   ISO TC184/SC4/WG12 N6493 - ISO/TS 10303-1721 Physical component feature - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N4111
+*)
+
+
+SCHEMA Physical_component_feature_mim;
+	USE FROM Component_feature_mim;	-- ISO/TS 10303-1657
+
+ ENTITY physical_component_feature
+    SUBTYPE OF (component_feature);
+  END_ENTITY;
+
+  ENTITY physical_component_terminal
+    SUBTYPE OF (component_terminal,
+ 			physical_component_feature);
+  END_ENTITY;
+	
+END_SCHEMA;
+
+(*
    ISO TC184/SC4/WG12 N6253 - ISO/TS 10303-1308 Picture representation - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5453
 *)
@@ -6511,6 +7355,10 @@ SCHEMA Process_plan_mim;
 USE FROM Activity_method_mim; -- ISO/TS 10303-1049
 USE FROM Product_view_definition_mim; -- ISO/TS 10303-1019
 USE FROM Support_resource_mim; -- ISO/TS 10303-1800
+USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
+USE FROM Part_occurrence_mim; --          ISO/TS 10303-1715
+USE FROM Specification_control_mim; -- ISO/TS 10303-1112
+USE FROM Item_definition_structure_mim; -- ISO/TS 10303-1345
 
 USE FROM action_schema (   -- ISO 10303-41
    action,
@@ -6644,6 +7492,102 @@ USE FROM product_property_definition_schema   -- ISO 10303-41
 
 
 END_SCHEMA; 
+(*
+   N - ISO/CD-TS - 10303- product_and_manufacturing_annotation_presentation - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_and_manufacturing_annotation_presentation_mim;
+
+USE FROM Product_and_manufacturing_information_with_nominal_3d_models_mim;
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_and_manufacturing_information_view_context_mim;
+
+USE FROM Part_view_definition_mim; -- ISO/TS 10303-1023
+USE FROM Document_assignment_mim; -- ISO/TS 10303-1122
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- product_and_manufacturing_information_with_nominal_3d_models - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_and_manufacturing_information_with_nominal_3d_models_mim;
+
+USE FROM Product_and_manufacturing_information_view_context_mim;
+USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
+USE FROM Advanced_boundary_representation_mim; -- ISO/TS 10303-1514
+USE FROM Manifold_surface_mim; -- ISO/TS 10303-1509
+USE FROM Manifold_subsurface_mim; -- ISO/TS 10303-1702
+USE FROM Construction_geometry_mim; -- ISO/TS 10303-1131
+
+END_SCHEMA;
+(*
+ISO TC184/SC4/WG12 N7269 - ISO/TS 10303-1164 Product as individual - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG12 N6828
+*) 
+
+
+SCHEMA Product_as_individual_mim;
+
+USE FROM Configuration_item_mim; -- ISO/TS 10303-1056
+
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_definition_relationship,
+   product_related_product_category,
+   product_relationship); 
+
+USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
+
+USE FROM Product_version_mim;    -- ISO/TS 10303-1018
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
+
+TYPE product_as_individual_identification_item = SELECT BASED_ON identification_item WITH 
+   (product, 
+    product_definition_formation);
+END_TYPE; 
+
+ENTITY product_design_version_to_individual
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED individual_product : product_definition_formation;
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED product_design_version : product_definition_formation;
+END_ENTITY;
+
+ENTITY product_design_to_individual
+  SUBTYPE OF (product_relationship);
+  SELF\product_relationship.related_product RENAMED individual_product : product;
+  SELF\product_relationship.relating_product RENAMED product_design : product;
+END_ENTITY;
+
+ENTITY product_planned_to_realized
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED planned_product : product_definition_formation;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED realized_product : product_definition_formation;
+END_ENTITY;
+
+ENTITY product_as_planned
+  SUBTYPE OF (product_definition_formation);
+END_ENTITY;
+
+END_SCHEMA;  -- Product_as_individual_mim
+
+(*
+   N - ISO/CD-TS - 10303- product_as_individual_assembly_and_test - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_as_individual_assembly_and_test_mim;
+USE FROM Product_as_individual_mim; -- ISO/TS 10303-1164
+USE FROM Property_assignment_mim; -- ISO/TS 10303-1030
+USE FROM Process_plan_mim;
+USE FROM Activity_mim; -- ISO/TS 10303-1047
+
+END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N5474 - ISO/TS 10303-1248 Product breakdown - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4799
@@ -7208,6 +8152,37 @@ USE FROM product_definition_schema   -- ISO 10303-41
 
 
 END_SCHEMA;  -- Product_identification_mim
+(*
+   ISO TC184/SC4/WG12 N4162 - ISO/TS 10303-1738 Product identification extension - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N3586
+*)
+
+
+SCHEMA Product_identification_extension_mim;
+	USE FROM External_item_identification_assignment_mim;	-- ISO/TS 10303-1128
+	USE FROM Product_view_definition_mim;	-- ISO/TS 10303-1019
+	
+	USE FROM External_reference_schema
+		(externally_defined_item,
+		external_source);
+	
+TYPE pie_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (externally_defined_product_definition);
+END_TYPE; 
+
+ENTITY externally_defined_product_definition
+ SUPERTYPE OF (library_defined_product_definition)
+ SUBTYPE OF (product_definition, externally_defined_item);
+END_ENTITY;
+
+ENTITY library_defined_product_definition
+ SUBTYPE OF (externally_defined_product_definition);
+DERIVE
+  library : external_source := SELF\externally_defined_item.source;
+END_ENTITY;
+	
+END_SCHEMA;
+
 (*
  ISO TC184/SC4/WG12 N4267 - ISO/TS 10303-1063 Product occurrence - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2599
@@ -7968,6 +8943,7 @@ END_SCHEMA;
 
 SCHEMA Shape_property_assignment_mim;
 
+USE FROM Property_assignment_mim;
 (*REFERENCE FROM*) USE FROM Assembly_structure_mim; -- ISO/TS 10303-1026
 
 (*REFERENCE FROM*) USE FROM External_model_mim; -- ISO/TS 10303-1033
@@ -9804,7 +10780,9 @@ USE FROM presentation_definition_schema	-- ISO 10303-46
    text_literal_with_associated_curves,
    text_literal_with_blanking_box,
    text_literal_with_delineation,
-   text_literal_with_extent);
+   text_literal_with_extent,
+--scms
+   text_reference);
 
 USE FROM presentation_resource_schema	-- ISO 10303-46
   (colour_rgb,
@@ -9850,6 +10828,7 @@ END_ENTITY;
 
 ENTITY draughting_annotation_occurrence
   SUBTYPE OF (annotation_occurrence);
+  --modified wr7
 WHERE
   WR1:	-- curve_has_curve_style:
     (NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'
@@ -9903,7 +10882,8 @@ WHERE
              IN TYPEOF (SELF))) OR
          (SIZEOF (TYPEOF(SELF.item) *
              ['AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT',
-              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL']) = 1);
+              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL',
+              'AIC_DRAUGHTING_ANNOTATION.TEXT_REFERENCE']) = 1);
   WR8:	-- text_not_nested:
     (NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'
              IN TYPEOF (SELF)) AND
@@ -18784,10 +19764,10 @@ ENTITY shape_aspect_relationship_representation_association;
   represented_shape_aspect_relationship: shape_aspect_relationship;
   representing_representation_relationship : representation_relationship;
 WHERE
-WR1: ('REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
+WR1: ('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
       TYPEOF(representing_representation_relationship\
       representation_relationship.rep_1)) AND
-     ('REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
+     ('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN 
       TYPEOF(representing_representation_relationship\
       representation_relationship.rep_2));
 WR2: (represented_shape_aspect_relationship.relating_shape_aspect IN 
@@ -18834,7 +19814,7 @@ SELF\representation_relationship.rep_2:
    representative_shape_representation;
   motion : kinematic_path;
 WHERE
-WR1: 'ITEM_DEFINED_TRANSFORMATION' IN TYPEOF
+WR1: 'REPRESENTATION_SCHEMA.ITEM_DEFINED_TRANSFORMATION' IN TYPEOF
      (SELF\representation_relationship_with_transformation.
       transformation_operator);
 WR2: ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF
@@ -18902,7 +19882,7 @@ WR3:(SELF\representation_relationship.rep_1 IN
      using_representation_with_mapping 
      (SELF\representation_relationship_with_transformation.
      transformation_operator\item_defined_transformation.transform_item_2)));
-WR4: 'KINEMATIC_PAIR' IN TYPEOF
+WR4: 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_PAIR' IN TYPEOF
      (SELF\representation_relationship_with_transformation.
       transformation_operator);
 END_ENTITY; -- constrained_kinematic_motion_representation
@@ -19051,7 +20031,7 @@ END_LOCAL;
 -- find representative_shape_representation of the product_definition
   local_s_r := QUERY 
     ( z <* find_shape_representation_of_product_definition (item)|
-      'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
+      'ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
   IF (SIZEOF (local_s_r) = 1) 
     THEN RETURN (local_s_r[1]); 
     ELSE RETURN(?);
@@ -19065,7 +20045,7 @@ LOCAL
 END_LOCAL;
 -- find representative_shape_representation of the shape_aspect
   local_s_r := QUERY ( z <* find_shape_representation_of_shape_aspect (item)|
-               'REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
+               'ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF(z));
   IF (SIZEOF (local_s_r) = 1) 
     THEN RETURN (local_s_r[1]); 
     ELSE RETURN(?);
@@ -19091,7 +20071,7 @@ END_LOCAL;
       local_s_r := find_shape_representation_of_product_definition 
                    (local_p_d[i]);
       REPEAT j := 1 to HIINDEX (local_s_r);
-        IF (('REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
+        IF (('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
              AND (local_s_r[j] :<>: item)) THEN RETURN (FALSE);
         END_IF;
       END_REPEAT;
@@ -19119,7 +20099,7 @@ END_LOCAL;
       local_s_r := find_shape_representation_of_shape_aspect 
                    (local_s_a[i]);
       REPEAT j := 1 to HIINDEX (local_s_r);
-        IF ((' REPRESENTATIVE_SHAPE_REPRESENTATION ' IN TYPEOF (local_s_r[j])) 
+        IF (('ASSEMBLY_FEATURE_RELATIONSHIP_SCHEMA.REPRESENTATIVE_SHAPE_REPRESENTATION' IN TYPEOF (local_s_r[j])) 
            AND (local_s_r[j] :<>: item)) THEN RETURN (FALSE);
         END_IF;
       END_REPEAT;
@@ -24170,7 +25150,7 @@ WHERE
 			AND ('ISO13584_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
 				IN TYPEOF (SELF.interval_item))) 
 		OR
-		(('ISO13584_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+		(('ISO13584_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
 				IN TYPEOF(SELF.interval_low)) 
 			AND ('ISO13584_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
 				IN TYPEOF(SELF.interval_item)) 
@@ -24964,7 +25944,7 @@ DERIVE
   closed_interpolation : LOGICAL := segments[n_segments].interpolation <> discontinuous_interpolation_type;
   configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
 WHERE
-  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
+  WR1: SIZEOF( QUERY(ics <* segments | ics.state.represented_mechanism :<>: configured_mechanism)) = 0;
 END_ENTITY;  
 
 ENTITY interpolated_configuration_segment
@@ -25002,6 +25982,7 @@ ENTITY geometric_representation_context_with_parameter
 END_ENTITY;
 
 ENTITY kinematic_path
+  ABSTRACT SUPERTYPE OF (ONEOF (kinematic_path_defined_by_nodes, kinematic_path_defined_by_curves))
   SUBTYPE OF (geometric_representation_item);
   segments : LIST [1:?] OF kinematic_path_segment;
   t_start : parameter_value;
@@ -25011,27 +25992,28 @@ DERIVE
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
-  WR2: ('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))
-      OR (n_segments > 1);
   -- WR2 - parameters are increasing
   -- WR3 - different end positions
 END_ENTITY;
 
+ENTITY kinematic_path_defined_by_nodes
+  SUBTYPE OF (kinematic_path);
+  SELF\kinematic_path.segments : LIST [1:?] OF path_node;
+  placement_start : placement;
+END_ENTITY;  
+
+ENTITY kinematic_path_defined_by_curves
+  SUBTYPE OF (kinematic_path);
+  SELF\kinematic_path.segments : LIST [1:?] OF curve_based_path_with_orientation;
+END_ENTITY;  
+
 ENTITY kinematic_path_segment
   ABSTRACT SUPERTYPE OF (ONEOF (
     path_node,
-    curve_based_path_with_orientation) 
-    ANDOR path_parametrization)
+    curve_based_path_with_orientation) )
   SUBTYPE OF (founded_item);
   t_end : parameter_value;
   transition : transition_code;
-END_ENTITY;
-
-ENTITY path_parametrization
-  SUBTYPE OF (kinematic_path_segment);
-  parameters : path_parameter_representation;
--- WHERE
---  WR1: NOT item_in_context(SELF, parameters.context_of_items); -- error: SELF is not a rep_item
 END_ENTITY;
 
 ENTITY path_parameter_representation
@@ -25086,6 +26068,11 @@ ENTITY curve_based_path_with_orientation
 WHERE
   WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
 END_ENTITY;
+
+ENTITY curve_based_path_with_orientation_and_parameters
+  SUBTYPE OF (curve_based_path_with_orientation);
+  parameters : path_parameter_representation;
+END_ENTITY;  
 
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR representation;
   ONEOF (interpolated_configuration_representation, link_motion_representation_along_path);
@@ -25702,8 +26689,9 @@ ENTITY kinematic_link_representation_association
   SELF\representation_relationship.rep_1 : kinematic_link_representation;
   SELF\representation_relationship.rep_2 : shape_representation; 
 WHERE
-  WR1: SELF\representation_relationship.rep_2.context_of_items :=:
-       SELF\representation_relationship.rep_1.context_of_items;
+  WR1: (SELF\representation_relationship.rep_2.context_of_items :=:
+        SELF\representation_relationship.rep_1.context_of_items) OR
+       ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF)); 
 END_ENTITY;
 
 ENTITY su_parameters
@@ -25733,6 +26721,7 @@ DERIVE
     sort_link_associations(link_representation_associations, TRUE);
   associated_link_representations_2 : SET[1:?] OF kinematic_link_representation :=
     sort_link_associations(link_representation_associations, FALSE);
+  SELF\item_defined_transformation.name : label := SELF\representation_item.name;
 INVERSE
   link_representation_associations : SET[1:?] OF pair_representation_relationship FOR transformation_operator; 
 END_ENTITY;
@@ -36767,6 +37756,10 @@ REFERENCE FROM presentation_resource_schema
      font_select,
      text_font);
  
+--scms project
+REFERENCE FROM product_definition_schema
+    (product);
+ 
 REFERENCE FROM representation_schema
     (item_in_context,
      mapped_item,
@@ -36808,6 +37801,11 @@ REFERENCE FROM support_resource_schema
   TYPE text_delineation = label;
   END_TYPE;
 
+  TYPE text_literal_or_text_reference = SELECT(
+     text_literal,
+     text_reference);
+  END_TYPE;
+
   TYPE text_or_character = SELECT
     (annotation_text,
      annotation_text_character,
@@ -36828,8 +37826,9 @@ REFERENCE FROM support_resource_schema
     defined_table); 
   END_TYPE; 
 
-  TYPE annotation_text_occurrence_item = SELECT(
-    text_literal, 
+  TYPE annotation_text_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT(
+    text_literal,
+    text_reference, 
     annotation_text, 
     annotation_text_character, 
     defined_character_glyph, 
@@ -36839,6 +37838,10 @@ REFERENCE FROM support_resource_schema
   TYPE presentable_text = STRING;
     WHERE
       WR1: control_characters_free(SELF);
+  END_TYPE;
+
+--scms project
+  TYPE text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT(product);        
   END_TYPE;
 
   TYPE text_string_representation_item = SELECT(
@@ -37206,6 +38209,55 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (text_literal);
       extent : planar_extent;
   END_ENTITY;
+
+--new for scms
+ENTITY text_reference
+  ABSTRACT SUPERTYPE OF (ONEOF(composite_sequential_text_reference, explicit_text_reference, implicit_text_reference))
+  SUBTYPE OF(representation_item);
+END_ENTITY;
+
+--new for scms
+ENTITY composite_sequential_text_reference
+  SUBTYPE OF (text_reference);
+    collected_references : LIST[2:?] of text_literal_or_text_reference;
+WHERE
+  WR1 : SIZEOF(QUERY( cr <* collected_references | 'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT_REFERENCE' IN TYPEOF(cr))) = 0;
+  --no member of collected_references shall be a composite_text_reference.
+  --the list is one level only, not an array.
+END_ENTITY;
+  
+--new for scms
+ENTITY explicit_text_reference
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  geometric_property : text_literal;
+  source             : text_reference_source;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+(*
+Formal Propositions:
+WR1     The value of the literal in the text_literal shall be an empty string.
+*)
+END_ENTITY;
+
+--new for scms
+ENTITY explicit_text_reference_occurrence
+SUBTYPE OF(explicit_text_reference);
+ type_declaration   : implicit_text_reference;
+DERIVE
+  SELF\explicit_text_reference.attribute_name : STRING := type_declaration\implicit_text_reference.attribute_name;
+END_ENTITY;
+
+--new for scms
+ENTITY implicit_text_reference
+SUBTYPE OF(text_reference);
+  attribute_name     : STRING;
+  entity_name        : STRING;
+  geometric_property : text_literal;
+WHERE
+  WR1 : geometric_property\text_literal.literal = '';
+END_ENTITY;
+--
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);
@@ -38410,10 +39462,7 @@ END_ENTITY;
 ENTITY procedural_shape_representation_sequence
   SUBTYPE OF (geometric_representation_item, 
               procedural_representation_sequence);
-WHERE
-  WR1 : SIZEOF(QUERY(q <* SELF\procedural_representation_sequence.elements
-    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\procedural_representation_sequence.elements : LIST [1:?] OF shape_representation_item;              
 END_ENTITY; 
 
 ENTITY procedural_solid_representation_sequence
@@ -38440,21 +39489,13 @@ END_ENTITY;
 
 ENTITY user_selected_shape_elements
   SUBTYPE OF (user_selected_elements);
-WHERE
-  WR1 : SIZEOF(QUERY(q <* 
-    SELF\user_selected_elements.picked_items | NOT
-    ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\user_selected_elements.picked_items : SET [1:?] OF shape_representation_item;
 END_ENTITY; 
 
 ENTITY indirectly_selected_shape_elements
   SUBTYPE OF (indirectly_selected_elements,
               user_selected_shape_elements);
-WHERE
-  WR1 : SIZEOF(QUERY(q <*
-    SELF\indirectly_selected_elements.indirectly_picked_items
-    | NOT ('PROCEDURAL_SHAPE_MODEL_SCHEMA.SHAPE_REPRESENTATION_ITEM'
-    IN TYPEOF(q)))) = 0;
+  SELF\indirectly_selected_elements.indirectly_picked_items : SET [1:?] OF shape_representation_item;              
 END_ENTITY; 
 
 END_SCHEMA; -- procedural_shape_model_schema
@@ -45216,18 +46257,15 @@ SCHEMA support_resource_schema;
   END_FUNCTION;
 
   FUNCTION type_check_function (the_type : GENERIC; sub_names : SET OF STRING; criterion : INTEGER):LOGICAL;
-    IF ((NOT EXISTS(the_type)) OR (NOT ({0 <= criterion <= 3})) OR (SIZEOF(sub_names) = 0)) THEN
+    IF ((NOT EXISTS(the_type)) OR (SIZEOF(sub_names) = 0)) THEN
       RETURN (UNKNOWN);
     ELSE
       CASE criterion OF 
-        0:
-          RETURN (SIZEOF(sub_names * TYPEOF(the_type)) > 0);
-        1:
-          RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 0);
-        2:
-          RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 1);
-        3:
-          RETURN (SIZEOF(sub_names * TYPEOF(the_type)) <= 1);
+        0: RETURN (SIZEOF(sub_names * TYPEOF(the_type)) > 0);
+        1: RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 0);
+        2: RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 1);
+        3: RETURN (SIZEOF(sub_names * TYPEOF(the_type)) <= 1);
+        OTHERWISE : RETURN (UNKNOWN);
       END_CASE;
     END_IF;
   END_FUNCTION;

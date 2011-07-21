@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.18 2011/06/23 23:28:23 lothartklein Exp $
+   $Id: mim.exp,v 1.19 2011/07/07 09:59:58 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS MIM*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
@@ -50,6 +50,9 @@ USE FROM Thickened_face_solid_mim; -- ISO/TS 10303-1320
 USE FROM Wireframe_2d_mim; -- ISO/TS 10303-1347
 USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_mim;
 USE FROM Product_and_manufacturing_annotation_presentation_mim;
+USE FROM Change_management_mim; -- ISO/TS 10303-1661
+USE FROM Sketch_mim; -- ISO/TS 10303-1792
+
 
 USE FROM application_context_schema   -- ISO 10303-41
   (application_context,
@@ -99,6 +102,21 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
        'start_work', 
        'supplied_part_relationship']; 
   END_CONSTANT; 
+  
+  TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH 
+    (action_items,
+     action,
+     action_relationship,
+     project_item,
+     class,
+     event_occurrence);
+  END_TYPE;
+
+  TYPE ap242_change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH 
+    (product_definition_relationship,
+     action_relationship,
+     shape_aspect_relationship);
+  END_TYPE;
 
   TYPE action_item_242 = SELECT BASED_ON action_items WITH 
     (product_definition_formation_relationship);

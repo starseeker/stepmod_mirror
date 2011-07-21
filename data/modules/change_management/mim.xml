@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="change_management_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Change_management_mim">
+      <interface kind="use" schema="Approval_mim"/>
+      <interface kind="use" schema="Product_version_relationship_mim"/>
+      <interface kind="use" schema="Support_resource_mim"/>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_definition_relationship"/>
+      </interface>
+      <interface kind="use" schema="group_schema">
+         <interfaced.item name="group"/>
+         <interfaced.item name="group_relationship"/>
+      </interface>
+      <interface kind="use" schema="management_resources_schema">
+         <interfaced.item name="group_assignment"/>
+      </interface>
+      <type name="change_management_object">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="change_relationship_select">
+         <select extensible="YES" genericentity="YES" selectitems="product_definition_formation_relationship"/>
+      </type>
+      <type name="cm_approval_item">
+         <select basedon="approval_item" extensible="YES" genericentity="YES" selectitems="frozen_assignment"/>
+      </type>
+      <type name="current_element_assignment_select">
+         <select selectitems="modify_element add_element"/>
+      </type>
+      <type name="previous_element_assignment_select">
+         <select selectitems="modify_element delete_element"/>
+      </type>
+      <entity name="add_element" supertypes="change_element"/>
+      <entity name="change_composition_relationship" supertypes="group_relationship">
+         <explicit name="composition">
+            <typename name="change_group"/>
+            <redeclaration entity-ref="group_relationship" old_name="relating_group"/>
+         </explicit>
+         <explicit name="element">
+            <typename name="change_element"/>
+            <redeclaration entity-ref="group_relationship" old_name="related_group"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="change_element" super.expression="ONEOF (modify_element, delete_element, add_element)" supertypes="group"/>
+      <entity name="change_element_relationship" supertypes="group_relationship">
+         <explicit name="previous">
+            <typename name="change_element"/>
+            <redeclaration entity-ref="group_relationship" old_name="relating_group"/>
+         </explicit>
+         <explicit name="next">
+            <typename name="change_element"/>
+            <redeclaration entity-ref="group_relationship" old_name="related_group"/>
+         </explicit>
+      </entity>
+      <entity name="change_group" supertypes="group"/>
+      <entity name="change_group_assignment" supertypes="group_assignment">
+         <explicit name="assigned_group">
+            <typename name="change_group"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="change_relationship_select"/>
+         </explicit>
+      </entity>
+      <entity name="current_change_element_assignment" supertypes="group_assignment">
+         <explicit name="assigned_group">
+            <typename name="current_element_assignment_select"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="change_management_object"/>
+         </explicit>
+      </entity>
+      <entity name="delete_element" supertypes="change_element"/>
+      <entity name="frozen_assignment" supertypes="approval_assignment">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="change_management_object"/>
+         </explicit>
+      </entity>
+      <entity name="modify_element" supertypes="change_element"/>
+      <entity name="previous_change_element_assignment" supertypes="group_assignment">
+         <explicit name="assigned_group">
+            <typename name="previous_element_assignment_select"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="change_management_object"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="group" name="cm_group_subtypes" super.expression="ONEOF (change_group, change_element)"/>
+      <subtype.constraint entity="group_assignment" name="cm_group_assignment_subtypes" super.expression="ONEOF (current_change_element_assignment, previous_change_element_assignment, change_group_assignment)"/>
+   </schema>
+</express>

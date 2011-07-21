@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2011/06/04 16:45:59 lothartklein Exp $
+   $Id: arm.exp,v 1.5 2011/06/20 21:39:34 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
 
 SCHEMA Kinematic_motion_representation_arm;
@@ -36,7 +36,7 @@ DERIVE
   closed_interpolation : LOGICAL := segments[n_segments].interpolation <> discontinuous_interpolation_type;
   configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
 WHERE
-  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
+  WR1: SIZEOF( QUERY(ics <* segments | ics.state.represented_mechanism :<>: configured_mechanism)) = 0;
 END_ENTITY;  
 
 ENTITY Interpolated_configuration_segment;
@@ -54,6 +54,12 @@ ENTITY Link_motion_relationship
 WHERE
   WR1: transformation_operator.transform_item_1 IN rep_1.items;
   WR2: transformation_operator.transform_item_2 IN rep_2.items;
+END_ENTITY;
+
+ENTITY Item_link_motion_relationship
+  SUBTYPE OF (Link_motion_relationship);
+  SELF\Representation_relationship.rep_1 : Geometric_model;
+  item : Detailed_geometric_model_element;
 END_ENTITY;
 
 ENTITY Link_motion_transformation;
@@ -74,6 +80,7 @@ ENTITY Geometric_representation_context_with_parameter
 END_ENTITY;
 
 ENTITY Kinematic_path
+  ABSTRACT SUPERTYPE OF (ONEOF (Kinematic_path_defined_by_nodes, Kinematic_path_defined_by_curves))
   SUBTYPE OF (Detailed_geometric_model_element);
   segments : LIST [1:?] OF Kinematic_path_segment;
   t_start : parameter_value;
@@ -89,21 +96,24 @@ WHERE
   -- WR3 - different end positions
 END_ENTITY;
 
+ENTITY Kinematic_path_defined_by_nodes
+  SUBTYPE OF (Kinematic_path);
+  SELF\Kinematic_path.segments : LIST [1:?] OF Path_node;
+  placement_start : Axis_placement;
+END_ENTITY;  
+
+ENTITY Kinematic_path_defined_by_curves
+  SUBTYPE OF (Kinematic_path);
+  SELF\Kinematic_path.segments : LIST [1:?] OF Curve_based_path_with_orientation;
+END_ENTITY;  
+
 ENTITY Kinematic_path_segment
   ABSTRACT SUPERTYPE OF (ONEOF (
     Path_node,
-    Curve_based_path_with_orientation) 
-    ANDOR Path_parametrization);
+    Curve_based_path_with_orientation)); 
 --  SUBTYPE OF (founded_item);
   t_end : parameter_value;
   transition : curve_transition_code;
-END_ENTITY;
-
-ENTITY Path_parametrization
-  SUBTYPE OF (Kinematic_path_segment);
-  parameters : Path_parameter_representation;
--- WHERE
---  WR1: NOT item_in_context(SELF, parameters.context_of_items); -- error: SELF is not a rep_item
 END_ENTITY;
 
 ENTITY Path_parameter_representation
@@ -158,6 +168,11 @@ ENTITY Curve_based_path_with_orientation
 WHERE
   WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
 END_ENTITY;
+
+ENTITY Curve_based_path_with_orientation_and_parameters
+  SUBTYPE OF (Curve_based_path_with_orientation);
+  parameters : Path_parameter_representation;
+END_ENTITY;  
 
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR Representation;
   ONEOF (Interpolated_configuration_representation, Link_motion_representation_along_path);

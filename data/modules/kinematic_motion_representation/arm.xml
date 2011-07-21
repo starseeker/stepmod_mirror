@@ -37,6 +37,11 @@
          </explicit>
          <where expression="TYPEOF(position_curve) = TYPEOF(orientation_curve)" label="WR1"/>
       </entity>
+      <entity name="Curve_based_path_with_orientation_and_parameters" supertypes="Curve_based_path_with_orientation">
+         <explicit name="parameters">
+            <typename name="Path_parameter_representation"/>
+         </explicit>
+      </entity>
       <entity name="Geometric_representation_context_with_parameter" supertypes="Geometric_coordinate_space">
          <explicit name="parameter_unit" optional="YES">
             <typename name="Unit"/>
@@ -78,9 +83,18 @@
          <derived expression="segments[1].state.represented_mechanism" name="configured_mechanism">
             <typename name="Mechanism_representation"/>
          </derived>
-         <where expression="SIZEOF( QUERY(ics &lt;* segments | NOT(ics.state.represented_mechanism :&lt;&gt;: configured_mechanism))) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY(ics &lt;* segments | ics.state.represented_mechanism :&lt;&gt;: configured_mechanism)) = 0" label="WR1"/>
       </entity>
-      <entity name="Kinematic_path" supertypes="Detailed_geometric_model_element">
+      <entity name="Item_link_motion_relationship" supertypes="Link_motion_relationship">
+         <explicit name="rep_1">
+            <typename name="Geometric_model"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="Detailed_geometric_model_element"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Kinematic_path" super.expression="ONEOF (Kinematic_path_defined_by_nodes, Kinematic_path_defined_by_curves)" supertypes="Detailed_geometric_model_element">
          <explicit name="segments">
             <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="Kinematic_path_segment"/>
@@ -97,7 +111,24 @@
          <where expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF)| &#10;        NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0" label="WR1"/>
          <where expression="('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.CURVE_BASED_PATH_WITH_ORIENTATION' IN TYPEOF(segments[1]))&#10;      OR (n_segments &gt; 1)" label="WR2"/>
       </entity>
-      <entity abstract.supertype="YES" name="Kinematic_path_segment" super.expression="ONEOF (Path_node, Curve_based_path_with_orientation) ANDOR Path_parametrization">
+      <entity name="Kinematic_path_defined_by_curves" supertypes="Kinematic_path">
+         <explicit name="segments">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Curve_based_path_with_orientation"/>
+            <redeclaration entity-ref="Kinematic_path"/>
+         </explicit>
+      </entity>
+      <entity name="Kinematic_path_defined_by_nodes" supertypes="Kinematic_path">
+         <explicit name="segments">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Path_node"/>
+            <redeclaration entity-ref="Kinematic_path"/>
+         </explicit>
+         <explicit name="placement_start">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Kinematic_path_segment" super.expression="ONEOF (Path_node, Curve_based_path_with_orientation)">
          <explicit name="t_end">
             <typename name="parameter_value"/>
          </explicit>
@@ -163,11 +194,6 @@
          <where expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2" label="WR1"/>
       </entity>
       <entity name="Path_parameter_representation_context" supertypes="Geometric_coordinate_space Parametric_representation_context"/>
-      <entity name="Path_parametrization" supertypes="Kinematic_path_segment">
-         <explicit name="parameters">
-            <typename name="Path_parameter_representation"/>
-         </explicit>
-      </entity>
       <entity name="Point_to_point_path" supertypes="Path_node">
          <derived expression="discontinuous" name="transition">
             <typename name="curve_transition_code"/>

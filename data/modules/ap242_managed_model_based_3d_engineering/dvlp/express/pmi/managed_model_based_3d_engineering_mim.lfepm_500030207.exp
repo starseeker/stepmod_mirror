@@ -5631,20 +5631,19 @@ END_ENTITY;
   END_ENTITY;
 
   ENTITY representation_item
-      SUPERTYPE OF ( ( ONEOF (
+      SUPERTYPE OF (ONEOF(
                BINARY_REPRESENTATION_ITEM,
                COMPOUND_REPRESENTATION_ITEM,
-               MAPPED_ITEM,
-               VALUE_REPRESENTATION_ITEM) )ANDOR( (ONEOF (
+               VALUE_REPRESENTATION_ITEM,
                BOOLEAN_REPRESENTATION_ITEM,
                DATE_REPRESENTATION_ITEM,
                DATE_TIME_REPRESENTATION_ITEM,
                INTEGER_REPRESENTATION_ITEM,
                LOGICAL_REPRESENTATION_ITEM,
                RATIONAL_REPRESENTATION_ITEM,
-               REAL_REPRESENTATION_ITEM)) )ANDOR( ONEOF (
+               REAL_REPRESENTATION_ITEM,
                MAPPED_ITEM,
-               STYLED_ITEM) )  ) ;
+               STYLED_ITEM));
       name : label;
     WHERE
       WR1: SIZEOF(using_representations(SELF)) > 0;
@@ -8135,11 +8134,11 @@ END_ENTITY;
   END_ENTITY;
 
   ENTITY compound_representation_item
-      SUPERTYPE OF ( ( ONEOF (
+      SUPERTYPE OF (ONEOF(
                POINT_AND_VECTOR,
-               POINT_PATH) )ANDOR( (ONEOF (
+               POINT_PATH,
                ROW_REPRESENTATION_ITEM,
-               TABLE_REPRESENTATION_ITEM)) )  ) 
+               TABLE_REPRESENTATION_ITEM)) 
       SUBTYPE OF (representation_item);
       item_element : compound_item_definition;
   END_ENTITY;
@@ -8854,7 +8853,7 @@ ENTITY geometric_representation_context
 END_ENTITY;
 
   ENTITY geometric_representation_item
-  SUPERTYPE OF (ONEOF (
+  SUPERTYPE OF (ONEOF(
               POINT,
               DIRECTION,
               VECTOR,
@@ -14625,15 +14624,13 @@ END_ENTITY;
  END_ENTITY;
 
  ENTITY primitive_2d
-     SUPERTYPE OF ( ( ONEOF (
+     SUPERTYPE OF (ONEOF(
                CIRCULAR_AREA,
                ELLIPTIC_AREA,
                RECTANGULAR_AREA,
-               POLYGONAL_AREA) )ANDOR( ONEOF (
-               ELLIPTIC_AREA,
-               RECTANGULAR_AREA,
                POLYGONAL_AREA,
-               COMPLEX_AREA) )  ) 
+               ELLIPTIC_AREA,
+               COMPLEX_AREA))
   SUBTYPE OF (geometric_representation_item);
    WHERE
      WR1 : SELF\geometric_representation_item.dim = 2;
@@ -24130,14 +24127,39 @@ END_ENTITY;
     related_organizational_project : organizational_project;
   END_ENTITY;
 
-  ENTITY founded_item;
-    DERIVE
-      users : SET[0:?] OF founded_item_select := using_items(SELF,[]);
-    WHERE
-      WR1: SIZEOF(users) > 0;
-      WR2: NOT(SELF IN users);  
-  END_ENTITY;
-
+    ENTITY founded_item
+      SUPERTYPE OF (ONEOF(
+        
+        
+        character_glyph_style_outline,
+        character_glyph_style_stroke,
+        curve_style,
+        curve_style_font,
+        curve_style_font_and_scaling,
+        curve_style_font_pattern,
+        
+        fill_area_style,
+        point_style,
+        
+        presentation_style_assignment,
+        surface_side_style,
+        surface_style_boundary,
+        surface_style_control_grid,
+        surface_style_fill_area,
+        surface_style_parameter_line,
+        surface_style_segmentation_curve,
+        surface_style_silhouette,
+        surface_style_usage,
+        
+        symbol_style,
+        text_style));
+      DERIVE
+        users : SET[0:?] OF founded_item_select := using_items(SELF,[]);
+      WHERE
+        WR1: SIZEOF(users) > 0;
+        WR2: NOT(SELF IN users);  
+    END_ENTITY;
+    
 ENTITY local_time;
   hour_component : hour_in_day;
   minute_component : OPTIONAL minute_in_hour;

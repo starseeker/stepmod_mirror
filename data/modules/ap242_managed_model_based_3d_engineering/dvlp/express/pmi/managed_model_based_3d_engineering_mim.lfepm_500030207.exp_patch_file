@@ -1,147 +1,513 @@
-*** managed_model_based_3d_engineering_mim.lfepm_500030207.exp	2011-06-20 08:39:07.000000000 -0500
---- managed_model_based_3d_engineering_mim.lfepm_500030207.exp	2011-06-19 17:13:55.000000000 -0500
-
-
-
-
-
-
-
-
-
-
-  ***************
-  *** 340,359 ****
-  --- 340,383 ----
-
-
-  (* Pruned unused type: dimension_identification_item  *)
-
-
-  (* Pruned unused type: dimension_tolerance_document_reference_item  *)
-
-
-  (* Pruned unused type: eri_external_identification  *)
-
-+ TYPE machining_feature_definition = SELECT (
-+   boss,
-+   compound_feature,
-+   externally_defined_feature_definition,
-+   flat_face,
-+   gear,
-+   marking,
-+   outer_round,
-+   outside_profile,
-+   pocket,
-+   protrusion,
-+   removal_volume,
-+   replicate_feature,
-+   revolved_profile,
-+   rib_top,
-+   round_hole,
-+   rounded_end,
-+   spherical_cap,
-+   step,
-+   slot,
-+   thread,
-+   turned_knurl);
-+ END_TYPE;
-+
-  TYPE mechanical_design_and_draughting_relationship_select = SELECT (     draughting_model,     mechanical_design_geometric_presentation_representation,     mechanical_design_presentation_representation_with_draughting,     mechanical_design_shaded_presentation_representation,     shape_representation);
-  END_TYPE;
-
-
-  ***************
-  *** 987,1010 ****
+*** managed_model_based_3d_engineering_mim.lfepm_500030207.exp	2011-07-27 08:20:12.000000000 -0500
+--- managed_model_based_3d_engineering_mim.lfepm_500030207.exp_v1_7_has_been_patched	2011-07-27 08:24:06.000000000 -0500
+***************
+*** 5614,5667 ****
+      DERIVE
+        id               : identifier := get_id_value (SELF);
+        description      : text := get_description_value (SELF);
+      WHERE
+        WR1: SIZEOF (USEDIN (SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                   'ID_ATTRIBUTE.IDENTIFIED_ITEM'))
+           <= 1;
+        WR2: SIZEOF (USEDIN (SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                   'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))
+           <= 1;
+    END_ENTITY;
   
+    ENTITY representation_context;
+        context_identifier : identifier;
+        context_type       : text;
+      INVERSE
+        representations_in_context : SET [1:?] OF representation FOR context_of_items;
+    END_ENTITY;
   
-  (* Pruned unused type: ir_organization_item  *)
+    ENTITY representation_item
+!       SUPERTYPE OF ( ( ONEOF (
+                 BINARY_REPRESENTATION_ITEM,
+                 COMPOUND_REPRESENTATION_ITEM,
+!                MAPPED_ITEM,
+!                VALUE_REPRESENTATION_ITEM) )ANDOR( (ONEOF (
+                 BOOLEAN_REPRESENTATION_ITEM,
+                 DATE_REPRESENTATION_ITEM,
+                 DATE_TIME_REPRESENTATION_ITEM,
+                 INTEGER_REPRESENTATION_ITEM,
+                 LOGICAL_REPRESENTATION_ITEM,
+                 RATIONAL_REPRESENTATION_ITEM,
+!                REAL_REPRESENTATION_ITEM)) )ANDOR( ONEOF (
+                 MAPPED_ITEM,
+!                STYLED_ITEM) )  ) ;
+        name : label;
+      WHERE
+        WR1: SIZEOF(using_representations(SELF)) > 0;
+    END_ENTITY;
   
+    ENTITY representation_relationship;
+        name        : label;
+        description : OPTIONAL text;
+        rep_1       : representation;
+        rep_2       : representation;
+    END_ENTITY;
   
-  (* Pruned unused type: ir_person_and_organization_item  *)
+    ENTITY uncertainty_measure_with_unit
+      SUBTYPE OF (measure_with_unit);
+        name        : label;
+        description : OPTIONAL text;
+      WHERE
+        WR1: valid_measure_value (SELF\measure_with_unit.value_component);
+    END_ENTITY;
   
+--- 5614,5666 ----
+      DERIVE
+        id               : identifier := get_id_value (SELF);
+        description      : text := get_description_value (SELF);
+      WHERE
+        WR1: SIZEOF (USEDIN (SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                   'ID_ATTRIBUTE.IDENTIFIED_ITEM'))
+           <= 1;
+        WR2: SIZEOF (USEDIN (SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                   'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))
+           <= 1;
+    END_ENTITY;
   
-  TYPE ir_usage_item = action_items;
+    ENTITY representation_context;
+        context_identifier : identifier;
+        context_type       : text;
+      INVERSE
+        representations_in_context : SET [1:?] OF representation FOR context_of_items;
+    END_ENTITY;
+  
+    ENTITY representation_item
+!       SUPERTYPE OF (ONEOF(
+                 BINARY_REPRESENTATION_ITEM,
+                 COMPOUND_REPRESENTATION_ITEM,
+!                VALUE_REPRESENTATION_ITEM,
+                 BOOLEAN_REPRESENTATION_ITEM,
+                 DATE_REPRESENTATION_ITEM,
+                 DATE_TIME_REPRESENTATION_ITEM,
+                 INTEGER_REPRESENTATION_ITEM,
+                 LOGICAL_REPRESENTATION_ITEM,
+                 RATIONAL_REPRESENTATION_ITEM,
+!                REAL_REPRESENTATION_ITEM,
+                 MAPPED_ITEM,
+!                STYLED_ITEM));
+        name : label;
+      WHERE
+        WR1: SIZEOF(using_representations(SELF)) > 0;
+    END_ENTITY;
+  
+    ENTITY representation_relationship;
+        name        : label;
+        description : OPTIONAL text;
+        rep_1       : representation;
+        rep_2       : representation;
+    END_ENTITY;
+  
+    ENTITY uncertainty_measure_with_unit
+      SUBTYPE OF (measure_with_unit);
+        name        : label;
+        description : OPTIONAL text;
+      WHERE
+        WR1: valid_measure_value (SELF\measure_with_unit.value_component);
+    END_ENTITY;
+  
+***************
+*** 8118,8162 ****
+        WR5 : validate_accuracy_types(SELF,
+              []);
+    END_ENTITY;
+  
+    ENTITY shape_criteria_representation_with_accuracy
+      SUBTYPE OF(shape_data_quality_criteria_representation);
+        required_general_accuracy : SET [1:?] OF shape_measurement_accuracy;
+    END_ENTITY;
+  
+    ENTITY shape_measurement_accuracy;
+        description : text;
+        range       : shape_data_quality_value_limit_type_select;
+    END_ENTITY;
+  
+    ENTITY shape_data_quality_criterion_and_accuracy_association;
+        required_specific_accuracy   : shape_measurement_accuracy;
+        shape_data_quality_criterion : shape_data_quality_criterion;
+    END_ENTITY;
+  
+    ENTITY compound_representation_item
+!       SUPERTYPE OF ( ( ONEOF (
+                 POINT_AND_VECTOR,
+!                POINT_PATH) )ANDOR( (ONEOF (
+                 ROW_REPRESENTATION_ITEM,
+!                TABLE_REPRESENTATION_ITEM)) )  ) 
+        SUBTYPE OF (representation_item);
+        item_element : compound_item_definition;
+    END_ENTITY;
+  
+   ENTITY shape_data_quality_inspection_result_representation
+     SUBTYPE OF(data_quality_inspection_result_representation);
+     WHERE
+       WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                                'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                'SHAPE_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+       WR2 : 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.GEOMETRIC_REPRESENTATION_CONTEXT' IN
+             TYPEOF(SELF\representation.context_of_items);
+       WR3 : SIZEOF(USEDIN(SELF,
+                    'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.'+
+                    'SHAPE_DATA_QUALITY_INSPECTED_SHAPE_AND_RESULT_RELATIONSHIP.'+
+                    'REP_2'))>0;
+   END_ENTITY;
+  
+   ENTITY shape_inspection_result_representation_with_accuracy
+     SUBTYPE OF(shape_data_quality_inspection_result_representation);
+--- 8117,8161 ----
+        WR5 : validate_accuracy_types(SELF,
+              []);
+    END_ENTITY;
+  
+    ENTITY shape_criteria_representation_with_accuracy
+      SUBTYPE OF(shape_data_quality_criteria_representation);
+        required_general_accuracy : SET [1:?] OF shape_measurement_accuracy;
+    END_ENTITY;
+  
+    ENTITY shape_measurement_accuracy;
+        description : text;
+        range       : shape_data_quality_value_limit_type_select;
+    END_ENTITY;
+  
+    ENTITY shape_data_quality_criterion_and_accuracy_association;
+        required_specific_accuracy   : shape_measurement_accuracy;
+        shape_data_quality_criterion : shape_data_quality_criterion;
+    END_ENTITY;
+  
+    ENTITY compound_representation_item
+!       SUPERTYPE OF (ONEOF(
+                 POINT_AND_VECTOR,
+!                POINT_PATH,
+                 ROW_REPRESENTATION_ITEM,
+!                TABLE_REPRESENTATION_ITEM)) 
+        SUBTYPE OF (representation_item);
+        item_element : compound_item_definition;
+    END_ENTITY;
+  
+   ENTITY shape_data_quality_inspection_result_representation
+     SUBTYPE OF(data_quality_inspection_result_representation);
+     WHERE
+       WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                                'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +
+                                'SHAPE_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+       WR2 : 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.GEOMETRIC_REPRESENTATION_CONTEXT' IN
+             TYPEOF(SELF\representation.context_of_items);
+       WR3 : SIZEOF(USEDIN(SELF,
+                    'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.'+
+                    'SHAPE_DATA_QUALITY_INSPECTED_SHAPE_AND_RESULT_RELATIONSHIP.'+
+                    'REP_2'))>0;
+   END_ENTITY;
+  
+   ENTITY shape_inspection_result_representation_with_accuracy
+     SUBTYPE OF(shape_data_quality_inspection_result_representation);
+***************
+*** 8837,8877 ****
+     u     : LIST[3:3] OF direction 
+           := base_axis(3,SELF\cartesian_transformation_operator.axis1,
+                          SELF\cartesian_transformation_operator.axis2,axis3);
+   WHERE
+     WR1: SELF\geometric_representation_item.dim = 3;
+   END_ENTITY;
+  
+   ENTITY direction
+     SUBTYPE OF (geometric_representation_item);
+     direction_ratios : LIST [2:3] OF REAL;
+   WHERE
+     WR1: SIZEOF(QUERY(tmp <* direction_ratios | tmp <> 0.0)) > 0;
+   END_ENTITY;
+  
+  ENTITY geometric_representation_context
+    SUBTYPE OF (representation_context);
+    coordinate_space_dimension : dimension_count;
+  END_ENTITY;
+  
+    ENTITY geometric_representation_item
+!   SUPERTYPE OF (ONEOF (
+                POINT,
+                DIRECTION,
+                VECTOR,
+                PLACEMENT,
+                CARTESIAN_TRANSFORMATION_OPERATOR,
+                CURVE,
+                SURFACE,
+                EDGE_CURVE,
+                FACE_SURFACE,
+                POLY_LOOP,
+                VERTEX_POINT,
+                SOLID_MODEL,
+                BOOLEAN_RESULT,
+                SPHERE,
+                RIGHT_CIRCULAR_CONE,
+                RIGHT_CIRCULAR_CYLINDER,
+                TORUS,
+                BLOCK,
+                PRIMITIVE_2D,
+                RIGHT_ANGULAR_WEDGE,
+--- 8836,8876 ----
+     u     : LIST[3:3] OF direction 
+           := base_axis(3,SELF\cartesian_transformation_operator.axis1,
+                          SELF\cartesian_transformation_operator.axis2,axis3);
+   WHERE
+     WR1: SELF\geometric_representation_item.dim = 3;
+   END_ENTITY;
+  
+   ENTITY direction
+     SUBTYPE OF (geometric_representation_item);
+     direction_ratios : LIST [2:3] OF REAL;
+   WHERE
+     WR1: SIZEOF(QUERY(tmp <* direction_ratios | tmp <> 0.0)) > 0;
+   END_ENTITY;
+  
+  ENTITY geometric_representation_context
+    SUBTYPE OF (representation_context);
+    coordinate_space_dimension : dimension_count;
+  END_ENTITY;
+  
+    ENTITY geometric_representation_item
+!   SUPERTYPE OF (ONEOF(
+                POINT,
+                DIRECTION,
+                VECTOR,
+                PLACEMENT,
+                CARTESIAN_TRANSFORMATION_OPERATOR,
+                CURVE,
+                SURFACE,
+                EDGE_CURVE,
+                FACE_SURFACE,
+                POLY_LOOP,
+                VERTEX_POINT,
+                SOLID_MODEL,
+                BOOLEAN_RESULT,
+                SPHERE,
+                RIGHT_CIRCULAR_CONE,
+                RIGHT_CIRCULAR_CYLINDER,
+                TORUS,
+                BLOCK,
+                PRIMITIVE_2D,
+                RIGHT_ANGULAR_WEDGE,
+***************
+*** 14608,14656 ****
+  
+  ENTITY  circular_area
+    SUBTYPE OF (primitive_2d);
+      centre: cartesian_point;
+      radius: positive_length_measure;
+  END_ENTITY;
+  
+  ENTITY  elliptic_area
+    SUBTYPE OF (primitive_2d);
+      position : axis2_placement_2d;
+      semi_axis_1 : positive_length_measure;
+      semi_axis_2 : positive_length_measure;
+  END_ENTITY;
+  
+   ENTITY polygonal_area
+     SUBTYPE OF (primitive_2d);
+     bounds:  LIST [3:?] OF UNIQUE cartesian_point;
+   END_ENTITY;
+  
+   ENTITY primitive_2d
+!      SUPERTYPE OF ( ( ONEOF (
+                 CIRCULAR_AREA,
+                 ELLIPTIC_AREA,
+                 RECTANGULAR_AREA,
+-                POLYGONAL_AREA) )ANDOR( ONEOF (
+-                ELLIPTIC_AREA,
+-                RECTANGULAR_AREA,
+                 POLYGONAL_AREA,
+!                COMPLEX_AREA) )  ) 
+    SUBTYPE OF (geometric_representation_item);
+     WHERE
+       WR1 : SELF\geometric_representation_item.dim = 2;
+   END_ENTITY;
+  
+  ENTITY rectangular_area
+    SUBTYPE OF (primitive_2d);
+      position: axis2_placement_2d;
+      x: positive_length_measure;
+      y: positive_length_measure;
+  END_ENTITY;
+  
+   ENTITY boolean_result
+     SUBTYPE OF (geometric_representation_item);
+     operator        : boolean_operator;
+     first_operand   :  boolean_operand;
+     second_operand  :  boolean_operand;
+   END_ENTITY;
+  
+   ENTITY csg_solid
+--- 14607,14653 ----
+  
+  ENTITY  circular_area
+    SUBTYPE OF (primitive_2d);
+      centre: cartesian_point;
+      radius: positive_length_measure;
+  END_ENTITY;
+  
+  ENTITY  elliptic_area
+    SUBTYPE OF (primitive_2d);
+      position : axis2_placement_2d;
+      semi_axis_1 : positive_length_measure;
+      semi_axis_2 : positive_length_measure;
+  END_ENTITY;
+  
+   ENTITY polygonal_area
+     SUBTYPE OF (primitive_2d);
+     bounds:  LIST [3:?] OF UNIQUE cartesian_point;
+   END_ENTITY;
+  
+   ENTITY primitive_2d
+!      SUPERTYPE OF (ONEOF(
+                 CIRCULAR_AREA,
+                 ELLIPTIC_AREA,
+                 RECTANGULAR_AREA,
+                 POLYGONAL_AREA,
+!                ELLIPTIC_AREA,
+!                COMPLEX_AREA))
+    SUBTYPE OF (geometric_representation_item);
+     WHERE
+       WR1 : SELF\geometric_representation_item.dim = 2;
+   END_ENTITY;
+  
+  ENTITY rectangular_area
+    SUBTYPE OF (primitive_2d);
+      position: axis2_placement_2d;
+      x: positive_length_measure;
+      y: positive_length_measure;
+  END_ENTITY;
+  
+   ENTITY boolean_result
+     SUBTYPE OF (geometric_representation_item);
+     operator        : boolean_operator;
+     first_operand   :  boolean_operand;
+     second_operand  :  boolean_operand;
+   END_ENTITY;
+  
+   ENTITY csg_solid
+***************
+*** 24113,24160 ****
+      description : OPTIONAL text;
+    END_ENTITY;
+  
+    ENTITY organizational_project;
+      name : label;
+      description : OPTIONAL text;
+      responsible_organizations : SET [1:?] OF organization;
+    DERIVE
+      id : identifier := get_id_value(SELF);
+    WHERE
+      WR1: SIZEOF(USEDIN(SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+    END_ENTITY;
+  
+    ENTITY organizational_project_relationship;
+      name : label;
+      description : OPTIONAL text;
+      relating_organizational_project : organizational_project;
+      related_organizational_project : organizational_project;
+    END_ENTITY;
+  
+!   ENTITY founded_item;
+!     DERIVE
+!       users : SET[0:?] OF founded_item_select := using_items(SELF,[]);
+!     WHERE
+!       WR1: SIZEOF(users) > 0;
+!       WR2: NOT(SELF IN users);  
+!   END_ENTITY;
+! 
+  ENTITY local_time;
+    hour_component : hour_in_day;
+    minute_component : OPTIONAL minute_in_hour;
+    second_component : OPTIONAL second_in_minute;
+    zone : coordinated_universal_time_offset;
   WHERE
-!   wr1 : NOT ('INFORMATION_RIGHTS_MIM.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF));
--   wr2 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF));
--   wr3 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_FORMATION_RELATIONSHIP' IN TYPEOF(SELF));
--   wr4 : NOT ('INFORMATION_RIGHTS_MIM.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(SELF));
-  END_TYPE;
+    WR1: valid_time (SELF);
+  END_ENTITY;
   
+  ENTITY binary_literal
+    SUBTYPE OF (generic_literal);
+    lit_value : BINARY;
+  END_ENTITY;
   
-  (* Pruned unused type: effectivity_item_for_replacement  *)
+  ENTITY maths_enum_literal
+    SUBTYPE OF (generic_literal);
+    lit_value : maths_enum_atom;
+  END_ENTITY;
   
+  ENTITY real_tuple_literal
+--- 24110,24182 ----
+      description : OPTIONAL text;
+    END_ENTITY;
   
-  (* Pruned unused type: pdpdms_person_and_organization_item  *)
+    ENTITY organizational_project;
+      name : label;
+      description : OPTIONAL text;
+      responsible_organizations : SET [1:?] OF organization;
+    DERIVE
+      id : identifier := get_id_value(SELF);
+    WHERE
+      WR1: SIZEOF(USEDIN(SELF, 'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+    END_ENTITY;
   
+    ENTITY organizational_project_relationship;
+      name : label;
+      description : OPTIONAL text;
+      relating_organizational_project : organizational_project;
+      related_organizational_project : organizational_project;
+    END_ENTITY;
   
-  (* Pruned unused type: pdpdms_external_identification_item  *)
---- 987,1007 ----
-  
-  
-  (* Pruned unused type: ir_organization_item  *)
-  
-  
-  (* Pruned unused type: ir_person_and_organization_item  *)
-  
-  
-  TYPE ir_usage_item = action_items;
+!     ENTITY founded_item
+!       SUPERTYPE OF (ONEOF(
+!         
+!         
+!         character_glyph_style_outline,
+!         character_glyph_style_stroke,
+!         curve_style,
+!         curve_style_font,
+!         curve_style_font_and_scaling,
+!         curve_style_font_pattern,
+!         
+!         fill_area_style,
+!         point_style,
+!         
+!         presentation_style_assignment,
+!         surface_side_style,
+!         surface_style_boundary,
+!         surface_style_control_grid,
+!         surface_style_fill_area,
+!         surface_style_parameter_line,
+!         surface_style_segmentation_curve,
+!         surface_style_silhouette,
+!         surface_style_usage,
+!         
+!         symbol_style,
+!         text_style));
+!       DERIVE
+!         users : SET[0:?] OF founded_item_select := using_items(SELF,[]);
+!       WHERE
+!         WR1: SIZEOF(users) > 0;
+!         WR2: NOT(SELF IN users);  
+!     END_ENTITY;
+!     
+  ENTITY local_time;
+    hour_component : hour_in_day;
+    minute_component : OPTIONAL minute_in_hour;
+    second_component : OPTIONAL second_in_minute;
+    zone : coordinated_universal_time_offset;
   WHERE
-   wr1 : NOT ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.CONFIGURATION_EFFECTIVITY' IN TYPEOF(SELF));
-  END_TYPE;
+    WR1: valid_time (SELF);
+  END_ENTITY;
   
+  ENTITY binary_literal
+    SUBTYPE OF (generic_literal);
+    lit_value : BINARY;
+  END_ENTITY;
   
-  (* Pruned unused type: effectivity_item_for_replacement  *)
+  ENTITY maths_enum_literal
+    SUBTYPE OF (generic_literal);
+    lit_value : maths_enum_atom;
+  END_ENTITY;
   
-  
-  (* Pruned unused type: pdpdms_person_and_organization_item  *)
-  
-  
-  (* Pruned unused type: pdpdms_external_identification_item  *)
-  ***************
-  *** 35070,35090 ****
-  RULE validate_dependently_instantiable_entity_data_types FOR
-        (abstracted_expression_function,action_method_role,action_resource_type,annotation_text,application_defined_function,atom_based_literal,attribute_value_role,b_spline_basis,b_spline_function,basic_sparse_matrix,binary_literal,camera_model_d2,cartesian_complex_number_region,cartesian_transformation_operator,complex_number_literal,concept_feature_relationship,concept_feature_relationship_with_condition,constant_function,definite_integral_expression,definite_integral_function,document_usage_constraint,edge_blended_solid,effectivity_context_role,elementary_function,event_occurrence_role,explicit_procedural_representation_item_relationship,explicit_table_function,expression_denoted_function,extended_tuple_space,externally_listed_data,finite_function,founded_item,function_application,function_space,general_linear_function,homogeneous_linear_function,imported_curve_function,imported_point_function,imported_surface_function,imported_volume_function,indirectly_selected_elements,integer_tuple_literal,linearized_table_function,listed_data,local_time,maths_enum_literal,maths_function,maths_tuple_literal,modified_solid_with_placed_configuration,one_direction_repeat_factor,oriented_open_shell,oriented_path,parallel_composed_function,partial_derivative_expression,partial_derivative_function,polar_complex_number_region,positioned_sketch,procedural_representation,procedural_representation_sequence,product_definition_effectivity,quantifier_expression,rationalize_function,real_tuple_literal,reindexed_array_function,repackaging_function,restriction_function,runout_zone_orientation,selector_function,series_composed_function,solid_with_depression,solid_with_hole,solid_with_pocket,solid_with_protrusion,solid_with_shape_element_pattern,solid_with_slot,swept_area_solid,symbol_target,two_direction_repeat_factor,user_selected_elements,view_volume,volume --<list this first and all subsequent relevant referencedentity data types here>
-        );
-  LOCAL
-    number_of_input_instances : INTEGER;
-    previous_in_chain : LIST OF GENERIC := [];
-    set_of_input_types : SET OF STRING := [];
-    all_instances : SET OF GENERIC := [];
-  END_LOCAL;
-  
-!   all_instances := abstracted_expression_function + action_method_role + action_resource_type + annotation_text + application_defined_function + atom_based_literal + attribute_value_role + b_spline_basis + b_spline_function + basic_sparse_matrix + binary_literal + camera_model_d2 + cartesian_complex_number_region + cartesian_transformation_operator + complex_number_literal + concept_feature_relationship + concept_feature_relationship_with_condition + constant_function + definite_integral_expression + definite_integral_function + document_usage_constraint + edge_blended_solid + effectivity_context_role + elementary_function + event_occurrence_role + explicit_procedural_representation_item_relationship + explicit_table_function + expression_denoted_function + extended_tuple_space + externally_listed_data + finite_function + founded_item + function_application + function_space + general_linear_function + homogeneous_linear_function + imported_curve_function + imported_point_function + imported_surface_function + imported_volume_function + indirectly_selected_elements + integer_tuple_literal + linearized_table_function + listed_data + local_time + maths_enum_literal + maths_function + maths_tuple_literal + modified_solid_with_placed_configuration + one_direction_repeat_factor + oriented_open_shell + oriented_path + parallel_composed_function + partial_derivative_expression + partial_derivative_function + polar_complex_number_region + positioned_sketch + procedural_representation + procedural_representation_sequence + product_definition_effectivity + quantifier_expression + rationalize_function + real_tuple_literal + reindexed_array_function + repackaging_function + restriction_function + runout_zone_orientation + selector_function + series_composed_function + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + swept_area_solid + symbol_target + two_direction_repeat_factor + user_selected_elements + view_volume + volume;--<make a union of all implicit populations of the FOR-clause>
-  number_of_input_instances := SIZEOF(all_instances);
-  (* Collect all type strings of all FOR instances into one set. *)
-  REPEAT i:=1 TO number_of_input_instances;
-    set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
-  END_REPEAT;
-  
-  WHERE
-    WR1: dependently_instantiated(all_instances, set_of_input_types,
-                                  previous_in_chain);
-  END_RULE;
---- 35070,35090 ----
-  RULE validate_dependently_instantiable_entity_data_types FOR
-        (abstracted_expression_function,action_method_role,action_resource_type,annotation_text,application_defined_function,atom_based_literal,attribute_value_role,b_spline_basis,b_spline_function,basic_sparse_matrix,binary_literal,camera_model_d2,cartesian_complex_number_region,cartesian_transformation_operator,complex_number_literal,concept_feature_relationship,concept_feature_relationship_with_condition,constant_function,definite_integral_expression,definite_integral_function,document_usage_constraint,edge_blended_solid,effectivity_context_role,elementary_function,event_occurrence_role,explicit_procedural_representation_item_relationship,explicit_table_function,expression_denoted_function,extended_tuple_space,externally_listed_data,finite_function,founded_item,function_application,function_space,general_linear_function,homogeneous_linear_function,imported_curve_function,imported_point_function,imported_surface_function,imported_volume_function,indirectly_selected_elements,integer_tuple_literal,linearized_table_function,listed_data,local_time,maths_enum_literal,maths_function,maths_tuple_literal,modified_solid_with_placed_configuration,one_direction_repeat_factor,oriented_open_shell,oriented_path,parallel_composed_function,partial_derivative_expression,partial_derivative_function,polar_complex_number_region,positioned_sketch,procedural_representation,procedural_representation_sequence,product_definition_effectivity,quantifier_expression,rationalize_function,real_tuple_literal,reindexed_array_function,repackaging_function,restriction_function,runout_zone_orientation,selector_function,series_composed_function,solid_with_depression,solid_with_hole,solid_with_pocket,solid_with_protrusion,solid_with_shape_element_pattern,solid_with_slot,swept_area_solid,symbol_target,two_direction_repeat_factor,user_selected_elements,view_volume,volume --<list this first and all subsequent relevant referencedentity data types here>
-        );
-  LOCAL
-    number_of_input_instances : INTEGER;
-    previous_in_chain : LIST OF GENERIC := [];
-    set_of_input_types : SET OF STRING := [];
-    all_instances : SET OF GENERIC := [];
-  END_LOCAL;
-  
-!   all_instances := all_instances + abstracted_expression_function + action_method_role + action_resource_type + annotation_text + application_defined_function + atom_based_literal + attribute_value_role + b_spline_basis + b_spline_function + basic_sparse_matrix + binary_literal + camera_model_d2 + cartesian_complex_number_region + cartesian_transformation_operator + complex_number_literal + concept_feature_relationship + concept_feature_relationship_with_condition + constant_function + definite_integral_expression + definite_integral_function + document_usage_constraint + edge_blended_solid + effectivity_context_role + elementary_function + event_occurrence_role + explicit_procedural_representation_item_relationship + explicit_table_function + expression_denoted_function + extended_tuple_space + externally_listed_data + finite_function + founded_item + function_application + function_space + general_linear_function + homogeneous_linear_function + imported_curve_function + imported_point_function + imported_surface_function + imported_volume_function + indirectly_selected_elements + integer_tuple_literal + linearized_table_function + listed_data + local_time + maths_enum_literal + maths_function + maths_tuple_literal + modified_solid_with_placed_configuration + one_direction_repeat_factor + oriented_open_shell + oriented_path + parallel_composed_function + partial_derivative_expression + partial_derivative_function + polar_complex_number_region + positioned_sketch + procedural_representation + procedural_representation_sequence + product_definition_effectivity + quantifier_expression + rationalize_function + real_tuple_literal + reindexed_array_function + repackaging_function + restriction_function + runout_zone_orientation + selector_function + series_composed_function + solid_with_depression + solid_with_hole + solid_with_pocket + solid_with_protrusion + solid_with_shape_element_pattern + solid_with_slot + swept_area_solid + symbol_target + two_direction_repeat_factor + user_selected_elements + view_volume + volume;--<make a union of all implicit populations of the FOR-clause>
-  number_of_input_instances := SIZEOF(all_instances);
-  (* Collect all type strings of all FOR instances into one set. *)
-  REPEAT i:=1 TO number_of_input_instances;
-    set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
-  END_REPEAT;
-  
-  WHERE
-    WR1: dependently_instantiated(all_instances, set_of_input_types,
-                                  previous_in_chain);
-  END_RULE;
-  
+  ENTITY real_tuple_literal

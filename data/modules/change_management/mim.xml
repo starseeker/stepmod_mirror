@@ -6,8 +6,9 @@
    <application name="JSDAI" owner="LKSoft" source="change_management_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Change_management_mim">
       <interface kind="use" schema="Approval_mim"/>
+      <interface kind="use" schema="Basic_data_representation_mim"/>
       <interface kind="use" schema="Product_version_relationship_mim"/>
-      <interface kind="use" schema="Support_resource_mim"/>
+      <interface kind="use" schema="Characterizable_object_mim"/>
       <interface kind="use" schema="product_definition_schema">
          <interfaced.item name="product_definition_relationship"/>
       </interface>
@@ -17,6 +18,12 @@
       </interface>
       <interface kind="use" schema="management_resources_schema">
          <interfaced.item name="group_assignment"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="compound_item_definition"/>
+         <interfaced.item name="compound_representation_item"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="list_representation_item"/>
       </interface>
       <type name="change_management_object">
          <select extensible="YES" genericentity="YES"/>
@@ -29,6 +36,10 @@
       </type>
       <type name="current_element_assignment_select">
          <select selectitems="modify_element add_element"/>
+      </type>
+      <type name="location_in_aggregate_item">
+         <aggregate lower="1" type="LIST" upper="?"/>
+         <typename name="integer_representation_item"/>
       </type>
       <type name="previous_element_assignment_select">
          <select selectitems="modify_element delete_element"/>
@@ -44,7 +55,7 @@
             <redeclaration entity-ref="group_relationship" old_name="related_group"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="change_element" super.expression="ONEOF (modify_element, delete_element, add_element)" supertypes="group"/>
+      <entity abstract.supertype="YES" name="change_element" super.expression="ONEOF (modify_element, delete_element, add_element)" supertypes="group characterized_object"/>
       <entity name="change_element_sequence" supertypes="group_relationship">
          <explicit name="previous">
             <typename name="change_element"/>
@@ -80,6 +91,12 @@
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="change_management_object"/>
+         </explicit>
+      </entity>
+      <entity name="location_in_aggregate_representation_item" supertypes="compound_representation_item">
+         <explicit name="item_element">
+            <typename name="location_in_aggregate_item"/>
+            <redeclaration entity-ref="compound_representation_item"/>
          </explicit>
       </entity>
       <entity name="modify_element" supertypes="change_element"/>

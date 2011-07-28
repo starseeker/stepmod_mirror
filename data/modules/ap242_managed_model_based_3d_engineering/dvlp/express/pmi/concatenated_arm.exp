@@ -272,6 +272,29 @@ USE FROM Thickened_face_solid_arm; -- ISO/TS 10303-1320
 USE FROM Wireframe_2d_arm; -- ISO/TS 10303-1347
 USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
 USE FROM Product_and_manufacturing_annotation_presentation_arm;
+USE FROM Change_management_arm; -- ISO/TS 10303-1661
+USE FROM Sketch_arm; -- ISO/TS 10303-1792
+
+TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
+--  activity_element_select,
+  Activity,
+--  Classification,
+  Activity_relationship
+--  event_reference,
+--  project_assignment
+  );
+END_TYPE;
+
+TYPE ap242_change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
+    Process_plan_relationship,
+    design_constraint_relationship,
+    shape_element_relationship,
+--    replaced_definition_relationship,
+    replaced_usage_relationship,
+--    complex_product_relationship,
+    process_operation_occurrence_relationship);
+END_TYPE;
+
  
   TYPE alias_identification_item_242 = SELECT BASED_ON alias_identification_item WITH 
     (Approval_status, 
@@ -1888,6 +1911,80 @@ ENTITY Certification_assignment;
 END_ENTITY;
 
 END_SCHEMA;  -- Certification_arm
+(*
+   ISO TC184/SC4/WG12 N3930 - ISO/TS 10303-1661 Change management - EXPRESS ARM
+*)
+
+SCHEMA Change_management_arm;
+
+USE FROM Approval_arm;	-- ISO/TS 10303-1012
+USE FROM Basic_data_representation_arm;	-- ISO/TS 10303-1773
+USE FROM Product_version_relationship_arm; -- ISO/TS 10303-1020
+USE FROM Support_resource_arm;
+
+TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
+	(Frozen_assignment);
+END_TYPE;
+
+TYPE change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Product_version_relationship);
+END_TYPE;
+
+ENTITY Change;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
+  described_change: OPTIONAL change_relationship_select; -- maps to group_assignment
+END_ENTITY; 
+
+ENTITY Change_element
+  ABSTRACT SUPERTYPE OF (ONEOF
+	(Modify_element,
+	 Modify_single_element,
+     Delete_element,
+	 Add_element));
+  attribute_name : OPTIONAL STRING; -- maps to group.name
+  change_location_in_aggregate_attribute : OPTIONAL LIST [1:?] OF INTEGER; -- maps to property_definition,...,integer_representation_item
+  change_set : Change;  -- map to group_relationship
+END_ENTITY;
+
+ENTITY Change_element_sequence;
+  description : OPTIONAL text;
+  previous : Change_element;
+  next : Change_element;
+END_ENTITY;  
+
+ENTITY Add_element
+  SUBTYPE OF (Change_element);
+  current_design_object : SET [1:?] OF change_management_object; -- maps to group_assignment
+END_ENTITY;
+
+ENTITY Modify_element
+  SUBTYPE OF (Change_element);
+  current_design_object  : SET [1:?] OF change_management_object;
+END_ENTITY;
+
+ENTITY Modify_single_element
+  SUBTYPE OF (Change_element);
+  current_design_object  : change_management_object;
+  previous_design_object : change_management_object;
+WHERE
+  WR1: current_design_object <> previous_design_object;
+END_ENTITY;
+
+ENTITY Delete_element
+  SUBTYPE OF (Change_element);
+  previous_design_object : SET [1:?] OF change_management_object;
+END_ENTITY;
+
+ENTITY Frozen_assignment;
+  frozen_item : SET[1:?] OF change_management_object;
+END_ENTITY;
+
+END_SCHEMA;
 (*
    ISO TC184/SC4/WG12 N6944 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6219
@@ -6948,6 +7045,8 @@ SCHEMA Generic_product_occurrence_arm;
          ONEOF (Product_occurrence_with_quantity, 
          Single_instance))
     SUBTYPE OF (Product_view_definition);
+    DERIVE
+      SELF\Product_view_definition.initial_context : View_definition_context := View_definition_context('','',?);
     INVERSE
       occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
       view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
@@ -8435,7 +8534,7 @@ DERIVE
   closed_interpolation : LOGICAL := segments[n_segments].interpolation <> discontinuous_interpolation_type;
   configured_mechanism : mechanism_representation := segments[1].state.represented_mechanism;
 WHERE
-  WR1: SIZEOF( QUERY(ics <* segments | NOT(ics.state.represented_mechanism :<>: configured_mechanism))) = 0;
+  WR1: SIZEOF( QUERY(ics <* segments | ics.state.represented_mechanism :<>: configured_mechanism)) = 0;
 END_ENTITY;  
 
 ENTITY Interpolated_configuration_segment;
@@ -8453,6 +8552,12 @@ ENTITY Link_motion_relationship
 WHERE
   WR1: transformation_operator.transform_item_1 IN rep_1.items;
   WR2: transformation_operator.transform_item_2 IN rep_2.items;
+END_ENTITY;
+
+ENTITY Item_link_motion_relationship
+  SUBTYPE OF (Link_motion_relationship);
+  SELF\Representation_relationship.rep_1 : Geometric_model;
+  item : Detailed_geometric_model_element;
 END_ENTITY;
 
 ENTITY Link_motion_transformation;
@@ -8473,6 +8578,7 @@ ENTITY Geometric_representation_context_with_parameter
 END_ENTITY;
 
 ENTITY Kinematic_path
+  ABSTRACT SUPERTYPE OF (ONEOF (Kinematic_path_defined_by_nodes, Kinematic_path_defined_by_curves))
   SUBTYPE OF (Detailed_geometric_model_element);
   segments : LIST [1:?] OF Kinematic_path_segment;
   t_start : parameter_value;
@@ -8488,21 +8594,24 @@ WHERE
   -- WR3 - different end positions
 END_ENTITY;
 
+ENTITY Kinematic_path_defined_by_nodes
+  SUBTYPE OF (Kinematic_path);
+  SELF\Kinematic_path.segments : LIST [1:?] OF Path_node;
+  placement_start : Axis_placement;
+END_ENTITY;  
+
+ENTITY Kinematic_path_defined_by_curves
+  SUBTYPE OF (Kinematic_path);
+  SELF\Kinematic_path.segments : LIST [1:?] OF Curve_based_path_with_orientation;
+END_ENTITY;  
+
 ENTITY Kinematic_path_segment
   ABSTRACT SUPERTYPE OF (ONEOF (
     Path_node,
-    Curve_based_path_with_orientation) 
-    ANDOR Path_parametrization);
+    Curve_based_path_with_orientation)); 
 --  SUBTYPE OF (founded_item);
   t_end : parameter_value;
   transition : curve_transition_code;
-END_ENTITY;
-
-ENTITY Path_parametrization
-  SUBTYPE OF (Kinematic_path_segment);
-  parameters : Path_parameter_representation;
--- WHERE
---  WR1: NOT item_in_context(SELF, parameters.context_of_items); -- error: SELF is not a rep_item
 END_ENTITY;
 
 ENTITY Path_parameter_representation
@@ -8557,6 +8666,11 @@ ENTITY Curve_based_path_with_orientation
 WHERE
   WR1: TYPEOF(position_curve) = TYPEOF(orientation_curve);
 END_ENTITY;
+
+ENTITY Curve_based_path_with_orientation_and_parameters
+  SUBTYPE OF (Curve_based_path_with_orientation);
+  parameters : Path_parameter_representation;
+END_ENTITY;  
 
 SUBTYPE_CONSTRAINT kmr_representation_subtypes FOR Representation;
   ONEOF (Interpolated_configuration_representation, Link_motion_representation_along_path);
@@ -8897,8 +9011,9 @@ ENTITY Kinematic_link_representation_association
   SELF\Representation_relationship.rep_1 : Kinematic_link_representation;
   SELF\Representation_relationship.rep_2 : Geometric_model; 
 WHERE
-  WR1: SELF\Representation_relationship.rep_2.context_of_items :=:
-       SELF\Representation_relationship.rep_1.context_of_items;
+  WR1: (SELF\Representation_relationship.rep_2.context_of_items :=:
+        SELF\Representation_relationship.rep_1.context_of_items) OR
+       ('KINEMATIC_STRUCTURE_ARM.GEOMETRIC_MODEL_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF)); 
 END_ENTITY;
 
 ENTITY Su_parameters
@@ -12367,6 +12482,8 @@ USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 ENTITY Part_view_definition
   SUBTYPE OF (Product_view_definition);
   SELF\Product_view_definition.defined_version : Part_version;
+  SELF\Product_view_definition.initial_context: Part_view_definition_context;
+  SELF\Product_view_definition.additional_contexts: SET [0:?] OF Part_view_definition_context;
 END_ENTITY;
 
 ENTITY Part_view_definition_context
@@ -13319,15 +13436,6 @@ TYPE process_operation_input_or_output_select = SELECT (
   Part_occurrence);
 END_TYPE; 
 
-ENTITY Process_state_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'model based product geometry';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
 ENTITY Process_state_relationship
   SUBTYPE OF (Part_definition_relationship);
 END_ENTITY;
@@ -13530,6 +13638,15 @@ DERIVE
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 END_ENTITY;
 
+ENTITY Process_state_view_context 
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'model based product geometry';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_context;
   ONEOF (
     Gdt_representation_view_context, 
@@ -13537,7 +13654,8 @@ SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_con
     Model_based_3d_annotation_presentation_view_context,
     Surface_finish_view_context,
     Machining_feature_view_context,
-    Material_specification_view_context);
+    Material_specification_view_context,
+    Process_state_view_context);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
@@ -18547,6 +18665,131 @@ TYPE spr_product_property_assignment = SELECT BASED_ON property_assignment_selec
 END_TYPE; 
 
 END_SCHEMA;  -- Single_part_representation_arm
+(*
+ ISO TC184/SC4/WG12 N7211 - ISO/TS 10303-1792 Sketch - EXPRESS ARM
+*)
+
+
+SCHEMA Sketch_arm;
+
+USE FROM Geometric_constraints_arm;
+
+TYPE planar_curve_select = EXTENSIBLE SELECT
+  (Line,
+   Conic);
+END_TYPE;
+
+TYPE sketch_basis_select = EXTENSIBLE SELECT
+  (planar_curve_select,
+   Advanced_face);
+END_TYPE;
+
+TYPE sketch_element_select = EXTENSIBLE SELECT
+  (point_select,
+   Curve);
+WHERE
+  WR1: 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.DETAILED_GEOMETRIC_MODEL_ELEMENT' IN TYPEOF(SELF);
+END_TYPE;
+
+TYPE sketch_type_select = SELECT
+  (Sketch_2d_representation,
+   Positioned_sketch,
+   Subsketch);
+END_TYPE;
+
+TYPE surface_or_solid_model = EXTENSIBLE SELECT;
+END_TYPE;
+
+TYPE curves_or_area = ENUMERATION OF
+  (curves, area);
+END_TYPE;
+
+ENTITY Implicit_explicit_sketch_relationship;
+    implicit_sketch :  Repositioned_sketch_2d_in_3d; 
+    explicit_sketch :  Positioned_sketch;
+END_ENTITY;
+
+ENTITY Implicit_planar_intersection_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  external_surface : Surface;
+END_ENTITY;
+
+ENTITY Implicit_planar_intersection_point
+    SUBTYPE OF (Auxiliary_geometric_representation_item);
+    using_sketch   : Positioned_sketch;
+    computed_representation  : Cartesian_point;
+    external_curve : Curve;
+END_ENTITY;
+
+ENTITY Implicit_planar_model_intersection_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  intersected_model : surface_or_solid_model;
+END_ENTITY;
+
+ENTITY Implicit_planar_projected_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  external_curve       : Curve;
+  projection_direction : Direction;
+END_ENTITY;
+
+ENTITY Implicit_planar_projection_point
+    SUBTYPE OF (Auxiliary_geometric_representation_item);
+    using_sketch   : Positioned_sketch;
+    computed_representation  : Cartesian_point;
+    external_point       : point_select;
+    projection_direction : Direction;
+END_ENTITY;
+
+ENTITY Implicit_planar_silhouette_curve
+  SUBTYPE OF (Curve, Auxiliary_geometric_representation_item);
+  using_sketch                  : Positioned_sketch;
+  computed_representation       : Curve;
+  silhouetted_model : surface_or_solid_model;
+  view_direction    : Direction;
+END_ENTITY;
+
+ENTITY Positioned_sketch
+  SUBTYPE OF (Detailed_geometric_model_element);
+  sketch_basis       : sketch_basis_select;
+  auxiliary_elements : 
+    SET[0:?] OF Auxiliary_geometric_representation_item;
+END_ENTITY;
+
+ENTITY Repositioned_sketch_2d_in_3d
+  SUBTYPE OF (Detailed_geometric_model_element);
+     source : Sketch_2d_representation;
+     mapping_origin : Axis_placement;
+     mapping_target : Axis_placement;
+   WHERE
+    WR1: mapping_origin.dim = 2;
+    WR2: mapping_target.dim = 3;
+ END_ENTITY;
+
+ENTITY Rigid_subsketch
+  SUBTYPE OF (Subsketch); 
+END_ENTITY;
+
+ENTITY Sketch_2d_representation
+  SUBTYPE OF (Geometric_model);
+  sketch_2d_semantics  : curves_or_area; 
+  SELF\representation.items : SET[1:?] OF sketch_element_select;
+WHERE
+  WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimimension_count  = 2;
+END_ENTITY;
+
+ENTITY Subsketch
+  SUBTYPE OF (Detailed_geometric_model_element);
+  subsketch_elements : SET[1:?] OF sketch_element_select; 
+  owning_sketch      : sketch_type_select;
+END_ENTITY;
+
+END_SCHEMA; -- sketch_schema
 (*
    ISO TC184/SC4/WG12 N6261 - ISO/TS 10303-1746 Software - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4185

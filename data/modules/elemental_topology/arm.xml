@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1005">
    <application name="JSDAI" owner="LKSoft" source="elemental_topology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Elemental_topology_arm">
       <interface kind="use" schema="Foundation_representation_arm"/>
@@ -17,6 +18,11 @@
             <typename name="Face"/>
          </explicit>
       </entity>
+      <entity name="Connected_face_sub_set" supertypes="Connected_face_set">
+         <explicit name="parent_face_set">
+            <typename name="Connected_face_set"/>
+         </explicit>
+      </entity>
       <entity abstract.supertype="YES" name="Detailed_topological_model_element" super.expression="ONEOF (Connected_edge_set, Connected_face_set, Edge, Face, Face_bound, Vertex, (Loop ANDOR Path))" supertypes="Representation_item"/>
       <entity name="Edge" supertypes="Detailed_topological_model_element">
          <explicit name="edge_start">
@@ -30,14 +36,14 @@
          <derived expression="SIZEOF(SELF\Path.edge_list)" name="ne">
             <builtintype type="INTEGER"/>
          </derived>
-         <where expression="(SELF\Path.edge_list[1].edge_start) :=:&#xA;        (SELF\Path.edge_list[ne].edge_end)" label="WR1"/>
+         <where expression="(SELF\Path.edge_list[1].edge_start) :=:&#10;        (SELF\Path.edge_list[ne].edge_end)" label="WR1"/>
       </entity>
       <entity name="Face" supertypes="Detailed_topological_model_element">
          <explicit name="bounds">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Face_bound"/>
          </explicit>
-         <where expression="SIZEOF(QUERY(temp &lt;* bounds | 'ELEMENTAL_TOPOLOGY_ARM.FACE_OUTER_BOUND' IN&#xA;                                               TYPEOF(temp))) &lt;= 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(temp &lt;* bounds | 'ELEMENTAL_TOPOLOGY_ARM.FACE_OUTER_BOUND' IN&#10;                                               TYPEOF(temp))) &lt;= 1" label="WR1"/>
       </entity>
       <entity name="Face_bound" supertypes="Detailed_topological_model_element">
          <explicit name="bound">
@@ -56,11 +62,11 @@
          <explicit name="orientation">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF.edge_definition.edge_start,&#xA;                                            SELF.edge_definition.edge_end)" name="edge_start">
+         <derived expression="boolean_choice (SELF.orientation,&#10;                                            SELF.edge_definition.edge_start,&#10;                                            SELF.edge_definition.edge_end)" name="edge_start">
             <typename name="Vertex"/>
             <redeclaration entity-ref="Edge"/>
          </derived>
-         <derived expression="boolean_choice (SELF.orientation,&#xA;                                            SELF.edge_definition.edge_end,&#xA;                                            SELF.edge_definition.edge_start)" name="edge_end">
+         <derived expression="boolean_choice (SELF.orientation,&#10;                                            SELF.edge_definition.edge_end,&#10;                                            SELF.edge_definition.edge_start)" name="edge_end">
             <typename name="Vertex"/>
             <redeclaration entity-ref="Edge"/>
          </derived>

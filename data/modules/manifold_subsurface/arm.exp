@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2008/01/25 13:08:17 liutkuviene Exp $
+   $Id: arm.exp,v 1.18 2008/09/13 12:25:15 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5416 - ISO/TS 10303-1702 Manifold subsurface - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4943
 *)
@@ -7,6 +7,13 @@
 SCHEMA Manifold_subsurface_arm;
 
 USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
+
+  TYPE manifold_subsurface_shape_representation_item = SELECT (
+    Axis_placement_3d,
+    Geometric_placement_operation,
+    Connected_face_set);
+  END_TYPE;
+
 
   TYPE open_shell_or_subsurface = SELECT
     (Manifold_surface_shape_representation,
@@ -16,6 +23,8 @@ USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
   ENTITY Manifold_subsurface_model
     SUBTYPE OF (Geometric_model);
       parent_surface : open_shell_or_subsurface;
+    SELF\Representation.items : SET [1:?] OF
+        manifold_subsurface_shape_representation_item;
     WHERE
       WR1 : SELF :<>: parent_surface;
       WR2 : SELF\Geometric_model.context_of_items :=: parent_surface\Geometric_model.context_of_items;

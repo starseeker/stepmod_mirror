@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2011/06/20 21:39:34 thomasrthurman Exp $
+   $Id: arm.exp,v 1.6 2011/07/21 22:09:15 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
 
 SCHEMA Kinematic_motion_representation_arm;
@@ -13,6 +13,10 @@ REFERENCE FROM Foundation_representation_arm(using_representations);
 TYPE link_or_shape_representation = SELECT(
   Kinematic_link_representation,
   Geometric_model);
+END_TYPE;
+
+TYPE kmr_geometric_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_representation_select WITH (
+  Link_motion_representation_along_path);
 END_TYPE;
 
 TYPE interpolation_type = ENUMERATION OF
@@ -49,7 +53,7 @@ END_ENTITY;
 ENTITY Link_motion_relationship
   SUBTYPE OF (Geometric_model_relationship_with_transformation, Definitional_representation_relationship);
   SELF\Representation_relationship.rep_1 : link_or_shape_representation;
-  SELF\Representation_relationship.rep_2 : link_motion_representation_along_path;
+  SELF\Representation_relationship.rep_2 : Link_motion_representation_along_path;
   transformation_operator : Link_motion_transformation;
 WHERE
   WR1: transformation_operator.transform_item_1 IN rep_1.items;

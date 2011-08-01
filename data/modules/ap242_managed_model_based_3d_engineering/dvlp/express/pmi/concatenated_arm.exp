@@ -702,7 +702,7 @@ ENTITY Assembly_component
   SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_item_shape);
  SELF\Definition_based_product_occurrence.derived_from : assembly_component_source;
   DERIVE
-  SELF\Item_shape.described_element : shapeable_item := SELF;
+  SELF\Item_shape.described_element : Assembly_component := SELF;
   assemblies : SET OF Product_view_definition := ac_get_assemblies(SELF);
   groups : SET OF Assembly_group_component := ac_get_groups(SELF);
   versions : SET OF Product_version := ac_get_versions(assemblies);
@@ -1551,7 +1551,7 @@ USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
 
   ENTITY Date_time_representation_item
     SUBTYPE OF (Representation_item);
-      the_value : extended_date_time_select;
+      the_value : date_or_date_time_select;
   END_ENTITY; 
 
   ENTITY Integer_representation_item
@@ -2268,9 +2268,9 @@ ENTITY Characterized_item_within_representation
   item : representation_item;
   rep : representation;
 UNIQUE
-  WR1: item, rep;
+  UR1: item, rep;
 WHERE
-  WR2: rep IN using_representations(item);
+  WR1: rep IN using_representations(item);
 END_ENTITY;
 
 ENTITY Characterized_chain_based_item_within_representation
@@ -2701,7 +2701,7 @@ SCHEMA Component_feature_arm;
     SELF\Shape_element.element_name : STRING;
     SELF\Shape_element_relationship.relating RENAMED feature_1 : Component_feature;
     SELF\Shape_element_relationship.related RENAMED feature_2 : Component_feature;
-    SELF\Shape_element.containing_shape RENAMED associated_definition : Item_shape;
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Assembly_item_shape;
     WHERE
       WR1 : feature_1 <> feature_2;
       WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
@@ -3351,8 +3351,8 @@ USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
       contextual_shape          : Contextual_item_shape;
       representing_relationship : Geometric_model_relationship;
     DERIVE
-      context_representation    : Geometric_model := representing_relationship.rep_2 ;
-      positioned_representation : Geometric_model := representing_relationship.rep_1 ;
+      context_representation    : geometric_representation_select := representing_relationship.rep_2 ;
+      positioned_representation : geometric_representation_select := representing_relationship.rep_1 ;
   END_ENTITY;
 
   ENTITY Geometric_composition_with_operator_transformation
@@ -3538,7 +3538,7 @@ END_SCHEMA;
 SCHEMA Date_time_arm;
 
 
-TYPE date_or_date_time_select = SELECT
+TYPE date_or_date_time_select = EXTENSIBLE GENERIC_ENTITY SELECT
    (Calendar_date, 
     Date_time);
 END_TYPE; 
@@ -3634,9 +3634,6 @@ SCHEMA Default_setting_association_arm;
 
 USE FROM Shape_property_assignment_arm;
 USE FROM Value_with_unit_extension_arm;
--- USE FROM Default_tolerance_arm;  
-  -- General_tolerances
--- USE FROM Surface_condition_arm;
 
 ENTITY Default_shape_property
   ABSTRACT SUPERTYPE OF (ONEOF (
@@ -5171,10 +5168,15 @@ ENTITY Effectivity_assignment;
   items                 : SET [1:?] OF effectivity_item;
 END_ENTITY;
 
+ENTITY Ineffectivity_assignment;
+  assigned_effectivity  : Effectivity;
+  role                  : STRING;
+  items                 : SET [1:?] OF effectivity_item;
+END_ENTITY;
+
    
 END_SCHEMA;
 
-(* Last update -  10 Apr 2002 *)
 (* 
 	ISO TC184/SC4/WG12 N7089 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N6695
@@ -5333,6 +5335,10 @@ ENTITY Connected_edge_set
    connected_faces : SET [1:?] OF Face;
  END_ENTITY;
 
+ENTITY Connected_face_sub_set
+  SUBTYPE OF (Connected_face_set);
+  parent_face_set : Connected_face_set;
+END_ENTITY; 
 
 ENTITY Detailed_topological_model_element
   ABSTRACT SUPERTYPE OF (ONEOF(Connected_edge_set, Connected_face_set,
@@ -5775,6 +5781,14 @@ USE FROM Date_time_arm;
     Week_of_year_and_day_date);
   END_TYPE; 
 
+  TYPE ed_date_or_date_time_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_select WITH (
+    Calendar_date, 
+    Year_month, 
+    Date,
+    Ordinal_date, 
+    Week_of_year_and_day_date);
+  END_TYPE;
+  
   TYPE day_in_year_number = INTEGER;
     WHERE
       WR1: {1 <= SELF <= 366};
@@ -5785,11 +5799,6 @@ USE FROM Date_time_arm;
       WR1: { 1 <= SELF <= 7 };
   END_TYPE; 
     
-  TYPE extended_date_time_select = SELECT (
-    date_or_date_time_select, 
-    date_select);  
-  END_TYPE;
-
   TYPE week_in_year_number = INTEGER;
     WHERE
       WR1: { 1 <= SELF <= 53 };
@@ -7526,6 +7535,10 @@ SCHEMA Geometric_model_relationship_arm;
 USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 REFERENCE FROM Support_resource_arm (bag_to_set);  
 
+TYPE geometric_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Geometric_model);
+END_TYPE;  
+
 ENTITY Definitional_representation_relationship
   SUBTYPE OF (Representation_relationship);
     WHERE
@@ -7537,8 +7550,8 @@ END_ENTITY;
 
 ENTITY Geometric_model_relationship
  SUBTYPE OF (Representation_relationship);
-    SELF\Representation_relationship.rep_1 : Geometric_model;
-    SELF\Representation_relationship.rep_2 : Geometric_model;
+    SELF\Representation_relationship.rep_1 : geometric_representation_select;
+    SELF\Representation_relationship.rep_2 : geometric_representation_select;
   WHERE
     WR1 : rep_1 <> rep_2;
 END_ENTITY;
@@ -8513,6 +8526,10 @@ TYPE link_or_shape_representation = SELECT(
   Geometric_model);
 END_TYPE;
 
+TYPE kmr_geometric_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_representation_select WITH (
+  Link_motion_representation_along_path);
+END_TYPE;
+
 TYPE interpolation_type = ENUMERATION OF
   (undefined_interpolation_type,
    discontinuous_interpolation_type,
@@ -8547,7 +8564,7 @@ END_ENTITY;
 ENTITY Link_motion_relationship
   SUBTYPE OF (Geometric_model_relationship_with_transformation, Definitional_representation_relationship);
   SELF\Representation_relationship.rep_1 : link_or_shape_representation;
-  SELF\Representation_relationship.rep_2 : link_motion_representation_along_path;
+  SELF\Representation_relationship.rep_2 : Link_motion_representation_along_path;
   transformation_operator : Link_motion_transformation;
 WHERE
   WR1: transformation_operator.transform_item_1 IN rep_1.items;
@@ -8921,6 +8938,10 @@ USE FROM Geometric_model_relationship_arm; -- ISO/TS 10303-1403
 USE FROM Composite_surface_arm; -- ISO/TS 10303-1525
 USE FROM Shape_property_assignment_arm; --  ISO/TS 10303-1032
 REFERENCE FROM Foundation_representation_arm(using_representations);
+
+TYPE ks_geometric_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_representation_select WITH (
+  Kinematic_link_representation);
+END_TYPE;
 
 TYPE rigid_placement = SELECT
   (Axis_placement_3d,
@@ -9902,7 +9923,7 @@ ENTITY Catalogue_knurl
 END_ENTITY;
 
 ENTITY Catalogue_marking
-  SUBTYPE OF (Marking);
+  SUBTYPE OF (Marking_feature);
   documentation : Specification_definition;
 END_ENTITY; 
 
@@ -9941,7 +9962,7 @@ ENTITY Circular_closed_shape_profile
 END_ENTITY; 
 
 ENTITY Circular_cutout
-  SUBTYPE OF (Cutout);
+  SUBTYPE OF (Cutout_feature);
   circular_boundary : Circular_closed_profile;
 END_ENTITY;  
 
@@ -10039,7 +10060,7 @@ ENTITY Counterbore_hole
   larger_hole : Round_hole;
 END_ENTITY;  
 
-ENTITY Cutout
+ENTITY Cutout_feature
   ABSTRACT SUPERTYPE OF (ONEOF( Circular_cutout, General_cutout))
   SUBTYPE OF (Pocket);
   SELF\Pocket.bottom_condition : Through_pocket_bottom_condition;
@@ -10051,7 +10072,7 @@ ENTITY Defined_gear
 END_ENTITY;
 
 ENTITY Defined_marking
-  SUBTYPE OF (Marking);
+  SUBTYPE OF (Marking_feature);
   font_name : OPTIONAL text;
   special_instruction : OPTIONAL text;
   character_spacing : OPTIONAL Numerical_item_with_unit;
@@ -10168,7 +10189,7 @@ ENTITY General_closed_profile
 END_ENTITY;  
 
 ENTITY General_cutout
-  SUBTYPE OF (Cutout);
+  SUBTYPE OF (Cutout_feature);
   boundary : Profile;
 END_ENTITY;  
 
@@ -10294,7 +10315,7 @@ ENTITY Machining_feature
     Compound_feature,
     Gear,
     Knurl,
-    Marking,
+    Marking_feature,
     Multi_axis_feature,  
     Outer_round,
     Revolved_feature,
@@ -10321,7 +10342,7 @@ ENTITY Manufacturing_feature_group;
   feature_groups : SET[1:?] OF manufacturing_group_select;
 END_ENTITY;
   
-ENTITY Marking
+ENTITY Marking_feature
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_marking, Defined_marking))
   SUBTYPE OF (Machining_feature);
   text : text;
@@ -10463,7 +10484,7 @@ END_ENTITY;
 
 ENTITY Pocket
   ABSTRACT SUPERTYPE OF (ONEOF(
-    Cutout,
+    Cutout_feature,
     General_pocket,
     Recess,
     Rectangular_closed_pocket,
@@ -10888,6 +10909,13 @@ SCHEMA Manifold_subsurface_arm;
 
 USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
+  TYPE manifold_subsurface_shape_representation_item = SELECT (
+    Axis_placement_3d,
+    Geometric_placement_operation,
+    Connected_face_set);
+  END_TYPE;
+
+
   TYPE open_shell_or_subsurface = SELECT
     (Manifold_surface_shape_representation,
      Manifold_subsurface_model);
@@ -10896,6 +10924,8 @@ USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
   ENTITY Manifold_subsurface_model
     SUBTYPE OF (Geometric_model);
       parent_surface : open_shell_or_subsurface;
+    SELF\Representation.items : SET [1:?] OF
+        manifold_subsurface_shape_representation_item;
     WHERE
       WR1 : SELF :<>: parent_surface;
       WR2 : SELF\Geometric_model.context_of_items :=: parent_surface\Geometric_model.context_of_items;

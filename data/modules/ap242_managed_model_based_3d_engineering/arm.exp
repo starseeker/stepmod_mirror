@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2011/07/07 09:59:58 lothartklein Exp $
+   $Id: arm.exp,v 1.14 2011/07/21 18:24:45 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS ARM*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
@@ -246,11 +246,6 @@ END_TYPE;
     (Annotation_text_character);
   END_TYPE; 
 
-  SUBTYPE_CONSTRAINT exclusive_product_versions_242 FOR Product_version;
-    ONEOF (Document_version,
-         Part_version);
-  END_SUBTYPE_CONSTRAINT;
-
   RULE addresses_are_assigned FOR 
       (Address);
     WHERE
@@ -268,5 +263,31 @@ END_TYPE;
     WHERE
       WR1: SIZEOF(QUERY(is <* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0;
   END_RULE; 
+  
+  SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Breakdown,
+      Breakdown_element,
+      Document,
+      Information_product,
+      Part,
+      Product_as_individual,
+      Requirement,
+      Substance);      
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT exclusive_product_versions_242 FOR Product_version;
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Breakdown_element_version,
+      Breakdown_version,
+      Document_version,
+      Information_version,
+      Part_version,
+      Product_as_individual_version,
+      Requirement_version,
+      Substance_version);
+  END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

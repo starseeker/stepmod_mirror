@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-19 12:03:16 +0300 (Tr, 19 Rgs 2007) $" rcs.revision="$Revision: 1540 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="text_appearance_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1136">
+   <application name="JSDAI" owner="LKSoft" source="text_appearance_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Text_appearance_arm">
       <interface kind="use" schema="Basic_geometry_arm"/>
       <type name="composite_text_element_select">
-         <select selectitems="Composite_presentable_text Text_literal"/>
+         <select extensible="YES" genericentity="YES" selectitems="Composite_presentable_text Defined_character_glyph Text_literal"/>
       </type>
       <type name="font_select">
          <select extensible="YES" genericentity="YES" selectitems="Draughting_pre_defined_text_font Externally_defined_text_font"/>
@@ -23,8 +23,13 @@
       </type>
       <entity name="Composite_presentable_text" supertypes="Detailed_geometric_model_element">
          <explicit name="collected_text">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="composite_text_element_select"/>
+         </explicit>
+      </entity>
+      <entity name="Defined_character_glyph" supertypes="Detailed_geometric_model_element">
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
          </explicit>
       </entity>
       <entity name="Draughting_pre_defined_text_font"/>
@@ -33,7 +38,7 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Text_literal" supertypes="Detailed_geometric_model_element" super.expression="Text_literal_with_extent ANDOR Text_literal_with_delineation ANDOR Text_literal_with_associated_curves ANDOR Text_literal_with_blanking_box">
+      <entity name="Text_literal" super.expression="Text_literal_with_extent ANDOR Text_literal_with_delineation ANDOR Text_literal_with_associated_curves ANDOR Text_literal_with_blanking_box" supertypes="Detailed_geometric_model_element">
          <explicit name="alignment">
             <typename name="text_alignment"/>
          </explicit>
@@ -52,7 +57,7 @@
       </entity>
       <entity name="Text_literal_with_associated_curves" supertypes="Text_literal">
          <explicit name="associated_curves">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Curve"/>
          </explicit>
       </entity>
@@ -70,6 +75,6 @@
             <typename name="length_measure"/>
          </explicit>
       </entity>
-      <subtype.constraint name="ta_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Composite_presentable_text, Text_literal)"/>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="ta_detailed_geometric_model_element_subtypes" super.expression="ONEOF (Composite_presentable_text, Text_literal, Defined_character_glyph)"/>
    </schema>
 </express>

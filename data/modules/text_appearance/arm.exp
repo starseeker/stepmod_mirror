@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.10 2007/12/29 09:52:11 liutkus Exp $
+$Id: arm.exp,v 1.11 2008/09/13 12:26:54 liutkuviene Exp $
 ISO TC184/SC4/WG12 N5524 - ISO/TS 10303-1136 Text appearance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4774
 *) 
@@ -9,8 +9,9 @@ SCHEMA Text_appearance_arm;
 
 USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
 
-  TYPE composite_text_element_select = SELECT
+  TYPE composite_text_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
     (Composite_presentable_text, 
+     Defined_character_glyph,
      Text_literal);
   END_TYPE; 
 
@@ -46,6 +47,11 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
   ENTITY Composite_presentable_text
     SUBTYPE OF (Detailed_geometric_model_element);
       collected_text : LIST[2:?] OF composite_text_element_select;
+  END_ENTITY;
+
+  ENTITY Defined_character_glyph
+    SUBTYPE OF (Detailed_geometric_model_element);
+      placement : Axis_placement;
   END_ENTITY;
 
   ENTITY Draughting_pre_defined_text_font;
@@ -90,7 +96,7 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
   END_ENTITY;  
 
   SUBTYPE_CONSTRAINT ta_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
-    ONEOF(Composite_presentable_text, Text_literal);
+    ONEOF(Composite_presentable_text, Text_literal, Defined_character_glyph);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  

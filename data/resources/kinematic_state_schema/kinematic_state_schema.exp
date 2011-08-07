@@ -80,7 +80,8 @@ ENTITY pair_value
 	planar_pair_value,
 	unconstrained_pair_value,
 	point_on_surface_pair_value,
-	point_on_planar_curve_pair_value
+	point_on_planar_curve_pair_value,
+	low_order_kinematic_pair_value
   ))
   SUBTYPE OF (geometric_representation_item);
   applies_to_pair : kinematic_pair;
@@ -141,9 +142,25 @@ ENTITY cylindrical_pair_value
   actual_rotation                 : plane_angle_measure;
 END_ENTITY;
 
+ENTITY low_order_kinematic_pair_value
+  SUBTYPE OF (pair_value);
+  SELF\pair_value.applies_to_pair : low_order_kinematic_pair;
+  actual_translation_x            : length_measure;
+  actual_translation_y            : length_measure;
+  actual_translation_z            : length_measure;
+  actual_rotation_x               : plane_angle_measure;
+  actual_rotation_y               : plane_angle_measure;
+  actual_rotation_z               : plane_angle_measure;
+END_ENTITY;
+
+TYPE spherical_pair_select = SELECT (
+  spherical_pair,
+  spherical_pair_with_pin);
+END_TYPE;  
+
 ENTITY spherical_pair_value
   SUBTYPE OF (pair_value);
-  SELF\pair_value.applies_to_pair : spherical_pair;
+  SELF\pair_value.applies_to_pair : spherical_pair_select;
   input_orientation               : spatial_rotation;
 DERIVE
   actual_orientation              : ypr_rotation

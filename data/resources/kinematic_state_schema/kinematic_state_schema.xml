@@ -43,11 +43,14 @@
       <type name="spatial_rotation">
          <select extensible="NO" genericentity="NO" selectitems="ypr_rotation rotation_about_direction"/>
       </type>
+      <type name="spherical_pair_select">
+         <select extensible="NO" genericentity="NO" selectitems="spherical_pair spherical_pair_with_pin"/>
+      </type>
       <type name="ypr_enumeration">
          <enumeration extensible="NO" items="yaw pitch roll"/>
       </type>
       <type name="ypr_rotation">
-         <aggregate lower="0" optional="NO" type="ARRAY" unique="NO" upper="0"/>
+         <aggregate lower="ypr_index(yaw)" optional="NO" type="ARRAY" unique="NO" upper="ypr_index(roll)"/>
          <typename name="plane_angle_measure"/>
       </type>
       <entity abstract.entity="NO" abstract.supertype="NO" name="cylindrical_pair_value" supertypes="pair_value">
@@ -74,6 +77,30 @@
             <typename name="plane_angle_measure"/>
          </derived>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="low_order_kinematic_pair_value" supertypes="pair_value">
+         <explicit name="applies_to_pair" optional="NO">
+            <typename name="low_order_kinematic_pair"/>
+            <redeclaration entity-ref="pair_value"/>
+         </explicit>
+         <explicit name="actual_translation_x" optional="NO">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="actual_translation_y" optional="NO">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="actual_translation_z" optional="NO">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="actual_rotation_x" optional="NO">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="actual_rotation_y" optional="NO">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="actual_rotation_z" optional="NO">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="mechanism_state_representation" supertypes="representation">
          <explicit name="items" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -88,7 +115,7 @@
             <redeclaration entity-ref="representation"/>
          </derived>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="pair_value" super.expression="ONEOF (sliding_surface_pair_value, rolling_surface_pair_value, revolute_pair_value, prismatic_pair_value, screw_pair_value, cylindrical_pair_value, spherical_pair_value, sliding_curve_pair_value, rolling_curve_pair_value, gear_pair_value, rack_and_pinion_pair_value, universal_pair_value, planar_pair_value, unconstrained_pair_value, point_on_surface_pair_value, point_on_planar_curve_pair_value)" supertypes="geometric_representation_item">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="pair_value" super.expression="ONEOF (sliding_surface_pair_value, rolling_surface_pair_value, revolute_pair_value, prismatic_pair_value, screw_pair_value, cylindrical_pair_value, spherical_pair_value, sliding_curve_pair_value, rolling_curve_pair_value, gear_pair_value, rack_and_pinion_pair_value, universal_pair_value, planar_pair_value, unconstrained_pair_value, point_on_surface_pair_value, point_on_planar_curve_pair_value, low_order_kinematic_pair_value)" supertypes="geometric_representation_item">
          <explicit name="applies_to_pair" optional="NO">
             <typename name="kinematic_pair"/>
          </explicit>
@@ -247,7 +274,7 @@
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="spherical_pair_value" supertypes="pair_value">
          <explicit name="applies_to_pair" optional="NO">
-            <typename name="spherical_pair"/>
+            <typename name="spherical_pair_select"/>
             <redeclaration entity-ref="pair_value"/>
          </explicit>
          <explicit name="input_orientation" optional="NO">

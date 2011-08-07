@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2011/06/12 18:56:03 lothartklein Exp $
+   $Id: arm.exp,v 1.31 2011/07/12 15:11:48 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6887 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6231
 *)
@@ -20,7 +20,6 @@ USE FROM Test_select_product_arm;	-- ISO/TS 10303-1757
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
 	
-
   TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
     (Document,
      Document_version);
@@ -265,6 +264,11 @@ TYPE part_category = EXTENSIBLE ENUMERATION OF (
   tool);
 END_TYPE;
 
+TYPE period_or_date_or_event_select = SELECT (
+  date_or_event,
+  Duration);
+END_TYPE;
+
 ENTITY Part_with_additional_categories
   SUBTYPE OF (Part);
   categories : SET[1:?] OF part_category;
@@ -273,6 +277,16 @@ END_ENTITY;
 ENTITY Document_with_additional_categories
   SUBTYPE OF (Document);
   categories : SET[1:?] OF document_category;
+END_ENTITY;
+
+ENTITY Retention_period;
+  retention_purpose : OPTIONAL STRING;
+  earliest_end_definition : OPTIONAL period_or_date_or_event_select;
+  latest_end_definition : OPTIONAL period_or_date_or_event_select;
+  start_definition : date_or_event;
+  is_applied_to : SET[1:?] OF time_interval_item;
+WHERE
+  WR1: EXISTS(earliest_end_definition) OR EXISTS(latest_end_definition);
 END_ENTITY;
 
   RULE unique_document_id FOR

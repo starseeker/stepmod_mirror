@@ -29,8 +29,9 @@ REFERENCE FROM product_property_representation_schema (
   property_definition_representation
 );
 
-REFERENCE FROM representation_schema
-    (using_representations);
+REFERENCE FROM representation_schema (
+    representation_relationship,
+    using_representations);
      
 ENTITY product_definition_kinematics
   SUBTYPE OF (property_definition);
@@ -67,7 +68,9 @@ ENTITY kinematic_property_mechanism_representation
   SELF\property_definition_representation.used_representation  : mechanism_representation; 
   base : kinematic_link_representation;
 WHERE
-  WR1: used_representation IN using_representations(base);
+  WR1: SIZEOF( QUERY( i <* used_representation.items |
+	(base :=: i\representation_relationship.rep_1) OR
+	(base :=: i\representation_relationship.rep_2))) > 0;
 END_ENTITY;
 
 ENTITY context_dependent_kinematic_link_representation;

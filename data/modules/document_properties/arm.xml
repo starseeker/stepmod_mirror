@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2006/04/06 11:49:55 $" rcs.revision="$Revision: 1.21 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="document_properties_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1126">
+   <application name="JSDAI" owner="LKSoft" source="document_properties_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Document_properties_arm">
       <interface kind="use" schema="Document_definition_arm"/>
       <interface kind="use" schema="File_identification_arm"/>
@@ -21,32 +21,31 @@
             <typename name="document_property_item"/>
             <redeclaration entity-ref="Assigned_property"/>
          </explicit>
-         <derived name="name" expression="'document property'">
+         <derived expression="'document property'" name="name">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Assigned_property"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1"/>
+         <where expression="SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1" label="WR1"/>
       </entity>
       <entity name="Descriptive_document_property" supertypes="String_representation_item">
-         <inverse name="valued_characteristic" entity="Document_property_representation" attribute="items">
-            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         <inverse attribute="items" entity="Document_property_representation" name="valued_characteristic">
+            <inverse.aggregate lower="1" type="SET" upper="1"/>
          </inverse>
       </entity>
       <entity name="Document_property_representation" supertypes="Representation">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="descriptive_or_numerical"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY( pr &lt;* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.REP') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))&gt; 0"/>
-         <where label="WR2" expression="SELF\Representation.context_of_items.kind = 'document parameters'"/>
-         <where label="WR3" expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1 ))= 0"/>
+         <where expression="SIZEOF(QUERY( pr &lt;* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))&gt; 0" label="WR1"/>
+         <where expression="SELF\Representation.context_of_items.kind = 'document parameters'" label="WR2"/>
+         <where expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1 ))= 0" label="WR3"/>
       </entity>
       <entity name="Numerical_document_property" supertypes="Numerical_item_with_unit">
-         <inverse name="valued_characteristic" entity="Document_property_representation" attribute="items">
-            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         <inverse attribute="items" entity="Document_property_representation" name="valued_characteristic">
+            <inverse.aggregate lower="1" type="SET" upper="1"/>
          </inverse>
       </entity>
-      
    </schema>
 </express>

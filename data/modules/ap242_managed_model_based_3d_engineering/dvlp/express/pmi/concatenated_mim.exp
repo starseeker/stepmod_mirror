@@ -976,6 +976,10 @@ ENTITY physical_component
   SUBTYPE OF (assembly_component);
 END_ENTITY;
 
+ENTITY thermal_component
+  SUBTYPE OF (assembly_component);
+END_ENTITY;
+	
 END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N1163 - ISO/TS 10303-1049 Activity method - EXPRESS MIM
@@ -1141,12 +1145,7 @@ USE FROM presentation_definition_schema(
 	annotation_text,
 	annotation_text_occurrence,
 	annotation_curve_occurrence,
-	defined_character_glyph,
-	pre_defined_character_glyph,
-    externally_defined_character_glyph,
-	text_literal,
-	text_string_representation,
-	composite_text);
+	text_string_representation);
 	
 USE FROM presentation_organization_schema(
 	annotation_representation_select);
@@ -2662,6 +2661,15 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
+   N - ISO/CD-TS - 10303- default_setting_association - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Default_setting_association_mim;
+
+USE FROM Shape_property_assignment_mim;
+USE FROM Value_with_unit_extension_mim;
+
+END_SCHEMA;
+(*
 ISO TC184/SC4/WG12 N4261 - ISO/TS 10303-1052 Default tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N2871
 *) 
@@ -2672,6 +2680,7 @@ SCHEMA Default_tolerance_mim;
 USE FROM File_identification_mim;  -- ISO/TS 10303-1127
 USE FROM Foundation_representation_mim;    -- ISO/TS 10303-1006
 USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
+USE FROM Default_setting_association_mim;
 
 USE FROM representation_schema   -- ISO 10303-43
   (compound_item_definition,
@@ -10019,11 +10028,13 @@ USE FROM presentation_appearance_schema   -- ISO 10303-46
    text_style,
    text_style_with_spacing); 
 
-USE FROM presentation_definition_schema   -- ISO 10303-46
-  (composite_text,
+USE FROM presentation_definition_schema (   -- ISO 10303-46
    composite_text_with_extent,
    composite_text_with_delineation,
    composite_text_with_blanking_box,
+   defined_character_glyph,
+   pre_defined_character_glyph,
+   externally_defined_character_glyph,
    text_literal,
    text_literal_with_extent,
    text_literal_with_delineation,
@@ -10051,7 +10062,9 @@ END_SCHEMA;
 *)
 
 SCHEMA Text_representation_mim;
+
 USE FROM Text_appearance_mim; -- ISO/TS 10303-1136
+USE FROM Associative_text_mim; -- ISO/TS 10303-1132 
 	
 USE FROM presentation_definition_schema(
 	annotation_text_character,
@@ -10250,7 +10263,8 @@ USE FROM Activity_method_mim;    -- ISO/TS 10303-1049
 USE FROM action_schema   -- ISO 10303-41
   (action_request_solution,
    action_request_status,
-   versioned_action_request); 
+   versioned_action_request,
+   versioned_action_request_relationship); 
 
 USE FROM management_resources_schema   -- ISO 10303-41
    (action_request_assignment);
@@ -21135,11 +21149,6 @@ REFERENCE FROM presentation_appearance_schema
 REFERENCE FROM presentation_resource_schema
     (planar_box);
 
---scms
-REFERENCE FROM product_property_representation_schema
-    (item_identified_representation_usage);
-
-
   TYPE annotation_plane_element = SELECT 
     (draughting_callout, 
      styled_item); 
@@ -28367,6 +28376,7 @@ SCHEMA mathematical_functions_schema;
 
 REFERENCE FROM ISO13584_generic_expressions_schema     -- ISO 13584-20
   (binary_generic_expression,
+   bound_variable_semantics,
    environment,
    generic_expression,
    generic_literal,
@@ -41734,8 +41744,6 @@ END_ENTITY;
 
 ENTITY centre_of_symmetry
   SUBTYPE OF (derived_shape_aspect);
-WHERE
-  WR1: SIZEOF (QUERY(sadr<*SELF\derived_shape_aspect.deriving_relationships| NOT('SHAPE_ASPECT_DEFINITION_SCHEMA.SYMMETRIC_SHAPE_ASPECT' IN TYPEOF (sadr\shape_aspect_relationship.related_shape_aspect))))=0;
 END_ENTITY;
 
 ENTITY common_datum

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2011/06/24 18:59:06 lothartklein Exp $
+   $Id: arm.exp,v 1.37 2011/08/08 19:22:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6968 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6378
 *)
@@ -38,6 +38,8 @@ SCHEMA Footprint_definition_arm;
   ENTITY Footprint_definition
     SUBTYPE OF (Generic_footprint_definition);
       reference_package : OPTIONAL Part_usage_view;
+    DERIVE
+      locations_with_reference_feature : SET OF Part_feature_based_template_location := QUERY(trf <* templates | 'FOOTPRINT_DEFINITION_ARM.PART_FEATURE_BASED_TEMPLATE_LOCATION' IN TYPEOF(trf));
     WHERE
       WR1 : SIZEOF (QUERY(shape <* SELF\Structured_template.shapes |
                NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))
@@ -45,6 +47,9 @@ SCHEMA Footprint_definition_arm;
       WR2 : SIZEOF (QUERY(tlist <* SELF\Structured_template.templates |
                ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(tlist.template))
               )) = 0;
+      WR3: (SIZEOF(locations_with_reference_feature) = 0) OR
+           NOT EXISTS(reference_package) OR
+           (SIZEOF(QUERY( lwrf <* locations_with_reference_feature | NOT(reference_package :=: lwrf\Part_feature_based_template_location.reference_feature\Part_feature.associated_definition))) = 0);
   END_ENTITY;
 
   ENTITY Footprint_definition_shape_model
@@ -134,14 +139,6 @@ SCHEMA Footprint_definition_arm;
   ENTITY Part_feature_based_template_location
     SUBTYPE OF (Template_location_in_structured_template);
       reference_feature : Part_feature;
-    DERIVE
-      all_reference_feature : SET [1:?] OF Part_feature := bag_to_set(USEDIN
-      (SELF\Template_location_in_structured_template.assembly,
-      'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.ASSEMBLY')); 
-      SELF\Template_location_in_structured_template.reference_designation :
-        STRING := reference_feature\Shape_element.element_name;      
-    WHERE
-      WR1: SIZEOF(QUERY( arf <* all_reference_feature | NOT(reference_feature.associated_definition :=: arf.associated_definition))) = 0;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_location_in_breakout_footprint_definition

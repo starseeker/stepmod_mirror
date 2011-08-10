@@ -37,8 +37,13 @@
          <explicit name="reference_package" optional="YES">
             <typename name="Part_usage_view"/>
          </explicit>
+         <derived expression="QUERY(trf &lt;* templates | 'FOOTPRINT_DEFINITION_ARM.PART_FEATURE_BASED_TEMPLATE_LOCATION' IN TYPEOF(trf))" name="locations_with_reference_feature">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Part_feature_based_template_location"/>
+         </derived>
          <where expression="SIZEOF (QUERY(shape &lt;* SELF\Structured_template.shapes |&#10;               NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))&#10;              )) = 0" label="WR1"/>
          <where expression="SIZEOF (QUERY(tlist &lt;* SELF\Structured_template.templates |&#10;               ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(tlist.template))&#10;              )) = 0" label="WR2"/>
+         <where expression="(SIZEOF(locations_with_reference_feature) = 0) OR&#10;           NOT EXISTS(reference_package) OR&#10;           (SIZEOF(QUERY( lwrf &lt;* locations_with_reference_feature | NOT(reference_package :=: lwrf\Part_feature_based_template_location.reference_feature\Part_feature.associated_definition))) = 0)" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Footprint_definition_shape_model" supertypes="Structured_template_planar_shape_model">
          <explicit name="shape_characterized_definition" optional="NO">
@@ -113,15 +118,6 @@
          <explicit name="reference_feature" optional="NO">
             <typename name="Part_feature"/>
          </explicit>
-         <derived expression="bag_to_set(USEDIN&#10;      (SELF\Template_location_in_structured_template.assembly,&#10;      'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.ASSEMBLY'))" name="all_reference_feature">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Part_feature"/>
-         </derived>
-         <derived expression="reference_feature\Shape_element.element_name" name="reference_designation">
-            <builtintype fixed="NO" type="STRING"/>
-            <redeclaration entity-ref="Template_location_in_structured_template"/>
-         </derived>
-         <where expression="SIZEOF(QUERY( arf &lt;* all_reference_feature | NOT(reference_feature.associated_definition :=: arf.associated_definition))) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Stratum_feature_template_location_in_breakout_footprint_definition" supertypes="Stratum_specific_template_location">
          <explicit name="assembly" optional="NO">

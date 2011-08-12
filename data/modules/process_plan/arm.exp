@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2011/07/08 06:24:28 lothartklein Exp $
+   $Id: arm.exp,v 1.6 2011/07/21 19:00:20 lothartklein Exp $
    N - ISO/CD-TS - 10303- process_plan - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Process_plan_arm;
@@ -13,11 +13,22 @@ USE FROM Specification_control_arm; -- ISO/TS 10303-1112
 USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
 
 
-TYPE process_operation_input_or_output_select = SELECT (
-  Part_view_definition,
+TYPE process_operation_input_or_output_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Assembly_component_relationship,
+  Part_view_definition,
   Part_occurrence);
 END_TYPE; 
+
+TYPE resource_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Part_occurrence,
+  Part_view_definition,
+  Resource_requirement_type);
+END_TYPE; 
+
+ENTITY Resource_requirement_type; -- for descriptive_specification
+  name : label;
+  description : text;
+END_ENTITY;
 
 ENTITY Process_state_relationship
   SUBTYPE OF (Part_definition_relationship);
@@ -32,9 +43,10 @@ ENTITY Process_operation_definition;
 END_ENTITY;
 
 ENTITY Process_operation_definition_relationship;
-  related : process_operation_definition;
   relation_type : STRING;
+  description : text;
   relating : process_operation_definition;
+  related : process_operation_definition;
 END_ENTITY;
 
 ENTITY Process_operation_input_or_output;
@@ -57,7 +69,7 @@ ENTITY Process_operation_occurrence_relationship;
   related : Process_operation_occurrence;
   relation_type : STRING;
   relating : Process_operation_occurrence;
---  waiting_time : OPTIONAL property_value;
+  waiting_time : OPTIONAL duration;
   description : OPTIONAL text;
   cycle_time : OPTIONAL duration;
 END_ENTITY;
@@ -66,7 +78,7 @@ ENTITY Process_operation_resource_assignment;
   reference_tool : BOOLEAN;
   operation : Process_operation_occurrence;
   reason : OPTIONAL STRING;
---  resource_definition : resource_definition_select;
+  resource_definition : resource_definition_select;
 --  placement : OPTIONAL transformation;
 END_ENTITY;
 

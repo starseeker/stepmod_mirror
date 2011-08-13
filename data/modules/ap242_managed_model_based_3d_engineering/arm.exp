@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.15 2011/08/05 08:35:42 lothartklein Exp $
+   $Id: arm.exp,v 1.16 2011/08/12 09:08:04 lothartklein Exp $
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS ARM*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
@@ -54,16 +54,114 @@ USE FROM Product_and_manufacturing_annotation_presentation_arm;
 USE FROM Change_management_arm; -- ISO/TS 10303-1661
 USE FROM Sketch_arm; -- ISO/TS 10303-1792
 
-TYPE ap242_resource_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_definition_select WITH (
+TYPE general_organizational_data_select = SELECT (
+  -- final_solution -- -- Complex_product subtype,
+  -- Simple_property_association, -- already covered by Property_value_association
+  -- would be Product_definition_kinematics, but already covered by supertype, -- Kinematic_simulation_information,
+  Activity,
+  Activity_method_assignment,
+  Alternate_part_relationship, -- Alternate_item_relationship,
+  Applied_activity_assignment, -- Activity_element,
+  Applied_independent_activity_property, -- Property_value_association,
+  Applied_independent_property, -- Property_value_association,
+  Approval_status,
+  Assembly_relationship_substitution, -- Assembly_substitute_relationship,
+  Assigned_document_property, -- Assigned_document_property
+  Breakdown_element_definition, -- Complex_product subtype,
+  Breakdown_element_usage, Breakdown_element_realization, -- Product_structure_relationship,
+  Breakdown_node_relationship, Complex_node_relationship, -- Complex_product_relationship,
+  Certification,
+  Class, -- General_classification,
+  Class_breakdown_association, -- Class_structure_relationship,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Classification_association,
+  Classification_system,
+  Configuration,
+  Contract,
+  Design_constraint_definition, -- Design_constraint,
+  Document,
+  Document_definition, -- Document_representation,
+  Document_version,
+  Drawing,
+  Drawing_sheet,
+  File, -- Document_file,
+  Geometric_model,
+  Independent_property, -- Property,
+  Item_usage_effectivity, -- Manufacturing_configuration,
+  Material_identification, -- Material,
+  Organization,
+  Organization_relationship,
+  Part, -- Item,
+  Part_definition_relationship, -- Item_definition_relationship,
+  Part_occurrence, -- Item_instance,
+  Part_occurrence_definition_relationship, -- Item_definition_instance_relationship,
+  Part_occurrence_relationship, -- Item_instance_relationship,
+  Part_version, -- Item_version,
+  Part_view_definition, -- Design_discipline_item_definition,
+  Person_in_organization,
+  Person_in_organization_relationship,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_operation_resource_assignment,
+  Process_plan,
+  Product_as_individual_assembly, -- Physical_assembly_relationship,
+  Product_as_individual_test_result, -- Physical_instance_test_result,
+  Product_as_individual_view, -- Physical_instance,
+  Product_class,
+  Product_configuration, -- Product_identification,
+  Product_version_relationship, -- Item_version_relationship,
+  Project,
+  Security_classification,
+  Security_classification, -- Security_level,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model,
+  Supplier_solution, -- Complex_product subtype,
+  Technical_solution, -- Complex_product subtype,
+  View_area,
+  Work_order,
+  Work_request
+  );
+END_TYPE;
+
+TYPE property_assignment_select_242 = SELECT BASED_ON property_assignment_select WITH ( 
+  Product_class,
+  Product_specification);
+END_TYPE; 
+
+TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organization_or_person_in_organization_item WITH (
+  general_organizational_data_select,  
+  Alternate_part_relationship);
+END_TYPE; 
+
+TYPE date_or_date_time_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH (
+  general_organizational_data_select);
+END_TYPE;
+
+TYPE time_interval_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH (
+  Time_interval_effectivity,
+  general_organizational_data_select);
+END_TYPE;
+
+TYPE resource_definition_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_definition_select WITH (
   Product_as_individual_view,
   Breakdown_element_definition );
 END_TYPE;
 
-TYPE ap242_process_operation_input_or_output_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON process_operation_input_or_output_select WITH (
+TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON process_operation_input_or_output_select WITH (
   Mated_part_relationship);
 END_TYPE;
 
-TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
+TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
+  Part_occurrence);
+END_TYPE; 
+
+TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
 --  activity_element_select,
   Activity,
 --  Classification,
@@ -73,7 +171,7 @@ TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
   );
 END_TYPE;
 
-TYPE ap242_change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
+TYPE change_relationship_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
     Process_plan_relationship,
     design_constraint_relationship,
     shape_element_relationship,
@@ -160,24 +258,6 @@ END_TYPE;
     Security_classification);
   END_TYPE; 
 
-  TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organization_or_person_in_organization_item WITH 
-    (Alternate_part_relationship, 
-    Applied_independent_property, 
-    Assembly_relationship_substitution, 
-    Certification, 
-    Document, 
-    Document_definition, 
-    Document_version, 
-    File, 
-    Geometric_model, 
-    Independent_property, 
-    Part, 
-    Part_version, 
-    Part_view_definition, 
-    Product_version_relationship, 
-    Project);
-  END_TYPE; 
-
   TYPE ply_laminate_shape_242 = SELECT BASED_ON ply_laminate_shape WITH 
     (Advanced_brep_shape_representation,
      Csg_model,
@@ -241,10 +321,6 @@ END_TYPE;
     String_representation_item, 
     Uncertainty_with_unit, 
     View_definition_context);
-  END_TYPE; 
-
-  TYPE time_interval_item_242 = SELECT BASED_ON time_interval_item WITH 
-    (Time_interval_effectivity);
   END_TYPE; 
 
   TYPE text_or_composite_text_242 = SELECT BASED_ON text_or_composite_text WITH 

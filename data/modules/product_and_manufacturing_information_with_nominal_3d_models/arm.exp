@@ -1,7 +1,7 @@
 (*
-   $Id: arm.exp,v 1.1 2011/02/17 19:21:52 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2011/08/17 11:32:51 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_with_nominal_3d_models - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
 USE FROM Product_and_manufacturing_information_view_context_arm;
@@ -17,46 +17,10 @@ TYPE advanced_face_model = SELECT (
   Manifold_subsurface_model);
 END_TYPE;
 
-
-(*
-ENTITY Associated_item_shape
-          SUBTYPE OF (Item_shape);
-DERIVE
-  associated_model : shape_model := association\Shape_description_association.representation;
-INVERSE
-  association : Shape_description_association FOR represented_characteristic;
-END_ENTITY
-*)
-
-
-(* a Part-view_definition can have at most one Item_shape.
-  But not every Item_shape and the associated shape_representation is 
-  nessecarily suitable for manufacturing. So we have to ensure that there is
-  an ABREP associated and the requirement is that this ABREP represents the 
-  NOMINAL shape of the product. Let's call this a Pmi_shape and have the word
-  nominal gemetry in the mapping *)
 ENTITY Nominal_3d_model_shape
   SUBTYPE OF (Associated_item_shape);
--- mapping: inherited property_definition.name is "nominal 3d model", this attribute is not available on the ARM  
-DERIVE
-  associated_abrep : Advanced_brep_shape_representation := get_advanced_brep(associated_model);
-  associated_construction_geometry_models : SET[0:?] OF Constructive_geometry := get_construction_geometry(associated_model);
 WHERE
-  WR1: 'xxx.Model_based_view_context' IN TYPEOF(described_element\Product_view_definition.initial_context); 
-        -- shall only be used for part_view_definitions with an initial context of type Model_based_3D_view_context.
-  WR2: TRUE; -- must have an associated ABREP
-  WR3: EXISTS(associated_abrep);
-  
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.initial_context); 
 END_ENTITY;  
-
-FUNCTION get_advanced_brep(m : shape_model) : Advanced_brep_shape_representation;
--- see bug #3943 -  GD&T document rule in AP 242, comment #14
-  RETURN;
-END_FUNCTION; 
-
-FUNCTION get_construction_geometry(m : shape_model) : SET OF Constructive_geometry;
--- see bug #3943 -  GD&T document rule in AP 242, comment #14
-  RETURN;
-END_FUNCTION; 
 
 END_SCHEMA;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: bibliography_check.xsl,v 1.3 2010/02/11 06:51:30 robbod Exp $
+$Id: bibliography_check.xsl,v 1.4 2010/02/12 09:25:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -66,10 +66,10 @@ $Id: bibliography_check.xsl,v 1.3 2010/02/11 06:51:30 robbod Exp $
         </ol>
         
         <h2>Index</h2>
-        <xsl:apply-templates select="$publication_index_xml//module" mode="bibilio_index">
+        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="bibilio_index">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="$publication_index_xml//module" mode="bibilio">
+        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="bibilio">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </body>

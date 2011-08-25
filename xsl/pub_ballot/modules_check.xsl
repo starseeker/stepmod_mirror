@@ -35,7 +35,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             select="concat('../../publication/part1000/',@name,'/publication_index.xml')"/>
           <xsl:variable name="publication_index_xml" select="document($pub_dir)"/>
           <modules>
-            <xsl:for-each select="$publication_index_xml//module">
+            <xsl:for-each select="$publication_index_xml//modules/module">
               <module>
                 <xsl:attribute name="name">
                   <xsl:value-of select="@name"/>
@@ -91,7 +91,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         
         <xsl:variable name="errors">
           <modules>
-            <xsl:for-each select="$publication_index_xml//module">
+            <xsl:for-each select="$publication_index_xml//modules/module">
               <xsl:sort select="@name"/>
               <module>
                 <xsl:attribute name="name">
@@ -162,7 +162,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                 <xsl:if test="$module/module/@status!='TS'">
                   <error>
                     <xsl:attribute name="error.type">status</xsl:attribute>
-                    <xsl:attribute name="error.number">'ERROR D'</xsl:attribute>
+                    <xsl:attribute name="error.number">'ERROR E'</xsl:attribute>
                     <xsl:attribute name="error.message">
                       <xsl:value-of
                         select="concat('Module ', @name,' - ERROR E: module/@status is: ',$module/module/@status,' should be TS')"/>
@@ -204,6 +204,35 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                     </xsl:when>
                   </xsl:choose>
                 </xsl:if>
+                <xsl:variable name="pub_version" select="./@version"/>
+                <xsl:choose>
+                  <xsl:when test="string-length($pub_version)!=0">
+                    <xsl:if test="$module/module/@version!=$pub_version">
+                      <error>
+                        <xsl:attribute name="error.type">edition</xsl:attribute>
+                        <xsl:attribute name="error.number">'ERROR I'</xsl:attribute>
+                        <xsl:attribute name="error.message">
+                          <xsl:value-of
+                            select="concat('Module: ',@name,' - Error I: the module version in publication_index.xml (',$pub_version,'), does not correspond to the version in the module.xml(',$module/module/@version,')')"
+                          />
+                        </xsl:attribute>
+                      </error>
+                    </xsl:if>
+                  </xsl:when>
+                  <xsl:otherwise>                    
+                    <error>
+                      <xsl:attribute name="error.type">edition</xsl:attribute>
+                      <xsl:attribute name="error.number">'ERROR J'</xsl:attribute>
+                      <xsl:attribute name="error.message">
+                        <xsl:value-of
+                          select="concat('Module: ',@name,' - Error J: there is no module version in publication_index.xml')"
+                        />
+                      </xsl:attribute>
+                    </error>
+                  </xsl:otherwise>
+                </xsl:choose>
+                
+                
               </module>
             </xsl:for-each>
           </modules>
@@ -253,13 +282,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <h3><a name="details.modules">Modules with errors - details</a></h3>
     <xsl:for-each select="$modules_nodes/modules/module">
       <xsl:sort select="@name"/>
+      <xsl:variable name="module_href" select="concat('../../../../data/modules/',@name,'/sys/cover',$FILE_EXT)"/>
       <xsl:if test="./error">
         <h2>
           <a name="modall.{@name}"><xsl:value-of select="concat(@team,': ',@name,' ISO 10303-',@part)"/></a>
         </h2>
         <xsl:choose>
           <xsl:when test="error[@error.type='publication.year' or @error.type='publication.date' or @error.type='published']">
-            [<a href="#top">Top</a>&#160;<a href="#moddate.{@name}">Date errors</a>&#160;]
+            [<a href="#top">Top</a>&#160;<a href="#moddate.{@name}">Date errors</a>&#160;<a href="{$module_href}">Module</a>&#160;]
           </xsl:when>
           <xsl:otherwise>[<a href="#top">Top</a>&#160;No date errors]</xsl:otherwise>
         </xsl:choose>                

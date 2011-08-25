@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.7 2010/02/12 09:25:28 robbod Exp $
+$Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -74,10 +74,10 @@ $Id: normref_check.xsl,v 1.7 2010/02/12 09:25:28 robbod Exp $
         <xsl:call-template name="output_unpublished_normrefs_footnote"/>-->
         
         <h2>Index</h2>
-        <xsl:apply-templates select="$publication_index_xml//module" mode="normref_index">
+        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_index">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="$publication_index_xml//module" mode="normref_output">
+        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_output">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
         

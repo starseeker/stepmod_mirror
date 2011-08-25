@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.8 2010/02/21 10:29:45 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.9 2010/11/04 16:09:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -118,13 +118,49 @@ $Id: part1000_publication_summary.xsl,v 1.8 2010/02/21 10:29:45 robbod Exp $
           <li>
             <a href="#modulenos">Modules sorted by part number</a>
           </li>
+          
+          <li>
+            <a href="#delmodulenames">Deleted Modules sorted by name</a>
+          </li>
         </ul>
-              
-        <xsl:apply-templates select="./modules" mode="table"/>      
+        
+        <xsl:apply-templates select="./modules" mode="table"/>    
+        <xsl:apply-templates select="./deleted.modules" mode="table"/>      
     </body>
   </HTML>
   </xsl:template>
-
+  
+  <xsl:template match="deleted.modules" mode="table">
+    <h3>
+      <a name="delmodulenames">Deleted Modules sorted by name</a>
+    </h3>
+    <p>
+      <a href="#index">Index</a>
+    </p>
+    <table border="1">
+      <tr>
+        <td>
+          <b>Module</b>
+        </td>
+        <td>
+          <b>Team</b>
+        </td>
+      </tr>
+      <xsl:for-each select="module">
+        <xsl:sort select="@name"/>
+        <tr>
+          <!-- Module -->
+          <td>
+            <xsl:value-of select="@name"/>
+          </td>
+          <td>
+            <xsl:value-of select="@team"/>
+          </td>
+        </tr>
+      </xsl:for-each>
+    </table>
+  </xsl:template>
+  
   <xsl:template match="modules" mode="table">
     <xsl:variable name="modules">
       <modules>

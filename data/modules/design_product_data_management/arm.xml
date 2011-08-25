@@ -40,7 +40,7 @@
          <select basedon="classified_attribute_select" extensible="YES" genericentity="YES" selectitems="Activity Activity_method Activity_method_assignment Activity_property Activity_property_representation Activity_relationship Address_assignment Affected_items_assignment Alternate_part_relationship Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Assigned_property Certification Certification_assignment Contract Date_or_date_time_assignment Digital_file Document_assignment Document_definition_relationship Effectivity Effectivity_assignment Event_assignment Event_relationship External_source_identification File_relationship Group Group_relationship Hardcopy Identification_assignment Independent_property Independent_property_relationship Independent_property_representation Information_right Information_usage_right Information_usage_right_relationship Language Market Organization_or_person_in_organization_assignment Organization_relationship Person_in_organization Product Product_concept Product_version Product_version_relationship Product_view_definition Project_assignment Project_relationship Property_representation Representation Representation_context Representation_item Security_classification Time_interval_relationship Unit Value_with_unit View_definition_context View_definition_relationship Work_order Work_request Work_request_status"/>
       </type>
       <type name="design_pdm_contract_item">
-         <select basedon="contract_item" extensible="YES" selectitems="organization_or_person_in_organization_select Product_version Work_order"/>
+         <select basedon="contract_item" extensible="YES" genericentity="YES" selectitems="organization_or_person_in_organization_select Product_version Work_order"/>
       </type>
       <type name="design_pdm_date_or_date_time_item">
          <select basedon="pdm_date_or_date_time_item" extensible="YES" genericentity="YES" selectitems="Contract Document_definition Product_view_definition Security_classification Work_order"/>
@@ -81,6 +81,9 @@
       <type name="part_category">
          <enumeration extensible="YES" items="application_control assembly boxed collection completely_knocked_down continuous detail discrete in_process inseparable_assembly prototype raw_material raw_material_by_area raw_material_by_length raw_material_by_volume regulated safety service tool"/>
       </type>
+      <type name="period_or_date_or_event_select">
+         <select selectitems="date_or_event Duration"/>
+      </type>
       <entity name="Document_with_additional_categories" supertypes="Document">
          <explicit name="categories">
             <aggregate lower="1" type="SET" upper="?"/>
@@ -92,6 +95,25 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="part_category"/>
          </explicit>
+      </entity>
+      <entity name="Retention_period">
+         <explicit name="retention_purpose" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="earliest_end_definition" optional="YES">
+            <typename name="period_or_date_or_event_select"/>
+         </explicit>
+         <explicit name="latest_end_definition" optional="YES">
+            <typename name="period_or_date_or_event_select"/>
+         </explicit>
+         <explicit name="start_definition">
+            <typename name="date_or_event"/>
+         </explicit>
+         <explicit name="is_applied_to">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="time_interval_item"/>
+         </explicit>
+         <where expression="EXISTS(earliest_end_definition) OR EXISTS(latest_end_definition)" label="WR1"/>
       </entity>
       <rule appliesto="Product_occurrence" name="product_occurrence_usage">
          <where expression="SIZEOF(QUERY( po &lt;* Product_occurrence |&#10;      NOT (&#10;      (SIZEOF(USEDIN(po,'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) +&#10;        SIZEOF(USEDIN(po,'PRODUCT_BREAKDOWN_ARM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP.PRODUCT'))) &gt; 0&#10;        )&#10;        )) = 0" label="WR1"/>

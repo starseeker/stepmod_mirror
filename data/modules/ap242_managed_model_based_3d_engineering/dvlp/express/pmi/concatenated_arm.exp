@@ -275,7 +275,114 @@ USE FROM Product_and_manufacturing_annotation_presentation_arm;
 USE FROM Change_management_arm; -- ISO/TS 10303-1661
 USE FROM Sketch_arm; -- ISO/TS 10303-1792
 
-TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
+TYPE general_organizational_data_select = SELECT (
+  -- final_solution -- -- Complex_product subtype,
+  -- Simple_property_association, -- already covered by Property_value_association
+  -- would be Product_definition_kinematics, but already covered by supertype, -- Kinematic_simulation_information,
+  Activity,
+  Activity_method_assignment,
+  Alternate_part_relationship, -- Alternate_item_relationship,
+  Applied_activity_assignment, -- Activity_element,
+  Applied_independent_activity_property, -- Property_value_association,
+  Applied_independent_property, -- Property_value_association,
+  Approval_status,
+  Assembly_relationship_substitution, -- Assembly_substitute_relationship,
+  Assigned_document_property, -- Assigned_document_property
+  Breakdown_element_definition, -- Complex_product subtype,
+  Breakdown_element_usage, Breakdown_element_realization, -- Product_structure_relationship,
+  Breakdown_node_relationship, Complex_node_relationship, -- Complex_product_relationship,
+  Certification,
+  Class, -- General_classification,
+  Class_breakdown_association, -- Class_structure_relationship,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Classification_association,
+  Classification_system,
+  Configuration,
+  Contract,
+  Design_constraint_definition, -- Design_constraint,
+  Document,
+  Document_definition, -- Document_representation,
+  Document_version,
+  Drawing,
+  Drawing_sheet,
+  File, -- Document_file,
+  Geometric_model,
+  Independent_property, -- Property,
+  Item_usage_effectivity, -- Manufacturing_configuration,
+  Material_identification, -- Material,
+  Organization,
+  Organization_relationship,
+  Part, -- Item,
+  Part_definition_relationship, -- Item_definition_relationship,
+  Part_occurrence, -- Item_instance,
+  Part_occurrence_definition_relationship, -- Item_definition_instance_relationship,
+  Part_occurrence_relationship, -- Item_instance_relationship,
+  Part_version, -- Item_version,
+  Part_view_definition, -- Design_discipline_item_definition,
+  Person_in_organization,
+  Person_in_organization_relationship,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_operation_resource_assignment,
+  Process_plan,
+  Product_as_individual_assembly, -- Physical_assembly_relationship,
+  Product_as_individual_test_result, -- Physical_instance_test_result,
+  Product_as_individual_view, -- Physical_instance,
+  Product_class,
+  Product_configuration, -- Product_identification,
+  Product_version_relationship, -- Item_version_relationship,
+  Project,
+  Security_classification,
+  Security_classification, -- Security_level,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model,
+  Supplier_solution, -- Complex_product subtype,
+  Technical_solution, -- Complex_product subtype,
+  View_area,
+  Work_order,
+  Work_request
+  );
+END_TYPE;
+
+TYPE property_assignment_select_242 = SELECT BASED_ON property_assignment_select WITH ( 
+  Product_class,
+  Product_specification);
+END_TYPE; 
+
+TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organization_or_person_in_organization_item WITH (
+  general_organizational_data_select,  
+  Alternate_part_relationship);
+END_TYPE; 
+
+TYPE date_or_date_time_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH (
+  general_organizational_data_select);
+END_TYPE;
+
+TYPE time_interval_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH (
+  Time_interval_effectivity,
+  general_organizational_data_select);
+END_TYPE;
+
+TYPE resource_definition_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_definition_select WITH (
+  Product_as_individual_view,
+  Breakdown_element_definition );
+END_TYPE;
+
+TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON process_operation_input_or_output_select WITH (
+  Mated_part_relationship);
+END_TYPE;
+
+TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
+  Part_occurrence);
+END_TYPE; 
+
+TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
 --  activity_element_select,
   Activity,
 --  Classification,
@@ -285,13 +392,10 @@ TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
   );
 END_TYPE;
 
-TYPE ap242_change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
+TYPE change_relationship_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
     Process_plan_relationship,
-    design_constraint_relationship,
     shape_element_relationship,
---    replaced_definition_relationship,
     replaced_usage_relationship,
---    complex_product_relationship,
     process_operation_occurrence_relationship);
 END_TYPE;
 
@@ -372,24 +476,6 @@ END_TYPE;
     Security_classification);
   END_TYPE; 
 
-  TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organization_or_person_in_organization_item WITH 
-    (Alternate_part_relationship, 
-    Applied_independent_property, 
-    Assembly_relationship_substitution, 
-    Certification, 
-    Document, 
-    Document_definition, 
-    Document_version, 
-    File, 
-    Geometric_model, 
-    Independent_property, 
-    Part, 
-    Part_version, 
-    Part_view_definition, 
-    Product_version_relationship, 
-    Project);
-  END_TYPE; 
-
   TYPE ply_laminate_shape_242 = SELECT BASED_ON ply_laminate_shape WITH 
     (Advanced_brep_shape_representation,
      Csg_model,
@@ -455,10 +541,6 @@ END_TYPE;
     View_definition_context);
   END_TYPE; 
 
-  TYPE time_interval_item_242 = SELECT BASED_ON time_interval_item WITH 
-    (Time_interval_effectivity);
-  END_TYPE; 
-
   TYPE text_or_composite_text_242 = SELECT BASED_ON text_or_composite_text WITH 
     (Annotation_text_character);
   END_TYPE; 
@@ -466,11 +548,6 @@ END_TYPE;
   TYPE text_string_representation_item_select_242 = SELECT BASED_ON text_string_representation_item_select WITH 
     (Annotation_text_character);
   END_TYPE; 
-
-  SUBTYPE_CONSTRAINT exclusive_product_versions_242 FOR Product_version;
-    ONEOF (Document_version,
-         Part_version);
-  END_SUBTYPE_CONSTRAINT;
 
   RULE addresses_are_assigned FOR 
       (Address);
@@ -489,6 +566,32 @@ END_TYPE;
     WHERE
       WR1: SIZEOF(QUERY(is <* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0;
   END_RULE; 
+  
+  SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Breakdown,
+      Breakdown_element,
+      Document,
+      Information_product,
+      Part,
+      Product_as_individual,
+      Requirement,
+      Substance);      
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT exclusive_product_versions_242 FOR Product_version;
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Breakdown_element_version,
+      Breakdown_version,
+      Document_version,
+      Information_version,
+      Part_version,
+      Product_as_individual_version,
+      Requirement_version,
+      Substance_version);
+  END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
@@ -699,7 +802,7 @@ END_TYPE;
 
 
 ENTITY Assembly_component
-  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_item_shape);
+  SUBTYPE OF (Definition_based_part_occurrence, Part_occurrence_item_shape);
  SELF\Definition_based_product_occurrence.derived_from : assembly_component_source;
   DERIVE
   SELF\Item_shape.described_element : Assembly_component := SELF;
@@ -1266,6 +1369,11 @@ USE FROM Text_appearance_arm; -- ISO/CD-TS 10303-1136
     (Text_style);
   END_TYPE; 
 
+  TYPE at_composite_text_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON composite_text_element_select WITH (
+          annotation_text);
+  END_TYPE; 
+  
+ 
   TYPE text_or_composite_text = EXTENSIBLE GENERIC_ENTITY SELECT
     (Annotation_text,
     Composite_presentable_text,
@@ -1276,6 +1384,7 @@ USE FROM Text_appearance_arm; -- ISO/CD-TS 10303-1136
   TYPE text_string_representation_item_select = EXTENSIBLE GENERIC_ENTITY SELECT(
     Annotation_text,
     Composite_presentable_text,
+    Defined_character_glyph,
     Text_literal);
   END_TYPE;
 
@@ -1296,11 +1405,6 @@ USE FROM Text_appearance_arm; -- ISO/CD-TS 10303-1136
       replicated_model : Text_string_representation;
       source           : Axis_placement;
       target           : Axis_placement;
-  END_ENTITY;
-
-  ENTITY Defined_character_glyph
-    SUBTYPE OF (Detailed_geometric_model_element);
-      placement : Axis_placement;
   END_ENTITY;
 
   ENTITY Dimension_text
@@ -3397,8 +3501,12 @@ USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
   ENTITY Shape_placement_association
     SUBTYPE OF (Shape_description_association);
       SELF\Shape_description_association.used_representation : Geometric_placement_model;
-      SELF\Shape_description_association.definition : Contextual_item_shape;
-END_ENTITY;
+      SELF\Shape_description_association.definition : Associated_contextual_item_shape;
+  END_ENTITY;
+  
+  ENTITY Associated_contextual_item_shape
+    SUBTYPE OF (Associated_item_shape, Contextual_item_shape);
+  END_ENTITY;
 
 END_SCHEMA;
 
@@ -3889,7 +3997,6 @@ USE FROM Test_select_product_arm;	-- ISO/TS 10303-1757
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
 	
-
   TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
     (Document,
      Document_version);
@@ -4135,6 +4242,11 @@ TYPE part_category = EXTENSIBLE ENUMERATION OF (
   tool);
 END_TYPE;
 
+TYPE period_or_date_or_event_select = SELECT (
+  date_or_event,
+  Duration);
+END_TYPE;
+
 ENTITY Part_with_additional_categories
   SUBTYPE OF (Part);
   categories : SET[1:?] OF part_category;
@@ -4143,6 +4255,16 @@ END_ENTITY;
 ENTITY Document_with_additional_categories
   SUBTYPE OF (Document);
   categories : SET[1:?] OF document_category;
+END_ENTITY;
+
+ENTITY Retention_period;
+  retention_purpose : OPTIONAL STRING;
+  earliest_end_definition : OPTIONAL period_or_date_or_event_select;
+  latest_end_definition : OPTIONAL period_or_date_or_event_select;
+  start_definition : date_or_event;
+  is_applied_to : SET[1:?] OF time_interval_item;
+WHERE
+  WR1: EXISTS(earliest_end_definition) OR EXISTS(latest_end_definition);
 END_ENTITY;
 
   RULE unique_document_id FOR
@@ -4677,7 +4799,7 @@ ENTITY Document_property_representation
   SUBTYPE OF (Representation);
   SELF\Representation.items : SET[1:?] OF descriptive_or_numerical;
 WHERE
-  WR1: SIZEOF(QUERY( pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.REP') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))> 0;
+  WR1: SIZEOF(QUERY( pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))> 0;
   WR2: SELF\Representation.context_of_items.kind = 'document parameters';
   WR3: SIZEOF(QUERY(it1 <* SELF\Representation.items | SIZEOF(QUERY(it2 <* SELF\Representation.items | it1.name = it2.name)) > 1 ))= 0;
 END_ENTITY;
@@ -5193,6 +5315,10 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 	Cartesian_transformation_3d);
   END_TYPE;
 
+  TYPE geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+    (Detailed_geometric_model_element);
+  END_TYPE;
+
   TYPE template_definition_select = EXTENSIBLE SELECT (Geometric_model);
   END_TYPE; 
 
@@ -5280,7 +5406,7 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
       version_id                           : OPTIONAL STRING;
       model_extent                         : OPTIONAL length_measure;
       SELF\Representation.context_of_items : Geometric_coordinate_space;
-      SELF\Representation.items            : SET[1:?] OF Detailed_geometric_model_element;
+      SELF\Representation.items            : SET[1:?] OF geometric_model_item;
   END_ENTITY;
   
   ENTITY Geometric_placement
@@ -6184,11 +6310,8 @@ ENTITY Connection_zone
 INVERSE
   surface_conditions : SET OF Surface_condition FOR described_element; 		
 WHERE
-  WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
-         SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
-         = 1;
-  WR2 : NOT EXISTS (SELF\Shape_element.description);
-  WR3 : NOT EXISTS (SELF\Shape_element.element_name);
+  WR1 : NOT EXISTS (SELF\Shape_element.description);
+  WR2 : NOT EXISTS (SELF\Shape_element.element_name);
 END_ENTITY;
 
 ENTITY Definitional_shape_element
@@ -6204,7 +6327,7 @@ END_ENTITY;
 
 ENTITY Feature_definition_with_connection_area
   SUBTYPE OF (Shape_feature_definition);
-  connection_area : OPTIONAL SET [1:?] OF Connection_zone;
+  connection_area : SET [1:?] OF Connection_zone;
 END_ENTITY;
 
 ENTITY Non_definitional_shape_element 	 
@@ -8267,11 +8390,11 @@ USE FROM Value_with_unit_arm;
 ENTITY Centre_of_mass
 SUBTYPE OF (Shape_dependent_property_representation);
 WHERE
-WR1: SIZEOF(SELF\Shape_dependent_property_representation.property_representation.items)=1;
-WR2: SIZEOF(QUERY (it <* SELF\Shape_dependent_property_representation.property_representation.items |
-   'INERTIA_CHARACTERISTICS_ARM' + '.CARTESIAN_POINT' IN TYPEOF(it) ))=1;
-WR3: 'INERTIA_CHARACTERISTICS_ARM' + '.GEOMETRIC_COORDINATE_SPACE' IN 
-	TYPEOF(SELF\Shape_dependent_property_representation.property_representation.context_of_items);
+WR1: SIZEOF(SELF\Property_definition_representation.used_representation\Representation.items)=1;
+WR2: SIZEOF(QUERY (it <* SELF\Property_definition_representation.used_representation\Representation.items |
+   'INERTIA_CHARACTERISTICS_ARM.' + 'CARTESIAN_POINT' IN TYPEOF(it) ))=1;
+WR3: 'INERTIA_CHARACTERISTICS_ARM.' + 'GEOMETRIC_COORDINATE_SPACE' IN 
+	TYPEOF(SELF\Property_definition_representation.used_representation\Representation.context_of_items);
 END_ENTITY;
 
 ENTITY Inertia_matrix_item
@@ -8283,12 +8406,12 @@ END_ENTITY;
 ENTITY Moments_of_inertia
 SUBTYPE OF (Shape_dependent_property_representation);
 WHERE
-WR1: SIZEOF(QUERY (it <* SELF\Shape_dependent_property_representation.property_representation.items |
-   'INERTIA_CHARACTERISTICS_ARM' + '.AXIS_PLACEMENT'IN TYPEOF(it) ))=1;
-WR2: SIZEOF(QUERY (it <* SELF\Shape_dependent_property_representation.property_representation.items |
-   'INERTIA_CHARACTERISTICS_ARM' + '.INERTIA_MATRIX_ITEM' IN TYPEOF(it) ))=1;
-WR3: 'INERTIA_CHARACTERISTICS_ARM' + '.GEOMETRIC_COORDINATE_SPACE' IN 
-	TYPEOF(SELF\Shape_dependent_property_representation.property_representation.context_of_items);
+WR1: SIZEOF(QUERY (it <* SELF\Property_definition_representation.used_representation\Representation.items |
+   'INERTIA_CHARACTERISTICS_ARM.' + 'AXIS_PLACEMENT'IN TYPEOF(it) ))=1;
+WR2: SIZEOF(QUERY (it <* SELF\Property_definition_representation.used_representation\Representation.items |
+   'INERTIA_CHARACTERISTICS_ARM.' + 'INERTIA_MATRIX_ITEM' IN TYPEOF(it) ))=1;
+WR3: 'INERTIA_CHARACTERISTICS_ARM.' + 'GEOMETRIC_COORDINATE_SPACE' IN 
+	TYPEOF(SELF\Property_definition_representation.used_representation\Representation.context_of_items);
 END_ENTITY;
 
 
@@ -8562,7 +8685,7 @@ ENTITY Interpolated_configuration_segment;
 END_ENTITY;
 
 ENTITY Link_motion_relationship
-  SUBTYPE OF (Geometric_model_relationship_with_transformation, Definitional_representation_relationship);
+  SUBTYPE OF (Definitional_representation_relationship, Geometric_model_relationship_with_transformation);
   SELF\Representation_relationship.rep_1 : link_or_shape_representation;
   SELF\Representation_relationship.rep_2 : Link_motion_representation_along_path;
   transformation_operator : Link_motion_transformation;
@@ -8957,10 +9080,10 @@ END_ENTITY;
 
 ENTITY Kinematic_property_mechanism_representation
   SUBTYPE OF (Kinematic_property_definition_representation);
-  SELF\property_definition_representation.used_representation : Mechanism_representation; 
+  SELF\Property_definition_representation.used_representation : Mechanism_representation; 
   base : Kinematic_link_representation;
 WHERE
-  WR1: SELF\property_definition_representation.rep IN using_representations(base);
+  WR1: SELF\Property_definition_representation.used_representation IN using_representations(base);
 END_ENTITY;
 
 ENTITY Context_dependent_kinematic_link_representation;
@@ -8991,7 +9114,7 @@ WHERE
 END_ENTITY;
 
 ENTITY Pair_representation_relationship
-  SUBTYPE OF (Geometric_model_relationship, Detailed_geometric_model_element);
+  SUBTYPE OF (Detailed_geometric_model_element, Geometric_model_relationship);
   SELF\Representation_relationship.rep_1 : Kinematic_link_representation;
   SELF\Representation_relationship.rep_2 : Kinematic_link_representation;
   transformation_operator : Kinematic_pair;
@@ -9076,7 +9199,7 @@ ENTITY High_order_kinematic_pair
   ))
   SUBTYPE OF (Kinematic_pair);
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_2 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9089,7 +9212,7 @@ ENTITY Low_order_kinematic_pair_with_motion_coupling
   ))
   SUBTYPE OF (Kinematic_pair);
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_2 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9113,9 +9236,9 @@ ENTITY Low_order_kinematic_pair
   r_y : BOOLEAN;
   r_z : BOOLEAN;
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
-  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_2 | 
+  WR2: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_2 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9186,7 +9309,7 @@ ENTITY Screw_pair
   SUBTYPE OF (Low_order_kinematic_pair_with_motion_coupling);
   pitch : length_measure;
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9400,8 +9523,8 @@ ENTITY Point_on_surface_pair
   SUBTYPE OF (High_order_kinematic_pair);
   pair_surface : surface;
 WHERE
-  WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_surface IN r.items))) = 0;
-  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(pair_surface IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9430,7 +9553,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
-  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_surface IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_surface IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY Surface_pair
@@ -9440,9 +9563,9 @@ ENTITY Surface_pair
   surface_2   : Surface;
   orientation : BOOLEAN;
 WHERE
-  WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(surface_1 IN r.items))) = 0;
-  WR2: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(surface_2 IN r.items))) = 0;
-  WR3: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(surface_1 IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_2 | NOT(surface_2 IN r.items))) = 0;
+  WR3: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9453,15 +9576,15 @@ ENTITY Surface_pair_with_range
   lower_limit_actual_rotation            : OPTIONAL plane_angle_measure;
   upper_limit_actual_rotation            : OPTIONAL plane_angle_measure;
 WHERE
-  WR1: SELF\surface_pair.surface_1 :=: range_on_surface_1.basis_surface;
-  WR2: SELF\surface_pair.surface_2 :=: range_on_surface_2.basis_surface;
+  WR1: SELF\Surface_pair.surface_1 :=: range_on_surface_1.basis_surface;
+  WR2: SELF\Surface_pair.surface_2 :=: range_on_surface_2.basis_surface;
   WR3: (NOT EXISTS(lower_limit_actual_rotation)
         OR
         NOT EXISTS(upper_limit_actual_rotation))
        XOR
        (lower_limit_actual_rotation < upper_limit_actual_rotation);
-  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_surface_1 IN r.items))) = 0;
-  WR5: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(range_on_surface_2 IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(range_on_surface_1 IN r.items))) = 0;
+  WR5: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_2 | NOT(range_on_surface_2 IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY Sliding_surface_pair
@@ -9477,8 +9600,8 @@ ENTITY Linear_flexible_and_planar_curve_pair
   pair_curve  : Curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
-  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9487,8 +9610,8 @@ ENTITY Point_on_planar_curve_pair
   pair_curve  : Curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
-  WR2: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(pair_curve IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9517,7 +9640,7 @@ WHERE
         NOT EXISTS(upper_limit_roll))
        XOR
        (lower_limit_roll < upper_limit_roll);
-  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_curve IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(range_on_pair_curve IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY Planar_curve_pair
@@ -9527,9 +9650,9 @@ ENTITY Planar_curve_pair
   curve_2     : Curve;
   orientation : BOOLEAN;
 WHERE
-  WR1: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(curve_1 IN r.items))) = 0;
-  WR2: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(curve_2 IN r.items))) = 0;
-  WR3: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(curve_1 IN r.items))) = 0;
+  WR2: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_2 | NOT(curve_2 IN r.items))) = 0;
+  WR3: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9538,10 +9661,10 @@ ENTITY Planar_curve_pair_range
   range_on_curve_1                       : Trimmed_curve;
   range_on_curve_2                       : Trimmed_curve;
 WHERE
-  WR1: SELF\planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve;
-  WR2: SELF\planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve;
-  WR3: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_1 | NOT(range_on_curve_1 IN r.items))) = 0;
-  WR4: SIZEOF( QUERY(r <* SELF\high_order_kinematic_pair.associated_link_representations_2 | NOT(range_on_curve_2 IN r.items))) = 0;
+  WR1: SELF\Planar_curve_pair.curve_1 :=: range_on_curve_1.basis_curve;
+  WR2: SELF\Planar_curve_pair.curve_2 :=: range_on_curve_2.basis_curve;
+  WR3: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_1 | NOT(range_on_curve_1 IN r.items))) = 0;
+  WR4: SIZEOF( QUERY(r <* SELF\Kinematic_pair.associated_link_representations_2 | NOT(range_on_curve_2 IN r.items))) = 0;
 END_ENTITY;
 
 ENTITY Sliding_curve_pair
@@ -9560,7 +9683,7 @@ ENTITY Gear_pair
   helical_angle      : plane_angle_measure;
   gear_ratio         : REAL;
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9580,7 +9703,7 @@ ENTITY Rack_and_pinion_pair
   SUBTYPE OF (Low_order_kinematic_pair_with_motion_coupling);
   pinion_radius : length_measure;
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.RIGID_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9600,7 +9723,7 @@ ENTITY Linear_flexible_and_pinion_pair
   SUBTYPE OF (Low_order_kinematic_pair_with_motion_coupling);
   pinion_radius : length_measure;
 WHERE
-  WR1: SIZEOF( QUERY(lr <* SELF\kinematic_pair.associated_link_representations_1 | 
+  WR1: SIZEOF( QUERY(lr <* SELF\Kinematic_pair.associated_link_representations_1 | 
     NOT('KINEMATIC_STRUCTURE_SCHEMA.LINEAR_FLEXIBLE_LINK_REPRESENTATION' IN TYPEOF(lr)))) = 0;
 END_ENTITY;
 
@@ -9698,7 +9821,7 @@ ENTITY Kinematic_property_topology_representation
   SELF\property_definition_representation.used_representation : kinematic_topology_representation_select; 
   base : kinematic_link;
 WHERE
-  WR1: SELF\property_definition_representation.rep IN using_representations(base);
+  WR1: SELF\property_definition_representation.used_representation IN using_representations(base);
 END_ENTITY;
 
 ENTITY Kinematic_topology_structure
@@ -9774,7 +9897,7 @@ FUNCTION get_kinematic_joints_from_oriented_joints(ors : SET OF Oriented_joint) 
   END_LOCAL;
   IF SIZEOF(ors) > 0 THEN
     REPEAT i := 1 TO HIINDEX(ors);
-      result := result + ors[i].edge_element;
+      result := result + ors[i].edge_definition;
     END_REPEAT;
   END_IF;
   RETURN (result);
@@ -10909,6 +11032,11 @@ SCHEMA Manifold_subsurface_arm;
 
 USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
+  TYPE ms_geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_model_item WITH
+    (Connected_face_set);
+  END_TYPE;
+
+
   TYPE manifold_subsurface_shape_representation_item = SELECT (
     Axis_placement_3d,
     Geometric_placement_operation,
@@ -11029,9 +11157,29 @@ SCHEMA Mating_structure_arm;
 USE FROM Item_definition_structure_arm;
 USE FROM Assembly_technology_arm;
 
-ENTITY Mated_item_relationship;
+TYPE mating_type = EXTENSIBLE ENUMERATION OF (
+  bolted_joint,
+  brazing,
+  clasping,
+  clinching,
+  clipping,
+  doweling,
+  flanging,
+  foam_injection,
+  gluing,
+  laser_welding,
+  press_fit,
+  riveting,
+  sewing,
+  spot_welding,
+  stapling,
+  welding);
+END_TYPE;
+
+ENTITY Mated_part_relationship;
   mating_joints : OPTIONAL SET[1:?] OF Assembly_joint;
-  mating_material : OPTIONAL SET [1:?] OF Quantified_instance;
+  mating_material : OPTIONAL SET [1:?] OF Definition_based_part_occurrence;
+  mating_types : OPTIONAL SET [1:?] OF mating_type;
   relating : Assembled_part_association;
   related : Assembled_part_association;
 WHERE
@@ -11190,11 +11338,15 @@ SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_ar
 USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
 
+TYPE mb3dgdtr_geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_model_item WITH
+  (Connected_face_set, Edge_loop);
+END_TYPE;
+  
 TYPE nominal_3d_integral_feature_geometry = SELECT (
   Advanced_face, 
   Edge_curve,
   Vertex_point, 
-  Manifold_subsurface_model,
+  Connected_face_set,
   Edge_loop);
 END_TYPE;
 
@@ -11215,7 +11367,7 @@ END_TYPE;
 ENTITY Gdt_representation_shape
   SUBTYPE OF (Nominal_3d_model_shape);
 WHERE
-  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_context); 
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
 END_ENTITY;  
   
 ENTITY Nominal_3d_feature 
@@ -13460,11 +13612,22 @@ USE FROM Specification_control_arm; -- ISO/TS 10303-1112
 USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
 
 
-TYPE process_operation_input_or_output_select = SELECT (
-  Part_view_definition,
+TYPE process_operation_input_or_output_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Assembly_component_relationship,
+  Part_view_definition,
   Part_occurrence);
 END_TYPE; 
+
+TYPE resource_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Part_occurrence,
+  Part_view_definition,
+  Resource_requirement_type);
+END_TYPE; 
+
+ENTITY Resource_requirement_type; -- for descriptive_specification
+  name : label;
+  description : text;
+END_ENTITY;
 
 ENTITY Process_state_relationship
   SUBTYPE OF (Part_definition_relationship);
@@ -13479,9 +13642,10 @@ ENTITY Process_operation_definition;
 END_ENTITY;
 
 ENTITY Process_operation_definition_relationship;
-  related : process_operation_definition;
   relation_type : STRING;
+  description : text;
   relating : process_operation_definition;
+  related : process_operation_definition;
 END_ENTITY;
 
 ENTITY Process_operation_input_or_output;
@@ -13494,18 +13658,18 @@ ENTITY Process_operation_input_or_output;
 END_ENTITY;
 
 ENTITY Process_operation_occurrence;
+  id : STRING;
   plan : process_plan;
 --  is_defined_in : OPTIONAL cartesian_coordinate_space;
   operation_definition : Process_operation_definition;
-  id : STRING;
 END_ENTITY;
 
 ENTITY Process_operation_occurrence_relationship;
-  related : Process_operation_occurrence;
   relation_type : STRING;
-  relating : Process_operation_occurrence;
---  waiting_time : OPTIONAL property_value;
   description : OPTIONAL text;
+  relating : Process_operation_occurrence;
+  related : Process_operation_occurrence;
+  waiting_time : OPTIONAL duration;
   cycle_time : OPTIONAL duration;
 END_ENTITY;
 
@@ -13513,7 +13677,7 @@ ENTITY Process_operation_resource_assignment;
   reference_tool : BOOLEAN;
   operation : Process_operation_occurrence;
   reason : OPTIONAL STRING;
---  resource_definition : resource_definition_select;
+  resource_definition : resource_definition_select;
 --  placement : OPTIONAL transformation;
 END_ENTITY;
 
@@ -13526,10 +13690,10 @@ ENTITY Process_plan;
 END_ENTITY;
 
 ENTITY Process_plan_relationship;
+  relation_type : STRING;
+  description : OPTIONAL text;
   relating : Process_plan;
   related : Process_plan;
-  description : OPTIONAL text;
-  relation_type : STRING;
 END_ENTITY;
 
 ENTITY Same_time_machining_relationship
@@ -13592,8 +13756,8 @@ USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 ENTITY Pmi_annotation_presentation_shape
   SUBTYPE OF (Nominal_3d_model_shape);
 WHERE
-  WR1: 'xxx.Gdt_presentation_view_context' IN TYPEOF(described_element\Product_view_definition.additional_context); 
-  WR2: TRUE; -- must have at least one draughting_model of the ABREP
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_3D_ANNOTATION_PRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
+--  WR2: TRUE; -- must have at least one draughting_model of the ABREP
 END_ENTITY;  
   
 
@@ -13691,7 +13855,7 @@ END_SUBTYPE_CONSTRAINT;
 END_SCHEMA;
 (*
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_with_nominal_3d_models - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
 USE FROM Product_and_manufacturing_information_view_context_arm;
@@ -13707,47 +13871,11 @@ TYPE advanced_face_model = SELECT (
   Manifold_subsurface_model);
 END_TYPE;
 
-
-(*
-ENTITY Associated_item_shape
-          SUBTYPE OF (Item_shape);
-DERIVE
-  associated_model : shape_model := association\Shape_description_association.representation;
-INVERSE
-  association : Shape_description_association FOR represented_characteristic;
-END_ENTITY
-*)
-
-
-(* a Part-view_definition can have at most one Item_shape.
-  But not every Item_shape and the associated shape_representation is 
-  nessecarily suitable for manufacturing. So we have to ensure that there is
-  an ABREP associated and the requirement is that this ABREP represents the 
-  NOMINAL shape of the product. Let's call this a Pmi_shape and have the word
-  nominal gemetry in the mapping *)
 ENTITY Nominal_3d_model_shape
   SUBTYPE OF (Associated_item_shape);
--- mapping: inherited property_definition.name is "nominal 3d model", this attribute is not available on the ARM  
-DERIVE
-  associated_abrep : Advanced_brep_shape_representation := get_advanced_brep(associated_model);
-  associated_construction_geometry_models : SET[0:?] OF Constructive_geometry := get_construction_geometry(associated_model);
 WHERE
-  WR1: 'xxx.Model_based_view_context' IN TYPEOF(described_element\Product_view_definition.initial_context); 
-        -- shall only be used for part_view_definitions with an initial context of type Model_based_3D_view_context.
-  WR2: TRUE; -- must have an associated ABREP
-  WR3: EXISTS(associated_abrep);
-  
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.initial_context); 
 END_ENTITY;  
-
-FUNCTION get_advanced_brep(m : shape_model) : Advanced_brep_shape_representation;
--- see bug #3943 -  GD&T document rule in AP 242, comment #14
-  RETURN;
-END_FUNCTION; 
-
-FUNCTION get_construction_geometry(m : shape_model) : Constructive_geometry;
--- see bug #3943 -  GD&T document rule in AP 242, comment #14
-  RETURN;
-END_FUNCTION; 
 
 END_SCHEMA;
 (*
@@ -15628,6 +15756,7 @@ END_ENTITY;
 
 ENTITY Requirement_view_definition_relationship
   SUPERTYPE OF (ONEOF (Requirement_collection_relationship,
+                       Requirement_precedence_relationship,
                        Tracing_relationship))
   SUBTYPE OF (View_definition_relationship);
   SELF\View_definition_relationship.relating_view RENAMED primary : Requirement_view_definition;
@@ -15640,6 +15769,10 @@ ENTITY Tracing_relationship
   SUBTYPE OF (Requirement_view_definition_relationship);
   SELF\Requirement_view_definition_relationship.primary RENAMED traces_from : Requirement_view_definition;
   SELF\Requirement_view_definition_relationship.secondary RENAMED traces_to : Requirement_view_definition;
+END_ENTITY;
+
+ENTITY Requirement_precedence_relationship
+  SUBTYPE OF (Requirement_view_definition_relationship);
 END_ENTITY;
 
 END_SCHEMA;  -- Requirement_view_definition_relationship_arm
@@ -18323,16 +18456,15 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   END_LOCAL;
   -- find Shape_description_association 
    local_s_d_a  := bag_to_set (USEDIN (item, 
-   'SHAPE_PROPERTY_ASSIGNMENT_ARM.' +
-   'SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION')); 
+   'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION')); 
   
   -- find Product_view_definitions
   REPEAT i := 1 TO HIINDEX (local_s_d_a);
      IF ('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
-       TYPEOF (local_s_d_a[i].represented_characteristic)) THEN
+       TYPEOF (local_s_d_a[i].definition)) THEN
        IF ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
-         (local_s_d_a[i].represented_characteristic\Item_shape.described_element))  THEN
-         local_p_d := local_p_d + local_s_d_a[i].represented_characteristic\Item_shape.described_element;
+         (local_s_d_a[i].definition\Item_shape.described_element))  THEN
+         local_p_d := local_p_d + local_s_d_a[i].definition\Item_shape.described_element;
        END_IF;
      END_IF;
   END_REPEAT;
@@ -18424,10 +18556,8 @@ TYPE sf_shapeable_item = SELECT BASED_ON shapeable_item WITH
   (Characterizable_object);
 END_TYPE; 
 
-TYPE sf_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
-  (Characterizable_object,
-   Shape_element, 
-   Shape_element_relationship);
+TYPE sf_property_assignment_select = SELECT BASED_ON property_assignment_select WITH ( 
+  Characterizable_object);
 END_TYPE; 
 
 ENTITY Shape_feature_definition
@@ -18448,6 +18578,10 @@ ENTITY Placed_feature
   SUBTYPE OF (Shape_element);
    definition : Shape_feature_definition;
 END_ENTITY;
+
+ENTITY General_feature
+  SUBTYPE OF (Shape_feature_definition);
+END_ENTITY; 
 
 FUNCTION get_geometric_model(input : Item_shape) : SET OF Geometric_model;
   LOCAL
@@ -18487,6 +18621,12 @@ USE FROM Property_assignment_arm;
 USE FROM Geometric_model_relationship_arm; -- ISO/TS 10303-1403 
 USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
+TYPE spa_property_assignment_select = SELECT BASED_ON property_assignment_select WITH ( 
+  Item_shape,
+  Shape_element, 
+  Shape_element_relationship);
+END_TYPE; 
+
 TYPE chained_geometric_model_link = SELECT (
     Geometric_placement_operation,
     Geometric_coordinate_space,
@@ -18494,7 +18634,7 @@ TYPE chained_geometric_model_link = SELECT (
 END_TYPE;
 
 TYPE described_element_select = SELECT (
-  View_definition_usage,
+  View_definition_relationship,
   Product_occurrence_definition_relationship);
 END_TYPE;  
 
@@ -18508,14 +18648,13 @@ TYPE geometric_item_specific_usage_select = SELECT (
   Shape_element_relationship);
 END_TYPE; 
 
-
 TYPE spa_represented_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON represented_definition WITH (
     Item_shape,
     Shape_element,
     Shape_element_relationship);
 END_TYPE;
 
-TYPE item_shape_or_element_or_relationship_select = SELECT (
+TYPE assigned_shape_property_select = EXTENSIBLE GENERIC_ENTITY SELECT (
     Item_shape,
     Shape_element,
     Shape_element_relationship);
@@ -18529,7 +18668,7 @@ END_TYPE;
 TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
   (Product_occurrence_definition_relationship, 
    Product_view_definition, 
-   View_definition_usage);
+   View_definition_relationship);
 END_TYPE; 
 
 ENTITY Associated_item_shape
@@ -18544,7 +18683,7 @@ ENTITY Associated_shape_element
   SUBTYPE OF (Shape_element);
   SELF\Shape_element.containing_shape : Associated_item_shape;
 DERIVE
-  associated_item : Detailed_geometric_model_element := association\Geometric_item_specific_usage.identified_item;
+  associated_item : geometric_model_item := association\Geometric_item_specific_usage.identified_item;
 INVERSE 
   association : Geometric_item_specific_usage FOR definition;
 WHERE
@@ -18564,7 +18703,7 @@ ENTITY Geometric_item_specific_usage;
     name            : STRING;
     description     : OPTIONAL STRING;
     definition      : geometric_item_specific_usage_select;
-    identified_item : Detailed_geometric_model_element;
+    identified_item : geometric_model_item;
     used_model      : shape_model;      
 END_ENTITY;
 
@@ -18574,16 +18713,17 @@ ENTITY Chain_based_geometric_item_specific_usage
     undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
 END_ENTITY;
 
-ENTITY Item_shape
-  SUPERTYPE OF (ONEOF (Associated_item_shape, Contextual_item_shape));
+ENTITY Item_shape;
   id                : OPTIONAL STRING;
   description       : OPTIONAL STRING;
   described_element : shapeable_item;
+UNIQUE
+  UR1: described_element;
 END_ENTITY;
 
 ENTITY Assigned_shape_property
   SUBTYPE OF (Assigned_property);
-  SELF\Assigned_property.described_element : item_shape_or_element_or_relationship_select;
+  SELF\Assigned_property.described_element : assigned_shape_property_select;
 END_ENTITY; 
 
 ENTITY Shape_dependent_property_representation -- maps to property_def_rep
@@ -18593,7 +18733,7 @@ END_ENTITY;
 
 ENTITY Shape_description_association -- maps to shape_def_rep
   SUBTYPE OF (Property_definition_representation);
-  SELF\Property_definition_representation.definition : Item_shape;
+  SELF\Property_definition_representation.definition : Associated_item_shape;
   SELF\Property_definition_representation.used_representation : shape_model;
 END_ENTITY;
 
@@ -18810,7 +18950,7 @@ ENTITY Sketch_2d_representation
   sketch_2d_semantics  : curves_or_area; 
   SELF\representation.items : SET[1:?] OF sketch_element_select;
 WHERE
-  WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimimension_count  = 2;
+  WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2;
 END_ENTITY;
 
 ENTITY Subsketch
@@ -19412,7 +19552,7 @@ USE FROM Part_collection_arm; -- ISO/TS 10303-1115
 
 USE FROM Product_placement_arm; -- ISO/TS 10303-1343
 
-USE FROM Requirement_identification_and_version_arm; -- ISO/TS 10303-1140
+USE FROM Requirement_view_definition_arm; 
 
 USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
 
@@ -19479,14 +19619,7 @@ USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
   END_ENTITY;
 
   ENTITY Design_constraint_definition
-    SUBTYPE OF (Product_view_definition);
-      SELF\Product_view_definition.defined_version : Requirement_version;
-  END_ENTITY;
-
-  ENTITY Design_constraint_relationship
-    SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.relating_view : Design_constraint_definition;
-      SELF\View_definition_relationship.related_view  : Design_constraint_definition;
+    SUBTYPE OF (Requirement_view_definition);
   END_ENTITY;
 
   ENTITY Part_function_association
@@ -20072,8 +20205,9 @@ SCHEMA Text_appearance_arm;
 
 USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
 
-  TYPE composite_text_element_select = SELECT
+  TYPE composite_text_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
     (Composite_presentable_text, 
+     Defined_character_glyph,
      Text_literal);
   END_TYPE; 
 
@@ -20109,6 +20243,11 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
   ENTITY Composite_presentable_text
     SUBTYPE OF (Detailed_geometric_model_element);
       collected_text : LIST[2:?] OF composite_text_element_select;
+  END_ENTITY;
+
+  ENTITY Defined_character_glyph
+    SUBTYPE OF (Detailed_geometric_model_element);
+      placement : Axis_placement;
   END_ENTITY;
 
   ENTITY Draughting_pre_defined_text_font;
@@ -20153,7 +20292,7 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
   END_ENTITY;  
 
   SUBTYPE_CONSTRAINT ta_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
-    ONEOF(Composite_presentable_text, Text_literal);
+    ONEOF(Composite_presentable_text, Text_literal, Defined_character_glyph);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  
@@ -20164,7 +20303,16 @@ END_SCHEMA;
 
 SCHEMA Text_representation_arm;
 
-USE FROM Text_appearance_arm;
+USE FROM Text_appearance_arm; -- ISO/TS 10303-1136
+USE FROM Associative_text_arm; -- ISO/TS 10303-1132 
+
+  TYPE tr_text_or_composite_text = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON text_or_composite_text WITH (
+    Annotation_text_character);
+  END_TYPE;
+  
+  TYPE tr_composite_text_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON composite_text_element_select WITH (
+    Annotation_text_character);
+  END_TYPE; 
 
   TYPE tr_font_select  = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON font_select WITH
     (Text_font);
@@ -20757,6 +20905,13 @@ ENTITY Work_request;
   version_id : STRING;
   description : OPTIONAL STRING;
   purpose : STRING;
+END_ENTITY;
+
+ENTITY Work_request_relationship;
+  relation_type : STRING;
+  description : OPTIONAL STRING;
+  relating : Work_request;
+  related : Work_request;
 END_ENTITY;
 
 ENTITY Work_request_status;

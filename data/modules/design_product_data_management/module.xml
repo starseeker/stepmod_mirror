@@ -13,7 +13,7 @@
    publication.year="2012"
    publication.date="2012-99-09"
 	published="y" 
-	previous.revision.year="2010" rcs.date="$Date: 2011/08/25 09:57:13 $" rcs.revision="$Revision: 1.55 $" development.folder="dvlp">
+	previous.revision.year="2010" rcs.date="$Date: 2011/08/26 11:20:04 $" rcs.revision="$Revision: 1.56 $" development.folder="dvlp">
     <keywords>
     module, product data management, approval, identification, test select
  </keywords>
@@ -2191,6 +2191,94 @@
 			<constraint/>
 			<source xml:space="preserve"/>
 		</sc> -->
+		
+		<!--  ++  RETENTION_PERIOD  ++ -->
+		<ae entity="Retention_period">
+			<aimelt>retention</aimelt>
+			<source>ISO 10303-1628</source>
+			<rules>dependent_instantiable_retention
+				 retention_requires_retention_assignment			
+			</rules>
+			<refpath>
+				retention &lt;=
+				action
+				{action &lt;-
+				action_assignment.assigned_action
+				action_assignment
+				action_assignment.role -&gt;
+				object_role
+				object_role.name = 'retention'}
+			</refpath>
+			<aa attribute="retention_purpose">
+				<aimelt>action.description</aimelt>
+				<source>ISO 10303-41</source>
+				<refpath>
+					retention &lt;=
+					action
+					action.description 
+				</refpath>
+			</aa>
+			<aa attribute="earliest_end_definition" assertion_to="date_or_event">
+				<aimelt>PATH</aimelt>
+				<refpath>-</refpath>
+			</aa>
+			<aa attribute="earliest_end_definition" assertion_to="Duration">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-47</source>
+				<refpath>
+					retention &lt;=
+					action
+					time_interval_item = action
+					time_interval_item &lt;-
+					applied_time_interval_assignment.items[i]
+					applied_time_interval_assignment &lt;=
+					time_interval_assignment
+					{time_interval_assignment.role -&gt;
+					time_interval_role
+					time_interval_role.name = 'minimum retention period'}
+					time_interval_assignment.assigned_time_interval -&gt;
+					time_interval =&gt;
+					time_interval_with_bounds
+					time_interval_with_bounds.duration -&gt;
+					time_measure_with_unit
+				</refpath>
+			</aa>
+			<aa attribute="latest_end_definition" assertion_to="date_or_event">
+				<aimelt>PATH</aimelt>
+				<refpath>-</refpath>
+			</aa>
+			<aa attribute="latest_end_definition" assertion_to="Duration">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-47</source>
+				<refpath>
+					retention &lt;=
+					action
+					time_interval_item = action
+					time_interval_item &lt;-
+					applied_time_interval_assignment.items[i]
+					applied_time_interval_assignment &lt;=
+					time_interval_assignment
+					{time_interval_assignment.role -&gt;
+					time_interval_role
+					time_interval_role.name = 'maximum retention period'}
+					time_interval_assignment.assigned_time_interval -&gt;
+					time_interval =&gt;
+					time_interval_with_bounds
+					time_interval_with_bounds.duration -&gt;
+					time_measure_with_unit 
+				</refpath>
+			</aa>
+			<aa attribute="start_definition" assertion_to="date_or_event">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-</source>
+				<refpath>-</refpath>
+			</aa>
+			<aa attribute="is_applied_to" assertion_to="time_interval_item">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-</source>
+				<refpath>-</refpath>
+			</aa>
+		</ae>
     </mapping_table>
     <mim>
         <express-g>

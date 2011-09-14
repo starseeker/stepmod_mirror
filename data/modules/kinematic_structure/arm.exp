@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2011/08/08 22:27:45 lothartklein Exp $
+   $Id: arm.exp,v 1.8 2011/08/17 11:32:51 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_structure - EXPRESS ARM*)
 
 SCHEMA Kinematic_structure_arm;
@@ -36,7 +36,9 @@ ENTITY Kinematic_property_mechanism_representation
   SELF\Property_definition_representation.used_representation : Mechanism_representation; 
   base : Kinematic_link_representation;
 WHERE
-  WR1: SELF\Property_definition_representation.used_representation IN using_representations(base);
+   WR1: SIZEOF( QUERY( i <* used_representation.items |
+        (base :=: i\Representation_relationship.rep_1) OR
+        (base :=: i\Representation_relationship.rep_2))) > 0;
 END_ENTITY;
 
 ENTITY Context_dependent_kinematic_link_representation;

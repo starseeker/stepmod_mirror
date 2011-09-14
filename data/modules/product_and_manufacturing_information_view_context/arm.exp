@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2011/07/12 15:31:13 thomasrthurman Exp $
+   $Id: arm.exp,v 1.6 2011/07/21 18:55:50 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_arm;
@@ -33,8 +33,10 @@ DERIVE
 -- note: when we write the rules we will decide which derived attribute to use
 WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR3: TRUE; -- Part_view_definition.initial_context shall be of type Model_based_3D_view_context 
-  WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
+  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
+         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
+        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
+  -- WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
 END_ENTITY;
 
 ENTITY Model_based_3d_annotation_presentation_view_context
@@ -44,8 +46,10 @@ DERIVE
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR3: TRUE; -- Part_view_definition.initial_context shall be of type Model_based_3D_view_context 
-  WR4: TRUE; -- must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
+  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
+         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
+        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
+  -- WR4: TRUE; -- must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
 END_ENTITY;
 
 ENTITY Surface_finish_view_context 

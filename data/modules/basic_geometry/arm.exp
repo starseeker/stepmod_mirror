@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.22 2010/10/18 14:57:40 lothartklein Exp $
+$Id: arm.exp,v 1.23 2010/11/03 20:47:39 lothartklein Exp $
 ISO TC184/SC4/WG12 N7193 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6869
 *) 
@@ -7,12 +7,6 @@ Supersedes ISO TC184/SC4/WG12 N6869
 SCHEMA Basic_geometry_arm;
 
 USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
-
-TYPE point_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Cartesian_point, 
-    Point_on_curve, 
-    Point_on_surface);
-END_TYPE; 
 
 ENTITY Bounded_curve
    ABSTRACT SUPERTYPE
@@ -103,12 +97,12 @@ ENTITY Plane
 END_ENTITY;
 
 ENTITY Point_on_curve
-  SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Point);
   supporting_curve : Curve;
 END_ENTITY;
 
 ENTITY Point_on_surface
-  SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Point);
   supporting_surface : Surface;
 END_ENTITY;
 
@@ -150,15 +144,18 @@ WHERE
 END_ENTITY;
  
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
-  ONEOF (Cartesian_point,
-         Direction,
+  ONEOF (Direction,
          Axis_placement,
          Cartesian_transformation_2d,
          Cartesian_transformation_3d,
          Curve,
-         Point_on_curve,
-         Point_on_surface,
          Surface);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT point_subtypes FOR Point;
+  ONEOF (Cartesian_point,
+         Point_on_curve,
+         Point_on_surface);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Basic_geometry_arm

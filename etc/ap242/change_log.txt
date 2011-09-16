@@ -1422,3 +1422,56 @@ It is not allowed to use a REFERENCE FROM in a module MIM other than for functio
 USE FROM product_property_representation_schema
   (item_identified_representation_usage_definition);   
 ap242_managed.../mim.exp 1.23 
+
+2011-09-14
+Together with Tom we reviewed new ARM compilation errors:
+
+Kinematic_property_mechanism_representation.WR1 is using wrong parameter for function call using_representations.
+Updated the rule to fit with the recently updated IR105 rule.
+kinematic_structure/arm.xml 1.8
+
+Some rule is referring to Direction.direction_ratios which exisit in IR42, but not in the MIM AO.
+Make Direction identical to IR42.
+elemental_geometric_shape/arm.exp 1.21
+
+Shape_element_relationship_representation_association.WR1 misses a schema name in a string-type.
+assembly_feature_relationship/arm.exp 1.2
+
+Coaxial_constraint.wr1 refers to "Point" which does not exisit on the ARM.
+Decided to make ARM identical to IR42 - so adding Point (but as abstract supertype) 
+and making Cartesian_point, Point_on_curve, Point_on_surface subtypes of it (with extra ONEOF).
+Consequently removed no longer needed point_select, but this caused several side effects
+geometric_constraints/arm.exp 1.8
+extended_basic_geometry/arm.exp 1.21
+ply_orientation_specification/arm.exp 1.10
+shape_data_quality_inspection_result/arm.exp 1.8
+thickened_face_solid/arm.exp 1.10
+part_and_zone_laminate_tables/arm.exp 1.9
+model_based_3d_geometrical_dimensioning_and_tolerancing_representation/arm.exp 1.5
+sketch/arm.exp 1.7
+draughting_element/arm.exp 1.10
+construction_geometry/arm.exp 1.19
+basic_geometry/arm.exp 1.24
+
+Kinematic_link_representation_association.wr1 includes invalid schema name
+
+Gdt_representation_view_context and Model_based_3d_annotation_presentation_view_context had incomplete rules
+product_and_manufacturing_information_view_context/arm.exp 1.7
+
+Numeric_expression_arm: There are many erros because "functions" from other plib20 wrapper modules are called out,
+but the corresponding modules are not available. So had to add
+	USE FROM Numeric_function_arm;
+	USE FROM Expression_arm;
+numeric_expression/mim.exp 1.2 
+numeric_expression/arm.exp 1.3
+
+2011-09-16
+Tom detected an issue with the ARM of AM Sketch.
+The select type surface_or_solid_model is defined there but is empty.
+But when looking to IR108 we can see that it contains different kind of models,
+not all of them are available on the ARM level. Decided to 
+- add USE FROM Solid_model_arm/_mim;
+- change surface_or_solid_model into GENERIC_ENTITY
+- add Solid_model to the select 
+sketch/mim.exp 1.5
+sketch/arm.exp 1.8

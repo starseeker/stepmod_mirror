@@ -275,7 +275,7 @@ USE FROM Product_and_manufacturing_annotation_presentation_arm;
 USE FROM Change_management_arm; -- ISO/TS 10303-1661
 USE FROM Sketch_arm; -- ISO/TS 10303-1792
 
-TYPE general_organizational_data_select = SELECT (
+TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   -- final_solution -- -- Complex_product subtype,
   -- Simple_property_association, -- already covered by Property_value_association
   -- would be Product_definition_kinematics, but already covered by supertype, -- Kinematic_simulation_information,
@@ -336,7 +336,7 @@ TYPE general_organizational_data_select = SELECT (
   Product_version_relationship, -- Item_version_relationship,
   Project,
   Security_classification,
-  Security_classification, -- Security_level,
+--  Security_classification, -- Security_level,
   Specification,
   Specification_category,
   Specification_expression,
@@ -1076,7 +1076,8 @@ ENTITY Shape_element_relationship_representation_association;
   represented_shape_element_relationship : Shape_element_relationship;
   representing_representation_relationship : Representation_relationship;
 WHERE
-  WR1: ('REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\ representation_relationship.rep_1)) AND('REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\ representation_relationship.rep_2));
+  WR1: ('ASSEMBLY_FEATURE_RELATIONSHIP_ARM.REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\representation_relationship.rep_1)) AND
+       ('ASSEMBLY_FEATURE_RELATIONSHIP_ARM.REPRESENTATIVE_GEOMETRIC_MODEL' IN TYPEOF(representing_representation_relationship\ representation_relationship.rep_2));
 END_ENTITY;
 
 END_SCHEMA;  -- Assembly_feature_relationship_arm
@@ -1744,12 +1745,6 @@ SCHEMA Basic_geometry_arm;
 
 USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 
-TYPE point_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Cartesian_point, 
-    Point_on_curve, 
-    Point_on_surface);
-END_TYPE; 
-
 ENTITY Bounded_curve
    ABSTRACT SUPERTYPE
    SUBTYPE OF (Curve);
@@ -1839,12 +1834,12 @@ ENTITY Plane
 END_ENTITY;
 
 ENTITY Point_on_curve
-  SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Point);
   supporting_curve : Curve;
 END_ENTITY;
 
 ENTITY Point_on_surface
-  SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Point);
   supporting_surface : Surface;
 END_ENTITY;
 
@@ -1886,15 +1881,18 @@ WHERE
 END_ENTITY;
  
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
-  ONEOF (Cartesian_point,
-         Direction,
+  ONEOF (Direction,
          Axis_placement,
          Cartesian_transformation_2d,
          Cartesian_transformation_3d,
          Curve,
-         Point_on_curve,
-         Point_on_surface,
          Surface);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT point_subtypes FOR Point;
+  ONEOF (Cartesian_point,
+         Point_on_curve,
+         Point_on_surface);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Basic_geometry_arm
@@ -2793,7 +2791,6 @@ SCHEMA Component_feature_arm;
     SUBTYPE OF (General_part_occurrence_feature);
       definition           : OPTIONAL feature_select;
       SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
-      SELF\Shape_element.element_name : STRING;
     UNIQUE
       UR1 : definition,associated_component;
       UR2 : SELF\Shape_element.element_name, associated_component;
@@ -2802,7 +2799,6 @@ SCHEMA Component_feature_arm;
   ENTITY Component_feature_joint
      ABSTRACT SUPERTYPE
   SUBTYPE OF (Component_feature_relationship, General_component_feature_joint);
-    SELF\Shape_element.element_name : STRING;
     SELF\Shape_element_relationship.relating RENAMED feature_1 : Component_feature;
     SELF\Shape_element_relationship.related RENAMED feature_2 : Component_feature;
     SELF\Shape_element.containing_shape RENAMED associated_definition : Assembly_item_shape;
@@ -3311,7 +3307,7 @@ USE FROM Basic_curve_arm;    -- ISO/TS 10303-1651
   TYPE constructive_element_select = EXTENSIBLE GENERIC_ENTITY SELECT 
     (Axis_placement,  
      Curve,  
-     point_select,  
+     Point,  
      Surface); 
   END_TYPE; 
 
@@ -4967,7 +4963,7 @@ USE FROM Curve_appearance_arm; -- ISO/CD-TS 10303-1003
   ENTITY Fill_area 
     SUBTYPE OF (Annotation_element);
       SELF\Styled_element.element : Annotation_fill_area;
-      reference_point             : point_select;
+      reference_point             : Point;
   END_ENTITY;
 
   ENTITY Generic_annotation_curve
@@ -5332,8 +5328,8 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
       dim: INTEGER := SIZEOF(origin.coordinates);
     WHERE
       WR1: dim >1;
-      WR2: dim = SIZEOF(x_axis.coordinates);
-      WR3: dim = SIZEOF(y_axis.coordinates);
+      WR2: dim = SIZEOF(x_axis.direction_ratios);
+      WR3: dim = SIZEOF(y_axis.direction_ratios);
   END_ENTITY;
 
   ENTITY Axis_placement_2d
@@ -5351,8 +5347,13 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
       WR1: source\Axis_placement.dim = target\Axis_placement.dim;
   END_ENTITY;
 
-  ENTITY Cartesian_point
+  ENTITY Point
+    ABSTRACT SUPERTYPE
     SUBTYPE OF (Detailed_geometric_model_element);
+  END_ENTITY;
+
+  ENTITY Cartesian_point
+    SUBTYPE OF (Point);
       coordinates : LIST[1:3] OF length_measure;
   END_ENTITY;
 
@@ -5361,8 +5362,8 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
       multiplication_matrix : ARRAY[1:2] OF Direction;
       translation           : Cartesian_point;
     WHERE
-      WR1: SIZEOF(multiplication_matrix[1]\Direction.coordinates)=2;
-      WR2: SIZEOF(multiplication_matrix[2]\Direction.coordinates)=2;
+      WR1: SIZEOF(multiplication_matrix[1]\Direction.direction_ratios)=2;
+      WR2: SIZEOF(multiplication_matrix[2]\Direction.direction_ratios)=2;
       WR3: SIZEOF(translation.coordinates)=2;
   END_ENTITY;
 
@@ -5371,15 +5372,14 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
       multiplication_matrix : ARRAY[1:3] OF Direction;
       translation           : Cartesian_point;
     WHERE
-      WR1: SIZEOF(multiplication_matrix[1]\Direction.coordinates)=3;
-      WR2: SIZEOF(multiplication_matrix[2]\Direction.coordinates)=3;
-      WR3: SIZEOF(multiplication_matrix[3]\Direction.coordinates)=3;
+      WR1: SIZEOF(multiplication_matrix[1]\Direction.direction_ratios)=3;
+      WR2: SIZEOF(multiplication_matrix[2]\Direction.direction_ratios)=3;
+      WR3: SIZEOF(multiplication_matrix[3]\Direction.direction_ratios)=3;
       WR4: SIZEOF(translation.coordinates)=3;
   END_ENTITY;
 
   ENTITY Detailed_geometric_model_element
     ABSTRACT SUPERTYPE OF (ONEOF(
-      Cartesian_point, 
       Direction, 
       Axis_placement, 
       Cartesian_transformation_2d,
@@ -5390,7 +5390,7 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 
   ENTITY Direction
     SUBTYPE OF (Detailed_geometric_model_element);
-      coordinates : LIST[2:3] OF length_measure;  
+      direction_ratios : LIST[2:3] OF REAL;  
   END_ENTITY;
 
   ENTITY Geometric_coordinate_space
@@ -5589,6 +5589,121 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
+ ISO TC184/SC4/WG12 N7223- ISO/TS 10303-1527 Elementary function - EXPRESS ARM
+*)
+
+SCHEMA Elementary_function_arm;
+
+   USE FROM Numeric_expression_arm;
+
+   
+
+   ENTITY Abs_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Acos_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Asin_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Atan_function
+   SUBTYPE OF (Binary_function_call);
+   END_ENTITY;
+
+   ENTITY Binary_function_call
+   ABSTRACT SUPERTYPE OF (Atan_function)
+   SUBTYPE OF (Binary_numeric_expression);
+   END_ENTITY;
+
+   ENTITY Cos_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Exp_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   
+   ENTITY Integer_defined_function
+   ABSTRACT SUPERTYPE
+   SUBTYPE OF (Numeric_defined_function);
+   END_ENTITY ;
+
+   
+   ENTITY Log10_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Log2_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Log_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Maximum_function
+   SUBTYPE OF (Multiple_arity_function_call);
+   END_ENTITY;
+
+   ENTITY Minimum_function
+   SUBTYPE OF (Multiple_arity_function_call);
+   END_ENTITY;
+
+   ENTITY Minus_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Numeric_defined_function
+   ABSTRACT SUPERTYPE OF (ONEOF (Integer_defined_function,
+   Real_defined_function))
+   SUBTYPE OF (Numeric_expression, Defined_function);
+   END_ENTITY;
+
+  
+   ENTITY Real_defined_function
+   ABSTRACT SUPERTYPE
+   SUBTYPE OF (Numeric_defined_function);
+   END_ENTITY ;
+
+   ENTITY Sin_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Square_root_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Tan_function
+   SUBTYPE OF (Unary_function_call);
+   END_ENTITY;
+
+   ENTITY Unary_function_call
+   ABSTRACT SUPERTYPE OF (ONEOF (Abs_function,
+   Minus_function,
+   Sin_function,
+   Cos_function,
+   Tan_function,
+   Asin_function,
+   Acos_function,
+   Exp_function,
+   Log_function,
+   Log2_function,
+   Log10_function,
+   Square_root_function))
+   SUBTYPE OF (Unary_numeric_expression);
+   END_ENTITY;
+
+
+
+
+   END_SCHEMA; 
+
+(*
  ISO TC184/SC4/WG12 N2114 - ISO/TS 10303-1064 Event - EXPRESS ARM
 *)
 
@@ -5741,6 +5856,7 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
 	
 	SCHEMA Expression_arm;
 	
+	USE FROM Generic_expression_arm;
 	USE FROM Numeric_expression_arm;
 	REFERENCE FROM Numeric_expression_arm(is_int_expr);
 	
@@ -5857,15 +5973,12 @@ USE FROM Geometric_model_relationship_arm;
 
   SUBTYPE_CONSTRAINT alternate_extended_geometry_items FOR
     Detailed_geometric_model_element;
-    ONEOF (Cartesian_point,
-           Direction,
+    ONEOF (Direction,
            Axis_placement,
            Cartesian_transformation_2d,
            Cartesian_transformation_3d,
            Curve,
            Geometric_model_element_relationship,
-           Point_on_curve,
-           Point_on_surface,
            Surface,
            Vector);
   END_SUBTYPE_CONSTRAINT;
@@ -6304,7 +6417,6 @@ SCHEMA Feature_and_connection_zone_arm;
     REFERENCE FROM Support_resource_arm(bag_to_set); 
 
 ENTITY Connection_zone
-  ABSTRACT SUPERTYPE
   SUBTYPE OF (Shape_element);
 INVERSE
   surface_conditions : SET OF Surface_condition FOR described_element; 		
@@ -7237,7 +7349,7 @@ TYPE axial_geometry_element = EXTENSIBLE GENERIC_ENTITY SELECT
    Cylindrical_surface,
    Line,
    Plane,
-   point_select,
+   Point,
    Solid_of_revolution,
    Sphere,
    Spherical_surface,
@@ -7252,7 +7364,7 @@ TYPE curve_or_surface = SELECT
 END_TYPE;
 
 TYPE geometric_constraint_element = EXTENSIBLE GENERIC_ENTITY SELECT
-  (point_select,
+  (Point,
    Curve,
    Surface,
    Direction);
@@ -7272,7 +7384,7 @@ END_TYPE;
 
 TYPE point_curve_or_surface = SELECT
   (Curve,
-   point_select,
+   Point,
    Surface);
 END_TYPE;
 
@@ -7482,7 +7594,7 @@ END_ENTITY;
 
 ENTITY Near_point_relationship;
   relating_item : curve_or_surface;
-  ref_point : point_select;
+  ref_point : Point;
 END_ENTITY;
 
 ENTITY Parallel_constraint 
@@ -7542,7 +7654,7 @@ END_ENTITY;
 
 ENTITY Point_distance_constraint
   SUBTYPE OF (Explicit_geometric_constraint);
-  SELF\Explicit_constraint.constrained_elements : SET[1:?] OF point_select;
+  SELF\Explicit_constraint.constrained_elements : SET[1:?] OF Point;
   SELF\Explicit_constraint.reference_elements   : 
     SET[0:4] OF point_curve_or_surface;
 WHERE
@@ -8329,9 +8441,9 @@ USE FROM Part_view_definition_arm;
 
   ENTITY Incomplete_reference_marking
     SUBTYPE OF (Classification_assignment);
+     SELF\Classification_assignment.items : SET [1:?] OF idrm_marked_item;
     WHERE
-      WR1: SIZEOF(QUERY(item <* SELF\Classification_assignment.items |  NOT ('INCOMPLETE_DATA_REFERENCE_MECHANISM_ARM.IDRM_MARKED_ITEM' IN TYPEOF(item)))) = 0;
-      WR2: SELF\Classification_assignment.assigned_class.id = 'reference';
+      WR1: SELF\Classification_assignment.assigned_class.id = 'reference';
   END_ENTITY;
 
 END_SCHEMA;
@@ -8723,7 +8835,7 @@ ENTITY Kinematic_path
   t_start : parameter_value;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
+  closed_path : LOGICAL := segments[n_segments].transition <> curve_transition_code.discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
@@ -8778,7 +8890,7 @@ END_ENTITY;
 ENTITY Point_to_point_path
   SUBTYPE OF (Path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : curve_transition_code := discontinuous;
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.discontinuous;
 END_ENTITY;
 
 ENTITY Circular_path
@@ -8789,7 +8901,7 @@ END_ENTITY;
 ENTITY Linear_path
   SUBTYPE OF (Path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : curve_transition_code := continuous;
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.continuous;
 END_ENTITY;
 
 ENTITY Curve_based_path
@@ -8887,9 +8999,9 @@ ENTITY Sliding_surface_pair_value
   actual_rotation                 : plane_angle_measure;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
-       actual_point_on_surface_1.basis_surface;
+       actual_point_on_surface_1.supporting_surface;
   WR2: SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:
-       actual_point_on_surface_2.basis_surface;
+       actual_point_on_surface_2.supporting_surface;
 END_ENTITY;
 
 ENTITY Rolling_surface_pair_value
@@ -8899,7 +9011,7 @@ ENTITY Rolling_surface_pair_value
   actual_rotation                 : plane_angle_measure;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:
-       actual_point_on_surface.basis_surface;
+       actual_point_on_surface.supporting_surface;
 END_ENTITY;
 
 ENTITY Revolute_pair_value
@@ -8940,9 +9052,9 @@ ENTITY Sliding_curve_pair_value
   actual_point_on_curve_2         : Point_on_curve;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
-       actual_point_on_curve_1.basis_curve;
+       actual_point_on_curve_1.supporting_curve;
   WR2: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:
-       actual_point_on_curve_2.basis_curve;
+       actual_point_on_curve_2.supporting_curve;
 END_ENTITY;
 
 ENTITY Rolling_curve_pair_value
@@ -8951,7 +9063,7 @@ ENTITY Rolling_curve_pair_value
   actual_point_on_curve_1         : Point_on_curve;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:
-       actual_point_on_curve_1.basis_curve;
+       actual_point_on_curve_1.supporting_curve;
 END_ENTITY;
 
 ENTITY Gear_pair_value
@@ -9007,7 +9119,7 @@ ENTITY Point_on_surface_pair_value
   input_orientation               : spatial_rotation;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\Point_on_surface_pair.pair_surface :=:
-       actual_point_on_surface.basis_surface;
+       actual_point_on_surface.supporting_surface;
 END_ENTITY;
 
 ENTITY Point_on_planar_curve_pair_value
@@ -9017,7 +9129,7 @@ ENTITY Point_on_planar_curve_pair_value
   input_orientation               : spatial_rotation;
 WHERE
   WR1: SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve
-       :=: actual_point_on_curve.basis_curve;
+       :=: actual_point_on_curve.supporting_curve;
 END_ENTITY;
 
 ENTITY Rotation_about_direction
@@ -9065,6 +9177,10 @@ TYPE ks_geometric_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED
   Kinematic_link_representation);
 END_TYPE;
 
+TYPE ks_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
+  Assembly_component_relationship);
+END_TYPE;
+
 TYPE rigid_placement = SELECT
   (Axis_placement_3d,
    Su_parameters);
@@ -9082,7 +9198,9 @@ ENTITY Kinematic_property_mechanism_representation
   SELF\Property_definition_representation.used_representation : Mechanism_representation; 
   base : Kinematic_link_representation;
 WHERE
-  WR1: SELF\Property_definition_representation.used_representation IN using_representations(base);
+   WR1: SIZEOF( QUERY( i <* used_representation.items |
+        (base :=: i\Representation_relationship.rep_1) OR
+        (base :=: i\Representation_relationship.rep_2))) > 0;
 END_ENTITY;
 
 ENTITY Context_dependent_kinematic_link_representation;
@@ -9156,7 +9274,7 @@ ENTITY Kinematic_link_representation_association
 WHERE
   WR1: (SELF\Representation_relationship.rep_2.context_of_items :=:
         SELF\Representation_relationship.rep_1.context_of_items) OR
-       ('KINEMATIC_STRUCTURE_ARM.GEOMETRIC_MODEL_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF)); 
+       ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_MODEL_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF)); 
 END_ENTITY;
 
 ENTITY Su_parameters
@@ -9835,8 +9953,8 @@ ENTITY Kinematic_topology_substructure
   SUBTYPE OF (Kinematic_topology_structure);
   parent : Kinematic_topology_structure;
 WHERE
-  WR1: context_of_items :=: parent.context_of_items;
-  WR2: items <= parent.items;
+  WR1: SELF\Representation.context_of_items :=: parent\Representation.context_of_items;
+  WR2: SELF\Representation.items <= parent\Representation.items;
 END_ENTITY;
 (* WR1: A kinematic_topology_substructure shall have the same context as the parent *)  
 (* WR2: The items of a kinematic_topology_substructure shall also be items of the parent *)
@@ -11351,7 +11469,7 @@ END_TYPE;
 
 TYPE nominal_3d_derived_feature_geometry = SELECT (
   Curve,
-  point_select,
+  Point,
   Surface);
 END_TYPE;
 
@@ -11522,7 +11640,8 @@ END_SCHEMA;
 	SCHEMA Numeric_expression_arm;
 	
 	USE FROM Generic_expression_arm;
-	
+	USE FROM Numeric_function_arm;
+	USE FROM Expression_arm;
 		
 	ENTITY And_expression
 	SUBTYPE OF (Multiple_arity_boolean_expression);
@@ -11901,7 +12020,7 @@ IF	('NUMERIC_EXPRESSION_ARM.COMPARISON_EQUAL' IN TYPEOF (arg))
 	OR ('NUMERIC_EXPRESSION_ARM.COMPARISON_LESS' IN TYPEOF (arg)) 
 	OR ('NUMERIC_EXPRESSION_ARM.COMPARISON_LESS_EQUAL' IN TYPEOF (arg)) 
 	OR ('NUMERIC_EXPRESSION_ARM.COMPARISON_NOT_EQUAL' IN TYPEOF (arg)) 
-	OR ('NUMERIC_EXPRESSION_ARM.LIKE_EXPRESSION'  IN TYPEOF (arg)) 
+	OR ('EXPRESSION_ARM.LIKE_EXPRESSION'  IN TYPEOF (arg)) 
 THEN
 	RETURN (Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[1])
 		AND Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[2]));
@@ -11933,7 +12052,7 @@ END_IF;
 	RETURN (FALSE);
 END_FUNCTION; 
 
-FUNCTION Is_int_expr (arg: Numeric_expression) : BOOLEAN;
+FUNCTION is_int_expr (arg: Numeric_expression) : BOOLEAN;
 
 LOCAL
 	i: INTEGER;
@@ -12025,7 +12144,7 @@ IF 'ELEMENTARY_FUNCTION_ARM.INTEGER_DEFINED_FUNCTION' IN TYPEOF(arg)
 THEN 
 	RETURN(TRUE) ;
 END_IF;
-IF'ELEMENTARY__FUNCTION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
+IF'ELEMENTARY_FUNCTION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN(FALSE) ;
 END_IF ;
@@ -12046,6 +12165,50 @@ END_FUNCTION;
 	
 	END_SCHEMA;         
       
+(*
+ ISO TC184/SC4/WG12 N7226 - ISO/TS 10303-1346 Numeric function - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N4507
+*)
+
+	SCHEMA Numeric_function_arm;
+	
+	USE FROM Expression_arm;
+	REFERENCE FROM Numeric_expression_arm(is_int_expr);
+	
+	USE FROM Elementary_function_arm;
+	
+	
+	ENTITY Function_parameter_value
+	SUPERTYPE OF (Int_value_function)
+	SUBTYPE OF (Numeric_expression, Unary_generic_expression);
+	SELF\Unary_generic_expression.operand: String_expression;
+	END_ENTITY;
+	
+	
+	ENTITY Int_value_function
+	SUBTYPE OF (Function_parameter_value);
+	END_ENTITY;
+	
+	
+	
+	
+	ENTITY Length_function
+	SUBTYPE OF (Numeric_expression, Unary_generic_expression);
+	SELF\Unary_generic_expression.operand: String_expression;
+	END_ENTITY;
+	
+	
+	
+	ENTITY Odd_function
+	SUBTYPE OF (Unary_boolean_expression);
+	SELF\Unary_generic_expression.operand: Numeric_expression;
+	WHERE
+	WR1: Is_int_expr(SELF);
+	END_ENTITY;
+	
+	
+
+END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N2558 - ISO/TS 10303-1344 Numerical interface - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1799
@@ -12530,7 +12693,7 @@ USE FROM Stock_material_arm; -- ISO/CD-TS 10303-1771
 
   ENTITY Point_zone_shape
     SUBTYPE OF (Zone_structural_makeup_shape_representation);
-      location : point_select;
+      location : Point;
   END_ENTITY;
 
   ENTITY Processed_core
@@ -13011,7 +13174,7 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
 
   ENTITY Point_and_vector
     SUBTYPE OF (Detailed_geometric_model_element);
-      location : point_select;
+      location : Point;
       vector : LIST [1:2] OF Direction;
   END_ENTITY;
 
@@ -13795,8 +13958,10 @@ DERIVE
 -- note: when we write the rules we will decide which derived attribute to use
 WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR3: TRUE; -- Part_view_definition.initial_context shall be of type Model_based_3D_view_context 
-  WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
+  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
+         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
+        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
+  -- WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
 END_ENTITY;
 
 ENTITY Model_based_3d_annotation_presentation_view_context
@@ -13806,8 +13971,10 @@ DERIVE
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR3: TRUE; -- Part_view_definition.initial_context shall be of type Model_based_3D_view_context 
-  WR4: TRUE; -- must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
+  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
+         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
+        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
+  -- WR4: TRUE; -- must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
 END_ENTITY;
 
 ENTITY Surface_finish_view_context 
@@ -13963,6 +14130,10 @@ USE FROM Product_as_individual_arm; -- ISO/TS 10303-1164
 USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
 USE FROM Process_plan_arm;
 USE FROM Activity_arm; -- ISO/TS 10303-1047
+
+TYPE paiaata_activity_item = SELECT BASED_ON activity_item WITH (
+  Applied_independent_test_result_property);
+END_TYPE;
 
 ENTITY Product_as_individual_assembly
   SUBTYPE OF (Assembly_component_relationship);
@@ -15023,7 +15194,7 @@ USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 
-TYPE product_property_assignment = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
+TYPE product_property_assignment = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH 
    (Product_view_definition, 
     View_definition_relationship);
 END_TYPE; 
@@ -16544,7 +16715,7 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR1 : ('SHAPE_DATA_QUALITY_CRITERIA_ARM.' +
             'SHAPE_DATA_QUALITY_UPPER_VALUE_LIMIT'
             IN TYPEOF(SELF\Shape_data_quality_criterion.assessment_specification\Shape_data_quality_assessment_by_numerical_test.threshold))
-            AND ('MVALUE_WITH_UNIT_ARM.LENGTH_MEASURE'
+            AND ('VALUE_WITH_UNIT_ARM.LENGTH_MEASURE'
             IN value_limit_type(SELF\Shape_data_quality_criterion.assessment_specification\Shape_data_quality_assessment_by_numerical_test.threshold));
       WR2 : validate_measured_data_type(SELF,
             'VALUE_WITH_UNIT_ARM.LENGTH_MEASURE');
@@ -16752,8 +16923,8 @@ SCHEMA Shape_data_quality_criteria_arm;
       WR3 : validate_inspected_elements_type(SELF,
             ['BASIC_GEOMETRY_ARM.SURFACE','BASIC_GEOMETRY_ARM.SURFACE']);
       WR4 : validate_locations_of_extreme_value_type(SELF,
-            ['GEOMETRICALLY_BOUNDEED_SURFACE_ARM.CURVE_BOUNDED_SURFACE',
-             'GEOMETRICALLY_BOUNDEED_SURFACE_ARM.CURVE_BOUNDED_SURFACE']);
+            ['GEOMETRICALLY_BOUNDED_SURFACE_ARM.CURVE_BOUNDED_SURFACE',
+             'GEOMETRICALLY_BOUNDED_SURFACE_ARM.CURVE_BOUNDED_SURFACE']);
       WR5 : validate_accuracy_types(SELF,
             ['VALUE_WITH_UNIT_ARM.AREA_MEASURE']);
   END_ENTITY;
@@ -18246,7 +18417,7 @@ SCHEMA Shape_data_quality_inspection_result_arm;
      vertex_point,
      closed_or_open_shell_select,
      b_spline_or_rectangular_composite_surface_select,
-     point_select,
+     Point,
      connected_face_set,
  	 manifold_solid_brep,
      direction,
@@ -18842,6 +19013,7 @@ END_SCHEMA;  -- Single_part_representation_arm
 SCHEMA Sketch_arm;
 
 USE FROM Geometric_constraints_arm;
+USE FROM Solid_model_arm; -- ISO/TS 10303-1793
 
 TYPE planar_curve_select = EXTENSIBLE SELECT
   (Line,
@@ -18854,7 +19026,7 @@ TYPE sketch_basis_select = EXTENSIBLE SELECT
 END_TYPE;
 
 TYPE sketch_element_select = EXTENSIBLE SELECT
-  (point_select,
+  (Point,
    Curve);
 WHERE
   WR1: 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.DETAILED_GEOMETRIC_MODEL_ELEMENT' IN TYPEOF(SELF);
@@ -18866,7 +19038,8 @@ TYPE sketch_type_select = SELECT
    Subsketch);
 END_TYPE;
 
-TYPE surface_or_solid_model = EXTENSIBLE SELECT;
+TYPE surface_or_solid_model = EXTENSIBLE GENERIC_ENTITY SELECT
+  (Solid_model);
 END_TYPE;
 
 TYPE curves_or_area = ENUMERATION OF
@@ -18911,7 +19084,7 @@ ENTITY Implicit_planar_projection_point
     SUBTYPE OF (Auxiliary_geometric_representation_item);
     using_sketch   : Positioned_sketch;
     computed_representation  : Cartesian_point;
-    external_point       : point_select;
+    external_point       : Point;
     projection_direction : Direction;
 END_ENTITY;
 
@@ -20383,7 +20556,6 @@ USE FROM Topologically_bounded_surface_arm; -- ISO/TS 10303-1511
 
   SUBTYPE_CONSTRAINT tbsa_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
     ONEOF (Axis_placement, 
-           Cartesian_point,
            Cartesian_transformation_2d, 
            Cartesian_transformation_3d,
            Direction, 

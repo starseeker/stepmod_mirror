@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2011/07/29 20:56:03 lothartklein Exp $
+   $Id: arm.exp,v 1.8 2011/08/08 22:27:45 lothartklein Exp $
    N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
 
 SCHEMA Kinematic_motion_representation_arm;
@@ -90,7 +90,7 @@ ENTITY Kinematic_path
   t_start : parameter_value;
 DERIVE
   n_segments : INTEGER := SIZEOF(segments);
-  closed_path : LOGICAL := segments[n_segments].transition <> discontinuous;
+  closed_path : LOGICAL := segments[n_segments].transition <> curve_transition_code.discontinuous;
 WHERE
   WR1: SIZEOF(QUERY(using_rep <* using_representations(SELF)| 
         NOT('KINEMATIC_MOTION_REPRESENTATION_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT_WITH_PARAMETER' IN TYPEOF(using_rep.context_of_items))))= 0;
@@ -145,7 +145,7 @@ END_ENTITY;
 ENTITY Point_to_point_path
   SUBTYPE OF (Path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : curve_transition_code := discontinuous;
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.discontinuous;
 END_ENTITY;
 
 ENTITY Circular_path
@@ -156,7 +156,7 @@ END_ENTITY;
 ENTITY Linear_path
   SUBTYPE OF (Path_node);
 DERIVE
-  SELF\kinematic_path_segment.transition : curve_transition_code := continuous;
+  SELF\kinematic_path_segment.transition : curve_transition_code := curve_transition_code.continuous;
 END_ENTITY;
 
 ENTITY Curve_based_path

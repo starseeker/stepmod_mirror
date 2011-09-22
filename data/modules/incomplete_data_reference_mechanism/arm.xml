@@ -1,19 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="incomplete_data_reference_mechanism_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1349">
+   <application name="JSDAI" owner="LKSoft" source="incomplete_data_reference_mechanism_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Incomplete_data_reference_mechanism_arm">
       <interface kind="use" schema="Classification_assignment_arm"/>
       <interface kind="use" schema="Document_definition_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
       <type name="idrm_marked_item">
-         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Digital_document_definition Digital_file Part_view_definition"/>
+         <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="Digital_document_definition Digital_file Part_view_definition"/>
       </type>
       <entity name="Incomplete_reference_marking" supertypes="Classification_assignment">
-         <where label="WR1" expression="SIZEOF(QUERY(item &lt;* SELF\Classification_assignment.items |  NOT ('INCOMPLETE_DATA_REFERENCE_MECHANISM_ARM.IDRM_MARKED_ITEM' IN TYPEOF(item)))) = 0"/>
-         <where label="WR2" expression="SELF\Classification_assignment.assigned_class.id = 'reference'"/>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="idrm_marked_item"/>
+            <redeclaration entity-ref="Classification_assignment"/>
+         </explicit>
+         <where expression="SELF\Classification_assignment.assigned_class.id = 'reference'" label="WR1"/>
       </entity>
    </schema>
 </express>

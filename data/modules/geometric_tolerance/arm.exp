@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.39 2011/06/07 11:32:47 lothartklein Exp $
+$Id: arm.exp,v 1.40 2011/07/03 11:27:15 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -59,6 +59,7 @@ TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF (
   least_material_requirement,
   reciprocity_requirement,
   any_cross_section,
+  any_longitudinal_section,
   free_state,
   common_zone,
   minor_diameter,
@@ -68,8 +69,16 @@ TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF (
   not_convex,
   statistical_tolerance,
   tangent_plane,
-  each_radial_element);
+  each_radial_element,
+  separate_requirement);
 END_TYPE; 
+
+TYPE tolerance_zone_target = SELECT (
+  Dimensional_location,
+  Dimensional_size,
+  Geometric_tolerance,
+  General_datum_reference);
+END_TYPE;
 
 TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF ( 
   free_state,
@@ -105,6 +114,26 @@ TYPE tolerance_zone_type = ENUMERATION OF (
   not_known);
 END_TYPE;
 
+TYPE unit_enum = ENUMERATION OF (
+  unit_m,
+  unit_mm,
+  unit_inch,
+  unit_mil,
+  unit_um);
+END_TYPE;
+
+ENTITY Unit_property
+  SUBTYPE OF (Assigned_shape_property);
+  SELF\Assigned_property.described_element : Item_shape;
+  unit : unit_enum;
+END_ENTITY;
+
+ENTITY Valid_deciminal_digits
+  SUBTYPE OF (Assigned_shape_property);
+  SELF\Assigned_property.described_element : Item_shape;
+  no_of_digits : INTEGER;
+END_ENTITY;
+
 ENTITY Affected_plane_tolerance_zone
   SUBTYPE OF (Tolerance_zone);
   SELF\Tolerance_zone.zone_for : SET[1:?] OF affected_plane_geometric_tolerance_select;
@@ -119,6 +148,18 @@ ENTITY Axis_placement_shape_element
   SUBTYPE OF (Associated_shape_element);
 DERIVE
   SELF\Associated_shape_element.associated_item : Axis_placement := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+END_ENTITY;
+
+ENTITY Point_shape_element
+  SUBTYPE OF (Associated_shape_element);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+END_ENTITY;
+
+ENTITY Plane_shape_element
+  SUBTYPE OF (Associated_shape_element);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
 END_ENTITY;
 
 ENTITY Angularity_tolerance
@@ -161,28 +202,6 @@ END_ENTITY;
 ENTITY Datum
   SUBTYPE OF (Shape_element);
   identification : identifier;
-END_ENTITY;
-
-ENTITY Datum_axis
-  SUBTYPE OF (Situation_feature, Axis_placement_shape_element);
-END_ENTITY;
-
-ENTITY Datum_plane
-  SUBTYPE OF (Situation_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
-END_ENTITY;
-
-ENTITY Datum_point
-  SUBTYPE OF (Situation_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Cartesian_point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
-END_ENTITY;
-
-ENTITY Situation_feature
-  ABSTRACT SUPERTYPE OF (ONEOF (Datum_axis, Datum_plane, Datum_point))
-  SUBTYPE OF (Non_definitional_shape_element, Associated_shape_element);
-  owner : Datum_reference_compartment;
 END_ENTITY;
 
 ENTITY Datum_feature
@@ -249,11 +268,11 @@ END_ENTITY;
 
 ENTITY Datum_reference_compartment
   SUBTYPE OF (General_datum_reference);
+  point_situation_feature : OPTIONAL Point_shape_element;
+  plane_situation_feature : OPTIONAL Plane_shape_element;
+  straight_line_situation_feature : OPTIONAL Axis_placement_shape_element;
 INVERSE
   owner : Datum_system FOR constituents;  
-  axis  : SET[0:1] OF Datum_axis for owner;
-  plane : SET[0:1] OF Datum_plane for owner;
-  point : SET[0:1] OF Datum_point for owner;
 END_ENTITY;  
 
 ENTITY Datum_reference_element
@@ -422,7 +441,7 @@ END_ENTITY;
 ENTITY Tolerance_zone
   SUBTYPE OF (Shape_element);
   form_type : tolerance_zone_type;
-  zone_for : SET[1:?] OF Geometric_tolerance;
+  zone_for : SET[1:?] OF tolerance_zone_target;
 END_ENTITY;
 
 ENTITY Tolerance_zone_definition
@@ -458,6 +477,12 @@ SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
          Datum_feature,
          Datum_target,
          Tolerance_zone);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT gl_associated_shape_element_subtypes FOR Associated_shape_element;
+  ONEOF (Axis_placement_shape_element,
+         Plane_shape_element,
+         Point_shape_element);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT gl_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element;

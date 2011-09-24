@@ -35,13 +35,19 @@
          <select extensible="YES" genericentity="YES" selectitems="Dimensional_location Dimensional_size"/>
       </type>
       <type name="geometrical_tolerance_modifier">
-         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element"/>
+         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section any_longitudinal_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element separate_requirement"/>
       </type>
       <type name="simple_datum_reference_modifier">
          <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section contacting_feature distance_variable degree_of_freedom_constraint_x degree_of_freedom_constraint_y degree_of_freedom_constraint_z degree_of_freedom_constraint_u degree_of_freedom_constraint_v degree_of_freedom_constraint_w"/>
       </type>
+      <type name="tolerance_zone_target">
+         <select selectitems="Dimensional_location Dimensional_size Geometric_tolerance General_datum_reference"/>
+      </type>
       <type name="tolerance_zone_type">
          <enumeration items="within_a_circle between_two_concentric_circles between_two_equidistant_curves within_a_cylinder between_two_coaxial_cylinders between_two_equidistant_surfaces non_uniform cylindrical_or_circular spherical not_known"/>
+      </type>
+      <type name="unit_enum">
+         <enumeration items="unit_m unit_mm unit_inch unit_mil unit_um"/>
       </type>
       <entity name="Affected_plane_tolerance_zone" supertypes="Tolerance_zone">
          <explicit name="zone_for">
@@ -92,7 +98,6 @@
             <typename name="identifier"/>
          </explicit>
       </entity>
-      <entity name="Datum_axis" supertypes="Situation_feature Axis_placement_shape_element"/>
       <entity abstract.supertype="YES" name="Datum_feature" super.expression="ONEOF (Dimensional_location_with_datum_feature, Dimensional_size_with_datum_feature, Nominal_datum_feature, Datum_feature_of_size)" supertypes="Shape_element">
          <explicit name="of_datum">
             <typename name="Datum"/>
@@ -102,29 +107,17 @@
          </unique>
       </entity>
       <entity name="Datum_feature_of_size" supertypes="Datum_feature Centre_of_symmetry"/>
-      <entity name="Datum_plane" supertypes="Situation_feature">
-         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
-            <typename name="Plane"/>
-            <redeclaration entity-ref="Associated_shape_element"/>
-         </derived>
-      </entity>
-      <entity name="Datum_point" supertypes="Situation_feature">
-         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
-            <typename name="Cartesian_point"/>
-            <redeclaration entity-ref="Associated_shape_element"/>
-         </derived>
-      </entity>
       <entity name="Datum_reference_compartment" supertypes="General_datum_reference">
+         <explicit name="point_situation_feature" optional="YES">
+            <typename name="Point_shape_element"/>
+         </explicit>
+         <explicit name="plane_situation_feature" optional="YES">
+            <typename name="Plane_shape_element"/>
+         </explicit>
+         <explicit name="straight_line_situation_feature" optional="YES">
+            <typename name="Axis_placement_shape_element"/>
+         </explicit>
          <inverse attribute="constituents" entity="Datum_system" name="owner"/>
-         <inverse attribute="owner" entity="Datum_axis" name="axis">
-            <inverse.aggregate lower="0" type="SET" upper="1"/>
-         </inverse>
-         <inverse attribute="owner" entity="Datum_plane" name="plane">
-            <inverse.aggregate lower="0" type="SET" upper="1"/>
-         </inverse>
-         <inverse attribute="owner" entity="Datum_point" name="point">
-            <inverse.aggregate lower="0" type="SET" upper="1"/>
-         </inverse>
       </entity>
       <entity name="Datum_reference_element" supertypes="General_datum_reference">
          <derived expression="sts_get_general_datum_reference(SELF)" name="usage">
@@ -262,6 +255,18 @@
             <typename name="Axis_placement"/>
          </explicit>
       </entity>
+      <entity name="Plane_shape_element" supertypes="Associated_shape_element">
+         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
+            <typename name="Plane"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
+      </entity>
+      <entity name="Point_shape_element" supertypes="Associated_shape_element">
+         <derived expression="SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item" name="associated_item">
+            <typename name="Point"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
+      </entity>
       <entity name="Position_tolerance" supertypes="Geometric_tolerance">
          <explicit name="datum_system">
             <typename name="Datum_system"/>
@@ -290,11 +295,6 @@
          </explicit>
          <explicit name="orientation_defining_relationship" optional="YES">
             <typename name="Shape_element_relationship"/>
-         </explicit>
-      </entity>
-      <entity abstract.supertype="YES" name="Situation_feature" super.expression="ONEOF (Datum_axis, Datum_plane, Datum_point)" supertypes="Non_definitional_shape_element Associated_shape_element">
-         <explicit name="owner">
-            <typename name="Datum_reference_compartment"/>
          </explicit>
       </entity>
       <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">
@@ -355,7 +355,7 @@
          </explicit>
          <explicit name="zone_for">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Geometric_tolerance"/>
+            <typename name="tolerance_zone_target"/>
          </explicit>
       </entity>
       <entity name="Tolerance_zone_definition" super.expression="ONEOF (Projected_zone_definition, Non_uniform_zone_definition, Runout_zone_definition)">
@@ -375,8 +375,27 @@
             <typename name="Datum_system"/>
          </explicit>
       </entity>
+      <entity name="Unit_property" supertypes="Assigned_shape_property">
+         <explicit name="described_element">
+            <typename name="Item_shape"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+         <explicit name="unit">
+            <typename name="unit_enum"/>
+         </explicit>
+      </entity>
+      <entity name="Valid_deciminal_digits" supertypes="Assigned_shape_property">
+         <explicit name="described_element">
+            <typename name="Item_shape"/>
+            <redeclaration entity-ref="Assigned_property"/>
+         </explicit>
+         <explicit name="no_of_digits">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
       <subtype.constraint entity="Composite_shape_element" name="composite_shape_element_subtypes" super.expression="ONEOF (All_around_shape_element, Continuous_shape_element, Composite_group_shape_element)"/>
       <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_feature, Datum_target, Tolerance_zone)"/>
+      <subtype.constraint entity="Associated_shape_element" name="gl_associated_shape_element_subtypes" super.expression="ONEOF (Axis_placement_shape_element, Plane_shape_element, Point_shape_element)"/>
       <subtype.constraint entity="Non_definitional_shape_element" name="gl_non_definitional_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum_system, General_datum_reference)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">

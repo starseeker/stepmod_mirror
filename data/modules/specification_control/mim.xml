@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-30 23:57:58 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1089 $" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_control_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1112">
+   <application name="JSDAI" owner="LKSoft" source="specification_control_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Specification_control_mim">
       <interface kind="use" schema="Alternative_solution_mim"/>
       <interface kind="use" schema="Part_collection_mim"/>
       <interface kind="use" schema="Product_placement_mim"/>
-      <interface kind="use" schema="Requirement_identification_and_version_mim"/>
+      <interface kind="use" schema="Requirement_view_definition_mim"/>
       <interface kind="use" schema="Specification_based_configuration_mim"/>
       <interface kind="use" schema="product_definition_schema">
          <interfaced.item name="product_definition_substitute"/>
@@ -24,44 +24,44 @@
       </type>
       <entity name="class_usage_effectivity_context_assignment" supertypes="effectivity_context_assignment">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="class_usage_effectivity_context_item"/>
          </explicit>
-         <where label="WR1" expression="SELF.role.name = 'class usage influence'"/>
-         <where label="WR2" expression="SIZEOF( QUERY( i &lt;* SELF.items | NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF(i)) )) = 0"/>
-         <where label="WR3" expression="('SPECIFICATION_CONTROL_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF.assigned_effectivity_assignment)) AND &#10;  (SIZEOF(TYPEOF(SELF.assigned_effectivity_assignment.assigned_effectivity) ) = 1) AND &#10;  (SELF.assigned_effectivity_assignment.assigned_effectivity.id = 'class usage') AND &#10; (SIZEOF( QUERY( i &lt;* SELF.assigned_effectivity_assignment\applied_effectivity_assignment.items | &#10;   NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY_USAGE' IN TYPEOF(i)) )) = 0)"/>
+         <where expression="SELF.role.name = 'class usage influence'" label="WR1"/>
+         <where expression="SIZEOF( QUERY( i &lt;* SELF.items | NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF(i)) )) = 0" label="WR2"/>
+         <where expression="('SPECIFICATION_CONTROL_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF.assigned_effectivity_assignment)) AND &#10;        (SIZEOF(TYPEOF(SELF.assigned_effectivity_assignment.assigned_effectivity) ) = 1) AND &#10;        (SELF.assigned_effectivity_assignment.assigned_effectivity.id = 'class usage') AND &#10;        (SIZEOF( QUERY( i &lt;* SELF.assigned_effectivity_assignment\applied_effectivity_assignment.items | &#10;        NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY_USAGE' IN TYPEOF(i)) )) = 0)" label="WR3"/>
       </entity>
       <entity name="instance_usage_context_assignment" supertypes="product_definition_context">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="instance_usage_context_select"/>
          </explicit>
       </entity>
-      <rule name="breakdown_element_requires_product_definition" appliesto="product_definition_formation">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | &#10;     ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product ,&#10;     'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;	prpc.name =  'functionality' ) ) =  1 ) AND &#10;	( SIZEOF ( QUERY ( pd &lt;* USEDIN ( pdf ,'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | &#10;	pd.frame_of_reference.name =  'functional definition' ) ) &lt;1 ) ) ) =  0"/>
-         <where label="WR2" expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | &#10;     ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product , &#10;	'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;     prpc.name =  'conceptual design' ) ) =  1 ) AND &#10;     ( SIZEOF (QUERY ( pd &lt;* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION' ) | &#10;     pd.frame_of_reference.name =  'conceptual definition' ) ) &lt;1) ) ) =  0"/>
+      <rule appliesto="product_definition_formation" name="breakdown_element_requires_product_definition">
+         <where expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | &#10;        ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product ,&#10;        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;&#9;    prpc.name =  'functionality' ) ) =  1 ) AND &#10;&#9;    ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( pdf ,'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | &#10;&#9;    pd.frame_of_reference.name =  'functional definition' ) ) &lt;1 ) ) ) =  0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | &#10;        ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product , &#10;&#9;    'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;        prpc.name =  'conceptual design' ) ) =  1 ) AND &#10;        ( SIZEOF (QUERY ( pd &lt;* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION' ) | &#10;        pd.frame_of_reference.name =  'conceptual definition' ) ) &lt;1) ) ) =  0" label="WR2"/>
       </rule>
-      <rule name="constraint_definition_requires_constraint_category" appliesto="product_definition">
+      <rule appliesto="product_definition" name="constraint_definition_requires_constraint_category">
          <algorithm>LOCAL
-  constraint_definitions: SET OF product_definition := [];
-END_LOCAL;
-  constraint_definitions :=  QUERY( pd &lt;* product_definition |
-	(pd.frame_of_reference.name = 'design constraint definition'));</algorithm>
-         <where label="WR1" expression="SIZEOF ( QUERY ( pd &lt;* constraint_definitions | &#10;	( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pd.formation.of_product ,&#10;     'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;	prpc. name ='requirement' ) ) =0 ) ) ) =0"/>
+      constraint_definitions: SET OF product_definition := [];
+    END_LOCAL;
+      constraint_definitions :=  QUERY( pd &lt;* product_definition |
+      (pd.frame_of_reference.name = 'design constraint definition'));</algorithm>
+         <where expression="SIZEOF ( QUERY ( pd &lt;* constraint_definitions | &#10;&#9;    ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pd.formation.of_product ,&#10;        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;&#9;    prpc. name ='requirement' ) ) =0 ) ) ) =0" label="WR1"/>
       </rule>
-      <rule name="design_constraint_requires_product_definition" appliesto="product_definition_formation">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | (&#10;     SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product ,&#10;     'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;	prpc.name =  'requirement' ) ) &gt;0 ) AND &#10;     ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | &#10;	pd.frame_of_reference.name = 'design constraint definition' ) ) &lt;1 ) ) ) =  0"/>
+      <rule appliesto="product_definition_formation" name="design_constraint_requires_product_definition">
+         <where expression="SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | (&#10;        SIZEOF ( QUERY ( prpc &lt;* USEDIN ( pdf.of_product ,&#10;        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | &#10;&#9;    prpc.name =  'requirement' ) ) &gt;0 ) AND &#10;        ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | &#10;&#9;    pd.frame_of_reference.name = 'design constraint definition' ) ) &lt;1 ) ) ) =  0" label="WR1"/>
       </rule>
-      <rule name="restrict_configuration_design_for_class_breakdown_association" appliesto="configuration_design">
-         <where label="WR1" expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;	( cd.name ='functionality' ) AND &#10;	( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd. design ) ) OR &#10;	( cd.design\product_definition.frame_of_reference.name&lt;&gt; 'functional definition' ) ) &#10;	) ) =0"/>
-         <where label="WR2" expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;	( cd.name='realization' ) AND &#10;	( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR &#10;	( cd.design\product_definition.frame_of_reference.name&lt;&gt; 'conceptual definition' ) ) &#10;	) ) =0"/>
-         <where label="WR3" expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;	( cd.name IN ['functionality' , 'realization'] ) AND &#10;	( NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_CLASS' IN TYPEOF ( cd.configuration.item_concept ) ) ) &#10;	) ) =0"/>
+      <rule appliesto="configuration_design" name="restrict_configuration_design_for_class_breakdown_association">
+         <where expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;&#9;    ( cd.name ='functionality' ) AND &#10;        ( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd. design ) ) OR &#10;        ( cd.design\product_definition.frame_of_reference.name&lt;&gt; 'functional definition' ) ) &#10;        ) ) =0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;        ( cd.name='realization' ) AND &#10;        ( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR &#10;        ( cd.design\product_definition.frame_of_reference.name&lt;&gt; 'conceptual definition' ) ) &#10;        ) ) =0" label="WR2"/>
+         <where expression="SIZEOF ( QUERY ( cd &lt;* configuration_design | &#10;        ( cd.name IN ['functionality' , 'realization'] ) AND &#10;        ( NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_CLASS' IN TYPEOF ( cd.configuration.item_concept ) ) ) &#10;        ) ) =0" label="WR3"/>
       </rule>
-      <rule name="restrict_configuration_design_for_design_constraint" appliesto="configuration_design">
-         <where label="WR1" expression="SIZEOF ( QUERY (cd &lt;* configuration_design | &#10;	(cd.name = 'design constraint usage') AND &#10;	(NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR &#10;	(cd.design\product_definition.frame_of_reference.name &lt;&gt; 'design constraint definition')))) = 0"/>
+      <rule appliesto="configuration_design" name="restrict_configuration_design_for_design_constraint">
+         <where expression="SIZEOF ( QUERY (cd &lt;* configuration_design | &#10;&#9;    (cd.name = 'design constraint usage') AND &#10;        (NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR &#10;        (cd.design\product_definition.frame_of_reference.name &lt;&gt; 'design constraint definition')))) = 0" label="WR1"/>
       </rule>
-      <rule name="restrict_product_definitions_for_design_constraint_association" appliesto="product_definition_relationship">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;     ( pdr. name = 'design constraint association' ) AND &#10;	( (pdr. relating_product_definition.frame_of_reference.name&lt;&gt;'design constraint definition' ) OR &#10;	NOT ( pdr.related_product_definition.frame_of_reference.name IN &#10;	['alternative definition' , 'functional definition' ,'conceptual definition' ] ) ) ) ) =0"/>
+      <rule appliesto="product_definition_relationship" name="restrict_product_definitions_for_design_constraint_association">
+         <where expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;        ( pdr. name = 'design constraint association' ) AND &#10;&#9;    ( (pdr. relating_product_definition.frame_of_reference.name&lt;&gt;'design constraint definition' ) OR &#10;&#9;    NOT ( pdr.related_product_definition.frame_of_reference.name IN &#10;&#9;    ['alternative definition' , 'functional definition' ,'conceptual definition' ] ) ) ) ) =0" label="WR1"/>
       </rule>
    </schema>
 </express>

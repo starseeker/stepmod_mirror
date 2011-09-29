@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-    $Id: cover.xsl,v 1.3 2010/10/18 21:46:31 radack Exp $
+    $Id: cover.xsl,v 1.4 2010/10/18 22:16:21 radack Exp $
   -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -24,7 +24,7 @@
          <tr>
             <td width="220" valign="top"><span style="font-size:14; font-family:sans-serif;"><b>ICS&#160;&#160;25.040.40</b></span></td>
             <td width="310" align="center" valign="top"><span style="font-size:12; font-family:sans-serif;">
-                  ©&#160;&#160;&#160;ISO&#160;2010
+                  ©&#160;&#160;&#160;ISO&#160;<xsl:value-of select="$pub_year"/>
                   	      </span></td>
             <td width="220" align="right" valign="top">Price group: <xsl:value-of select="document('../part.xml',.)/part/@price_group"/></td>
          </tr>

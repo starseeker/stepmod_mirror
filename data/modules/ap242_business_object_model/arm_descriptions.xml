@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="ap242_business_object_model" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/10/04 02:02:10 $" rcs.revision="$Revision: 1.29 $">
+<ext_descriptions module_directory="ap242_business_object_model" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/10/04 03:28:52 $" rcs.revision="$Revision: 1.30 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Ap242_business_object_model_arm
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm"/>
@@ -2981,7 +2981,10 @@ the kind of availability of a particular <express_ref linkend="ap242_business_ob
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Configuration">
-        A <b>Configuration</b> is a
+        A <b>Configuration</b> is a the association of a Class_condition_association or a Class_specification_association object with a design or with a process in order to define a valid usage of it in the context of a certain Product_class
+        <note  number ="1">The validity of the association may be limited by a time period through assigning an Effectivity object to it.</note>
+        <note  number ="2"> The semantics of the kind of association is defined by the attributes 'configuration_type' and 'inher-itance_type'.
+</note>
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2990,6 +2993,18 @@ the kind of availability of a particular <express_ref linkend="ap242_business_ob
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Configuration.configuration_type">
+	the valid usage of a Configuration object that is applied to the application object as configured_element. The following values shall be used:
+	<ul>
+<li>'design': The object referenced as 'configured_element' has to be designed and verified before it can actually be used in a given context. This context is specified by the Class_condition_association and Class_specification_association objects referenced as the 'is_solution_for'.
+This type of Configuration is applicable for Alternative_solution, Breakdown_element, Process_plan, or Process_operation_occurrence objects;</li>
+<li>'usage': The object referenced as the 'configured_element' is controlled by a Configuration. The Class_condition_association and Class_specification_association objects specify the usage cases and are referenced as the 'is_solution_for'.
+</li>
+</ul>
+<p>
+This type of Configuration is applicable for Alternative_solution, Part_instance, Process_plan, Process_operation_occurrence, or Physical_breakdonwn_element objects.
+</p>
+<example  number="1">The presence of an optional third rear axle of a truck is controlled by specifications on the level of Physical_breakdown_element.</example>
+<example  number ="2">A 'sun-roof' has to be provided, i.e., designed for a class of vehicles that has an optional 'sun-roof' as part of its specification.</example>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2998,14 +3013,27 @@ the kind of availability of a particular <express_ref linkend="ap242_business_ob
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Configuration.configured_element">
+	the element that is controlled for its valid usage by the Configuration.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Configuration  Attribute: inheritance_type 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Configuration.inheritance_type"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
+ ABF missing figure from SBC4 -->
 	<ext_description linkend="Ap242_business_object_model_arm.Configuration.inheritance_type">
+	specifies whether or not an inheritance scheme for the configuration information in a hierarchical structure is applied to the application object referenced as the configured_element. 
+	The levels within such a hierarchy are defined through Realization_or_occur¬rence_¬relationship objects or the attribute 'based_on' of Alternative_solution. 
+	The following values shall be used:
+	<ul>
+<li>'exception': No inheritance scheme is applicable and all required configuration information must be attached locally at the application object. The value indicates that the configuration information may be inconsistent to the structural levels above it or that it is, on purpose, contradictory to it. Such a condition implies that an inheritance scheme shall not continue beyond this point in the product structure tree</li>
+<example  number ="1">A situation where the inheritance_type 'exception' is applicable is a technical solution released for one particular customer without support in higher structure levels.</example>
+<li>'inherited': A scheme for inheritance of configuration information applies. The complete configuration information shall be collected from the different levels in the structure by evaluation of results. The results shall be evaluated using the logical AND to combine configuration information starting at the referenced configured_element and using the logical OR to combine alternatives. In addition, this evaluation shall consider related effectivity information. 'inherited' only applies for objects for which the same value of 'configuration_type' is defined;
+</li>	
+<example  number="2">The following figure shows how inheritance is applied along the tree of a product structure.
+The complete configuration information of a Part_instance can be obtained by adding any such information to Alternative_solution objects which are linked through Realiza-tion_or_occur¬rence_¬relationship objects and 'based_on' attributes respectively. Whenever more than one higher level instance is present, the current information available is branched in as many branches as instances are present. For example, the total configuration information for the Part_instance given in the figure above could be expressed as follows: (C0.0 AND C1.0 AND C2.0) OR (C0.0 AND C1.1 AND C2.1) OR (C0.0 AND C1.1 AND C2.2).</example>
+<li>'local': No inheritance scheme is applicable and all required configuration information must be attached locally at the application object. Nevertheless, any potentially inherited configuration information of a higher level shall be consistent, i.e., it shall be a subset of the locally defined configuration information.
+</li></ul>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3014,6 +3042,7 @@ the kind of availability of a particular <express_ref linkend="ap242_business_ob
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Configuration.is_solution_for">
+	the characteristic or combination of characteristics for which the object referenced as the configured_element provides a solution or which is needed to control a process operation. These characteristics are defined by a Class_specification_association and combinations of characteristics are defined by a Class_condition_association where the attribute 'condition type' is 'part usage'.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3301,14 +3330,16 @@ the set of activity or product data to which the <express_ref linkend="ap242_bus
 	<ext_description linkend="Ap242_business_object_model_arm.Dated_configuration">
         A <b>Dated_configuration</b> is a type of
         <express_ref linkend="module:arm:Module_arm.Manufacturing_configuration"/>
+        that applies onwards from a given date, or between a start and an end date.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Dated_configuration  Attribute: end_definition 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Dated_configuration.end_definition"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
-	<ext_description linkend="Ap242_business_object_model_arm.Dated_configuration.end_definition">
+ ABF end date in SBC4 -->
+	<ext_description linkend="Ap242_business_object_model_arm.Dated_configuration.end_date">
+	: the date and time when the validity of the 'configured_element' is not defined any longer. The value of this attribute need not be specified. If the end_date is not specified, the Dat-ed_configuration is considered as valid forever from the start_date.
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -3316,8 +3347,9 @@ the set of activity or product data to which the <express_ref linkend="ap242_bus
    Schema: Ap242_business_object_model_arm  Entity: Dated_configuration  Attribute: start_definition 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Dated_configuration.start_definition"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
-	<ext_description linkend="Ap242_business_object_model_arm.Dated_configuration.start_definition">
+ ABF start date in SBC4-->
+	<ext_description linkend="Ap242_business_object_model_arm.Dated_configuration.start_date">
+	the first date when the Dated_configuration is valid.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6786,8 +6818,9 @@ The following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Lot_configuration">
-        A <b>Lot_configuration</b> is a type of
+        A <b>Lot_configuration</b> is a type of  
         <express_ref linkend="module:arm:Module_arm.Manufacturing_configuration"/>
+        that applies to a given production batch of the product that is related with the object referred to as 'is_solution_for'.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6796,6 +6829,7 @@ The following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Lot_configuration.lot_id">
+	the identification of the batch for which the Lot_configuration applies.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6804,6 +6838,7 @@ The following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Lot_configuration.lot_size">
+	the size of the batch for which the Lot_configuration applies.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6868,7 +6903,9 @@ the size of the batch of items.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Manufacturing_configuration">
-        A <b>Manufacturing_configuration</b> is a
+        A <b>Manufacturing_configuration</b> is an association of a Product_design_association with a Part_instance.
+        
+Each Manufacturing_configuration is a Serial_configuration, a Dated_configuration, a Time_interval_configuration, or a Lot_configuration.
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6877,7 +6914,8 @@ the size of the batch of items.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Manufacturing_configuration.concerned_organizations">
-      The value of this attribute need not be specified.
+	the set of Organization objects in which the Manufacturing_configuration is valid. The value of this attribute need not be specified. 
+	In this case where the concerned_organization is not set means that the Manufacturing_configuration regards any organization that may consider the 'configured_element'.
     </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6886,6 +6924,7 @@ the size of the batch of items.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Manufacturing_configuration.configured_element">
+	a Part_instance that is controlled by a Manufacturing_configuration.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6916,6 +6955,7 @@ the size of the batch of items.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Manufacturing_configuration.is_solution_for">
+	the Product_design_association for which the Part_instance is configured.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9530,7 +9570,20 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration">
-        A <b>Product_configuration</b> is a
+        A <b>Product_configuration</b> is a manufacturable object, or expected as so. 
+        A Product_configuration is defined with respect to the Product_class it is a member of.
+
+<note number="1">The kind of product that is to be manufactured from the data of the Product_configuration, is the kind of product that the member_of identifies a class of.</note>
+<note number="2">The intent of Product_configuration is the identification of one manufacturable object whereas the intent of Product_class is the gathering of products with similar characteristics.</note>
+<example>A Product_configuration that is associated with a Product_class that identifies a family of Diesel engines is intended to lead to the manufacture of a particular case of Diesel engine, and the Product_configuration that is associated with a Product_class that identifies a car family will lead to the manufacture of a car.</example>
+<note number="3">The entity Product_configuration corresponds to the concept of configuration item defined, in some configuration management standards, as an item subject to configuration management.</note>
+<example number="2">EXAMPLE 2 A Product_configuration may represent a component of a contracted product, onto which severe safety rules apply and for which configuration management is therefore rigorously applied.</example>
+<note number="4">A Product_configuration may identify a variation of a Product_class, an entire Product_class, or some portion thereof.</note>
+<note number="5">A Product_configuration can be established prior to the existence of a corresponding product.</note>
+<p>For a Product_configuration one or more additional Specification objects may be specified. In this case they enhance the characterization provided for the associated Product_class.</p>
+<note number="6"> The actual set of Specification objects for a Product_configuration are obtained by the union of 'defining_specifications' and of the Specification objects related to the 'associated_product_class' through a Class_¬specification_association or a Class_condition_association with association_type 'identification' or 'non replaceable standard'.</note>
+<note number="7">The specification of a Product_configuration may be incomplete: there may not be in 'defining_¬spe-cifi¬ca¬tion' any instance of Specification for some Specification_category declared as mandatory for the 'associated_product_class'. For these Specification_category objects any Specification available in the context of the 'associated_product_class' is considered as valid for the manufacturing of the product characterized by the considered Product_specification.</note>
+<example number="3">If the colour is not specified for a given car family, the vehicle resulting from the realization ofa Product_¬configuration associated to the Product_class representing the car family may be without paint or painted in any available colour.</example>
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9539,6 +9592,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.additional_ids">
+	the additional identifiers used to distinguishes the Product_configuration.  
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -9548,7 +9602,10 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.defining_specifications">
-      The value of this attribute need not be specified.
+	the set of Specification objects necessary to discriminate the Product_specification within its Product_class. 
+	Each defining_specification shall be associated with a Product_class by a Class_specification_association with association_type not equal 'part usage'. 
+	The associated Product_class shall be either the associated Product_class of the Product_configuration or any higher level Product_class related directly or indirectly by a Product_class_relationship with a relation_type 'hierarchy'. 
+	The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9558,7 +9615,6 @@ the meaning of the relationship. Where applicable the following values shall be 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.description">
         the text that provides further information about the <b>Product_configuration</b>.
-      
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -9577,6 +9633,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.member_of">
+	the Product_class that a Product_configuration belongs to.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9596,6 +9653,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.version_id">
+	the identification of a particular version of a Product_configuration. 
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -9603,7 +9661,7 @@ the meaning of the relationship. Where applicable the following values shall be 
    Schema: Ap242_business_object_model_arm  Entity: Product_configuration  Attribute: corresponding_part_version 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Product_configuration.corresponding_part_version"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
+  ABF no definition provided in capability SBC4-->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration.corresponding_part_version">
 </ext_description>
 	<!-- 
@@ -9613,7 +9671,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration_relationship">
-        A <b>Product_configuration_relationship</b> is a
+        A <b>Product_configuration_relationship</b> is a relationship between two Product_configaration objects. The meaning of this relationship is specified further by the attribute relation_type.
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9633,6 +9691,8 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration_relationship.related">
+	specifies the second of the two Product_configuration objects related by the Product_configuration_relation¬ship.
+	<note> The semantics of this attribute are defined by the attribute relation_type.</note>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9641,6 +9701,9 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration_relationship.relating">
+	specifies the first of the two Product_configuration objects related by the Product_configuration_relationship.
+	<note> The semantics of this attribute are defined by the attribute relation_type.
+</note>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9649,6 +9712,11 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_configuration_relationship.relation_type">
+	specifies the meaning of the relationship. Where applicable the following values shall be used:
+<ul>
+	<li>'hierarchy': the Product_configuration_relationship defines a relationship where the relating Product_configuration is on a higher level in the hierarchy of Product_configuration objects than the related Product_configuration;</li>
+	<li>'version sequence': the Product_configuration_relationship defines a relationship where the relating Product_configuration is the preceding version and the related Product_configuration is the following version.</li>
+</ul>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9657,7 +9725,9 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_design_association">
-        A <b>Product_design_association</b> is a
+        A <b>Product_design_association</b> is a is a mechanism to associate an Part_version with its corresponding Product_configuration. It specifies the explicit design that corresponds to the Product_configuration. The Product_design_association represents the statement that, in all definition contexts, the Product_version is a valid way to implement the Product_configuration.
+<note>    The Product_design_association might not be valid for other Part_version objects.
+</note>
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9666,6 +9736,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_design_association.associated_part_version">
+	the Part_version that identifies a part which is a valid implementation for the Product_configuration, i.e. meets the requirements specified by the Product_configuration.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -9674,6 +9745,7 @@ the meaning of the relationship. Where applicable the following values shall be 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Product_design_association.associated_product_configuration">
+	the Product_configuration that represents the requirements for which a Part_version as solution is designated.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11044,25 +11116,30 @@ EXAMPLE The following figure shows an example for this case.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Serial_configuration">
-        A <b>Serial_configuration</b> is a type of
+        A <b>Serial_configuration</b> is a type of 
         <express_ref linkend="module:arm:Module_arm.Manufacturing_configuration"/>
+        that applies onwards from a given serial number of the product that is considered within the object referred to as 'is_solution_for'.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Serial_configuration  Attribute: end_number 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Serial_configuration.end_number"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
-	<ext_description linkend="Ap242_business_object_model_arm.Serial_configuration.end_number">
-      The value of this attribute need not be specified.
+ ABF called serial_end_number in the capability definition SBC4 -->
+	<ext_description linkend="Ap242_business_object_model_arm.Serial_configuration.serial_end_number">
+	the serial number of that instance of the product that is the last instance for which the Serial_configuration applies. The value of this attribute need not be specified.
+	<note> If the serial_end_number is not specified, it is not foreseen that the Serial_configuration ceases to be valid; i.e., the Serial_configuration is expected to apply to all serial numbers greater than the serial start number for the product for whose characteristics the Serial_configuration identifies a solution.
+</note>
+
     </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Serial_configuration  Attribute: start_number 
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Serial_configuration.start_number"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
-	<ext_description linkend="Ap242_business_object_model_arm.Serial_configuration.start_number">
+ABF called serial_start_number in the capability definition SBC4 -->  -->
+	<ext_description linkend="Ap242_business_object_model_arm.Serial_configuration.serial_start_number">
+	the serial number of that instance of the product that is the first instance for which the Serial_configuration applies.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12054,6 +12131,7 @@ In the case where the <b>included_specification</b> is a 'not' expression, the o
 	<ext_description linkend="Ap242_business_object_model_arm.Time_interval_configuration">
         A <b>Time_interval_configuration</b> is a type of
         <express_ref linkend="module:arm:Module_arm.Manufacturing_configuration"/>
+        that applies for a given period.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12062,6 +12140,7 @@ In the case where the <b>included_specification</b> is a 'not' expression, the o
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Time_interval_configuration.configuration_period">
+	the period for which the configuration of the 'configured_element' is valid.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

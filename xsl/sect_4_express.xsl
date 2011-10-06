@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.125 2009/07/28 10:45:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.126 2009/08/17 14:43:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1616,6 +1616,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
+<!--  comment out express attribute tests for now. TT
   <xsl:if test="@name='id' or @name='identifier' or substring-after(@name,'_')='id'" >
 
     <xsl:if test="not(preceding-sibling::explicit[@name='id'] or preceding-sibling::explicit[substring-after(@name,'_')='id']) and preceding-sibling::explicit">
@@ -1660,7 +1661,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           select="concat('Error a5:   ','&quot;description&quot;','  attribute must precede ','&quot;relating&quot;',' attribute')"/>
       </xsl:call-template>
     </xsl:if>
-
+-->
 
 
 &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>

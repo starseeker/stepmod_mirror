@@ -519,9 +519,6 @@
       <type name="event_occurrence_item">
          <select selectitems="organizational_project"/>
       </type>
-      <type name="expression_extension_select">
-         <select selectitems="expression_extension_string expression_extension_numeric"/>
-      </type>
       <type name="extension_options">
          <enumeration items="eo_none eo_cont eo_cont_right eo_cont_left"/>
       </type>
@@ -916,9 +913,6 @@
       <type name="property_or_shape_select">
          <select selectitems="property_definition shape_definition"/>
       </type>
-      <type name="property_variable_rep_select">
-         <select selectitems="dimensional_location dimensional_size representation"/>
-      </type>
       <type name="radial_geometry_constraint_element">
          <select selectitems="circle cylindrical_surface conical_surface spherical_surface right_circular_cylinder right_circular_cone sphere"/>
       </type>
@@ -1196,7 +1190,7 @@
          <enumeration items="yaw pitch roll"/>
       </type>
       <type name="ypr_rotation">
-         <aggregate lower="ypr_index(yaw)" type="ARRAY" upper="ypr_index(roll)"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
          <typename name="plane_angle_measure"/>
       </type>
       <type name="zero_or_one">
@@ -2208,7 +2202,7 @@
             <builtintype type="INTEGER"/>
          </derived>
          <derived expression="list_to_array(control_points_list,0,&#10;                                             upper_index_on_control_points)" name="control_points">
-            <aggregate lower="0" type="ARRAY" upper="upper_index_on_control_points"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
          </derived>
          <where expression="('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.QUASI_UNIFORM_CURVE' IN TYPEOF(self)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.BEZIER_CURVE' IN TYPEOF(self)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.B_SPLINE_CURVE_WITH_KNOTS' IN TYPEOF(self))" label="WR1"/>
@@ -2297,8 +2291,8 @@
             <builtintype type="INTEGER"/>
          </derived>
          <derived expression="make_array_of_array(control_points_list,&#10;                                              0,u_upper,0,v_upper)" name="control_points">
-            <aggregate lower="0" type="ARRAY" upper="u_upper"/>
-            <aggregate lower="0" type="ARRAY" upper="v_upper"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <typename name="cartesian_point"/>
          </derived>
          <where expression="('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.QUASI_UNIFORM_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.BEZIER_SURFACE' IN TYPEOF(SELF)) OR&#10;        ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.B_SPLINE_SURFACE_WITH_KNOTS' IN TYPEOF(SELF))" label="WR1"/>
@@ -5363,13 +5357,6 @@
          </derived>
          <where expression="(schema_prefix + 'FUNCTION_SPACE') IN TYPEOF (values_space_of(expr))" label="WR1"/>
       </entity>
-      <entity name="expression_extension_numeric" supertypes="measure_with_unit numeric_expression"/>
-      <entity name="expression_extension_string" supertypes="measure_with_unit string_expression"/>
-      <entity name="expression_extension_to_select">
-         <explicit name="type_expression_associated">
-            <typename name="expression_extension_select"/>
-         </explicit>
-      </entity>
       <entity name="extended_tuple_space" supertypes="maths_space generic_literal">
          <explicit name="base">
             <typename name="product_space"/>
@@ -8262,7 +8249,7 @@
             <typename name="sketch_element_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <where expression="SIZEOF(QUERY(q &lt;* SELF\representation.items | q.dim &lt;&gt; 2)) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(q &lt;* items | NOT(('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(q)) AND (q\geometric_representation_item.dim = 3)))) = 0;" label="WR1"/>
       </entity>
       <entity name="next_assembly_usage_occurrence" supertypes="assembly_component_usage"/>
       <entity name="ngon_closed_profile" supertypes="shape_aspect">
@@ -10355,7 +10342,7 @@
             <builtintype type="REAL"/>
          </explicit>
          <derived expression="list_to_array(weights_data,0,&#10;                                      upper_index_on_control_points)" name="weights">
-            <aggregate lower="0" type="ARRAY" upper="upper_index_on_control_points"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <builtintype type="REAL"/>
          </derived>
          <where expression="SIZEOF(weights_data) = SIZEOF(SELF\b_spline_curve.&#10;                                           control_points_list)" label="WR1"/>
@@ -10368,8 +10355,8 @@
             <builtintype type="REAL"/>
          </explicit>
          <derived expression="make_array_of_array(weights_data,0,u_upper,0,v_upper)" name="weights">
-            <aggregate lower="0" type="ARRAY" upper="u_upper"/>
-            <aggregate lower="0" type="ARRAY" upper="v_upper"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
+            <aggregate lower="0" type="ARRAY" upper="0"/>
             <builtintype type="REAL"/>
          </derived>
          <where expression="(SIZEOF(weights_data) =&#10;                     SIZEOF(SELF\b_spline_surface.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                  SIZEOF(SELF\b_spline_surface.control_points_list[1]))" label="WR1"/>
@@ -11952,11 +11939,11 @@
             <typename name="positive_integer"/>
          </explicit>
          <explicit name="segment_radii">
-            <aggregate lower="1" type="LIST" upper="segments"/>
+            <aggregate lower="1" type="LIST" upper="0"/>
             <typename name="positive_length_measure"/>
          </explicit>
          <explicit name="segment_depths">
-            <aggregate lower="1" type="LIST" upper="segments"/>
+            <aggregate lower="1" type="LIST" upper="0"/>
             <typename name="positive_length_measure"/>
          </explicit>
          <derived expression="compute_total_depth(SELF)" name="depth">
@@ -13413,11 +13400,6 @@
          <where expression="SIZEOF (QUERY (rep &lt;* using_representations (SELF) |&#10;        NOT ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.GLOBAL_UNIT_ASSIGNED_CONTEXT'&#10;        IN TYPEOF (rep.context_of_items)&#10;        ))) = 0" label="WR1"/>
       </entity>
       <entity abstract.supertype="YES" name="variable" super.expression="ONEOF (numeric_variable, boolean_variable, string_variable)" supertypes="generic_variable"/>
-      <entity name="variable_expression" supertypes="variable_semantics">
-         <explicit name="property_associated">
-            <typename name="property_variable_rep_select"/>
-         </explicit>
-      </entity>
       <entity abstract.supertype="YES" name="variable_semantics"/>
       <entity name="variational_current_representation_relationship" supertypes="representation_relationship">
          <explicit name="rep_1">
@@ -20368,7 +20350,7 @@ RETURN (FALSE);</algorithm>
          <parameter name="u">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate lower="low" type="ARRAY" upper="u"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
          <builtintype type="GENERIC" typelabel="T"/>
          <algorithm>LOCAL
      n   : INTEGER;
@@ -20421,8 +20403,8 @@ RETURN (FALSE);</algorithm>
          <parameter name="u2">
             <builtintype type="INTEGER"/>
          </parameter>
-         <aggregate lower="low1" type="ARRAY" upper="u1"/>
-         <aggregate lower="low2" type="ARRAY" upper="u2"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
+         <aggregate lower="0" type="ARRAY" upper="0"/>
          <builtintype type="GENERIC" typelabel="T"/>
          <algorithm>LOCAL
      res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF GENERIC : T;

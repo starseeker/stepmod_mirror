@@ -2,6 +2,7 @@
 (* ISO 10303-108, 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT GEOMETRIC   *)
 (* PRODUCT MODELS' TO TAKE INTO ACCOUNT TC1 FOR THAT DOCUMENT -- 2007-04-20  *)                                          
 (* file modifed in accordance with proposed solution in SEDS # 1290          *)
+(* 2011-10-06 corrected syntax error in neutral_sketch_representation.wr1 TT *)
 
 
 
@@ -151,7 +152,9 @@ ENTITY neutral_sketch_representation
   neutral_sketch_semantics  : curves_or_area; 
   SELF\representation.items : SET[1:?] OF sketch_element_select;
 WHERE
-  WR1: SIZEOF(QUERY(q <* SELF\representation.items | q.dim <> 2)) = 0;
+  WR1: SIZEOF(QUERY(q <* items | NOT(
+         ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(q)) AND
+         (q\geometric_representation_item.dim = 3)))) = 0;
 END_ENTITY;
 
 ENTITY positioned_sketch

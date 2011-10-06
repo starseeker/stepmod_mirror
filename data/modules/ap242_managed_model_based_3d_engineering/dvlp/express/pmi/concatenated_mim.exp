@@ -175,6 +175,8 @@ END_SCHEMA;
 
 (*
    N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS MIM*)
+--release candidate 2 for AP 242 CD--Fri Sep 23
+--removed Numerical_interface per convener direction.
 
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
 
@@ -210,7 +212,6 @@ USE FROM Inertia_characteristics_mim; -- ISO/TS 10303-1350
 USE FROM Manifold_subsurface_mim; -- ISO/TS 10303-1702
 USE FROM Mechanical_design_presentation_representation_with_draughting_mim; -- ISO/TS 10303-1315
 USE FROM Modified_swept_solid_mim; -- ISO/TS 10303-1322
-USE FROM Numerical_interface_mim;
 USE FROM Part_and_zone_laminate_tables_mim;  -- ISO/TS 10303-1770
 USE FROM Picture_representation_mim;  -- ISO/TS 10303-1308
 USE FROM Planned_characteristic_mim; -- ISO/TS 10303-1733
@@ -240,6 +241,9 @@ USE FROM product_definition_schema(  -- ISO 10303-41
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    type_check_function); 
+
+USE FROM product_property_representation_schema
+  (item_identified_representation_usage_definition);   
 
 
   CONSTANT
@@ -276,6 +280,64 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
        'start_work', 
        'supplied_part_relationship']; 
   END_CONSTANT; 
+  
+  TYPE item_identified_representation_usage_definition_242 = SELECT BASED_ON item_identified_representation_usage_definition WITH
+   (applied_action_assignment,
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_approval_assignment,
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment,
+    applied_document_reference,
+    applied_document_usage_constraint_assignment,
+    applied_effectivity_assignment,
+    applied_event_occurrence_assignment, 
+    applied_external_identification_assignment,
+    applied_group_assignment,
+    applied_identification_assignment,
+    applied_ineffectivity_assignment,
+    applied_name_assignment,
+    applied_organization_assignment, 
+    applied_organizational_project_assignment,
+    applied_person_and_organization_assignment,
+    applied_security_classification_assignment,
+    applied_time_interval_assignment,
+    applied_usage_right,
+    product_definition_relationship,
+    property_definition);
+  END_TYPE;
+  
+  TYPE draughting_model_item_definition_242 = SELECT BASED_ON draughting_model_item_definition WITH
+   (applied_action_assignment,
+    applied_action_method_assignment, 
+    applied_action_request_assignment, 
+    applied_approval_assignment,
+    applied_certification_assignment, 
+    applied_classification_assignment, 
+    applied_contract_assignment, 
+    applied_date_and_time_assignment, 
+    applied_date_assignment,
+    applied_document_reference,
+    applied_document_usage_constraint_assignment,
+    applied_effectivity_assignment,
+    applied_event_occurrence_assignment, 
+    applied_external_identification_assignment,
+    applied_group_assignment,
+    applied_identification_assignment,
+    applied_ineffectivity_assignment,
+    applied_name_assignment,
+    applied_organization_assignment, 
+    applied_organizational_project_assignment,
+    applied_person_and_organization_assignment,
+    applied_security_classification_assignment,
+    applied_time_interval_assignment,
+    applied_usage_right,
+    product_definition_relationship,
+    property_definition);
+  END_TYPE;
   
   TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH 
     (action_items,
@@ -642,13 +704,13 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 	requirement_for_action_resource,
 	resource_property);
   END_TYPE; 
-
+(*
   TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH (
      dimensional_size,
      dimensional_location,
      representation);
   END_TYPE; 
-  
+*)  
   TYPE cc_person_organization_item = SELECT
     (change, 
     change_request, 
@@ -1547,7 +1609,8 @@ SCHEMA Change_management_mim;
 USE FROM Approval_mim;	-- ISO/TS 10303-1012
 USE FROM Basic_data_representation_mim;	-- ISO/TS 10303-1773
 USE FROM Product_version_relationship_mim; -- ISO/TS 10303-1020
-USE FROM Characterizable_object_mim;-- ISO/TS 10303-1765
+USE FROM Support_resource_mim;
+
 USE FROM product_definition_schema(product_definition_relationship);
 USE FROM group_schema(group, group_relationship);
 USE FROM management_resources_schema(group_assignment);
@@ -1556,6 +1619,8 @@ USE FROM representation_schema   -- ISO 10303-43
    compound_representation_item,
    representation,
    list_representation_item); 
+USE FROM product_property_definition_schema
+  (characterized_object);   
 
 TYPE cm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
   (frozen_assignment);
@@ -4267,6 +4332,36 @@ USE FROM aic_elementary_brep; -- ISO 10303-513
 
 END_SCHEMA;
 (*
+ ISO TC184/SC4/WG12 N7224 - ISO/TS 10303-1527 Elementary function - EXPRESS MIM
+*)
+
+SCHEMA Elementary_function_mim;
+
+USE FROM Numeric_expression_mim;
+
+USE FROM ISO13584_expressions_schema(
+	abs_function,
+	acos_function,	
+	asin_function,
+	atan_function,	
+	cos_function,
+	exp_function,
+	integer_defined_function,	
+	log_function,
+	log10_function,
+	log2_function,
+	maximum_function,
+	minimum_function,	
+	minus_function,		
+	numeric_defined_function,	
+	real_defined_function,	
+	sin_function,	
+	square_root_function,	
+	tan_function,	
+	unary_function_call);
+	
+END_SCHEMA;
+(*
  ISO TC184/SC4/WG12 N2115 - ISO/TS 10303-1064 Event - EXPRESS MIM
 *)
 
@@ -4340,6 +4435,7 @@ END_SCHEMA;
 
 SCHEMA Expression_mim;
 
+USE FROM Generic_expression_mim;
 USE FROM Numeric_expression_mim;
 
 USE FROM ISO13584_expressions_schema(
@@ -5786,18 +5882,6 @@ WHERE
   WR3: valid_datum_target_parameters(SELF);
 END_ENTITY;
 
-RULE subtype_exclusiveness_geometric_tolerance FOR 
-(geometric_tolerance);
-WHERE
-  WR1: SIZEOF(QUERY (gt <* geometric_tolerance | NOT (type_check_function(gt, ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 3)))) = 0;
-END_RULE; 
-
-RULE subtype_mandatory_geometric_tolerance FOR 
-(geometric_tolerance);
-WHERE
-  WR1: SIZEOF(QUERY (gt <* geometric_tolerance | NOT (type_check_function(gt, ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 0)))) = 0;
-END_RULE; 
-
 FUNCTION get_shape_aspect_property_definition_representations
  (s_a_instance : shape_aspect) : SET OF property_definition_representation; 
 LOCAL
@@ -6664,6 +6748,15 @@ SCHEMA Mating_structure_mim;
 USE FROM Item_definition_structure_mim;
 USE FROM Assembly_technology_mim;
 
+ENTITY mated_part_relationship
+  SUBTYPE OF (group, group_assignment, product_definition_shape, product_definition_relationship, shape_aspect);
+  items : SET [0:?] OF product_definition;
+DERIVE
+  SELF\group_assignment.assigned_group : mated_part_relationship := SELF;
+  SELF\property_definition.definition : mated_part_relationship := SELF;
+  SELF\shape_aspect.of_shape : mated_part_relationship := SELF;
+END_ENTITY;
+
 END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N1217 - ISO/TS 10303-1118 Measure representation - EXPRESS MIM
@@ -6921,6 +7014,8 @@ END_SCHEMA;
 SCHEMA Numeric_expression_mim;
 
 USE FROM Generic_expression_mim;
+USE FROM Numeric_function_mim;
+USE FROM Expression_mim;
 
 USE FROM ISO13584_expressions_schema(
 	and_expression,
@@ -6969,47 +7064,22 @@ USE FROM ISO13584_expressions_schema(
 	
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N2559 - ISO/TS 10303-1344 Numerical interface - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG12 N1800
+ ISO TC184/SC4/WG12 N7227 - ISO/TS 10303-1346 Numeric function - EXPRESS MIM
+ Supersedes ISO TC184/SC4/WG12 N4508 
 *)
 
-SCHEMA Numerical_interface_mim;
+SCHEMA Numeric_function_mim;
 
-USE FROM Generic_expression_mim;
+USE FROM Elementary_function_mim;
+
 USE FROM Expression_mim;
-USE FROM Value_with_unit_mim;
-USE FROM Measure_representation_mim;
 
 USE FROM ISO13584_expressions_schema(
-	numeric_expression,
-	string_expression
-);
-
-TYPE property_variable_rep_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE;
-
-TYPE expression_extension_select = SELECT (
-    expression_extension_string,
-    expression_extension_numeric);
-END_TYPE;
-
-ENTITY expression_extension_numeric
-    SUBTYPE OF (measure_with_unit, numeric_expression);    
-END_ENTITY;
-
-ENTITY expression_extension_string
-    SUBTYPE OF (measure_with_unit, string_expression);    
-END_ENTITY;
-
-ENTITY expression_extension_to_select;
-    type_expression_associated: expression_extension_select;
-END_ENTITY;
- 
-ENTITY variable_expression
-    SUBTYPE OF (variable_semantics);
-    property_associated: property_variable_rep_select;
-END_ENTITY;
-
+	int_value_function,
+	length_function,	
+	odd_function,	
+	value_function);
+	
 END_SCHEMA;
 (*
   ISO TC184/SC4/WG12 N7209 - ISO/TS 10303-1790 Parameterization and variational representation - EXPRESS MIM
@@ -9805,6 +9875,7 @@ END_SCHEMA;  -- Single_part_representation_mim
 SCHEMA Sketch_mim;
 
 USE FROM Geometric_constraints_mim;
+USE FROM Solid_model_mim; -- ISO/TS 10303-1793
 
 USE FROM sketch_schema;  -- ISO 10303-108
 
@@ -20905,8 +20976,8 @@ END_LOCAL;
 -- find shape_aspects
 REPEAT i := 1 TO HIINDEX (local_s_d_r);
    IF ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT' IN TYPEOF 
-      (local_s_d_r[i].definition))
-   THEN local_s_a := local_s_a + local_s_d_r[i].definition;
+      (local_s_d_r[i]\property_definition_representation.definition\property_definition.definition))
+   THEN local_s_a := local_s_a + local_s_d_r[i]\property_definition_representation.definition\property_definition.definition;
    END_IF;
 END_REPEAT;
 RETURN (local_s_a);
@@ -42457,6 +42528,7 @@ TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF
     plane,
     orientation,
     any_cross_section,
+    any_longitudinal_section,
     contacting_feature,
     distance_variable,
     degree_of_freedom_constraint_x,
@@ -42464,7 +42536,10 @@ TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF
     degree_of_freedom_constraint_z,
     degree_of_freedom_constraint_u,
     degree_of_freedom_constraint_v,
-    degree_of_freedom_constraint_w);
+    degree_of_freedom_constraint_w,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter);
 END_TYPE; 
 
 ENTITY all_around_shape_aspect
@@ -45660,7 +45735,8 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 REFERENCE FROM shape_aspect_definition_schema   -- ISO 10303-47
   (datum_reference,
    datum_system,
-   limit_condition); 
+   limit_condition,
+   general_datum_reference); 
 
 REFERENCE FROM shape_dimension_schema   -- ISO 10303-47
   (dimensional_characteristic,
@@ -45692,7 +45768,8 @@ TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF
     not_convex,
     statistical_tolerance,
     tangent_plane,
-    each_radial_element);
+    each_radial_element,
+    separate_requirement);
 END_TYPE; 
 
 TYPE geometric_tolerance_target = SELECT
@@ -45719,7 +45796,8 @@ END_TYPE;
 TYPE tolerance_zone_target = SELECT (
   dimensional_location,
   dimensional_size,
-  geometric_tolerance);
+  geometric_tolerance,
+  general_datum_reference);
 END_TYPE;
 
 ENTITY angularity_tolerance

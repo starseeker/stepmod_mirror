@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="ap242_business_object_model" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/10/06 12:17:08 $" rcs.revision="$Revision: 1.42 $">
+<ext_descriptions module_directory="ap242_business_object_model" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2011/10/07 03:02:20 $" rcs.revision="$Revision: 1.43 $">
 	<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Ap242_business_object_model_arm
    <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm"/>
@@ -8312,8 +8312,11 @@ Each Part_instance is a Single_part_instance, a Quantified_part_instance, a Sele
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Part_shape">
-        A <b>Part_shape</b> is a
-      </ext_description>
+       <p> A <b>Part_shape</b> is the definition of the shape of a Part_instance, Part_version, Part_version_view, Physical_breakdown_element or Physical_instance. </p>        
+ <note  number ="1">A Part_shape is used to define the shape of a described object when the shape of the object varies according to the usage context of this object, e.g. shape of a flexible pipe when placed in a car.</note>
+ <note  number ="2">A Part_shape will also be used to identify the shape of a described object, regardless whether the object is flexible, fluid or solid, when a particular constraint, e.g. a location dimension, applies to an element of the shape of the object, in the context of a particular usage of this object.
+</note>    
+  </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Part_shape  Attribute: additional_ids 
@@ -8330,6 +8333,7 @@ Each Part_instance is a Single_part_instance, a Quantified_part_instance, a Sele
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Part_shape.described_object">
+	the object the shape of which is defined by the Part_shape. 
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8348,6 +8352,7 @@ Each Part_instance is a Single_part_instance, a Quantified_part_instance, a Sele
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Part_shape.elements">
+	the constituents of the shape that a Part_shape assigns to its described_object.
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -11937,7 +11942,9 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_description_association">
-        A <b>Shape_description_association</b> is a
+       <p> A <b>Shape_description_association</b> is a mechanism to associate the definition of a shape or of a portion of a shape with a geometric representation. </p>         
+       <note>Through Shape_description_association, it is possible to associate objects with geometry defined in an external document; the same is possible through Document_assignment. The difference between the two possibilities is that in the case of Shape_description_association, it is the shape of the object that is assigned whereas Document_assignment may be us
+</note>
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11946,6 +11953,7 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_description_association.defining_geometry">
+	the Geometric_model or the External_geometric_model that contains the shape information for the is_defining_shape_for.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11965,7 +11973,19 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_description_association.is_defining_shape_for">
-</ext_description>
+	<p>the object the shape of which is defined by defining_geometry.
+role: the string that designates the function performed by the defining_geometry.
+	
+Where applicable the following values shall be used</p>:
+	<ul>
+	<li>'detailed representation': The geometry in the referenced shape model provides a detailed representation of the object; 
+</li>
+	<li> 'idealized representation': The geometry in the referenced shape model provides a simplified representation of the object, e.g., for analysis purposes.
+</li>
+	</ul>
+	  <example>'simplified representation', 'idealized representation' are examples of role.</example>
+	<note> For analysis purposes an 'idealized representation' that is not fully detailed in every respect may be sufficient and be preferable due to less overhead implied by its usage.
+</note></ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Shape_description_association  Attribute: role 
@@ -11982,8 +12002,17 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element">
-        A <b>Shape_element</b> is a
-      </ext_description>
+       <p> A <b>Shape_element</b> is a is a portion of shape that has to be identified explicitly to be associated with other information. 
+</p>        
+<note> A Shape_element may be a Coating_layer.
+NOTE 2 Shape_element objects can be classified using Class.
+</note>        
+<example  number="1">In order to identify a portion of one face of a shaft that shall have a surface coating applied to it, Shape_element is used.
+</example> 
+<example  number="2"> An example for classifying Shape_element objects is to identify all parts of an air plane that constitute the outer surface of the plane and are therefore relevant for aerodynamic analyses.
+</example> 
+<example  number="3"> The threaded portion of the shape of a bolt may be represented as a Shape_element, so that other properties, such as surface finish, may be associated with it.
+ </example>     </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Shape_element  Attribute: additional_ids 
@@ -12001,7 +12030,6 @@ Where applicable the following values shall be used:
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element.description">
         the text that provides further information about the <b>Shape_element</b>.
-      
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -12012,7 +12040,6 @@ Where applicable the following values shall be used:
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element.id">
        the identifier for the <b>Shape_element</b>.        
-      
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -12023,7 +12050,6 @@ Where applicable the following values shall be used:
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element.name">
         the words by which the <b>Shape_element</b> is known. 
-      
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -12033,6 +12059,7 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element.containing_shape">
+	the Part_shape that the Shape_element is part of.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12041,7 +12068,7 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element_relationship">
-        A <b>Shape_element_relationship</b> is a
+        A <b>Shape_element_relationship</b> is a relationship between two Shape_element objects.
       </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12051,7 +12078,6 @@ Where applicable the following values shall be used:
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element_relationship.description">
         the text that provides further information about the <b>Shape_element_relationship</b>.
-      
       The value of this attribute need not be specified.
     </ext_description>
 	<!-- 
@@ -12061,6 +12087,10 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element_relationship.related">
+	<p>the second of the two Shape_element objects related by the Shape_element_relationship.
+	</p>
+	 <note>The semantics of this attribute are defined by the attribute relation_type.
+</note>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12069,6 +12099,10 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element_relationship.relating">
+<p>	the first of the two Shape_element objects related by the Shape_element_relationship.
+</p>
+<note> The semantics of this attribute are defined by the attribute relation_type.
+</note>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12077,8 +12111,10 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Shape_element_relationship.relation_type">
-      The value of this attribute need not be specified.
-    </ext_description>
+<p>	the meaning of the relationship.
+      The value of this attribute need not be specified.</p>
+      <example>'transition' may be used to define the transition between two adjacent Coating_layer objects. </example>  
+  </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Ap242_business_object_model_arm  Entity: Simple_property  
@@ -12086,8 +12122,7 @@ Where applicable the following values shall be used:
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Ap242_business_object_model_arm.Simple_property">
-		<p>       A <b>Simple_property</b> is a simplified mechanism to associate a property value with an object.
-</p>
+		<p>A <b>Simple_property</b> is a simplified mechanism to associate a property value with an object.</p>
 		<note>A <b>Simple_property</b> corresponds in the more detailed independent property concept to a <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Property_assignment of type Part_property_assignment"/> or <express_ref linkend="ap242_business_object_model:arm:Ap242_business_object_model_arm.Process_property_assignment"/>
 		</note>
 	</ext_description>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.223 2010/10/20 07:44:26 robbod Exp $
+$Id: module.xsl,v 1.224 2010/10/28 13:51:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -432,10 +432,12 @@ o=isocs; s=central<br/>
   </xsl:if>
 
       <xsl:apply-templates select="comments_to_reader" />
-	<p>
+<!--	<p>
         The project issues raised against the individual modules are stored on
         <a href="http://locke.dcnicn.com/bugzilla/iso10303/">http://locke.dcnicn.com/bugzilla/iso10303/</a>.
       </p>
+TT remove since locke is no longer available.
+-->
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>
       <xsl:if test="string-length($dvlp_fldr)>0">
         <xsl:variable name="module_dir">

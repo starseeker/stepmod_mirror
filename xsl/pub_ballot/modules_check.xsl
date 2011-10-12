@@ -83,6 +83,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:variable name="iso_publication_date" select="normalize-space($publication_index_xml/part1000.publication_index/@date.iso_publication)"/>
         <xsl:variable name="iso_publication_year"
           select="substring-before($iso_publication_date,'-')"/>
+        <xsl:variable name="iso_publication_yearmonth"
+          select="concat($iso_publication_year,'-',substring-before(substring-after($iso_publication_date,'-'),'-'))"/>
         <xsl:if test="string-length($iso_publication_date)=0">
           <xsl:call-template name="error_message">
             <xsl:with-param name="message" select="'ERROR X: publication_index.xml the @date.iso_publication attribute has not been set'"/>
@@ -138,15 +140,17 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                 </xsl:if>
                 
                 <xsl:if test="$module/module/@publication.year!=$iso_publication_year">
-                  <error>
-                    <xsl:attribute name="error.type">publication.year</xsl:attribute>
-                    <xsl:attribute name="error.number">'ERROR C'</xsl:attribute>
-                    <xsl:attribute name="error.message">
-                      <xsl:value-of
-                        select="concat('Module ', @name,' - ERROR C: module/@publication.year is: ',$module/module/@publication.year,' should be ',$iso_publication_year)"
-                      />
-                    </xsl:attribute>
-                  </error>
+                  <xsl:if test="$module/module/@publication.year!=$iso_publication_yearmonth">
+                    <error>
+                      <xsl:attribute name="error.type">publication.year</xsl:attribute>
+                      <xsl:attribute name="error.number">'ERROR C'</xsl:attribute>
+                      <xsl:attribute name="error.message">
+                        <xsl:value-of
+                          select="concat('Module ', @name,' - ERROR C: module/@publication.year is: ',$module/module/@publication.year,' should be ',$iso_publication_year,' or ',$iso_publication_yearmonth)"
+                        />
+                      </xsl:attribute>
+                    </error>
+                  </xsl:if>
                 </xsl:if>
                 <xsl:if test="$module/module/@publication.date!=$iso_publication_date">
                   <error>

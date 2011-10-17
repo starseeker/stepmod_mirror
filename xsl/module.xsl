@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.224 2010/10/28 13:51:40 robbod Exp $
+$Id: module.xsl,v 1.225 2011/10/07 19:59:10 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1756,13 +1756,15 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   <br/>(*<br/>
   </code>
 
-  <!-- Note a UoF section is no longer required so this is commented out 
+  <!-- Note a UoF section is no longer required so this is commented out -->
+<!--for ap242 bo model purposes removed comment covering lines 1759--1767. -->
   <h2>
     <a name="uof">
       4.1&#160;Unit of functionality
     </a>
   </h2>
-  <xsl:apply-templates select="." mode="uof"/> -->
+  <xsl:apply-templates select="." mode="uof"/> 
+  
 
 
   <!-- output all the EXPRESS specifications -->

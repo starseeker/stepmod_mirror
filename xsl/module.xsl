@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.225 2011/10/07 19:59:10 thomasrthurman Exp $
+$Id: module.xsl,v 1.226 2011/10/17 21:43:48 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1757,7 +1757,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   </code>
 
   <!-- Note a UoF section is no longer required so this is commented out -->
-<!--for ap242 bo model purposes removed comment covering lines 1759--1767. -->
+<!--for ap242 bo model purposes removed comment covering lines 1759..1767. -->
   <h2>
     <a name="uof">
       4.1&#160;Unit of functionality

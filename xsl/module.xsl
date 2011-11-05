@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.226 2011/10/17 21:43:48 thomasrthurman Exp $
+$Id: module.xsl,v 1.225 2011/10/07 19:59:10 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -302,7 +302,7 @@ $Id: module.xsl,v 1.226 2011/10/17 21:43:48 thomasrthurman Exp $
                 11 West 42nd Street<br/>
                 New York, New York 10036<br/>
                 USA<br/>
-                phone: +1-212-642-4900<br/>
+                phone:             +1-212-642-4900      <br/>
                 fax: +1-212-398-0023<br/>
             </div>
             <p>
@@ -343,7 +343,7 @@ o=isocs; s=central<br/>
 -->
               ISO copyright office<br/>
               Case postale 56, CH-1211 Geneva 20<br/>
-              Tel. +41 22 749 01 11<br/>
+              Tel.             +41 22 749 01 11      <br/>
               Fax +41-22-734-10 79<br/>
               E-mail copyright@iso.ch<br/>
              </div>
@@ -1756,15 +1756,13 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   <br/>(*<br/>
   </code>
 
-  <!-- Note a UoF section is no longer required so this is commented out -->
-<!--for ap242 bo model purposes removed comment covering lines 1759..1767. -->
+  <!-- Note a UoF section is no longer required so this is commented out 
   <h2>
     <a name="uof">
       4.1&#160;Unit of functionality
     </a>
   </h2>
-  <xsl:apply-templates select="." mode="uof"/> 
-  
+  <xsl:apply-templates select="." mode="uof"/> -->
 
 
   <!-- output all the EXPRESS specifications -->
@@ -3371,7 +3369,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <xsl:element name="part">
   <!-- Need to 'normalize' the length so that we can easier sort it -->
     <xsl:choose>
-      <xsl:when test="string-length(@part)=0">ISO-10303-0000<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=0">ISO-1            0303-0000      <xsl:value-of select="@part"/></xsl:when>
       <xsl:when test="string-length(@part)=1">ISO-10303-000<xsl:value-of select="@part"/></xsl:when>
       <xsl:when test="string-length(@part)=2">ISO-10303-00<xsl:value-of select="@part"/></xsl:when>
       <xsl:when test="string-length(@part)=3">ISO-10303-0<xsl:value-of select="@part"/></xsl:when>

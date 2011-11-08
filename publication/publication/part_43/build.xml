@@ -70,6 +70,7 @@
       <property name="DMODDEFSXML" value=""/>
       <property name="DMODINFOREQSXML" value=""/>
       <property name="DMODMAINXML" value=""/>
+      <property name="DMODREFDATAXML" value=""/>
       <property name="DMODMAPPINGXML" value=""/>
       <property name="DMODMIMXML" value=""/>
       <property name="DMODINDEXXML" value=""/>
@@ -87,6 +88,7 @@
       <property name="DMODEEXPARMXML" value=""/>
       <property name="DMODEEXPMIMXML" value=""/>
       <property name="DMODFGUIDEXML" value=""/>
+      <property name="DMODGCHANGEXML" value=""/>
       <property name="DMODFOREWORDXML" value=""/>
       <property name="DMODINTRODUCTIONXML" value=""/>
       <property name="DMODARMDESCRIPTIONSXML" value=""/>
@@ -118,6 +120,7 @@
       <property name="RESDOCDEXPGXML" value="data/resource_docs/representation_structures/sys/d_expg.xml"/>
       <property name="RESDOCTECHDISCUSSIONXML" value="data/resource_docs/representation_structures/sys/tech_discussion.xml"/>
       <property name="RESDOCEXAMPLESXML" value="data/resource_docs/representation_structures/sys/examples.xml"/>
+      <property name="RESDOCCHANGEXML" value="data/resource_docs/representation_structures/sys/g_change.xml"/>
       <property name="RESDOCADDSCOPE" value="data/resource_docs/representation_structures/sys/add_scope.xml"/>
       <property name="RESDOCFOREWORDXML" value="data/resource_docs/representation_structures/sys/foreword.xml"/>
       <property name="RESDOCINTRODUCTIONXML" value="data/resource_docs/representation_structures/sys/introduction.xml"/>
@@ -152,24 +155,10 @@
       </xslt>
       <fixcrlf srcdir="publication/isopub/part_43" includes="readme.txt" eol="crlf"/>
    </target>
-	
-   <target name="normref_check" depends="init" description="Create normative reference check">
-      <dependset>
-         <srcfileset dir="${PUBSRCDTD}" includes="**/*.dtd, **/*.ent"/>
-         <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
-         <srcfileset dir="${PUBSRCDIR}" includes="**/*.xml"/>
-         <targetfileset dir="." includes="${PUBSRCDIR}/*.htm*"/>
-      </dependset>
-      <xslt in="${PUBSRCDIR}/sys/normref_check.xml" out="${PUBDIR}/normref_check.htm" destdir="${PUBDIR}" extension=".htm" style="${STEPMODSTYLES}/pub_ballot/normref_check.xsl">
-         <param name="output_type" expression="HTM"/>
-         <param name="stepmodhome" expression="."/>
-         <param name="date" expression="${DATE}"/>
-      </xslt>
-   </target>
     
    <target name="finish" depends="isoindex" description="remove the temporary files and zip&#xA;      the results.">
       <delete dir="${TMPDIR}/"/>
-      <zip zipfile="${PUBDIR}/WG12Nxxxx_${DATE}.zip" basedir="${PUBDIR}/" includes="**" excludes="*.zip, **/Thumbs.db"/>
+      <zip zipfile="${PUBDIR}/WG12N6134_${DATE}.zip" basedir="${PUBDIR}/" includes="**" excludes="*.zip, **/Thumbs.db"/>
    </target>
 	
    <target name="resources" depends="init" description="generate common resources">
@@ -535,6 +524,14 @@
          <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
          <param name="menubar_file" expression="${ISOMENU}"/>
       </xslt>
+      <xslt includes="${RESDOCCHANGEXML}" style="${STEPMODSTYLES}/res_doc/sect_g_change.xsl" destdir="${TMPDIR}" extension=".htm">
+         <param name="output_type" expression="HTM"/>
+         <param name="publication" expression="${PUBLICATION}"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </xslt>
       <xslt includes="${RESDOCADDSCOPEXML}" style="${STEPMODSTYLES}/res_doc/sect_add_scope.xsl" destdir="${TMPDIR}" extension=".htm">
          <param name="output_type" expression="HTM"/>
          <param name="publication" expression="${PUBLICATION}"/>
@@ -653,5 +650,5 @@
       <zip zipfile="${PUBDIR}/zip/iso10303_43inserts.zip" basedir="${PUBDIR}/iso10303_43/inserts/" excludes="**/*.zip" includes="**"/>
    </target>
 	 
-   <target name="all" depends="publish_isoresdocs, normref_check, finish" description="Generate the HTML for ISO publication"/>
+   <target name="all" depends="publish_isoresdocs, finish" description="Generate the HTML for ISO publication"/>
 </project>

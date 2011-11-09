@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.17 2011/04/14 13:16:28 lothartklein Exp $
+$Id: imgfile.xsl,v 1.18 2011/11/08 13:28:39 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -285,7 +285,7 @@ $Id: imgfile.xsl,v 1.17 2011/04/14 13:16:28 lothartklein Exp $
           </xsl:choose>
         </xsl:when>
         <!--        <xsl:when test="../../schema">-->
-        <xsl:when test="contains(@file,'schemaexpg')">
+        <xsl:when test="contains(@file,'expg')">  <!-- was 'schemaexpg', but this didn't work for AICs -->
           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
             <xsl:value-of 
               select="concat('Figure D.',$number_any - $interface_diag_count, 

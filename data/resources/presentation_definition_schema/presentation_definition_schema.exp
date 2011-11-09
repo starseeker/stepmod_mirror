@@ -38,10 +38,6 @@ REFERENCE FROM presentation_resource_schema
      font_select,
      text_font);
  
---scms project
-REFERENCE FROM product_definition_schema
-    (product);
- 
 REFERENCE FROM representation_schema
     (item_in_context,
      mapped_item,
@@ -83,11 +79,6 @@ REFERENCE FROM support_resource_schema
   TYPE text_delineation = label;
   END_TYPE;
 
-  TYPE text_literal_or_text_reference = SELECT(
-     text_literal,
-     text_reference);
-  END_TYPE;
-
   TYPE text_or_character = SELECT
     (annotation_text,
      annotation_text_character,
@@ -108,9 +99,8 @@ REFERENCE FROM support_resource_schema
     defined_table); 
   END_TYPE; 
 
-  TYPE annotation_text_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT(
-    text_literal,
-    text_reference, 
+  TYPE annotation_text_occurrence_item = SELECT(
+    text_literal, 
     annotation_text, 
     annotation_text_character, 
     defined_character_glyph, 
@@ -120,10 +110,6 @@ REFERENCE FROM support_resource_schema
   TYPE presentable_text = STRING;
     WHERE
       WR1: control_characters_free(SELF);
-  END_TYPE;
-
---scms project
-  TYPE text_reference_source = EXTENSIBLE GENERIC_ENTITY SELECT(product);        
   END_TYPE;
 
   TYPE text_string_representation_item = SELECT(
@@ -491,55 +477,6 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (text_literal);
       extent : planar_extent;
   END_ENTITY;
-
---new for scms
-ENTITY text_reference
-  ABSTRACT SUPERTYPE OF (ONEOF(composite_sequential_text_reference, explicit_text_reference, implicit_text_reference))
-  SUBTYPE OF(representation_item);
-END_ENTITY;
-
---new for scms
-ENTITY composite_sequential_text_reference
-  SUBTYPE OF (text_reference);
-    collected_references : LIST[2:?] of text_literal_or_text_reference;
-WHERE
-  WR1 : SIZEOF(QUERY( cr <* collected_references | 'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT_REFERENCE' IN TYPEOF(cr))) = 0;
-  --no member of collected_references shall be a composite_text_reference.
-  --the list is one level only, not an array.
-END_ENTITY;
-  
---new for scms
-ENTITY explicit_text_reference
-SUBTYPE OF(text_reference);
-  attribute_name     : STRING;
-  geometric_property : text_literal;
-  source             : text_reference_source;
-WHERE
-  WR1 : geometric_property\text_literal.literal = '';
-(*
-Formal Propositions:
-WR1     The value of the literal in the text_literal shall be an empty string.
-*)
-END_ENTITY;
-
---new for scms
-ENTITY explicit_text_reference_occurrence
-SUBTYPE OF(explicit_text_reference);
- type_declaration   : implicit_text_reference;
-DERIVE
-  SELF\explicit_text_reference.attribute_name : STRING := type_declaration\implicit_text_reference.attribute_name;
-END_ENTITY;
-
---new for scms
-ENTITY implicit_text_reference
-SUBTYPE OF(text_reference);
-  attribute_name     : STRING;
-  entity_name        : STRING;
-  geometric_property : text_literal;
-WHERE
-  WR1 : geometric_property\text_literal.literal = '';
-END_ENTITY;
---
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);

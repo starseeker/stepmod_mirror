@@ -10,5 +10,5 @@ echo
 set PATH=%WINDOZE_PATH%;C:\strawberry\c\bin;C:\strawberry\perl\bin;%ANT_HOME%\bin;%JAVA_HOME%\bin
 echo %PATH%
 set TERM=dumb
-set SMRL_ROOT=U:\2011\SMRL_build_2011_10_19\SMRL_v4_2011_10_24 work
+set SMRL_ROOT=U:\2011\SMRL_build_2011_10_19\SMRL_v4_rc10
 set WORK=U:\Downloads\tmp

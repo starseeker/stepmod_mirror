@@ -1,0 +1,220 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- tessellated_geometry - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Tessellated_geometry_arm;
+
+USE FROM Advanced_boundary_representation_arm;
+USE FROM Basic_curve_arm;
+USE FROM Basic_geometry_arm;
+USE FROM Basic_geometric_topology_arm;
+USE FROM Elemental_geometric_shape_arm;
+USE FROM Elemental_topology_arm;
+REFERENCE FROM Foundation_representation_arm(Using_representations);
+
+TYPE edge_or_curve = SELECT
+  (Edge,
+   Curve);
+END_TYPE;
+
+TYPE face_or_surface = SELECT
+  (Face,
+   Surface);
+END_TYPE;  
+
+TYPE path_or_composite_curve = SELECT
+ (Path,
+  Composite_curve);
+END_TYPE;  
+
+
+TYPE tessellated_edge_or_vertex = SELECT
+   (Tessellated_edge,
+    Tessellated_vertex);
+END_TYPE;
+
+ ENTITY Tessellated_shape_representation
+    SUBTYPE OF (Geometric_model);
+     SELF\Representation.items : SET[1 : ?] OF Tessellated_item;
+ WHERE
+   WR1:'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEORMETRIC_COORDINATE_SPACE' IN
+        TYPEOF(SELF\Representation.context_of_items);
+ END_ENTITY;
+
+  ENTITY Tessellated_item
+     ABSTRACT SUPERTYPE OF (ONEOF (
+       Coordinates_list, 
+       Tessellated_solid, 
+       Tessellated_shell, 
+       Tessellated_wire, 
+       Tessellated_geometric_set, Tessellated_curve_set, Tessellated_point_set, Tessellated_surface_set, 
+       Tessellated_structured_item))
+     SUBTYPE OF (Detailed_geometric_model_element);
+     WHERE
+      WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN
+         TYPEOF(using_rep)))) = 0; 
+ END_ENTITY;
+ 
+  
+ ENTITY Repositioned_tessellated_item
+     SUBTYPE OF(Tessellated_item);
+     location: Axis_placement_3d;
+ WHERE  
+   WR1: NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID',                
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0);
+ END_ENTITY; 
+ 
+ 
+ ENTITY Tessellated_geometric_set
+     SUBTYPE OF (Tessellated_item);
+      children: SET [1:?] OF Tessellated_item;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_solid
+    SUBTYPE OF (Tessellated_item);
+      items: SET [1:?] OF Tessellated_structured_item ;
+    geometric_link: OPTIONAL Manifold_solid_brep;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_shell
+    SUBTYPE OF (Tessellated_item);
+    items: SET [1:?] OF Tessellated_structured_item ;
+    topological_link: OPTIONAL Connected_face_set;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_wire
+    SUBTYPE OF (Tessellated_item);
+    items: SET [1:?] OF tessellated_edge_or_vertex;
+    geometric_model_link: OPTIONAL path_or_composite_curve;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_curve_set
+    SUBTYPE OF (Tessellated_item);
+    coordinates : coordinates_list;
+    line_strips : LIST [1:?] OF LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_structured_item
+    SUPERTYPE OF (ONEOF (Tessellated_face, Tessellated_edge, Tessellated_vertex))
+    SUBTYPE OF (Tessellated_item);
+ END_ENTITY;
+
+ 
+ ENTITY Tessellated_edge
+    SUBTYPE OF (Tessellated_structured_item);
+    coordinates: coordinates_list;
+    geometric_link: OPTIONAL edge_or_curve;
+    line_strip : LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_connecting_edge
+    SUBTYPE OF (Tessellated_edge);
+    smooth: LOGICAL;
+    face1: Tessellated_face;
+    face2: Tessellated_face;
+    line_strip_face1 : LIST [2:?] OF INTEGER;
+    line_strip_face2 : LIST [2:?] OF INTEGER;
+ WHERE
+   WR1 : SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2);
+   WR2:  SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip);
+ END_ENTITY;
+ 
+ ENTITY Tessellated_point_set
+    SUBTYPE OF (Tessellated_item);
+    coordinates: coordinates_list;
+    point_list: LIST [1:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_vertex
+    SUBTYPE OF (Tessellated_structured_item);
+    coordinates: COORDINATES_LIST;
+    topological_link: OPTIONAL Vertex_point;
+    point_index : INTEGER;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_surface_set
+   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_surface_set, Complex_triangulated_surface_set)) 
+   SUBTYPE OF (Tessellated_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+  WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY Triangulated_surface_set
+   SUBTYPE OF (Tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY Complex_triangulated_surface_set
+   SUBTYPE OF (Tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ 
+ ENTITY Tessellated_face
+   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_face, Complex_triangulated_face)) 
+   SUBTYPE OF (Tessellated_structured_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+    geometric_link: OPTIONAL face_or_surface;
+ WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY Triangulated_face
+   SUBTYPE OF (Tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY Complex_triangulated_face
+   SUBTYPE OF (Tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ ENTITY Coordinates_list
+    SUBTYPE OF (Tessellated_item);
+    npoints : INTEGER;
+    position_coords : LIST [1:?] OF LIST [3:3] OF REAL;
+ WHERE
+    WR1: npoints = SIZEOF(position_coords);
+    WR2: SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0;
+ END_ENTITY;
+
+
+END_SCHEMA;

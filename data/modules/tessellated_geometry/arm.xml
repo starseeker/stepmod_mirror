@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="tessellated_geometry_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Tessellated_geometry_arm">
+      <interface kind="use" schema="Advanced_boundary_representation_arm"/>
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <interface kind="use" schema="Basic_geometry_arm"/>
+      <interface kind="use" schema="Basic_geometric_topology_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Elemental_topology_arm"/>
+      <interface kind="reference" schema="Foundation_representation_arm">
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <type name="edge_or_curve">
+         <select selectitems="Edge Curve"/>
+      </type>
+      <type name="face_or_surface">
+         <select selectitems="Face Surface"/>
+      </type>
+      <type name="path_or_composite_curve">
+         <select selectitems="Path Composite_curve"/>
+      </type>
+      <type name="tessellated_edge_or_vertex">
+         <select selectitems="Tessellated_edge Tessellated_vertex"/>
+      </type>
+      <entity name="Complex_triangulated_face" supertypes="Tessellated_face">
+         <explicit name="pnindex">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangle_strips">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangle_fans">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax))" label="WR1"/>
+         <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
+         <where expression="NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0))" label="WR3"/>
+      </entity>
+      <entity name="Complex_triangulated_surface_set" supertypes="Tessellated_surface_set">
+         <explicit name="pnindex">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangle_strips">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangle_fans">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax))" label="WR1"/>
+         <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
+         <where expression="NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0))" label="WR3"/>
+      </entity>
+      <entity name="Coordinates_list" supertypes="Tessellated_item">
+         <explicit name="npoints">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="position_coords">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="npoints = SIZEOF(position_coords)" label="WR1"/>
+         <where expression="SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0" label="WR2"/>
+      </entity>
+      <entity name="Repositioned_tessellated_item" supertypes="Tessellated_item">
+         <explicit name="location">
+            <typename name="Axis_placement_3d"/>
+         </explicit>
+         <where expression="NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID',                &#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0)" label="WR1"/>
+      </entity>
+      <entity name="Tessellated_connecting_edge" supertypes="Tessellated_edge">
+         <explicit name="smooth">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <explicit name="face1">
+            <typename name="Tessellated_face"/>
+         </explicit>
+         <explicit name="face2">
+            <typename name="Tessellated_face"/>
+         </explicit>
+         <explicit name="line_strip_face1">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="line_strip_face2">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2)" label="WR1"/>
+         <where expression="SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip)" label="WR2"/>
+      </entity>
+      <entity name="Tessellated_curve_set" supertypes="Tessellated_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="line_strips">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="Tessellated_edge" supertypes="Tessellated_structured_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="geometric_link" optional="YES">
+            <typename name="edge_or_curve"/>
+         </explicit>
+         <explicit name="line_strip">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Tessellated_face" super.expression="ONEOF (Triangulated_face, Complex_triangulated_face)" supertypes="Tessellated_structured_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="pnmax">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="normals">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="geometric_link" optional="YES">
+            <typename name="face_or_surface"/>
+         </explicit>
+         <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
+      </entity>
+      <entity name="Tessellated_geometric_set" supertypes="Tessellated_item">
+         <explicit name="children">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Tessellated_item"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Tessellated_item" super.expression="ONEOF (Coordinates_list, Tessellated_solid, Tessellated_shell, Tessellated_wire, Tessellated_geometric_set, Tessellated_curve_set, Tessellated_point_set, Tessellated_surface_set, Tessellated_structured_item)" supertypes="Detailed_geometric_model_element">
+         <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) |&#10;          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN&#10;         TYPEOF(using_rep)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Tessellated_point_set" supertypes="Tessellated_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="point_list">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="Tessellated_shape_representation" supertypes="Geometric_model">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Tessellated_item"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEORMETRIC_COORDINATE_SPACE' IN&#10;        TYPEOF(SELF\Representation.context_of_items)" label="WR1"/>
+      </entity>
+      <entity name="Tessellated_shell" supertypes="Tessellated_item">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Tessellated_structured_item"/>
+         </explicit>
+         <explicit name="topological_link" optional="YES">
+            <typename name="Connected_face_set"/>
+         </explicit>
+      </entity>
+      <entity name="Tessellated_solid" supertypes="Tessellated_item">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Tessellated_structured_item"/>
+         </explicit>
+         <explicit name="geometric_link" optional="YES">
+            <typename name="Manifold_solid_brep"/>
+         </explicit>
+      </entity>
+      <entity name="Tessellated_structured_item" super.expression="ONEOF (Tessellated_face, Tessellated_edge, Tessellated_vertex)" supertypes="Tessellated_item"/>
+      <entity abstract.supertype="YES" name="Tessellated_surface_set" super.expression="ONEOF (Triangulated_surface_set, Complex_triangulated_surface_set)" supertypes="Tessellated_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="pnmax">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="normals">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
+      </entity>
+      <entity name="Tessellated_vertex" supertypes="Tessellated_structured_item">
+         <explicit name="coordinates">
+            <typename name="Coordinates_list"/>
+         </explicit>
+         <explicit name="topological_link" optional="YES">
+            <typename name="Vertex_point"/>
+         </explicit>
+         <explicit name="point_index">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="Tessellated_wire" supertypes="Tessellated_item">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="tessellated_edge_or_vertex"/>
+         </explicit>
+         <explicit name="geometric_model_link" optional="YES">
+            <typename name="path_or_composite_curve"/>
+         </explicit>
+      </entity>
+      <entity name="Triangulated_face" supertypes="Tessellated_face">
+         <explicit name="pnindex">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangles">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax))" label="WR1"/>
+         <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
+      </entity>
+      <entity name="Triangulated_surface_set" supertypes="Tessellated_surface_set">
+         <explicit name="pnindex">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="triangles">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax))" label="WR1"/>
+         <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
+      </entity>
+   </schema>
+</express>

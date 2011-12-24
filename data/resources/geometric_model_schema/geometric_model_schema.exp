@@ -1,20 +1,28 @@
-(*$Id: geometric_model_schema.exp,v 1.5 2009/07/21 22:02:06 thomasrthurman Exp $  *)
 (*
-Document WG12 N4855 date 2007-05-08. EXPRESS listing corresponding to part
- 42  edition 3 IS as modified by TC1  - WG12 N4854*)
+   $Id: mim.exp,v 1.3 2011/12/23 16:52:23 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7169 - ISO/CD-TS 10303-42 ed 4
+*)
 
 
  SCHEMA geometric_model_schema;
     REFERENCE FROM geometry_schema;
     REFERENCE FROM topology_schema;
-    REFERENCE FROM measure_schema(length_measure,
+    REFERENCE FROM measure_schema(global_unit_assigned_context,
+                                  length_measure,
                                   parameter_value,
                                   plane_angle_measure,
                                   plane_angle_unit,
                                   positive_length_measure,
                                   positive_plane_angle_measure);
+    
     REFERENCE FROM representation_schema(founded_item,
-                                        representation_item);
+                                        representation,
+                                        representation_item,
+                                        using_representations);
+    
+    REFERENCE FROM product_property_representation_schema(shape_representation);
+ 
+ 
  
  TYPE boolean_operand = SELECT
    (solid_model, 
@@ -50,16 +58,37 @@ Document WG12 N4855 date 2007-05-08. EXPRESS listing corresponding to part
     primitive_2d);
  END_TYPE;
 
+TYPE edge_or_curve = SELECT
+  (edge,
+   curve);
+END_TYPE;
+ 
+TYPE face_or_surface = SELECT
+  (face,
+   surface);
+END_TYPE;  
+
  TYPE geometric_set_select = SELECT
    (point,
     curve,
     surface);
  END_TYPE;
 
- TYPE surface_model = SELECT
+TYPE path_or_composite_curve = SELECT
+ (path,
+  composite_curve);
+END_TYPE;  
+
+
+TYPE surface_model = SELECT
    (shell_based_surface_model, 
     face_based_surface_model);
- END_TYPE;
+END_TYPE;
+
+TYPE tessellated_edge_or_vertex = SELECT
+   (tessellated_edge,
+    tessellated_vertex);
+END_TYPE;
 
  TYPE wireframe_model = SELECT
    (shell_based_wireframe_model,
@@ -506,6 +535,188 @@ ENTITY revolved_face_solid
      WR3 : w1 <> w2;
  END_ENTITY;
 
+ (* new entities for tessellated geometry included in edition 4 DIS *)
+ 
+ ENTITY tessellated_shape_representation
+    SUBTYPE OF (shape_representation);
+     SELF\representation.items : SET[1 : ?] OF tessellated_item;
+ WHERE
+   WR1:'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN
+        TYPEOF(SELF\representation.context_of_items);
+ END_ENTITY;
+  
+ 
+  
+  ENTITY tessellated_item
+     ABSTRACT SUPERTYPE OF (ONEOF (coordinates_list, tessellated_solid, tessellated_shell, tessellated_wire, 
+       tessellated_geometric_set, tessellated_curve_set, tessellated_point_set, tessellated_surface_set, 
+       tessellated_structured_item))
+     SUBTYPE OF (geometric_representation_item);
+     WHERE
+      WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN
+         TYPEOF(using_rep)))) = 0; 
+ END_ENTITY;
+ 
+  
+ ENTITY repositioned_tessellated_item
+     SUBTYPE OF(tessellated_item);
+     location: axis2_placement_3d;
+ WHERE  
+   WR1: NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID',                
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0);
+ END_ENTITY; 
+ 
+ 
+ ENTITY tessellated_geometric_set
+     SUBTYPE OF (tessellated_item);
+      children: SET [1:?] OF tessellated_item;
+ END_ENTITY;
+ 
+ ENTITY tessellated_solid
+    SUBTYPE OF (tessellated_item);
+      items: SET [1:?] OF tessellated_structured_item ;
+    geometric_link: OPTIONAL manifold_solid_brep;
+ END_ENTITY;
+ 
+ 
+ ENTITY tessellated_shell
+    SUBTYPE OF (tessellated_item);
+    items: SET [1:?] OF tessellated_structured_item ;
+    topological_link: OPTIONAL connected_face_set;
+ END_ENTITY;
+ 
+ 
+ ENTITY tessellated_wire
+    SUBTYPE OF (tessellated_item);
+    items: SET [1:?] OF tessellated_edge_or_vertex;
+    geometric_model_link: OPTIONAL path_or_composite_curve;
+ END_ENTITY;
+ 
+ 
+ ENTITY tessellated_curve_set
+    SUBTYPE OF (tessellated_item);
+    coordinates : coordinates_list;
+    line_strips : LIST [1:?] OF LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY tessellated_structured_item
+    SUPERTYPE OF (ONEOF (tessellated_face, tessellated_edge, tessellated_vertex))
+    SUBTYPE OF (tessellated_item);
+ END_ENTITY;
+
+ 
+ ENTITY tessellated_edge
+    SUBTYPE OF (tessellated_structured_item);
+    coordinates: coordinates_list;
+    geometric_link: OPTIONAL edge_or_curve;
+    line_strip : LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ ENTITY tessellated_connecting_edge
+    SUBTYPE OF (tessellated_edge);
+    smooth: LOGICAL;
+    face1: tessellated_face;
+    face2: tessellated_face;
+    line_strip_face1 : LIST [2:?] OF INTEGER;
+    line_strip_face2 : LIST [2:?] OF INTEGER;
+ WHERE
+   WR1 : SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2);
+   WR2:  SIZEOF(line_strip_face1) = SIZEOF(SELF\tessellated_edge.line_strip);
+ END_ENTITY;
+ 
+ ENTITY tessellated_point_set
+    SUBTYPE OF (tessellated_item);
+    coordinates: coordinates_list;
+    point_list: LIST [1:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY tessellated_vertex
+    SUBTYPE OF (tessellated_structured_item);
+    coordinates: COORDINATES_LIST;
+    topological_link: OPTIONAL vertex_point;
+    point_index : INTEGER;
+ END_ENTITY;
+ 
+ ENTITY tessellated_surface_set
+   ABSTRACT SUPERTYPE OF (ONEOF(triangulated_surface_set, complex_triangulated_surface_set)) 
+   SUBTYPE OF (tessellated_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+  WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY triangulated_surface_set
+   SUBTYPE OF (tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_surface_set.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY complex_triangulated_surface_set
+   SUBTYPE OF (tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_surface_set.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ 
+ ENTITY tessellated_face
+   ABSTRACT SUPERTYPE OF (ONEOF(triangulated_face, complex_triangulated_face)) 
+   SUBTYPE OF (tessellated_structured_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+    geometric_link: OPTIONAL face_or_surface;
+ WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY triangulated_face
+   SUBTYPE OF (tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY complex_triangulated_face
+   SUBTYPE OF (tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ ENTITY coordinates_list
+    SUBTYPE OF (tessellated_item);
+    npoints : INTEGER;
+    position_coords : LIST [1:?] OF LIST [3:3] OF REAL;
+ WHERE
+    WR1: npoints = SIZEOF(position_coords);
+    WR2: SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0;
+ END_ENTITY;
  
  FUNCTION acyclic_set_replica(rep : geometric_set_replica;
                            parent : geometric_set) : BOOLEAN;
@@ -615,5 +826,4 @@ ENTITY revolved_face_solid
  
  
  END_SCHEMA; -- end GEOMETRIC MODEL schema
- 
- 
+

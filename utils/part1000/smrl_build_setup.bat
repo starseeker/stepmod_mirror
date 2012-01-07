@@ -1,3 +1,4 @@
+Rem $Id
 Rem filename: smrl_build_setup.bat
 Rem in data/part1000/dvlp
 set JAVA_HOME=C:\Program Files\Java\jdk1.6.0
@@ -10,5 +11,5 @@ echo
 set PATH=%WINDOZE_PATH%;C:\strawberry\c\bin;C:\strawberry\perl\bin;%ANT_HOME%\bin;%JAVA_HOME%\bin
 echo %PATH%
 set TERM=dumb
-set SMRL_ROOT=U:\2011\SMRL_build_2011_10_19\SMRL_v4_rc10
+set SMRL_ROOT=U:\2012\SMRL_v5
 set WORK=U:\Downloads\tmp

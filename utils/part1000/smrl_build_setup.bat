@@ -1,4 +1,4 @@
-Rem $Id
+Rem $Id:
 Rem filename: smrl_build_setup.bat
 Rem in data/part1000/dvlp
 set JAVA_HOME=C:\Program Files\Java\jdk1.6.0

@@ -1,4 +1,5 @@
 (*
+$Id: $
 2009-11-14
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
@@ -42,20 +43,12 @@ SCHEMA product_property_representation_schema;
     SELF\item_identified_representation_usage.used_representation RENAMED leaf : representation := nodes[HIINDEX(nodes)];
     directed_link : LIST [1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
   WHERE
-    WR1 : root :=: directed_link[1]\representation_relationship.rep_1;
-    WR2 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
-    WR3 : SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1;
-    WR4 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
-    WR5 : (SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
-    WR6 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_2))) + 
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_2)))) = 2;
-    WR7 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
+    WR1 : EXISTS(directed_link);
+    WR2 : root :=: directed_link[1]\representation_relationship.rep_1;
+    WR3 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
+    WR4 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
               (root IN using_representations(undirected_link[1]));
-    WR8 : SIZEOF(undirected_link) = SIZEOF(directed_link);
+    WR5 : SIZEOF(undirected_link) = SIZEOF(directed_link);
   END_ENTITY;
  
   ENTITY characterized_chain_based_item_within_representation 
@@ -67,20 +60,12 @@ SCHEMA product_property_representation_schema;
     SELF\characterized_item_within_representation.rep RENAMED leaf : representation := nodes[HIINDEX(nodes)];
     directed_link : LIST[1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
   WHERE
-    WR1 : root :=: directed_link[1]\representation_relationship.rep_1;
-    WR2 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
-    WR3 : SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1;
-    WR4 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(root :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
-    WR5 : (SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_2)))) = 1;
-    WR6 : (SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(root :<>: directed_link_element\representation_relationship.rep_2))) + 
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_1))) +
-           SIZEOF(QUERY(directed_link_element <* directed_link |(leaf :<>: directed_link_element\representation_relationship.rep_2)))) = 2;
-    WR7 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
+    WR1 : EXISTS(directed_link);
+    WR2 : root :=: directed_link[1]\representation_relationship.rep_1;
+    WR3 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
+    WR4 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
               (root IN using_representations(undirected_link[1]));
-    WR8 : SIZEOF(undirected_link) = SIZEOF(directed_link);
+    WR5 : SIZEOF(undirected_link) = SIZEOF(directed_link);
   END_ENTITY;
  
   ENTITY characterized_item_within_representation
@@ -151,6 +136,12 @@ SCHEMA product_property_representation_schema;
    directed_link : LIST OF representation_relationship := [];
   END_LOCAL;
 
+  IF (SIZEOF(nodes) <> SIZEOF(undirected_link) + 1) OR
+     (value_unique(nodes) = FALSE)
+  THEN
+   RETURN(?);
+  END_IF;
+  
   REPEAT i := 1 to SIZEOF(undirected_link);
    CASE TRUE OF
     ('REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(undirected_link[i])) :
@@ -188,6 +179,12 @@ SCHEMA product_property_representation_schema;
     OTHERWISE : RETURN(?);
    END_CASE;
   END_REPEAT;
+  
+  IF (value_unique(directed_link) = FALSE)
+  THEN
+   RETURN(?);
+  END_IF;
+  
   RETURN(directed_link);
   END_FUNCTION;
 

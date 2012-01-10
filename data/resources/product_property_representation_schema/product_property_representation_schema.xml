@@ -70,14 +70,10 @@
             <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="representation_relationship"/>
          </derived>
-         <where expression="root :=: directed_link[1]\representation_relationship.rep_1" label="WR1"/>
-         <where expression="leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2" label="WR2"/>
-         <where expression="SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1" label="WR3"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :=:  directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :=:  directed_link_element\representation_relationship.rep_2)))) = 1" label="WR4"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_2)))) = 1" label="WR5"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_2))) + &#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_2)))) = 2" label="WR6"/>
-         <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR&#10;              (root IN using_representations(undirected_link[1]))" label="WR7"/>
-         <where expression="SIZEOF(undirected_link) = SIZEOF(directed_link)" label="WR8"/>
+         <where expression="EXISTS(directed_link)" label="WR1"/>
+         <where expression="root :=: directed_link[1]\representation_relationship.rep_1" label="WR2"/>
+         <where expression="leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2" label="WR3"/>
+         <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR&#10;              (root IN using_representations(undirected_link[1]))" label="WR4"/>
       </entity>
       <entity name="characterized_chain_based_item_within_representation" supertypes="characterized_item_within_representation">
          <explicit name="nodes">
@@ -99,14 +95,10 @@
             <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="representation_relationship"/>
          </derived>
-         <where expression="root :=: directed_link[1]\representation_relationship.rep_1" label="WR1"/>
-         <where expression="leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2" label="WR2"/>
-         <where expression="SIZEOF(nodes) :=: SIZEOF(undirected_link) + 1" label="WR3"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :=:  directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :=:  directed_link_element\representation_relationship.rep_2)))) = 1" label="WR4"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :=:  directed_link_element\representation_relationship.rep_2)))) = 1" label="WR5"/>
-         <where expression="(SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(root :&lt;&gt;: directed_link_element\representation_relationship.rep_2))) + &#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_1))) +&#10;           SIZEOF(QUERY(directed_link_element &lt;* directed_link |(leaf :&lt;&gt;: directed_link_element\representation_relationship.rep_2)))) = 2" label="WR6"/>
-         <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR&#10;              (root IN using_representations(undirected_link[1]))" label="WR7"/>
-         <where expression="SIZEOF(undirected_link) = SIZEOF(directed_link)" label="WR8"/>
+         <where expression="EXISTS(directed_link)" label="WR1"/>
+         <where expression="root :=: directed_link[1]\representation_relationship.rep_1" label="WR2"/>
+         <where expression="leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2" label="WR3"/>
+         <where expression="NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR&#10;              (root IN using_representations(undirected_link[1]))" label="WR4"/>
       </entity>
       <entity name="characterized_item_within_representation" supertypes="characterized_object">
          <explicit name="item">
@@ -199,6 +191,12 @@
    directed_link : LIST OF representation_relationship := [];
   END_LOCAL;
 
+  IF (SIZEOF(nodes) &lt;&gt; SIZEOF(undirected_link) + 1) OR
+     (value_unique(nodes) = FALSE)
+  THEN
+   RETURN(?);
+  END_IF;
+  
   REPEAT i := 1 to SIZEOF(undirected_link);
    CASE TRUE OF
     ('REPRESENTATION_SCHEMA.REPRESENTATION_CONTEXT' IN TYPEOF(undirected_link[i])) :
@@ -236,6 +234,12 @@
     OTHERWISE : RETURN(?);
    END_CASE;
   END_REPEAT;
+  
+  IF (value_unique(directed_link) = FALSE)
+  THEN
+   RETURN(?);
+  END_IF;
+  
   RETURN(directed_link);</algorithm>
       </function>
       <function name="get_property_definition_representations">

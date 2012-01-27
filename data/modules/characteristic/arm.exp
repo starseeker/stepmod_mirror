@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2010/10/11 03:03:25 thomasrthurman Exp $
+   $Id: arm.exp,v 1.60 2011/07/04 20:42:55 lothartklein Exp $
    ISO TC184/SC4/WG12 N6944 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6219
 *)
@@ -168,6 +168,16 @@ SCHEMA Characteristic_arm;
       SELF\Representation.items : SET [1:1] OF Value_with_tolerances;
   END_ENTITY;
 
+  ENTITY Qualified_tolerance_characteristic
+    SUBTYPE OF (Tolerance_characteristic);
+      SELF\Representation.items : SET[1:4] OF Qualified_numerical_item_with_unit;
+    WHERE
+      WR1: valid_qualified_tolerance_characteristic(SELF);
+      WR2: SIZEOF(QUERY(it <* items | NOT
+             'QUALIFIED_MEASURE_ARM.QUALIFIED_REPRESENTATION_ITEM' IN TYPEOF(it)))
+             = 0;
+  END_ENTITY;
+
   ENTITY Range_characteristic
     SUBTYPE OF (Property_value_representation);
       SELF\Representation.items : SET[2:2] OF Numerical_item_with_unit;
@@ -211,6 +221,40 @@ SCHEMA Characteristic_arm;
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
       WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
+
+  ENTITY Typical_tolerance_characteristic
+    SUBTYPE OF (Tolerance_characteristic);
+      SELF\Representation.items : SET [1:1] OF Value_limit;
+    WHERE
+      WR1: SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'typical';      
+  END_ENTITY;
+
+  FUNCTION valid_qualified_tolerance_characteristic (input : Qualified_tolerance_characteristic) : BOOLEAN;
+ --no more than one of the Type_qualifier.name shall be 'nominal'
+ --no more than one of the Type_qualifier.name shall be 'typical'
+ --no more than one of the Type_qualifier.name shall be 'maximium'
+ --no more than one of the Type_qualifier.name shall be 'minimum'
+ --Type_qualifier.name shall be drawn only from 'nominal', 'typical' , 'maximium', 'minimum'
+  LOCAL
+     bag_data : BAG OF STRING := [];
+     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
+  END_LOCAL;
+
+  REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
+   IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i])
+    THEN
+      bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Type_qualifier.name;
+   END_IF;
+  END_REPEAT;
+
+  IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND
+     (VALUE_UNIQUE(bag_data)) AND 
+     (SIZEOF(valid_set * bag_data) = SIZEOF(bag_data)) 
+  THEN RETURN(TRUE);
+  END_IF;
+    
+   RETURN(FALSE);
+  END_FUNCTION; 
 
   FUNCTION valid_range(input1 : Numerical_item_with_unit;
                        input2 : Numerical_item_with_unit) : BOOLEAN;

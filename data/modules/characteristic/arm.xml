@@ -151,6 +151,15 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Qualified_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="4"/>
+            <typename name="Qualified_numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="valid_qualified_tolerance_characteristic(SELF)" label="WR1"/>
+         <where expression="SIZEOF(QUERY(it &lt;* items | NOT&#10;             'QUALIFIED_MEASURE_ARM.QUALIFIED_REPRESENTATION_ITEM' IN TYPEOF(it)))&#10;             = 0" label="WR2"/>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Range_characteristic" supertypes="Property_value_representation">
          <explicit name="items" optional="NO">
             <aggregate lower="2" optional="NO" type="SET" unique="NO" upper="2"/>
@@ -182,14 +191,47 @@
          <where expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION_ARM.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Text_representation_item" supertypes="String_representation_item"/>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_characteristic" super.expression="ONEOF (Minimum_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Maximum_tolerance_characteristic, Plus_minus_tolerance_characteristic, Nominal_tolerance_characteristic) ANDOR Length_tolerance_characteristic" supertypes="Property_value_representation">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Tolerance_characteristic" super.expression="ONEOF (Maximum_tolerance_characteristic, Minimum_tolerance_characteristic, Nominal_tolerance_characteristic, Plus_minus_tolerance_characteristic, Qualified_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Typical_tolerance_characteristic) ANDOR Length_tolerance_characteristic" supertypes="Property_value_representation">
          <where expression="SELF\Representation.context_of_items\Representation_context.id = 'tolerance values'" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Representation.name)" label="WR2"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Typical_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="1"/>
+            <typename name="Value_limit"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'typical'" label="WR1"/>
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="Property_value_representation" name="exclusive_property_value_representation_characteristic" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)"/>
       <subtype.constraint abstract.supertype="NO" entity="Type_qualifier" name="type_qualifier_subtypes" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)"/>
       <subtype.constraint abstract.supertype="NO" entity="Independent_property" name="independent_property_subtypes" super.expression="ONEOF (Characteristic_data_table_header, Characteristic_data_column_header)"/>
       <subtype.constraint abstract.supertype="NO" entity="Representation_item" name="c_representation_item_subtypes" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)"/>
+      <function name="valid_qualified_tolerance_characteristic">
+         <parameter name="input">
+            <typename name="Qualified_tolerance_characteristic"/>
+         </parameter>
+         <builtintype fixed="NO" type="BOOLEAN"/>
+         <algorithm>LOCAL
+     bag_data : BAG OF STRING := [];
+     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
+  END_LOCAL;
+
+  REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
+   IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i])
+    THEN
+      bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Type_qualifier.name;
+   END_IF;
+  END_REPEAT;
+
+  IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND
+     (VALUE_UNIQUE(bag_data)) AND 
+     (SIZEOF(valid_set * bag_data) = SIZEOF(bag_data)) 
+  THEN RETURN(TRUE);
+  END_IF;
+    
+   RETURN(FALSE);</algorithm>
+      </function>
       <function name="valid_range">
          <parameter name="input1">
             <typename name="Numerical_item_with_unit"/>

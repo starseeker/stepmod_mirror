@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.18 2011/03/11 13:51:20 lothartklein Exp $
+$Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -247,7 +247,7 @@ $Id: sect_isocover.xsl,v 1.18 2011/03/11 13:51:20 lothartklein Exp $
           </div>
 
           <!-- document edition -->
-          <xsl:if test="@status!='DIS'">
+          <xsl:if test="@status!='IS'">
             <xsl:choose>
               <xsl:when test="string-length(normalize-space(@publication.date))=0">
                 <xsl:choose>

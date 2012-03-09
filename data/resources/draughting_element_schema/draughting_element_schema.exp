@@ -10,6 +10,8 @@ REFERENCE FROM geometry_schema
     (plane,
      geometric_representation_item);
      
+REFERENCE FROM geometric_model_schema(tessellated_geometric_set);     
+     
 REFERENCE FROM support_resource_schema
     (label,
      text);
@@ -39,7 +41,8 @@ REFERENCE FROM presentation_resource_schema
     (annotation_curve_occurrence,
      annotation_fill_area_occurrence,
      annotation_symbol_occurrence,
-     annotation_text_occurrence);
+     annotation_text_occurrence,
+     tessellated_annotation_occurrence);
   END_TYPE;
 
   TYPE dimension_extent_usage = ENUMERATION OF
@@ -184,6 +187,11 @@ REFERENCE FROM presentation_resource_schema
         'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN (TYPEOF(d_c))))<=2;
       WR2: SIZEOF(SELF\draughting_callout.contents) >= 2;
   END_ENTITY;
+  
+  ENTITY tessellated_annotation_occurrence
+    SUBTYPE OF (annotation_occurrence);
+    SELF\styled_item.item : tessellated_geometric_set; 
+  END_ENTITY;   
 
   SUBTYPE_CONSTRAINT annotation_curve_subtypes FOR annotation_curve_occurrence;
     (ONEOF(dimension_curve,
@@ -197,7 +205,8 @@ REFERENCE FROM presentation_resource_schema
          annotation_plane,
          annotation_point_occurrence,
          annotation_symbol_occurrence,
-         annotation_text_occurrence);
+         annotation_text_occurrence,
+         tessellated_annotation_occurrence);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA; 

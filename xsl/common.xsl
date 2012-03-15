@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.180 2010/02/23 07:39:10 robbod Exp $
+$Id: common.xsl,v 1.181 2010/06/01 20:36:38 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1105,6 +1105,23 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   <i>
     <xsl:apply-templates/>
   </i>
+</xsl:template>
+
+<!-- added template to display eqn  and bigeqn RJG March 2012 -->
+<xsl:template match="eqn" >
+  <font size="+1">
+   <p align="center"> 
+    <xsl:apply-templates/>
+    </p>
+  </font>
+</xsl:template>
+
+<xsl:template match="bigeqn" >
+  <font size="+2">
+   <p align="center"> 
+    <xsl:apply-templates/>
+    </p>
+  </font>
 </xsl:template>
 
 <!-- subscript -->

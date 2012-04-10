@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.35 2011/02/23 22:49:32 thomasrthurman Exp $
+$Id: arm.exp,v 1.36 2012/03/13 12:48:04 lothartklein Exp $
 ISO TC184/SC4/WG12 N6890 - ISO/TS 10303-1050 Dimension tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6676
 *) 
@@ -32,6 +32,24 @@ TYPE dimension_value_select = SELECT
     Tolerance_range, 
     Value_limit);
 END_TYPE; 
+
+TYPE diameter_type = ENUMERATION OF (
+   circular_or_cylindrical_diameter,
+   spherical_diameter,
+   toroidal_minor_diameter,
+   toroidal_major_diameter,
+   toroidal_high_major_diameter,
+   toroidal_low_major_diameter);
+END_TYPE;
+
+TYPE radial_type = ENUMERATION OF (
+   circular_or_cylindrical_radius,
+   spherical_radius,
+   toroidal_minor_radius,
+   toroidal_major_radius,
+   toroidal_high_major_radius,
+   toroidal_low_major_radius);
+END_TYPE;
 
 TYPE geometric_dimension_modifier = EXTENSIBLE ENUMERATION OF (
   two_point_size, -- (LP) 
@@ -92,7 +110,8 @@ ENTITY Curved_size
 END_ENTITY;
 
 ENTITY Diameter_size
-  SUBTYPE OF (Dimensional_size);
+   SUBTYPE OF (Dimensional_size);
+   geometry_type : diameter_type;
 END_ENTITY;
 
 ENTITY Dimensional_size
@@ -101,8 +120,6 @@ ENTITY Dimensional_size
                                 Diameter_size,
                                 Machining_feature_size,
                                 Radial_size,
-                                Spherical_diameter_size,
-                                Spherical_radial_size,
                                 Thickness_size))
   SUBTYPE OF (Geometric_dimension);
   is_applied_to : dimension_target;
@@ -166,17 +183,9 @@ ENTITY Plus_minus_bounds;
 END_ENTITY;
 
 ENTITY Radial_size
-  SUBTYPE OF (Dimensional_size);
-  radius_type : OPTIONAL adjoining_or_centred;
-END_ENTITY;
-
-ENTITY Spherical_diameter_size
-  SUBTYPE OF (Dimensional_size);
-END_ENTITY;
-
-ENTITY Spherical_radial_size
-  SUBTYPE OF (Dimensional_size);
-  radius_type : OPTIONAL adjoining_or_centred;
+   SUBTYPE OF (Dimensional_size);
+   radius_type : OPTIONAL adjoining_or_centred;
+   geometry_type : radial_type;
 END_ENTITY;
 
 ENTITY Thickness_size

@@ -1,5 +1,5 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.36 2011/09/23 15:28:49 lothartklein Exp $
+ $Id: shape_tolerance_schema.exp,v 1.37 2011/09/24 13:54:10 lothartklein Exp $
 ISO TC184/SC4/WG12 N7297 - ISO/DIS 10303-47 Shape variation tolerances - EXPRESS
 *) 
 
@@ -55,6 +55,10 @@ TYPE datum_system_or_reference = SELECT
     datum_system);
 END_TYPE; 
 
+TYPE directed_tolerance_zone_type = ENUMERATION OF
+  (perpendicular, parallel, including);
+END_TYPE;
+
 TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
    (maximum_material_requirement,
     least_material_requirement,
@@ -79,6 +83,10 @@ TYPE geometric_tolerance_target = SELECT
     product_definition_shape, 
     shape_aspect);
 END_TYPE; 
+
+TYPE oriented_tolerance_zone_type = ENUMERATION OF
+  (perpendicular, parallel, angular);
+END_TYPE;
 
 TYPE shape_tolerance_select = SELECT
    (geometric_tolerance, 
@@ -126,6 +134,11 @@ END_ENTITY;
 ENTITY dimension_related_tolerance_zone_element;
   related_dimension : dimensional_location;
   related_element : tolerance_zone_definition;
+END_ENTITY;
+
+ENTITY directed_tolerance_zone
+  SUBTYPE OF (tolerance_zone_with_datum);
+  direction : directed_tolerance_zone_type;
 END_ENTITY;
 
 ENTITY flatness_tolerance
@@ -233,6 +246,14 @@ ENTITY non_uniform_zone_definition
   SUBTYPE OF (tolerance_zone_definition);
 END_ENTITY;
 
+ENTITY oriented_tolerance_zone
+  SUBTYPE OF (tolerance_zone_with_datum);
+  orientation : oriented_tolerance_zone_type;
+  angle : OPTIONAL plane_angle_measure_with_unit;
+WHERE
+  WR1 : (orientation <> angular) XOR EXISTS(angle);
+END_ENTITY;
+
 ENTITY parallelism_tolerance
   SUBTYPE OF (geometric_tolerance_with_datum_reference);
 END_ENTITY;
@@ -338,6 +359,12 @@ END_ENTITY;
 
 ENTITY tolerance_zone_form;
   name : label;
+END_ENTITY;
+
+ENTITY tolerance_zone_with_datum
+  SUPERTYPE OF (ONEOF (directed_tolerance_zone, oriented_tolerance_zone))
+  SUBTYPE OF (tolerance_zone);
+  datum_reference : datum_system;
 END_ENTITY;
 
 ENTITY total_runout_tolerance

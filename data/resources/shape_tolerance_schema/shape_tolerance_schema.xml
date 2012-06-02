@@ -49,11 +49,17 @@
       <type name="datum_system_or_reference">
          <select extensible="NO" genericentity="NO" selectitems="datum_reference datum_system"/>
       </type>
+      <type name="directed_tolerance_zone_type">
+         <enumeration extensible="NO" items="perpendicular parallel including"/>
+      </type>
       <type name="geometric_tolerance_modifier">
          <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element separate_requirement"/>
       </type>
       <type name="geometric_tolerance_target">
          <select extensible="NO" genericentity="NO" selectitems="dimensional_location dimensional_size product_definition_shape shape_aspect"/>
+      </type>
+      <type name="oriented_tolerance_zone_type">
+         <enumeration extensible="NO" items="perpendicular parallel angular"/>
       </type>
       <type name="shape_tolerance_select">
          <select extensible="NO" genericentity="NO" selectitems="geometric_tolerance plus_minus_tolerance"/>
@@ -80,6 +86,11 @@
          </explicit>
          <explicit name="related_element" optional="NO">
             <typename name="tolerance_zone_definition"/>
+         </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="directed_tolerance_zone" supertypes="tolerance_zone_with_datum">
+         <explicit name="direction" optional="NO">
+            <typename name="directed_tolerance_zone_type"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="flatness_tolerance" supertypes="geometric_tolerance">
@@ -180,6 +191,15 @@
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="non_uniform_zone_definition" supertypes="tolerance_zone_definition"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="oriented_tolerance_zone" supertypes="tolerance_zone_with_datum">
+         <explicit name="orientation" optional="NO">
+            <typename name="oriented_tolerance_zone_type"/>
+         </explicit>
+         <explicit name="angle" optional="YES">
+            <typename name="plane_angle_measure_with_unit"/>
+         </explicit>
+         <where expression="(orientation &lt;&gt; angular) XOR EXISTS(angle)" label="WR1"/>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="parallelism_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="perpendicularity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="plus_minus_tolerance">
@@ -282,6 +302,11 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_zone_form">
          <explicit name="name" optional="NO">
             <typename name="label"/>
+         </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tolerance_zone_with_datum" super.expression="ONEOF (directed_tolerance_zone, oriented_tolerance_zone)" supertypes="tolerance_zone">
+         <explicit name="datum_reference" optional="NO">
+            <typename name="datum_system"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="total_runout_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>

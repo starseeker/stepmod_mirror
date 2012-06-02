@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.42 2011/09/25 19:34:36 lothartklein Exp $
+$Id: arm.exp,v 1.43 2012/04/10 17:01:19 lothartklein Exp $
 ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6756
 *) 
@@ -36,7 +36,8 @@ END_TYPE;
 TYPE datum_reference_modifier_type = EXTENSIBLE ENUMERATION OF 
    (circular_or_cylindrical,
     spherical,
-    distance);
+    distance,
+    projected);
 END_TYPE; 
 
 TYPE datum_or_common_datum = SELECT (
@@ -54,23 +55,22 @@ TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT (
   Dimensional_size);
 END_TYPE;
 
-TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF ( 
-  maximum_material_requirement,
-  least_material_requirement,
-  reciprocity_requirement,
-  any_cross_section,
-  any_longitudinal_section,
-  free_state,
-  common_zone,
-  minor_diameter,
-  major_diameter,
-  pitch_diameter,
-  line_element,
-  not_convex,
-  statistical_tolerance,
-  tangent_plane,
-  each_radial_element,
-  separate_requirement);
+TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
+   (maximum_material_requirement,
+    least_material_requirement,
+    reciprocity_requirement,
+    any_cross_section,
+    free_state,
+    common_zone,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter,
+    line_element,
+    not_convex,
+    statistical_tolerance,
+    tangent_plane,
+    each_radial_element,
+    separate_requirement);
 END_TYPE; 
 
 TYPE tolerance_zone_target = SELECT (
@@ -81,24 +81,28 @@ TYPE tolerance_zone_target = SELECT (
 END_TYPE;
 
 TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF ( 
-  free_state,
-  basic,
-  translation,
-  least_material_requirement,
-  maximum_material_requirement,
-  point,
-  line,
-  plane,
-  orientation,
-  any_cross_section,
-  contacting_feature,
-  distance_variable,
-  degree_of_freedom_constraint_x,
-  degree_of_freedom_constraint_y,
-  degree_of_freedom_constraint_z,
-  degree_of_freedom_constraint_u,
-  degree_of_freedom_constraint_v,
-  degree_of_freedom_constraint_w);
+    free_state,
+    basic,
+    translation,
+    least_material_requirement,
+    maximum_material_requirement,
+    point,
+    line,
+    plane,
+    orientation,
+    any_cross_section,
+    any_longitudinal_section,
+    contacting_feature,
+    distance_variable,
+    degree_of_freedom_constraint_x,
+    degree_of_freedom_constraint_y,
+    degree_of_freedom_constraint_z,
+    degree_of_freedom_constraint_u,
+    degree_of_freedom_constraint_v,
+    degree_of_freedom_constraint_w,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter);
 END_TYPE; 
 
 TYPE tolerance_zone_type = ENUMERATION OF ( 
@@ -274,7 +278,7 @@ ENTITY Geometric_tolerance
                                 Total_runout_tolerance));
   name : OPTIONAL STRING;
   applied_to : geometric_tolerance_target;
-  modifiers : SET[1:?] OF geometrical_tolerance_modifier;
+  modifiers : SET[1:?] OF geometric_tolerance_modifier;
   qualifying_note : OPTIONAL STRING;
   first_unit_size : OPTIONAL Length_data_element;
   area_unit_type : OPTIONAL area_unit_type;

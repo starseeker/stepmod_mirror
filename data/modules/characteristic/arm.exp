@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.62 2012/01/30 23:23:23 thomasrthurman Exp $
+   $Id: arm.exp,v 1.63 2012/05/29 17:02:32 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6944 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6219
 *)
@@ -173,9 +173,6 @@ SCHEMA Characteristic_arm;
       SELF\Representation.items : SET[1:4] OF Qualified_numerical_item_with_unit;
     WHERE
       WR1: valid_qualified_tolerance_characteristic(SELF);
-      WR2: SIZEOF(QUERY(it <* items | NOT
-             ('QUALIFIED_MEASURE_ARM.QUALIFIED_REPRESENTATION_ITEM' IN TYPEOF(it))))
-             = 0;
   END_ENTITY;
 
   ENTITY Range_characteristic
@@ -243,12 +240,13 @@ SCHEMA Characteristic_arm;
      bag_data : BAG OF STRING := [];
      valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
   END_LOCAL;
-
   REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
-   IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i])
-    THEN
-      bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Type_qualifier.name;
-   END_IF;
+    REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers)
+     IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j])
+      THEN
+        bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j]\Type_qualifier.name;
+     END_IF;
+    END_REPEAT;
   END_REPEAT;
 
   IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND

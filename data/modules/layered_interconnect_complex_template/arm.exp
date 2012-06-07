@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2010/10/06 07:39:08 lothartklein Exp $
+   $Id: arm.exp,v 1.15 2012/06/02 05:32:07 lothartklein Exp $
    ISO TC184/SC4/WG12 N6983 - ISO/TS 10303-1716 Layered interconnect complex template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6426
 *)
@@ -93,22 +93,19 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     WHERE
       WR1: SELF\Stratum_specific_template_location.bound_stratum :<>: reference_location;     
       WR2: SELF <> reference_location;
-      WR3: SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly;
-(*      WR4: NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(reference_location)) OR
-           ((reference_location IN 
-           SELF\Template_location_in_structured_template.assembly.composing_occurrence) AND
-           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF
-          (SELF\Template_location_in_structured_template.assembly.composing_occurrence))); *)
-      WR4: TRUE;
+      WR3: NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(reference_location)) OR
+           (assembly :=: reference_location\Template_location_in_structured_template.assembly);
+      WR4: NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(assembly)) OR
+           (reference_location IN assembly\Stratum_stack_dependent_template.stack\Stratum_stack_model.composing_occurrence);
       WR5 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
            TYPEOF(reference_location)) OR
            ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
-           TYPEOF(bound_stratum));
+           TYPEOF(SELF\Stratum_specific_template_location.bound_stratum));
       WR6 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
            TYPEOF(reference_location)) OR (SIZEOF 
            (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',
            'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF
-           (SELF\Template_location_in_structured_template.assembly)) = 2);
+           (assembly)) = 2);
   END_ENTITY;
 
   ENTITY Dependent_thermal_isolation_removal_template
@@ -155,9 +152,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       SELF\View_definition_relationship.relating_view : Library_stack_model;
       SELF\View_definition_relationship.related_view  : Design_stack_model;
     WHERE
-      WR1: ((SELF\View_definition_relationship.related_view.composing_occurrence *
-            SELF\View_definition_relationship.relating_view.composing_occurrence) = 
-            SELF\View_definition_relationship.related_view.composing_occurrence);
+      WR1: ((related_view\Stratum_stack_model.composing_occurrence *
+            relating_view\Stratum_stack_model.composing_occurrence) = 
+            related_view\Stratum_stack_model.composing_occurrence);
       WR2: acyclic_library_to_design_stack_model_mapping(SELF, [related_view], 
            'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING');            
   END_ENTITY;

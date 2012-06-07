@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.324 2012/06/03 02:30:54 thomasrthurman Exp $
+   $Id: arm.exp,v 1.325 2012/06/04 02:29:54 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6989 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6435
 *)
@@ -728,14 +728,12 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       location_3d                   : OPTIONAL Cartesian_point;
       SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
     DERIVE
-      aggregate_join    : SET[1:?] OF join_relationship := 
-           make_aggregate_join(
+      reference_network    : Generic_physical_network := 
+          limd_get_generic_network(
                inter_join_path,
                intra_join_path,
                embedded_physical_component_path,
                unrouted_join_path);
-      --reference_network : Generic_physical_network := aggregate_join[1].network_topology;
-      reference_network : Generic_physical_network := aggregate_join[1]\Routed_join_relationship.network_topology; -- LK What about Unrouted_join_relationship ?
     INVERSE
       inter_join_path         : SET[0:1] OF Inter_stratum_join_relationship FOR points_to_be_connected;
       intra_join_path         : SET [0:?] OF Intra_stratum_join_relationship FOR points_to_be_connected;
@@ -1513,18 +1511,28 @@ END_FUNCTION;
     RETURN (SIZEOF(ac));
   END_FUNCTION;
 
-  FUNCTION make_aggregate_join(
+  FUNCTION limd_get_generic_network(
     input1 : SET OF Inter_stratum_join_relationship ;
     input2 : SET OF Intra_stratum_join_relationship ;
     input3 : SET OF Stratum_embedded_physical_component_join_relationship;
-    input4 : SET OF Unrouted_join_relationship) : SET OF Join_relationship;
+    input4 : SET OF Unrouted_join_relationship) : Generic_physical_network;
 
     LOCAL
-      v1 : SET OF join_relationship := input1;
+      r1  : SET OF Routed_join_relationship := input1 + input2 + input3;
+      u1  : SET OF Unrouted_join_relationship := input4;
+      gpn : SET OF Generic_physical_network := [];
     END_LOCAL;
-
-    v1 := v1 + input2 + input3 + input4;
-    RETURN(v1);
+  REPEAT i := 1 TO SIZEOF(r1);
+    gpn := gpn + r1[i]\Routed_join_relationship.network_topology;
+  END_REPEAT;
+  REPEAT i := 1 TO SIZEOF(u1);
+    gpn := gpn + u1[i]\Unrouted_join_relationship.network_topology;
+  END_REPEAT;
+  IF SIZEOF(gpn) <> 1 THEN
+    RETURN(?);
+  ELSE
+    RETURN(gpn[1]);
+  END_IF;
   END_FUNCTION;
 
   FUNCTION get_ims(input : Stratum) : SET OF Product_view_definition;

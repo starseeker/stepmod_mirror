@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="product_data_quality_inspection_result_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Product_data_quality_inspection_result_arm">
       <interface kind="use" schema="Foundation_representation_arm"/>
@@ -12,6 +12,9 @@
       <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="inspected_element_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
       <type name="statistical_value_type">
          <enumeration items="number_of_inspected_instances number_of_quality_defects_detected"/>
       </type>
@@ -40,6 +43,10 @@
          <where expression="SIZEOF(QUERY(i1&lt;*bag_to_set(USEDIN(&#10;              SELF\data_quality_inspection_report.&#10;              inspection_result.criterion_inspected,&#10;              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+&#10;              'DATA_QUALITY_REPORT_REQUEST.CRITERION_OF_REPORT_REQUEST'))|&#10;              'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+&#10;              'DETAILED_REPORT_REQUEST'&#10;            IN TYPEOF(i1)))&gt;0" label="WR1"/>
       </entity>
       <entity name="Data_quality_inspection_instance_report_item" supertypes="Representation_item">
+         <explicit name="inspected_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_element_select"/>
+         </explicit>
          <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+&#10;                           'DATA_QUALITY_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
       </entity>
       <entity name="Data_quality_inspection_report" super.expression="ONEOF (Data_quality_inspection_criterion_report, Data_quality_inspection_instance_report)" supertypes="Representation_item">

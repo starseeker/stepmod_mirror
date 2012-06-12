@@ -1,0 +1,215 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- externally_conditioned_data_quality_criteria - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_criteria_mim;
+
+  USE FROM Document_assignment_mim;
+
+  USE FROM Product_data_quality_criteria_mim;
+
+  USE FROM Externally_conditioned_data_quality_inspection_result_mim;
+
+  REFERENCE FROM support_resource_schema
+    (bag_to_set);
+ 
+  TYPE ecdq_document_reference_item =  EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (externally_conditioned_data_quality_criterion);
+  END_TYPE; 
+  
+  ENTITY disallowed_assembly_relationship_used
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE']);
+  END_ENTITY;
+
+  ENTITY excessive_use_of_groups
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, ['GROUP_SCHEMA.GROUP']);
+  END_ENTITY;
+  
+  ENTITY excessive_use_of_layers
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+    ['PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_LAYER_ASSIGNMENT']);
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_criteria_representation
+    SUBTYPE OF(Data_quality_criteria_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_MIM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_criterion
+    SUBTYPE OF(Data_quality_criterion,Data_quality_measurement_requirement);
+    WHERE
+      WR1 : SIZEOF(USEDIN(SELF,
+              'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+
+              'DATA_QUALITY_CRITERION_ASSESSMENT_ASSOCIATION.'+
+              'CRITERION')) = 0;
+      WR2 : SIZEOF(QUERY(i1<*bag_to_set( USEDIN(SELF,'REPRESENTATION_SCHEMA.'+ 
+                'REPRESENTATION_ITEM_RELATIONSHIP.'+ 'RELATED_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+ 'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION'
+              IN TYPEOF(i1))) = 0;
+      WR3 : SIZEOF(QUERY(i1<*bag_to_set( USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                'REPRESENTATION_ITEM_RELATIONSHIP.'+ 'RELATING_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+ 'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION'
+             IN TYPEOF(i1))) = 0;
+  END_ENTITY;
+
+  ENTITY inappropriate_element_visibility
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM']);
+  END_ENTITY;
+
+  ENTITY inappropriate_use_of_layer
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_LAYER_ASSIGNMENT']);
+  END_ENTITY;
+
+  ENTITY inconsistent_element_reference
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY  non_agreed_accuracy_parameter_used
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+     ['REPRESENTATION_SCHEMA.GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT']);
+  END_ENTITY;
+  
+  ENTITY  non_agreed_scale_used
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['GEOMETRIY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D']);
+  END_ENTITY;
+
+  ENTITY non_agreed_unit_used
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT']);
+  END_ENTITY;
+  
+  ENTITY non_referenced_coordinate_system
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D']);
+  END_ENTITY;
+
+  ENTITY unused_shape_element
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY wrong_element_name
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  FUNCTION validate_ecdq_inspected_elements_type
+      (ei:Externally_conditioned_data_quality_criterion;
+       type_list:BAG OF STRING):LOGICAL;
+       LOCAL
+       sdqir: SET OF
+        EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT:=[];
+       dir: SET OF
+        DATA_QUALITY_INSPECTION_INSTANCE_REPORT:=[];
+       sdiri: SET OF
+        EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM:=[];
+         t_type_list:BAG OF STRING:=[];
+       END_LOCAL;
+     -- STEP-1
+     -- collect all externally_conditioned_data_quality_inspection_instance_report_item
+     -- instances associated with the given externally_conditioned_data_quality_criterion
+     -- via externally_conditioned_data_quality_inspection_result and
+     -- data_quality_inspection_instance_report
+
+     sdqir := QUERY(q <* bag_to_set(USEDIN(ei,
+                   'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+                   'DATA_QUALITY_INSPECTION_RESULT.'+
+                   'CRITERION_INSPECTED'))|
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT'
+            IN TYPEOF(q));
+     IF(SIZEOF(sdqir) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+     REPEAT i:= 1 TO SIZEOF(sdqir);
+       dir := dir + QUERY(q <* bag_to_set(USEDIN(sdqir[i],
+                   'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+                   'DATA_QUALITY_INSPECTION_REPORT.'+
+                   'INSPECTION_RESULT'))|
+           'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'DATA_QUALITY_INSPECTION_INSTANCE_REPORT'
+            IN TYPEOF(q));
+     END_REPEAT;
+     IF(SIZEOF(dir) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+
+     REPEAT i:= 1 TO SIZEOF(dir);
+       sdiri := sdiri + QUERY(q <* dir[i].inspected_instances|
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM'
+            IN TYPEOF(q));
+     END_REPEAT;
+
+     -- STEP-2
+     -- check if the types of inspected_elements of the collected
+     -- instances are exactly coincident with the type names in the 
+     -- type list given as an input argument of this function.
+
+     -- If there is no instance_report_item, then this function returns true.
+     IF(SIZEOF(sdiri) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+  
+     -- When reports exist, then perform the following checking process.
+     REPEAT i:= 1 TO SIZEOF(sdiri);
+       -- If the size of inspected_elements is not equal to the size of
+       -- type_list, then return false.
+       IF(SIZEOF(sdiri[i].inspected_elements) <> 
+          SIZEOF(type_list)) THEN
+         RETURN(FALSE);
+       END_IF;
+       -- check all elements in the type_list 
+       -- for each element of inspected_elements.
+       t_type_list := type_list;
+       REPEAT j:= 1 TO SIZEOF(sdiri[i].inspected_elements);
+         REPEAT k:= 1 TO SIZEOF(t_type_list);
+           IF(t_type_list[k] IN
+              TYPEOF(sdiri[i].inspected_elements[j])) THEN
+            t_type_list := t_type_list - t_type_list[k];
+            ESCAPE;
+           END_IF;
+         END_REPEAT;
+       END_REPEAT;
+       IF(SIZEOF(t_type_list) > 0) THEN
+         RETURN(FALSE);
+       END_IF;
+     END_REPEAT;
+    
+      RETURN(TRUE);
+  END_FUNCTION;
+
+
+END_SCHEMA;

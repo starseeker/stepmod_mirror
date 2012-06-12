@@ -1,5 +1,5 @@
 (*
-  $Id: product_data_quality_inspection_result_schema.exp,v 1.3 2009/11/03 18:26:05 lothartklein Exp $
+  $Id: product_data_quality_inspection_result_schema.exp,v 1.4 2011/03/05 18:49:13 liutkuviene Exp $
  ISO TC184/SC4/WG12 N7298 - ISO 10303-59 Quality of product shape data
  Supersedes ISO TC184/SC4/WG12 N5088
 *)
@@ -24,10 +24,13 @@ SCHEMA product_data_quality_inspection_result_schema;
     (bag_to_set);
 
   TYPE statistical_value_type = ENUMERATION OF
-    (NUMBER_OF_INSPECTED_INSTANCES,
-     NUMBER_OF_QUALITY_DEFECTS_DETECTED);
+    (number_of_inspected_instances,
+     number_of_quality_defects_detected);
   END_TYPE;
 
+  TYPE inspected_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+  
   ENTITY data_quality_inspection_result_representation
     SUBTYPE OF(representation);
       criteria_inspected : data_quality_criteria_representation;
@@ -111,6 +114,7 @@ SCHEMA product_data_quality_inspection_result_schema;
 
   ENTITY data_quality_inspection_instance_report_item
     SUBTYPE OF(representation_item);
+     inspected_elements : SET [1:?] OF inspected_element_select;
     WHERE
       WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
                             'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))
@@ -121,8 +125,8 @@ SCHEMA product_data_quality_inspection_result_schema;
 
   ENTITY data_quality_report_measurement_association
     SUBTYPE OF(representation_item_relationship);
-      SELF\representation_item_relationship.related_representation_item  : data_quality_inspection_report;
       SELF\representation_item_relationship.relating_representation_item : data_quality_measurement_requirement;
+      SELF\representation_item_relationship.related_representation_item  : data_quality_inspection_report;
   END_ENTITY;
 
   FUNCTION inspected_product_definition

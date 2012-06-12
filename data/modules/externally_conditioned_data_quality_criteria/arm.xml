@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="externally_conditioned_data_quality_criteria_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Externally_conditioned_data_quality_criteria_arm">
+      <interface kind="use" schema="Document_assignment_arm"/>
+      <interface kind="use" schema="Product_data_quality_criteria_arm"/>
+      <interface kind="use" schema="Externally_conditioned_data_quality_inspection_result_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="ecdq_documented_element_select">
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Externally_conditioned_data_quality_criterion"/>
+      </type>
+      <entity name="Disallowed_assembly_relationship_used" supertypes="Use_of_restricted_functionality">
+         <where expression="validate_ecdq_inspected_elements_type(SELF,&#10;     ['ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP'])" label="WR1"/>
+      </entity>
+      <entity name="Excessive_use_of_groups" supertypes="Use_of_restricted_functionality">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, ['GROUP_ARM.GROUP'])" label="WR1"/>
+      </entity>
+      <entity name="Excessive_use_of_layers" supertypes="Use_of_restricted_functionality">
+         <where expression="validate_ecdq_inspected_elements_type(SELF,['LAYER_ASSIGNMENT_ARM.LAYER'])" label="WR1"/>
+      </entity>
+      <entity name="Externally_conditioned_data_quality_criteria_representation" supertypes="Data_quality_criteria_representation">
+         <where expression="SIZEOF( QUERY( q &lt;* SELF\representation.items|&#10;                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_ARM.' +&#10;                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF(q))) &gt; 0" label="WR1"/>
+      </entity>
+      <entity name="Externally_conditioned_data_quality_criterion" super.expression="ONEOF (Violation_of_agreed_conditions_on_system_environment, Miscellaneous_violation, Use_of_restricted_functionality)" supertypes="Data_quality_criterion Data_quality_measurement_requirement">
+         <where expression="SIZEOF(USEDIN(SELF,&#10;            'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+&#10;            'DATA_QUALITY_CRITERION_ASSESSMENT_ASSOCIATION.'+&#10;            'CRITERION'&#10;            )) = 0" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF,&#10;                    'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+&#10;                    'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION.'+&#10;                    'RELATING_REPRESENTATION_ITEM')) = 0" label="WR2"/>
+      </entity>
+      <entity name="Inappropriate_element_visibility" supertypes="Miscellaneous_violation">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;      ['APPEARANCE_ASSIGNMENT_ARM.STYLED_ELEMENT'])" label="WR1"/>
+      </entity>
+      <entity name="Inappropriate_use_of_layer" supertypes="Use_of_restricted_functionality">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;    ['LAYER_ASSIGNMENT_ARM.LAYER'])" label="WR1"/>
+      </entity>
+      <entity name="Inconsistent_element_reference" supertypes="Miscellaneous_violation">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;    ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM'])" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Miscellaneous_violation" super.expression="ONEOF (Inappropriate_element_visibility, Inconsistent_element_reference, Non_referenced_coordinate_system, Unused_shape_element, Wrong_element_name)" supertypes="Externally_conditioned_data_quality_criterion"/>
+      <entity name="Non_agreed_accuracy_parameter_used" supertypes="Violation_of_agreed_conditions_on_system_environment">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;     ['FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT'])" label="WR1"/>
+      </entity>
+      <entity name="Non_agreed_scale_used" supertypes="Violation_of_agreed_conditions_on_system_environment">
+         <where expression="validate_ecdq_inspected_elements_type(SELF,&#10;     ['ELEMENTAL_GEOMETRIC_SHAPE_ARM.CARTESIAN_TRANSFORMATION_3D'])" label="WR1"/>
+      </entity>
+      <entity name="Non_agreed_unit_used" supertypes="Violation_of_agreed_conditions_on_system_environment">
+         <where expression="validate_ecdq_inspected_elements_type(SELF,&#10;     ['FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT'])" label="WR1"/>
+      </entity>
+      <entity name="Non_referenced_coordinate_system" supertypes="Miscellaneous_violation">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;      ['ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT'])" label="WR1"/>
+      </entity>
+      <entity name="Unused_shape_element" supertypes="Miscellaneous_violation">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;      ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM'])" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Use_of_restricted_functionality" super.expression="ONEOF (Disallowed_assembly_relationship_used, Excessive_use_of_groups, Excessive_use_of_layers, Inappropriate_use_of_layer)" supertypes="Externally_conditioned_data_quality_criterion"/>
+      <entity abstract.supertype="YES" name="Violation_of_agreed_conditions_on_system_environment" super.expression="ONEOF (Non_agreed_accuracy_parameter_used, Non_agreed_scale_used, Non_agreed_unit_used)" supertypes="Externally_conditioned_data_quality_criterion"/>
+      <entity name="Wrong_element_name" supertypes="Miscellaneous_violation">
+         <where expression="validate_ecdq_inspected_elements_type(SELF, &#10;      ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM'])" label="WR1"/>
+      </entity>
+      <function name="validate_ecdq_inspected_elements_type">
+         <parameter name="ei">
+            <typename name="Externally_conditioned_data_quality_criterion"/>
+         </parameter>
+         <parameter name="type_list">
+            <aggregate lower="0" type="BAG" upper="?"/>
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+         edqir: SET OF
+          Externally_conditioned_data_quality_inspection_result:=[];
+         dir: SET OF
+          Data_quality_inspection_instance_report:=[];
+         ediri: SET OF
+          Externally_conditioned_Data_quality_inspection_instance_report_item:=[];
+         t_type_list:BAG OF STRING:=[];
+       END_LOCAL;
+    
+       -- STEP-1
+       -- collect all Externally_conditioned_data_quality_inspection_instance_report_item
+       -- instances associated with the given Externally_conditioned_data_quality_criterion
+       -- via Externally_conditioned_data_quality_inspection_result and
+       -- data_quality_instance_report
+  
+       edqir := QUERY(q &lt;* bag_to_set(USEDIN(ei,
+                     'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+                     'DATA_QUALITY_INSPECTION_RESULT.'+
+                     'CRITERION_INSPECTED'))|
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT'
+              IN TYPEOF(q));
+       IF(SIZEOF(edqir) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+       REPEAT i:= 1 TO SIZEOF(edqir);
+         dir := dir + QUERY(q &lt;* bag_to_set(USEDIN(edqir[i],
+                     'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+                     'DATA_QUALITY_INSPECTION_REPORT.'+
+                     'INSPECTION_RESULT'))|
+             'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'DATA_QUALITY_INSPECTION_INSTANCE_REPORT'
+              IN TYPEOF(q));
+       END_REPEAT;
+       IF(SIZEOF(dir) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+  
+       REPEAT i:= 1 TO SIZEOF(dir);
+         ediri := ediri + QUERY(q &lt;* dir[i].inspected_instances|
+             'EXTERNALLY_CONDITIONE_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'EXTERNALLY_CONDITIONE_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM'
+              IN TYPEOF(q));
+       END_REPEAT;
+  
+       -- STEP-2
+       -- check whether the types of inspected_elements attribute
+       -- of collected instances include all the type names 
+       -- in the type list given as an input argument of this 
+       -- function and they do not include any other type names. 
+  
+       -- If there is no instance_report_item, then this function returns true.
+       IF(SIZEOF(ediri) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+    
+       -- When reports exist, then perform checking process.
+       REPEAT i:= 1 TO SIZEOF(ediri);
+         -- If size of inspected_elements is not equal to the size of
+         -- type_list, then return false.
+         IF(SIZEOF(ediri[i].inspected_elements) &lt;&gt; 
+            SIZEOF(type_list)) THEN
+           RETURN(FALSE);
+         END_IF;
+         -- check all elements of type_lists 
+         -- for each elements of inspected_elements.
+         t_type_list := type_list;
+         REPEAT j:= 1 TO SIZEOF(ediri[i].inspected_elements);
+           REPEAT k:= 1 TO SIZEOF(t_type_list);
+             IF(t_type_list[k] IN
+                TYPEOF(ediri[i].inspected_elements[j])) THEN
+              t_type_list := t_type_list - t_type_list[k];
+              ESCAPE;
+             END_IF;
+           END_REPEAT;
+         END_REPEAT;
+         IF(SIZEOF(t_type_list) &gt; 0) THEN
+           RETURN(FALSE);
+         END_IF;
+       END_REPEAT;
+    
+      RETURN(TRUE);</algorithm>
+      </function>
+   </schema>
+</express>

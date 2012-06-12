@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="externally_conditioned_data_quality_inspection_result_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Externally_conditioned_data_quality_inspection_result_arm">
+      <interface kind="use" schema="Appearance_assignment_arm"/>
+      <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Externally_conditioned_data_quality_criteria_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="use" schema="Group_arm"/>
+      <interface kind="use" schema="Layer_assignment_arm"/>
+      <interface kind="use" schema="Product_data_quality_inspection_result_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="inspected_ecdq_element_select">
+         <select basedon="inspected_element_select" extensible="YES" genericentity="YES" selectitems="Assembly_component_relationship Axis_placement Cartesian_transformation_3d Group Layer Numerical_representation_context Representation_item Styled_element"/>
+      </type>
+      <entity name="Externally_conditioned_data_quality_inspection_instance_report_item" supertypes="Data_quality_inspection_instance_report_item">
+         <explicit name="inspected_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_ecdq_element_select"/>
+            <redeclaration entity-ref="Data_quality_inspection_instance_report_item"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(i1 &lt;* &#10;                bag_to_set(USEDIN(SELF, 'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ &#10;                'DATA_QUALITY_INSPECTION_INSTANCE_REPORT.'+ 'INSPECTED_INSTANCES'))|&#10;                NOT('EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ &#10;                    'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' &#10;                    IN TYPEOF(i1.inspection_result))))=0" label="WR1"/>
+      </entity>
+      <entity name="Externally_conditioned_data_quality_inspection_result" supertypes="Data_quality_inspection_result">
+         <where expression="'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_ARM.'+&#10;            'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF&#10;            (SELF\data_quality_inspection_result.criterion_inspected)" label="WR1"/>
+      </entity>
+      <entity name="Externally_conditioned_data_quality_inspection_result_representation" supertypes="Data_quality_inspection_result_representation">
+         <where expression="SIZEOF( QUERY( q &lt;* SELF\representation.items|&#10;                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.' +&#10;                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) &gt; 0" label="WR1"/>
+      </entity>
+   </schema>
+</express>

@@ -1,0 +1,64 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- externally_conditioned_data_quality_inspection_result - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_inspection_result_arm;
+
+  USE FROM Appearance_assignment_arm;
+
+  USE FROM Assembly_structure_arm;
+
+  USE FROM Elemental_geometric_shape_arm;
+
+  USE FROM Externally_conditioned_data_quality_criteria_arm;
+  
+  USE FROM Foundation_representation_arm;
+
+  USE FROM Group_arm;
+  
+  USE FROM Layer_assignment_arm;
+
+  USE FROM Product_data_quality_inspection_result_arm;
+
+  REFERENCE FROM Support_resource_arm(bag_to_set);
+
+  TYPE inspected_ecdq_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
+    (Assembly_component_relationship,
+     Axis_placement, 
+     Cartesian_transformation_3d, 
+     Group,
+     Layer,
+     Numerical_representation_context, 
+     Representation_item,
+     Styled_element);
+  END_TYPE;
+
+  ENTITY Externally_conditioned_data_quality_inspection_result_representation
+    SUBTYPE OF(Data_quality_inspection_result_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_inspection_result
+    SUBTYPE OF(Data_quality_inspection_result);
+    WHERE
+      WR1 : 'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_ARM.'+
+            'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF
+            (SELF\data_quality_inspection_result.criterion_inspected);
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_inspection_instance_report_item
+    SUBTYPE OF(Data_quality_inspection_instance_report_item);
+      SELF\Data_quality_inspection_instance_report_item.inspected_elements : SET [1:?] OF inspected_ecdq_element_select;
+      WHERE
+        WR1 : SIZEOF(QUERY(i1 <* 
+                bag_to_set(USEDIN(SELF, 'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ 
+                'DATA_QUALITY_INSPECTION_INSTANCE_REPORT.'+ 'INSPECTED_INSTANCES'))|
+                NOT('EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ 
+                    'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' 
+                    IN TYPEOF(i1.inspection_result))))=0;
+  END_ENTITY;
+
+END_SCHEMA;

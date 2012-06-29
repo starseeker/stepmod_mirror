@@ -1,5 +1,5 @@
 (*
-$Id: concatenated_arm.exp,v 1.6 2012/05/28 16:43:49 thomasrthurman Exp $
+$Id: concatenated_arm.exp,v 1.7 2012/06/03 13:33:49 thomasrthurman Exp $
 *)
 (*
 ISO TC184/SC4/WG12 N2941 - ISO/TS 10303-1047 Activity - EXPRESS ARM
@@ -517,8 +517,8 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     SUBTYPE OF (Analog_port_variable);
       nominal_signal_flow_direction : signal_flow_direction;
     WHERE
-      WR1 : not_applicable <> nominal_signal_flow_direction;
-      WR2 : bidirectional <> nominal_signal_flow_direction;
+      WR1 : signal_flow_direction.not_applicable <> nominal_signal_flow_direction;
+      WR2 : signal_flow_direction.bidirectional <> nominal_signal_flow_direction;
   END_ENTITY;
 
 RULE analytical_model_version_constraint FOR 
@@ -4122,9 +4122,6 @@ SCHEMA Characteristic_arm;
       SELF\Representation.items : SET[1:4] OF Qualified_numerical_item_with_unit;
     WHERE
       WR1: valid_qualified_tolerance_characteristic(SELF);
-      WR2: SIZEOF(QUERY(it <* items | NOT
-             ('QUALIFIED_MEASURE_ARM.QUALIFIED_REPRESENTATION_ITEM' IN TYPEOF(it))))
-             = 0;
   END_ENTITY;
 
   ENTITY Range_characteristic
@@ -4192,12 +4189,13 @@ SCHEMA Characteristic_arm;
      bag_data : BAG OF STRING := [];
      valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
   END_LOCAL;
-
   REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
-   IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i])
-    THEN
-      bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Type_qualifier.name;
-   END_IF;
+    REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers);
+     IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j])
+      THEN
+        bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j]\Type_qualifier.name;
+     END_IF;
+    END_REPEAT;
   END_REPEAT;
 
   IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND
@@ -6220,7 +6218,8 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
   END_TYPE;
 
   TYPE design_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
-    (organization_or_person_in_organization_select,
+    (Organization, 
+    Person_in_organization,
      Product_version,
      Work_order);
   END_TYPE;
@@ -7971,6 +7970,7 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
   END_ENTITY;
 
 END_SCHEMA;
+
 (*
  ISO TC184/SC4/WG12 N7223- ISO/TS 10303-1527 Elementary function - EXPRESS ARM
 *)
@@ -12391,7 +12391,8 @@ END_TYPE;
 TYPE datum_reference_modifier_type = EXTENSIBLE ENUMERATION OF 
    (circular_or_cylindrical,
     spherical,
-    distance);
+    distance,
+    projected);
 END_TYPE; 
 
 TYPE datum_or_common_datum = SELECT (
@@ -12409,23 +12410,22 @@ TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT (
   Dimensional_size);
 END_TYPE;
 
-TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF ( 
-  maximum_material_requirement,
-  least_material_requirement,
-  reciprocity_requirement,
-  any_cross_section,
-  any_longitudinal_section,
-  free_state,
-  common_zone,
-  minor_diameter,
-  major_diameter,
-  pitch_diameter,
-  line_element,
-  not_convex,
-  statistical_tolerance,
-  tangent_plane,
-  each_radial_element,
-  separate_requirement);
+TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
+   (maximum_material_requirement,
+    least_material_requirement,
+    reciprocity_requirement,
+    any_cross_section,
+    free_state,
+    common_zone,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter,
+    line_element,
+    not_convex,
+    statistical_tolerance,
+    tangent_plane,
+    each_radial_element,
+    separate_requirement);
 END_TYPE; 
 
 TYPE tolerance_zone_target = SELECT (
@@ -12436,24 +12436,28 @@ TYPE tolerance_zone_target = SELECT (
 END_TYPE;
 
 TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF ( 
-  free_state,
-  basic,
-  translation,
-  least_material_requirement,
-  maximum_material_requirement,
-  point,
-  line,
-  plane,
-  orientation,
-  any_cross_section,
-  contacting_feature,
-  distance_variable,
-  degree_of_freedom_constraint_x,
-  degree_of_freedom_constraint_y,
-  degree_of_freedom_constraint_z,
-  degree_of_freedom_constraint_u,
-  degree_of_freedom_constraint_v,
-  degree_of_freedom_constraint_w);
+    free_state,
+    basic,
+    translation,
+    least_material_requirement,
+    maximum_material_requirement,
+    point,
+    line,
+    plane,
+    orientation,
+    any_cross_section,
+    any_longitudinal_section,
+    contacting_feature,
+    distance_variable,
+    degree_of_freedom_constraint_x,
+    degree_of_freedom_constraint_y,
+    degree_of_freedom_constraint_z,
+    degree_of_freedom_constraint_u,
+    degree_of_freedom_constraint_v,
+    degree_of_freedom_constraint_w,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter);
 END_TYPE; 
 
 TYPE tolerance_zone_type = ENUMERATION OF ( 
@@ -12629,7 +12633,7 @@ ENTITY Geometric_tolerance
                                 Total_runout_tolerance));
   name : OPTIONAL STRING;
   applied_to : geometric_tolerance_target;
-  modifiers : SET[1:?] OF geometrical_tolerance_modifier;
+  modifiers : SET[1:?] OF geometric_tolerance_modifier;
   qualifying_note : OPTIONAL STRING;
   first_unit_size : OPTIONAL Length_data_element;
   area_unit_type : OPTIONAL area_unit_type;
@@ -15950,12 +15954,14 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     WHERE
       WR1: SELF\Stratum_specific_template_location.bound_stratum :<>: reference_location;     
       WR2: SELF <> reference_location;
-      WR3: SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly;
-      WR4: NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(reference_location)) OR
-           ((reference_location IN 
-           SELF\Template_location_in_structured_template.assembly.composing_occurrence) AND
-           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF
-          (SELF\Template_location_in_structured_template.assembly.composing_occurrence)));
+      WR3: NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(reference_location)) OR
+           (assembly :=: reference_location\Template_location_in_structured_template.assembly);
+      WR4: NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(assembly)) OR
+           (reference_location IN assembly\Stratum_stack_dependent_template.stack\Stratum_stack_model.composing_occurrence);
+(*
+           WR4: If the assembly is a Stratum_stack_dependent_template then the reference_location
+            shall be a member of composing_occurrence of the Stratum_stack_model in the role of stack for the assembly.
+*)
       WR5 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
            TYPEOF(reference_location)) OR
            ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
@@ -15964,7 +15970,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
            TYPEOF(reference_location)) OR (SIZEOF 
            (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',
            'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF
-           (SELF\Template_location_in_structured_template.assembly)) = 2);
+           (assembly)) = 2);
   END_ENTITY;
 
   ENTITY Dependent_thermal_isolation_removal_template
@@ -16011,9 +16017,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       SELF\View_definition_relationship.relating_view : Library_stack_model;
       SELF\View_definition_relationship.related_view  : Design_stack_model;
     WHERE
-      WR1: ((SELF\View_definition_relationship.related_view.composing_occurrence *
-            SELF\View_definition_relationship.relating_view.composing_occurrence) = 
-            SELF\View_definition_relationship.related_view.composing_occurrence);
+      WR1: ((related_view\Stratum_stack_model.composing_occurrence *
+            relating_view\Stratum_stack_model.composing_occurrence) = 
+            related_view\Stratum_stack_model.composing_occurrence);
       WR2: acyclic_library_to_design_stack_model_mapping(SELF, [related_view], 
            'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING');            
   END_ENTITY;
@@ -16705,7 +16711,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       SELF\Definitional_shape_element.connection_area          : OPTIONAL SET[1:1] OF Connection_zone_in_design_view;
       location                                    : Layer_connection_point;
     UNIQUE
-      UR1 : SELF\Component_feature.element_name, SELF\Component_feature.associated_component;
+      UR1 : SELF\Shape_element.element_name, SELF\Component_feature.associated_component;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -17160,14 +17166,12 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       location_3d                   : OPTIONAL Cartesian_point;
       SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
     DERIVE
-      aggregate_join    : SET[1:?] OF join_relationship := 
-           make_aggregate_join(
+      reference_network    : Generic_physical_network := 
+          limd_get_generic_network(
                inter_join_path,
                intra_join_path,
                embedded_physical_component_path,
                unrouted_join_path);
-      --reference_network : Generic_physical_network := aggregate_join[1].network_topology;
-      reference_network : Generic_physical_network := aggregate_join[1]\Routed_join_relationship.network_topology; -- LK What about Unrouted_join_relationship ?
     INVERSE
       inter_join_path         : SET[0:1] OF Inter_stratum_join_relationship FOR points_to_be_connected;
       intra_join_path         : SET [0:?] OF Intra_stratum_join_relationship FOR points_to_be_connected;
@@ -17945,18 +17949,28 @@ END_FUNCTION;
     RETURN (SIZEOF(ac));
   END_FUNCTION;
 
-  FUNCTION make_aggregate_join(
+  FUNCTION limd_get_generic_network(
     input1 : SET OF Inter_stratum_join_relationship ;
     input2 : SET OF Intra_stratum_join_relationship ;
     input3 : SET OF Stratum_embedded_physical_component_join_relationship;
-    input4 : SET OF Unrouted_join_relationship) : SET OF Join_relationship;
+    input4 : SET OF Unrouted_join_relationship) : Generic_physical_network;
 
     LOCAL
-      v1 : SET OF join_relationship := input1;
+      r1  : SET OF Routed_join_relationship := input1 + input2 + input3;
+      u1  : SET OF Unrouted_join_relationship := input4;
+      gpn : SET OF Generic_physical_network := [];
     END_LOCAL;
-
-    v1 := v1 + input2 + input3 + input4;
-    RETURN(v1);
+  REPEAT i := 1 TO SIZEOF(r1);
+    gpn := gpn + r1[i]\Routed_join_relationship.network_topology;
+  END_REPEAT;
+  REPEAT i := 1 TO SIZEOF(u1);
+    gpn := gpn + u1[i]\Unrouted_join_relationship.network_topology;
+  END_REPEAT;
+  IF SIZEOF(gpn) <> 1 THEN
+    RETURN(?);
+  ELSE
+    RETURN(gpn[1]);
+  END_IF;
   END_FUNCTION;
 
   FUNCTION get_ims(input : Stratum) : SET OF Product_view_definition;

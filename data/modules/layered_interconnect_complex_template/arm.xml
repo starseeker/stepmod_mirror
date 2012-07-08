@@ -29,7 +29,7 @@
          <select basedon="physical_unit_shape_model_select" extensible="YES" genericentity="YES" selectitems="Physical_unit_planar_shape_model"/>
       </type>
       <type name="lict_requirement_assignment_item">
-         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Structured_template Template_location_in_structured_template"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Structured_template Template_location_in_structured_template Part_template_planar_keepout_shape_model"/>
       </type>
       <type name="location_stratum_technology_occurrence_or_stratum_technology">
          <select extensible="NO" genericentity="NO" selectitems="stratum_technology_occurrence_or_stratum_technology Template_location_in_structured_template"/>
@@ -60,10 +60,10 @@
          </explicit>
          <where expression="SELF\Stratum_specific_template_location.bound_stratum :&lt;&gt;: reference_location" label="WR1"/>
          <where expression="SELF &lt;&gt; reference_location" label="WR2"/>
-         <where expression="SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly" label="WR3"/>
-         <where expression="TRUE" label="WR4"/>
-         <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(bound_stratum))" label="WR5"/>
-         <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR (SIZEOF &#10;           (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',&#10;           'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF&#10;           (SELF\Template_location_in_structured_template.assembly)) = 2)" label="WR6"/>
+         <where expression="NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(reference_location)) OR&#10;           (assembly :=: reference_location\Template_location_in_structured_template.assembly)" label="WR3"/>
+         <where expression="NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(assembly)) OR&#10;           (reference_location IN assembly\Stratum_stack_dependent_template.stack\Stratum_stack_model.composing_occurrence)" label="WR4"/>
+         <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(SELF\Stratum_specific_template_location.bound_stratum))" label="WR5"/>
+         <where expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR (SIZEOF &#10;           (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',&#10;           'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF&#10;           (assembly)) = 2)" label="WR6"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Dependent_thermal_isolation_removal_template" supertypes="Thermal_isolation_removal_template">
          <explicit name="associated_item" optional="NO">
@@ -102,7 +102,7 @@
             <typename name="Design_stack_model"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <where expression="((SELF\View_definition_relationship.related_view.composing_occurrence *&#10;            SELF\View_definition_relationship.relating_view.composing_occurrence) = &#10;            SELF\View_definition_relationship.related_view.composing_occurrence)" label="WR1"/>
+         <where expression="((related_view\Stratum_stack_model.composing_occurrence *&#10;            relating_view\Stratum_stack_model.composing_occurrence) = &#10;            related_view\Stratum_stack_model.composing_occurrence)" label="WR1"/>
          <where expression="acyclic_library_to_design_stack_model_mapping(SELF, [related_view], &#10;           'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING')" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Material_removal_structured_template" supertypes="Single_stratum_structured_template">

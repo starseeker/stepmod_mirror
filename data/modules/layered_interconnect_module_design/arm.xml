@@ -45,7 +45,7 @@
          <select extensible="NO" genericentity="NO" selectitems="Design_layer_stratum Documentation_layer_stratum"/>
       </type>
       <type name="limd_documented_element_select">
-         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="stratum_concept Stratum"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="stratum_concept"/>
       </type>
       <type name="limd_ee_product_definition_with_annotation_elements">
          <select basedon="ee_product_definition_with_annotation_elements" extensible="YES" genericentity="YES" selectitems="Template_definition Part_usage_view Part_design_view Stratum"/>
@@ -63,10 +63,10 @@
          <select basedon="physical_feature_or_part_template" extensible="YES" genericentity="YES" selectitems="Part_feature Physical_component_feature Laminate_component"/>
       </type>
       <type name="limd_requirement_assignment_item">
-         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Layered_interconnect_module_design_view"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Layered_interconnect_module_design_view Stratum_feature_conductive_join"/>
       </type>
       <type name="limd_restriction_basis_item">
-         <select basedon="restriction_basis_item" extensible="YES" genericentity="YES" selectitems="stratum_concept Stratum"/>
+         <select basedon="restriction_basis_item" extensible="YES" genericentity="YES" selectitems="stratum_concept"/>
       </type>
       <type name="limd_sf_shape_select">
          <select extensible="YES" genericentity="YES"/>
@@ -224,7 +224,7 @@
          <where expression="(1 + SIZEOF(connected_points)) = limd_get_sz_cp(connected_points)" label="WR5"/>
          <where expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(SELF))" label="WR6"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Conductive_interconnect_element_terminal" supertypes="Laminate_component_feature Definitional_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Conductive_interconnect_element_terminal" supertypes="Laminate_component_feature">
          <explicit name="associated_component" optional="NO">
             <typename name="Conductive_interconnect_element"/>
             <redeclaration entity-ref="Component_feature"/>
@@ -679,10 +679,6 @@
          <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Layer_connection_point" super.expression="ONEOF (Explicitly_located_layer_connection_point, Dependently_located_layer_connection_point)" supertypes="Shape_element">
-         <explicit name="element_name" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </explicit>
          <explicit name="location_2d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
@@ -693,11 +689,7 @@
             <typename name="Design_layer_stratum"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
-         <derived expression="make_aggregate_join(&#10;               inter_join_path,&#10;               intra_join_path,&#10;               embedded_physical_component_path,&#10;               unrouted_join_path)" name="aggregate_join">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Join_relationship"/>
-         </derived>
-         <derived expression="aggregate_join[1]\Routed_join_relationship.network_topology" name="reference_network">
+         <derived expression="limd_get_generic_network(&#10;               inter_join_path,&#10;               intra_join_path,&#10;               embedded_physical_component_path,&#10;               unrouted_join_path)" name="reference_network">
             <typename name="Generic_physical_network"/>
          </derived>
          <inverse attribute="points_to_be_connected" entity="Inter_stratum_join_relationship" name="inter_join_path">
@@ -713,7 +705,7 @@
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
          <unique label="UR1">
-            <unique.attribute attribute="element_name"/>
+            <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="resident_design_layer_stratum"/>
          </unique>
          <where expression="EXISTS(location_2d) OR EXISTS(location_3d)" label="WR1"/>
@@ -1052,10 +1044,6 @@
             <typename name="design_or_documentation_stratum"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
-         <explicit name="element_name" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </explicit>
          <explicit name="feature_of_size" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
@@ -1063,7 +1051,7 @@
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
          <unique label="UR1">
-            <unique.attribute attribute="element_name"/>
+            <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="resident_stratum"/>
          </unique>
          <where expression="SIZEOF(query ( ac &lt;* USEDIN(SELF,'') |&#10;                  ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))&#10;                   AND&#10;                  (get_assemblies(ac) &lt;&gt; get_ims(resident_stratum))&#10;                  ))&#10;                  = 0" label="WR1"/>
@@ -1526,6 +1514,41 @@ sftc_sf : SET OF Stratum_feature_template_component   := [];
     END_IF;
     RETURN(?);</algorithm>
       </function>
+      <function name="limd_get_generic_network">
+         <parameter name="input1">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Inter_stratum_join_relationship"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Intra_stratum_join_relationship"/>
+         </parameter>
+         <parameter name="input3">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Stratum_embedded_physical_component_join_relationship"/>
+         </parameter>
+         <parameter name="input4">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Unrouted_join_relationship"/>
+         </parameter>
+         <typename name="Generic_physical_network"/>
+         <algorithm>LOCAL
+      r1  : SET OF Routed_join_relationship := input1 + input2 + input3;
+      u1  : SET OF Unrouted_join_relationship := input4;
+      gpn : SET OF Generic_physical_network := [];
+    END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(r1);
+    gpn := gpn + r1[i]\Routed_join_relationship.network_topology;
+  END_REPEAT;
+  REPEAT i := 1 TO SIZEOF(u1);
+    gpn := gpn + u1[i]\Unrouted_join_relationship.network_topology;
+  END_REPEAT;
+  IF SIZEOF(gpn) &lt;&gt; 1 THEN
+    RETURN(?);
+  ELSE
+    RETURN(gpn[1]);
+  END_IF;</algorithm>
+      </function>
       <function name="limd_get_lcp_resident_stratum">
          <parameter name="input">
             <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -1558,32 +1581,6 @@ sftc_sf : SET OF Stratum_feature_template_component   := [];
       input[i]\Conductive_interconnect_element_terminal_link.subsequent_point;
     END_REPEAT;
     RETURN (SIZEOF(ac));</algorithm>
-      </function>
-      <function name="make_aggregate_join">
-         <parameter name="input1">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Inter_stratum_join_relationship"/>
-         </parameter>
-         <parameter name="input2">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Intra_stratum_join_relationship"/>
-         </parameter>
-         <parameter name="input3">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Stratum_embedded_physical_component_join_relationship"/>
-         </parameter>
-         <parameter name="input4">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Unrouted_join_relationship"/>
-         </parameter>
-         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-         <typename name="Join_relationship"/>
-         <algorithm>LOCAL
-      v1 : SET OF join_relationship := input1;
-    END_LOCAL;
-
-    v1 := v1 + input2 + input3 + input4;
-    RETURN(v1);</algorithm>
       </function>
    </schema>
 </express>

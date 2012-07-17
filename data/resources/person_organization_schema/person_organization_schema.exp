@@ -1,18 +1,47 @@
 (*
-2009-11-14
+$Id: mim.exp,v 1.17 2009/12/11 13:39:31 mikeward Exp $
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
-(*
-Supersedes ISO TC184/SC4/WG12 N6753 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
-changes to product_property_representation_schema and to measure_schema as per TC2 - WG12 N6752.
-*)
-
-
 
 SCHEMA person_organization_schema;
-  REFERENCE FROM basic_attribute_schema (description_attribute, get_description_value, get_id_value, get_name_value, get_role, id_attribute, name_attribute, object_role, role_association);
-  REFERENCE FROM support_resource_schema (bag_to_set, identifier, label, text);
-  TYPE person_organization_select = SELECT (person, organization, person_and_organization);
+
+  REFERENCE FROM basic_attribute_schema (
+    description_attribute, 
+    description_attribute_select,
+    get_description_value, 
+    get_id_value, 
+    get_name_value, 
+    get_role, 
+    id_attribute, 
+    id_attribute_select,
+    name_attribute, 
+    name_attribute_select,
+    object_role, 
+    role_association);
+  REFERENCE FROM support_resource_schema (
+    bag_to_set, 
+    identifier, 
+    label, 
+    text);
+  TYPE person_organization_select = SELECT (
+    person, 
+    organization, 
+    person_and_organization);
+  END_TYPE;
+
+  TYPE pos_description_attribute_select = SELECT BASED_ON description_attribute_select WITH (
+    person_and_organization_role,
+    person_and_organization,
+    person_role,
+    organization_role,
+    organizational_project);
+  END_TYPE;
+  TYPE pos_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    address);
+  END_TYPE;
+  TYPE pos_name_attribute_select = SELECT BASED_ON name_attribute_select WITH (
+    address,
+    person_and_organization);
   END_TYPE;
 
   ENTITY address;

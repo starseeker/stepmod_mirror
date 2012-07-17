@@ -1,19 +1,36 @@
 (*
-2009-11-14
+$Id: mim.exp,v 1.17 2009/12/11 13:39:31 mikeward Exp $
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
-(*
-Supersedes ISO TC184/SC4/WG12 N6753 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
-changes to product_property_representation_schema and to measure_schema as per TC2 - WG12 N6752.
-*)
-
 
 SCHEMA product_property_definition_schema;
-  REFERENCE FROM process_property_schema (action_property, resource_property);
-  REFERENCE FROM product_definition_schema (product_definition, product_definition_relationship);
-  REFERENCE FROM support_resource_schema (bag_to_set, identifier, label, text);
-  REFERENCE FROM basic_attribute_schema (get_id_value, id_attribute);
-  TYPE characterized_definition = SELECT (characterized_object, characterized_product_definition, shape_definition);
+
+  REFERENCE FROM process_property_schema (
+    action_property, 
+    resource_property);
+  REFERENCE FROM product_definition_schema (
+    product_definition, 
+    product_definition_relationship);
+  REFERENCE FROM support_resource_schema (
+    bag_to_set, 
+    identifier, 
+    label, 
+    text);
+  REFERENCE FROM basic_attribute_schema (
+    get_id_value, 
+    id_attribute,
+    id_attribute_select);
+    
+  TYPE characterized_definition = SELECT (
+    characterized_object, 
+    characterized_product_definition, 
+    shape_definition);
+  END_TYPE;
+
+  TYPE ppds_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    property_definition,
+    shape_aspect, 
+    shape_aspect_relationship);
   END_TYPE;
 
   TYPE characterized_product_definition = SELECT (product_definition, product_definition_relationship);
@@ -85,6 +102,8 @@ SCHEMA product_property_definition_schema;
     product_definitional : LOGICAL;
   DERIVE
     id : identifier := get_id_value(SELF);
+  UNIQUE
+    UR1: id, of_shape;    
   WHERE
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
   END_ENTITY;

@@ -1,10 +1,14 @@
 (*
- $Id: shape_tolerance_schema.exp,v 1.37 2011/09/24 13:54:10 lothartklein Exp $
+ $Id: shape_tolerance_schema.exp,v 1.38 2012/06/02 12:43:46 lothartklein Exp $
 ISO TC184/SC4/WG12 N7297 - ISO/DIS 10303-47 Shape variation tolerances - EXPRESS
 *) 
 
-
 SCHEMA shape_tolerance_schema;
+
+  REFERENCE FROM basic_attribute_schema (
+    get_id_value, 
+    id_attribute,
+    id_attribute_select);
 
 REFERENCE FROM product_property_definition_schema   -- ISO 10303-41
   (product_definition_shape,
@@ -29,7 +33,8 @@ REFERENCE FROM representation_schema   -- ISO 10303-43
   (representation); 
 
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
-  (label,
+  (identifier,
+   label,
    text,
    type_check_function); 
 
@@ -43,6 +48,10 @@ REFERENCE FROM shape_dimension_schema   -- ISO 10303-47
   (dimensional_characteristic,
    dimensional_location,
    dimensional_size); 
+
+TYPE st_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    geometric_tolerance);
+END_TYPE;
 
 TYPE area_unit_type = EXTENSIBLE ENUMERATION OF 
    (circular,
@@ -166,14 +175,17 @@ ENTITY geometric_tolerance
   toleranced_shape_aspect : geometric_tolerance_target;
 DERIVE
   controlling_shape : product_definition_shape := sts_get_product_definition_shape(toleranced_shape_aspect);
+    id : identifier := get_id_value(SELF);
 UNIQUE
-  UR1: name,controlling_shape;
+  UR1: name, controlling_shape;
+  UR1: id, controlling_shape;
 WHERE
   WR1: magnitude\measure_with_unit.value_component >= 0.0;
   WR2: EXISTS(controlling_shape);
   WR3: NOT ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF(toleranced_shape_aspect))
        OR (toleranced_shape_aspect\shape_aspect_relationship.relating_shape_aspect.of_shape :=:
             toleranced_shape_aspect\shape_aspect_relationship.related_shape_aspect.of_shape);
+  WR4: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
 
 ENTITY geometric_tolerance_relationship;

@@ -5,6 +5,11 @@
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-47">
    <application name="JSDAI" owner="LKSoft" source="shape_dimension_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="shape_dimension_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="get_id_value"/>
+         <interfaced.item name="id_attribute"/>
+         <interfaced.item name="id_attribute_select"/>
+      </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="measure_with_unit"/>
       </interface>
@@ -26,6 +31,7 @@
          <interfaced.item name="shape_aspect_relationship"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
          <interfaced.item name="label"/>
          <interfaced.item name="text"/>
       </interface>
@@ -34,6 +40,9 @@
       </type>
       <type name="dimensional_characteristic">
          <select selectitems="dimensional_location dimensional_size"/>
+      </type>
+      <type name="sd_id_attribute_select">
+         <select basedon="id_attribute_select" selectitems="dimensional_size"/>
       </type>
       <type name="sds_item_identified_representation_usage_definition">
          <select basedon="item_identified_representation_usage_definition" extensible="YES" genericentity="YES" selectitems="dimensional_size"/>
@@ -75,7 +84,15 @@
          <explicit name="name">
             <typename name="label"/>
          </explicit>
+         <derived expression="get_id_value(SELF)" name="id">
+            <typename name="identifier"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="id"/>
+            <unique.attribute attribute="applies_to"/>
+         </unique>
          <where expression="applies_to.product_definitional = TRUE" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR2"/>
       </entity>
       <entity name="dimensional_size_with_path" supertypes="dimensional_size">
          <explicit name="path">

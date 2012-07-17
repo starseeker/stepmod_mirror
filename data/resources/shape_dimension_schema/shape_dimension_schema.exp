@@ -1,10 +1,15 @@
 (*
- $Id: shape_dimension_schema.exp,v 1.15 2011/09/04 20:08:51 lothartklein Exp $
+ $Id: shape_dimension_schema.exp,v 1.16 2012/03/30 18:24:29 lothartklein Exp $
 ISO TC184/SC4/WG12 N7297 - ISO/DIS 10303-47 Shape variation tolerances - EXPRESS
 *) 
 
 
 SCHEMA shape_dimension_schema;
+
+REFERENCE FROM basic_attribute_schema (
+  get_id_value, 
+  id_attribute,
+  id_attribute_select);
 
 REFERENCE FROM measure_schema   -- ISO 10303-41
   (measure_with_unit); 
@@ -27,8 +32,13 @@ REFERENCE FROM product_property_definition_schema   -- ISO 10303-41
    shape_aspect_relationship); 
 
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
-  (label,
+  (identifier,
+   label,
    text); 
+
+  TYPE sd_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    dimensional_size);
+  END_TYPE;
 
 
 TYPE angle_relator = ENUMERATION OF 
@@ -86,8 +96,13 @@ ENTITY dimensional_size
                        dimensional_size_with_path));
   applies_to : shape_aspect;
   name : label;
+DERIVE
+  id : identifier := get_id_value(SELF);
+UNIQUE
+  UR1: id, applies_to;    
 WHERE
   WR1: applies_to.product_definitional = TRUE;
+  WR2: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
 
 ENTITY dimensional_size_with_path

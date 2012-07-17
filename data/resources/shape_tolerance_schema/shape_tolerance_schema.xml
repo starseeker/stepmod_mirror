@@ -5,6 +5,11 @@
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-47">
    <application name="JSDAI" owner="LKSoft" source="shape_tolerance_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="shape_tolerance_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="get_id_value"/>
+         <interfaced.item name="id_attribute"/>
+         <interfaced.item name="id_attribute_select"/>
+      </interface>
       <interface kind="reference" schema="product_property_definition_schema">
          <interfaced.item name="product_definition_shape"/>
          <interfaced.item name="shape_aspect"/>
@@ -28,6 +33,7 @@
          <interfaced.item name="representation"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
          <interfaced.item name="label"/>
          <interfaced.item name="text"/>
          <interfaced.item name="type_check_function"/>
@@ -63,6 +69,9 @@
       </type>
       <type name="shape_tolerance_select">
          <select extensible="NO" genericentity="NO" selectitems="geometric_tolerance plus_minus_tolerance"/>
+      </type>
+      <type name="st_id_attribute_select">
+         <select basedon="id_attribute_select" extensible="NO" genericentity="NO" selectitems="geometric_tolerance"/>
       </type>
       <type name="sts_item_identified_representation_usage_definition">
          <select basedon="item_identified_representation_usage_definition" extensible="YES" genericentity="YES" selectitems="geometric_tolerance"/>
@@ -112,13 +121,21 @@
          <derived expression="sts_get_product_definition_shape(toleranced_shape_aspect)" name="controlling_shape">
             <typename name="product_definition_shape"/>
          </derived>
+         <derived expression="get_id_value(SELF)" name="id">
+            <typename name="identifier"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
+            <unique.attribute attribute="controlling_shape"/>
+         </unique>
+         <unique label="UR1">
+            <unique.attribute attribute="id"/>
             <unique.attribute attribute="controlling_shape"/>
          </unique>
          <where expression="magnitude\measure_with_unit.value_component &gt;= 0.0" label="WR1"/>
          <where expression="EXISTS(controlling_shape)" label="WR2"/>
          <where expression="NOT ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF(toleranced_shape_aspect))&#10;       OR (toleranced_shape_aspect\shape_aspect_relationship.relating_shape_aspect.of_shape :=:&#10;            toleranced_shape_aspect\shape_aspect_relationship.related_shape_aspect.of_shape)" label="WR3"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR4"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_relationship">
          <explicit name="name" optional="NO">

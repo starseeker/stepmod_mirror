@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.27 2012/07/05 17:51:33 thomasrthurman Exp $
+   $Id: mim.exp,v 1.28 2012/07/08 09:53:48 lothartklein Exp $
 ISO TC184/SC4/WG3 N2819 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
 *)
 
@@ -67,10 +67,9 @@ USE FROM product_definition_schema(  -- ISO 10303-41
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    type_check_function); 
-
 USE FROM product_property_representation_schema
   (item_identified_representation_usage_definition);   
-
+REFERENCE FROM representation_schema(founded_item);
 
   CONSTANT
     deprecated_interfaced_data_types : SET OF STRING := 
@@ -697,6 +696,46 @@ END_TYPE;
   ENTITY supplied_part_relationship
     SUBTYPE OF (product_definition_relationship);
   END_ENTITY;
+  
+SUBTYPE_CONSTRAINT ap242_founded_item_subtypes FOR founded_item;
+  ABSTRACT SUPERTYPE;
+  ONEOF (b_spline_curve_knot_locator,
+         b_spline_curve_segment,
+         b_spline_surface_knot_locator,
+         b_spline_surface_patch,
+         b_spline_surface_strip,
+         boundary_curve_of_b_spline_or_rectangular_composite_surface,
+         box_domain,
+         character_glyph_style_outline,
+         character_glyph_style_stroke,
+         composite_curve_segment,
+         composite_curve_transition_locator,
+         curve_style,
+         curve_style_font,
+         curve_style_font_and_scaling,
+         curve_style_font_pattern,
+         externally_defined_style,
+         fill_area_style,
+         interpolated_configuration_segment,
+         kinematic_path_segment,
+         plane_angle_and_length_pair,
+         plane_angle_and_ratio_pair,
+         point_style,
+         presentation_style_assignment,
+         rectangular_composite_surface_transition_locator,
+         surface_patch,
+         surface_side_style,
+         surface_style_boundary,
+         surface_style_control_grid,
+         surface_style_fill_area,
+         surface_style_parameter_line,
+         surface_style_segmentation_curve,
+         surface_style_silhouette,
+         surface_style_usage,
+         symbol_style,
+         text_style,
+         view_volume);
+END_SUBTYPE_CONSTRAINT;
 
   RULE dimensioning_data_requires_document FOR (applied_document_reference, product_definition_context_association, role_association);
     LOCAL

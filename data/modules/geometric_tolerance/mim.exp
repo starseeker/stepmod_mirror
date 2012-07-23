@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.40 2011/06/22 18:07:31 thomasrthurman Exp $
+$Id: mim.exp,v 1.41 2011/09/25 21:46:12 lothartklein Exp $
 ISO TC184/SC4/WG12 N6909 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N6757
 *) 
@@ -190,21 +190,6 @@ FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOO
   END_CASE;
 END_FUNCTION;
  
-RULE unique_shape_aspect_constraint for (product_definition_shape, shape_aspect);
-LOCAL
- bsa : BAG OF shape_aspect := [];
- pass : BOOLEAN := TRUE;
-END_LOCAL;
-REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
- bsa := QUERY(sa <* USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE') | sa\shape_aspect.name <> '');
-IF (SIZEOF(bag_to_set(bsa)) <> SIZEOF(bsa)) THEN pass := FALSE;
-END_IF;
-END_REPEAT;
-WHERE
-  WR1 : pass;
-END_RULE;
-
-
 RULE unique_dimensional_location_constraint for (product_definition_shape, dimensional_location);
 LOCAL
  ssa : SET OF shape_aspect := [];
@@ -227,8 +212,6 @@ WHERE
   WR1 : pass;
 END_RULE;
 
-
-
 RULE tolerance_zone_form_name_constraint for (tolerance_zone_form);
 LOCAL
  names : SET OF STRING :=
@@ -250,6 +233,5 @@ END_REPEAT;
 WHERE
  WR1: pass;
 END_RULE;
-
 
 END_SCHEMA;  -- Geometric_tolerance_mim

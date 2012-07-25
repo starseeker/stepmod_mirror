@@ -1,5 +1,5 @@
 (* 
-$Id: arm.exp,v 1.16 2011/03/20 22:00:30 lothartklein Exp $  
+$Id: arm.exp,v 1.17 2011/06/06 18:12:35 lothartklein Exp $  
 ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N4278
 *) 
@@ -29,7 +29,9 @@ ENTITY Centre_of_symmetry
   SUPERTYPE OF (ONEOF (
     Centre_axis,
     Centre_plane,
-    Centre_point))
+    Centre_point,
+    Median_curve,
+    Median_surface))
   SUBTYPE OF (Derived_shape_element);
 END_ENTITY;
 
@@ -65,6 +67,11 @@ ENTITY Geometric_alignment
   SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
 END_ENTITY;
 
+ENTITY Geometric_contact
+  SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[2:2] OF Shape_element;
+END_ENTITY;
+
 ENTITY Geometric_intersection
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
@@ -75,6 +82,18 @@ ENTITY Extension
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
 END_ENTITY;
 
+ENTITY Median_curve
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+ENTITY Median_surface
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
 ENTITY Parallel_offset
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
@@ -83,11 +102,6 @@ END_ENTITY;
 ENTITY Perpendicular_to
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
-END_ENTITY;
-
-ENTITY Geometric_contact
-  SUBTYPE OF (Derived_shape_element);
-  SELF\Derived_shape_element.derived_from : SET[2:2] OF Shape_element;
 END_ENTITY;
 
 ENTITY Tangent_plane

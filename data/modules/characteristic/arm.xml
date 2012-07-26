@@ -158,7 +158,6 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
          <where expression="valid_qualified_tolerance_characteristic(SELF)" label="WR1"/>
-         <where expression="SIZEOF(QUERY(it &lt;* items | NOT&#10;             ('QUALIFIED_MEASURE_ARM.QUALIFIED_REPRESENTATION_ITEM' IN TYPEOF(it))))&#10;             = 0" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Range_characteristic" supertypes="Property_value_representation">
          <explicit name="items" optional="NO">
@@ -216,12 +215,13 @@
      bag_data : BAG OF STRING := [];
      valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
   END_LOCAL;
-
   REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
-   IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i])
-    THEN
-      bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Type_qualifier.name;
-   END_IF;
+    REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers);
+     IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j])
+      THEN
+        bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j]\Type_qualifier.name;
+     END_IF;
+    END_REPEAT;
   END_REPEAT;
 
   IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND

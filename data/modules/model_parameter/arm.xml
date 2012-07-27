@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2009/06/14 12:08:01 $" rcs.revision="$Revision: 1.54 $" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1703">
    <application name="JSDAI" owner="LKSoft" source="model_parameter_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Model_parameter_arm">
       <interface kind="use" schema="Activity_method_assignment_arm"/>
@@ -20,55 +20,58 @@
          <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Model_parameter"/>
       </type>
       <type name="mp_groupable_item">
-         <select basedon="groupable_item" extensible="NO" genericentity="NO" selectitems="Group_relationship"/>
+         <select basedon="groupable_item" selectitems="Group_relationship"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Category_model_parameter" supertypes="Model_parameter">
+      <type name="parameter_assignment_select">
+         <select extensible="YES" genericentity="YES" selectitems="Model_parameter"/>
+      </type>
+      <entity name="Category_model_parameter" supertypes="Model_parameter">
          <inverse attribute="attribute_definition" entity="Classification_attribute" name="associated_attribute">
             <inverse.aggregate lower="1" type="SET" upper="1"/>
          </inverse>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Independent_property_with_unit" supertypes="Independent_property">
-         <explicit name="unit_of_measure" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+      <entity name="Independent_property_with_unit" supertypes="Independent_property">
+         <explicit name="unit_of_measure">
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Unit"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Model_parameter" supertypes="Independent_property">
+      <entity name="Model_parameter" supertypes="Independent_property">
          <explicit name="valid_range" optional="YES">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Value_range"/>
          </explicit>
          <explicit name="default_value" optional="YES">
             <typename name="scalar_or_coordinated_characteristics"/>
          </explicit>
          <derived expression="get_document_definition(SELF, 'reference document', &#10;        'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION')" name="reference_document">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Document_definition"/>
          </derived>
          <where expression="EXISTS (reference_document) AND (SIZEOF(reference_document) = 1)" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Model_parameter_with_unit" supertypes="Independent_property_with_unit Model_parameter">
+      <entity name="Model_parameter_with_unit" supertypes="Independent_property_with_unit Model_parameter">
          <where expression="NOT('MODEL_PARAMETER_ARM.SCHEMA_BASED_MODEL_PARAMETER' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Parameter_assignment" supertypes="Independent_property_representation">
-         <explicit name="property" optional="NO">
-            <typename name="Model_parameter"/>
-            <redeclaration entity-ref="Independent_property_representation"/>
+      <entity name="Parameter_assignment" supertypes="Property_definition_representation">
+         <explicit name="definition">
+            <typename name="parameter_assignment_select"/>
+            <redeclaration entity-ref="Property_definition_representation"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Parameter_assignment_override">
-         <explicit name="overridden_parameter_assignment" optional="NO">
+      <entity name="Parameter_assignment_override">
+         <explicit name="overridden_parameter_assignment">
             <typename name="Parameter_assignment"/>
          </explicit>
-         <explicit name="overriding_parameter_assignment" optional="NO">
+         <explicit name="overriding_parameter_assignment">
             <typename name="Parameter_assignment"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Product_specific_parameter_value_assignment">
-         <explicit name="of_product" optional="NO">
+      <entity name="Product_specific_parameter_value_assignment">
+         <explicit name="of_product">
             <typename name="Product"/>
          </explicit>
-         <explicit name="assigned_parameter" optional="NO">
+         <explicit name="assigned_parameter">
             <typename name="Parameter_assignment"/>
          </explicit>
          <derived expression="assigned_parameter\Independent_property_representation.property" name="the_model_parameter">
@@ -79,14 +82,14 @@
             <unique.attribute attribute="of_product"/>
          </unique>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Schema_based_model_parameter" supertypes="Model_parameter">
-         <explicit name="entity_name" optional="NO">
+      <entity name="Schema_based_model_parameter" supertypes="Model_parameter">
+         <explicit name="entity_name">
             <typename name="Independent_property"/>
          </explicit>
          <explicit name="attribute_name" optional="YES">
             <typename name="Independent_property"/>
          </explicit>
-         <explicit name="schema_identifier" optional="NO">
+         <explicit name="schema_identifier">
             <typename name="Independent_property"/>
          </explicit>
          <unique label="UR1">
@@ -95,7 +98,7 @@
             <unique.attribute attribute="schema_identifier"/>
          </unique>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Test_method_based_parameter_assignment" supertypes="Parameter_assignment">
+      <entity name="Test_method_based_parameter_assignment" supertypes="Parameter_assignment">
          <where expression="SIZEOF(USEDIN(SELF,'ACTIVITY_METHOD_ASSIGNMENT_ARM.APPLIED_ACTIVITY_METHOD_ASSIGNMENT.ITEMS')) = 1" label="WR1"/>
       </entity>
    </schema>

@@ -1,7 +1,10 @@
 (*
-   $Id: geometric_model_schema.exp,v 1.7 2011/12/24 12:10:21 lothartklein Exp $
+   $Id: geometric_model_schema.exp,v 1.8 2012/07/25 13:10:28 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7169 - ISO/CD-TS 10303-42 ed 4
-*)
+  Additions made 27 July 2012 to include area_with_outer_boundary - these changes will require updates to EXPRESS-G and  changes to geometry_schema:
+  remove half_space_2d from the REFERENCE FROM list
+  remove half_space_2d from the ONE OF list for geometric_representation_item
+ *)
 
 
  SCHEMA geometric_model_schema;
@@ -43,20 +46,31 @@
     csg_primitive);
  END_TYPE;
 
- TYPE csg_primitive = SELECT
-   (sphere,
-    ellipsoid,
-    block,
-    right_angular_wedge,
-    faceted_primitive,
-    rectangular_pyramid,
-    torus,
-    right_circular_cone,
-    eccentric_cone,
-    right_circular_cylinder,
-    cyclide_segment_solid,
-    primitive_2d);
+ TYPE csg_primitive = SELECT (
+   sphere,
+   ellipsoid,
+   block,
+   right_angular_wedge,
+   faceted_primitive,
+   rectangular_pyramid,
+   torus,
+   right_circular_cone,
+   eccentric_cone,
+   right_circular_cylinder,
+   cyclide_segment_solid,
+   bounded_primitive_2d);  -- Modification, was primitive_2d
  END_TYPE;
+ 
+(* New TYPE added to enable half_space_2d to be subtype of primitive_2d  *)
+ 
+ TYPE bounded_primitive_2d = EXTENSIBLE GENERIC_ENTITY SELECT  
+   (circular_area, 
+    elliptic_area, 
+    rectangular_area, 
+    polygonal_area,
+    area_with_outer_boundary);
+ END_TYPE;
+
 
 TYPE edge_or_curve = SELECT
   (edge,
@@ -291,8 +305,9 @@ END_ENTITY;
      WR1: acyclic_set_replica(SELF, parent_set);
    END_ENTITY;
 
+(* revised definition now subtype of primitive_2d *)
 ENTITY half_space_2d
-  SUBTYPE OF (geometric_representation_item);
+  SUBTYPE OF (primitive_2d);
     base_curve:  curve;
     agreement_flag: BOOLEAN;
 END_ENTITY;
@@ -313,9 +328,10 @@ END_ENTITY;
    bounds:  LIST [3:?] OF UNIQUE cartesian_point;
  END_ENTITY;
 
+(* half_spce_2d added to list of subtypes *)
  ENTITY primitive_2d
    SUPERTYPE  OF (ONEOF (circular_area, elliptic_area, rectangular_area,
-                            polygonal_area))
+                            polygonal_area, half_space_2d))
    SUBTYPE OF (geometric_representation_item);
    WHERE
      WR1 : SELF\geometric_representation_item.dim = 2;
@@ -342,6 +358,14 @@ ENTITY rectangular_area
     x: positive_length_measure;
     y: positive_length_measure;
 END_ENTITY;
+
+(* New addition, will also require an IP to ensure that area is inside the closed curve (condition on SENSE) *)
+ENTITY area_with_outer_boundary 
+  SUBTYPE OF (half_space_2d); 
+  SELF\half_space_2d.base_curve : composite_curve;
+WHERE 
+   WR1: (SELF\half_space_2d.base_curve\composite_curve.closed_curve) = TRUE; 
+END_ENTITY; 
 
  ENTITY rectangular_pyramid
    SUBTYPE OF (geometric_representation_item);

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2011/09/14 23:01:38 lothartklein Exp $
+   $Id: arm.exp,v 1.6 2012/06/03 13:17:10 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing_representation - EXPRESS ARM*)
 
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
@@ -7,7 +7,7 @@ SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_ar
 USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
 
-TYPE mb3dgdtr_geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_model_item WITH
+TYPE mb3dgdtr_geometric_model_item = SELECT BASED_ON geometric_model_item WITH
   (Connected_face_set, Edge_loop);
 END_TYPE;
   
@@ -25,13 +25,25 @@ TYPE nominal_3d_derived_feature_geometry = SELECT (
   Surface);
 END_TYPE;
 
-TYPE mb3gdtsr_geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_tolerance_target WITH (
+TYPE mb3gdtsr_geometric_tolerance_target = SELECT BASED_ON geometric_tolerance_target WITH (
   Nominal_3d_feature);
 END_TYPE;
 
-TYPE mb3gdtsr_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
+TYPE mb3gdtsr_dimension_target = SELECT BASED_ON dimension_target WITH (
   Nominal_3d_feature, Datum_reference_compartment);
 END_TYPE;
+
+TYPE mb3gdtsr_edge_of_undefined_shape_size_element = SELECT 
+  BASED_ON edge_of_undefined_shape_size_element WITH (
+  Nominal_3D_edge);  
+END_TYPE;
+
+ENTITY Nominal_3D_edge
+  SUBTYPE OF (Nominal_3d_feature);
+WHERE
+  WR1: 'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN
+     TYPEOF(SELF\Associated_shape_element.associated_item);
+END_ENTITY;
 
 ENTITY Gdt_representation_shape
   SUBTYPE OF (Nominal_3d_model_shape);
@@ -40,7 +52,7 @@ WHERE
 END_ENTITY;  
   
 ENTITY Nominal_3d_feature 
-  ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
+  ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature, Nominal_3D_edge))
   SUBTYPE OF (Associated_shape_element);
   SELF\Shape_element.containing_shape : Gdt_representation_shape;
 END_ENTITY;

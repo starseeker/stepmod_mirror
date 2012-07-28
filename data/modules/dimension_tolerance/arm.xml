@@ -16,7 +16,7 @@
          <enumeration items="equal large small"/>
       </type>
       <type name="diameter_qualifier_enumeration">
-         <enumeration items="centre_centre centre_outer centre_inner outer_centre outer_outer outer_inner inner_centre inner_outer inner_inner"/>
+         <enumeration items="centre_outer centre_inner outer_centre outer_outer outer_inner inner_centre inner_outer inner_inner"/>
       </type>
       <type name="diameter_type">
          <enumeration items="circular_or_cylindrical_diameter spherical_diameter toroidal_minor_diameter toroidal_major_diameter toroidal_high_major_diameter toroidal_low_major_diameter"/>
@@ -26,6 +26,9 @@
       </type>
       <type name="dimension_value_select">
          <select selectitems="Dimension_value_with_limitation Numerical_item_with_unit Tolerance_range Value_limit"/>
+      </type>
+      <type name="edge_of_undefined_shape_size_element">
+         <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="geometric_dimension_modifier">
          <enumeration extensible="YES" items="two_point_size local_size_defined_by_a_sphere least_square_association_criteria maximum_inscribed_association_criteria minimum_circumscribed_association_criteria circumference_diameter_calculated_size area_diameter_calculated_size volume_diameter_calculated_size maximum_rank_order_size minimum_rank_order_size average_rank_order_size median_rank_order_size mid_range_rank_order_size range_rank_order_size any_part_of_the_feature any_cross_section specific_fixed_cross_section common_tolerance free_state_condition statistical continuous_feature square controlled_radius"/>
@@ -38,6 +41,9 @@
       </type>
       <type name="tolerance_principle_type">
          <enumeration items="envelope_requirement independency default"/>
+      </type>
+      <type name="undefined_edge_shape_enumeration_direction">
+         <enumeration items="true_neighbor false_neighbor both_neighbors"/>
       </type>
       <entity name="Angular_location" supertypes="Dimensional_location">
          <explicit name="angle_selection">
@@ -88,10 +94,27 @@
             <typename name="dimension_target"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Dimensional_size" super.expression="ONEOF (Angular_size, Curved_size, Diameter_size, Machining_feature_size, Radial_size, Thickness_size)" supertypes="Geometric_dimension">
+      <entity abstract.supertype="YES" name="Dimensional_size" super.expression="ONEOF (Angular_size, Curved_size, Diameter_size, Edge_of_undefined_shape_size, Machining_feature_size, Radial_size, Thickness_size)" supertypes="Geometric_dimension">
          <explicit name="is_applied_to">
             <typename name="dimension_target"/>
          </explicit>
+      </entity>
+      <entity name="Edge_of_undefined_shape_size" supertypes="Dimensional_size">
+         <explicit name="orientation">
+            <typename name="undefined_edge_shape_enumeration_direction"/>
+         </explicit>
+         <explicit name="is_applied_to">
+            <typename name="edge_of_undefined_shape_size_element"/>
+            <redeclaration entity-ref="Dimensional_size"/>
+         </explicit>
+         <explicit name="dimension_value">
+            <typename name="Tolerance_range"/>
+            <redeclaration entity-ref="Geometric_dimension"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="is_applied_to"/>
+            <unique.attribute attribute="orientation"/>
+         </unique>
       </entity>
       <entity abstract.supertype="YES" name="Geometric_dimension" super.expression="ONEOF (Dimensional_location, Dimensional_size)">
          <explicit name="id">

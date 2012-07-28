@@ -8,13 +8,16 @@
       <interface kind="use" schema="Product_and_manufacturing_information_with_nominal_3d_models_arm"/>
       <interface kind="use" schema="Geometric_tolerance_arm"/>
       <type name="mb3dgdtr_geometric_model_item">
-         <select basedon="geometric_model_item" extensible="YES" genericentity="YES" selectitems="Connected_face_set Edge_loop"/>
+         <select basedon="geometric_model_item" selectitems="Connected_face_set Edge_loop"/>
       </type>
       <type name="mb3gdtsr_dimension_target">
-         <select basedon="dimension_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_feature Datum_reference_compartment"/>
+         <select basedon="dimension_target" selectitems="Nominal_3d_feature Datum_reference_compartment"/>
+      </type>
+      <type name="mb3gdtsr_edge_of_undefined_shape_size_element">
+         <select basedon="edge_of_undefined_shape_size_element" selectitems="Nominal_3D_edge"/>
       </type>
       <type name="mb3gdtsr_geometric_tolerance_target">
-         <select basedon="geometric_tolerance_target" extensible="YES" genericentity="YES" selectitems="Nominal_3d_feature"/>
+         <select basedon="geometric_tolerance_target" selectitems="Nominal_3d_feature"/>
       </type>
       <type name="nominal_3d_derived_feature_geometry">
          <select selectitems="Curve Point Surface"/>
@@ -24,6 +27,9 @@
       </type>
       <entity name="Gdt_representation_shape" supertypes="Nominal_3d_model_shape">
          <where expression="'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts)" label="WR1"/>
+      </entity>
+      <entity name="Nominal_3D_edge" supertypes="Nominal_3d_feature">
+         <where expression="'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN&#10;     TYPEOF(SELF\Associated_shape_element.associated_item)" label="WR1"/>
       </entity>
       <entity name="Nominal_3d_derived_feature" supertypes="Nominal_3d_feature Derived_shape_element">
          <explicit name="derived_from">
@@ -37,7 +43,7 @@
          </derived>
          <where expression="EXISTS(associated_item)" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature)" supertypes="Associated_shape_element">
+      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature, Nominal_3D_edge)" supertypes="Associated_shape_element">
          <explicit name="containing_shape">
             <typename name="Gdt_representation_shape"/>
             <redeclaration entity-ref="Shape_element"/>

@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.37 2012/04/10 18:05:52 lothartklein Exp $
+$Id: arm.exp,v 1.38 2012/07/28 09:18:42 lothartklein Exp $
 ISO TC184/SC4/WG12 N6890 - ISO/TS 10303-1050 Dimension tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6676
 *) 
@@ -11,9 +11,6 @@ USE FROM Derived_shape_element_arm;    -- ISO/TS 10303-1130
 USE FROM Document_assignment_arm;    -- ISO/TS 10303-1122
 USE FROM Extended_measure_representation_arm;    -- ISO/TS 10303-1106
 USE FROM Value_with_unit_extension_arm;  -- ISO/TS 10303-1753
-
-TYPE dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE;
 
 TYPE adjoining_or_centred = ENUMERATION OF ( 
   adjoining,
@@ -33,6 +30,17 @@ TYPE dimension_value_select = SELECT
     Value_limit);
 END_TYPE; 
 
+TYPE diameter_qualifier_enumeration = ENUMERATION OF (
+  centre_outer,
+  centre_inner,
+  outer_centre,
+  outer_outer,
+  outer_inner,
+  inner_centre,
+  inner_outer,
+  inner_inner);
+END_TYPE;
+
 TYPE diameter_type = ENUMERATION OF (
    circular_or_cylindrical_diameter,
    spherical_diameter,
@@ -42,13 +50,10 @@ TYPE diameter_type = ENUMERATION OF (
    toroidal_low_major_diameter);
 END_TYPE;
 
-TYPE radial_type = ENUMERATION OF (
-   circular_or_cylindrical_radius,
-   spherical_radius,
-   toroidal_minor_radius,
-   toroidal_major_radius,
-   toroidal_high_major_radius,
-   toroidal_low_major_radius);
+TYPE dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE edge_of_undefined_shape_size_element = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE;
 
 TYPE geometric_dimension_modifier = EXTENSIBLE ENUMERATION OF (
@@ -82,21 +87,25 @@ TYPE limitation_definition_select = SELECT
     Plus_minus_bounds);
 END_TYPE; 
 
+TYPE radial_type = ENUMERATION OF (
+   circular_or_cylindrical_radius,
+   spherical_radius,
+   toroidal_minor_radius,
+   toroidal_major_radius,
+   toroidal_high_major_radius,
+   toroidal_low_major_radius);
+END_TYPE;
+
 TYPE tolerance_principle_type = ENUMERATION OF (
   envelope_requirement, 
   independency, 
   default);
 END_TYPE;
 
-TYPE diameter_qualifier_enumeration = ENUMERATION OF (
-  centre_outer,
-  centre_inner,
-  outer_centre,
-  outer_outer,
-  outer_inner,
-  inner_centre,
-  inner_outer,
-  inner_inner);
+TYPE undefined_edge_shape_enumeration_direction = ENUMERATION OF ( 
+  true_neighbor,               
+  false_neighbor,
+  both_neighbors);
 END_TYPE;
 
 ENTITY Angular_location
@@ -129,6 +138,7 @@ ENTITY Dimensional_size
   ABSTRACT SUPERTYPE OF (ONEOF (Angular_size,
                                 Curved_size,
                                 Diameter_size,
+                                Edge_of_undefined_shape_size,
                                 Machining_feature_size,
                                 Radial_size,
                                 Thickness_size))
@@ -175,6 +185,15 @@ ENTITY Dimensional_location
   directed : OPTIONAL BOOLEAN;
   origin : dimension_target;
   target : dimension_target;
+END_ENTITY;
+
+ENTITY Edge_of_undefined_shape_size
+  SUBTYPE OF (Dimensional_size);
+  orientation : undefined_edge_shape_enumeration_direction;
+  SELF\Dimensional_size.is_applied_to : edge_of_undefined_shape_size_element;
+  SELF\Geometric_dimension.dimension_value : Tolerance_range;
+UNIQUE
+  UR1 : SELF\Dimensional_size.is_applied_to, orientation;
 END_ENTITY;
 
 ENTITY Machining_feature_size

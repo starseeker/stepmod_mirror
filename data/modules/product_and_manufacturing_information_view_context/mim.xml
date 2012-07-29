@@ -10,5 +10,42 @@
       <type name="pamivc_document_reference_item">
          <select basedon="document_reference_item" selectitems="product_definition_context"/>
       </type>
+      <rule appliesto="product_definition_context" name="valid_product_and_manufacturing_information_view_contexts">
+         <algorithm>LOCAL
+  design_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.life_cycle_stage = 'design');
+  gdt_representation_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'geometrical dimensioning and tolerancing representation');
+  machining_feature_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'machining feature');
+  material_specification_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'material specification');
+  model_based_3d_annotation_presentation_view_contexts  : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'model based 3D annotation presentation');
+  model_based_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'model based product geometry');
+  process_state_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'process state');
+  surface_finish_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc &lt;* product_definition_context | pdc.frame_of_reference.application = 'surface finish');
+  additional_view_contexts : SET OF product_definition_context :=
+         gdt_representation_view_contexts + machining_feature_view_contexts + material_specification_view_contexts +
+         model_based_3d_annotation_presentation_view_contexts + process_state_view_contexts + surface_finish_view_contexts;
+  need_initial_model_based_view_contexts : SET OF product_definition_context :=
+    gdt_representation_view_contexts + model_based_3d_annotation_presentation_view_contexts;
+END_LOCAL;</algorithm>
+         <where expression="gdt_representation_view_contexts IN design_view_contexts" label="WR1"/>
+         <where expression="machining_feature_view_contexts IN design_view_contexts" label="WR2"/>
+         <where expression="material_specification_view_contexts IN design_view_contexts" label="WR3"/>
+         <where expression="model_based_3d_annotation_presentation_view_contexts IN design_view_contexts" label="WR4"/>
+         <where expression="model_based_view_contexts IN design_view_contexts" label="WR5"/>
+         <where expression="process_state_view_contexts IN design_view_contexts" label="WR6"/>
+         <where expression="surface_finish_view_contexts IN design_view_contexts" label="WR7"/>
+         <where expression="SIZEOF( USEDIN(model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') = 0)" label="WR8"/>
+         <where expression="SIZEOF( USEDIN(additional_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE') = 0)" label="WR9"/>
+         <where expression="SIZEOF( QUERY(pdca &lt;* &#10;          USEDIN(need_initial_model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')&#10;          | NOT(pdca.definition.frame_of_reference IN model_based_view_contexts))) = 0" label="WR10"/>
+         <where expression="TRUE" label="WR11"/>
+         <where expression="TRUE" label="WR12"/>
+      </rule>
    </schema>
 </express>

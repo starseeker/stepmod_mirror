@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.3 2011/06/23 22:34:30 lothartklein Exp $
+   $Id: mim.exp,v 1.4 2012/07/17 22:35:15 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_mim;
@@ -10,5 +10,53 @@ USE FROM Document_assignment_mim; -- ISO/TS 10303-1122
 TYPE pamivc_document_reference_item = SELECT BASED_ON document_reference_item WITH (
   product_definition_context);
 END_TYPE;
+
+RULE valid_product_and_manufacturing_information_view_contexts FOR (product_definition_context);
+LOCAL
+  design_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.life_cycle_stage = 'design');
+  gdt_representation_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'geometrically dimensioning and tolerancing representation');
+  machining_feature_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'machining feature');
+  material_specification_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'material specification');
+  model_based_3d_annotation_presentation_view_contexts  : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'model based 3D annotation presentation');
+  model_based_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'model based product geometry');
+  process_state_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'process state');
+  surface_finish_view_contexts : SET OF product_definition_context :=
+    QUERY( pdc <* product_definition_context | pdc.frame_of_reference.application = 'surface finish');
+  additional_view_contexts : SET OF product_definition_context :=
+         gdt_representation_view_contexts + machining_feature_view_contexts + material_specification_view_contexts +
+         model_based_3d_annotation_presentation_view_contexts + process_state_view_contexts + surface_finish_view_contexts;
+  need_initial_model_based_view_contexts : SET OF product_definition_context :=
+    gdt_representation_view_contexts + model_based_3d_annotation_presentation_view_contexts;
+END_LOCAL;
+
+    solution_versions :=  QUERY( pdf <* product_definition_formation |
+            SIZEOF( QUERY( prpc <* USEDIN(pdf.of_product, 'ALTERNATIVE_SOLUTION_MIM' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+      prpc.name = 'alternative solution')) = 1);
+WHERE
+  WR1: gdt_representation_view_contexts IN design_view_contexts;
+  WR2: machining_feature_view_contexts IN design_view_contexts;
+  WR3: material_specification_view_contexts IN design_view_contexts;
+  WR4: model_based_3d_annotation_presentation_view_contexts IN design_view_contexts;
+  WR5: model_based_view_contexts IN design_view_contexts;
+  WR6: process_state_view_contexts IN design_view_contexts;
+  WR7: surface_finish_view_contexts IN design_view_contexts;
+  WR8: -- not used as additional_contexts
+       SIZEOF( USEDIN(model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') = 0);
+  WR9: -- not used as initial_context
+       SIZEOF( USEDIN(additional_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE') = 0);
+  WR10: -- initial_context shall have a Model_based_view_context
+       SIZEOF( QUERY(pdca <* 
+          USEDIN(need_initial_model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')
+          | NOT(pdca.definition.frame_of_reference IN model_based_view_contexts))) = 0;
+  WR11: TRUE; -- gdt_representation_view_contexts must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document          
+  WR12: TRUE; -- model_based_3d_annotation_presentation_view_contexts must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
+END_RULE;
 
 END_SCHEMA;

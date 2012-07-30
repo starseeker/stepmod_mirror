@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.31 2011/07/11 02:30:00 thomasrthurman Exp $
+   $Id: mim.exp,v 1.32 2012/07/28 20:03:03 lothartklein Exp $
    ISO TC184/SC4/WG12 N6951 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6346
 *) 
@@ -7,36 +7,47 @@
 
 SCHEMA Constructive_solid_geometry_2d_mim;
 
-USE FROM Area_2d_mim;	-- ISO/TS 10303-1631	
-USE FROM Basic_curve_mim; -- ISO/TS 10303-1651
+  USE FROM Area_2d_mim;	-- ISO/TS 10303-1631	
+  USE FROM Basic_curve_mim; -- ISO/TS 10303-1651
+  USE FROM representation_schema (
+    compound_representation_item,
+    mapped_item);
+  USE FROM geometric_model_schema (
+    boolean_result,
+    bounded_primitive_2d,
+    csg_solid,
+    half_space_2d,
+    area_with_outer_boundary);
+  USE FROM geometry_schema (
+    composite_curve);
 
-USE FROM representation_schema(
-compound_representation_item,
-mapped_item);
-
-USE FROM geometric_model_schema 
-(boolean_result,
-csg_solid,
-half_space_2d,
-area_with_outer_boundary);
-
-USE FROM geometry_schema (composite_curve);
+  TYPE csg2d_bounded_primitive_2d = SELECT BASED_ON bounded_primitive_2d WITH (
+    path_area_with_parameters);
+  END_TYPE;
 
   TYPE boolean_operand_2d = SELECT (
-          primitive_2d,
-          boolean_result_2d);
+    bounded_primitive_2d,
+    boolean_result_2d);
   END_TYPE; 
 
-  TYPE compound_inner_area_boundary = SELECT (set_inner_area_boundary);
+  TYPE compound_inner_area_boundary = SELECT (
+    set_inner_area_boundary);
   END_TYPE;
   
-  TYPE csg_2d_area_select = SELECT (axis2_placement_2d, csg_primitive_solid_2d);
+  TYPE csg_2d_area_select = SELECT (
+    axis2_placement_2d, 
+    csg_primitive_solid_2d);
   END_TYPE;
 
-  TYPE csg_2d_shape_select = SELECT (mapped_item, axis2_placement_2d, csg_solid_2d);
+  TYPE csg_2d_shape_select = SELECT (
+    mapped_item, 
+    axis2_placement_2d, 
+    csg_solid_2d);
   END_TYPE;
 
-  TYPE csg_select_2d = SELECT (primitive_2d, boolean_result_2d);
+  TYPE csg_select_2d = SELECT (
+    bounded_primitive_2d, 
+    boolean_result_2d);
   END_TYPE;
 
   TYPE set_inner_area_boundary = SET [1:?] OF primitive_2d;
@@ -59,12 +70,12 @@ USE FROM geometry_schema (composite_curve);
 
   ENTITY csg_primitive_solid_2d
     SUBTYPE OF (csg_solid_2d);
-    SELF\csg_solid.tree_root_expression : primitive_2d;
+    SELF\csg_solid.tree_root_expression : bounded_primitive_2d;
   END_ENTITY;  
 
   ENTITY csg_solid_2d
     SUBTYPE OF (csg_solid);
-    SELF\csg_solid.tree_root_expression : csg_select_2d;
+    SELF\csg_solid.tree_root_expression : csg_select_2d; 
    WHERE
      WR1: valid_csg_2d_primitives(SELF);
   END_ENTITY;

@@ -31,8 +31,11 @@
       <type name="boolean_operator">
          <enumeration items="union intersection difference"/>
       </type>
+      <type name="bounded_primitive_2d">
+               <select extensible="YES" genericentity="YES" selectitems="circular_area elliptic_area rectangular_area polygonal_area area_with_outer_boundary"/>
+      </type>
       <type name="csg_primitive">
-         <select selectitems="sphere ellipsoid block right_angular_wedge faceted_primitive rectangular_pyramid torus right_circular_cone eccentric_cone right_circular_cylinder cyclide_segment_solid primitive_2d"/>
+         <select selectitems="sphere ellipsoid block right_angular_wedge faceted_primitive rectangular_pyramid torus right_circular_cone eccentric_cone right_circular_cylinder cyclide_segment_solid bounded_primitive_2d"/>
       </type>
       <type name="csg_select">
          <select selectitems="boolean_result csg_primitive"/>
@@ -324,7 +327,7 @@
                 </explicit>
                 <where expression="SIZEOF(QUERY(item &lt;* USEDIN(SELF,'')|&#10;  NOT ('GEOMETRIC_MODEL_SCHEMA.BOXED_HALF_SPACE'&#10;  IN TYPEOF(item)))) = 0" label="WR1"/>
              </entity>      
-         <entity name="primitive_2d" super.expression="ONEOF (circular_area, elliptic_area, rectangular_area, polygonal_area)" supertypes="geometric_representation_item">
+         <entity name="primitive_2d" super.expression="ONEOF (circular_area, elliptic_area, rectangular_area, polygonal_area, half_space_2d)" supertypes="geometric_representation_item">
                 <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
              </entity>
         <entity name="circular_area" supertypes="primitive_2d">
@@ -364,7 +367,15 @@
                 </explicit>
                 <where  label="IP1"/>
              </entity>
-        <entity name="half_space_2d" supertypes="geometric_representation_item">
+         <entity name="area_with_outer_boundary" supertypes="half_space_2d">
+                   <explicit name="base_curve">
+                    <typename name="composite_curve"/>
+                   <redeclaration entity-ref="half_space_2d"/>
+                </explicit> 
+                    <where expression="base_curve\composite_curve.closed_curve = TRUE" label="WR1"/>
+                    <where  label="IP1"/>
+             </entity>
+    <entity name="half_space_2d" supertypes="primitive_2d">
                 <explicit name="base_curve">
                    <typename name="curve"/>
                 </explicit>

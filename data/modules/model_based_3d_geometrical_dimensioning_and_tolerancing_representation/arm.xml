@@ -14,7 +14,7 @@
          <select basedon="dimension_target" selectitems="Nominal_3d_feature Datum_reference_compartment"/>
       </type>
       <type name="mb3gdtsr_edge_of_undefined_shape_size_element">
-         <select basedon="edge_of_undefined_shape_size_element" selectitems="Nominal_3D_edge"/>
+         <select basedon="edge_of_undefined_shape_size_element" selectitems="Nominal_3d_edge"/>
       </type>
       <type name="mb3gdtsr_geometric_tolerance_target">
          <select basedon="geometric_tolerance_target" selectitems="Nominal_3d_feature"/>
@@ -28,9 +28,6 @@
       <entity name="Gdt_representation_shape" supertypes="Nominal_3d_model_shape">
          <where expression="'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts)" label="WR1"/>
       </entity>
-      <entity name="Nominal_3D_edge" supertypes="Nominal_3d_feature">
-         <where expression="'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN&#10;     TYPEOF(SELF\Associated_shape_element.associated_item)" label="WR1"/>
-      </entity>
       <entity name="Nominal_3d_derived_feature" supertypes="Nominal_3d_feature Derived_shape_element">
          <explicit name="derived_from">
             <aggregate lower="1" type="SET" upper="?"/>
@@ -43,7 +40,14 @@
          </derived>
          <where expression="EXISTS(associated_item)" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature, Nominal_3D_edge)" supertypes="Associated_shape_element">
+      <entity name="Nominal_3d_edge" supertypes="Nominal_3d_integral_feature">
+         <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
+            <typename name="Edge_curve"/>
+            <redeclaration entity-ref="Associated_shape_element"/>
+         </derived>
+         <where expression="'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN&#10;     TYPEOF(SELF\Associated_shape_element.associated_item)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature)" supertypes="Associated_shape_element">
          <explicit name="containing_shape">
             <typename name="Gdt_representation_shape"/>
             <redeclaration entity-ref="Shape_element"/>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2012/06/03 13:17:10 thomasrthurman Exp $
+   $Id: arm.exp,v 1.7 2012/07/28 10:44:19 lothartklein Exp $
    N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing_representation - EXPRESS ARM*)
 
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
@@ -38,21 +38,23 @@ TYPE mb3gdtsr_edge_of_undefined_shape_size_element = SELECT
   Nominal_3D_edge);  
 END_TYPE;
 
-ENTITY Nominal_3D_edge
-  SUBTYPE OF (Nominal_3d_feature);
-WHERE
-  WR1: 'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN
-     TYPEOF(SELF\Associated_shape_element.associated_item);
-END_ENTITY;
-
 ENTITY Gdt_representation_shape
   SUBTYPE OF (Nominal_3d_model_shape);
 WHERE
   WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
 END_ENTITY;  
   
+ENTITY Nominal_3d_edge
+  SUBTYPE OF (Nominal_3d_integral_feature);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Edge_curve := association\Geometric_item_specific_usage.identified_item;
+WHERE
+  WR1: 'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN
+     TYPEOF(SELF\Associated_shape_element.associated_item);
+END_ENTITY;
+
 ENTITY Nominal_3d_feature 
-  ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature, Nominal_3D_edge))
+  ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
   SUBTYPE OF (Associated_shape_element);
   SELF\Shape_element.containing_shape : Gdt_representation_shape;
 END_ENTITY;

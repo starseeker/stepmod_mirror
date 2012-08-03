@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.41 2011/09/25 21:46:12 lothartklein Exp $
+$Id: mim.exp,v 1.42 2012/07/23 18:38:23 lothartklein Exp $
 ISO TC184/SC4/WG12 N6909 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N6757
 *) 
@@ -190,22 +190,43 @@ FUNCTION valid_datum_target_parameters (pdf : placed_datum_target_feature) : BOO
   END_CASE;
 END_FUNCTION;
  
-RULE unique_dimensional_location_constraint for (product_definition_shape, dimensional_location);
+RULE unique_gdt_element_id_constraint for (
+                                          product_definition_shape,
+                                          dimensional_location,
+                                          dimensional_size,
+                                          shape_aspect,
+                                          shape_aspect_relationship);
 LOCAL
- ssa : SET OF shape_aspect := [];
- bdl : BAG OF dimensional_location := [];
+ bss  : BAG OF STRING := [];
+ ds   : SET OF dimensional_size := QUERY(ds <* dimensional_size | EXISTS(ds\dimensional_size.id));
+ sa   : SET OF shape_aspect := QUERY(sa <* shape_aspect | EXISTS(sa\shape_aspect.id));
+ sar  : SET OF shape_aspect_relationship := QUERY(sar <* shape_aspect_relationship | EXISTS(sar\shape_aspect_relationship.id));
+ ssa  : SET OF shape_aspect := []; 
  pass : BOOLEAN := TRUE;
 END_LOCAL;
-REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
- bdl := [];
- ssa := bag_to_set(USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
- REPEAT i := 1 to SIZEOF (dimensional_location) WHILE pass;
-  IF (dimensional_location[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) AND
-     (dimensional_location[i]\shape_aspect_relationship.name <> '') THEN
-   bdl := bdl + dimensional_location[i];
+REPEAT ii := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bss := [];
+ ssa := bag_to_set(USEDIN(product_definition_shape[ii], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
+
+ REPEAT i := 1 to SIZEOF (ds);
+  IF (ds[i]\dimensional_size.applies_to IN ssa) THEN
+   bss := bss + ds[i]\dimensional_size.id;
   END_IF;
  END_REPEAT;
- IF (SIZEOF(bag_to_set(bdl)) <> SIZEOF(bdl)) THEN pass := FALSE;
+
+ REPEAT i := 1 to SIZEOF (sa);
+  IF (sa[i] IN ssa) THEN
+   bss := bss + sa[i]\shape_aspect.id;
+  END_IF;
+ END_REPEAT;
+
+ REPEAT i := 1 to SIZEOF (sar);
+  IF (sar[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) THEN
+   bss := bss + sar[i]\shape_aspect_relationship.id;
+  END_IF;
+ END_REPEAT;
+
+ IF (SIZEOF(bag_to_set(bss)) <> SIZEOF(bss)) THEN pass := FALSE;
  END_IF;
 END_REPEAT;
 WHERE

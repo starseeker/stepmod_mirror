@@ -137,22 +137,38 @@ REPEAT i := 1 to SIZEOF(tolerance_zone_form) WHILE pass;
 END_REPEAT;</algorithm>
          <where expression="pass" label="WR1"/>
       </rule>
-      <rule appliesto="product_definition_shape dimensional_location" name="unique_dimensional_location_constraint">
+      <rule appliesto="product_definition_shape dimensional_location dimensional_size shape_aspect shape_aspect_relationship" name="unique_gdt_element_id_constraint">
          <algorithm>LOCAL
- ssa : SET OF shape_aspect := [];
- bdl : BAG OF dimensional_location := [];
+ bss  : BAG OF STRING := [];
+ ds   : SET OF dimensional_size := QUERY(ds &lt;* dimensional_size | EXISTS(ds\dimensional_size.id));
+ sa   : SET OF shape_aspect := QUERY(sa &lt;* shape_aspect | EXISTS(sa\shape_aspect.id));
+ sar  : SET OF shape_aspect_relationship := QUERY(sar &lt;* shape_aspect_relationship | EXISTS(sar\shape_aspect_relationship.id));
+ ssa  : SET OF shape_aspect := []; 
  pass : BOOLEAN := TRUE;
 END_LOCAL;
-REPEAT i := 1 TO SIZEOF (product_definition_shape) WHILE pass;
- bdl := [];
- ssa := bag_to_set(USEDIN(product_definition_shape[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
- REPEAT i := 1 to SIZEOF (dimensional_location) WHILE pass;
-  IF (dimensional_location[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) AND
-     (dimensional_location[i]\shape_aspect_relationship.name &lt;&gt; '') THEN
-   bdl := bdl + dimensional_location[i];
+REPEAT ii := 1 TO SIZEOF (product_definition_shape) WHILE pass;
+ bss := [];
+ ssa := bag_to_set(USEDIN(product_definition_shape[ii], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT.' + 'OF_SHAPE'));
+
+ REPEAT i := 1 to SIZEOF (ds);
+  IF (ds[i]\dimensional_size.applies_to IN ssa) THEN
+   bss := bss + ds[i]\dimensional_size.id;
   END_IF;
  END_REPEAT;
- IF (SIZEOF(bag_to_set(bdl)) &lt;&gt; SIZEOF(bdl)) THEN pass := FALSE;
+
+ REPEAT i := 1 to SIZEOF (sa);
+  IF (sa[i] IN ssa) THEN
+   bss := bss + sa[i]\shape_aspect.id;
+  END_IF;
+ END_REPEAT;
+
+ REPEAT i := 1 to SIZEOF (sar);
+  IF (sar[i]\shape_aspect_relationship.relating_shape_aspect IN ssa) THEN
+   bss := bss + sar[i]\shape_aspect_relationship.id;
+  END_IF;
+ END_REPEAT;
+
+ IF (SIZEOF(bag_to_set(bss)) &lt;&gt; SIZEOF(bss)) THEN pass := FALSE;
  END_IF;
 END_REPEAT;</algorithm>
          <where expression="pass" label="WR1"/>

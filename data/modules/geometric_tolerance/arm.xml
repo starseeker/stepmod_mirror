@@ -12,11 +12,11 @@
       <interface kind="use" schema="Shape_composition_arm"/>
       <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
-      <type name="affected_plane_geometric_tolerance_select">
-         <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance"/>
-      </type>
       <type name="area_unit_type">
          <enumeration extensible="YES" items="circular square rectangular"/>
+      </type>
+      <type name="collection_plane_orientation">
+         <enumeration extensible="YES" items="perpendicular parallel"/>
       </type>
       <type name="common_datum_list">
          <aggregate lower="1" type="LIST" upper="?"/>
@@ -31,32 +31,44 @@
       <type name="datum_reference_modifier_type">
          <enumeration extensible="YES" items="circular_or_cylindrical spherical distance projected"/>
       </type>
+      <type name="directed_or_oriented_geometric_tolerance_select">
+         <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance"/>
+      </type>
+      <type name="directed_tolerance_zone_type">
+         <enumeration items="perpendicular parallel including"/>
+      </type>
       <type name="geometric_tolerance_modifier">
          <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element separate_requirement"/>
       </type>
       <type name="geometric_tolerance_target">
          <select extensible="YES" genericentity="YES" selectitems="Dimensional_location Dimensional_size"/>
       </type>
+      <type name="oriented_tolerance_zone_type">
+         <enumeration items="perpendicular parallel angular"/>
+      </type>
       <type name="simple_datum_reference_modifier">
          <enumeration extensible="YES" items="free_state basic translation least_material_requirement maximum_material_requirement point line plane orientation any_cross_section any_longitudinal_section contacting_feature distance_variable degree_of_freedom_constraint_x degree_of_freedom_constraint_y degree_of_freedom_constraint_z degree_of_freedom_constraint_u degree_of_freedom_constraint_v degree_of_freedom_constraint_w minor_diameter major_diameter pitch_diameter"/>
       </type>
       <type name="tolerance_zone_target">
-         <select selectitems="Dimensional_location Dimensional_size Geometric_tolerance General_datum_reference"/>
+         <select selectitems="Dimensional_location Dimensional_size General_datum_reference Geometric_tolerance"/>
       </type>
       <type name="tolerance_zone_type">
          <enumeration items="within_a_circle between_two_concentric_circles between_two_equidistant_curves within_a_cylinder between_two_coaxial_cylinders between_two_equidistant_surfaces non_uniform cylindrical_or_circular spherical not_known"/>
       </type>
-      <entity name="Affected_plane_tolerance_zone" supertypes="Tolerance_zone">
-         <explicit name="zone_for">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="affected_plane_geometric_tolerance_select"/>
-            <redeclaration entity-ref="Tolerance_zone"/>
-         </explicit>
+      <entity name="Affected_plane_tolerance_zone" supertypes="Directed_or_oriented_tolerance_zone">
          <explicit name="affected_plane">
             <typename name="Axis_placement_shape_element"/>
          </explicit>
       </entity>
       <entity name="All_around_shape_element" supertypes="Composite_shape_element"/>
+      <entity name="All_around_shape_element_along_collection_plane" supertypes="All_around_shape_element">
+         <explicit name="base">
+            <typename name="Datum_system"/>
+         </explicit>
+         <explicit name="orientation">
+            <typename name="collection_plane_orientation"/>
+         </explicit>
+      </entity>
       <entity name="Angularity_tolerance" supertypes="Geometric_tolerance">
          <explicit name="datum_system">
             <typename name="Datum_system"/>
@@ -157,6 +169,18 @@
       </entity>
       <entity name="Dimensional_location_with_datum_feature" supertypes="Datum_feature Dimensional_location"/>
       <entity name="Dimensional_size_with_datum_feature" supertypes="Datum_feature Dimensional_size"/>
+      <entity abstract.supertype="YES" name="Directed_or_oriented_tolerance_zone" super.expression="ONEOF (Tolerance_zone_with_datum, Affected_plane_tolerance_zone)" supertypes="Tolerance_zone">
+         <explicit name="zone_for">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="directed_or_oriented_geometric_tolerance_select"/>
+            <redeclaration entity-ref="Tolerance_zone"/>
+         </explicit>
+      </entity>
+      <entity name="Directed_tolerance_zone" supertypes="Tolerance_zone_with_datum">
+         <explicit name="direction">
+            <typename name="directed_tolerance_zone_type"/>
+         </explicit>
+      </entity>
       <entity name="Flatness_tolerance" supertypes="Geometric_tolerance"/>
       <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Non_definitional_shape_element">
          <explicit name="base">
@@ -223,16 +247,25 @@
          <explicit name="datum_system" optional="YES">
             <typename name="Datum_system"/>
          </explicit>
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
       <entity name="Non_uniform_zone_definition" supertypes="Tolerance_zone_definition"/>
+      <entity name="Oriented_tolerance_zone" supertypes="Tolerance_zone_with_datum">
+         <explicit name="orientation">
+            <typename name="oriented_tolerance_zone_type"/>
+         </explicit>
+         <explicit name="angle" optional="YES">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <where expression="(orientation &lt;&gt; angular) XOR EXISTS(angle)" label="WR1"/>
+      </entity>
       <entity name="Parallelism_tolerance" supertypes="Geometric_tolerance">
          <explicit name="datum_system">
             <typename name="Datum_system"/>
          </explicit>
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
@@ -240,7 +273,7 @@
          <explicit name="datum_system" optional="YES">
             <typename name="Datum_system"/>
          </explicit>
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
@@ -268,7 +301,7 @@
          <explicit name="datum_system">
             <typename name="Datum_system"/>
          </explicit>
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
@@ -295,7 +328,7 @@
          </explicit>
       </entity>
       <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
@@ -308,7 +341,7 @@
          <explicit name="datum_system">
             <typename name="Datum_system"/>
          </explicit>
-         <inverse attribute="zone_for" entity="Affected_plane_tolerance_zone" name="tolerance_zone_with_affected_plane">
+         <inverse attribute="zone_for" entity="Directed_or_oriented_tolerance_zone" name="directed_or_oriented_tolerance_zone">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
@@ -364,6 +397,11 @@
             <typename name="Shape_element"/>
          </explicit>
       </entity>
+      <entity name="Tolerance_zone_with_datum" super.expression="ONEOF (Directed_tolerance_zone, Oriented_tolerance_zone)" supertypes="Directed_or_oriented_tolerance_zone">
+         <explicit name="datum_reference">
+            <typename name="Datum_system"/>
+         </explicit>
+      </entity>
       <entity name="Total_runout_tolerance" supertypes="Geometric_tolerance">
          <explicit name="angle">
             <typename name="Angle_data_element"/>
@@ -373,9 +411,9 @@
          </explicit>
       </entity>
       <subtype.constraint entity="Composite_shape_element" name="composite_shape_element_subtypes" super.expression="ONEOF (All_around_shape_element, Continuous_shape_element, Composite_group_shape_element)"/>
-      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_target, Tolerance_zone)"/>
       <subtype.constraint entity="Associated_shape_element" name="gl_associated_shape_element_subtypes" super.expression="ONEOF (Axis_placement_shape_element, Plane_shape_element, Point_shape_element)"/>
       <subtype.constraint entity="Non_definitional_shape_element" name="gl_non_definitional_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum_system, General_datum_reference)"/>
+      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_target, Tolerance_zone)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">
             <typename name="Datum_reference_element"/>

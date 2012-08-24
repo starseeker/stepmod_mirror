@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date: 2009/03/18 19:25:15 $" rcs.revision="$Revision: 1.8 $">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1705">
    <application name="JSDAI" owner="LKSoft" source="functional_usage_view_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Functional_usage_view_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -21,12 +21,15 @@
       <interface kind="use" schema="material_property_definition_schema">
          <interfaced.item name="property_definition_relationship"/>
       </interface>
+      <type name="fuuv_classification_item">
+         <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="functional_unit_terminal_definition"/>
+      </type>
       <type name="nfuv_groupable_item">
          <select basedon="groupable_item" extensible="YES" genericentity="YES" selectitems="shape_aspect"/>
       </type>
       <entity name="functional_terminal_group" supertypes="group">
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="group"/>
+            <unique.attribute attribute="SELF\group.name"/>
          </unique>
       </entity>
       <entity name="functional_unit" supertypes="product_definition product_definition_shape">
@@ -43,17 +46,15 @@
             <redeclaration entity-ref="shape_aspect"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="name" entity-ref="shape_aspect"/>
+            <unique.attribute attribute="SELF\shape_aspect.name"/>
             <unique.attribute attribute="of_shape"/>
          </unique>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR1"/>
-         <where label="IP1"/>
       </entity>
-
       <entity name="make_from_functional_unit_terminal_definition_relationship" supertypes="shape_aspect shape_aspect_relationship">
          <unique label="UR1">
-            <unique.attribute attribute="relating_shape_aspect" entity-ref="shape_aspect_relationship"/>
-            <unique.attribute attribute="related_shape_aspect" entity-ref="shape_aspect_relationship"/>
+            <unique.attribute attribute="SELF\shape_aspect_relationship.relating_shape_aspect"/>
+            <unique.attribute attribute="SELF\shape_aspect_relationship.related_shape_aspect"/>
          </unique>
          <where expression="relating_shape_aspect.of_shape :&lt;&gt;: &#10;        related_shape_aspect.of_shape" label="WR1"/>
          <where expression="SELF\shape_aspect.product_definitional = FALSE" label="WR2"/>
@@ -64,7 +65,7 @@
             <redeclaration entity-ref="shape_aspect_relationship"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="related_shape_aspect" entity-ref="shape_aspect_relationship"/>
+            <unique.attribute attribute="SELF\shape_aspect_relationship.related_shape_aspect"/>
             <unique.attribute attribute="relating_shape_aspect"/>
          </unique>
          <where expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;        SELF\shape_aspect_relationship.relating_shape_aspect" label="WR1"/>

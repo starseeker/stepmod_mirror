@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.6 2006/11/09 14:26:01 darla Exp $
+$Id: sect_b_obj_reg.xsl,v 1.7 2009/08/24 10:34:36 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -85,12 +85,12 @@ $Id: sect_b_obj_reg.xsl,v 1.6 2006/11/09 14:26:01 darla Exp $
 
   <p>
     To provide for unambiguous identification of the schema specifications
-    given in this application module in an open information system, the object
+    given in this integrated resource in an open information system, the object
     identifiers are assigned as follows: 
   </p>
   <p align="center">
     <xsl:value-of 
-      select="concat($object_reg,' schema(1) ', $schema,'(1) }' )"/>
+      select="concat($object_reg,' schema(', position(), ') ', $schema,'(1) }' )"/>
   </p>
   <p>
     is assigned to the <xsl:value-of select="$schema"/> schema. 

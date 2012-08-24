@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.34 2010/12/17 12:31:14 philsp Exp $
+     $Id: sect_4_express.xsl,v 1.35 2011/03/01 22:34:44 lothartklein Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2029,7 +2029,7 @@
     <code>
       *)<br/>
       FUNCTION <xsl:value-of select="@name"/>
-      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
+      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
       <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
     </code>
@@ -2154,7 +2154,7 @@
   <xsl:apply-templates select="./*" mode="underlying"/>
   <xsl:choose>
     <xsl:when test="position()!=last()">
-      <xsl:text>, </xsl:text>
+      <xsl:text>; </xsl:text>
     </xsl:when>
     <xsl:otherwise>
       <xsl:text>)</xsl:text>

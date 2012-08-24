@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.126 2009/08/17 14:43:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.127 2011/10/06 16:00:05 thomasrthurman Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2646,7 +2646,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     <code>
       *)<br/>
       FUNCTION <xsl:value-of select="@name"/>
-      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
+      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
       <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
     </code>

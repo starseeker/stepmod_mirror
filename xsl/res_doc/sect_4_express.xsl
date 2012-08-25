@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.35 2011/03/01 22:34:44 lothartklein Exp $
+     $Id: sect_4_express.xsl,v 1.36 2012/08/24 22:42:45 lothartklein Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1669,41 +1669,10 @@
     <A NAME="{$aname}">
       <xsl:value-of select="concat($main_clause, $clause_number,'.',position(),' ',@name)"/>
     </A>
+    <xsl:apply-templates select="." mode="expressg_icon"/> 
   </h2>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
-  <xsl:choose>
-    <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../@name"/>
-          <xsl:with-param name="entity" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
-        <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Error e10: No description provided for ',$aname)"/>
-        </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
-
-  <!-- output express issues against supertype constraint -->
-  <xsl:call-template name="output_express_issue">
-    <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-
+  
+  <xsl:apply-templates select="." mode="description"/>
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>

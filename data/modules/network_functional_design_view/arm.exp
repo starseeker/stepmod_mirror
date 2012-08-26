@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.43 2008/11/19 07:14:58 liutkus Exp $
+   $Id: arm.exp,v 1.44 2009/04/23 11:51:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6450 - ISO/TS 10303-1704 Network functional design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5713
 *)
@@ -52,20 +52,20 @@ END_TYPE;
   END_ENTITY;
 
   ENTITY Functional_unit
-  	SUBTYPE OF(Definition_based_product_occurrence);
-      SELF\Definition_based_product_occurrence.derived_from RENAMED definition   : Functional_unit_definition;
-      SELF\Product_view_definition.id RENAMED reference_designation : STRING; 
-      functional_property   : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
-    DERIVE  
-		composed_network    : Functional_unit_network_definition := SELF\Product_occurrence.occurrence_contexts[1].relating_view;    
-		SELF\Product_view_definition.defined_version : Product_version := SELF\Definition_based_product_occurrence.derived_from.defined_version;
-    INVERSE
-      access_mechanisms : SET[1:?] OF functional_unit_terminal FOR accessed_functional_unit;
-    UNIQUE
-      UR1 : reference_designation, composed_network;
-    WHERE
-      WR1 : SIZEOF(SELF\Product_occurrence.occurrence_contexts) = 1;
-      WR2 : EXISTS(composed_network);
+  	SUBTYPE OF (Product_view_definition);
+    definition   : Functional_unit_definition;
+    SELF\Product_view_definition.id RENAMED reference_designation : STRING; 
+    functional_property   : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
+  DERIVE  
+	composed_network    : Functional_unit_network_definition := ?; -- SELF\Product_occurrence.occurrence_contexts[1].relating_view;    
+	SELF\Product_view_definition.defined_version : Product_version := SELF\Definition_based_product_occurrence.derived_from.defined_version;
+  INVERSE
+    access_mechanisms : SET[1:?] OF functional_unit_terminal FOR accessed_functional_unit;
+  UNIQUE
+    UR1 : reference_designation, composed_network;
+  WHERE
+    WR1 : SIZEOF(SELF\Product_occurrence.occurrence_contexts) = 1;
+    WR2 : EXISTS(composed_network);
   END_ENTITY;
 
   ENTITY Functional_unit_network_definition

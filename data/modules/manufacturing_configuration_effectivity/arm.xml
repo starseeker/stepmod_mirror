@@ -1,97 +1,39 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm.xml,v 1.9 2006/05/02 11:00:51 rocc Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2006/05/02 11:00:51 $"
-  rcs.revision="$Revision: 1.9 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/manufacturing_configuration_effectivity/arm.exp"/>
-
-  <schema name="Manufacturing_configuration_effectivity_arm">
-
-    <interface
-      kind="use"
-      schema="Configuration_effectivity_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Person_organization_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Product_occurrence_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Specified_product_arm">
-    </interface>
-    <entity
-      name="Dated_configuration"
-      supertypes="Manufacturing_configuration">
-      <explicit
-        name="effectivity_domain">
-        <typename
-          name="Dated_effectivity"/>
-        <redeclaration
-          entity-ref="Item_usage_effectivity"/>
-        </explicit>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1147">
+   <application name="JSDAI" owner="LKSoft" source="manufacturing_configuration_effectivity_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Manufacturing_configuration_effectivity_arm">
+      <interface kind="use" schema="Configuration_effectivity_arm"/>
+      <interface kind="use" schema="Person_organization_arm"/>
+      <interface kind="use" schema="Product_occurrence_arm"/>
+      <interface kind="use" schema="Specified_product_arm"/>
+      <entity name="Dated_configuration" supertypes="Manufacturing_configuration">
+         <explicit name="effectivity_domain">
+            <typename name="Dated_effectivity"/>
+            <redeclaration entity-ref="Item_usage_effectivity"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="Lot_configuration"
-        supertypes="Manufacturing_configuration">
-        <explicit
-          name="effectivity_domain">
-          <typename
-            name="Lot_effectivity"/>
-          <redeclaration
-            entity-ref="Item_usage_effectivity"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="Manufacturing_configuration"
-          abstract.supertype="YES"
-          super.expression="ONEOF(Serial_configuration,Dated_configuration, Lot_configuration)"
-          supertypes="Item_usage_effectivity">
-          <explicit
-            name="concerned_organization">
-            <aggregate
-              type="SET"
-              lower="0"
-              upper="?"/>
-            <typename
-              name="Organization"/>
-          </explicit>
-          <where
-            label="WR1"
-            expression="('MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM' + '.PRODUCT_SPECIFICATION') IN TYPEOF(resolved_configuration.configuration)">
-          </where>
-          <where
-            label="WR2"
-            expression="('MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM' + '.PRODUCT_OCCURRENCE') IN TYPEOF(item_usage_relationship\View_definition_relationship.related_view)">
-          </where>
-        </entity>
-
-        <entity
-          name="Serial_configuration"
-          supertypes="Manufacturing_configuration">
-          <explicit
-            name="effectivity_domain">
-            <typename
-              name="Serial_effectivity"/>
-            <redeclaration
-              entity-ref="Item_usage_effectivity"/>
-            </explicit>
-          </entity>
-
-        </schema>
-      </express>
+      <entity name="Lot_configuration" supertypes="Manufacturing_configuration">
+         <explicit name="effectivity_domain">
+            <typename name="Lot_effectivity"/>
+            <redeclaration entity-ref="Item_usage_effectivity"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Manufacturing_configuration" super.expression="ONEOF (Serial_configuration, Dated_configuration, Lot_configuration)" supertypes="Item_usage_effectivity">
+         <explicit name="concerned_organization">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Organization"/>
+         </explicit>
+         <where expression="('MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM' + '.PRODUCT_SPECIFICATION') IN TYPEOF(resolved_configuration.configuration)" label="WR1"/>
+         <where expression="('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE') IN&#10;TYPEOF(item_usage_relationship\View_definition_relationship.related_view)" label="WR2"/>
+      </entity>
+      <entity name="Serial_configuration" supertypes="Manufacturing_configuration">
+         <explicit name="effectivity_domain">
+            <typename name="Serial_effectivity"/>
+            <redeclaration entity-ref="Item_usage_effectivity"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

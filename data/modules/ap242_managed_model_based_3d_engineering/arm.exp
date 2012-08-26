@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.24 2012/07/19 09:06:29 lothartklein Exp $
+   $Id: arm.exp,v 1.25 2012/07/26 07:12:26 lothartklein Exp $
 ISO TC184/SC4/WG3 N2818 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
 *)
 
@@ -99,8 +99,8 @@ TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Organization_relationship,
   Part, -- Item,
   Part_definition_relationship, -- Item_definition_relationship,
-  Part_occurrence, -- Item_instance,
-  Part_occurrence_definition_relationship, -- Item_definition_instance_relationship,
+  Product_occurrence, -- Item_instance,
+  Product_occurrence_definition_relationship, -- Item_definition_instance_relationship,
   Part_occurrence_relationship, -- Item_instance_relationship,
   Part_version, -- Item_version,
   Part_view_definition, -- Design_discipline_item_definition,
@@ -168,7 +168,7 @@ TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SE
 END_TYPE;
 
 TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
-  Part_occurrence);
+  Product_occurrence);
 END_TYPE; 
 
 TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
@@ -348,6 +348,13 @@ END_TYPE;
       (Item_shape);
     WHERE
       WR1: SIZEOF(QUERY(is <* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0;
+  END_RULE; 
+  
+  RULE specific_product_occurrence_definition_relationship FOR 
+      (Product_occurrence_definition_relationship);
+    WHERE
+      WR1: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PART_VIEW_DEFINITION_ARM' + '.PART_VIEW_DEFINITION' IN TYPEOF(occ_rel.relating_view.relating_view)))) = 0;
+      WR2: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE' IN TYPEOF(occ_rel.relating_view.related_view)))) = 0;
   END_RULE; 
   
   SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2012/07/05 15:02:14 thomasrthurman Exp $
+   $Id: arm.exp,v 1.24 2012/07/19 21:03:31 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6995 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6441
 *)
@@ -123,8 +123,8 @@ SCHEMA Layered_interconnect_simple_template_arm;
   ENTITY Component_termination_passage_template_terminal
     ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
       Component_termination_passage_template_join_terminal))
-    SUBTYPE OF (Definitional_shape_element);
-      SELF\Shape_element.containing_shape RENAMED associated_definition : Component_termination_passage_template;
+    SUBTYPE OF (General_part_feature);
+      SELF\Part_shape_element.associated_definition : Component_termination_passage_template;
       SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, associated_definition;
@@ -271,8 +271,8 @@ SCHEMA Layered_interconnect_simple_template_arm;
  
   ENTITY Land_template_terminal
     ABSTRACT SUPERTYPE OF (ONEOF (Land_template_join_terminal, Land_template_interface_terminal))
-    SUBTYPE OF (Definitional_shape_element);
-      SELF\Shape_element.containing_shape RENAMED associated_definition : Land_physical_template;
+    SUBTYPE OF (General_part_feature);
+      SELF\Part_shape_element.associated_definition : Land_physical_template;
       SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
       terminal_category                  : OPTIONAL land_template_terminal_class;
     UNIQUE
@@ -446,8 +446,8 @@ SCHEMA Layered_interconnect_simple_template_arm;
   END_ENTITY;
 
   ENTITY Via_template_terminal
-    SUBTYPE OF (Definitional_shape_element);
-      SELF\Shape_element.containing_shape RENAMED associated_definition : Via_template;
+    SUBTYPE OF (General_part_feature);
+      SELF\Part_shape_element.associated_definition : Via_template;
       disallowed_inter_stratum_extent                                   : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
       SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
     UNIQUE
@@ -456,7 +456,7 @@ SCHEMA Layered_interconnect_simple_template_arm;
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  SUBTYPE_CONSTRAINT list_shape_feature_subtypes FOR Definitional_shape_element; 
+  SUBTYPE_CONSTRAINT list_shape_feature_subtypes FOR General_part_feature; 
     (ONEOF (Via_template_terminal,
             Component_termination_passage_template_terminal,
             Land_template_terminal));

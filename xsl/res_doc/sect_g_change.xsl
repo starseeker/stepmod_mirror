@@ -24,8 +24,8 @@ This file is a copy of the file data/xsl/sect_g_changes.xsl for application modu
 <xsl:template match="resource">
   <xsl:variable name="annex_letter">
     <xsl:choose>
-        <xsl:when test="//examples or //tech_discussion">F</xsl:when>
         <xsl:when test="//examples and //tech_discussion">G</xsl:when>
+        <xsl:when test="//examples or //tech_discussion">F</xsl:when>
         <xsl:otherwise>E</xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -105,8 +105,8 @@ This file is a copy of the file data/xsl/sect_g_changes.xsl for application modu
     
     <xsl:variable name="annex_letter">
       <xsl:choose>
-        <xsl:when test="//examples or //tech_discussion">F</xsl:when>
         <xsl:when test="//examples and //tech_discussion">G</xsl:when>
+        <xsl:when test="//examples or //tech_discussion">F</xsl:when>
         <xsl:otherwise>E</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

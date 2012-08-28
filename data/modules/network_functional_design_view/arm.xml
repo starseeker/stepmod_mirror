@@ -46,6 +46,14 @@
          </unique>
          <where expression="consistent_bus_structural_definition(composition)" label="WR1"/>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_network_composition_relationship">
+         <explicit name="relating_view" optional="NO">
+            <typename name="Functional_unit_network_definition"/>
+         </explicit>
+         <explicit name="related_view" optional="NO">
+            <typename name="Functional_unit"/>
+         </explicit>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_unit" supertypes="Product_view_definition">
          <explicit name="definition" optional="NO">
             <typename name="Functional_unit_definition"/>
@@ -58,9 +66,12 @@
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="nfdv_pa_or_parameter_assignment_override"/>
          </explicit>
-         <derived expression="?" name="composed_network">
+         <derived expression="occurrence_contexts[1].relating_view" name="composed_network">
             <typename name="Functional_unit_network_definition"/>
          </derived>
+         <inverse attribute="related_view" entity="Functional_network_composition_relationship" name="occurrence_contexts">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
          <inverse attribute="accessed_functional_unit" entity="Functional_unit_terminal" name="access_mechanisms">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
@@ -68,6 +79,7 @@
             <unique.attribute attribute="reference_designation"/>
             <unique.attribute attribute="composed_network"/>
          </unique>
+         <where expression="SIZEOF(occurrence_contexts) = 1" label="WR1"/>
          <where expression="EXISTS(composed_network)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_unit_network_definition" supertypes="Functional_unit_definition">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2012/08/28 21:55:12 lothartklein Exp $
+   $Id: arm.exp,v 1.48 2012/08/29 02:18:33 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N6450 - ISO/TS 10303-1704 Network functional design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5713
 *)
@@ -50,21 +50,15 @@ END_TYPE;
       WR1 : consistent_bus_structural_definition(composition);
   END_ENTITY;
 
-  ENTITY Functional_network_composition_relationship;
-    relating_view : Functional_unit_network_definition;
-    related_view : Functional_unit;
-  END_ENTITY;
-
   ENTITY Functional_unit
   	SUBTYPE OF (Product_view_definition);
-    definition   : Functional_unit_definition;
+	composed_network    : Functional_unit_network_definition;    
+    definition          : Functional_unit_definition;
     SELF\Product_view_definition.id RENAMED reference_designation : STRING; 
-    functional_property   : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
+    functional_property : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
   DERIVE  
-	composed_network    : Functional_unit_network_definition := occurrence_context\Functional_network_composition_relationship.relating_view;    
 	SELF\Product_view_definition.defined_version : Functional_version := definition\Functional_unit_definition.defined_version;
   INVERSE
-    occurrence_context : Functional_network_composition_relationship FOR related_view;
     access_mechanisms  : SET[1:?] OF functional_unit_terminal FOR accessed_functional_unit;
   UNIQUE
     UR1 : reference_designation, composed_network;
@@ -81,13 +75,11 @@ END_TYPE;
       SELF\Product_view_definition.additional_characterization RENAMED functional_unit_network_node_name : STRING; 
     DERIVE
       SELF\Product_view_definition.defined_version : Functional_version := associated_functional_unit_definition.defined_version;
-      valid_conservative_node : LOGICAL := ( ( SIZEOF (USEDIN ( SELF ,
-        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) )
-        + SIZEOF ( USEDIN ( SELF ,
-        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )
-        ) + SIZEOF (USEDIN ( SELF ,
-        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE'
-        )) + SIZEOF ( external_node_access ) ) > 1 );
+      valid_conservative_node : LOGICAL := 
+      (( SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' )) +
+         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )) +
+         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE')) +
+         SIZEOF ( external_node_access ) ) > 1 );
     INVERSE
       external_node_access : SET[0:1] OF functional_unit_network_terminal_definition_node_assignment FOR composed_node;
     UNIQUE

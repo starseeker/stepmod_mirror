@@ -46,15 +46,10 @@
          </unique>
          <where expression="consistent_bus_structural_definition(composition)" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_network_composition_relationship">
-         <explicit name="relating_view" optional="NO">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_unit" supertypes="Product_view_definition">
+         <explicit name="composed_network" optional="NO">
             <typename name="Functional_unit_network_definition"/>
          </explicit>
-         <explicit name="related_view" optional="NO">
-            <typename name="Functional_unit"/>
-         </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_unit" supertypes="Product_view_definition">
          <explicit name="definition" optional="NO">
             <typename name="Functional_unit_definition"/>
          </explicit>
@@ -66,12 +61,10 @@
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="nfdv_pa_or_parameter_assignment_override"/>
          </explicit>
-         <derived expression="occurrence_contexts[1].relating_view" name="composed_network">
-            <typename name="Functional_unit_network_definition"/>
+         <derived expression="definition\Functional_unit_definition.defined_version" name="defined_version">
+            <typename name="Functional_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
          </derived>
-         <inverse attribute="related_view" entity="Functional_network_composition_relationship" name="occurrence_contexts">
-            <inverse.aggregate lower="0" type="SET" upper="?"/>
-         </inverse>
          <inverse attribute="accessed_functional_unit" entity="Functional_unit_terminal" name="access_mechanisms">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
@@ -79,8 +72,6 @@
             <unique.attribute attribute="reference_designation"/>
             <unique.attribute attribute="composed_network"/>
          </unique>
-         <where expression="SIZEOF(occurrence_contexts) = 1" label="WR1"/>
-         <where expression="EXISTS(composed_network)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Functional_unit_network_definition" supertypes="Functional_unit_definition">
          <explicit name="usage_view" optional="NO">
@@ -99,7 +90,7 @@
             <typename name="Functional_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
-         <derived expression="( ( SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) )&#10;        + SIZEOF ( USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )&#10;        ) + SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE'&#10;        )) + SIZEOF ( external_node_access ) ) &gt; 1 )" name="valid_conservative_node">
+         <derived expression="(( SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' )) +&#10;         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )) +&#10;         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE')) +&#10;         SIZEOF ( external_node_access ) ) &gt; 1 )" name="valid_conservative_node">
             <builtintype fixed="NO" type="LOGICAL"/>
          </derived>
          <inverse attribute="composed_node" entity="Functional_unit_network_terminal_definition_node_assignment" name="external_node_access">

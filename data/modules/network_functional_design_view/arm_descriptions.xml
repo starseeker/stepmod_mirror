@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="network_functional_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2008/12/17 15:10:56 $" rcs.revision="$Revision: 1.31 $">
+<ext_descriptions module_directory="network_functional_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/08/28 15:25:01 $" rcs.revision="$Revision: 1.32 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Network_functional_design_view_arm
    <express_ref linkend="network_functional_design_view:arm:Network_functional_design_view_arm"/>
@@ -12,7 +12,21 @@
 </ext_description>
 <!-- +++++++++++ Bus_element_link +++++++++++ -->
 <ext_description linkend="Network_functional_design_view_arm.Bus_element_link">
-A <b>Bus_element_link</b> is a means to describe the relationship between two elements of a bus that are linked by network nodes or structural definitions.
+	<p>
+		A <b>Bus_element_link</b> is a directed definitional and structural relationship between two nodes of a bus. When the <b>Bus_element_link</b> references a 
+		<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_structural_definition"/> the <b>Bus_element_link</b>
+		is defining a commposition relationship between a bus and a sub-bus. 
+		When the <b>Bus_element_link</b> references a 
+		<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_node_definition"/>
+		the <b>Bus_element_link</b>
+		is defining a leaf node of the bus.
+	</p>
+	<note number="1">
+		The elements that are related to a bus by a <b>Bus_element_link</b> are themselves independent of the bus. 
+	</note>
+	<note number="2">
+		A node may participate in more than one bus.
+	</note>
 </ext_description>
 <ext_description linkend="Network_functional_design_view_arm.Bus_element_link.subsequent_element">
 	an attribute describes the other 
@@ -38,22 +52,47 @@ The <b>precedent_element</b> and the <b>subsequent_element</b> can not be equal.
 The combination of <b>precedent_element</b> and <b>subsequent_element</b> shall be unique with a population of <b>Bus_element_links</b>.
 </ext_description>
 <!-- +++++++++++ Bus_structural_definition +++++++++++ -->
-<ext_description linkend="Network_functional_design_view_arm.Bus_structural_definition"><p>
+<ext_description linkend="Network_functional_design_view_arm.Bus_structural_definition">
+<p>
 
-  A <b>Bus_structural_definition</b> is the aggregate or <b>composition</b> of the mathematical or logical structure of the bus.  If a bus were to be represented by a graph, the <b>Bus_structural_definition</b> would be a root node for the bus in that representation.
-
-</p><note number="1">
+  A <b>Bus_structural_definition</b> is the description of the mathematical or logical structure of the bus.
+	If a bus were to be represented by a graph, the <b>Bus_structural_definition</b> would be a root node for the bus in that representation.
+</p>
+	<example>
+		A computer bus may be composed of data and addresses buses, each of which has its own internal structure.
+	</example>
+	<note number="1">
 A bus is a <b>composition</b> concept. Once defined, the bus definition can be used in various connectivity 
 related aspects of the design. Several of the possible usages are conflicting and rules are provided to 
 ensure unambiguous data. The structure of the reference model prohibits certain conflicting usages from 
 occurring simultaneously.
 </note>
 <note number="2">
-Ordered definition of buses is supported in this part of ISO 10303 by interpreting the name of the
-bus element as indicating the position in the sequence, using normal ASCII ordering
-for regular expressions. Spaces are not allowed in names.
+The ordering of elements in the bus is defined by the set of 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/>.
+Because the definition is acyclic, the first element is the element that is referenced by exactly one
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/>.
+where that 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/>
+	references the element with the 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link.precedent_element"/>.
+The last element in the bus is also referenced by exactly one
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/>.
+That last element is referenced by the 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link.subsequent_element"/>.
 </note>
-
+<note number="3">
+	Leaf nodes of the bus are
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_node_definition"/>.
+</note>
+<note number="4">
+	Reuse of a bus is most easily accomplished by creating a
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_definition"/>
+	as a template. Applications will need to copy the relevant bus structure into target members of
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_definition"/>.	
+</note>
+	
+	
 </ext_description>
 
 <!-- external_bus_access -->
@@ -72,13 +111,16 @@ for regular expressions. Spaces are not allowed in names.
 
 <!-- composition -->
 <ext_description linkend="Network_functional_design_view_arm.Bus_structural_definition.composition">
-a set of <express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/> for the <b>Bus_structural_definition</b>. There shall be one or more  <express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/> for each <b>Bus_structural_definition</b>. 
+a set of 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/>
+	for the <b>Bus_structural_definition</b>. There shall be one or more  <express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Bus_element_link"/> for each <b>Bus_structural_definition</b>. 
 </ext_description>
 
 <!-- bus_name -->
 <ext_description linkend="Network_functional_design_view_arm.Bus_structural_definition.bus_name"><p>
 specifies the string identifying the <b>Bus_structural_definition</b>.
-</p><note>
+</p>
+<note number="5">
 A project may establish project wide default names for buses. The identifier should then be globally 
 unique within that project.
 </note>
@@ -96,11 +138,13 @@ The <express_ref linkend="Network_functional_design_view:arm:Network_functional_
 The <b>bus_name</b> shall be unique within a population of <b>Bus_structural_definitions</b>.
 </ext_description>
 <!-- +++++++++++ Functional_unit +++++++++++ -->
-<ext_description linkend="Network_functional_design_view_arm.Functional_unit"><p>
+<ext_description linkend="Network_functional_design_view_arm.Functional_unit">
+<p>
 A <b>Functional_unit</b> is a type of <express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Definition_based_product_occurrence"/>.
  A <b>Functional_unit</b> is an occurrence of 
 a <express_ref linkend="Functional_usage_view:arm:Functional_usage_view_arm.Functional_unit_definition"/> in the 
-composition of a <express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_definition"/>.
+composition of a 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_definition"/>.
 Property values may be defined in the definition or may be specified in this Application Object.
 </p>
 <example number="1">
@@ -112,17 +156,19 @@ A processor model is obtained from a simulation model supplier with fixed value 
 </example>
 <example number="3">
 Figure 1 is an illustration of a multi-level hierarchical network showing hierarchical decomposition relationships.  
-	In the illustration, the upper portion is a network definition, while the lines between the upper portion and the lower portion
+	In the illustration, the upper portion is a network definition of a two bit adder, while the lines between the upper portion and the lower portion
 	represent the identification that the lower portion is the definition of two of the blocks in the upper portion.
-	The upper portion is a two bit adder.  It is composed of two one bit adders, by reference.  The definition of a one bit adder is shown in
-	the lower portion.  The one bit adder is composed of two NOR gates, two AND gates and one OR gate.  Each gate may be further
-	decomposed but for clarity is not in this illustration.  The three levels of hierarchical decomposition are the upper level,
-	the lower level and the leaf elements, the gates.  The leaf elements are not dependent on the upper levels but each upper
+	The network definition of the two bit adder is composed of two one bit adders, each included by reference.
+	The network definition of a one bit adder is shown in the lower portion of Figure 1.
+	The one bit adder is composed of two NOR gates, two AND gates and one OR gate.  Each gate may be further
+	decomposed but for clarity is not in this illustration.  The three levels of hierarchical decomposition are the two bit adder,
+	the one bit adder and the leaf elements, the gates.  The leaf elements are not dependent on the upper levels but each upper
 	level is dependent on the lower levels.
 </example>
 	<note number="1">
-		It is necessary to understand that the illustration in Figure 1 is a composite of several schematic elements for illustration
-		purposes and would not appear this way in a schematic editor.  For clarity, only ADDER2 is shown defined by the ADDER but of
+		The illustration in Figure 1 is a composite of several schematic diagrams for illustration
+		purposes. In a typical schematic editor each diagram would have its own editing context and physical file.
+		For clarity, only ADDER2 is shown defined by the ADDER but of
 		course both ADDER1 and ADDER2 are defined by the ADDER.
 	</note>
 <figure number="1" id="fu">
@@ -334,7 +380,9 @@ specifies the role of the <express_ref linkend="Functional_usage_view:arm:Functi
 <b>Functional_unit_network_terminal_definition_node_assignment</b>.
 </ext_description>
 <ext_description linkend="Network_functional_design_view_arm.Functional_unit_network_terminal_definition_node_assignment.composed_node">
-specifies the role of the <express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_node_definition"/> for the 
+specifies the role of the 
+	<express_ref linkend="Network_functional_design_view:arm:Network_functional_design_view_arm.Functional_unit_network_node_definition"/>
+	for the 
 <b>Functional_unit_network_terminal_definition_node_assignment</b>.
 </ext_description>
 <ext_description linkend="Network_functional_design_view_arm.Functional_unit_network_terminal_definition_node_assignment.ur:UR1">

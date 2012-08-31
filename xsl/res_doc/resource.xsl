@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.84 2011/03/11 15:26:53 lothartklein Exp $
+$Id: resource.xsl,v 1.85 2011/06/24 08:37:04 philsp Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1374,6 +1374,22 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </xsl:call-template>
     </xsl:variable>
 
+    <!-- output the intro and fundamental contants.! -->
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" 
+		      select="concat(($schema_no+3),'.1 General')"/>
+      <xsl:with-param name="aname" select="'gen'"/>
+    </xsl:call-template>
+
+    <!-- output any issues -->
+    <xsl:apply-templates select=".." mode="output_schema_clause_issue">
+      <xsl:with-param name="clause" select="'schema_intro'"/>
+      <xsl:with-param name="schema" select="$schema_name"/>
+    </xsl:apply-templates>
+
+
+    <xsl:apply-templates select="./introduction"/>
+    
     <xsl:variable name="clause_intro_1">This clause defines the information requirements to which implementations shall conform using the EXPRESS language as defined in ISO 10303-11. The following EXPRESS declaration begins the </xsl:variable>
     <xsl:variable name="clause_intro_2"> 
       <xsl:choose>
@@ -1411,22 +1427,8 @@ the types, entity specializations, and functions that are specific to this part 
       <xsl:with-param name="doctype" select="$doctype"/>
     </xsl:apply-templates>
 
-    <!-- output the intro and fundamental contants.! -->
-    <xsl:call-template name="clause_header">
-      <xsl:with-param name="heading" 
-		      select="concat(($schema_no+3),'.1 General')"/>
-      <xsl:with-param name="aname" select="'gen'"/>
-    </xsl:call-template>
-
-    <!-- output any issues -->
-    <xsl:apply-templates select=".." mode="output_schema_clause_issue">
-      <xsl:with-param name="clause" select="'schema_intro'"/>
-      <xsl:with-param name="schema" select="$schema_name"/>
-    </xsl:apply-templates>
 
 
-    <xsl:apply-templates select="./introduction"/>
-    
     <!--	<a name="funcon{$schema_no+3}" />  -->
 
     <xsl:call-template name="clause_header">

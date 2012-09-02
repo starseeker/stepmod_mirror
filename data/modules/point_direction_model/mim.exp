@@ -1,0 +1,28 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- point_direction_model - EXPRESS MIM
+*)
+
+SCHEMA Point_direction_model_mim;
+
+USE FROM Elemental_geometric_shape_mim;
+USE FROM representation_schema(compound_representation_item);
+
+TYPE point_placement_shape_representation_item = SELECT (
+  compound_representation_item,
+  mapped_item,
+  axis2_placement_3d);
+END_TYPE;  
+
+ENTITY point_placement_shape_representation
+  SUBTYPE OF (shape_representation);
+  SELF\representation.items : SET[1:?] OF point_placement_shape_representation_item;
+WHERE
+  WR1:  SIZEOF( QUERY( i <* SELF.items |
+                SIZEOF(['REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM',
+                        'REPRESENTATION_SCHEMA.MAPPED_ITEM']
+                       * TYPEOF(i)) = 1
+              )) > 0;
+END_ENTITY;
+
+END_SCHEMA;

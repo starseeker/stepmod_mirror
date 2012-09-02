@@ -1,0 +1,46 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- point_direction_model - EXPRESS ARM
+*)
+
+SCHEMA Point_direction_model_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+TYPE point_or_point_direction_sequence = SELECT (
+  Point_direction_sequence,
+  Point_sequence);
+END_TYPE;  
+
+TYPE point_or_point_direction = SELECT (
+  Point,
+  Point_direction);
+END_TYPE;  
+
+ENTITY Point_direction_model
+  SUBTYPE OF (Geometric_model);
+  SELF\Representation.items : SET [1:?] OF point_or_point_direction_sequence;
+END_ENTITY;
+
+ENTITY Point_direction
+  SUBTYPE OF (Detailed_geometric_model_element);
+  origin : Cartesian_point;
+  axis : Direction;
+END_ENTITY;  
+
+ENTITY Point_direction_sequence
+  SUBTYPE OF (Detailed_geometric_model_element);
+  items : LIST [1:?] OF point_or_point_direction;
+END_ENTITY;  
+
+ENTITY Point_sequence
+  SUBTYPE OF (Detailed_geometric_model_element);
+  items : LIST [1:?] OF Cartesian_point;
+END_ENTITY;  
+
+SUBTYPE_CONSTRAINT pdim_exclusive_detailed_geometric_model_element FOR Detailed_geometric_model_element;
+  ABSTRACT SUPERTYPE;
+  ONEOF (Point_direction, Point_direction_sequence, Point_sequence, Point);
+END_SUBTYPE_CONSTRAINT; 
+
+END_SCHEMA;

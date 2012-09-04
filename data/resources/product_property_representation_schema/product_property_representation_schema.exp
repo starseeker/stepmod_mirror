@@ -1,5 +1,5 @@
 (*
-$Id: product_property_representation_schema.exp,v 1.31 2012/07/17 23:24:59 lothartklein Exp $
+$Id: product_property_representation_schema.exp,v 1.32 2012/09/04 19:55:57 lothartklein Exp $
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -32,7 +32,9 @@ SCHEMA product_property_representation_schema;
     using_representations, 
     mapped_item, 
     representation_context, 
-    representation_map);
+    representation_map,
+    list_representation_item,
+    set_representation_item);
   REFERENCE FROM support_resource_schema (
     bag_to_set, 
     label, 
@@ -42,6 +44,7 @@ SCHEMA product_property_representation_schema;
     context_dependent_shape_representation,
     property_definition_representation);
   END_TYPE;
+  
   TYPE pprs_name_attribute_select = SELECT BASED_ON name_attribute_select WITH (
     context_dependent_shape_representation,
     property_definition_representation);
@@ -61,6 +64,12 @@ SCHEMA product_property_representation_schema;
   TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
     represented_definition);
   END_TYPE;
+  
+  TYPE item_identified_representation_usage_select = SELECT (
+    representation_item,
+    list_representation_item,
+    set_representation_item);
+  END_TYPE;  
 
   ENTITY chain_based_item_identified_representation_usage
     SUBTYPE OF (item_identified_representation_usage);
@@ -121,7 +130,7 @@ SCHEMA product_property_representation_schema;
     description : OPTIONAL text;
     definition : item_identified_representation_usage_definition;
     used_representation : representation;
-    identified_item : representation_item;
+    identified_item : item_identified_representation_usage_select;
   WHERE
     WR1: SELF.used_representation IN using_representations(SELF.identified_item);
   END_ENTITY;

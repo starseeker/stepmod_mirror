@@ -1,15 +1,21 @@
 (*
-   $Id: arm.exp,v 1.41 2009/04/23 11:21:46 liutkuviene Exp $
+   $Id: arm.exp,v 1.42 2011/02/11 10:21:00 lothartklein Exp $
    ISO TC184/SC4/WG12 N6399 - ISO/TS 10303-1686 Interconnect module usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5668
 *)
 
 SCHEMA Interconnect_module_usage_view_arm;
 
-	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
+	USE FROM Non_feature_shape_element_arm;
+
 	USE FROM Functional_assignment_to_part_arm;	-- ISO/TS 10303-1674
 	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
 
+	REFERENCE FROM Requirement_decomposition_arm    --  ISO/TS 10303-1740
+  		(get_rvd); 
+  
 	TYPE cavity_reference_select = SELECT(
 		Interconnect_module_primary_surface,
 		Interconnect_module_secondary_surface);
@@ -132,6 +138,19 @@ SCHEMA Interconnect_module_usage_view_arm;
       UR1 : design,
  reference_location;
   END_ENTITY;
+  
+  TYPE restrained_item_select = SELECT
+    (Datum, 
+     Shape_element);
+  END_TYPE;
+ 
+  ENTITY Restraint_condition;
+    applied_to : restrained_item_select;
+  DERIVE
+    restraint_description : SET[0:?] OF Requirement_view_definition := get_rvd(SELF, 'restraint description');
+  WHERE
+    WR1: (SIZEOF(restraint_description) = 1);
+ END_ENTITY;
 
 END_SCHEMA;
 

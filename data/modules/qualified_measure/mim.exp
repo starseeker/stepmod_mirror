@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2008/09/13 12:26:54 liutkuviene Exp $
+   $Id: mim.exp,v 1.6 2009/04/30 11:35:45 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6559 - ISO/TS 10303-1782 Qualified measure - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5483
 *)
@@ -18,5 +18,29 @@ USE FROM qualified_measure_schema
   standard_uncertainty,
   type_qualifier,
   uncertainty_qualifier);
+
+USE FROM representation_schema
+  (uncertainty_assigned_representation);
+
+
+RULE consistent_uncertainty 
+      FOR (global_uncertainty_assigned_context,
+           qualified_representation_item,
+           uncertainty_assigned_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( guac <* global_uncertainty_assigned_context | 
+    SIZEOF ( QUERY ( u1 <* guac.uncertainty | 
+	SIZEOF ( QUERY ( u2 <* guac.uncertainty | u2.name =  u1.name ) ) >1 ) ) >0 ) ) =  0 ;
+WR2: SIZEOF ( QUERY ( uar <* uncertainty_assigned_representation | 
+	SIZEOF ( QUERY ( u1<* uar.uncertainty | 
+	SIZEOF ( QUERY ( u2 <* uar.uncertainty | u2.name =  u1.name ) ) >1 ) ) >0 ) ) =  0;
+WR3: SIZEOF ( QUERY ( qri <* qualified_representation_item |
+     SIZEOF ( QUERY ( u1 <* qri.qualifiers |
+     ('REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 
+	( SIZEOF ( QUERY ( u2 <* qri.qualifiers |
+     ( 'REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 
+	( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )
+     ) >1 ) ) ) >0 ) ) =  0;
+END_RULE; 
 
 END_SCHEMA;

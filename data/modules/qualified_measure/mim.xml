@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="qualified_measure_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1782">
+   <application name="JSDAI" owner="LKSoft" source="qualified_measure_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Qualified_measure_mim">
       <interface kind="use" schema="Measure_representation_mim"/>
       <interface kind="use" schema="qualified_measure_schema">
@@ -17,5 +17,13 @@
          <interfaced.item name="type_qualifier"/>
          <interfaced.item name="uncertainty_qualifier"/>
       </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="uncertainty_assigned_representation"/>
+      </interface>
+      <rule appliesto="global_uncertainty_assigned_context qualified_representation_item uncertainty_assigned_representation" name="consistent_uncertainty">
+         <where expression="SIZEOF ( QUERY ( guac &lt;* global_uncertainty_assigned_context | &#10;    SIZEOF ( QUERY ( u1 &lt;* guac.uncertainty | &#10;&#9;SIZEOF ( QUERY ( u2 &lt;* guac.uncertainty | u2.name =  u1.name ) ) &gt;1 ) ) &gt;0 ) ) =  0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( uar &lt;* uncertainty_assigned_representation | &#10;&#9;SIZEOF ( QUERY ( u1&lt;* uar.uncertainty | &#10;&#9;SIZEOF ( QUERY ( u2 &lt;* uar.uncertainty | u2.name =  u1.name ) ) &gt;1 ) ) &gt;0 ) ) =  0" label="WR2"/>
+         <where expression="SIZEOF ( QUERY ( qri &lt;* qualified_representation_item |&#10;     SIZEOF ( QUERY ( u1 &lt;* qri.qualifiers |&#10;     ('REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND &#10;&#9;( SIZEOF ( QUERY ( u2 &lt;* qri.qualifiers |&#10;     ( 'REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND &#10;&#9;( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )&#10;     ) &gt;1 ) ) ) &gt;0 ) ) =  0" label="WR3"/>
+      </rule>
    </schema>
 </express>

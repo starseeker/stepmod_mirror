@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.17 2009/12/11 13:39:31 mikeward Exp $
+$Id: product_definition_schema.exp,v 1.13 2012/07/17 23:24:59 lothartklein Exp $
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -26,6 +26,13 @@ SCHEMA product_definition_schema;
     identifier, 
     label, 
     text);
+  REFERENCE FROM external_reference_schema (
+    external_source);
+    
+  TYPE product_definition_or_reference = SELECT (
+    product_definition, 
+    generic_product_definition_reference);
+  END_TYPE;
     
   TYPE pds_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
     product_category);
@@ -42,6 +49,11 @@ SCHEMA product_definition_schema;
     SUBTYPE OF (characterized_object, product);
   END_ENTITY;
 
+  ENTITY generic_product_definition_reference
+    ABSTRACT SUPERTYPE OF ( ONEOF ( product_definition_reference, product_definition_reference_with_local_representation) );
+    source : external_source;
+  END_ENTITY;
+ 
   ENTITY product;
     id : identifier;
     name : label;
@@ -121,10 +133,22 @@ SCHEMA product_definition_schema;
     id : identifier;
     name : label;
     description : OPTIONAL text;
-    relating_product_definition : product_definition;
-    related_product_definition : product_definition;
+    relating_product_definition : product_definition_or_reference;
+    related_product_definition : product_definition_or_reference;
   END_ENTITY;
 
+  ENTITY product_definition_reference
+    SUBTYPE OF (generic_product_definition_reference);
+    product_id : identifier;
+    product_definition_formation_id : identifier;
+    product_definition_id : identifier;
+    id_owning_organization_name : OPTIONAL label;
+  END_ENTITY;
+ 
+  ENTITY product_definition_reference_with_local_representation
+    SUBTYPE OF (generic_product_definition_reference, product_definition);
+  END_ENTITY;
+  
   ENTITY product_definition_substitute;
     description : OPTIONAL text;
     context_relationship : product_definition_relationship;

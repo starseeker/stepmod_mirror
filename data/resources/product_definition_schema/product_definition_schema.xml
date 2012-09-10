@@ -32,16 +32,27 @@
          <interfaced.item name="label"/>
          <interfaced.item name="text"/>
       </interface>
+      <interface kind="reference" schema="external_reference_schema">
+         <interfaced.item name="external_source"/>
+      </interface>
       <type name="pds_id_attribute_select">
          <select basedon="id_attribute_select" extensible="NO" genericentity="NO" selectitems="product_category"/>
       </type>
       <type name="pds_name_attribute_select">
          <select basedon="name_attribute_select" extensible="NO" genericentity="NO" selectitems="product_definition product_definition_substitute"/>
       </type>
+      <type name="product_definition_or_reference">
+         <select extensible="NO" genericentity="NO" selectitems="product_definition generic_product_definition_reference"/>
+      </type>
       <type name="source">
          <enumeration extensible="NO" items="made bought not_known"/>
       </type>
       <entity abstract.entity="NO" abstract.supertype="NO" name="characterized_product" supertypes="characterized_object product"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="generic_product_definition_reference" super.expression="ONEOF (product_definition_reference, product_definition_reference_with_local_representation)">
+         <explicit name="source" optional="NO">
+            <typename name="external_source"/>
+         </explicit>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="product">
          <explicit name="id" optional="NO">
             <typename name="identifier"/>
@@ -165,6 +176,21 @@
             <typename name="source"/>
          </explicit>
       </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="product_definition_reference" supertypes="generic_product_definition_reference">
+         <explicit name="product_id" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="product_definition_formation_id" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="product_definition_id" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="id_owning_organization_name" optional="YES">
+            <typename name="label"/>
+         </explicit>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="product_definition_reference_with_local_representation" supertypes="generic_product_definition_reference product_definition"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="product_definition_relationship">
          <explicit name="id" optional="NO">
             <typename name="identifier"/>
@@ -176,10 +202,10 @@
             <typename name="text"/>
          </explicit>
          <explicit name="relating_product_definition" optional="NO">
-            <typename name="product_definition"/>
+            <typename name="product_definition_or_reference"/>
          </explicit>
          <explicit name="related_product_definition" optional="NO">
-            <typename name="product_definition"/>
+            <typename name="product_definition_or_reference"/>
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="product_definition_substitute">

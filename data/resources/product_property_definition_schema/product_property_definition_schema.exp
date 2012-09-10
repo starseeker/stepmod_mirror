@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.17 2009/12/11 13:39:31 mikeward Exp $
+$Id: product_property_definition_schema.exp,v 1.10 2012/07/17 22:41:28 lothartklein Exp $
 ISO TC184/SC4/WG12 N7295 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -11,6 +11,10 @@ SCHEMA product_property_definition_schema;
   REFERENCE FROM product_definition_schema (
     product_definition, 
     product_definition_relationship);
+  REFERENCE FROM product_structure_schema (
+    assembly_component_usage,
+    multi_level_reference_designator,
+    next_assembly_usage_occurrence);
   REFERENCE FROM support_resource_schema (
     bag_to_set, 
     identifier, 
@@ -33,13 +37,29 @@ SCHEMA product_property_definition_schema;
     shape_aspect_relationship);
   END_TYPE;
 
-  TYPE characterized_product_definition = SELECT (product_definition, product_definition_relationship);
+  TYPE characterized_product_definition = SELECT (
+    product_definition, 
+    product_definition_relationship,
+    multi_level_reference_designator);
   END_TYPE;
 
   TYPE derived_property_select = SELECT (property_definition, action_property, resource_property);
   END_TYPE;
 
   TYPE shape_definition = SELECT (product_definition_shape, shape_aspect, shape_aspect_relationship);
+  END_TYPE;
+
+  TYPE internal_or_reflected_shape_aspect = SELECT (
+    shape_aspect,
+    reflected_shape_aspect_id);
+  END_TYPE;
+
+  TYPE reflected_shape_aspect_id = identifier;
+  END_TYPE;
+
+  TYPE multi_or_next_assembly_usage_occurrence = SELECT (
+    multi_level_reference_designator,
+    next_assembly_usage_occurrence);
   END_TYPE;
 
   ENTITY characterized_object;
@@ -52,6 +72,17 @@ SCHEMA product_property_definition_schema;
     description : OPTIONAL text;
     relating_object : characterized_object;
     related_object : characterized_object;
+  END_ENTITY;
+
+  ENTITY component_path_shape_aspect
+    SUBTYPE OF (shape_aspect);
+    location : multi_or_next_assembly_usage_occurrence;
+    component_shape_aspect : internal_or_reflected_shape_aspect;
+  UNIQUE
+    UR1 : location, component_shape_aspect;
+  WHERE
+    WR1: SIZEOF(QUERY(cp <* location.location | NOT (
+      EXISTS(cp\assembly_component_usage.reference_designator)))) = 0; 
   END_ENTITY;
 
   ENTITY general_property;

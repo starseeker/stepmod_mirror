@@ -13,6 +13,11 @@
          <interfaced.item name="product_definition"/>
          <interfaced.item name="product_definition_relationship"/>
       </interface>
+      <interface kind="reference" schema="product_structure_schema">
+         <interfaced.item name="assembly_component_usage"/>
+         <interfaced.item name="multi_level_reference_designator"/>
+         <interfaced.item name="next_assembly_usage_occurrence"/>
+      </interface>
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="bag_to_set"/>
          <interfaced.item name="identifier"/>
@@ -28,13 +33,22 @@
          <select selectitems="characterized_object characterized_product_definition shape_definition"/>
       </type>
       <type name="characterized_product_definition">
-         <select selectitems="product_definition product_definition_relationship"/>
+         <select selectitems="product_definition product_definition_relationship multi_level_reference_designator"/>
       </type>
       <type name="derived_property_select">
          <select selectitems="property_definition action_property resource_property"/>
       </type>
+      <type name="internal_or_reflected_shape_aspect">
+         <select selectitems="shape_aspect reflected_shape_aspect_id"/>
+      </type>
+      <type name="multi_or_next_assembly_usage_occurrence">
+         <select selectitems="multi_level_reference_designator next_assembly_usage_occurrence"/>
+      </type>
       <type name="ppds_id_attribute_select">
          <select basedon="id_attribute_select" selectitems="property_definition shape_aspect shape_aspect_relationship"/>
+      </type>
+      <type name="reflected_shape_aspect_id">
+         <typename name="identifier"/>
       </type>
       <type name="shape_definition">
          <select selectitems="product_definition_shape shape_aspect shape_aspect_relationship"/>
@@ -60,6 +74,19 @@
          <explicit name="related_object">
             <typename name="characterized_object"/>
          </explicit>
+      </entity>
+      <entity name="component_path_shape_aspect" supertypes="shape_aspect">
+         <explicit name="location">
+            <typename name="multi_or_next_assembly_usage_occurrence"/>
+         </explicit>
+         <explicit name="component_shape_aspect">
+            <typename name="internal_or_reflected_shape_aspect"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+            <unique.attribute attribute="component_shape_aspect"/>
+         </unique>
+         <where expression="SIZEOF(QUERY(cp &lt;* location.location | NOT (&#10;      EXISTS(cp\assembly_component_usage.reference_designator)))) = 0" label="WR1"/>
       </entity>
       <entity name="general_property">
          <explicit name="id">

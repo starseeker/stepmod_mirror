@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.15 2005/12/07 07:34:23 liutkus Exp $
+   $Id: arm.exp,v 1.16 2006/01/20 08:43:41 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4146 - ISO/TS 10303-1733 Planned characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3543
 *)
 
 SCHEMA Planned_characteristic_arm;
 
+    USE FROM Process_plan_arm; -- ISO/TS 10303-1803
 	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
 	USE FROM Requirement_assignment_arm;	-- ISO/TS 10303-1233
  
@@ -22,11 +23,20 @@ SCHEMA Planned_characteristic_arm;
      to_be_evaluated);
   END_TYPE;
 
+  TYPE evaluation_activity_select = SELECT OF
+     (Activity,
+      Process_operation_occurrence);
+  END_TYPE;
+  
   ENTITY Evaluated_characteristic
     SUPERTYPE OF (Rule_based_evaluated_characteristic);
+      id : OPTIONAL STRING;
+      name : OPTIONAL STRING;
+      description : OPTIONAL STRING;
       planned_product_data          : Planned_characteristic;
       product_data_status           : evaluation_type;
       product_characterization_data : OPTIONAL SET[1:?] OF Property_value_representation;
+      evaluation_activity           : OPTIONAL evaluation_activity_select;
       evaluation_result             : evaluation_result_value;
   END_ENTITY;
 

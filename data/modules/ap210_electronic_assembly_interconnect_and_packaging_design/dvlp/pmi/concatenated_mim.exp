@@ -514,7 +514,7 @@ TYPE ap210_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
       representation_context,
       representation_item,
       representation_relationship,
-      runout_zone_orientation,
+--      runout_zone_orientation,
       security_classification,
       shape_aspect,
       shape_aspect_relationship,
@@ -526,7 +526,7 @@ TYPE ap210_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
 	applied_external_identification_assignment,
 	applied_organization_assignment,
 	applied_person_and_organization_assignment,
-	auxiliary_characteristic_dimension_representation,
+--	auxiliary_characteristic_dimension_representation,
 	assembly_component,
 	assembly_component_usage,
 	assembly_component_usage_substitute,
@@ -581,7 +581,7 @@ TYPE ap210_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
 	general_property_relationship,
 	geometric_representation_context,
 	geometric_representation_item,
-	geometric_tolerance_group,
+--	geometric_tolerance_group,
 	group_product_definition,
 	group_shape_aspect,
 	item_defined_transformation,
@@ -838,6 +838,7 @@ SCHEMA Ap242_managed_model_based_3d_engineering_mim;
 
 USE FROM Mating_structure_mim;
 USE FROM Shape_data_quality_inspection_result_mim; -- ISO/TS 10303-1524
+USE FROM Externally_conditioned_data_quality_inspection_result_mim; -- ISO/TS 10303-1822
 USE FROM Geometric_constraints_mim; -- ISO/TS 10303-1789
 USE FROM Machining_features_mim;
 USE FROM Form_feature_in_panel_mim;
@@ -872,7 +873,6 @@ USE FROM Part_and_zone_laminate_tables_mim;  -- ISO/TS 10303-1770
 USE FROM Picture_representation_mim;  -- ISO/TS 10303-1308
 USE FROM Planned_characteristic_mim; -- ISO/TS 10303-1733
 USE FROM Ply_orientation_specification_mim;  -- ISO/TS 10303-1772
-USE FROM Representation_with_uncertainty_mim; -- ISO/TS 10303-1228
 USE FROM Shape_feature_mim;    -- ISO/TS 10303-1764
 USE FROM Solid_with_local_modification_mim; -- ISO/TS 10303-1319
 USE FROM Surface_conditions_mim; -- ISO/TS 10303-1110 
@@ -885,6 +885,8 @@ USE FROM Change_management_mim; -- ISO/TS 10303-1661
 USE FROM Sketch_mim; -- ISO/TS 10303-1792
 USE FROM Tessellated_geometry_mim;  -- ISO/TS 10303-1819
 USE FROM Edge_shape_feature_mim; -- ISO/TS 10303-1673
+USE FROM Point_direction_model_mim;  -- -- ISO/TS 10303-1820
+USE FROM Numerical_interface_mim; -- ISO/TS 10303-1344
 
 
 USE FROM application_context_schema   -- ISO 10303-41
@@ -939,6 +941,11 @@ REFERENCE FROM representation_schema(founded_item);
        'supplied_part_relationship']; 
   END_CONSTANT; 
   
+  TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
+   (dimensional_size,
+    representation);
+  END_TYPE;
+    
   TYPE item_identified_representation_usage_definition_242 = SELECT BASED_ON item_identified_representation_usage_definition WITH
    (applied_action_assignment,
     applied_action_method_assignment, 
@@ -2520,7 +2527,10 @@ END_SCHEMA;
 *)
 SCHEMA Bare_die_mim;
 
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+	USE FROM Non_feature_shape_element_mim; 
+
 	USE FROM Functional_assignment_to_part_mim;	-- ISO/TS 10303-1674
 	USE FROM Part_feature_function_mim;	-- ISO/TS 10303-1712
 	USE FROM Functional_usage_view_mim;	-- ISO/TS 10303-1705
@@ -3754,17 +3764,17 @@ SCHEMA Constructive_solid_geometry_2d_mim;
    WHERE 
      WR1: SELF.context_of_items\geometric_representation_context.coordinate_space_dimension = 2;
      WR2: SIZEOF(QUERY ( it <* SELF.items | 
-       (SIZEOF(['CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_SOLID']
+       (SIZEOF(['GEOMETRIC_MODEL_SCHEMA.CSG_SOLID']
   	   * TYPEOF(it)) = 1) 
   	   OR 
-	   (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' 
+	   (('REPRESENTATION_SCHEMA.MAPPED_ITEM' 
 	   IN TYPEOF(it)) AND
 	   ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.' +
 	   'CSG_2D_SHAPE_REPRESENTATION' 
 	   IN TYPEOF(it\mapped_item.mapping_source.mapped_representation))) 
        )) >= 1;
      WR3: SIZEOF(QUERY ( it <* SELF.items | 
-       (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' 
+       (('REPRESENTATION_SCHEMA.MAPPED_ITEM' 
        IN TYPEOF(it)) AND (NOT (( 
        'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.' +
        'CSG_2D_SHAPE_REPRESENTATION') 
@@ -4106,7 +4116,10 @@ END_SCHEMA;
 
 
 SCHEMA Datum_difference_based_model_mim;
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+
 	USE FROM Functional_usage_view_mim;	-- ISO/TS 10303-1705
 
 	SUBTYPE_CONSTRAINT ddbm_model_parameter_subtypes FOR model_parameter; 
@@ -4122,6 +4135,15 @@ ENTITY datum_difference_functional_unit_usage_view_terminal_assignment
   SUBTYPE OF (shape_aspect_relationship);
     SELF\shape_aspect_relationship.relating_shape_aspect : datum_difference;  
     SELF\shape_aspect_relationship.related_shape_aspect  : functional_unit_terminal_definition;
+END_ENTITY;
+	
+ENTITY datum_difference
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+  SELF\shape_aspect_relationship.relating_shape_aspect : datum;
+  SELF\shape_aspect_relationship.related_shape_aspect : datum;    
+WHERE
+  WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
 END_ENTITY;
 	
 END_SCHEMA;
@@ -5661,6 +5683,7 @@ Supersedes ISO TC184/SC4/WG12 N7090
 SCHEMA Elemental_geometric_shape_mim;
 
 USE FROM Foundation_representation_mim;    -- ISO/TS 10303-1006
+USE FROM Elemental_topology_mim; -- ISO/TS 10303-1005
 
 USE FROM geometry_schema   -- ISO 10303-42
   (axis1_placement,
@@ -5909,142 +5932,6 @@ REFERENCE FROM date_time_schema -- ISO 10303-41
 	(leap_year);
 
 END_SCHEMA; 
-(*
-   ISO TC184/SC4/WG12 N6364 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N5639
-*)
-
-
-SCHEMA Extended_geometric_tolerance_mim;
-
-
-USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
-USE FROM Default_tolerance_mim;	-- ISO/TS 10303-1052
-USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
-USE FROM Non_feature_shape_element_mim; -- ISO/TS 10303-1706
-	
-USE FROM application_context_schema(application_context_element);
-USE FROM material_property_definition_schema(property_definition_relationship);
-USE FROM shape_tolerance_schema
-		(runout_zone_orientation,
-		tolerance_zone_form);
-
-  SUBTYPE_CONSTRAINT egt_non_feature_shape_element_subtypes FOR shape_aspect; 
-    (ONEOF (derived_shape_aspect,
-     positional_boundary,
-     positional_boundary_member,
-     tolerance_zone_boundary,
-     viewing_plane));
-  END_SUBTYPE_CONSTRAINT;
-
-  TYPE egt_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-    (statistical_geometric_tolerance,
-     statistical_dimensional_size,
-     statistical_dimensional_location,
-     property_definition);
-  END_TYPE; 
-
-  TYPE egt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
-    (shape_dimension_representation);
-  END_TYPE; 
-	
-  TYPE egt_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
-    (representation);
-  END_TYPE; 
-	
-  ENTITY auxiliary_characteristic_dimension_representation
-    SUBTYPE OF (dimensional_characteristic_representation);
-  END_ENTITY;
-
-  ENTITY datum_difference
-    SUBTYPE OF (shape_aspect,shape_aspect_relationship);
-      SELF\shape_aspect_relationship.relating_shape_aspect : datum;
-      SELF\shape_aspect_relationship.related_shape_aspect : datum;    
-    WHERE
-      WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
-        SELF\shape_aspect_relationship.related_shape_aspect;
-  END_ENTITY;
-
-  ENTITY datum_difference_based_characteristic
-    SUBTYPE OF (representation_item);
-  END_ENTITY;
-
-  (** Questionable entity - nothing directly mapps to it from ARM *)
-  ENTITY dimensional_size_property
-    SUBTYPE OF (dimensional_size, property_definition);
-  END_ENTITY;
-
-  ENTITY edge_segment_vertex
-    SUBTYPE OF (shape_aspect);
-  WHERE
-    WR1: SELF\shape_aspect.product_definitional = TRUE;
-  END_ENTITY;
-
-  ENTITY geometric_tolerance_group
-    SUBTYPE OF (property_definition);
-  END_ENTITY;
-
-  ENTITY linear_profile_tolerance
-    SUBTYPE OF (physical_unit_geometric_tolerance);
-  END_ENTITY;
-
-  ENTITY opposing_boundary_dimensional_size
-    SUBTYPE OF (dimensional_size);
-  END_ENTITY;
-
-  ENTITY physical_unit_datum_feature
-    SUBTYPE OF (shape_aspect);
-  END_ENTITY;
-
-  ENTITY physical_unit_geometric_tolerance
-    SUBTYPE OF (geometric_tolerance, property_definition);
-  END_ENTITY;
-
-  ENTITY positional_boundary
-    SUBTYPE OF (shape_aspect);
-    WHERE
-      WR2: SELF\shape_aspect.product_definitional = False;
-  END_ENTITY;
-
-  ENTITY positional_boundary_member
-    SUBTYPE OF (shape_aspect);
-    WHERE
-      WR1: SELF\shape_aspect.product_definitional = False;
-  END_ENTITY;
-
-  ENTITY statistical_dimensional_location
-    SUBTYPE OF (dimensional_location);
-  END_ENTITY;
-
-  ENTITY statistical_dimensional_size
-    SUBTYPE OF (dimensional_size_property);
-  END_ENTITY;
-
-  ENTITY statistical_geometric_tolerance
-    SUBTYPE OF (physical_unit_geometric_tolerance);
-  END_ENTITY;
-
-  ENTITY tolerance_zone_boundary
-    SUBTYPE OF (shape_aspect);
-    WHERE
-      WR1: SELF\shape_aspect.product_definitional = False;
-  END_ENTITY;
-
-  ENTITY tolerance_zone_explicit_opposing_boundary_set
-    SUBTYPE OF (tolerance_zone_boundary);
-  END_ENTITY;
-
-  ENTITY tolerance_zone_implicit_opposing_boundary_set
-    SUBTYPE OF (tolerance_zone_boundary);
-  END_ENTITY;
-
-  ENTITY viewing_plane
-    SUBTYPE OF (shape_aspect);
-  END_ENTITY;
-
-END_SCHEMA;
-
-
 (*
 ISO TC184/SC4/WG12 N5372 - ISO/TS 10303-1106 Extended measure representation - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N4835
@@ -6395,6 +6282,285 @@ USE FROM measure_schema;
 
 END_SCHEMA;
 (*
+   N - ISO/CD-TS - 10303- externally_conditioned_data_quality_criteria - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_criteria_mim;
+
+  USE FROM Document_assignment_mim;
+
+  USE FROM Product_data_quality_criteria_mim;
+
+  USE FROM Externally_conditioned_data_quality_inspection_result_mim;
+
+  REFERENCE FROM support_resource_schema
+    (bag_to_set);
+ 
+  TYPE ecdq_document_reference_item =  EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (externally_conditioned_data_quality_criterion);
+  END_TYPE; 
+  
+  ENTITY disallowed_assembly_relationship_usage
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE']);
+  END_ENTITY;
+
+  ENTITY excessive_use_of_groups
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, ['GROUP_SCHEMA.GROUP']);
+  END_ENTITY;
+  
+  ENTITY excessive_use_of_layers
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+    ['PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_LAYER_ASSIGNMENT']);
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_criteria_representation
+    SUBTYPE OF(Data_quality_criteria_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_MIM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_criterion
+    SUBTYPE OF(Data_quality_criterion,Data_quality_measurement_requirement);
+    WHERE
+      WR1 : SIZEOF(USEDIN(SELF,
+              'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+
+              'DATA_QUALITY_CRITERION_ASSESSMENT_ASSOCIATION.'+
+              'CRITERION')) = 0;
+      WR2 : SIZEOF(QUERY(i1<*bag_to_set( USEDIN(SELF,'REPRESENTATION_SCHEMA.'+ 
+                'REPRESENTATION_ITEM_RELATIONSHIP.'+ 'RELATED_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+ 'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION'
+              IN TYPEOF(i1))) = 0;
+      WR3 : SIZEOF(QUERY(i1<*bag_to_set( USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                'REPRESENTATION_ITEM_RELATIONSHIP.'+ 'RELATING_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_QUALITY_CRITERIA_SCHEMA.'+ 'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION'
+             IN TYPEOF(i1))) = 0;
+  END_ENTITY;
+
+  ENTITY inappropriate_element_visibility
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM']);
+  END_ENTITY;
+
+  ENTITY inappropriate_use_of_layer
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_LAYER_ASSIGNMENT']);
+  END_ENTITY;
+
+  ENTITY inconsistent_element_reference
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY  non_agreed_accuracy_parameter_usage
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+     ['REPRESENTATION_SCHEMA.GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT']);
+  END_ENTITY;
+  
+  ENTITY  non_agreed_scale_usage
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['GEOMETRIY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D']);
+  END_ENTITY;
+
+  ENTITY non_agreed_unit_usage
+    SUBTYPE OF(externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT']);
+  END_ENTITY;
+  
+  ENTITY non_referenced_coordinate_system
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D']);
+  END_ENTITY;
+
+  ENTITY unused_shape_element
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY wrong_element_name
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['REPRESENTATION_SCHEMA.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  FUNCTION validate_ecdq_inspected_elements_type
+      (ei:Externally_conditioned_data_quality_criterion;
+       type_list:BAG OF STRING):LOGICAL;
+       LOCAL
+       sdqir: SET OF
+        EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT:=[];
+       dir: SET OF
+        DATA_QUALITY_INSPECTION_INSTANCE_REPORT:=[];
+       sdiri: SET OF
+        EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM:=[];
+         t_type_list:BAG OF STRING:=[];
+       END_LOCAL;
+     -- STEP-1
+     -- collect all externally_conditioned_data_quality_inspection_instance_report_item
+     -- instances associated with the given externally_conditioned_data_quality_criterion
+     -- via externally_conditioned_data_quality_inspection_result and
+     -- data_quality_inspection_instance_report
+
+     sdqir := QUERY(q <* bag_to_set(USEDIN(ei,
+                   'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+                   'DATA_QUALITY_INSPECTION_RESULT.'+
+                   'CRITERION_INSPECTED'))|
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT'
+            IN TYPEOF(q));
+     IF(SIZEOF(sdqir) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+     REPEAT i:= 1 TO SIZEOF(sdqir);
+       dir := dir + QUERY(q <* bag_to_set(USEDIN(sdqir[i],
+                   'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+                   'DATA_QUALITY_INSPECTION_REPORT.'+
+                   'INSPECTION_RESULT'))|
+           'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'DATA_QUALITY_INSPECTION_INSTANCE_REPORT'
+            IN TYPEOF(q));
+     END_REPEAT;
+     IF(SIZEOF(dir) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+
+     REPEAT i:= 1 TO SIZEOF(dir);
+       sdiri := sdiri + QUERY(q <* dir[i].inspected_instances|
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+
+           'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM'
+            IN TYPEOF(q));
+     END_REPEAT;
+
+     -- STEP-2
+     -- check if the types of inspected_elements of the collected
+     -- instances are exactly coincident with the type names in the 
+     -- type list given as an input argument of this function.
+
+     -- If there is no instance_report_item, then this function returns true.
+     IF(SIZEOF(sdiri) = 0) THEN
+       RETURN(TRUE);
+     END_IF;
+  
+     -- When reports exist, then perform the following checking process.
+     REPEAT i:= 1 TO SIZEOF(sdiri);
+       -- If the size of inspected_elements is not equal to the size of
+       -- type_list, then return false.
+       IF(SIZEOF(sdiri[i].inspected_elements) <> 
+          SIZEOF(type_list)) THEN
+         RETURN(FALSE);
+       END_IF;
+       -- check all elements in the type_list 
+       -- for each element of inspected_elements.
+       t_type_list := type_list;
+       REPEAT j:= 1 TO SIZEOF(sdiri[i].inspected_elements);
+         REPEAT k:= 1 TO SIZEOF(t_type_list);
+           IF(t_type_list[k] IN
+              TYPEOF(sdiri[i].inspected_elements[j])) THEN
+            t_type_list := t_type_list - t_type_list[k];
+            ESCAPE;
+           END_IF;
+         END_REPEAT;
+       END_REPEAT;
+       IF(SIZEOF(t_type_list) > 0) THEN
+         RETURN(FALSE);
+       END_IF;
+     END_REPEAT;
+    
+      RETURN(TRUE);
+  END_FUNCTION;
+
+
+END_SCHEMA;
+(*
+   N - ISO/CD-TS - 10303- externally_conditioned_data_quality_inspection_result - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_inspection_result_mim;
+
+  USE FROM Appearance_assignment_mim;
+
+  USE FROM Assembly_structure_mim;
+
+  USE FROM Elemental_geometric_shape_mim;
+
+  USE FROM Externally_conditioned_data_quality_criteria_mim;
+  
+  USE FROM Foundation_representation_mim;
+
+  USE FROM Group_mim;
+  
+  USE FROM Layer_assignment_mim;
+
+  USE FROM Product_data_quality_inspection_result_mim;
+
+  REFERENCE FROM support_resource_schema(bag_to_set);
+
+  TYPE inspected_ecdq_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
+    (assembly_component_usage,
+     axis2_placement_3d,
+     cartesian_transformation_operator_3d,
+     global_uncertainty_assigned_context,
+     global_unit_assigned_context,
+     group,
+     presentation_layer_assignment,
+     representation_item,
+     styled_item);
+  END_TYPE;
+
+
+  ENTITY externally_conditioned_data_quality_inspection_result_representation
+    SUBTYPE OF(data_quality_inspection_result_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_MIM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_inspection_result
+    SUBTYPE OF(data_quality_inspection_result);
+    WHERE
+      WR1 : 'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_MIM.'+
+            'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF
+            (SELF\data_quality_inspection_result.criterion_inspected);
+  END_ENTITY;
+
+  ENTITY externally_conditioned_data_quality_inspection_instance_report_item
+    SUBTYPE OF(data_quality_inspection_instance_report_item);
+      SELF\data_quality_inspection_instance_report_item.inspected_elements : SET [1:?] OF inspected_ecdq_element_select;
+      WHERE
+        WR1 : SIZEOF(QUERY(i1 <* 
+                bag_to_set(USEDIN(SELF, 'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_SCHEMA.'+ 
+                'DATA_QUALITY_INSPECTION_INSTANCE_REPORT.'+ 'INSPECTED_INSTANCES'))|
+                NOT('EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_MIM.'+ 
+                    'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' 
+                    IN TYPEOF(i1.inspection_result))))=0;
+  END_ENTITY;
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6960 - ISO/TS 10303-1668 Fabrication joint - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6367
 *)
@@ -6436,7 +6602,9 @@ END_SCHEMA;
 
 
 SCHEMA Fabrication_requirement_mim;
-	USE FROM Fabrication_technology_mim;	-- ISO/TS 10303-1670
+
+USE FROM Fabrication_technology_mim;	-- ISO/TS 10303-1670
+	
 	
 END_SCHEMA;
 
@@ -6448,7 +6616,10 @@ END_SCHEMA;
 
 SCHEMA Fabrication_technology_mim;
     USE FROM Constructive_solid_geometry_2d_mim; 	-- ISO/TS 10303-1731
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+USE FROM Requirement_decomposition_mim;
+
 	USE FROM Part_template_mim; -- ISO/TS 10303-1722
 
 TYPE ft_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (
@@ -8415,7 +8586,10 @@ END_SCHEMA;
 
 
 SCHEMA Interconnect_module_usage_view_mim;
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+	USE FROM Non_feature_shape_element_mim;
+
 	USE FROM Functional_assignment_to_part_mim;	-- ISO/TS 10303-1674
 	USE FROM Functional_usage_view_mim;	-- ISO/TS 10303-1705	
 
@@ -8527,10 +8701,10 @@ USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/T
   SUBTYPE_CONSTRAINT ipr_non_feature_shape_element_subtypes FOR shape_aspect; 
     (ONEOF (
 	 derived_shape_aspect,
-	 positional_boundary,
-	 positional_boundary_member,
-	 tolerance_zone_boundary,
-	 viewing_plane,
+--	 positional_boundary,
+--	 positional_boundary_member,
+--	 tolerance_zone_boundary,
+--	 viewing_plane,
 	 seating_plane,
 	 reference_graphic_registration_mark,
 --	 template_material_cross_section_boundary,
@@ -10529,6 +10703,12 @@ ENTITY interface_plane
   SUBTYPE OF (shape_aspect);
 END_ENTITY;
 
+ENTITY edge_segment_vertex
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.product_definitional = TRUE;
+END_ENTITY;
+
 ENTITY reference_graphic_registration_mark
  SUBTYPE OF (shape_aspect);
 WHERE
@@ -10628,13 +10808,59 @@ USE FROM iso13584_expressions_schema(
 	
 END_SCHEMA;
 (*
+ ISO TC184/SC4/WG12 N2559 - ISO/TS 10303-1344 Numerical interface - EXPRESS MIM
+ Supersedes ISO TC184/SC4/WG12 N1800
+*)
+
+SCHEMA Numerical_interface_mim;
+
+USE FROM Generic_expression_mim;
+USE FROM Expression_mim;
+USE FROM Value_with_unit_mim;
+USE FROM Measure_representation_mim;
+
+USE FROM iso13584_expressions_schema(
+	numeric_expression,
+	string_expression
+);
+
+TYPE property_variable_rep_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE expression_extension_select = SELECT (
+    expression_extension_string,
+    expression_extension_numeric);
+END_TYPE;
+
+ENTITY expression_extension_numeric
+    SUBTYPE OF (measure_with_unit, numeric_expression);    
+END_ENTITY;
+
+ENTITY expression_extension_string
+    SUBTYPE OF (measure_with_unit, string_expression);    
+END_ENTITY;
+
+ENTITY expression_extension_to_select;
+    type_expression_associated: expression_extension_select;
+END_ENTITY;
+ 
+ENTITY variable_expression
+    SUBTYPE OF (variable_semantics);
+    property_associated: property_variable_rep_select;
+END_ENTITY;
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6999 - ISO/TS 10303-1707 Package - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6457
 *)
 
 
 SCHEMA Package_mim;
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+	USE FROM Non_feature_shape_element_mim;
+
 	USE FROM Part_feature_function_mim;	-- ISO/TS 10303-1712
 
 	SUBTYPE_CONSTRAINT package_part_feature_subtypes FOR shape_aspect; 
@@ -12231,13 +12457,42 @@ USE FROM representation_schema(
 
 END_SCHEMA;
 (*
+   N - ISO/CD-TS - 10303- point_direction_model - EXPRESS MIM
+*)
+
+SCHEMA Point_direction_model_mim;
+
+USE FROM Elemental_geometric_shape_mim;
+USE FROM representation_schema(compound_representation_item);
+
+TYPE point_placement_shape_representation_item = SELECT (
+  compound_representation_item,
+  mapped_item,
+  axis2_placement_3d);
+END_TYPE;  
+
+ENTITY point_placement_shape_representation
+  SUBTYPE OF (shape_representation);
+  SELF\representation.items : SET[1:?] OF point_placement_shape_representation_item;
+WHERE
+  WR1:  SIZEOF( QUERY( i <* SELF.items |
+                SIZEOF(['REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM',
+                        'REPRESENTATION_SCHEMA.MAPPED_ITEM']
+                       * TYPEOF(i)) = 1
+              )) > 0;
+END_ENTITY;
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N6529 - ISO/TS 10303-1735 Pre defined datum 2d symbol - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5798
 *)
 
 
 SCHEMA Pre_defined_datum_2d_symbol_mim;
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+
 	USE FROM Layered_2d_shape_mim;	-- ISO/TS 10303-1693
 	
 END_SCHEMA;
@@ -12249,7 +12504,9 @@ END_SCHEMA;
 
 
 SCHEMA Pre_defined_datum_3d_symbol_mim;
-	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+--	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
+	USE FROM Geometric_tolerance_mim;	-- ISO/TS 10303-1051
+
 END_SCHEMA;
 
 (*
@@ -13988,22 +14245,6 @@ USE FROM qualified_measure_schema
   type_qualifier,
   uncertainty_qualifier);
 
-END_SCHEMA;
-(*
- ISO TC184/SC4/WG12 N2550 - ISO/TS 10303-1228 Representation with uncertainty - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG12 N1942
-*) 
-
-
-SCHEMA Representation_with_uncertainty_mim;
-
-USE FROM Foundation_representation_mim;
-
-USE FROM qualified_measure_schema 
-  (qualified_representation_item,
-   standard_uncertainty,
-   uncertainty_qualifier);
- 
 USE FROM representation_schema
   (uncertainty_assigned_representation);
 
@@ -27058,7 +27299,9 @@ SCHEMA effectivity_schema;
   ENTITY dated_effectivity
     SUBTYPE OF (effectivity);
     effectivity_end_date : OPTIONAL date_time_or_event_occurrence;
-    effectivity_start_date : date_time_or_event_occurrence;
+    effectivity_start_date : OPTIONAL date_time_or_event_occurrence;
+  WHERE
+    WR1: EXISTS(effectivity_end_date) OR EXISTS(effectivity_start_date);
   END_ENTITY;
 
   ENTITY effectivity
@@ -27818,6 +28061,15 @@ SCHEMA external_reference_schema;
     relating_item : externally_defined_item;
     related_item : externally_defined_item;
   END_ENTITY;
+  
+  ENTITY externally_defined_item_with_multiple_references
+    SUBTYPE OF (externally_defined_item);
+    references : LIST[1:?] OF UNIQUE source_item;
+  UNIQUE
+    UR1: references;
+  WHERE
+    WR1: NOT(SELF\externally_defined_item.item_id IN references);
+  END_ENTITY;  
 
   ENTITY pre_defined_item;
     name : label;
@@ -33613,9 +33865,6 @@ SCHEMA management_resources_schema;
     security_classification_assignment);
   END_TYPE;
 
-  TYPE reference_in_target = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
   TYPE attribute_type = SELECT (label, text);
   END_TYPE;
 
@@ -33646,14 +33895,6 @@ SCHEMA management_resources_schema;
     role : object_role := get_role(SELF);
   WHERE
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-  END_ENTITY;
-
-  ENTITY reference_in;
-    id : identifier;
-    target : reference_in_target;
-  UNIQUE
-    UR1 : id;
-    UR2 : target;
   END_ENTITY;
 
   ENTITY approval_assignment
@@ -45827,9 +46068,8 @@ SCHEMA product_data_quality_criteria_schema;
   ENTITY detailed_report_request_with_number_of_data
     SUBTYPE OF(detailed_report_request);
       number_of_data : INTEGER;
-    WHERE
-      WR1 : SELF\detailed_report_request.detailed_report_request_type
-            <> INFERIOR_QUALITY_ELEMENT;
+    DERIVE
+      SELF\detailed_report_request.detailed_report_request_type:detailed_report_type:= measured_element;
   END_ENTITY;
 
 
@@ -46071,6 +46311,13 @@ SCHEMA product_definition_schema;
     identifier, 
     label, 
     text);
+  REFERENCE FROM external_reference_schema (
+    external_source);
+    
+  TYPE product_definition_or_reference = SELECT (
+    product_definition, 
+    generic_product_definition_reference);
+  END_TYPE;
     
   TYPE pds_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
     product_category);
@@ -46087,6 +46334,11 @@ SCHEMA product_definition_schema;
     SUBTYPE OF (characterized_object, product);
   END_ENTITY;
 
+  ENTITY generic_product_definition_reference
+    ABSTRACT SUPERTYPE OF ( ONEOF ( product_definition_reference, product_definition_reference_with_local_representation) );
+    source : external_source;
+  END_ENTITY;
+ 
   ENTITY product;
     id : identifier;
     name : label;
@@ -46166,10 +46418,22 @@ SCHEMA product_definition_schema;
     id : identifier;
     name : label;
     description : OPTIONAL text;
-    relating_product_definition : product_definition;
-    related_product_definition : product_definition;
+    relating_product_definition : product_definition_or_reference;
+    related_product_definition : product_definition_or_reference;
   END_ENTITY;
 
+  ENTITY product_definition_reference
+    SUBTYPE OF (generic_product_definition_reference);
+    product_id : identifier;
+    product_definition_formation_id : identifier;
+    product_definition_id : identifier;
+    id_owning_organization_name : OPTIONAL label;
+  END_ENTITY;
+ 
+  ENTITY product_definition_reference_with_local_representation
+    SUBTYPE OF (generic_product_definition_reference, product_definition);
+  END_ENTITY;
+  
   ENTITY product_definition_substitute;
     description : OPTIONAL text;
     context_relationship : product_definition_relationship;
@@ -46315,6 +46579,10 @@ SCHEMA product_property_definition_schema;
   REFERENCE FROM product_definition_schema (
     product_definition, 
     product_definition_relationship);
+  REFERENCE FROM product_structure_schema (
+    assembly_component_usage,
+    multi_level_reference_designator,
+    next_assembly_usage_occurrence);
   REFERENCE FROM support_resource_schema (
     bag_to_set, 
     identifier, 
@@ -46337,13 +46605,29 @@ SCHEMA product_property_definition_schema;
     shape_aspect_relationship);
   END_TYPE;
 
-  TYPE characterized_product_definition = SELECT (product_definition, product_definition_relationship);
+  TYPE characterized_product_definition = SELECT (
+    product_definition, 
+    product_definition_relationship,
+    multi_level_reference_designator);
   END_TYPE;
 
   TYPE derived_property_select = SELECT (property_definition, action_property, resource_property);
   END_TYPE;
 
   TYPE shape_definition = SELECT (product_definition_shape, shape_aspect, shape_aspect_relationship);
+  END_TYPE;
+
+  TYPE internal_or_reflected_shape_aspect = SELECT (
+    shape_aspect,
+    reflected_shape_aspect_id);
+  END_TYPE;
+
+  TYPE reflected_shape_aspect_id = identifier;
+  END_TYPE;
+
+  TYPE multi_or_next_assembly_usage_occurrence = SELECT (
+    multi_level_reference_designator,
+    next_assembly_usage_occurrence);
   END_TYPE;
 
   ENTITY characterized_object;
@@ -46356,6 +46640,17 @@ SCHEMA product_property_definition_schema;
     description : OPTIONAL text;
     relating_object : characterized_object;
     related_object : characterized_object;
+  END_ENTITY;
+
+  ENTITY component_path_shape_aspect
+    SUBTYPE OF (shape_aspect);
+    location : multi_or_next_assembly_usage_occurrence;
+    component_shape_aspect : internal_or_reflected_shape_aspect;
+  UNIQUE
+    UR1 : location, component_shape_aspect;
+  WHERE
+    WR1: SIZEOF(QUERY(cp <* location.location | NOT (
+      EXISTS(cp\assembly_component_usage.reference_designator)))) = 0; 
   END_ENTITY;
 
   ENTITY general_property;
@@ -46524,7 +46819,9 @@ SCHEMA product_property_representation_schema;
     using_representations, 
     mapped_item, 
     representation_context, 
-    representation_map);
+    representation_map,
+    list_representation_item,
+    set_representation_item);
   REFERENCE FROM support_resource_schema (
     bag_to_set, 
     label, 
@@ -46534,6 +46831,7 @@ SCHEMA product_property_representation_schema;
     context_dependent_shape_representation,
     property_definition_representation);
   END_TYPE;
+  
   TYPE pprs_name_attribute_select = SELECT BASED_ON name_attribute_select WITH (
     context_dependent_shape_representation,
     property_definition_representation);
@@ -46553,37 +46851,35 @@ SCHEMA product_property_representation_schema;
   TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
     represented_definition);
   END_TYPE;
+  
+  TYPE item_identified_representation_usage_select = SELECT (
+    representation_item,
+    list_representation_item,
+    set_representation_item);
+  END_TYPE;  
 
   ENTITY chain_based_item_identified_representation_usage
     SUBTYPE OF (item_identified_representation_usage);
     nodes : LIST [2:?] OF UNIQUE representation;
-    undirected_link : LIST [1:?] OF UNIQUE chained_representation_link;
+    undirected_link : LIST [1:?] OF chained_representation_link;
   DERIVE
     root : representation := nodes[1];
     SELF\item_identified_representation_usage.used_representation RENAMED leaf : representation := nodes[HIINDEX(nodes)];
     directed_link : LIST [1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
   WHERE
     WR1 : EXISTS(directed_link);
-    WR2 : root :=: directed_link[1]\representation_relationship.rep_1;
-    WR3 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
-    WR4 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
-              (root IN using_representations(undirected_link[1]));
   END_ENTITY;
  
   ENTITY characterized_chain_based_item_within_representation 
     SUBTYPE OF (characterized_item_within_representation);
     nodes : LIST[2:?] OF UNIQUE representation;
-    undirected_link : LIST[1:?] OF UNIQUE chained_representation_link;
+    undirected_link : LIST[1:?] OF chained_representation_link;
   DERIVE
     root : representation := nodes[1];
     SELF\characterized_item_within_representation.rep RENAMED leaf : representation := nodes[HIINDEX(nodes)];
     directed_link : LIST[1:?] OF representation_relationship := get_directed_link(nodes, undirected_link);
   WHERE
     WR1 : EXISTS(directed_link);
-    WR2 : root :=: directed_link[1]\representation_relationship.rep_1;
-    WR3 : leaf :=: directed_link[HIINDEX(undirected_link)]\representation_relationship.rep_2;
-    WR4 : NOT('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(undirected_link[1])) OR
-              (root IN using_representations(undirected_link[1]));
   END_ENTITY;
  
   ENTITY characterized_item_within_representation
@@ -46613,7 +46909,7 @@ SCHEMA product_property_representation_schema;
     description : OPTIONAL text;
     definition : item_identified_representation_usage_definition;
     used_representation : representation;
-    identified_item : representation_item;
+    identified_item : item_identified_representation_usage_select;
   WHERE
     WR1: SELF.used_representation IN using_representations(SELF.identified_item);
   END_ENTITY;
@@ -46632,10 +46928,10 @@ SCHEMA product_property_representation_schema;
   ENTITY shape_definition_representation
     SUBTYPE OF (property_definition_representation);
     SELF\property_definition_representation.definition : property_definition;
+    SELF\property_definition_representation.used_representation : shape_representation;
   WHERE
     WR1: ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(definition)) OR
          ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN TYPEOF(definition\property_definition.definition));   
-    WR2: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(SELF\property_definition_representation.used_representation);
   END_ENTITY;
 
   ENTITY shape_representation
@@ -46666,7 +46962,7 @@ SCHEMA product_property_representation_schema;
     BEGIN
      IF ((nodes[i]\representation.context_of_items   :=: undirected_link[i]) AND 
          (nodes[i+1]\representation.context_of_items :=: undirected_link[i])) THEN
-       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+       INSERT(directed_link, representation_relationship('','',nodes[i+1],nodes[i]), (i - 1));
      ELSE
        RETURN(?); 
      END_IF;
@@ -46678,7 +46974,7 @@ SCHEMA product_property_representation_schema;
           (nodes[i+1] :=: undirected_link[i]\representation_relationship.rep_2)) OR
          ((nodes[i]   :=: undirected_link[i]\representation_relationship.rep_2) AND
           (nodes[i+1] :=: undirected_link[i]\representation_relationship.rep_1))) THEN
-       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+       INSERT(directed_link, representation_relationship('','',nodes[i+1],nodes[i]), (i - 1));
      ELSE
        RETURN(?); 
      END_IF;
@@ -46688,7 +46984,7 @@ SCHEMA product_property_representation_schema;
     BEGIN
      IF ((nodes[i] IN using_representations(undirected_link[i])) AND 
          (nodes[i+1] :=: undirected_link[i]\mapped_item.mapping_source\representation_map.mapped_representation)) THEN
-       INSERT(directed_link, representation_relationship('','',nodes[i],nodes[i+1]), (i - 1));
+       INSERT(directed_link, representation_relationship('','',nodes[i+1],nodes[i]), (i - 1));
      ELSE
        RETURN(?); 
      END_IF;
@@ -46848,6 +47144,16 @@ WHERE
   WR1: SIZEOF (QUERY (example <* members |
        example.related_product_definition
        :=: members[1].related_product_definition)) =SIZEOF(members);
+END_ENTITY;
+
+ENTITY multi_level_reference_designator;
+  name : OPTIONAL label;
+  description : OPTIONAL text; 
+  location : LIST[1:?] OF UNIQUE next_assembly_usage_occurrence;
+DERIVE
+  root_node : product_definition := location[1].relating_product_definition;
+UNIQUE
+  UR1 : location;
 END_ENTITY;
 
 ENTITY next_assembly_usage_occurrence
@@ -47629,7 +47935,7 @@ TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF
 END_TYPE; 
 
 ENTITY all_around_shape_aspect
-  SUBTYPE OF (composite_shape_aspect);
+  SUBTYPE OF (continuous_shape_aspect);
 END_ENTITY;
 
 ENTITY apex
@@ -47656,8 +47962,7 @@ ENTITY composite_group_shape_aspect
 END_ENTITY;
 
 ENTITY composite_shape_aspect
-  SUPERTYPE OF (ONEOF (all_around_shape_aspect,
-                       continuous_shape_aspect,
+  SUPERTYPE OF (ONEOF (continuous_shape_aspect,
                        common_datum,
                        composite_group_shape_aspect))
   SUBTYPE OF (shape_aspect);
@@ -47672,6 +47977,7 @@ WHERE
 END_ENTITY;
 
 ENTITY continuous_shape_aspect
+  SUPERTYPE OF ( ONEOF (between_shape_aspect, all_around_shape_aspect) )
   SUBTYPE OF (composite_shape_aspect);
 END_ENTITY;
 
@@ -50417,10 +50723,7 @@ TYPE surface_boundary_type = ENUMERATION OF
 
  ENTITY shape_data_quality_inspection_result
    SUBTYPE OF(data_quality_inspection_result);
-   WHERE
-     WR1 : 'SHAPE_DATA_QUALITY_CRITERIA_SCHEMA.'+
-           'SHAPE_DATA_QUALITY_CRITERION' IN TYPEOF
-           (SELF\data_quality_inspection_result.criterion_inspected);
+    SELF\data_quality_inspection_result.criterion_inspected:shape_data_quality_criterion;
  END_ENTITY;
 
  ENTITY shape_data_quality_inspection_criterion_report
@@ -51063,7 +51366,7 @@ ENTITY oriented_tolerance_zone
   orientation : oriented_tolerance_zone_type;
   angle : OPTIONAL plane_angle_measure_with_unit;
 WHERE
-  WR1 : (orientation <> angular) XOR EXISTS(angle);
+  WR1 : (orientation <> oriented_tolerance_zone_type.angular) XOR EXISTS(angle);
 END_ENTITY;
 
 ENTITY parallelism_tolerance

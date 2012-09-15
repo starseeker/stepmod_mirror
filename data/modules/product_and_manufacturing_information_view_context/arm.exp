@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.8 2012/07/29 12:13:38 lothartklein Exp $
+   $Id: arm.exp,v 1.9 2012/07/29 17:43:34 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_arm;
@@ -88,11 +88,41 @@ WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
 END_ENTITY;
 
+ENTITY Kinematic_mechanism_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'kinematic_mechanism';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
+END_ENTITY;
+
+ENTITY Kinematic_state_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'kinematic state';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
+END_ENTITY;
+
+ENTITY Motion_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'motion';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_context;
   ONEOF (
     Gdt_representation_view_context, 
+    Kinematic_mechanism_context,
+    Kinematic_state_context,
     Model_based_view_context, 
     Model_based_3d_annotation_presentation_view_context,
+    Motion_context,
     Surface_finish_view_context,
     Machining_feature_view_context,
     Material_specification_view_context,

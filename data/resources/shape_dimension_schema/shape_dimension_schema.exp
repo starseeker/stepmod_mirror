@@ -1,5 +1,5 @@
 (*
- $Id: shape_dimension_schema.exp,v 1.16 2012/03/30 18:24:29 lothartklein Exp $
+ $Id: shape_dimension_schema.exp,v 1.17 2012/07/17 22:28:29 lothartklein Exp $
 ISO TC184/SC4/WG12 N7297 - ISO/DIS 10303-47 Shape variation tolerances - EXPRESS
 *) 
 
@@ -35,6 +35,8 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (identifier,
    label,
    text); 
+   
+REFERENCE FROM geometry_schema (placement); -- ISO 10303-42  
 
   TYPE sd_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
     dimensional_size);
@@ -59,7 +61,8 @@ END_TYPE;
 TYPE shape_dimension_representation_item = SELECT
    (compound_representation_item, 
     descriptive_representation_item, 
-    measure_representation_item);
+    measure_representation_item,
+    placement);
 END_TYPE; 
 
 ENTITY angular_location
@@ -117,8 +120,6 @@ END_ENTITY;
 ENTITY shape_dimension_representation
   SUBTYPE OF (shape_representation);
   SELF\representation.items : SET[1:?] OF shape_dimension_representation_item;
-WHERE
-  WR1: SIZEOF (QUERY (temp <* items | NOT ( NOT('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (temp)) OR (('MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT' IN TYPEOF (temp)) OR ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF (temp))) ) )) = 0;
 END_ENTITY;
 
 END_SCHEMA;  -- shape_dimension_schema

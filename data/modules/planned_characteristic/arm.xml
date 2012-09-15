@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="planned_characteristic_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1733">
+   <application name="JSDAI" owner="LKSoft" source="planned_characteristic_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Planned_characteristic_arm">
+      <interface kind="use" schema="Group_arm"/>
       <interface kind="use" schema="Production_rule_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
       <type name="evaluation_result_value">
@@ -13,38 +14,51 @@
       <type name="evaluation_type">
          <enumeration items="not_evaluatable invalid valid to_be_evaluated"/>
       </type>
+      <type name="pc_groupable_item">
+         <select basedon="groupable_item" selectitems="Evaluated_characteristic"/>
+      </type>
       <entity name="Evaluated_characteristic" super.expression="Rule_based_evaluated_characteristic">
+         <explicit name="id" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="planned_product_data">
             <typename name="Planned_characteristic"/>
          </explicit>
          <explicit name="product_data_status">
             <typename name="evaluation_type"/>
          </explicit>
-         <explicit name="product_characterization_data" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Property_value_representation"/>
+         <explicit name="product_characterization_data">
+            <typename name="Property_representation"/>
          </explicit>
          <explicit name="evaluation_result">
             <typename name="evaluation_result_value"/>
          </explicit>
+         <where expression="product_characterization_data.property.described_element :=: planned_product_data.reference_requirement.assigned_to" label="WR1"/>
       </entity>
       <entity name="Evaluation_view_definition" supertypes="Product_view_definition">
          <explicit name="evaluated_product_definition">
             <typename name="Product_view_definition"/>
          </explicit>
          <explicit name="evaluation_data">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Evaluated_characteristic"/>
          </explicit>
-         <where label="WR1" expression="TYPEOF(SELF) &lt;&gt; TYPEOF(evaluated_product_definition)"/>
+         <where expression="TYPEOF(SELF) &lt;&gt; TYPEOF(evaluated_product_definition)" label="WR1"/>
       </entity>
       <entity name="Planned_characteristic">
          <explicit name="reference_requirement">
             <typename name="Requirement_assignment"/>
          </explicit>
          <explicit name="planned_coordinated_characteristic">
-            <typename name="Property_value_representation"/>
+            <typename name="Property_representation"/>
          </explicit>
+         <where expression="planned_coordinated_characteristic.property.described_element :=: reference_requirement.assigned_requirement" label="WR1"/>
       </entity>
       <entity name="Rule_based_evaluated_characteristic" supertypes="Evaluated_characteristic">
          <explicit name="evaluating_rule">

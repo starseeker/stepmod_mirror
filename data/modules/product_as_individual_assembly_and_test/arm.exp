@@ -1,7 +1,7 @@
 (*
-   $Id: arm.exp,v 1.5 2012/09/12 20:52:14 thomasrthurman Exp $
+   $Id: arm.exp,v 1.6 2012/09/12 20:55:57 thomasrthurman Exp $
    N - ISO/CD-TS - 10303-1804 product_as_individual_assembly_and_test - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Product_as_individual_assembly_and_test_arm;
 
 USE FROM Planned_characteristic_arm; -- ISO/TS 10303-1733
@@ -25,8 +25,7 @@ WHERE
 END_ENTITY; 
 
 ENTITY Product_as_individual_test_result
-  SUBTYPE OF (Evaluated_characteristic);
-  tested_individual_product : Product_as_individual_view;
+  SUBTYPE OF (Product_as_individual_view);
 END_ENTITY; 
 
 ENTITY Applied_independent_test_result_property
@@ -44,6 +43,13 @@ END_ENTITY;
 ENTITY Applied_process_operation_occurrence;
   items : SET [1:?] OF Applied_independent_test_result_property;
   source : Process_operation_occurrence;
+END_ENTITY;
+
+ENTITY Evaluated_characteristic_of_product_as_individual_test_result
+  SUBTYPE OF (Evaluated_characteristic);
+WHERE      
+   WR1: 'Product_as_individual_assembly_and_test_arm.Applied_independent_test_result_property' IN
+        TYPEOF(SELF/Evaluated_characteristic.product_characterization_data.definition);
 END_ENTITY;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2012/06/12 01:42:30 fumikitanaka Exp $
+   $Id: arm.exp,v 1.10 2012/08/30 11:19:35 fumikitanaka Exp $
    WG12N7187 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
 *)
 
@@ -32,25 +32,62 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   REFERENCE FROM Product_data_quality_inspection_result_arm
     (inspected_product_view_definition);
 
-  TYPE measured_value_select = SELECT
-    (boolean_value,
-     measure_value,
-     Plane_angle_and_ratio_pair,
-     Plane_angle_and_length_pair);
+  TYPE b_spline_or_composite_curve_select = SELECT
+    (B_spline_curve,
+     Composite_curve);
+  END_TYPE;
+
+  TYPE b_spline_or_rectangular_composite_surface_select = SELECT
+    (B_spline_surface,
+     Rectangular_composite_surface);
   END_TYPE;
 
   TYPE boolean_value = BOOLEAN;
   END_TYPE;
 
-  TYPE u_or_v_parameter = ENUMERATION OF
-    (u_parameter,
-     v_parameter);
+  TYPE closed_or_open_shell_select = SELECT
+    (Closed_shell,
+     Open_shell);
   END_TYPE;
 
-  TYPE b_spline_or_rectangular_composite_surface_select = SELECT
-    (b_spline_surface,
-     rectangular_composite_surface
-     );
+  TYPE inspected_shape_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
+    (Axis_placement,
+     b_spline_or_composite_curve_select,
+     b_spline_or_rectangular_composite_surface_select,
+     closed_or_open_shell_select,
+     Connected_face_set,
+     Curve,
+     Direction,
+     Edge_curve,
+     Edge_loop,
+     Face_surface,
+ 	 Manifold_solid_brep,
+     Point,
+     Surface,
+     Vertex_point);
+  END_TYPE;
+
+  TYPE location_of_extreme_value_select = SELECT
+    (B_spline_curve_knot_locator,
+     B_spline_curve_segment,
+     B_spline_surface_knot_locator,
+     B_spline_surface_patch,
+     B_spline_surface_strip,
+     Boundary_curve_of_b_spline_or_rectangular_composite_surface,
+     Composite_curve_transition_locator,
+     Face_bound,
+     inspected_shape_element_select,
+     Oriented_edge,
+     Point_on_edge_curve,
+     Point_on_face_surface,
+     Rectangular_composite_surface_transition_locator);
+  END_TYPE;
+
+  TYPE measured_value_select = SELECT
+    (boolean_value,
+     measure_value,
+     Plane_angle_and_length_pair,
+     Plane_angle_and_ratio_pair);
   END_TYPE;
 
   TYPE surface_boundary_type = ENUMERATION OF
@@ -60,49 +97,9 @@ SCHEMA Shape_data_quality_inspection_result_arm;
      v_parameter_max);
   END_TYPE;
 
-  TYPE location_of_extreme_value_select = SELECT
-    (Inspected_shape_element_select,
-     B_spline_surface_knot_locator,
-     B_spline_curve_knot_locator,
-     B_spline_curve_segment,
-     B_spline_surface_strip,
-     B_spline_surface_patch,
-     Composite_curve_transition_locator,
-     Rectangular_composite_surface_transition_locator,
-     Boundary_curve_of_b_spline_or_rectangular_composite_surface,
-     Oriented_edge,
-     Face_bound,
-     Point_on_edge_curve,
-     Point_on_face_surface
-     );
-  END_TYPE;
-
-  TYPE inspected_shape_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
---  TYPE inspected_shape_element_select = SELECT
-    (edge_loop,
-     edge_curve,
-     face_surface,
-     curve,
-     surface,
-     vertex_point,
-     closed_or_open_shell_select,
-     b_spline_or_rectangular_composite_surface_select,
-     Point,
-     connected_face_set,
- 	 manifold_solid_brep,
-     direction,
-    Axis_placement,
-     b_spline_or_composite_curve_select);
-  END_TYPE;
-
-  TYPE closed_or_open_shell_select = SELECT
-    (closed_shell,
-    open_shell);
-  END_TYPE;
-
-  TYPE b_spline_or_composite_curve_select = SELECT
-    (b_spline_curve,
-     composite_curve);
+  TYPE u_or_v_parameter = ENUMERATION OF
+    (u_parameter,
+     v_parameter);
   END_TYPE;
 
   ENTITY Shape_data_quality_inspection_criterion_report

@@ -152,10 +152,10 @@
       <entity abstract.supertype="YES" name="numeric_defined_function" super.expression="ONEOF (integer_defined_function, real_defined_function)" supertypes="numeric_expression defined_function"/>
       <entity abstract.supertype="YES" name="numeric_expression" super.expression="ONEOF (simple_numeric_expression, unary_numeric_expression, binary_numeric_expression, multiple_arity_numeric_expression, length_function, value_function, numeric_defined_function)" supertypes="expression">
          <derived expression="is_int_expr (SELF)" name="is_int">
-            <builtintype type="LOGICAL"/>
+            <builtintype type="BOOLEAN"/>
          </derived>
          <derived expression="is_SQL_mappable (SELF)" name="sql_mappable">
-            <builtintype type="LOGICAL"/>
+            <builtintype type="BOOLEAN"/>
          </derived>
       </entity>
       <entity name="numeric_variable" super.expression="ONEOF (int_numeric_variable, real_numeric_variable)" supertypes="simple_numeric_expression variable">
@@ -235,12 +235,8 @@
          <parameter name="arg">
             <typename name="expression"/>
          </parameter>
-         <builtintype type="LOGICAL"/>
-         <algorithm>LOCAL
-	i: INTEGER;
-END_LOCAL;
-
-IF 'ISO13584_EXPRESSIONS_SCHEMA.SIMPLE_NUMERIC_EXPRESSION' 
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF 'ISO13584_EXPRESSIONS_SCHEMA.SIMPLE_NUMERIC_EXPRESSION' 
 								IN TYPEOF (arg) 
 THEN 
 	RETURN (TRUE);
@@ -395,12 +391,8 @@ END_IF;
          <parameter name="arg">
             <typename name="numeric_expression"/>
          </parameter>
-         <builtintype type="LOGICAL"/>
-         <algorithm>LOCAL
-	i: INTEGER := 0;
-END_LOCAL;
-
-IF 'ISO13584_EXPRESSIONS_SCHEMA.INT_LITERAL' IN TYPEOF(arg) 
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF 'ISO13584_EXPRESSIONS_SCHEMA.INT_LITERAL' IN TYPEOF(arg) 
 THEN 
 	RETURN (TRUE); 
 END_IF;
@@ -601,13 +593,13 @@ THEN
 	RETURN (used_functions (arg\format_function.value_to_format)
 		+ used_functions (arg\format_function.format_string));
 END_IF;
-(*
+
 IF 'ISO13584_EXPRESSIONS_SCHEMA.LIKE_EXPRESSION' IN TYPEOF (arg) 
 THEN
-	RETURN (used_functions (arg\comparison_expression.operands[1])
-		+ used_functions (arg\comparison_expression.operands[2]));
+	RETURN (used_functions (arg\like_expression.operands[1])
+		+ used_functions (arg\like_expression.operands[2]));
 END_IF;
-*)
+
 RETURN ([ ]);</algorithm>
       </function>
    </schema>

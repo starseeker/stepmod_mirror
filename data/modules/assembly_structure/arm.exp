@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.25 2009/04/19 11:30:24 mikeward Exp $
+$Id: arm.exp,v 1.26 2012/08/26 16:56:27 lothartklein Exp $
 ISO TC184/SC4/WG12 N6111 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N5287
 *) 
@@ -8,9 +8,14 @@ Supersedes ISO TC184/SC4/WG12 N5287
 SCHEMA Assembly_structure_arm;
 
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+USE FROM Product_view_definition_reference_arm; -- ISO/TS 10303-1738
 
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
+TYPE product_definition_or_reference = SELECT (
+    Product_view_definition, 
+    Generic_product_definition_reference);
+END_TYPE;
 
 ENTITY Assembly_component_relationship
   ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage,
@@ -42,11 +47,9 @@ ENTITY Next_assembly_usage
 END_ENTITY;
 
 ENTITY Product_occurrence_definition_relationship
-  ABSTRACT SUPERTYPE ;
-  relating_view : Product_view_definition;
-  related_view : Product_view_definition;
-DERIVE
-  id : STRING := related_view\Product_view_definition.id;  
+  ABSTRACT SUPERTYPE;
+  relating_view : product_view_definition_or_reference;
+  related_view : product_view_definition_or_reference;
 END_ENTITY;
 
 ENTITY Promissory_usage

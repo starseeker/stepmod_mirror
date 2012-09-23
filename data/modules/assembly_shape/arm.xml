@@ -7,11 +7,54 @@
    <schema name="Assembly_shape_arm">
       <interface kind="use" schema="Item_definition_structure_arm"/>
       <interface kind="use" schema="Part_shape_arm"/>
+      <type name="characterized_product_definition">
+         <select selectitems="Product_view_definition View_definition_relationship Multi_level_reference_designator"/>
+      </type>
+      <type name="internal_or_reflected_shape_element">
+         <select selectitems="Shape_element reflected_shape_element_id"/>
+      </type>
+      <type name="multi_or_next_assembly_usage_occurrence">
+         <select selectitems="Multi_level_reference_designator Next_assembly_usage"/>
+      </type>
+      <type name="reflected_shape_element_id">
+         <typename name="identifier"/>
+      </type>
       <entity name="Assembly_shape" supertypes="Part_shape">
          <explicit name="described_element">
             <typename name="Assembly_definition"/>
             <redeclaration entity-ref="Item_shape"/>
          </explicit>
+      </entity>
+      <entity name="Component_path_shape_element" supertypes="Shape_element">
+         <explicit name="location">
+            <typename name="multi_or_next_assembly_usage_occurrence"/>
+         </explicit>
+         <explicit name="component_shape_element">
+            <typename name="internal_or_reflected_shape_element"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+            <unique.attribute attribute="component_shape_element"/>
+         </unique>
+         <where expression="NOT('ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE' IN TYPEOF(location)) OR&#10;      EXISTS(location\Assembly_component_relationship.location_indicator)" label="WR1"/>
+      </entity>
+      <entity name="Multi_level_reference_designator">
+         <explicit name="name" optional="YES">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="location">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <derived expression="location[1]\Product_occurrence_definition_relationship.relating_view" name="root_node">
+            <typename name="Product_view_definition"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+         </unique>
       </entity>
       <entity name="Part_occurrence_shape" supertypes="Item_shape">
          <explicit name="described_element">

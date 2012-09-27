@@ -258,6 +258,12 @@ REFERENCE FROM support_resource_schema
      representation_relationship);
   END_TYPE;
 
+  TYPE style_item_target = SELECT
+    (geometric_representation_item,
+     mapped_item,
+     representation);
+  END_TYPE;
+
   TYPE surface_side = ENUMERATION OF
     (positive,
      negative,
@@ -651,7 +657,7 @@ REFERENCE FROM support_resource_schema
   ENTITY styled_item
     SUBTYPE OF (representation_item);
       styles :  SET [1:?] OF presentation_style_assignment;
-      item   :  representation_item;
+      item   :  style_item_target; 
     WHERE
       WR1: (SIZEOF(SELF.styles) = 1)
                XOR
@@ -662,7 +668,8 @@ REFERENCE FROM support_resource_schema
          )) = 0);
       WR2: NOT ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(item));
       WR3: ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(item)) OR
-           ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item));               
+           ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item)) OR
+           ('PRESENTATION_APPEARANCE_SCHEMA.CONTEXT_DEPENDENT_OVER_RIDING_STYLED_ITEM' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY surface_rendering_properties;

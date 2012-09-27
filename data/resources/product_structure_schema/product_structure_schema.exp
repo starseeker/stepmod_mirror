@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.2 2012/07/19 12:45:20 lothartklein Exp $
+$Id: product_structure_schema.exp,v 1.3 2012/09/10 18:42:37 lothartklein Exp $
 ISO TC184/SC4/WG12 Nnnnn - ISO/IS 10303-44 Product structure configuration - EXPRESS
 *)
 
@@ -30,9 +30,10 @@ WHERE
 END_ENTITY;
 
 ENTITY assembly_component_usage
-  SUPERTYPE OF (ONEOF (next_assembly_usage_occurrence,
-                       specified_higher_usage_occurrence,
-                       promissory_usage_occurrence))
+  SUPERTYPE OF (ONEOF (multi_level_reference_designator,
+  					   next_assembly_usage_occurrence,
+  					   promissory_usage_occurrence,
+                       specified_higher_usage_occurrence))
   SUBTYPE OF (product_definition_usage);
   reference_designator : OPTIONAL identifier;
 END_ENTITY;
@@ -74,14 +75,16 @@ WHERE
        :=: members[1].related_product_definition)) =SIZEOF(members);
 END_ENTITY;
 
-ENTITY multi_level_reference_designator;
-  name : OPTIONAL label;
-  description : OPTIONAL text; 
+ENTITY multi_level_reference_designator
+  SUBTYPE OF (assembly_component_usage);
   location : LIST[1:?] OF UNIQUE next_assembly_usage_occurrence;
 DERIVE
-  root_node : product_definition := location[1].relating_product_definition;
+  SELF\product_definition_relationship.relating_product_definition RENAMED root : product_definition := location[1].relating_product_definition;
+  SELF\product_definition_relationship.related_product_definition RENAMED leaf : product_definition := location[HIINDEX(location)].related_product_definition;
 UNIQUE
   UR1 : location;
+WHERE
+  WR1: unambiguously_specified_lower_usage_occurrence(location);
 END_ENTITY;
 
 ENTITY next_assembly_usage_occurrence
@@ -154,5 +157,24 @@ WHERE
        'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']
        * TYPEOF(upper_usage)) = 1;
 END_ENTITY;
+
+FUNCTION unambiguously_specified_lower_usage_occurrence (links : LIST [1:?] OF assembly_component_usage) : BOOLEAN;
+  REPEAT i := 1 to SIZEOF(links)-1;
+    IF NOT (
+      (links[i].related_product_definition :=:
+       links[i+1].relating_product_definition)
+    OR
+     (SIZEOF (QUERY (pdr <* USEDIN
+       (links[i].related_product_definition,
+        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +
+        'RELATED_PRODUCT_DEFINITION') |
+       pdr.relating_product_definition :=: 
+       links[i+1].relating_product_definition)) = 1))
+    THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+END_FUNCTION;
 
 END_SCHEMA; -- product_structure

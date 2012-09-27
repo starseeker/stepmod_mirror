@@ -41,7 +41,7 @@
          </unique>
          <where expression="alternate :&lt;&gt;: base" label="WR1"/>
       </entity>
-      <entity name="assembly_component_usage" super.expression="ONEOF (next_assembly_usage_occurrence, specified_higher_usage_occurrence, promissory_usage_occurrence)" supertypes="product_definition_usage">
+      <entity name="assembly_component_usage" super.expression="ONEOF (multi_level_reference_designator, next_assembly_usage_occurrence, promissory_usage_occurrence, specified_higher_usage_occurrence)" supertypes="product_definition_usage">
          <explicit name="reference_designator" optional="YES">
             <typename name="identifier"/>
          </explicit>
@@ -93,23 +93,23 @@
          </explicit>
          <where expression="SIZEOF (QUERY (example &lt;* members |&#10;       example.related_product_definition&#10;       :=: members[1].related_product_definition)) =SIZEOF(members)" label="WR1"/>
       </entity>
-      <entity name="multi_level_reference_designator">
-         <explicit name="name" optional="YES">
-            <typename name="label"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <typename name="text"/>
-         </explicit>
+      <entity name="multi_level_reference_designator" supertypes="assembly_component_usage">
          <explicit name="location">
             <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="next_assembly_usage_occurrence"/>
          </explicit>
-         <derived expression="location[1].relating_product_definition" name="root_node">
+         <derived expression="location[1].relating_product_definition" name="root">
             <typename name="product_definition"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="relating_product_definition"/>
+         </derived>
+         <derived expression="location[HIINDEX(location)].related_product_definition" name="leaf">
+            <typename name="product_definition"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="related_product_definition"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="location"/>
          </unique>
+         <where expression="unambiguously_specified_lower_usage_occurrence(location)" label="WR1"/>
       </entity>
       <entity name="next_assembly_usage_occurrence" supertypes="assembly_component_usage">
          <unique label="UR1">
@@ -166,5 +166,28 @@
          <where expression="(upper_usage.related_product_definition :=:&#10;       next_usage.relating_product_definition) OR&#10;       (SIZEOF (QUERY (pdr &lt;* USEDIN (upper_usage.related_product_definition,&#10;       'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;       'RELATED_PRODUCT_DEFINITION') |&#10;        pdr.relating_product_definition :=: &#10;        next_usage.relating_product_definition)) = 1)" label="WR4"/>
          <where expression="SIZEOF (['PRODUCT_STRUCTURE_SCHEMA.NEXT_ASSEMBLY_USAGE_OCCURRENCE',&#10;       'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']&#10;       * TYPEOF(upper_usage)) = 1" label="WR5"/>
       </entity>
+      <function name="unambiguously_specified_lower_usage_occurrence">
+         <parameter name="links">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="assembly_component_usage"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>REPEAT i := 1 to SIZEOF(links)-1;
+    IF NOT (
+      (links[i].related_product_definition :=:
+       links[i+1].relating_product_definition)
+    OR
+     (SIZEOF (QUERY (pdr &lt;* USEDIN
+       (links[i].related_product_definition,
+        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +
+        'RELATED_PRODUCT_DEFINITION') |
+       pdr.relating_product_definition :=: 
+       links[i+1].relating_product_definition)) = 1))
+    THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);</algorithm>
+      </function>
    </schema>
 </express>

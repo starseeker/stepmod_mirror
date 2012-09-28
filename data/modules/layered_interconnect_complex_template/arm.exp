@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2012/07/05 14:55:31 thomasrthurman Exp $
+   $Id: arm.exp,v 1.18 2012/07/28 09:03:27 lothartklein Exp $
    ISO TC184/SC4/WG12 N6983 - ISO/TS 10303-1716 Layered interconnect complex template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6426
 *)
@@ -391,21 +391,21 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 
   FUNCTION acyclic_library_to_design_stack_model_mapping
     (relation : Library_to_design_stack_model_mapping; relatives : SET[1:?] OF
-     Design_stack_model; specific_relation : STRING) : BOOLEAN; 
+     Stratum_stack_model; specific_relation : STRING) : BOOLEAN; 
   LOCAL
       x : SET OF Library_to_design_stack_model_mapping := [];
   END_LOCAL;
 
-      IF relation. relating_view IN relatives THEN
+      IF relation.relating_view IN relatives THEN
         RETURN (FALSE);
       END_IF;
-        x := QUERY(pd <* bag_to_set(USEDIN(relation. relating_view,
+        x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_view,
           'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.' +
           'LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING.' +
           'RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
       REPEAT i := 1 TO HIINDEX(x);
         IF NOT acyclic_library_to_design_stack_model_mapping(x[i], relatives +
-          relation. relating_view, specific_relation) THEN
+          relation.relating_view, specific_relation) THEN
           RETURN (FALSE);
         END_IF;
       END_REPEAT;

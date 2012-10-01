@@ -1,4 +1,4 @@
--- Generated on 18/09/2012 12:17:53 by ExpressPrettyPrint version: 4.0.0.47, PDTec AG
+-- Generated on 01/10/2012 15:36:23 by ExpressPrettyPrint version: 4.0.0.47, PDTec AG
 -- From: Harmonized AP242 BO Model.exp
 
 SCHEMA AP242_BusinessObjectModel;
@@ -373,6 +373,8 @@ TYPE DocumentAssignmentSelect = SELECT(
   Approval,
   Breakdown,
   BreakdownElement,
+  BreakdownElementVersion,
+  BreakdownElementView,
   BreakdownVersion,
   Certification,
   ClassAttribute,
@@ -653,7 +655,6 @@ TYPE InformationUsageRightAssignmentSelect = SELECT(
   Document,
   DocumentDefinition,
   DocumentVersion,
-  DocumentVersion,
   ExternalClassSystem,
   ExternalItem,
   File,
@@ -812,12 +813,6 @@ TYPE PartVersionOrProductConfgurationSelect = SELECT(
 );
 END_TYPE;
 
-TYPE PartVersionOrViewSelect = SELECT(
-  PartVersion,
-  PartView
-);
-END_TYPE;
-
 TYPE PartViewOrProductConfgurationSelect = SELECT(
   PartView,
   ProductConfiguration
@@ -857,6 +852,7 @@ TYPE PlyLaminateShapeSelect = SELECT(
   ExternalCurveSweptSolidShapeRepresentation,
   ExternalElementaryBrepShapeRepresentation,
   ExternalFacetedBrepShapeRepresentation,
+  ExternalTessellatedShapeRepresentation,
   ThreeDGeometrySet
 );
 END_TYPE;
@@ -1148,7 +1144,6 @@ TYPE SuppliedObjectSelect = SELECT(
   Project,
   Requirement,
   RequirementSatisfactionAssertion,
-  RequirementVersion,
   RequirementVersion,
   RequirementView,
   SecurityClassification,
@@ -1903,7 +1898,7 @@ ENTITY DirectionOfFiberOrientationWithinAPly;
   name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
   angleReferences : SET[1:?] OF AngleSelect;
-  coordinateSpace : GeometricCoordinateSpace;
+  basis : ReinforcementOrientationBasis;
 INVERSE
   orientations : PlyOrientationAngle FOR fiberDirection;
 END_ENTITY;
@@ -2239,7 +2234,7 @@ UNIQUE
 END_ENTITY;
 
 ENTITY ExternalRepresentation
-  SUPERTYPE OF(ONEOF(ExternalAdvancedBrepShapeRepresentation, ExternalCsgShapeRepresentation, ExternalCurveSweptSolidShapeRepresentation, ExternalEdgeBasedWireframeShapeRepresentation, ExternalElementaryBrepShapeRepresentation, ExternalFacetedBrepShapeRepresentation, ExternalGeometricallyBoundedSurfaceShapeRepresentation, ExternalGeometricallyBoundedWireframeShapeRepresentation, ExternalManifoldSurfaceShapeRepresentation, ExternalShellBasedWireframeShapeRepresentation));
+  SUPERTYPE OF(ONEOF(ExternalAdvancedBrepShapeRepresentation, ExternalCsgShapeRepresentation, ExternalCurveSweptSolidShapeRepresentation, ExternalEdgeBasedWireframeShapeRepresentation, ExternalElementaryBrepShapeRepresentation, ExternalFacetedBrepShapeRepresentation, ExternalGeometricallyBoundedSurfaceShapeRepresentation, ExternalGeometricallyBoundedWireframeShapeRepresentation, ExternalManifoldSurfaceShapeRepresentation, ExternalShellBasedWireframeShapeRepresentation, ExternalTessellatedShapeRepresentation));
   id : IdentifierSelect;
   name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
@@ -2267,6 +2262,10 @@ END_ENTITY;
 
 ENTITY ExternalSurfaceCurve
   SUBTYPE OF(ExternalRepresentationItem);
+END_ENTITY;
+
+ENTITY ExternalTessellatedShapeRepresentation
+  SUBTYPE OF(ExternalRepresentation);
 END_ENTITY;
 
 ENTITY ExternalTypeQualifier;
@@ -3949,10 +3948,9 @@ END_ENTITY;
 
 ENTITY ZoneStructuralMakeup
   ABSTRACT
+  SUPERTYPE OF(ONEOF(PercentageLaminateTable, SmearedMaterial, ThicknessLaminateTable))
   SUBTYPE OF(LaminateTable);
   boundary : ZoneStructuralMakeupShapeRepresentation;
-WHERE
-  WR1 : TRUE;
 END_ENTITY;
 
 ENTITY ZoneStructuralMakeupShapeRepresentation

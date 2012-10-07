@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.16 2009/06/11 09:31:25 liutkuviene Exp $
+ $Id: mim.exp,v 1.17 2011/08/13 20:53:44 lothartklein Exp $
  ISO TC184/SC4/WG12 N6674 - ISO/TS 10303-1112 Specification control - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N5501
 *)
@@ -32,12 +32,12 @@ USE FROM product_definition_schema (product_definition_substitute);
       items : SET [1:?] OF class_usage_effectivity_context_item; 
     WHERE 
       WR1: SELF.role.name = 'class usage influence'; 
-      WR2: SIZEOF( QUERY( i <* SELF.items | NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF(i)) )) = 0; 
-      WR3: ('SPECIFICATION_CONTROL_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF.assigned_effectivity_assignment)) AND 
+      WR2: SIZEOF( QUERY( i <* SELF.items | NOT ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) )) = 0; 
+      WR3: ('EFFECTIVITY_APPLICATION_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF.assigned_effectivity_assignment)) AND 
         (SIZEOF(TYPEOF(SELF.assigned_effectivity_assignment.assigned_effectivity) ) = 1) AND 
         (SELF.assigned_effectivity_assignment.assigned_effectivity.id = 'class usage') AND 
         (SIZEOF( QUERY( i <* SELF.assigned_effectivity_assignment\applied_effectivity_assignment.items | 
-        NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY_USAGE' IN TYPEOF(i)) )) = 0); 
+        NOT('PRODUCT_CLASS_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY_USAGE' IN TYPEOF(i)) )) = 0); 
   END_ENTITY; 
 
   ENTITY instance_usage_context_assignment 
@@ -50,15 +50,15 @@ USE FROM product_definition_schema (product_definition_substitute);
     WHERE
       WR1: SIZEOF ( QUERY ( pdf <* product_definition_formation | 
         ( SIZEOF ( QUERY ( prpc <* USEDIN ( pdf.of_product ,
-        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
+        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
 	    prpc.name =  'functionality' ) ) =  1 ) AND 
-	    ( SIZEOF ( QUERY ( pd <* USEDIN ( pdf ,'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | 
+	    ( SIZEOF ( QUERY ( pd <* USEDIN ( pdf ,'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FORMATION') | 
 	    pd.frame_of_reference.name =  'functional definition' ) ) <1 ) ) ) =  0;
       WR2: SIZEOF ( QUERY ( pdf <* product_definition_formation | 
         ( SIZEOF ( QUERY ( prpc <* USEDIN ( pdf.of_product , 
-	    'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
+	    'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
         prpc.name =  'conceptual design' ) ) =  1 ) AND 
-        ( SIZEOF (QUERY ( pd <* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION' ) | 
+        ( SIZEOF (QUERY ( pd <* USEDIN ( pdf , 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FORMATION' ) | 
         pd.frame_of_reference.name =  'conceptual definition' ) ) <1) ) ) =  0;
   END_RULE;
 
@@ -71,7 +71,7 @@ USE FROM product_definition_schema (product_definition_substitute);
     WHERE
       WR1: SIZEOF ( QUERY ( pd <* constraint_definitions | 
 	    ( SIZEOF ( QUERY ( prpc <* USEDIN ( pd.formation.of_product ,
-        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
+        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
 	    prpc. name ='requirement' ) ) =0 ) ) ) =0;
   END_RULE;
 
@@ -79,9 +79,9 @@ USE FROM product_definition_schema (product_definition_substitute);
     WHERE
       WR1: SIZEOF ( QUERY ( pdf <* product_definition_formation | (
         SIZEOF ( QUERY ( prpc <* USEDIN ( pdf.of_product ,
-        'SPECIFICATION_CONTROL_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
+        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
 	    prpc.name =  'requirement' ) ) >0 ) AND 
-        ( SIZEOF ( QUERY ( pd <* USEDIN ( pdf , 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION.FORMATION') | 
+        ( SIZEOF ( QUERY ( pd <* USEDIN ( pdf , 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FORMATION') | 
 	    pd.frame_of_reference.name = 'design constraint definition' ) ) <1 ) ) ) =  0;
   END_RULE; 
 
@@ -90,17 +90,17 @@ USE FROM product_definition_schema (product_definition_substitute);
     WHERE
       WR1: SIZEOF ( QUERY ( cd <* configuration_design | 
 	    ( cd.name ='functionality' ) AND 
-        ( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd. design ) ) OR 
+        ( NOT ( 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF ( cd. design ) ) OR 
         ( cd.design\product_definition.frame_of_reference.name<> 'functional definition' ) ) 
         ) ) =0;
       WR2: SIZEOF ( QUERY ( cd <* configuration_design | 
         ( cd.name='realization' ) AND 
-        ( NOT ( 'SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
+        ( NOT ( 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
         ( cd.design\product_definition.frame_of_reference.name<> 'conceptual definition' ) ) 
         ) ) =0;
       WR3: SIZEOF ( QUERY ( cd <* configuration_design | 
         ( cd.name IN ['functionality' , 'realization'] ) AND 
-        ( NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_CLASS' IN TYPEOF ( cd.configuration.item_concept ) ) ) 
+        ( NOT ('PRODUCT_CLASS_MIM.PRODUCT_CLASS' IN TYPEOF ( cd.configuration.item_concept ) ) ) 
         ) ) =0;
   END_RULE;
 
@@ -108,7 +108,7 @@ USE FROM product_definition_schema (product_definition_substitute);
     WHERE 
       WR1: SIZEOF ( QUERY (cd <* configuration_design | 
 	    (cd.name = 'design constraint usage') AND 
-        (NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
+        (NOT('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
         (cd.design\product_definition.frame_of_reference.name <> 'design constraint definition')))) = 0; 
   END_RULE;
 

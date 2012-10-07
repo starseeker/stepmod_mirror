@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.31 2012/03/10 13:23:33 lothartklein Exp $
+   $Id: mim.exp,v 1.32 2012/09/15 11:00:39 lothartklein Exp $
    ISO TC184/SC4/WG12 N6888 - ISO/TS 10303-1628 Design product data management - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6232
 *)
@@ -741,35 +741,35 @@ END_TYPE;
 	shape_representation,
 	versioned_action_request);	
   END_TYPE;
-  
+
 ENTITY retention
   SUBTYPE OF (action);
 WHERE
-  WR1:  SIZEOF( QUERY( aa <* USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+  WR1:  SIZEOF( QUERY( aa <* USEDIN(SELF,'MANAGEMENT_RESOURCES_SCHEMA.' +
            'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |
-               ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.APPLIED_ACTION_ASSIGNMENT' IN
+               ('ACTIVITY.APPLIED_ACTION_ASSIGNMENT' IN
                 TYPEOF(aa)) AND
                (aa.role.name = 'retention')
               )) >= 1;   
-  WR2:  (SIZEOF( QUERY( atia <* USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+  WR2:  (SIZEOF( QUERY( atia <* USEDIN(SELF,'TIME_INTERVAL_ASSIGNMENT_MIM.' +
      'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |
                         (atia.role.name = 'minimum retention period') 
                        )) = 1) AND
-                     (SIZEOF( QUERY( atia <* USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+                     (SIZEOF( QUERY( atia <* USEDIN(SELF,'TIME_INTERVAL_ASSIGNMENT_MIM.' +
      'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |
                         (atia.role.name = 'maximum retention period') 
                        )) = 1) AND
-                     (SIZEOF( QUERY( atia1 <* USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+                     (SIZEOF( QUERY( atia1 <* USEDIN(SELF,'TIME_INTERVAL_ASSIGNMENT_MIM.' +
      'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |
                        (atia1.role.name = 'minimum retention period') AND
-                       ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.TIME_INTERVAL_WITH_BOUNDS' IN
+                       ('DATE_TIME_SCHEMA.TIME_INTERVAL_WITH_BOUNDS' IN
                         TYPEOF(atia1.assigned_time_interval)) AND
                        (EXISTS(atia1.assigned_time_interval\time_interval_with_bounds.secondary_bound) OR
                         EXISTS(atia1.assigned_time_interval\time_interval_with_bounds.duration)) AND
-                       (SIZEOF( QUERY( atia2 <* USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+                       (SIZEOF( QUERY( atia2 <* USEDIN(SELF,'TIME_INTERVAL_ASSIGNMENT_MIM.' +
        'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |
  (atia2.role.name = 'maximum retention period') AND
- ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.TIME_INTERVAL_WITH_BOUNDS' IN
+ ('DATE_TIME_SCHEMA.TIME_INTERVAL_WITH_BOUNDS' IN
   TYPEOF(atia2.assigned_time_interval)) AND
  (EXISTS(atia2.assigned_time_interval\time_interval_with_bounds.secondary_bound) OR
   EXISTS(atia2.assigned_time_interval\time_interval_with_bounds.duration)) AND
@@ -778,9 +778,9 @@ WHERE
 )) = 1) 
                        )) = 1);
            
-  WR3:  SIZEOF( USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+  WR3:  SIZEOF( USEDIN(SELF,'ACTION_SCHEMA.' +
                       'ACTION_RELATIONSHIP.RELATING_ACTION')) +
-              SIZEOF( USEDIN(SELF,'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
+              SIZEOF( USEDIN(SELF,'ACTION_SCHEMA.' +
                       'ACTION_RELATIONSHIP.RELATED_ACTION')) = 0;   
 END_ENTITY;
   

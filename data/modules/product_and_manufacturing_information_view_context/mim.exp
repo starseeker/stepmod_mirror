@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2012/07/29 13:08:14 lothartklein Exp $
+   $Id: mim.exp,v 1.7 2012/07/29 17:43:34 lothartklein Exp $
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_mim;
@@ -37,21 +37,28 @@ LOCAL
 END_LOCAL;
 
 WHERE
-  WR1: gdt_representation_view_contexts IN design_view_contexts;
-  WR2: machining_feature_view_contexts IN design_view_contexts;
-  WR3: material_specification_view_contexts IN design_view_contexts;
-  WR4: model_based_3d_annotation_presentation_view_contexts IN design_view_contexts;
-  WR5: model_based_view_contexts IN design_view_contexts;
-  WR6: process_state_view_contexts IN design_view_contexts;
-  WR7: surface_finish_view_contexts IN design_view_contexts;
+  WR1: SIZEOF(gdt_representation_view_contexts * design_view_contexts) > 0;
+  WR2: SIZEOF(machining_feature_view_contexts * design_view_contexts) > 0;
+  WR3: SIZEOF(material_specification_view_contexts * design_view_contexts) > 0;
+  WR4: SIZEOF(model_based_3d_annotation_presentation_view_contexts * design_view_contexts) > 0;
+  WR5: SIZEOF(model_based_view_contexts * design_view_contexts) > 0;
+  WR6: SIZEOF(process_state_view_contexts * design_view_contexts) > 0;
+  WR7: SIZEOF(surface_finish_view_contexts * design_view_contexts) > 0;
   WR8: -- not used as additional_contexts
-       SIZEOF( USEDIN(model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') = 0);
+       SIZEOF(QUERY(mbvc <* model_based_view_contexts |
+        (SIZEOF(USEDIN(mbvc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')) = 0)
+        )) = SIZEOF(model_based_view_contexts);
   WR9: -- not used as initial_context
-       SIZEOF( USEDIN(additional_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE') = 0);
+       SIZEOF(QUERY(avc <* additional_view_contexts |
+        (SIZEOF(USEDIN(avc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE')) = 0)
+       )) = SIZEOF(additional_view_contexts);
   WR10: -- initial_context shall have a Model_based_view_context
-       SIZEOF( QUERY(pdca <* 
-          USEDIN(need_initial_model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')
-          | NOT(pdca.definition.frame_of_reference IN model_based_view_contexts))) = 0;
+       SIZEOF(QUERY(nimbvc <* need_initial_model_based_view_contexts | NOT
+        (SIZEOF(QUERY(pdca <* USEDIN(nimbvc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') | 
+         (pdca\product_definition_context_association.definition\product_definition.frame_of_reference IN model_based_view_contexts)))     
+        =
+        SIZEOF(need_initial_model_based_view_contexts))
+       )) = 0;
   WR11: TRUE; -- gdt_representation_view_contexts must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document          
   WR12: TRUE; -- model_based_3d_annotation_presentation_view_contexts must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
 END_RULE;

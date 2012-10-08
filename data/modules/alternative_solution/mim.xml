@@ -23,9 +23,9 @@
       solution_versions: SET OF product_definition_formation := [];
     END_LOCAL;
     solution_versions :=  QUERY( pdf &lt;* product_definition_formation |
-	  SIZEOF( QUERY( prpc &lt;* USEDIN(pdf.of_product, 'ALTERNATIVE_SOLUTION_MIM' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+	  SIZEOF( QUERY( prpc &lt;* USEDIN(pdf.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
       prpc.name = 'alternative solution')) = 1);</algorithm>
-         <where expression="SIZEOF( QUERY( pdf &lt;* solution_versions |&#10;        SIZEOF( QUERY( pd &lt;* USEDIN(pdf, 'ALTERNATIVE_SOLUTION_MIM' + '.PRODUCT_DEFINITION.FORMATION') | &#10;        pd.frame_of_reference.name = 'alternative definition')) &lt;&gt; 1))= 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( pdf &lt;* solution_versions |&#10;        SIZEOF( QUERY( pd &lt;* USEDIN(pdf, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION.FORMATION') | &#10;        pd.frame_of_reference.name = 'alternative definition')) &lt;&gt; 1))= 0" label="WR1"/>
       </rule>
       <rule appliesto="product_definition" name="restrict_alternative_definition">
          <algorithm>LOCAL
@@ -33,9 +33,9 @@
     END_LOCAL;
       solution_definitions :=  QUERY( pd &lt;* product_definition |
 	 (pd.frame_of_reference.name = 'alternative definition'));</algorithm>
-         <where expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | &#10;&#9;    ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,&#10;&#9;    'ALTERNATIVE_SOLUTION_MIM' + '.PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | &#10;&#9;    pdr.name = 'solution alternative definition' ) ) &lt;&gt;1 ) ) ) = 0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | &#10;&#9;    ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,&#10;&#9;    'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | &#10;&#9;    pdr.name = 'solution alternative definition' ) ) &lt;&gt;1 ) ) ) = 0" label="WR1"/>
          <where expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | &#10;&#9;    NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0" label="WR2"/>
-         <where expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | &#10;&#9;    ( pd.name IN ['supplier' , 'technical supplier'] ) AND (&#10;&#9;    SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pd.formation ,&#10;&#9;    'ALTERNATIVE_SOLUTION_MIM' + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | &#10;&#9;    aoa.role.name = 'supplier' )) &lt;&gt;1 ) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | &#10;&#9;    ( pd.name IN ['supplier' , 'technical supplier'] ) AND (&#10;&#9;    SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pd.formation ,&#10;&#9;    'PERSON_ORGANIZATION_ASSIGNMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | &#10;&#9;    aoa.role.name = 'supplier' )) &lt;&gt;1 ) )) = 0" label="WR3"/>
       </rule>
       <rule appliesto="product_definition_relationship" name="restrict_product_definitions_for_base_element">
          <where expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;       ( pdr. name = 'solution alternative definition' ) AND &#10;       ( NOT( pdr. relating_product_definition.frame_of_reference.name&#10;        IN [ 'alternative definition' , 'functional definition' , 'conceptual definition' ] ) OR &#10;       ( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'alternative definition' ) ) ) ) =0" label="WR1"/>
@@ -46,7 +46,7 @@
     END_LOCAL;
       solution_definitions :=  QUERY( pd &lt;* product_definition |
         (pd.frame_of_reference.name = 'alternative definition'));</algorithm>
-         <where expression="SIZEOF( QUERY( pd &lt;* solution_definitions | &#10;        (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'ALTERNATIVE_SOLUTION_MIM' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;&#9;     prpc.name = 'alternative solution')) = 0 ) )) = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( pd &lt;* solution_definitions | &#10;        (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;&#9;     prpc.name = 'alternative solution')) = 0 ) )) = 0" label="WR1"/>
       </rule>
    </schema>
 </express>

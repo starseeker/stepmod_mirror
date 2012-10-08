@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.20 2012/10/06 20:09:56 liutkuviene Exp $
+ $Id: mim.exp,v 1.21 2012/10/07 16:59:19 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N7727 - ISO/TS 10303-1109 Alternative solution - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N5279
 *)
@@ -14,7 +14,7 @@ USE FROM Physical_breakdown_mim;
 USE FROM qualified_measure_schema(
 	measure_representation_item);
 USE FROM measure_schema(
-	ratio_measure_with_unit);
+	ratio_measure_with_unit);    
 
   TYPE organization_item_solution = SELECT BASED_ON organization_item WITH (product_definition_formation);
   END_TYPE;
@@ -24,11 +24,11 @@ USE FROM measure_schema(
       solution_versions: SET OF product_definition_formation := [];
     END_LOCAL;
     solution_versions :=  QUERY( pdf <* product_definition_formation |
-	  SIZEOF( QUERY( prpc <* USEDIN(pdf.of_product, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+	  SIZEOF( QUERY( prpc <* USEDIN(pdf.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
       prpc.name = 'alternative solution')) = 1);
     WHERE 
       WR1: SIZEOF( QUERY( pdf <* solution_versions |
-        SIZEOF( QUERY( pd <* USEDIN(pdf, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION.FORMATION') | 
+        SIZEOF( QUERY( pd <* USEDIN(pdf, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION.FORMATION') | 
         pd.frame_of_reference.name = 'alternative definition')) <> 1))= 0; 
   END_RULE;
 
@@ -41,14 +41,14 @@ USE FROM measure_schema(
     WHERE
       WR1: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    ( SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
-	    'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
+	    'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
 	    pdr.name = 'solution alternative definition' ) ) <>1 ) ) ) = 0;
       WR2: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0;
       WR3: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    ( pd.name IN ['supplier' , 'technical supplier'] ) AND (
 	    SIZEOF ( QUERY ( aoa <* USEDIN ( pd.formation ,
-	    'PERSON_ORGANIZATION_ASSIGNMENT_MIM' + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
+	    'PERSON_ORGANIZATION_ASSIGNMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
 	    aoa.role.name = 'supplier' )) <>1 ) )) = 0;
   END_RULE; 
 
@@ -70,7 +70,7 @@ USE FROM measure_schema(
         (pd.frame_of_reference.name = 'alternative definition'));
     WHERE
       WR1: SIZEOF( QUERY( pd <* solution_definitions | 
-        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
 	     prpc.name = 'alternative solution')) = 0 ) )) = 0;
   END_RULE;
 

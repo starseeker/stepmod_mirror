@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="product_structure_schema" schema_file="product_structure_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/07/19 12:55:39 $" rcs.revision="$Revision: 1.1 $">
+<ext_descriptions module_directory="product_structure_schema" schema_file="product_structure_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/07/19 13:32:50 $" rcs.revision="$Revision: 1.2 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: product_structure_schema
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema"/>
@@ -16,8 +16,35 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship">
-        A <b>alternate_product_relationship</b> is a
-      </ext_description>
+	An <b>alternate_product_relationship</b> is a an association between two products whereby one product, the
+	alternate product, may be used in place of another product, the base product.
+	<p>
+		If one product is an alternate for another product it is understood that there is no interest to keep track of
+		which product, the base or any alternates specified, is used as a particular instance of the base product within a product structure.
+	</p>
+	<note>
+		An organization may track design changes for a base part, and establish effectivity conditions for the use
+		of that base part in various assemblies to be manufactured. 
+		The use of an alternate product implies that an organization does not specify any particular version of the alternate product 
+		or establish effectivities relating to it.
+	</note>
+	<p>
+		An <b>alternate_product_relationship</b> for which the base product is an assembly specifies that the entire
+		product structure of the alternate product may be used in place of the base product and its product structure.
+	</p>
+	<example number="1">
+		Two bolts of the same size are products.
+		One bolt has a square head and the other has a hexagonal head. 
+		These head shapes are properties of the respective products. 
+		The two bolts are considered equivalent with respect to form, fit, and function: they both have sufficiently close physical shape, 
+		they take up the same space when used, and they both serve to fasten two things together. 
+		Thus, one of these two bolts could be considered to be an alternate part for the other bolt.
+	</example>
+	<p>
+		The relationship established by the <b>alternate_product_relationship</b> need not be symmetric. 
+		If B is an alternate product for A, A is not implied to be an alternate product for B.
+	</p>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: alternate_product_relationship  Attribute: name 
@@ -25,8 +52,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.name">
-        the words by which the <b>alternate_product_relationship</b> is known. 
-      </ext_description>
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.label"/> 
+	by which the <b>alternate_product_relationship</b> is known.
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: alternate_product_relationship  Attribute: definition 
@@ -34,8 +63,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.definition">
-      The value of this attribute need not be specified.
-    </ext_description>
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.text"/> 
+	that characterizes the <b>alternate_product_relationship</b>.
+	The value of this attribute need not be specified.
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: alternate_product_relationship  Attribute: alternate 
@@ -43,6 +75,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.alternate">
+	a product that may be used in place of the base product.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,6 +84,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.base">
+	a product for which another product may be used as an alternate.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -59,6 +93,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.basis">
+	<p>a text description to specify the rationale and criteria used to consider the alternate product in place of the base product.</p>
+	<example number="2">
+		In the <b>alternate_product_relationship</b> for the two bolts defined in example 1, the value of the basis attribute, 
+		could be "head shape", while the value of the definition attribute could be "alternate for use as fastener in engine assembly".
+	</example>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -68,6 +107,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.wr:WR1">
+	The instance for the alternate product shall not be the same as the instance of the base product.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -76,15 +116,79 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.alternate_product_relationship.ur:UR1">
-</ext_description><!-- 
+	The combination of the alternate product and the base product shall be unique.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage">
-        A <b>assembly_component_usage</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.product_definition_usage" />
+	An <b>assembly_component_usage</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.product_definition_usage" />
+	that should be used to establish a relationship between 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref> 
+	within one of the following three product structures:
+	<ul>
+		<li>
+			bill-of-material (BOM) structure;
+			<note number="1">
+				In a BOM structure, 
+				<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+				entities represent nodes and 
+				<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" />
+				or 
+				<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.quantified_assembly_component_usage" /> 
+				entities represent links.
+			</note>
+		</li>
+		<li>
+			parts list structure;
+			<note number="2">
+				In a parts list structure, a 
+				<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+				entity represents the root node.
+				The 
+				<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+				entities represent nodes at each intermediate level of the structure.
+				The 
+				<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.specified_higher_usage_occurrence" /> 
+				entities represent links to higher-levels of the structure.
+			</note>
+		</li>
+		<li>
+			promissory use structure.
+			<note number="3">
+				In a promissory use structure, 
+				<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+				entities represent nodes, and 
+				<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.promissory_usage_occurrence" /> 
+				entities represent links between the nodes.
+			</note>
+			<note number="4">
+				<p>
+					In order to allow for extensions to this entity in other parts of ISO 10303, the SUPERTYPE clause of this
+					entity is only partially explicit. If the subtypes defined in this part of ISO 10303 were a complete categorization,
+					the SUPERTYPE clause of this entity could properly read:
+				</p>
+				<screen>
+SUPERTYPE OF (<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.quantified_assembly_component_usage" /> ANDOR
+ ONEOF (<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" />,
+        <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.specified_higher_usage_occurrence" />,
+        <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.promissory_usage_occurrence" />))				
+				</screen>
+			</note>
+		</li>
+	</ul>	
+	An <b>assembly_component_usage</b> relates a constituent to its assembly. 
+	An <b>assembly_component_usage</b> may be either a
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" />,
+	or a
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.specified_higher_usage_occurrence" />,
+	or a
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.promissory_usage_occurrence" />. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -93,16 +197,50 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage.reference_designator">
-      The value of this attribute need not be specified.
-    </ext_description><!-- 
+	<p>
+		a distinctive code that serves to identify the usage of the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />
+		as a component in the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		in a diagram, list, chart, or on a physical piece of equipment.
+		The value of this attribute need not be specified.
+	</p>
+	<note number="5">
+		The <b>reference_designator</b> attribute can be made mandatory, or constrained to be unique, or both, 
+		in an annotated EXPRESS schema that uses or specializes this entity.
+	</note>
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage_substitute  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage_substitute"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute">
-        A <b>assembly_component_usage_substitute</b> is a
-      </ext_description>
+	An <b>assembly_component_usage_substitute</b> is a specification of that one constituent can be used as a substitute 
+	for another within the context of a given assembly.
+	<note number="1">
+		The assembly context is specified by the fact that both 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" >assembly_component_usages</express_ref> 
+		referred to by the <b>base</b> and <b>substitute</b> attributes reference the same 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		in their inherited 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" />
+		attribute.
+	</note>
+	<p>
+		The instance of the substitute constituent does not require the same spatial relationship or the same quantity. 
+		A substitute constituent does not require equivalent form, fit, and function of the constituent for which it is a substitute.
+	</p>
+	<p>
+		This entity defines one-way substitution only. Within a given context, if A is specified as a substitute for B, B is not implied to be a substitute for A.
+	</p>
+	<note number="2">
+		The <b>assembly_component_usage_substitute</b> entity may be used to eliminate the re-identification of all
+		higher-level assemblies when a new version of a lower-level constituent is created.
+	</note>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage_substitute  Attribute: name 
@@ -110,8 +248,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.name">
-        the words by which the <b>assembly_component_usage_substitute</b> is known. 
-      </ext_description>
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.label" /> 
+	by which the <b>assembly_component_usage_substitute</b> is known. 
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage_substitute  Attribute: definition 
@@ -119,8 +259,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.definition">
-      The value of this attribute need not be specified.
-    </ext_description>
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.text" /> 
+	that characterizes the <b>assembly_component_usage_substitute</b>.
+	The value of this attribute need not be specified.
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage_substitute  Attribute: base 
@@ -128,6 +271,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.base">
+	an 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+	for which the substitute may be used.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -136,6 +282,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.substitute">
+	an
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+	that may be used for the base.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -145,6 +294,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.wr:WR1">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	attribute of both the <b>base</b> and the <b>substitute</b> attributes shall refer to the same assembly 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" />.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -154,6 +307,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.wr:WR2">
+	The <b>base</b> and <b>substitute</b> attributes shall not be the same instance.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -162,15 +316,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute.ur:UR1">
-</ext_description><!-- 
+	The combination of the <b>base</b> and <b>substitute</b> attributes shall be unique.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: assembly_component_usage_substitute_with_ranking  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage_substitute_with_ranking"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute_with_ranking">
-        A <b>assembly_component_usage_substitute_with_ranking</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.assembly_component_usage_substitute" />
+	An <b>assembly_component_usage_substitute_with_ranking</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage_substitute" />
+	that specifies a relative preference value for the usage of a particular constituent as a substitute
+	for another among all substitutes within the context of a given assembly.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -179,6 +338,16 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute_with_ranking.ranking">
+	an integer that ranks the preference for use of the substitute 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+	among all <b>assembly_component_usage_substitute_with_ranking</b> instances with the same value for the base attribute.
+	This value is an integer that only has meaning when comparing it with corresponding values for
+	<b>assembly_component_usage_substitute_with_ranking</b>s sharing the same base 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />.
+	It is a relative ranking value, not an absolute ranking.
+	A lower value indicates a higher preference for the substitute 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />, 
+	and a higher value indicates a lower preference.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -187,15 +356,67 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.assembly_component_usage_substitute_with_ranking.ranking_rationale">
-</ext_description><!-- 
+	<p>
+		text that describes the rationale used for the ranking.
+	</p>
+	<example>
+		Examples of <b>ranking_rationale</b> are cost and long lead time.
+	</example>
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: make_from_usage_option  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option">
-        A <b>make_from_usage_option</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.product_definition_usage" />
+	A <b>make_from_usage_option</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.product_definition_usage" />
+	in which one product is the result of applying a process to another product.
+	<example number="1">
+		Machining, plating, and bending are processes used to make another product.
+	</example>
+	<note number="1">
+		In situations in which a product is made from another product using a sequence of processes, 
+		the intermediate products will be related using the <b>make_from_usage_option</b> entity.
+	</note>
+	<note number="2">
+		A product to be modified may be an assembly. Generally, the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		differs from the <b>make_from_usage_option</b> in that the constituents of an assembly are used in the assembly without any change.
+	</note>
+	<note number="3">
+		A 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		may be the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		of many <b>make_from_usage_option</b> relationships, and a 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		may be the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		of many <b>make_from_usage_option</b> relationships.
+		Further, there may be multiple <b>make_from_usage_option</b> instances referencing the same 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		and 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		pair of 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref>.
+	</note>
+	<example number="2">
+		Consider the case of a shaft that can be machined from either a casting or a forging.
+		All three, the shaft, the forging, and the casting, are represented by separate instances of 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" />.
+		Two instances of the <b>make_from_usage_option</b> entity exist, one between the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		shaft and the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		forging, the other between the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		shaft and the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		casting.
+	</example>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -204,6 +425,17 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option.ranking">
+	an integer that ranks the preference for use of the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	among all <b>make_from_usage_option</b> instances that have the same value for the inherited 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" />
+	attribute.
+	This value is an integer that only has meaning when comparing it with corresponding values for <b>make_from_usage_option</b>s sharing the same 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" />.
+	It is a relative ranking value, not an absolute ranking. 
+	A lower value indicates a higher preference for the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />, 
+	and a higher value indicates a lower preference.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -212,6 +444,12 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option.ranking_rationale">
+	<p>
+		text that describes the rationale used for the ranking.
+	</p>
+	<example number="3">
+		Examples of <b>ranking_rationale</b> are cost and long lead time.
+	</example>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -220,6 +458,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option.quantity">
+	the amount of the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	that can be made from the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -229,15 +471,94 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option.wr:WR1">
-</ext_description><!-- 
+	If the quantity of the constituent is expressed numerically, its value shall be greater than zero.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: make_from_usage_option_group  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option_group"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option_group">
-        A <b>make_from_usage_option_group</b> is a
-      </ext_description>
+	A <b>make_from_usage_option_group</b> is a collection of 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option"/> 
+	instances that defines one possible combination of 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref> 
+	that can be made from another single 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" />.
+	<note number="1">
+		The <b>make_from_usage_option_group</b> is used to indicate that several different products may be made from a single product.
+	</note>
+	<p>
+		To represent the single product constraint within a single <b>make_from_usage_option_group</b>, the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		of all of the instances of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option">make_from_usage_options</express_ref> 
+		shall be the same.
+	</p>
+	<example number="1">
+		Suppose a bar stock, represented by 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		D, can be cut twice so as to create three - 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref>, 
+		X, Y, and Z.
+		The <b>make_from_usage_option_group</b> representing this situation would aggregate three 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option">make_from_usage_options</express_ref> 
+		as shown in Table 1:
+		<table caption="Example 1 make_from_usage_option_group" number="1" id="table_1">
+		<tr>
+			<th>id</th> 
+			<th><express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /></th> 
+			<th><express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /></th> 
+			<th>quantity</th>
+		</tr>
+		<tr>
+			<td>1</td> <td>X</td> <td>D</td> <td>1</td>
+		</tr>
+		<tr>
+			<td>2</td> <td>Y</td> <td>D</td> <td>1</td>
+		</tr>
+		<tr>
+			<td>3</td> <td>Z</td> <td>D</td> <td>1</td>
+		</tr>		
+	</table>
+	</example>
+	<note number="2">
+		It is possible to use a product to make more than one combination of other products.
+	</note>
+	<example number="2">
+		The same bar stock 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		D can be cut to produce two 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref> 
+		X and one
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		T.
+		In this case the corresponding <b>make_from_usage_option_group</b> would aggregate two
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option">make_from_usage_options</express_ref> 
+		as shown in Table 2:
+		<table caption="Example 2 make_from_usage_option_group" number="2" id="table_2">
+		<tr>
+			<th>id</th> 
+			<th><express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /></th> 
+			<th><express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /></th> 
+			<th>quantity</th>
+		</tr>
+		<tr>
+			<td>2</td> <td>X</td> <td>D</td> <td>2</td>
+		</tr>
+		<tr>
+			<td>1</td> <td>T</td> <td>D</td> <td>1</td>
+		</tr>				
+	</table>
+	</example>
+	<note number="3">
+		A single 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option"/> 
+		instance may be part of multiple <b>make_from_usage_option_group</b>s.
+	</note>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: make_from_usage_option_group  Attribute: members 
@@ -245,6 +566,12 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option_group.members">
+	a collection of at least two 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option"/> 
+	instances whose 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	instances may be made from the same 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -254,15 +581,122 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.make_from_usage_option_group.wr:WR1">
-</ext_description><!-- 
+	All instances of members shall refer to the same instance of 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	in their respective
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	attribute.
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator">
+	A <b>multi_level_reference_designator</b> is a ...
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  Attribute: name 
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator.name"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator.name">
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.label"/> 
+	by which the <b>multi_level_reference_designator</b> is known.
+	The value of this attribute need not be specified.
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  Attribute: description 
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator.description"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator.description">
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.text"/> 
+	that characterizes the <b>multi_level_reference_designator</b>.
+	The value of this attribute need not be specified.
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  Attribute: location 
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator.location"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator.location">
+	specifies the role of the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence"/> 
+	for the <b>multi_level_reference_designator</b>.
+	There shall exist at least one 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence"/> 
+	for the <b>multi_level_reference_designator</b>. 
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  Attribute: root_node 
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator.root_node"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator.root_node">
+	
+</ext_description>
+
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_structure_schema  Entity: multi_level_reference_designator  Unique: UR1 
+   <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.multi_level_reference_designator.ur:UR1"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="product_structure_schema.multi_level_reference_designator.ur:UR1">
+	The <b>location</b> shall be unique within a population of <b>multi_level_reference_designator</b>.
+</ext_description>
+
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: next_assembly_usage_occurrence  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.next_assembly_usage_occurrence">
-        A <b>next_assembly_usage_occurrence</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.assembly_component_usage" />
+	A <b>next_assembly_usage_occurrence</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+	that specifies the relationship between a child constituent and its immediate parent assembly in a product structure.
+	<note number="1">
+		An instance of <b>next_assembly_usage_occurrence</b> represents an individual occurrence of a constituent in an assembly.
+		Each specific use of the same constituent may be represented by another distinct <b>next_assembly_usage_occurrence</b> instance 
+		for the purpose of assigning property information such as a position and orientation for the constituent.
+		Property information is not provided by any of the entities of this part of ISO 10303 but by using the appropriate capabilities 
+		defined in ISO 10303-42 [1], ISO 10303-43 [2], and ISO 10303-41.
+		The representation of a constituent occurrence in an assembly may be linked to mechanisms in ISO 10303-42 [1] and ISO 10303-43 [2] by means of a 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		entity defined in the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema" >product_definition_schema</express_ref>
+		in ISO 10303-41.
+	</note>
+	<example>
+		The position and orientation of a constituent with respect to its assembly would be computed using a transformation defined in the 
+		<express_ref linkend="representation_schema:ir_express:representation_schema" >representation_schema</express_ref> 
+		in ISO 10303-43 [2].
+	</example>
+	<note number="2">
+		An application algorithm can produce an indented parts list for a product by sequentially tracing through a structure of 
+		<b>next_assembly_usage_occurrence</b> instances.
+		A similar algorithm can be used to calculate the position and orientation of each occurrence of every constituent relative to its higher-level 
+		assemblies within a BOM when used in conjunction with the property information constructs defined ISO 10303-41, ISO 10303-42 [1], and ISO 10303-43 [2].
+	</note>
+	<note number="3">
+		The number of constituents used in the assembly may be specified by composing a complex instance of <b>next_assembly_usage_occurrence</b> and 
+		 <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.quantified_assembly_component_usage"/>.
+	</note>	
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -271,10 +705,11 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.next_assembly_usage_occurrence.ur:UR1">
-	The 
+	The combination of
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage.reference_designator"/>
-	shall be unique within the
-   <express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition"/>.
+	and
+   <express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition"/>
+   shall be unique within a population of <b>next_assembly_usage_occurrence</b>.
 </ext_description>
 
 <!-- 
@@ -284,8 +719,53 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship">
-        A <b>product_definition_occurrence_relationship</b> is a
-      </ext_description>
+	A <b>product_definition_occurrence_relationship</b> is an association between a 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	and an 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+	in which the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the <b>occurrence</b> attribute is a specific instance of the constituent 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />
+	attribute of the <b>occurrence_usage</b> in the assembly 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	attribute.
+	<note>
+		The identification of the specific instance of the constituent in the assembly can be defined using the
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage.reference_designator"/> 
+		attribute of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+		entity.
+	</note>
+	<example>
+		A product structure for a car is defined in which entity instances of 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		are defined for the chassis and the wheel.
+		Four 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+		instances are then created to represent the four wheels of the chassis in which the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage.reference_designator"/> 
+		has values of ‘left front’, 
+		‘right front’, ‘left rear’, ‘right rear’.
+		To represent specific information about the right rear wheel, a 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		of the wheel is created to which the information can be associated.
+		To specify that this 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		is representing the wheel that is implied by the instance of 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+		with the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage.reference_designator"/> 
+		attribute value of ‘right rear’, the <b>product_definition_occurrence_relationship</b> is created to associate the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		with the
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/>.
+	</example>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: product_definition_occurrence_relationship  Attribute: name 
@@ -293,8 +773,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.name">
-        the words by which the <b>product_definition_occurrence_relationship</b> is known. 
-      </ext_description>
+	the 
+	<express_ref linkend="support_resource_schema:ir_express:support_resource_schema.label"/> 
+	by which the <b>product_definition_occurrence_relationship</b> is known. 
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: product_definition_occurrence_relationship  Attribute: description 
@@ -302,9 +784,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.description">
-        the text that provides further information about the <b>product_definition_occurrence_relationship</b>.
-      
-      The value of this attribute need not be specified.
+	the text that provides further information about the <b>product_definition_occurrence_relationship</b>.
+	The value of this attribute need not be specified.
     </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -313,6 +794,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.occurrence">
+	the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	that represents a specific instance of the product.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -321,6 +805,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.occurrence_usage">
+	the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+	that represents a specific use of the constituent in an assembly.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -330,6 +817,13 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.wr:WR1">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the <b>occurrence</b> attribute shall not be the assembly
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	in the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+	referenced by the <b>occurrence_usage</b> attribute.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -339,6 +833,13 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.wr:WR2">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the <b>occurrence</b> attribute shall not be the constituent
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	in the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+	referenced by the <b>occurrence_usage</b> attribute.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -348,15 +849,59 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_occurrence_relationship.wr:WR3">
-</ext_description><!-- 
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	referenced by the <b>occurrence</b> attribute and the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	that represents the constituent of the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/> 
+	shall be definitions of the same 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_formation" />.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: product_definition_usage  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.product_definition_usage"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_usage">
-        A <b>product_definition_usage</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.product_definition_relationship" />
+	A <b>product_definition_usage</b> is a type of
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship" />
+	that specifies a directed association between two 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref> 
+	in which the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	is used in the context of the
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" />.
+	The <b>product_definition_usage</b> establishes a relationship stating that the related product is used in the context of the relating product.
+	This usage is established for the life cycle stages and application contexts in which the two products are described.
+	<example number="1">
+		The assembly trees established for production sometimes contain more intermediate levels than the trees established during the design phase. 
+		In such a case, the design phase relationship between a component and the assembly in which it is contained may be replaced by several 
+		intermediate relationships during production.
+	</example>
+	<example number="2">
+		A given product may be used in a support role with respect to another product. 
+		A screwdriver may be identified as a resource to be used for the maintenance life cycle stage of a given product. 
+		In such a case, the support resource relationship between the screwdriver and the product for which it is identified to be used for
+		maintenance activities may be specified.
+	</example>
+	<example number="3">
+		If four identical bolts are used to attach two plates, there may be a need to identify one specific bolt for some purpose. 
+		It needs to be torqued to a greater degree than the rest. 
+		The inherited 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.id" /> 
+		attribute then is used to identify this specific bolt's requirement, even though all four bolt 
+		<b>product_definition_usage</b>s will have the same attribute pair of 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" >product_definitions</express_ref>.
+	</example>
+	<p>
+		A <b>product_definition_usage</b> may be either a
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.make_from_usage_option"/>
+		or a
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage"/>.
+	</p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -366,6 +911,24 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_usage.wr:WR1">
+	<p>
+		Each <b>product_definition_usage</b> shall not relate the same 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		instance of
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+		to the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		or any of its descendants formed by their reference as the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		in a graph of <b>product_definition_usage</b>s.
+	</p>
+	<note>
+		This rule uses the function 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.acyclic_product_definition_relationship" /> 
+		defined in the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema" >product_definition_schema</express_ref> 
+		in ISO 10303-41.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -374,24 +937,57 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.product_definition_usage.ur:UR1">
-</ext_description><!-- 
+	The combination of the inherited 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.id" />, 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" />, 
+	and 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />
+	attributes shall be unique within a scope of <b>product_definition_usage</b>.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: promissory_usage_occurrence  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.promissory_usage_occurrence"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.promissory_usage_occurrence">
-        A <b>promissory_usage_occurrence</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.assembly_component_usage" />
-</ext_description><!-- 
+	A <b>promissory_usage_occurrence</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+	in which the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	is in the assembly tree of the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	regardless of the number of intermediate levels between them.
+	<note>
+		A <b>promissory_usage_occurrence</b> is used when the product structure is not completely defined. 
+		In such a situation, it is still possible to relate an assembly to a constituent to capture the intent that the constituent will be used in that assembly.
+	</note>
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: quantified_assembly_component_usage  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.quantified_assembly_component_usage"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.quantified_assembly_component_usage">
-        A <b>quantified_assembly_component_usage</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.assembly_component_usage" />
+	A <b>quantified_assembly_component_usage</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+	that establishes the relationship between an assembly and one of its constituents if there is a need to specify the quantity of the
+	child constituent used in the assembly.
+	<note>
+		Generally, for production planning or material planning purposes, several occurrences of a constituent are
+		lumped together, and a quantity is specified to account for the several occurrences. 
+		A typical example would be the specifying of an occurrence of a rivet used for joining aeroplane structures and denoting the number of such
+		rivets used on the entire aeroplane. 
+		If each of the occurrences of the rivets used is to be specified, the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		entity may be used. 
+		As many instances of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" />
+		as the number of occurrences of the rivets will exist in this case.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -400,6 +996,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.quantified_assembly_component_usage.quantity">
+	a measure that defines how many or how much of the constituent is used in the assembly.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -409,15 +1006,84 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.quantified_assembly_component_usage.wr:WR1">
-</ext_description><!-- 
+	If the <b>quantity</b> of the constituent is expressed numerically, its value shall be greater than zero.
+</ext_description>
+
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_structure_schema  Entity: specified_higher_usage_occurrence  
    <express_ref linkend="product_structure_schema:ir_express:product_structure_schema.specified_higher_usage_occurrence"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence">
-        A <b>specified_higher_usage_occurrence</b> is a type of
-        <express_ref linkend="module:ema:Module_ema.assembly_component_usage" />
+	A <b>specified_higher_usage_occurrence</b> is a type of
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+	that specifies the relationship between a constituent and an assembly if the assembly is not the immediate parent for the constituent.
+	<p>
+		The relationship between the constituent and the assembly of the <b>specified_higher_usage_occurrence</b> to
+		be specified is captured by the relationship of the inherited attributes 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		and
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" />.
+	</p>
+	<p>
+		The two attributes (<b>upper_usage</b> and <b>next_usage</b>) within the primary instance of the entity <b>specified_higher_usage_occurrence</b> 
+		shall respectively specify an 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		and the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		that together will provide the definition of the path from the constituent to the assembly for which the <b>specified_higher_usage_occurrence</b> 
+		is being specified. 
+		To ensure that the
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		and the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		together constitute the entire path desired for the <b>specified_higher_usage_occurrence</b>, it is required that the instance of the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		attribute of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		entity be the same as the instance of the
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		attribute of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		entity. 
+		The 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		attribute of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		shall reference the same instance as the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		attribute of the <b>specified_higher_usage_occurrence</b> being specified. 
+		The
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		attribute of the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		entity shall reference the same instance as the 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		attribute of the <b>specified_higher_usage_occurrence</b> being specified.
+	</p>
+	<p>
+		If the 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+		referenced by the attribute <b>upper_usage</b> is not a 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		it shall be a <b>specified_higher_usage_occurrence</b>. 
+		This <b>specified_higher_usage_occurrence</b> shall have its attributes <b>upper_usage</b> and <b>next_usage</b> defined as described in the previous
+		paragraph to specify further the path of the primary <b>specified_higher_usage_occurrence</b>. 
+		This recursive specification shall continue until the attribute <b>upper_usage</b> references an 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" />
+		entity that is a 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" />. 
+		At this point, the primary <b>specified_higher_usage_occurrence</b> is fully specified both in terms of its constituents/assembly 
+		relationship and the entire path between them.
+	</p>
+	<note number="1">
+		The <b>specified_higher_usage_occurrence</b> is used to define portions of parts lists that contain a specific
+		constituent within an assembly for which certain properties are to be associated or when the portion is used in more than one assembly structure.
+	</note>
+	<note number="2">
+		Annex E contains examples of this entity and figures that depict the relationships between it and the other entities of this schema.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -426,6 +1092,17 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.upper_usage">
+	an 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.assembly_component_usage" /> 
+	that is the same instance of the attribute 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	as this <b>specified_higher_usage_occurrence</b> and the same instance of the attribute 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	as the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	of the 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+	referenced by the attribute <b>next_usage</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -434,6 +1111,20 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.next_usage">
+	<p>
+		a 
+		<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+		that is the same instance of the attribute 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		as this <b>specified_higher_usage_occurrence</b> and the same instance of the product definition referenced by the attribute 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+		as the product definition referenced by the attribute 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+		of the attribute <b>upper_usage</b>.
+	</p>
+	<note number="3">
+		See Figure E.7 for diagrams illustrating instances of these two attributes.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -443,6 +1134,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.wr:WR1">
+	The instance of <b>specified_higher_usage_occurrence</b> shall not be the same as the instance of <b>upper_usage</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -452,6 +1144,13 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.wr:WR2">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	attribute (i.e., assembly) of the <b>specified_higher_usage_occurrence</b> shall reference the same instance of 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	as the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	(i.e., assembly) for the <b>upper_usage</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -461,6 +1160,13 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.wr:WR3">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	attribute (i.e., constituent) of the <b>specified_higher_usage_occurrence</b> shall reference the same instance of 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	as the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	for the <b>next_usage</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -470,6 +1176,14 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.wr:WR4">
+	The 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.related_product_definition" /> 
+	(i.e., constituent) for the <b>upper_usage</b> shall reference, or be related to, the same instance of 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition" /> 
+	as the 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_relationship.relating_product_definition" /> 
+	(i.e., assembly) for the
+	<b>next_usage</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -479,6 +1193,9 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.wr:WR5">
+	The type of the <b>upper_usage</b> attribute shall be either 
+	<express_ref linkend="product_structure_schema:ir_express:product_structure_schema.next_assembly_usage_occurrence" /> 
+	or <b>specified_higher_usage_occurrence</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -487,5 +1204,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_structure_schema.specified_higher_usage_occurrence.ur:UR1">
+	The combination of the <b>upper_usage</b> and <b>next_usage</b> attributes shall be unique within a population of
+	<b>specified_higher_usage_occurrence</b>.
 </ext_description>
 </ext_descriptions>

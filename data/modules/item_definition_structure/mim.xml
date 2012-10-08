@@ -15,14 +15,14 @@
          <select basedon="effectivity_item" selectitems="product_definition_relationship"/>
       </type>
       <rule appliesto="product_definition_relationship" name="product_definition_replacement_requires_effectivity_assignment">
-         <where expression="SIZEOF( QUERY( pdr &lt;* product_definition_relationship | &#10;        (pdr.name = 'definition replacement') AND &#10;        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;        = 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( pdr &lt;* product_definition_relationship | &#10;        (pdr.name = 'definition replacement') AND &#10;        (SIZEOF( USEDIN(pdr,'EFFECTIVITY_APPLICATION_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;        = 0" label="WR1"/>
       </rule>
       <rule appliesto="product_definition" name="restrict_assembly_category">
          <algorithm>LOCAL
       assembly_definitions: SET OF product_definition := [];
     END_LOCAL;
       assembly_definitions :=  QUERY( pd &lt;* product_definition | 
-        SIZEOF( QUERY( pdca &lt;* USEDIN( pd, 'ITEM_DEFINITION_STRUCTURE_MIM.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+        SIZEOF( QUERY( pdca &lt;* USEDIN( pd, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
         pdca.frame_of_reference.name= 'assembly definition')) &gt; 0 );</algorithm>
          <where expression="SIZEOF( QUERY( pd &lt;* assembly_definitions | &#10;          NOT ('assembly' IN categories_of_product(pd.formation.of_product)) ))= 0" label="WR1"/>
       </rule>

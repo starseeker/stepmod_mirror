@@ -1,5 +1,5 @@
 (*
-$Id: concatenated_mim.exp,v 1.10 2012/09/28 16:15:42 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.11 2012/10/08 00:08:31 thomasrthurman Exp $
 *) 
 (*
 ISO TC184/SC4/WG12 N1157 - ISO/TS 10303-1047 Activity - EXPRESS MIM
@@ -162,7 +162,7 @@ USE FROM Physical_breakdown_mim;
 USE FROM qualified_measure_schema(
 	measure_representation_item);
 USE FROM measure_schema(
-	ratio_measure_with_unit);
+	ratio_measure_with_unit);    
 
   TYPE organization_item_solution = SELECT BASED_ON organization_item WITH (product_definition_formation);
   END_TYPE;
@@ -172,11 +172,11 @@ USE FROM measure_schema(
       solution_versions: SET OF product_definition_formation := [];
     END_LOCAL;
     solution_versions :=  QUERY( pdf <* product_definition_formation |
-	  SIZEOF( QUERY( prpc <* USEDIN(pdf.of_product, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+	  SIZEOF( QUERY( prpc <* USEDIN(pdf.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
       prpc.name = 'alternative solution')) = 1);
     WHERE 
       WR1: SIZEOF( QUERY( pdf <* solution_versions |
-        SIZEOF( QUERY( pd <* USEDIN(pdf, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION.FORMATION') | 
+        SIZEOF( QUERY( pd <* USEDIN(pdf, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION.FORMATION') | 
         pd.frame_of_reference.name = 'alternative definition')) <> 1))= 0; 
   END_RULE;
 
@@ -189,14 +189,14 @@ USE FROM measure_schema(
     WHERE
       WR1: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    ( SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
-	    'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
+	    'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
 	    pdr.name = 'solution alternative definition' ) ) <>1 ) ) ) = 0;
       WR2: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0;
       WR3: SIZEOF ( QUERY ( pd <* solution_definitions | 
 	    ( pd.name IN ['supplier' , 'technical supplier'] ) AND (
 	    SIZEOF ( QUERY ( aoa <* USEDIN ( pd.formation ,
-	    'PERSON_ORGANIZATION_ASSIGNMENT_MIM' + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
+	    'PERSON_ORGANIZATION_ASSIGNMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
 	    aoa.role.name = 'supplier' )) <>1 ) )) = 0;
   END_RULE; 
 
@@ -218,7 +218,7 @@ USE FROM measure_schema(
         (pd.frame_of_reference.name = 'alternative definition'));
     WHERE
       WR1: SIZEOF( QUERY( pd <* solution_definitions | 
-        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
 	     prpc.name = 'alternative solution')) = 0 ) )) = 0;
   END_RULE;
 
@@ -400,6 +400,7 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim;
 	REFERENCE FROM support_resource_schema(bag_to_set);
 
     USE FROM geometry_schema(offset_curve_2d);
+
 
 SUBTYPE_CONSTRAINT aeaiapd_component_terminal_subtypes FOR physical_component_terminal;         
   (ONEOF(assembly_module_macro_component_join_terminal,
@@ -7916,19 +7917,6 @@ USE FROM material_property_representation_schema (
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N5405 - ISO/TS 10303-1762 Generic product occurrence - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N4998
-*)
-
-SCHEMA Generic_product_occurrence_mim;
-
-USE FROM Assembly_structure_mim;	-- ISO/TS 10303-1026
-USE FROM Product_view_definition_relationship_mim;	-- ISO/TS 10303-1041
-USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106	
-USE FROM Specified_product_mim;	-- ISO/TS 10303-1104	
-
-END_SCHEMA;
-(*
   ISO TC184/SC4/WG12 N7206 - ISO/TS 10303-1789 Geometric constraints - EXPRESS MIM
 *)
 
@@ -8940,6 +8928,7 @@ SCHEMA Land_mim;
 
 SUBTYPE_CONSTRAINT stratum_feature_template_component_subtypes FOR stratum_feature_template_component;   
 	(ONEOF (area_component,
+	conductive_interconnect_element,
 	land));
 END_SUBTYPE_CONSTRAINT;
 
@@ -11427,7 +11416,7 @@ REFERENCE FROM product_definition_schema
       collection_definitions: SET OF product_definition := [];
     END_LOCAL;
       collection_definitions :=  QUERY( pd <* product_definition | 
-        SIZEOF( QUERY( pdca <* USEDIN( pd, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+        SIZEOF( QUERY( pdca <* USEDIN( pd, 'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
         pdca.frame_of_reference.name= 'collection definition')) > 0 );
     WHERE
       WR1: SIZEOF( QUERY( pd <* collection_definitions | 
@@ -11442,7 +11431,7 @@ REFERENCE FROM product_definition_schema
        ( ( pdr.relating_product_definition.frame_of_reference.name<>'part definition' ) OR 
        ( pdr.related_product_definition.frame_of_reference.name<>'part occurrence' ) OR 
        ( SIZEOF ( QUERY ( pdca <* USEDIN (pdr.relating_product_definition ,
-       'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 
+       'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 
        ( pdca.role.name = 'part definition type' ) AND 
        ( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0;
   END_RULE;
@@ -11588,148 +11577,6 @@ SCHEMA Part_feature_location_mim;
     WHERE
       WR1: SELF IN SELF\item_identified_representation_usage.used_representation.items;
   END_ENTITY;
-	
-END_SCHEMA;
-
-(*
-   ISO TC184/SC4/WG12 N5447 - ISO/TS 10303-1715 Part occurrence - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N4962
-*)
-
-SCHEMA Part_occurrence_mim;
-USE FROM Assembly_structure_mim;	-- ISO/TS 10303-1026
-USE FROM Generic_product_occurrence_mim;	-- ISO/CD-TS 10303-1762
-USE FROM Part_view_definition_mim;	-- ISO/TS 10303-1023
-
-USE FROM product_definition_schema(
-  product_definition_relationship);
-
-USE FROM product_property_definition_schema(
-	characterized_product_definition,
-	property_definition);
-
-USE FROM product_property_representation_schema(
-	property_definition_representation);
-	
-USE FROM product_structure_schema
-	(product_definition_occurrence_relationship,
-	quantified_assembly_component_usage);
-
-REFERENCE FROM support_resource_schema   -- ISO 10303-41
-  (bag_to_set);
-
-  TYPE product_definition_or_assembly_relationship = SELECT (assembly_component_usage, product_definition);
-  END_TYPE;
-	
-  RULE restrict_part_occurrence FOR (product_definition);
-    LOCAL
-      part_occurrences: SET OF product_definition := QUERY(pd <* product_definition | 
-	    ( pd.frame_of_reference.name = 'part occurrence' ));
-    END_LOCAL;
-    WHERE
-      WR1: SIZEOF ( QUERY ( pd <* part_occurrences | 
-	    ( NOT( pd.name IN 
-        ['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0;
-      WR2: SIZEOF ( QUERY ( pd <* part_occurrences | 
- 	    (SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
-        'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
-	    pdr.name = 'definition usage' ) ) <>1 ) AND 
-        ( SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'CONFIGURATION_MANAGEMENT_SCHEMA.' + 'CONFIGURATION_DESIGN.DESIGN' ) | 
-        ( cd.name = 'occurrence usage definition' ) AND 
-        ( NOT ('SPECIFIED_PRODUCT_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) <>1 ) ) ) = 0;
-      WR3: SIZEOF ( QUERY ( pd <* part_occurrences |  
-        (SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PRODUCT_DEFINITION_SCHEMA.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |
-        ( 'PRODUCT_STRUCTURE_SCHEMA.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND
-        ( SIZEOF ( USEDIN ( pd , 'PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0;
-      WR4: SIZEOF ( QUERY ( pd <* part_occurrences | 
-        ( pd.name = 'selected instance' ) AND 
-        NOT valid_selected_instance_representation(pd) ))=0;
-      WR5: SIZEOF ( QUERY ( pd <* part_occurrences | 
-        ( pd.name = 'quantified instance' ) AND 
-        ( SIZEOF ( QUERY (ppd <* USEDIN ( pd , 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +'PROPERTY_DEFINITION.DEFINITION' ) |
-        ( ppd.name ='occurrence quantity' ) AND 
-        ( SIZEOF ( QUERY ( pdr <*USEDIN ( ppd , 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | (
-        pdr.used_representation.name = 'quantity' ) AND 
-        (SIZEOF ( pdr.used_representation.items ) = 1 ) AND 
-        (SIZEOF ( QUERY ( i <* pdr.used_representation.items | 
-        ('QUALIFIED_MEASURE_SCHEMA.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
-        ( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0;
-      WR6: SIZEOF ( QUERY ( pd <* part_occurrences | 
-        ( pd.name = 'specified instance' ) AND 
-        ( SIZEOF ( QUERY (
-        pdor <* USEDIN ( pd , 'PRODUCT_STRUCTURE_SCHEMA.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) | 
-        'PRODUCT_STRUCTURE_SCHEMA.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0;
-  END_RULE;
-	
-  RULE restrict_part_occurrence_category FOR (product_definition);
-    LOCAL
-      part_occurrences: SET OF product_definition := QUERY( pd <* product_definition |(
-        pd.frame_of_reference.name = 'part occurrence'));
-    END_LOCAL;
-    WHERE
-      WR1: SIZEOF( QUERY( pd <* part_occurrences | 
-        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
-        prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0;
-  END_RULE;
-	
-  RULE selected_instance_usage_requires_representation FOR (assembly_component_usage);
-    LOCAL
-      selected_instance_usages: SET OF assembly_component_usage := QUERY( acr <* assembly_component_usage|
-        (acr.name = 'selected instance usage'));
-    END_LOCAL;
-    WHERE
-      WR1: SIZEOF ( QUERY ( acr <* selected_instance_usages | 
-        NOT valid_selected_instance_representation(acr) ))=0;
-  END_RULE;
-	
-  RULE restrict_product_definitions_for_definition_usage FOR (product_definition_relationship);
-    WHERE
-      WR1: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
-        ( pdr.name = 'definition usage' ) AND 
-        ( ( pdr.relating_product_definition.frame_of_reference.name<> 'part definition' ) OR 
-        ( pdr.related_product_definition.frame_of_reference.name<>'part occurrence' )))) =0;
-  END_RULE;
-	
-  FUNCTION valid_selected_instance_representation (pd: product_definition_or_assembly_relationship): LOGICAL;
-    LOCAL
-      properties: SET OF property_definition := bag_to_set(QUERY( prd<* USEDIN ( pd ,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION' ) | 
-        (prd.name = 'occurrence selection' )));
-      property_definition_representations: SET OF property_definition_representation := bag_to_set(QUERY ( pdr <* USEDIN ( properties[1] , 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
-	    ( pdr.used_representation.name = 'selection criteria' )));
-      selected_representation: representation;
-    END_LOCAL;
-    IF (SIZEOF( properties)<>1) THEN
-	  RETURN(FALSE);
-    END_IF;
-    IF (SIZEOF(property_definition_representations)<>1) THEN
-	  RETURN(FALSE);
-    END_IF;
-    selected_representation := property_definition_representations[1]\property_definition_representation.used_representation;
-    IF (SIZEOF(selected_representation\representation.items) <1) OR (SIZEOF(selected_representation\representation.items) >2) THEN
-	  RETURN(FALSE);
-    END_IF;
-    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
-	  ( SIZEOF (['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' ,
-      'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
-      ( i.name = 'selection quantity' ))) <> 1 ) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
-	  ( 'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
- 	  ( i.name = 'selection control' )))> 1) THEN
-	  RETURN(FALSE);
-    END_IF; --the selection control is not specified then the quantity shall be a qualified_representation_item or a value_range
-    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
-      ( 'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
-      ( i.name = 'selection control' ) ))= 0) AND 
-      (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
-      ( i.name = 'selection quantity' ) AND  
-      ( SIZEOF(['QUALIFIED_MEASURE_SCHEMA.QUALIFIED_REPRESENTATION_ITEM' ,
-      'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) > 0 ) THEN
-	  RETURN(FALSE);
-    END_IF;
-    RETURN(TRUE);
-  END_FUNCTION;
 	
 END_SCHEMA;
 
@@ -13129,7 +12976,7 @@ USE FROM Document_assignment_mim; -- ISO/TS 10303-1122
 TYPE pamivc_document_reference_item = SELECT BASED_ON document_reference_item WITH (
   product_definition_context);
 END_TYPE;
-(*
+
 RULE valid_product_and_manufacturing_information_view_contexts FOR (product_definition_context);
 LOCAL
   design_view_contexts : SET OF product_definition_context :=
@@ -13156,25 +13003,32 @@ LOCAL
 END_LOCAL;
 
 WHERE
-  WR1: gdt_representation_view_contexts IN design_view_contexts;
-  WR2: machining_feature_view_contexts IN design_view_contexts;
-  WR3: material_specification_view_contexts IN design_view_contexts;
-  WR4: model_based_3d_annotation_presentation_view_contexts IN design_view_contexts;
-  WR5: model_based_view_contexts IN design_view_contexts;
-  WR6: process_state_view_contexts IN design_view_contexts;
-  WR7: surface_finish_view_contexts IN design_view_contexts;
+  WR1: SIZEOF(gdt_representation_view_contexts * design_view_contexts) > 0;
+  WR2: SIZEOF(machining_feature_view_contexts * design_view_contexts) > 0;
+  WR3: SIZEOF(material_specification_view_contexts * design_view_contexts) > 0;
+  WR4: SIZEOF(model_based_3d_annotation_presentation_view_contexts * design_view_contexts) > 0;
+  WR5: SIZEOF(model_based_view_contexts * design_view_contexts) > 0;
+  WR6: SIZEOF(process_state_view_contexts * design_view_contexts) > 0;
+  WR7: SIZEOF(surface_finish_view_contexts * design_view_contexts) > 0;
   WR8: -- not used as additional_contexts
-       SIZEOF( USEDIN(model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') = 0);
+       SIZEOF(QUERY(mbvc <* model_based_view_contexts |
+        (SIZEOF(USEDIN(mbvc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')) = 0)
+        )) = SIZEOF(model_based_view_contexts);
   WR9: -- not used as initial_context
-       SIZEOF( USEDIN(additional_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE') = 0);
+       SIZEOF(QUERY(avc <* additional_view_contexts |
+        (SIZEOF(USEDIN(avc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION.FRAME_OF_REFERENCE')) = 0)
+       )) = SIZEOF(additional_view_contexts);
   WR10: -- initial_context shall have a Model_based_view_context
-       SIZEOF( QUERY(pdca <* 
-          USEDIN(need_initial_model_based_view_contexts, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE')
-          | NOT(pdca.definition.frame_of_reference IN model_based_view_contexts))) = 0;
+       SIZEOF(QUERY(nimbvc <* need_initial_model_based_view_contexts | NOT
+        (SIZEOF(QUERY(pdca <* USEDIN(nimbvc, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.FRAME_OF_REFERENCE') | 
+         (pdca\product_definition_context_association.definition\product_definition.frame_of_reference IN model_based_view_contexts)))     
+        =
+        SIZEOF(need_initial_model_based_view_contexts))
+       )) = 0;
   WR11: TRUE; -- gdt_representation_view_contexts must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document          
   WR12: TRUE; -- model_based_3d_annotation_presentation_view_contexts must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
 END_RULE;
-*)
+
 END_SCHEMA;
 (*
    N - ISO/CD-TS - 10303- product_and_manufacturing_information_with_nominal_3d_models - EXPRESS MIM*)
@@ -13832,11 +13686,141 @@ END_SCHEMA;  -- Product_identification_mim
 
 SCHEMA Product_occurrence_mim;
 
-USE FROM Part_occurrence_mim;
+  USE FROM Assembly_structure_mim;	-- ISO/TS 10303-1026
+  USE FROM Product_view_definition_relationship_mim;	-- ISO/TS 10303-1041
+  USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106	
+  USE FROM Specified_product_mim;	-- ISO/TS 10303-1104	
+  USE FROM Part_view_definition_mim;	-- ISO/TS 10303-1023
+  
+USE FROM product_definition_schema(
+  product_definition_relationship);
 
-USE FROM Functional_breakdown_mim;
+USE FROM product_property_definition_schema(
+	characterized_product_definition,
+	property_definition);
 
-USE FROM Specified_product_mim;
+USE FROM product_property_representation_schema(
+	property_definition_representation);
+	
+USE FROM product_structure_schema
+	(product_definition_occurrence_relationship,
+	quantified_assembly_component_usage);
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (bag_to_set);
+
+  TYPE product_definition_or_assembly_relationship = SELECT (assembly_component_usage, product_definition);
+  END_TYPE;
+	
+  RULE restrict_part_occurrence FOR (product_definition);
+    LOCAL
+      part_occurrences: SET OF product_definition := QUERY(pd <* product_definition | 
+	    ( pd.frame_of_reference.name = 'part occurrence' ));
+    END_LOCAL;
+    WHERE
+      WR1: SIZEOF ( QUERY ( pd <* part_occurrences | 
+	    ( NOT( pd.name IN 
+        ['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0;
+      WR2: SIZEOF ( QUERY ( pd <* part_occurrences | 
+ 	    (SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
+        'PRODUCT_DEFINITION_SCHEMA.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
+	    pdr.name = 'definition usage' ) ) <>1 ) AND 
+        ( SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'CONFIGURATION_MANAGEMENT_SCHEMA.' + 'CONFIGURATION_DESIGN.DESIGN' ) | 
+        ( cd.name = 'occurrence usage definition' ) AND 
+        ( NOT ('SPECIFIED_PRODUCT_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) <>1 ) ) ) = 0;
+      WR3: SIZEOF ( QUERY ( pd <* part_occurrences |  
+        (SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PRODUCT_DEFINITION_SCHEMA.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |
+        ( 'PRODUCT_STRUCTURE_SCHEMA.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND
+        ( SIZEOF ( USEDIN ( pd , 'PRODUCT_STRUCTURE_SCHEMA.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0;
+      WR4: SIZEOF ( QUERY ( pd <* part_occurrences | 
+        ( pd.name = 'selected instance' ) AND 
+        NOT valid_selected_instance_representation(pd) ))=0;
+      WR5: SIZEOF ( QUERY ( pd <* part_occurrences | 
+        ( pd.name = 'quantified instance' ) AND 
+        ( SIZEOF ( QUERY (ppd <* USEDIN ( pd , 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +'PROPERTY_DEFINITION.DEFINITION' ) |
+        ( ppd.name ='occurrence quantity' ) AND 
+        ( SIZEOF ( QUERY ( pdr <*USEDIN ( ppd , 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | (
+        pdr.used_representation.name = 'quantity' ) AND 
+        (SIZEOF ( pdr.used_representation.items ) = 1 ) AND 
+        (SIZEOF ( QUERY ( i <* pdr.used_representation.items | 
+        ('QUALIFIED_MEASURE_SCHEMA.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
+        ( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0;
+      WR6: SIZEOF ( QUERY ( pd <* part_occurrences | 
+        ( pd.name = 'specified instance' ) AND 
+        ( SIZEOF ( QUERY (
+        pdor <* USEDIN ( pd , 'PRODUCT_STRUCTURE_SCHEMA.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) | 
+        'PRODUCT_STRUCTURE_SCHEMA.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0;
+  END_RULE;
+	
+  RULE restrict_part_occurrence_category FOR (product_definition);
+    LOCAL
+      part_occurrences: SET OF product_definition := QUERY( pd <* product_definition |(
+        pd.frame_of_reference.name = 'part occurrence'));
+    END_LOCAL;
+    WHERE
+      WR1: SIZEOF( QUERY( pd <* part_occurrences | 
+        (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+        prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0;
+  END_RULE;
+		
+  RULE selected_instance_usage_requires_representation FOR (assembly_component_usage);
+    LOCAL
+      selected_instance_usages: SET OF assembly_component_usage := QUERY( acr <* assembly_component_usage|
+        (acr.name = 'selected instance usage'));
+    END_LOCAL;
+    WHERE
+      WR1: SIZEOF ( QUERY ( acr <* selected_instance_usages | 
+        NOT valid_selected_instance_representation(acr) ))=0;
+  END_RULE;
+	
+  RULE restrict_product_definitions_for_definition_usage FOR (product_definition_relationship);
+    WHERE
+      WR1: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
+        ( pdr.name = 'definition usage' ) AND 
+        ( ( pdr.relating_product_definition.frame_of_reference.name<> 'part definition' ) OR 
+        ( pdr.related_product_definition.frame_of_reference.name<>'part occurrence' )))) =0;
+  END_RULE;
+	
+  FUNCTION valid_selected_instance_representation (pd: product_definition_or_assembly_relationship): LOGICAL;
+    LOCAL
+      properties: SET OF property_definition := bag_to_set(QUERY( prd<* USEDIN ( pd ,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION' ) | 
+        (prd.name = 'occurrence selection' )));
+      property_definition_representations: SET OF property_definition_representation := bag_to_set(QUERY ( pdr <* USEDIN ( properties[1] , 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+	    ( pdr.used_representation.name = 'selection criteria' )));
+      selected_representation: representation;
+    END_LOCAL;
+    IF (SIZEOF( properties)<>1) THEN
+	  RETURN(FALSE);
+    END_IF;
+    IF (SIZEOF(property_definition_representations)<>1) THEN
+	  RETURN(FALSE);
+    END_IF;
+    selected_representation := property_definition_representations[1]\property_definition_representation.used_representation;
+    IF (SIZEOF(selected_representation\representation.items) <1) OR (SIZEOF(selected_representation\representation.items) >2) THEN
+	  RETURN(FALSE);
+    END_IF;
+    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
+	  ( SIZEOF (['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' ,
+      'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
+      ( i.name = 'selection quantity' ))) <> 1 ) THEN
+      RETURN(FALSE);
+    END_IF;
+    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
+	  ( 'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
+ 	  ( i.name = 'selection control' )))> 1) THEN
+	  RETURN(FALSE);
+    END_IF; --the selection control is not specified then the quantity shall be a qualified_representation_item or a value_range
+    IF (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
+      ( 'QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
+      ( i.name = 'selection control' ) ))= 0) AND 
+      (SIZEOF ( QUERY ( i <* selected_representation\representation.items |
+      ( i.name = 'selection quantity' ) AND  
+      ( SIZEOF(['QUALIFIED_MEASURE_SCHEMA.QUALIFIED_REPRESENTATION_ITEM' ,
+      'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) > 0 ) THEN
+	  RETURN(FALSE);
+    END_IF;
+    RETURN(TRUE);
+  END_FUNCTION;
 
 END_SCHEMA;
 
@@ -14339,9 +14323,9 @@ WR2: SIZEOF ( QUERY ( uar <* uncertainty_assigned_representation |
 	SIZEOF ( QUERY ( u2 <* uar.uncertainty | u2.name =  u1.name ) ) >1 ) ) >0 ) ) =  0;
 WR3: SIZEOF ( QUERY ( qri <* qualified_representation_item |
      SIZEOF ( QUERY ( u1 <* qri.qualifiers |
-     ('REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 
+     ('QUALIFIED_MEASURE_SCHEMA.' + 'UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 
 	( SIZEOF ( QUERY ( u2 <* qri.qualifiers |
-     ( 'REPRESENTATION_WITH_UNCERTAINTY_MIM' + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 
+     ( 'QUALIFIED_MEASURE_SCHEMA.' + 'UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 
 	( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )
      ) >1 ) ) ) >0 ) ) =  0;
 END_RULE; 

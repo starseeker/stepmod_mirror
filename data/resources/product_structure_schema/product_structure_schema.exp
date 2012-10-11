@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.6 2012/09/30 02:24:46 thomasrthurman Exp $
+$Id: product_structure_schema.exp,v 1.7 2012/10/11 01:59:25 thomasrthurman Exp $
 ISO TC184/SC4/WG12 Nnnnn - ISO/IS 10303-44 Product structure configuration - EXPRESS
 *)
 
@@ -75,17 +75,19 @@ WHERE
        :=: members[1].related_product_definition)) =SIZEOF(members);
 END_ENTITY;
 
+
+
 ENTITY multi_level_reference_designator
   SUBTYPE OF (assembly_component_usage);
   SELF\product_definition_relationship.related_product_definition RENAMED leaf : product_definition_or_reference;
   location : LIST[1:?] OF UNIQUE next_assembly_usage_occurrence;
 DERIVE
   SELF\product_definition_relationship.relating_product_definition RENAMED root : product_definition := location[1]\product_definition_relationship.relating_product_definition;
+  SELF\product_definition_relationship.related_product_definition  RENAMED leaf : product_definition_or_reference := location[HIINDEX(location)]\product_definition_relationship.related_product_definition;
 UNIQUE
   UR1: location;
 WHERE
   WR1: unambiguously_specified_multi_level_reference_designator(location);
-  WR2: leaf = location[HIINDEX(location)]\product_definition_relationship.related_product_definition;
 END_ENTITY;
 
 ENTITY next_assembly_usage_occurrence

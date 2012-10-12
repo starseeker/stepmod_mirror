@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.30 2012/10/06 20:09:56 liutkuviene Exp $
+$Id: arm.exp,v 1.31 2012/10/11 23:18:16 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N7729 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6111
 *) 
@@ -18,7 +18,8 @@ TYPE product_view_definition_or_reference = SELECT (
 END_TYPE;
 
 ENTITY Assembly_component_relationship
-  ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage,
+  ABSTRACT SUPERTYPE OF (ONEOF (Multi_level_reference_designator,
+  								Next_assembly_usage,
                                 Promissory_usage,
                                 Component_upper_level_identification))
   SUBTYPE OF (Product_occurrence_definition_relationship);
@@ -42,13 +43,14 @@ WHERE
   WR5: SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE', 'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1;
 END_ENTITY;
 
-ENTITY Multi_level_reference_designator;
-  name : OPTIONAL label;
-  description : OPTIONAL text; 
+ENTITY Multi_level_reference_designator
+  SUBTYPE OF (Assembly_component_relationship);
   location : LIST[1:?] OF UNIQUE Next_assembly_usage;
 DERIVE
-  root_node : Product_view_definition := location[1]\Product_occurrence_definition_relationship.relating_view;
-  leaf_node : product_view_definition_or_reference := location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view;
+  SELF\Product_occurrence_definition_relationship.relating_view RENAMED root_node 
+     : Product_view_definition := location[1]\Product_occurrence_definition_relationship.relating_view;
+  SELF\Product_occurrence_definition_relationship.related_view RENAMED leaf_node 
+    : product_view_definition_or_reference := location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view;
 UNIQUE
   UR1 : location;
 END_ENTITY;
@@ -70,6 +72,7 @@ END_ENTITY;
 SUBTYPE_CONSTRAINT assembly_component_relationship_constraint FOR Assembly_component_relationship;
   ABSTRACT SUPERTYPE;
   TOTAL_OVER (Component_upper_level_identification, 
+  			  Multi_level_reference_designator,
               Next_assembly_usage, 
               Promissory_usage);
 END_SUBTYPE_CONSTRAINT;

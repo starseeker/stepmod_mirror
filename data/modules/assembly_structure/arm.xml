@@ -6,8 +6,12 @@
    <application name="JSDAI" owner="LKSoft" source="assembly_structure_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_structure_arm">
       <interface kind="use" schema="Product_view_definition_arm"/>
+      <interface kind="use" schema="Product_view_definition_reference_arm"/>
       <interface kind="use" schema="Value_with_unit_arm"/>
-      <entity abstract.supertype="YES" name="Assembly_component_relationship" super.expression="ONEOF (Next_assembly_usage, Promissory_usage, Component_upper_level_identification)" supertypes="Product_occurrence_definition_relationship">
+      <type name="product_view_definition_or_reference">
+         <select selectitems="Product_view_definition Generic_product_view_definition_reference"/>
+      </type>
+      <entity abstract.supertype="YES" name="Assembly_component_relationship" super.expression="ONEOF (Multi_level_reference_designator, Next_assembly_usage, Promissory_usage, Component_upper_level_identification)" supertypes="Product_occurrence_definition_relationship">
          <explicit name="location_indicator" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -33,19 +37,33 @@
          <where expression="(upper_assembly_relationship\Product_occurrence_definition_relationship.related_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view) OR (SIZEOF (QUERY (pdr &lt;* USEDIN (upper_assembly_relationship\Product_occurrence_definition_relationship.related_view , 'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | pdr.relating_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view)) = 1)" label="WR4"/>
          <where expression="SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE', 'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1" label="WR5"/>
       </entity>
+      <entity name="Multi_level_reference_designator" supertypes="Assembly_component_relationship">
+         <explicit name="location">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <derived expression="location[1]\Product_occurrence_definition_relationship.relating_view" name="root_node">
+            <typename name="Product_view_definition"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship" old_name="relating_view"/>
+         </derived>
+         <derived expression="location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view" name="leaf_node">
+            <typename name="product_view_definition_or_reference"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship" old_name="related_view"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+         </unique>
+      </entity>
       <entity name="Next_assembly_usage" supertypes="Assembly_component_relationship"/>
       <entity abstract.supertype="YES" name="Product_occurrence_definition_relationship">
          <explicit name="relating_view">
-            <typename name="Product_view_definition"/>
+            <typename name="product_view_definition_or_reference"/>
          </explicit>
          <explicit name="related_view">
-            <typename name="Product_view_definition"/>
+            <typename name="product_view_definition_or_reference"/>
          </explicit>
-         <derived expression="related_view\Product_view_definition.id" name="id">
-            <builtintype type="STRING"/>
-         </derived>
       </entity>
       <entity name="Promissory_usage" supertypes="Assembly_component_relationship"/>
-      <subtype.constraint abstract.supertype="YES" entity="Assembly_component_relationship" name="assembly_component_relationship_constraint" totalover="Component_upper_level_identification Next_assembly_usage Promissory_usage"/>
+      <subtype.constraint abstract.supertype="YES" entity="Assembly_component_relationship" name="assembly_component_relationship_constraint" totalover="Component_upper_level_identification Multi_level_reference_designator Next_assembly_usage Promissory_usage"/>
    </schema>
 </express>

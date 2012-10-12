@@ -10,6 +10,7 @@
          <interfaced.item name="product_definition"/>
          <interfaced.item name="product_definition_relationship"/>
          <interfaced.item name="acyclic_product_definition_relationship"/>
+         <interfaced.item name="product_definition_or_reference"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="measure_with_unit"/>
@@ -98,18 +99,18 @@
             <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="next_assembly_usage_occurrence"/>
          </explicit>
-         <derived expression="location[1].relating_product_definition" name="root">
+         <derived expression="location[1]\product_definition_relationship.relating_product_definition" name="root">
             <typename name="product_definition"/>
             <redeclaration entity-ref="product_definition_relationship" old_name="relating_product_definition"/>
          </derived>
-         <derived expression="location[HIINDEX(location)].related_product_definition" name="leaf">
-            <typename name="product_definition"/>
+         <derived expression="location[HIINDEX(location)]\product_definition_relationship.related_product_definition" name="leaf">
+            <typename name="product_definition_or_reference"/>
             <redeclaration entity-ref="product_definition_relationship" old_name="related_product_definition"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="location"/>
          </unique>
-         <where expression="unambiguously_specified_lower_usage_occurrence(location)" label="WR1"/>
+         <where expression="unambiguously_specified_multi_level_reference_designator(location)" label="WR1"/>
       </entity>
       <entity name="next_assembly_usage_occurrence" supertypes="assembly_component_usage">
          <unique label="UR1">
@@ -166,23 +167,23 @@
          <where expression="(upper_usage.related_product_definition :=:&#10;       next_usage.relating_product_definition) OR&#10;       (SIZEOF (QUERY (pdr &lt;* USEDIN (upper_usage.related_product_definition,&#10;       'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;       'RELATED_PRODUCT_DEFINITION') |&#10;        pdr.relating_product_definition :=: &#10;        next_usage.relating_product_definition)) = 1)" label="WR4"/>
          <where expression="SIZEOF (['PRODUCT_STRUCTURE_SCHEMA.NEXT_ASSEMBLY_USAGE_OCCURRENCE',&#10;       'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']&#10;       * TYPEOF(upper_usage)) = 1" label="WR5"/>
       </entity>
-      <function name="unambiguously_specified_lower_usage_occurrence">
+      <function name="unambiguously_specified_multi_level_reference_designator">
          <parameter name="links">
             <aggregate lower="1" type="LIST" upper="?"/>
-            <typename name="assembly_component_usage"/>
+            <typename name="next_assembly_usage_occurrence"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>REPEAT i := 1 to SIZEOF(links)-1;
+         <algorithm>REPEAT i := 1 to SIZEOF(links) - 1;
     IF NOT (
-      (links[i].related_product_definition :=:
-       links[i+1].relating_product_definition)
-    OR
-     (SIZEOF (QUERY (pdr &lt;* USEDIN
-       (links[i].related_product_definition,
+      (links[i]\product_definition_relationship.related_product_definition :=:
+       links[i+1]\product_definition_relationship.relating_product_definition)
+      OR
+      (SIZEOF (QUERY (pdr &lt;* USEDIN
+       (links[i]\product_definition_relationship.related_product_definition,
         'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +
         'RELATED_PRODUCT_DEFINITION') |
-       pdr.relating_product_definition :=: 
-       links[i+1].relating_product_definition)) = 1))
+       pdr\product_definition_relationship.relating_product_definition :=: 
+       links[i+1]\product_definition_relationship.relating_product_definition)) = 1))
     THEN
       RETURN(FALSE);
     END_IF;

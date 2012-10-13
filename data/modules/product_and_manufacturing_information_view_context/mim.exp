@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.11 2012/10/13 12:28:59 lothartklein Exp $
+   $Id: mim.exp,v 1.12 2012/10/13 17:34:05 lothartklein Exp $
    ISO TC184/SC4/WG12 N7934 - ISO/TS - 10303-1810 Product and manufacturing information view context - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7371
 *)
@@ -73,10 +73,10 @@ WHERE
   	       ) = 0;          
 END_RULE;
 
-FUNCTION get_associated_mandatory_document_ids(pdc : product_definition_context) : LIST OF STRING;
+FUNCTION get_associated_mandatory_document_ids(pdc : product_definition_context) : SET OF STRING;
 	LOCAL
-		result : LIST OF STRING := [];
-		adrs_raw : SET OF applied_document_reference := USEDIN(pdc, 'DOCUMENT_ASSIGNMENT_MIM.APPLIED_DOCUMENT_REFERENCE.ITEMS');
+		result : SET OF STRING := [];
+		adrs_raw : SET OF applied_document_reference := bag_to_set(USEDIN(pdc, 'DOCUMENT_ASSIGNMENT_MIM.APPLIED_DOCUMENT_REFERENCE.ITEMS'));
 		adrs_filtered : SET OF applied_document_reference := [];
 		ras : SET OF role_association; 
 		dpas : SET OF document_product_association;
@@ -84,24 +84,24 @@ FUNCTION get_associated_mandatory_document_ids(pdc : product_definition_context)
 
 	-- scan adrs_raw for associated role 'mandatory' and fill adrs_filtered with results
 	REPEAT i := 1 TO HIINDEX(adrs_raw);
-		ras := USEDIN(adrs_raw[i], 'BASIC_ATTRIBUTE_SCHEMA.ROLE_ASSOCIATION.ITEM_WITH_ROLE');
+		ras := bag_to_set(USEDIN(adrs_raw[i], 'BASIC_ATTRIBUTE_SCHEMA.ROLE_ASSOCIATION.ITEM_WITH_ROLE'));
 		REPEAT j := 1 TO HIINDEX(ras);
-			IF ras[j].role.name = 'mandatory' THEN
+			IF ras[j]\role_association.role\object_role.name = 'mandatory' THEN
 				adrs_filtered := adrs_filtered + adrs_raw[i];
 			END_IF;	
 		END_REPEAT;
 	END_REPEAT;
 	
-	-- scan through adrs_filtered and access associaded product.id s
+	-- scan through adrs_filtered and access associated product.id s
 	REPEAT i := 1 TO HIINDEX(adrs_filtered);
-		dpas := USEDIN(adrs_filtered[i]\document_reference.assigned_document, 'DOCUMENT_SCHEMA.DOCUMENT_PRODUCT_ASSOCIATION.RELATING_DOCUMENT');
+		dpas := bag_to_set(USEDIN(adrs_filtered[i]\document_reference.assigned_document, 'DOCUMENT_SCHEMA.DOCUMENT_PRODUCT_ASSOCIATION.RELATING_DOCUMENT'));
 		REPEAT j := 1 TO HIINDEX(dpas);
 			IF 'DOCUMENT_ASSIGNMENT_MIM.DOCUMENT_PRODUCT_EQUIVALENCE' IN TYPEOF (dpas[j]) THEN
-			   IF 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_FORMATION' IN TYPEOF (dpas[j].related_product) THEN
-			   		result := result + dpas[j].related_product\product_definition_formation.of_product.id;
+			   IF 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_FORMATION' IN TYPEOF (dpas[j]\document_product_association.related_product) THEN
+			   		result := result + dpas[j]\document_product_association.related_product\product_definition_formation.of_product\product.id;
 			   END_IF;
 			   IF 'PRODUCT_DEFINITION_SCHEMA.PRODUCT' IN TYPEOF (dpas[j].related_product) THEN
-			   		result := result + dpas[j].related_product\product.id;
+			   		result := result + dpas[j]\document_product_association.related_product\product.id;
 			   END_IF;
 			END_IF;	
 		END_REPEAT;

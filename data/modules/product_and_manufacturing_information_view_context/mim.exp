@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.13 2012/10/13 22:39:21 thomasrthurman Exp $
+   $Id: mim.exp,v 1.14 2012/10/13 23:11:11 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7934 - ISO/TS - 10303-1810 Product and manufacturing information view context - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7371
 *)
@@ -9,7 +9,7 @@ SCHEMA Product_and_manufacturing_information_view_context_mim;
 USE FROM Part_view_definition_mim; -- ISO/TS 10303-1023
 USE FROM Document_assignment_mim; -- ISO/TS 10303-1122
 
-USE FROM basic_attribute_schema(role_association); -- ISO 10303-41
+REFERENCE FROM support_resource_schema(bag_to_set); -- ISO 10303-41
 
 TYPE pamivc_document_reference_item = SELECT BASED_ON document_reference_item WITH (
   product_definition_context);
@@ -84,12 +84,9 @@ FUNCTION get_associated_mandatory_document_ids(pdc : product_definition_context)
 
 	-- scan adrs_raw for associated role 'mandatory' and fill adrs_filtered with results
 	REPEAT i := 1 TO HIINDEX(adrs_raw);
-		ras := bag_to_set(USEDIN(adrs_raw[i], 'BASIC_ATTRIBUTE_SCHEMA.ROLE_ASSOCIATION.ITEM_WITH_ROLE'));
-		REPEAT j := 1 TO HIINDEX(ras);
-			IF ras[j]\role_association.role\object_role.name = 'mandatory' THEN
-				adrs_filtered := adrs_filtered + adrs_raw[i];
-			END_IF;	
-		END_REPEAT;
+		if adrs_raw[i]/document_reference.role\object_role.name = 'mandatory' THEN
+			adrs_filtered := adrs_filtered + adrs_raw[i];
+		END_IF;	
 	END_REPEAT;
 	
 	-- scan through adrs_filtered and access associated product.id s

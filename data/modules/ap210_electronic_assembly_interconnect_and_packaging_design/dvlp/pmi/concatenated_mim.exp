@@ -1,5 +1,5 @@
 (*
-$Id: concatenated_mim.exp,v 1.13 2012/10/10 15:44:18 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.14 2012/10/17 16:28:46 thomasrthurman Exp $
 *) 
 (*
 ISO TC184/SC4/WG12 N1157 - ISO/TS 10303-1047 Activity - EXPRESS MIM
@@ -38287,11 +38287,11 @@ WHERE
   WR1: SIZEOF (SELF\explicit_table_function.shape) = 2;
   WR2: SELF\explicit_table_function.shape[1] =
        SELF\explicit_table_function.shape[2];
-  WR3: NOT (symmetry = skew) OR (
+  WR3: NOT (symmetry = symmetry_type.skew) OR (
        (space_dimension(SELF\linearized_table_function.source.range) = 1) AND
         subspace_of_es(factor1(SELF\linearized_table_function.source.range),
         es_numbers));
-  WR4: NOT ((symmetry = hermitian) OR (symmetry = skew_hermitian)) OR (
+  WR4: NOT ((symmetry = symmetry_type.hermitian) OR (symmetry = symmetry_type.skew_hermitian)) OR (
        (space_dimension(SELF\linearized_table_function.source.range) = 1) AND
         subspace_of_es(factor1(SELF\linearized_table_function.source.range),
         es_complex_numbers));
@@ -45973,28 +45973,28 @@ END_LOCAL;
   END_CASE;
   om1sq := om1**2;
   CASE arg.shape OF
-    single : 
+    arg.shape.single : 
         BEGIN
           vts := 1; eds := 0; qf := 0; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 0, 0
           result[3] := 0;                         -- 0, 0, 0
         END;
-    line :
+    arg.shape.line :
         BEGIN
           vts := 2; eds := 1; qf := 0; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 1, 2
           result[3] := 0;                         -- 0, 0, 0
         END;
-    quadrilateral : 
+    arg.shape.quadrilateral : 
         BEGIN
           vts := 4; eds := 4; qf := 1; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 4, 8
           result[3] := om1sq*qf;                  -- 0, 1, 4
         END;
-    triangle : 
+    arg.shape.triangle : 
         BEGIN
           vts := 3; eds := 3; qf := 0; tf := 1;
           result[1] := vts;
@@ -46004,21 +46004,21 @@ END_LOCAL;
             linear : result[3] := 0;              -- 0
           END_CASE;
         END;
-    hexahedron :
+    arg.shape.hexahedron :
         BEGIN
           vts := 8; eds := 12; qf := 6; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 12, 24
           result[3] := om1sq*(qf+om1);            -- 0, 7, 32
         END;
-    wedge :
+    arg.shape.wedge :
         BEGIN
           vts := 6; eds := 9; qf := 3; tf := 2;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 9,  18
           result[3] := om1sq*qf + om1*tf;         -- 0, 3, 16
         END;
-    tetrahedron : 
+    arg.shape.tetrahedron : 
         BEGIN
           vts := 4; eds := 6; qf := 0; tf := 4;
           result[1] := vts;
@@ -46028,7 +46028,7 @@ END_LOCAL;
             linear : result[3] := 0;              -- 0
           END_CASE;
         END;
-    pyramid : 
+    arg.shape.pyramid : 
         BEGIN
           vts := 5; eds := 8; qf := 1; tf := 4;
           result[1] := vts;
@@ -54866,7 +54866,7 @@ ENTITY geometric_tolerance_with_defined_area_unit
   area_type : area_unit_type;
   second_unit_size : OPTIONAL length_measure_with_unit;
 WHERE
-  WR1: NOT (EXISTS(second_unit_size) XOR (area_type = rectangular));
+  WR1: NOT (EXISTS(second_unit_size) XOR (area_type = area_unit_type.rectangular));
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_defined_unit
@@ -58188,13 +58188,13 @@ FUNCTION required_1d_nodes
 
   end_nodes := 2;
 
-  IF (order = linear) THEN
+  IF (order = element_order.linear) THEN
     additional_nodes := 0;
   END_IF;
-  IF (order = quadratic) THEN
+  IF (order = element_order.quadratic) THEN
     additional_nodes := 1;
   END_IF;
-  IF (order = cubic) THEN
+  IF (order = element_order.cubic) THEN
     additional_nodes := 2;
   END_IF;
 
@@ -58212,33 +58212,33 @@ FUNCTION required_2d_nodes
     edge_face_body_nodes    : INTEGER;
   END_LOCAL;
 
-  IF (element_shape = triangle) THEN
+  IF (element_shape = element_2d_shape.triangle) THEN
     vertex_nodes := 3;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 3;
       edge_face_body_nodes := 3;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 6;
       edge_face_body_nodes := 7;
     END_IF;
   END_IF;
 
-  IF (element_shape = quadrilateral) THEN
+  IF (element_shape = element_2d_shape.quadrilateral) THEN
     vertex_nodes := 4;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 4;
       edge_face_body_nodes := 5;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 8;
       edge_face_body_nodes := 12;
     END_IF;
@@ -58259,65 +58259,65 @@ FUNCTION required_3d_nodes
     edge_face_body_nodes    : INTEGER;
   END_LOCAL;
 
-  IF (element_shape = hexahedron) THEN
+  IF (element_shape = volume_3d_element_shape.hexahedron) THEN
     vertex_nodes := 8;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 12;
       edge_face_body_nodes := 19;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 24;
       edge_face_body_nodes := 56;
     END_IF;
   END_IF;
 
-  IF (element_shape = wedge) THEN
+  IF (element_shape = volume_3d_element_shape.wedge) THEN
     vertex_nodes := 6;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 9;
       edge_face_body_nodes := 12;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 18;
       edge_face_body_nodes := 34;
     END_IF;
   END_IF;
 
-  IF (element_shape = tetrahedron) THEN
+  IF (element_shape = volume_3d_element_shape.tetrahedron) THEN
     vertex_nodes := 4;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 6;
       edge_face_body_nodes := 6;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 12;
       edge_face_body_nodes := 16;
     END_IF;
   END_IF;
 
-  IF (element_shape = pyramid) THEN
+  IF (element_shape = volume_3d_element_shape.pyramid) THEN
     vertex_nodes := 5;
-    IF (order = linear) THEN
+    IF (order = element_order.linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = quadratic) THEN
+    IF (order = element_order.quadratic) THEN
       edge_nodes           := 8;
       edge_face_body_nodes := 9;
     END_IF;
-    IF (order = cubic) THEN
+    IF (order = element_order.cubic) THEN
       edge_nodes           := 16;
       edge_face_body_nodes := 25;
     END_IF;

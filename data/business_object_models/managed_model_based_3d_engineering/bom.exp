@@ -1,0 +1,2823 @@
+(*
+   $Id: bom.exp,v 1.5 2011/10/10 18:43:17 mikeward Exp $
+   N - ISO/CD-TS - 10303- managed_model_based_3d_engineering - EXPRESS BOM*)
+
+SCHEMA business_object_model_bom;
+
+-- Version: 1.1, CD ballot release candidate 4
+
+-- Generation time: 2011-10-03T19:38:23+01:00
+
+
+TYPE limit_qualifier = STRING; END_TYPE;
+TYPE quantity = STRING; END_TYPE;
+TYPE prefix = STRING; END_TYPE;
+
+TYPE evaluation_result_enum = ENUMERATION OF ( 
+  fail, 
+  pass, 
+  undefined 
+  ); 
+END_TYPE;
+
+TYPE evaluation_status_enum = ENUMERATION OF ( 
+  invalid, 
+  not_evaluatable, 
+  to_be_evaluated, 
+  valid 
+  ); 
+END_TYPE;
+
+TYPE transition_code_enum = ENUMERATION OF ( 
+  cont_same_gradient, 
+  cont_same_gradient_same_curvature, 
+  continuous, 
+  discontinuous 
+  ); 
+END_TYPE;
+
+TYPE activity_assignment_select = SELECT ( 
+  Activity,
+  Activity_method,
+  Activity_relationship,
+  Alternate_part_relationship,
+  Assembly_relationship_substitution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Class,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Configuration,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_version,
+  Effectivity,
+  Event,
+  File,
+  Geometric_model,
+  Manufacturing_configuration,
+  Material_identification,
+  Part,
+  Part_instance,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Physical_assembly_relationship,
+  Physical_instance,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Project_assignment,
+  Project_relationship,
+  Property,
+  Property_assignment,
+  Realization_or_occurrence_relationship,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model
+);
+END_TYPE;
+
+TYPE approval_element_select = SELECT ( 
+  Activity,
+  Activity_assignment,
+  Activity_method_work_request_association,
+  Alternate_part_relationship,
+  Assembly_relationship_substitution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Certification,
+  Class,
+  Class_assignment,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Class_system,
+  Configuration,
+  Contract,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_definition_relationship,
+  Document_version,
+  Effectivity,
+  File,
+  Geometric_model,
+  Information_usage_right,
+  Information_usage_right_assignment,
+  Manufacturing_configuration,
+  Material_identification,
+  Part_instance,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_relationship,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Physical_assembly_relationship,
+  Physical_document_definition,
+  Physical_instance,
+  Physical_instance_test_result,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Property_assignment,
+  Property_definition,
+  Property_definition_relationship,
+  Realization_or_occurrence_relationship,
+  Requirement_assignment,
+  Security_classification,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE assigned_document_select = SELECT ( 
+  Document,
+  Document_definition,
+  Document_version,
+  File
+);
+END_TYPE;
+
+TYPE breakdown_element_or_alternative_solution_select = SELECT ( 
+  Alternative_solution,
+  Breakdown_element
+);
+END_TYPE;
+
+TYPE breakdown_element_or_part_instance_select = SELECT ( 
+  Breakdown_element,
+  Part_instance
+);
+END_TYPE;
+
+TYPE breakdown_element_select = SELECT ( 
+  General_breakdown_element,
+  Physical_breakdown_element
+);
+END_TYPE;
+
+TYPE certified_element_select = SELECT ( 
+  Alternate_part_relationship,
+  Part_instance,
+  Part_version,
+  Part_version_relationship,
+  Supplier_solution
+);
+END_TYPE;
+
+TYPE changed_relationship_select = SELECT ( 
+  Activity_relationship,
+  Design_constraint_relationship,
+  Functional_breakdown_element_decomposition_relationship,
+  Functional_breakdown_element_relationship,
+  General_breakdown_element_decomposition_relationship,
+  General_breakdown_element_relationship,
+  Part_version_relationship,
+  Physical_breakdown_element_decomposition_relationship,
+  Physical_breakdown_element_relationship,
+  Process_operation_occurrence_relationship,
+  Process_plan_relationship,
+  Replaced_usage_relationship,
+  Replaced_version_view_relationship,
+  Shape_element_relationship
+);
+END_TYPE;
+
+TYPE class_source_select = SELECT ( 
+  Library_reference,
+  Plib_class_reference
+);
+END_TYPE;
+
+TYPE classified_element_select = SELECT ( 
+  Activity,
+  Activity_assignment,
+  Activity_method,
+  Activity_method_work_request_association,
+  Activity_relationship,
+  Address,
+  Approval,
+  Approval_assignment,
+  Approval_relationship,
+  Assembly_component_relationship,
+  Assembly_relationship_substitution,
+  Attribute_translation_assignment,
+  Breakdown_element,
+  Certification,
+  Certification_assignment,
+  Class,
+  Contract,
+  Contract_assignment,
+  Date_or_date_time_assignment,
+  Date_time,
+  Design_constraint,
+  Document,
+  Document_assignment,
+  Document_definition,
+  Document_version,
+  Effectivity,
+  Event,
+  Event_assignment,
+  File,
+  File_relationship,
+  Id_with_context,
+  Information_right,
+  Information_usage_right,
+  Information_usage_right_relationship,
+  Language,
+  Material_identification,
+  Organization,
+  Organization_or_person_in_organization_assignment,
+  Organization_relationship,
+  Part,
+  Part_instance,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Person,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Project_assignment,
+  Project_relationship,
+  Property_assignment,
+  Property_definition,
+  Property_value,
+  Security_classification,
+  Security_classification_assignment,
+  Shape_element,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE configured_item_select = SELECT ( 
+  Alternative_solution,
+  Breakdown_element,
+  Part_instance,
+  Process_operation_occurrence,
+  Process_plan
+);
+END_TYPE;
+
+TYPE configured_specification_select = SELECT ( 
+  Class_condition_association,
+  Class_specification_association
+);
+END_TYPE;
+
+TYPE contracted_element_select = SELECT ( 
+  Activity,
+  Breakdown_element,
+  Document_version,
+  Information_usage_right,
+  Organization,
+  Part_version,
+  Person_in_organization,
+  Product_configuration,
+  Work_order
+);
+END_TYPE;
+
+TYPE date_time_person_organization_element_select = SELECT ( 
+  Event,
+  general_organizational_data_select
+);
+END_TYPE;
+
+TYPE documented_element_select = SELECT ( 
+  Activity,
+  Activity_assignment,
+  Activity_method,
+  Approval,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Certification,
+  Class,
+  Class_attribute,
+  Class_system,
+  Contract,
+  Design_constraint,
+  External_source_identification,
+  Information_right,
+  Information_usage_right,
+  Information_usage_right_relationship,
+  Material_identification,
+  Organization,
+  Part,
+  Part_category,
+  Part_instance,
+  Part_instance_relationship,
+  Part_shape,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Person,
+  Physical_assembly_relationship,
+  Physical_instance,
+  Physical_instance_test_result,
+  Process_operation_occurrence,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Property,
+  Property_change,
+  Property_definition,
+  Property_value,
+  Realization_or_occurrence_relationship,
+  Retention_period,
+  Security_classification,
+  Shape_element,
+  Shape_element_relationship,
+  Specification,
+  Specification_category,
+  Surface_condition,
+  Text_specification,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE effective_element_select = SELECT ( 
+  Assembly_component_relationship,
+  Assembly_relationship_substitution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Class,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Class_system,
+  Configuration,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_definition_relationship,
+  Document_version,
+  File,
+  Functional_breakdown_element_decomposition_relationship,
+  Functional_breakdown_element_relationship,
+  General_breakdown_element_decomposition_relationship,
+  General_breakdown_element_relationship,
+  Geometric_model,
+  Id_with_context,
+  Part,
+  Part_instance,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Physical_breakdown_element_decomposition_relationship,
+  Physical_breakdown_element_relationship,
+  Process_operation_definition,
+  Process_operation_definition_relationship,
+  Process_operation_occurrence,
+  Process_operation_occurrence_relationship,
+  Process_operation_resource_assignment,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Property_assignment,
+  Property_definition,
+  Realization_or_occurrence_relationship,
+  Replaced_usage_relationship,
+  Security_classification,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model
+);
+END_TYPE;
+
+TYPE event_or_date_select = SELECT ( 
+  Date_time,
+  EVENT
+);
+END_TYPE;
+
+TYPE explicit_transformation_select = SELECT ( 
+  Explicit_transformation_2d,
+  Explicit_transformation_3d
+);
+END_TYPE;
+
+TYPE final_definition_select = SELECT ( 
+  Part_version,
+  Part_version_view,
+  Physical_instance,
+  Text_specification
+);
+END_TYPE;
+
+TYPE general_organizational_data_select = SELECT ( 
+  Activity,
+  Activity_assignment,
+  Activity_method_work_request_association,
+  Alternate_part_relationship,
+  Alternative_solution_relationship,
+  Approval,
+  Assembly_relationship_substitution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Certification,
+  Class,
+  Class_assignment,
+  Class_category_association,
+  Class_condition_association,
+  Class_inclusion_association,
+  Class_specification_association,
+  Class_system,
+  Configuration,
+  Contract,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_type_property,
+  Document_version,
+  File,
+  Functional_breakdown_element_decomposition_relationship,
+  Functional_breakdown_element_relationship,
+  General_breakdown_element_decomposition_relationship,
+  General_breakdown_element_relationship,
+  Geometric_model,
+  Id_with_context,
+  Information_usage_right,
+  Manufacturing_configuration,
+  Material_identification,
+  Organization,
+  Organization_relationship,
+  Part,
+  Part_instance,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_relationship,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Person_in_organization,
+  Person_in_organization_relationship,
+  Physical_assembly_relationship,
+  Physical_breakdown_element_decomposition_relationship,
+  Physical_breakdown_element_relationship,
+  Physical_instance,
+  Physical_instance_test_result,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_operation_resource_assignment,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Property,
+  Property_assignment,
+  Property_definition,
+  Property_value,
+  Realization_or_occurrence_relationship,
+  Security_classification,
+  Security_classification_assignment,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Styled_model,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE information_usage_right_select = SELECT ( 
+  certified_element_select,
+  classified_element_select,
+  documented_element_select,
+  general_organizational_data_select,
+  Organization,
+  Part_version,
+  Person_in_organization,
+  requirement_assignment_select,
+  Work_order
+);
+END_TYPE;
+
+TYPE instance_usage_context_select = SELECT ( 
+  Part_version_view_instance_relationship,
+  Process_operation_input_or_output,
+  Realization_or_occurrence_relationship
+);
+END_TYPE;
+
+TYPE model_property_select = SELECT ( 
+  part_property_select,
+  process_property_select
+);
+END_TYPE;
+
+TYPE model_property_value_select = SELECT ( 
+  External_model,
+  Geometric_model,
+  Styled_model
+);
+END_TYPE;
+
+TYPE part_information_select = SELECT ( 
+  Part_instance,
+  Part_version,
+  Part_version_view,
+  Physical_breakdown_element,
+  Physical_instance
+);
+END_TYPE;
+
+TYPE part_instance_definition_select = SELECT ( 
+  Part_version,
+  Part_version_view,
+
+  Product_configuration
+);
+END_TYPE;
+
+TYPE part_property_select = SELECT ( 
+  Breakdown_element,
+  Design_constraint,
+  Document_definition,
+  Document_definition_relationship,
+  File,
+  Part,
+  Part_instance,
+  Part_instance_relationship,
+  Part_shape,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Physical_instance,
+  Product_class,
+  Product_configuration,
+  Realization_or_occurrence_relationship,
+  Shape_element,
+  Shape_element_relationship,
+  Specification
+);
+END_TYPE;
+
+TYPE period_or_date_select = SELECT ( 
+  Date_time,
+  Duration,
+  EVENT
+);
+END_TYPE;
+
+TYPE person_organization_select = SELECT ( 
+  Organization,
+  Person_in_organization
+);
+END_TYPE;
+
+TYPE physical_element_select = SELECT ( 
+  Alternative_solution,
+  Part_version,
+  Part_version_view,
+  Physical_breakdown_element
+);
+END_TYPE;
+
+TYPE physical_instance_definition_select = SELECT ( 
+  Part_instance,
+  Part_version,
+  Part_version_view,
+  Product_configuration
+);
+END_TYPE;
+
+TYPE process_operation_input_or_output_select = SELECT ( 
+  Assembly_component_relationship,
+  Mated_part_association,
+  Part_instance,
+  Part_version
+);
+END_TYPE;
+
+TYPE process_property_select = SELECT ( 
+  Activity,
+  Activity_method,
+  Activity_method_work_request_association,
+  Process_operation_definition,
+  Process_operation_occurrence,
+  Process_operation_resource_assignment,
+  Process_plan
+);
+END_TYPE;
+
+TYPE project_information_select = SELECT ( 
+  Activity,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Document,
+  Document_version,
+  Part,
+  Part_instance,
+  Part_version,
+  Physical_instance,
+  Product_class,
+  Product_configuration
+);
+END_TYPE;
+
+TYPE property_source_select = SELECT ( 
+  Library_reference,
+  Plib_property_reference
+);
+END_TYPE;
+
+TYPE property_value_select = SELECT ( 
+  Cartesian_point,
+  Numerical_value
+);
+END_TYPE;
+
+TYPE requirement_assignment_select = SELECT ( 
+  Document,
+  Document_definition,
+  Document_version,
+  Part,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Physical_instance,
+  Product_class,
+  Product_configuration
+);
+END_TYPE;
+
+TYPE requirement_or_version_select = SELECT ( 
+  Requirement,
+  Requirement_version
+);
+END_TYPE;
+
+TYPE requirement_satisfaction_select = SELECT ( 
+  Alternate_part_relationship,
+  requirement_assignment_select
+);
+END_TYPE;
+
+TYPE requirement_source_select = SELECT ( 
+  Document,
+  Document_definition,
+  Document_version,
+  Part,
+  Part_instance_relationship,
+  Part_version,
+  Part_version_view,
+  Part_version_view_instance_relationship,
+  Part_version_view_relationship,
+  Shape_element
+);
+END_TYPE;
+
+TYPE resource_definition_select = SELECT ( 
+  Part_instance,
+  Part_version,
+  Physical_breakdown_element,
+  Physical_instance,
+  Text_specification
+);
+END_TYPE;
+
+TYPE root_element_select = SELECT ( 
+  Part_instance,
+  Physical_instance,
+  Product_class,
+  Product_configuration
+);
+END_TYPE;
+
+TYPE security_classification_select = SELECT ( 
+  Activity,
+  Activity_assignment,
+  Assembly_component_relationship,
+  Assembly_relationship_substitution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Class_system,
+  Configuration,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_version,
+  File,
+  Geometric_model,
+  Manufacturing_configuration,
+  Material_identification,
+  Part,
+  Part_version,
+  Part_version_view,
+  Part_version_view_relationship,
+  Physical_assembly_relationship,
+  Physical_instance,
+  Physical_instance_test_result,
+  Process_plan,
+  Product_class,
+  Project,
+  Property_assignment,
+  Property_definition,
+  Realization_or_occurrence_relationship,
+  Simple_property,
+  Specification,
+  Specification_category,
+  Styled_model,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE shape_definition_select = SELECT ( 
+  External_geometric_model,
+  Geometric_model
+);
+END_TYPE;
+
+TYPE shape_information_select = SELECT ( 
+  Shape_element_relationship,
+  shaped_element_select
+);
+END_TYPE;
+
+TYPE shaped_element_select = SELECT ( 
+  Part_shape,
+  Shape_element
+);
+END_TYPE;
+
+TYPE simple_property_select = SELECT ( 
+  part_property_select,
+  process_property_select
+);
+END_TYPE;
+
+TYPE specification_operand_select = SELECT ( 
+  Specification,
+  Specification_expression
+);
+END_TYPE;
+
+TYPE string_select = SELECT ( 
+  Alternate_part_relationship,
+  Application_context,
+  Approval,
+  Approval_relationship,
+  Assembly_component_relationship,
+  Assembly_relationship_substitution,
+  Cartesian_point,
+  Certification,
+  Certification_assignment,
+  Contract,
+  Date_or_date_time_assignment,
+  Digital_document_definition,
+  Document,
+  Document_assignment,
+  Document_definition_relationship,
+  Document_version,
+  Effectivity,
+  Effectivity_relationship,
+  Event,
+  External_geometric_model,
+  External_source_identification,
+  File_relationship,
+  Id_with_context,
+  Information_right,
+  Information_usage_right,
+  Information_usage_right_relationship,
+  Make_from_relationship,
+  Organization_relationship,
+  Part_shape,
+  Part_version_view_relationship,
+  Person_in_organization,
+  Physical_document_definition,
+  Project,
+  Project_assignment,
+  Project_relationship,
+  Property_assignment,
+  Property_definition,
+  Property_definition_relationship,
+  Property_value,
+  Security_classification_assignment,
+  Shape_element,
+  Shape_element_relationship
+);
+END_TYPE;
+
+TYPE supplied_object_select = SELECT ( 
+  Activity,
+  Activity_method,
+  Alternative_solution,
+  Breakdown,
+  Breakdown_element,
+  Breakdown_version,
+  Class,
+  Class_attribute,
+  Class_system,
+  Configuration,
+  Contract,
+  Design_constraint,
+  Document,
+  Document_definition,
+  Document_format_property,
+  Document_type_property,
+  Document_version,
+  Effectivity,
+  Event,
+  External_model,
+  File,
+  Geometric_model,
+  Information_right,
+  Information_usage_right,
+  Library_reference,
+  Manufacturing_configuration,
+  Material_identification,
+  Organization,
+  Part,
+  Part_instance,
+  Part_version,
+  Part_version_view,
+  Person_in_organization,
+  Physical_instance,
+  Physical_instance_test_result,
+  Process_operation_definition,
+  Process_plan,
+  Product_class,
+  Product_configuration,
+  Project,
+  Requirement,
+  Requirement_satisfaction_assertion,
+  Requirement_version,
+  Security_classification,
+  Specification,
+  Specification_category,
+  Specification_expression,
+  Specification_inclusion,
+  Template_instance,
+  Work_order,
+  Work_request
+);
+END_TYPE;
+
+TYPE template_definition_select = SELECT ( 
+  External_model,
+  Geometric_model,
+  Styled_model
+);
+END_TYPE;
+
+TYPE test_activity_select = SELECT ( 
+  Activity,
+  Process_operation_occurrence
+);
+END_TYPE;
+
+TYPE transformation_select = SELECT ( 
+  External_model_relationship,
+  Template_instance
+);
+END_TYPE;
+
+TYPE validity_context_select = SELECT ( 
+  Organization,
+  Product_class,
+  Product_configuration
+);
+END_TYPE;
+
+ENTITY Activity;  -- AWM1
+  activity_type           : STRING; 
+  actual_end_date         : OPTIONAL Date_time; 
+  actual_start_date       : OPTIONAL Date_time; 
+  additional_ids          : OPTIONAL SET [1:?] OF Id_with_context; 
+  chosen_method           : OPTIONAL Activity_method; 
+  concerned_organizations : OPTIONAL SET [1:?] OF Organization; 
+  description             : OPTIONAL STRING; 
+  id                      : Id_with_context; 
+  planned_end_date        : OPTIONAL period_or_date_select; 
+  planned_start_date      : OPTIONAL event_or_date_select; 
+  requestor               : OPTIONAL Date_and_person_organization; 
+  resolved_requests       : OPTIONAL SET [1:?] OF Work_request; 
+  status                  : OPTIONAL STRING; 
+  supplying_organizations : OPTIONAL SET [1:?] OF Organization; 
+INVERSE 
+  authorization : SET [0:1] OF Work_order FOR is_controlling; 
+END_ENTITY;
+
+ENTITY Activity_assignment;  -- AWM1
+  assigned_activity : Activity; 
+  is_assigned_to    : SET [1:?] OF activity_assignment_select; 
+  role              : STRING; 
+END_ENTITY;
+
+ENTITY Activity_method;  -- AWM1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  consequence    : OPTIONAL STRING; 
+  description    : OPTIONAL STRING; 
+  id             : OPTIONAL Id_with_context; 
+  name           : STRING; 
+  purpose        : STRING; 
+END_ENTITY;
+
+ENTITY Activity_method_relationship;  -- AWM1
+  description   : OPTIONAL STRING; 
+  related       : Activity_method; 
+  relating      : Activity_method; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Activity_method_work_request_association;  -- AWM1
+  associated_activity_method : Activity_method; 
+
+  associated_work_request   : Work_request; 
+  association_type          : STRING; 
+END_ENTITY;
+
+ENTITY Activity_relationship;  -- AWM1
+  description   : OPTIONAL STRING; 
+  related       : Activity; 
+  relating      : Activity; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Address;  -- GMI1
+  country                 : OPTIONAL STRING; 
+  electronic_mail_address : OPTIONAL STRING; 
+  facsimile_number        : OPTIONAL STRING; 
+  internal_location       : OPTIONAL STRING; 
+  name                    : OPTIONAL STRING; 
+  postal_box              : OPTIONAL STRING; 
+  postal_code             : OPTIONAL STRING; 
+  region                  : OPTIONAL STRING; 
+  street                  : OPTIONAL STRING; 
+  street_number           : OPTIONAL STRING; 
+  telephone_number        : OPTIONAL STRING; 
+  telex_number            : OPTIONAL STRING; 
+  town                    : OPTIONAL STRING; 
+  url                     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Alternate_part_relationship;  -- PI1
+  alternate              : Part; 
+  base                   : Part; 
+  description            : OPTIONAL STRING; 
+  fulfilled_requirements : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Alternative_solution  -- SBC2
+SUPERTYPE OF ( ONEOF (Final_solution, Supplier_solution, Technical_solution));
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  base_element   : breakdown_element_or_alternative_solution_select; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  version_id     : STRING; 
+END_ENTITY;
+
+ENTITY Alternative_solution_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : Alternative_solution; 
+  relating      : Alternative_solution; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Application_context;  -- PI2
+  application_domain : STRING; 
+  description        : OPTIONAL STRING; 
+  life_cycle_stage   : STRING; 
+END_ENTITY;
+
+ENTITY Approval;  -- GMI2
+  actual_date    : OPTIONAL Date_time; 
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  approved_by    : OPTIONAL SET [1:?] OF Date_and_person_organization; 
+  id             : OPTIONAL Id_with_context; 
+  planned_date   : OPTIONAL Date_time; 
+  purpose        : STRING; 
+  scopes         : OPTIONAL SET [1:?] OF Organization; 
+  status         : STRING; 
+END_ENTITY;
+
+ENTITY Approval_assignment;  -- GMI2
+  assigned_approval : Approval; 
+  is_assigned_to    : SET [1:?] OF approval_element_select; 
+END_ENTITY;
+
+ENTITY Approval_relationship;  -- GMI2
+  description   : OPTIONAL STRING; 
+  related       : Approval; 
+  relating      : Approval; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Assembly_component_relationship ABSTRACT
+SUPERTYPE OF ( ONEOF (General_assembly_component_relationship, Next_higher_assembly, Promissory_usage, Mated_part_association))
+SUBTYPE OF ( Part_version_view_instance_relationship );
+  SELF\Part_version_view_instance_relationship.relating : Assembly_definition; 
+  location_indicator                                    : OPTIONAL STRING; 
+  placement                                             : OPTIONAL transformation_select; 
+END_ENTITY;
+
+ENTITY Assembly_definition  -- SBC3
+SUPERTYPE OF (Mating_definition)
+SUBTYPE OF ( Part_version_view );
+  assembly_type : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Assembly_joint;
+END_ENTITY;
+
+ENTITY Assembly_relationship_substitution;  -- SBC3
+  base_relationship       : Assembly_component_relationship; 
+  description             : OPTIONAL STRING; 
+  substitute_relationship : Assembly_component_relationship; 
+END_ENTITY;
+
+ENTITY Attribute_translation_assignment;  -- GMI4
+  attribute : STRING; 
+  instance  : string_select; 
+  language  : Language; 
+  text      : STRING; 
+END_ENTITY;
+
+ENTITY Axis1_placement  -- SBC3
+SUBTYPE OF ( Axis_placement );
+  axis : OPTIONAL Direction; 
+END_ENTITY;
+
+ENTITY Axis2_placement_2d  -- SBC3
+SUBTYPE OF ( Axis_placement );
+  ref_direction : OPTIONAL Direction; 
+END_ENTITY;
+
+ENTITY Axis2_placement_3d  -- SBC3
+SUBTYPE OF ( Axis_placement );
+  axis          : OPTIONAL Direction; 
+  ref_direction : OPTIONAL Direction; 
+END_ENTITY;
+
+ENTITY Axis_placement ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (Axis1_placement, Axis2_placement_2d, Axis2_placement_3d));
+  location : Cartesian_point; 
+  name     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Breakdown ABSTRACT
+SUPERTYPE OF ( ONEOF (Physical_breakdown, Functional_breakdown, General_breakdown));
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  versions       : SET [1:?] OF Breakdown_version; 
+END_ENTITY;
+
+ENTITY Breakdown_element ABSTRACT  -- SBC2
+SUPERTYPE OF ( ONEOF (Functional_breakdown_element, Physical_breakdown_element, General_breakdown_element));
+  additional_ids  : OPTIONAL SET [1:?] OF Id_with_context; 
+  description     : OPTIONAL STRING; 
+  id              : Id_with_context; 
+  is_relevant_for : OPTIONAL SET [1:?] OF Application_context; 
+  name            : OPTIONAL STRING; 
+  version_id      : STRING; 
+END_ENTITY;
+
+ENTITY Breakdown_version;  -- SBC2
+  additional_elements : OPTIONAL SET [1:?] OF Breakdown_element; 
+  additional_ids      : OPTIONAL SET [1:?] OF Id_with_context; 
+  breakdown_of        : OPTIONAL root_element_select; 
+  description         : OPTIONAL STRING; 
+  id                  : Id_with_context; 
+  top_element         : Breakdown_element; 
+INVERSE 
+  breakdown : SET [1:1] OF Breakdown FOR versions; 
+END_ENTITY;
+
+ENTITY Breakdown_version_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : Breakdown_version; 
+  relating      : Breakdown_version; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Cartesian_coordinate_space ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (Cartesian_coordinate_space_2d, Cartesian_coordinate_space_3d));
+  unit_of_values : OPTIONAL SET [2:?] OF Unit; 
+END_ENTITY;
+
+ENTITY Cartesian_coordinate_space_2d  -- SBC3
+SUBTYPE OF ( Cartesian_coordinate_space );
+END_ENTITY;
+
+ENTITY Cartesian_coordinate_space_3d  -- SBC3
+SUBTYPE OF ( Cartesian_coordinate_space );
+END_ENTITY;
+
+ENTITY Cartesian_point;  -- SBC3
+  coordinates : LIST [2:3] OF REAL; 
+  name        : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Centre_of_mass  -- C1
+SUBTYPE OF ( Shape_dependent_property );
+  SELF\Shape_dependent_property.is_defined_in : Cartesian_coordinate_space; 
+  centre_point                                : Cartesian_point; 
+END_ENTITY;
+
+ENTITY Certification;  -- GMI2
+  certification_type : STRING; 
+  description        : OPTIONAL STRING; 
+  name               : STRING; 
+END_ENTITY;
+
+ENTITY Certification_assignment;  -- GMI2
+  assigned_certification : Certification; 
+  is_assigned_to         : SET [1:?] OF certified_element_select; 
+END_ENTITY;
+
+ENTITY Characteristic_assignment;
+  actual_value             : Property; 
+  attribute                : Class_attribute; 
+  class_assignment_context : Class_assignment; 
+  description              : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Circular_path  -- K2
+SUBTYPE OF ( Path_segment );
+  via_point : Cartesian_point; 
+END_ENTITY;
+
+ENTITY Class;  -- GMI5
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  defined_in     : OPTIONAL Class_system; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  source         : OPTIONAL class_source_select; 
+  version_id     : OPTIONAL STRING; 
+INVERSE 
+  attributes : SET [0:?] OF Class_attribute FOR class; 
+END_ENTITY;
+
+ENTITY Class_assignment;  -- GMI5
+  assigned_class : Class; 
+  definitional   : OPTIONAL BOOLEAN; 
+  is_assigned_to : SET [1:?] OF classified_element_select; 
+  role           : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Class_attribute;  -- GMI5
+  additional_ids       : OPTIONAL SET [1:?] OF Id_with_context; 
+  allowed_values       : OPTIONAL SET [1:?] OF Property; 
+  attribute_definition : Property_definition; 
+  class                : Class; 
+  description          : OPTIONAL STRING; 
+  id                   : Id_with_context; 
+  name                 : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Class_category_association;  -- SBC1
+  associated_category      : Specification_category; 
+  associated_product_class : Product_class; 
+  mandatory                : BOOLEAN; 
+END_ENTITY;
+
+ENTITY Class_condition_association;  -- SBC1
+  associated_condition     : Specification_expression; 
+  associated_product_class : Product_class; 
+  condition_type           : STRING; 
+  description              : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Class_hierarchy;  -- GMI5
+  sub_class   : Class; 
+  super_class : Class; 
+END_ENTITY;
+
+ENTITY Class_inclusion_association;  -- SBC1
+  associated_inclusion     : Specification_inclusion; 
+  associated_product_class : Product_class; 
+  description              : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Class_specification_association;  -- SBC1
+  associated_product_class : Product_class; 
+  associated_specification : Specification; 
+  association_type         : STRING; 
+END_ENTITY;
+
+ENTITY Class_system;  -- GMI5
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+INVERSE 
+  allowed_classes : SET [0:?] OF Class FOR defined_in; 
+END_ENTITY;
+
+ENTITY Coating_layer ABSTRACT  -- PC
+SUBTYPE OF ( Shape_element );
+END_ENTITY;
+
+ENTITY Collected_part_relationship  -- SBC3
+SUBTYPE OF ( Part_version_view_instance_relationship );
+  SELF\Part_version_view_instance_relationship.relating : Collection_definition; 
+END_ENTITY;
+
+ENTITY Collection_definition  -- SBC3
+SUBTYPE OF ( Part_version_view );
+  purpose : OPTIONAL STRING; 
+INVERSE 
+  collected_parts : SET [2:?] OF Collected_part_relationship FOR relating; 
+END_ENTITY;
+
+ENTITY Component_placement;  -- SBC2
+  placed_component    : Physical_breakdown_element; 
+  placement           : transformation_select; 
+  reference_component : Physical_breakdown_element; 
+END_ENTITY;
+
+ENTITY Configuration;  -- SBC4
+  additional_ids     : OPTIONAL SET [1:?] OF Id_with_context; 
+  configuration_type : STRING; 
+  configured_element : configured_item_select; 
+  id                 : OPTIONAL Id_with_context; 
+  inheritance_type   : STRING; 
+  is_solution_for    : configured_specification_select; 
+END_ENTITY;
+
+ENTITY Contract;  -- GMI2
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  contract_type  : STRING; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+INVERSE 
+  releases : SET [0:?] OF Organization_in_contract FOR signed_contracts; 
+END_ENTITY;
+
+ENTITY Contract_assignment;  -- GMI2
+  assigned_contract : Contract; 
+  is_assigned_to    : SET [1:?] OF contracted_element_select; 
+END_ENTITY;
+
+ENTITY Copyright  -- GMI3
+SUBTYPE OF ( Information_right );
+END_ENTITY;
+
+ENTITY Cost_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+END_ENTITY;
+
+ENTITY Data_environment;  -- C2
+  characterization : OPTIONAL SET [1:?] OF Property; 
+  description      : OPTIONAL STRING; 
+  name             : STRING; 
+END_ENTITY;
+
+ENTITY Data_validity_period  -- SBC4
+SUBTYPE OF ( Dated_effectivity );
+END_ENTITY;
+
+ENTITY Date_and_person_assignment;  -- GMI1
+  assigned_date_and_person : Date_and_person_organization; 
+  description              : OPTIONAL STRING; 
+  is_assigned_to           : SET [1:?] OF date_time_person_organization_element_select; 
+  role                     : STRING; 
+END_ENTITY;
+
+ENTITY Date_and_person_organization;  -- GMI1
+  date                   : Date_time; 
+  person_or_organization : person_organization_select; 
+END_ENTITY;
+
+ENTITY Date_or_date_time_assignment;  -- GMI1
+  assigned_date  : date_time; 
+  description    : OPTIONAL STRING; 
+  is_assigned_to : SET [1:?] OF date_time_person_organization_element_select; 
+  role           : STRING; 
+END_ENTITY;
+
+ENTITY Date_time;  -- GMI1
+  date : STRING; 
+  time : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Dated_configuration  -- SBC4
+SUBTYPE OF ( Manufacturing_configuration );
+  end_definition   : OPTIONAL event_or_date_select; 
+  start_definition : event_or_date_select; 
+END_ENTITY;
+
+ENTITY Dated_effectivity  -- SBC4
+SUPERTYPE OF (Data_validity_period)
+SUBTYPE OF ( Effectivity );
+  end_definition   : OPTIONAL event_or_date_select; 
+  start_definition : OPTIONAL event_or_date_select; 
+END_ENTITY;
+
+ENTITY Design_constraint;  -- RR1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  defined_for    : OPTIONAL Requirement_version; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  is_valid_for   : OPTIONAL SET [1:?] OF Product_class; 
+  name           : OPTIONAL STRING; 
+  version_id     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Design_constraint_association;  -- RR1
+  associated_breakdown_element  : Breakdown_element; 
+  association_design_constraint : Design_constraint; 
+  name                          : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Design_constraint_relationship;  -- RR1
+  description   : OPTIONAL STRING; 
+  related       : Design_constraint; 
+  relating      : Design_constraint; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Digital_document_definition  -- DM2
+SUBTYPE OF ( Document_definition );
+  files : OPTIONAL SET [1:?] OF Digital_file; 
+END_ENTITY;
+
+ENTITY Digital_file  -- DM2
+SUBTYPE OF ( File );
+INVERSE 
+  associated_model_space : SET [0:1] OF External_model FOR is_defined_as; 
+END_ENTITY;
+
+ENTITY Direction;  -- SBC3
+  direction_ratios : LIST [2:3] OF REAL; 
+  name             : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Document;  -- DM1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  categories     : OPTIONAL SET [1:?] OF Document_category; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  versions       : SET [1:?] OF Document_version; 
+END_ENTITY;
+
+ENTITY Document_assignment;  -- DM2
+  assigned_document : assigned_document_select; 
+  is_assigned_to    : SET [1:?] OF documented_element_select; 
+  portion           : OPTIONAL STRING; 
+  role              : STRING; 
+END_ENTITY;
+
+ENTITY Document_category;  -- DM1
+  description : OPTIONAL STRING; 
+  name        : STRING; 
+  scope       : Organization; 
+INVERSE 
+  categorized_documents : SET [1:?] OF Document FOR categories; 
+END_ENTITY;
+
+ENTITY Document_content_property;  -- DM2
+  description      : OPTIONAL STRING; 
+  detail_level     : OPTIONAL STRING; 
+  geometry_types   : OPTIONAL SET [1:?] OF STRING; 
+  languages        : OPTIONAL SET [1:?] OF Language; 
+  real_world_scale : OPTIONAL Numerical_value; 
+END_ENTITY;
+
+ENTITY Document_creation_property;  -- DM2
+  creating_interface : OPTIONAL STRING; 
+  creating_system    : STRING; 
+  description        : OPTIONAL STRING; 
+  operating_system   : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Document_definition ABSTRACT  -- DM2
+SUPERTYPE OF ( ONEOF (Digital_document_definition, Physical_document_definition));
+  additional_ids              : OPTIONAL SET [1:?] OF Id_with_context; 
+  associated_document_version : Document_version; 
+  common_locations            : OPTIONAL SET [1:?] OF Document_location_identification; 
+  content                     : OPTIONAL Document_content_property; 
+  creation                    : OPTIONAL Document_creation_property; 
+  description                 : OPTIONAL STRING; 
+  id                          : Id_with_context; 
+  name                        : OPTIONAL STRING; 
+  representation_format       : OPTIONAL SET [1:?] OF Document_format_property; 
+  size                        : OPTIONAL Document_size_property; 
+END_ENTITY;
+
+ENTITY Document_definition_relationship;  -- DM2
+  description   : OPTIONAL STRING; 
+  placement     : OPTIONAL transformation_select; 
+  related       : Document_definition; 
+  relating      : Document_definition; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Document_format_property;  -- DM2
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  character_code : OPTIONAL STRING; 
+  data_format    : OPTIONAL STRING; 
+  description    : OPTIONAL STRING; 
+  id             : OPTIONAL Id_with_context; 
+  size_format    : OPTIONAL Rectangular_size; 
+END_ENTITY;
+
+ENTITY Document_location_identification  -- DM2
+SUBTYPE OF ( External_source_identification );
+END_ENTITY;
+
+ENTITY Document_size_property;  -- DM2
+  description : OPTIONAL STRING; 
+  file_size   : OPTIONAL Value_with_unit; 
+  page_count  : OPTIONAL Value_with_unit; 
+END_ENTITY;
+
+ENTITY Document_type_property;  -- DM2
+  additional_ids             : OPTIONAL SET [1:?] OF Id_with_context; 
+  description                : OPTIONAL STRING; 
+  document_type_name         : STRING; 
+  id                         : OPTIONAL Id_with_context; 
+  used_classification_system : OPTIONAL class_system; 
+END_ENTITY;
+
+ENTITY Document_version;  -- DM1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+INVERSE 
+  document : Document FOR versions; 
+END_ENTITY;
+
+ENTITY Document_version_relationship;  -- DM1
+  description   : OPTIONAL STRING; 
+  related       : Document_version; 
+  relating      : Document_version; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Duration;  -- GMI1
+  time : STRING; 
+  unit : STRING; 
+END_ENTITY;
+
+ENTITY Duration_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+END_ENTITY;
+
+ENTITY Effectivity  -- SBC4
+SUPERTYPE OF ( ONEOF (Time_interval_effectivity, Dated_effectivity, Serial_effectivity, Lot_effectivity));
+  additional_ids          : OPTIONAL SET [1:?] OF Id_with_context; 
+  concerned_organizations : OPTIONAL SET [1:?] OF Organization; 
+  description             : OPTIONAL STRING; 
+  effectivity_context     : OPTIONAL STRING; 
+  id                      : OPTIONAL Id_with_context; 
+  version_id              : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Effectivity_assignment;  -- SBC4
+  assigned_effectivity   : Effectivity; 
+  effectivity_indication : BOOLEAN; 
+  is_assigned_to         : SET [1:?] OF effective_element_select; 
+  role                   : STRING; 
+END_ENTITY;
+
+ENTITY Effectivity_relationship;  -- SBC4
+  description   : OPTIONAL STRING; 
+  related       : Effectivity; 
+  relating      : Effectivity; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Element_delivery;  -- AWM1
+  associated_activity  : Activity; 
+  deliverable_elements : SET [1:?] OF activity_assignment_select; 
+  destination          : Organization; 
+  quantity             : Value_with_unit; 
+  role                 : STRING; 
+END_ENTITY;
+
+ENTITY Evaluated_characteristic;  -- RR3
+  actual_characteristics : OPTIONAL SET [1:?] OF Property; 
+  evaluation_activity    : OPTIONAL Activity; 
+  evaluation_result      : evaluation_result_enum; 
+  evaluation_status      : evaluation_status_enum; 
+  name                   : OPTIONAL STRING; 
+  planned_characteristic : Planned_characteristic; 
+END_ENTITY;
+
+ENTITY Event;  -- GMI1
+  actual_start_date  : OPTIONAL Date_time; 
+  additional_ids     : OPTIONAL SET [1:?] OF Id_with_context; 
+  description        : OPTIONAL STRING; 
+  event_type         : STRING; 
+  id                 : Id_with_context; 
+  offset             : OPTIONAL Duration; 
+  planned_start_date : OPTIONAL Date_time; 
+END_ENTITY;
+
+ENTITY Event_assignment;  -- GMI1
+  assigned_event : Event; 
+  is_assigned_to : SET [1:?] OF general_organizational_data_select; 
+END_ENTITY;
+
+ENTITY Event_relationship;  -- GMI1
+  description   : OPTIONAL STRING; 
+  related       : Event; 
+  relating      : Event; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Explicit_transformation_2d  -- SBC3
+SUBTYPE OF ( Transformation_2d );
+  axis1        : OPTIONAL Direction; 
+  axis2        : OPTIONAL Direction; 
+  local_origin : Cartesian_point; 
+END_ENTITY;
+
+ENTITY Explicit_transformation_3d  -- SBC3
+SUBTYPE OF ( Transformation_3d );
+  axis1        : OPTIONAL Direction; 
+  axis2        : OPTIONAL Direction; 
+  axis3        : OPTIONAL Direction; 
+  local_origin : Cartesian_point; 
+END_ENTITY;
+
+ENTITY External_class;  -- DM3
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  source         : External_class_library; 
+END_ENTITY;
+
+ENTITY External_class_assignment;  -- DM3
+
+  assigned_external_class : External_class; 
+
+  is_assigned_to          : SET [1:?] OF classified_element_select; 
+
+  role                    : OPTIONAL STRING; 
+
+END_ENTITY;
+
+
+
+ENTITY External_class_library  -- DM3
+SUBTYPE OF ( External_source );
+END_ENTITY;
+
+ENTITY External_geometric_model  -- DM3
+SUBTYPE OF ( External_model );
+  accuracy_type    : OPTIONAL STRING; 
+  accuracy_value   : OPTIONAL REAL; 
+  model_extent     : OPTIONAL numerical_value; 
+  parameter_values : OPTIONAL SET [1:?] OF Simple_property; 
+END_ENTITY;
+
+ENTITY External_item_identification  -- DM2
+SUPERTYPE OF (File_location_identification)
+SUBTYPE OF ( External_source_identification );
+  external_id : STRING; 
+END_ENTITY;
+
+ENTITY External_model ABSTRACT  -- DM3
+SUPERTYPE OF ( ONEOF (External_geometric_model, External_picture));
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  is_defined_as  : Digital_file; 
+  is_defined_in  : Cartesian_coordinate_space; 
+  name           : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY External_model_relationship;  -- DM3
+  description   : OPTIONAL STRING; 
+  placement     : OPTIONAL Transformation; 
+  related       : External_model; 
+  relating      : External_model; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY External_picture  -- DM3
+SUBTYPE OF ( External_model );
+  SELF\External_model.is_defined_in : Cartesian_coordinate_space_2d; 
+END_ENTITY;
+
+ENTITY External_source  -- DM3
+SUPERTYPE OF (External_class_library);
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+END_ENTITY;
+
+ENTITY External_source_identification
+SUPERTYPE OF ( ONEOF (Document_location_identification, External_item_identification));
+  description : OPTIONAL STRING; 
+  source_id   : STRING; 
+  source_type : STRING; 
+END_ENTITY;
+
+ENTITY File ABSTRACT  -- DM2
+SUPERTYPE OF ( ONEOF (Digital_file, Hardcopy));
+  additional_ids    : OPTIONAL SET [1:?] OF Id_with_context; 
+  content           : OPTIONAL Document_content_property; 
+  creation          : OPTIONAL Document_creation_property; 
+  description       : OPTIONAL STRING; 
+  file_format       : OPTIONAL Document_format_property; 
+  file_type         : OPTIONAL SET [1:?] OF Document_type_property; 
+  id                : Id_with_context; 
+  ids_and_locations : OPTIONAL SET [1:?] OF File_location_identification; 
+  size              : OPTIONAL Document_size_property; 
+  version_id        : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY File_location_identification  -- DM2
+SUBTYPE OF ( External_item_identification );
+END_ENTITY;
+
+ENTITY File_relationship;  -- DM2
+  description   : OPTIONAL STRING; 
+  related       : File; 
+  relating      : File; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Final_solution
+SUBTYPE OF ( Alternative_solution );
+  specifications : SET [1:?] OF final_definition_select; 
+  status         : STRING; 
+END_ENTITY;
+
+ENTITY Functional_breakdown  -- SBC2
+SUBTYPE OF ( Breakdown );
+END_ENTITY;
+
+ENTITY Functional_breakdown_element  -- SBC2
+SUBTYPE OF ( Breakdown_element );
+END_ENTITY;
+
+ENTITY Functional_breakdown_element_association;  -- SBC2
+  associated_functional_element : Functional_breakdown_element; 
+  associated_physical_element   : physical_element_select; 
+END_ENTITY;
+
+ENTITY Functional_breakdown_element_decomposition_relationship;  -- SBC2
+  related  : Functional_breakdown_element; 
+  relating : Functional_breakdown_element; 
+END_ENTITY;
+
+ENTITY Functional_breakdown_element_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : Functional_breakdown_element; 
+  relating      : Functional_breakdown_element; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_assembly_component_relationship  -- SBC3
+SUBTYPE OF ( Assembly_component_relationship );
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_breakdown  -- SBC2
+SUBTYPE OF ( Breakdown );
+  breakdown_type : STRING; 
+END_ENTITY;
+
+ENTITY General_breakdown_element  -- SBC2
+SUBTYPE OF ( Breakdown_element );
+  breakdown_element_type : STRING; 
+END_ENTITY;
+
+ENTITY General_breakdown_element_decomposition_relationship;  -- SBC2
+  related  : General_breakdown_element; 
+  relating : General_breakdown_element; 
+END_ENTITY;
+
+ENTITY General_breakdown_element_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : General_breakdown_element; 
+  relating      : General_breakdown_element; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_part_instance_relationship  -- SBC2
+SUBTYPE OF ( Part_instance_relationship );
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_part_version_view  -- PI2
+SUBTYPE OF ( Part_version_view );
+  view_type : STRING; 
+END_ENTITY;
+
+ENTITY General_part_version_view_instance_relationship  -- SBC3
+SUBTYPE OF ( Part_version_view_instance_relationship );
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_part_version_view_relationship  -- SBC3
+SUBTYPE OF ( Part_version_view_relationship );
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+  property_type : STRING; 
+END_ENTITY;
+
+ENTITY General_requirement_version_relationship  -- RR1
+SUBTYPE OF ( Requirement_version_relationship );
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY General_shape_dependent_property  -- C1
+SUBTYPE OF ( Shape_dependent_property );
+  property_type  : STRING; 
+  property_value : property_value_select; 
+  unit           : OPTIONAL Unit; 
+END_ENTITY;
+
+ENTITY Geometric_model ABSTRACT;  -- GS 
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  geometry_type  : SET [1:?] OF STRING; 
+  id             : Id_with_context; 
+END_ENTITY;
+
+ENTITY Geometrical_relationship  -- SBC3
+SUBTYPE OF ( Part_version_view_relationship );
+  placement : transformation_select; 
+END_ENTITY;
+
+ENTITY Hardcopy  -- DM2
+SUBTYPE OF ( File );
+END_ENTITY;
+
+ENTITY Id_with_context;  -- GMI1
+  description : OPTIONAL STRING; 
+  id          : STRING; 
+  id_context  : Organization; 
+  role        : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Implicit_transformation_2d  -- SBC3
+SUBTYPE OF ( Transformation_2d );
+  origin : Axis2_placement_2d; 
+  target : Axis2_placement_2d; 
+END_ENTITY;
+
+ENTITY Implicit_transformation_3d  -- SBC3
+SUBTYPE OF ( Transformation_3d );
+  origin : Axis2_placement_3d; 
+  target : Axis2_placement_3d; 
+END_ENTITY;
+
+ENTITY Information_right
+SUPERTYPE OF (Copyright);
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  owners         : SET [1:?] OF person_organization_select; 
+  restriction    : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Information_usage_right;  -- GMI3
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  grants_right   : SET [1:?] OF Information_right; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  owners         : SET [1:?] OF person_organization_select; 
+END_ENTITY;
+
+ENTITY Information_usage_right_assignment;  -- GMI3
+  assigned_right : Information_usage_right; 
+  is_assigned_to : SET [1:?] OF information_usage_right_select; 
+END_ENTITY;
+
+ENTITY Information_usage_right_relationship;  -- GMI3
+  description   : OPTIONAL STRING; 
+  related       : Information_usage_right; 
+  relating      : Information_usage_right; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Instance_placement;  -- SBC2
+  placed_instance     : Single_part_instance; 
+  placement           : transformation_select; 
+  reference_component : Physical_breakdown_element; 
+END_ENTITY;
+
+ENTITY Kinematic_path_defined_by_nodes;  -- K2
+  name                   : OPTIONAL STRING; 
+  placement_start        : Axis_placement; 
+  representation_context : Cartesian_coordinate_space; 
+  segments               : LIST [1:?] OF Path_segment; 
+  t_start                : REAL; 
+END_ENTITY;
+
+ENTITY Language;  -- GMI4
+  country_code  : OPTIONAL STRING; 
+  language_code : STRING; 
+END_ENTITY;
+
+ENTITY Language_indication;  -- GMI4
+  attribute : STRING; 
+  instance  : string_select; 
+  language  : Language; 
+END_ENTITY;
+
+ENTITY Library_reference;  -- DM3
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  library_type   : STRING; 
+END_ENTITY;
+
+ENTITY Linear_path  -- K2
+SUBTYPE OF ( Path_segment );
+END_ENTITY;
+
+ENTITY Link_motion_along_path;  -- K2
+  additional_ids         : OPTIONAL SET [1:?] OF Id_with_context; 
+  description            : OPTIONAL STRING; 
+  id                     : OPTIONAL Id_with_context; 
+  items                  : SET [1:?] OF Kinematic_path_defined_by_nodes; 
+  name                   : OPTIONAL STRING; 
+  representation_context : Cartesian_coordinate_space_3D; 
+  time_unit              : OPTIONAL Unit; 
+END_ENTITY;
+
+ENTITY Link_motion_decomposition_relationship;  -- K2
+  description : OPTIONAL STRING; 
+  related     : Link_motion_along_path; 
+  relating    : Link_motion_along_path; 
+END_ENTITY;
+
+ENTITY Link_motion_relationship;  -- K2
+  related                : Geometric_model; 
+  relating               : Link_motion_along_path; 
+  tranformation_operator : Link_motion_transformation; 
+END_ENTITY;
+
+ENTITY Link_motion_transformation;  -- K2
+  transform_item1 : Axis2_placement_3d; 
+  transform_item2 : Kinematic_path_defined_by_nodes; 
+END_ENTITY;
+
+ENTITY Lot_configuration  -- SBC4
+SUBTYPE OF ( Manufacturing_configuration );
+  lot_id   : STRING; 
+  lot_size : Value_with_unit; 
+END_ENTITY;
+
+ENTITY Lot_effectivity  -- SBC4
+SUBTYPE OF ( Effectivity );
+  lot_id   : STRING; 
+  lot_size : Value_with_unit; 
+END_ENTITY;
+
+ENTITY Make_from_relationship  -- PP2
+SUBTYPE OF ( Part_version_view_relationship );
+  priority : OPTIONAL INTEGER; 
+  quantity : OPTIONAL Value_with_unit; 
+END_ENTITY;
+
+ENTITY Manufacturing_configuration ABSTRACT  -- SBC4
+SUPERTYPE OF ( ONEOF (Dated_configuration, Lot_configuration, Serial_configuration, Time_interval_configuration));
+  additional_ids          : OPTIONAL SET [1:?] OF Id_with_context; 
+  concerned_organizations : OPTIONAL SET [1:?] OF Organization; 
+  configured_element      : Part_instance; 
+  description             : OPTIONAL STRING; 
+  id                      : OPTIONAL Id_with_context; 
+  is_solution_for         : Product_design_association; 
+  name                    : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Mass_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+END_ENTITY;
+
+ENTITY Mated_part_association  -- PP2
+SUBTYPE OF ( Assembly_component_relationship );
+END_ENTITY;
+
+ENTITY Mated_part_relationship;  -- PP2
+  mated_shapes     : OPTIONAL SET [1:?] OF Assembly_joint; 
+  mating_materials : OPTIONAL SET [1:?] OF Quantified_part_instance; 
+  related          : Mated_part_association; 
+  relating         : Mated_part_association; 
+END_ENTITY;
+
+ENTITY Material_identification;  -- C2
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  id             : Id_with_context; 
+  is_assigned_to : SET [1:?] OF part_property_select; 
+END_ENTITY;
+
+ENTITY Material_property  -- C2
+SUBTYPE OF ( Property );
+  SELF\Property.definition : material_property_definition; 
+  environment_condition    : data_environment; 
+END_ENTITY;
+
+ENTITY Material_property_assignment;  -- C2
+  assigned_property : Material_property; 
+  definitional      : OPTIONAL BOOLEAN; 
+  is_assigned_to    : Material_identification; 
+END_ENTITY;
+
+ENTITY Material_property_definition  -- C2
+SUBTYPE OF ( Property_definition );
+  name : STRING; 
+END_ENTITY;
+
+ENTITY Mating_definition
+SUBTYPE OF ( Assembly_definition );
+  mating_type : STRING; 
+INVERSE 
+  mated_parts : SET [2:?] OF mated_part_association FOR relating; 
+END_ENTITY;
+
+ENTITY Model_property;  -- C1
+  definition      : General_property_definition; 
+  specified_value : model_property_value_select; 
+END_ENTITY;
+
+ENTITY Model_property_assignment;  -- C1
+  assigned_property : Model_property; 
+  is_assigned_to    : SET [1:?] OF model_property_select; 
+  validity_context  : OPTIONAL validity_context_select; 
+END_ENTITY;
+
+ENTITY Moments_of_inertia  -- C1
+SUBTYPE OF ( Shape_dependent_property );
+  SELF\Shape_dependent_property.is_defined_in : Cartesian_coordinate_space; 
+  inertia_value                               : ARRAY [1:3] OF ARRAY [1:3] OF Numerical_value; 
+  reference_axis_placement                    : Axis_placement; 
+END_ENTITY;
+
+ENTITY Named_size  -- DM2
+SUBTYPE OF ( Rectangular_size );
+  referenced_standard : OPTIONAL class_system; 
+  size                : STRING; 
+END_ENTITY;
+
+ENTITY Next_higher_assembly  -- SBC3
+SUBTYPE OF ( Assembly_component_relationship );
+END_ENTITY;
+
+ENTITY Numerical_value  -- C1
+SUBTYPE OF ( Value_with_unit );
+  value_component : NUMBER; 
+END_ENTITY;
+
+ENTITY Organization;  -- GMI1
+  additional_ids    : OPTIONAL SET [1:?] OF Id_with_context; 
+  delivery_address  : OPTIONAL Address; 
+  id                : Id_with_context; 
+  name              : STRING; 
+  organization_type : OPTIONAL STRING; 
+  postal_address    : OPTIONAL Address; 
+  visitor_address   : OPTIONAL Address; 
+END_ENTITY;
+
+ENTITY Organization_in_contract;  -- GMI1
+  contracted_organization : Organization; 
+  organization_role       : STRING; 
+  signed_by               : OPTIONAL SET [1:?] OF Date_and_person_organization; 
+  signed_contracts        : SET [1:?] OF Contract; 
+END_ENTITY;
+
+ENTITY Organization_or_person_in_organization_assignment;  -- GMI1
+  assigned_person_or_organization : person_organization_select; 
+  description                     : OPTIONAL STRING; 
+  is_assigned_to                  : SET [1:?] OF date_time_person_organization_element_select; 
+  role                            : STRING; 
+END_ENTITY;
+
+ENTITY Organization_relationship;  -- GMI1
+  description   : OPTIONAL STRING; 
+  related       : Organization; 
+  relating      : Organization; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Part;  -- PI1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  categories     : SET [1:?] OF Part_category; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  versions       : SET [1:?] OF Part_version; 
+END_ENTITY;
+
+ENTITY Part_category;  -- PI1
+  description : OPTIONAL STRING; 
+  name        : STRING; 
+  scope       : Organization; 
+INVERSE 
+  categorized_parts : SET [1:?] OF Part FOR categories; 
+END_ENTITY;
+
+ENTITY Part_instance ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (Quantified_part_instance, Selected_part_instance, Single_part_instance, Specified_part_instance));
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  definition     : part_instance_definition_select; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+END_ENTITY;
+
+ENTITY Part_instance_relationship  -- SBC2
+SUPERTYPE OF ( ONEOF (General_part_instance_relationship, Replaced_usage_relationship, Same_time_machining_relationship));
+  description : OPTIONAL STRING; 
+  related     : Part_instance; 
+  relating    : Part_instance; 
+END_ENTITY;
+
+ENTITY Part_property_assignment  -- C1
+SUBTYPE OF ( Property_assignment );
+  definitional   : OPTIONAL BOOLEAN; 
+  is_assigned_to : SET [1:?] OF part_property_select; 
+END_ENTITY;
+
+ENTITY Part_shape;  -- C3
+  described_object : part_information_select; 
+  description      : OPTIONAL STRING; 
+  elements         : OPTIONAL SET [1:?] OF Shape_element; 
+  id               : OPTIONAL Id_with_context; 
+END_ENTITY;
+
+ENTITY Part_version;  -- PI1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+INVERSE 
+  corresponding_product_identification : SET [0:1] OF Product_design_association FOR associated_part_version; 
+  part                                 : Part FOR versions; 
+  views                                : SET [0:?] OF Part_version_view FOR part_version; 
+END_ENTITY;
+
+ENTITY Part_version_relationship;  -- PI1
+  description   : OPTIONAL STRING; 
+  related       : Part_version; 
+  relating      : Part_version; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Part_version_view ABSTRACT  -- PI2
+SUPERTYPE OF ( ONEOF (General_part_version_view, Assembly_definition, Collection_definition));
+  additional_contexts : OPTIONAL SET [1:?] OF Application_context; 
+  additional_ids      : OPTIONAL SET [1:?] OF Id_with_context; 
+  description         : OPTIONAL STRING; 
+  id                  : Id_with_context; 
+  initial_context     : Application_context; 
+  name                : OPTIONAL STRING; 
+  part_version        : Part_version; 
+END_ENTITY;
+
+ENTITY Part_version_view_instance_relationship ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (Assembly_component_relationship, Collected_part_relationship, General_part_version_view_instance_relationship));
+  description : OPTIONAL STRING; 
+  related     : Part_instance; 
+  relating    : Part_version_view; 
+END_ENTITY;
+
+ENTITY Part_version_view_relationship ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (General_part_version_view_relationship, Geometrical_relationship, Make_from_relationship, Replaced_version_view_relationship, Process_state_relationship, Tool_part_relationship));
+  description : OPTIONAL STRING; 
+  related     : Part_version_view; 
+  relating    : Part_version_view; 
+END_ENTITY;
+
+ENTITY Path_segment ABSTRACT  -- K2
+SUPERTYPE OF ( ONEOF (Circular_path, Point_to_point_path, Linear_path));
+  placement_end : Axis2_placement_3d; 
+  t_end         : REAL; 
+  transition    : transition_code_enum; 
+END_ENTITY;
+
+ENTITY Person;  -- GMI1
+  first_name                 : OPTIONAL STRING; 
+  last_name                  : STRING; 
+  middle_names               : OPTIONAL LIST [1:?] OF STRING; 
+  preferred_business_address : OPTIONAL Address; 
+  prefix_titles              : OPTIONAL LIST [1:?] OF STRING; 
+  suffix_titles              : OPTIONAL LIST [1:?] OF STRING; 
+INVERSE 
+  associated_organizations : SET [1:?] OF Person_in_organization FOR associated_person; 
+END_ENTITY;
+
+ENTITY Person_in_organization;  -- GMI1
+  additional_ids          : OPTIONAL SET [1:?] OF Id_with_context; 
+  associated_organization : Organization; 
+  associated_person       : Person; 
+  id                      : OPTIONAL Id_with_context; 
+  location                : OPTIONAL Address; 
+  role                    : STRING; 
+END_ENTITY;
+
+ENTITY Person_in_organization_relationship;  -- GMI1
+  description   : OPTIONAL STRING; 
+  related       : Person_in_organization; 
+  relating      : Person_in_organization; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Physical_assembly_relationship;  -- PPP1
+  assembly          : Physical_instance; 
+  component         : Physical_instance; 
+  is_realization_of : Part_instance; 
+END_ENTITY;
+
+ENTITY Physical_breakdown  -- SBC2
+SUBTYPE OF ( Breakdown );
+END_ENTITY;
+
+ENTITY Physical_breakdown_element  -- SBC2
+SUBTYPE OF ( Breakdown_element );
+END_ENTITY;
+
+ENTITY Physical_breakdown_element_decomposition_relationship;  -- SBC2
+  related  : Physical_breakdown_element; 
+  relating : Physical_breakdown_element; 
+END_ENTITY;
+
+ENTITY Physical_breakdown_element_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : Physical_breakdown_element; 
+  relating      : Physical_breakdown_element; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Physical_document_definition  -- DM2
+SUBTYPE OF ( Document_definition );
+  components : OPTIONAL SET [1:?] OF Hardcopy; 
+END_ENTITY;
+
+ENTITY Physical_instance;  -- PPP1
+  additional_ids    : OPTIONAL SET [1:?] OF Id_with_context; 
+  description       : OPTIONAL STRING; 
+  id                : Id_with_context; 
+  inventory_number  : OPTIONAL STRING; 
+  is_realization_of : OPTIONAL physical_instance_definition_select; 
+  lot_id            : OPTIONAL STRING; 
+  serial_number     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Physical_instance_test_result;  -- PPP1
+  additional_ids  : OPTIONAL SET [1:?] OF Id_with_context; 
+  description     : OPTIONAL STRING; 
+  id              : Id_with_context; 
+  test_activity   : OPTIONAL test_activity_select; 
+  test_results    : OPTIONAL SET [1:?] OF Property; 
+  tested_instance : Physical_instance; 
+END_ENTITY;
+
+ENTITY Planned_characteristic;  -- RR3
+  defined_for            : Requirement_assignment; 
+  name                   : OPTIONAL STRING; 
+  planned_characteristic : SET [1:?] OF Property; 
+END_ENTITY;
+
+ENTITY Plib_class_reference;  -- DM3
+  code         : STRING; 
+  supplier_bsu : STRING; 
+  version      : STRING; 
+END_ENTITY;
+
+ENTITY Plib_property_reference;  -- DM3
+  code       : STRING; 
+  name_scope : Plib_class_reference; 
+  version    : STRING; 
+END_ENTITY;
+
+ENTITY Point_to_point_path  -- K2
+SUBTYPE OF ( Path_segment );
+END_ENTITY;
+
+ENTITY Process_operation_definition;  -- PP1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  process_type   : STRING; 
+  version_id     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Process_operation_definition_relationship;  -- PP1
+  description   : OPTIONAL STRING; 
+  related       : Process_operation_definition; 
+  relating      : Process_operation_definition; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Process_operation_input_or_output;  -- PP1
+  concerned_shapes : OPTIONAL SET [1:?] OF shape_element; 
+  description      : OPTIONAL STRING; 
+  element          : process_operation_input_or_output_select; 
+  operation        : Process_operation_occurrence; 
+
+  placement        : OPTIONAL transformation; 
+  role             : STRING; 
+END_ENTITY;
+
+ENTITY Process_operation_occurrence;  -- PP1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  defined_in     : OPTIONAL Cartesian_coordinate_space; 
+  definition     : Process_operation_definition; 
+  id             : Id_with_context; 
+  plan           : Process_plan; 
+END_ENTITY;
+
+ENTITY Process_operation_occurrence_relationship;  -- PP1
+  cycle_time    : OPTIONAL Duration; 
+  description   : OPTIONAL STRING; 
+  related       : Process_operation_occurrence; 
+  relating      : Process_operation_occurrence; 
+  relation_type : STRING; 
+  waiting_time  : OPTIONAL Property; 
+END_ENTITY;
+
+ENTITY Process_operation_resource_assignment;  -- PP1
+  assigned_resource : resource_definition_select; 
+  is_assigned_to    : Process_operation_occurrence; 
+  placement         : OPTIONAL Transformation; 
+  reason            : OPTIONAL STRING; 
+  reference_tool    : BOOLEAN; 
+END_ENTITY;
+
+ENTITY Process_plan;  -- PP1
+  additional_ids   : OPTIONAL SET [1:?] OF Id_with_context; 
+  description      : OPTIONAL STRING; 
+  id               : Id_with_context; 
+  name             : OPTIONAL STRING; 
+  produced_outputs : OPTIONAL SET [1:?] OF Part_version; 
+  version_id       : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Process_plan_relationship;  -- PP1
+  description   : OPTIONAL STRING; 
+  related       : Process_plan; 
+  relating      : Process_plan; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Process_property_assignment  -- C1
+SUBTYPE OF ( Property_assignment );
+  is_assigned_to : SET [1:?] OF process_property_select; 
+END_ENTITY;
+
+ENTITY Process_state_relationship  -- PP2
+SUBTYPE OF ( Part_version_view_relationship );
+END_ENTITY;
+
+ENTITY Product_class;  -- SBC1
+  additional_ids      : OPTIONAL SET [1:?] OF Id_with_context; 
+  description         : OPTIONAL STRING; 
+  id                  : Id_with_context; 
+  level_type          : OPTIONAL STRING; 
+  market_name         : OPTIONAL STRING; 
+  market_segment_type : OPTIONAL STRING; 
+  name                : OPTIONAL STRING; 
+  version_id          : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Product_class_relationship;  -- SBC1
+  description   : OPTIONAL STRING; 
+  related       : Product_class; 
+  relating      : Product_class; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Product_configuration;  -- SBC4
+  additional_ids          : OPTIONAL SET [1:?] OF Id_with_context; 
+  defining_specifications : OPTIONAL SET [1:?] OF Specification; 
+  description             : OPTIONAL STRING; 
+  id                      : Id_with_context; 
+  member_of               : Product_class; 
+  name                    : OPTIONAL STRING; 
+  version_id              : OPTIONAL STRING; 
+INVERSE 
+  corresponding_part_version : SET [0:1] OF Product_design_association FOR associated_product_configuration; 
+END_ENTITY;
+
+ENTITY Product_configuration_relationship;  -- SBC4
+  description   : OPTIONAL STRING; 
+  related       : Product_configuration; 
+  relating      : Product_configuration; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Product_design_association;  -- SBC4
+  associated_part_version          : Part_version; 
+  associated_product_configuration : Product_configuration; 
+END_ENTITY;
+
+ENTITY Project;  -- GMI2
+  actual_end_date           : OPTIONAL Date_time; 
+  actual_start_date         : OPTIONAL Date_time; 
+  additional_ids            : OPTIONAL SET [1:?] OF Id_with_context; 
+  description               : OPTIONAL STRING; 
+  id                        : Id_with_context; 
+  name                      : STRING; 
+  planned_end_date          : OPTIONAL period_or_date_select; 
+  planned_start_date        : OPTIONAL event_or_date_select; 
+  responsible_organizations : OPTIONAL SET [1:?] OF Organization; 
+END_ENTITY;
+
+ENTITY Project_assignment;  -- GMI2
+  assigned_project : Project; 
+  is_assigned_to   : SET [1:?] OF project_information_select; 
+  role             : STRING; 
+END_ENTITY;
+
+ENTITY Project_relationship;  -- GMI2
+  description   : OPTIONAL STRING; 
+  related       : Project; 
+  relating      : Project; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Promissory_usage  -- SBC3
+SUBTYPE OF ( Assembly_component_relationship );
+END_ENTITY;
+
+ENTITY Property  -- C1
+SUPERTYPE OF (Material_property);
+  definition          : Property_definition; 
+  description         : OPTIONAL STRING; 
+  global_unit         : OPTIONAL Unit; 
+  qualifier           : OPTIONAL STRING; 
+  specified_value     : Property_value; 
+  value_determination : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Property_assignment ABSTRACT  -- C1
+SUPERTYPE OF ( ONEOF (Part_property_assignment, Process_property_assignment));
+  assigned_property : Property; 
+  description       : OPTIONAL STRING; 
+  validity_context  : OPTIONAL validity_context_select; 
+END_ENTITY;
+
+ENTITY Property_change;  -- C1
+  added_properties   : OPTIONAL SET [1:?] OF Property; 
+  deleted_properties : OPTIONAL SET [1:?] OF Property; 
+  described_change   : changed_relationship_select; 
+  description        : STRING; 
+  id                 : OPTIONAL Id_with_context; 
+END_ENTITY;
+
+ENTITY Property_definition ABSTRACT  -- C1
+SUPERTYPE OF ( ONEOF (Cost_property_definition, Duration_property_definition, General_property_definition, Mass_property_definition, Material_property_definition, Quality_property_definition, Recyclability_property_definition));
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  allowed_units  : OPTIONAL SET [1:?] OF Unit; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  source         : OPTIONAL property_source_select; 
+  version_id     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Property_definition_relationship;  -- C1
+  description   : OPTIONAL STRING; 
+  related       : Property_definition; 
+  relating      : Property_definition; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Property_relationship;  -- C1
+  description   : OPTIONAL STRING; 
+  related       : Property; 
+  relating      : Property; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Property_value ABSTRACT  -- C1
+SUPERTYPE OF ( ONEOF (String_value, Value_list, Value_with_unit));
+  name : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Quality_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+END_ENTITY;
+
+ENTITY Quantified_part_instance  -- SBC3
+SUBTYPE OF ( Part_instance );
+  quantity : Numerical_value; 
+END_ENTITY;
+
+ENTITY Realization_or_occurrence_relationship;  -- SBC2
+  description   : OPTIONAL STRING; 
+  related       : breakdown_element_or_part_instance_select; 
+  relating      : breakdown_element_or_alternative_solution_select; 
+  relation_type : STRING; 
+END_ENTITY;
+
+ENTITY Rectangular_size  -- DM2
+SUPERTYPE OF (Named_size);
+  density : OPTIONAL value_with_unit; 
+  height  : OPTIONAL value_with_unit; 
+  width   : OPTIONAL value_with_unit; 
+END_ENTITY;
+
+ENTITY Recyclability_property_definition  -- C1
+SUBTYPE OF ( Property_definition );
+END_ENTITY;
+
+ENTITY Replaced_usage_relationship  -- SBC2
+SUBTYPE OF ( Part_instance_relationship );
+  usage_context : instance_usage_context_select; 
+END_ENTITY;
+
+ENTITY Replaced_version_view_relationship  -- SBC3
+SUBTYPE OF ( Part_version_view_relationship );
+END_ENTITY;
+
+ENTITY Requirement;  -- RR1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : STRING; 
+  owner          : OPTIONAL person_organization_select; 
+  versions       : SET [1:?] OF Requirement_version; 
+END_ENTITY;
+
+ENTITY Requirement_assignment;  -- RR1
+  assigned_requirement : requirement_or_version_select; 
+  description          : OPTIONAL STRING; 
+  is_assigned_to       : SET [1:?] OF requirement_assignment_select; 
+END_ENTITY;
+
+ENTITY Requirement_collection_relationship  -- RR1
+SUBTYPE OF ( Requirement_version_relationship );
+END_ENTITY;
+
+ENTITY Requirement_decomposition_relationship  -- RR1
+SUBTYPE OF ( Requirement_version_relationship );
+END_ENTITY;
+
+ENTITY Requirement_satisfaction_assertion;  -- RR1
+  asserted_by           : OPTIONAL SET [1:?] OF date_and_person_organization; 
+  description           : OPTIONAL STRING; 
+  related_assignment    : OPTIONAL Requirement_assignment; 
+  satisfied_by          : SET [1:?] OF requirement_satisfaction_select; 
+  satisfied_requirement : requirement_or_version_select; 
+END_ENTITY;
+
+ENTITY Requirement_sequence_relationship  -- RR1
+SUBTYPE OF ( Requirement_version_relationship );
+  SELF\Requirement_version_relationship.related : SET [1:1] OF Requirement_version; 
+END_ENTITY;
+
+ENTITY Requirement_source_association;  -- RR1
+  associated_sources  : SET [1:?] OF requirement_source_select; 
+  description         : OPTIONAL STRING; 
+  sourced_requirement : requirement_or_version_select; 
+END_ENTITY;
+
+ENTITY Requirement_tracing_relationship  -- RR1
+SUBTYPE OF ( Requirement_version_relationship );
+END_ENTITY;
+
+ENTITY Requirement_version;  -- RR1
+  description : OPTIONAL STRING; 
+  id          : STRING; 
+INVERSE 
+  requirement : Requirement FOR versions; 
+END_ENTITY;
+
+ENTITY Requirement_version_relationship ABSTRACT  -- RR1
+SUPERTYPE OF ( ONEOF (General_requirement_version_relationship, Requirement_sequence_relationship, Requirement_tracing_relationship, Requirement_collection_relationship, Requirement_decomposition_relationship));
+  description : OPTIONAL STRING; 
+  related     : SET [1:?] OF Requirement_version; 
+  relating    : Requirement_version; 
+END_ENTITY;
+
+ENTITY Retention_period;  -- GMI1
+  description    : OPTIONAL STRING; 
+  earliest_end   : period_or_date_select; 
+  is_assigned_to : SET [1:?] OF general_organizational_data_select; 
+  latest_end     : period_or_date_select; 
+  start          : event_or_date_select; 
+END_ENTITY;
+
+ENTITY Same_time_machining_relationship  -- PP2
+SUBTYPE OF ( Part_instance_relationship );
+  placement : OPTIONAL transformation_select; 
+END_ENTITY;
+
+ENTITY Security_classification;  -- GMI5
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  level          : STRING; 
+END_ENTITY;
+
+ENTITY Security_classification_assignment;  -- GMI5
+  assigned_security_classification : Security_classification; 
+  is_assigned_to                   : SET [1:?] OF security_classification_select; 
+END_ENTITY;
+
+ENTITY Selected_part_instance  -- SBC3
+SUBTYPE OF ( Part_instance );
+  criterion : STRING; 
+  quantity  : Value_with_unit; 
+END_ENTITY;
+
+ENTITY Serial_configuration  -- SBC4
+SUBTYPE OF ( Manufacturing_configuration );
+  end_number   : OPTIONAL STRING; 
+  start_number : STRING; 
+END_ENTITY;
+
+ENTITY Serial_effectivity  -- SBC4
+SUBTYPE OF ( Effectivity );
+  end_number   : OPTIONAL STRING; 
+  start_number : STRING; 
+END_ENTITY;
+
+ENTITY Shape_dependent_property ABSTRACT  -- C1
+SUPERTYPE OF ( ONEOF (Centre_of_mass, General_shape_dependent_property, Moments_of_inertia));
+  description         : OPTIONAL STRING; 
+  is_assigned_to      : shaped_element_select; 
+  is_defined_in       : OPTIONAL Cartesian_coordinate_space; 
+  value_determination : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Shape_description_association;  -- C3
+  defining_geometry     : shape_definition_select; 
+  description           : OPTIONAL STRING; 
+  is_defining_shape_for : shape_information_select; 
+  role                  : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Shape_element  -- C3
+SUPERTYPE OF (Coating_layer);
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : OPTIONAL Id_with_context; 
+  name           : OPTIONAL STRING; 
+INVERSE 
+  containing_shape : Part_shape FOR elements; 
+END_ENTITY;
+
+ENTITY Shape_element_relationship;  -- C3
+  description   : OPTIONAL STRING; 
+  related       : Shape_element; 
+  relating      : Shape_element; 
+  relation_type : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Simple_property;  -- C1
+  is_assigned_to  : OPTIONAL SET [1:?] OF simple_property_select; 
+  property_type   : STRING; 
+  specified_value : Property_value; 
+END_ENTITY;
+
+ENTITY Single_part_instance  -- SBC3
+SUBTYPE OF ( Part_instance );
+END_ENTITY;
+
+ENTITY Specification;  -- SBC1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  category       : Specification_category; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  package        : BOOLEAN; 
+  version_id     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Specification_category;  -- SBC1
+  additional_ids               : OPTIONAL SET [1:?] OF Id_with_context; 
+  description                  : STRING; 
+  id                           : Id_with_context; 
+  implicit_exclusive_condition : BOOLEAN; 
+END_ENTITY;
+
+ENTITY Specification_category_hierarchy;  -- SBC1
+  sub_category   : Specification_category; 
+  super_category : Specification_category; 
+END_ENTITY;
+
+ENTITY Specification_expression;  -- SBC1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : OPTIONAL Id_with_context; 
+  operands       : SET [1:?] OF specification_operand_select; 
+  the_operation  : STRING; 
+END_ENTITY;
+
+ENTITY Specification_inclusion;  -- SBC1
+  additional_ids         : OPTIONAL SET [1:?] OF Id_with_context; 
+  description            : OPTIONAL STRING; 
+  id                     : OPTIONAL Id_with_context; 
+  if_condition           : specification_operand_select; 
+  included_specification : specification_operand_select; 
+END_ENTITY;
+
+ENTITY Specified_part_instance  -- SBC3
+SUBTYPE OF ( Part_instance );
+  assembly_context            : Assembly_definition; 
+  sub_assembly_relationship   : Part_instance; 
+  upper_assembly_relationship : Part_instance; 
+END_ENTITY;
+
+ENTITY String_value  -- C1
+SUBTYPE OF ( Property_value );
+  value_component : STRING; 
+END_ENTITY;
+
+ENTITY Styled_model ABSTRACT;  -- PD
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  id             : Id_with_context; 
+  model_type     : STRING; 
+END_ENTITY;
+
+ENTITY Supplied_object_relationship;  -- GMI1
+  description : OPTIONAL STRING; 
+  related     : supplied_object_select; 
+  relating    : supplied_object_select; 
+END_ENTITY;
+
+ENTITY Supplier_solution  -- SBC2
+SUBTYPE OF ( Alternative_solution );
+  probability_rate : OPTIONAL REAL; 
+  supplier         : Organization; 
+END_ENTITY;
+
+ENTITY Surface_condition ABSTRACT;  -- PC
+  condition_type : STRING; 
+END_ENTITY;
+
+ENTITY Technical_solution  -- SBC2
+SUBTYPE OF ( Alternative_solution );
+END_ENTITY;
+
+ENTITY Template_instance;  -- SBC3
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  definition     : template_definition_select; 
+  id             : Id_with_context; 
+  name           : OPTIONAL STRING; 
+  origin         : Axis_placement; 
+  scale          : OPTIONAL REAL; 
+  target         : explicit_transformation_select; 
+END_ENTITY;
+
+ENTITY Text_specification;  -- RR1
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : STRING; 
+  id             : OPTIONAL Id_with_context; 
+END_ENTITY;
+
+ENTITY Time_interval;  -- GMI1
+  additional_ids   : OPTIONAL SET [1:?] OF Id_with_context; 
+  description      : OPTIONAL STRING; 
+  end_definition   : period_or_date_select; 
+  id               : OPTIONAL Id_with_context; 
+  name             : OPTIONAL STRING; 
+  start_definition : event_or_date_select; 
+END_ENTITY;
+
+ENTITY Time_interval_assignment;  -- GMI1
+  assigned_time_interval : Time_interval; 
+  description            : OPTIONAL STRING; 
+  is_assigned_to         : SET [1:?] OF general_organizational_data_select; 
+  role                   : STRING; 
+END_ENTITY;
+
+ENTITY Time_interval_configuration  -- SBC4
+SUBTYPE OF ( Manufacturing_configuration );
+  configuration_period : Time_interval; 
+END_ENTITY;
+
+ENTITY Time_interval_effectivity  -- SBC4
+SUBTYPE OF ( Effectivity );
+  effectivity_period : Time_interval; 
+END_ENTITY;
+
+ENTITY Tool_part_relationship  -- PP2
+SUBTYPE OF ( Part_version_view_relationship );
+  placement : OPTIONAL transformation_select; 
+END_ENTITY;
+
+ENTITY Transformation ABSTRACT  -- SBC3
+SUPERTYPE OF ( ONEOF (Transformation_2d, Transformation_3d));
+  name : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Transformation_2d  -- SBC3
+SUPERTYPE OF ( ONEOF (Explicit_transformation_2d, Implicit_transformation_2d))
+SUBTYPE OF ( Transformation );
+END_ENTITY;
+
+ENTITY Transformation_3d  -- SBC3
+SUPERTYPE OF ( ONEOF (Explicit_transformation_3d, Implicit_transformation_3d))
+SUBTYPE OF ( Transformation );
+END_ENTITY;
+
+ENTITY Unit;  -- C1
+  kind     : OPTIONAL STRING; 
+  name     : STRING; 
+  prefix   : OPTIONAL prefix; 
+  quantity : OPTIONAL quantity; 
+END_ENTITY;
+
+ENTITY Value_limit  -- C1
+SUBTYPE OF ( Value_with_unit );
+  limit     : NUMBER; 
+  qualifier : limit_qualifier; 
+END_ENTITY;
+
+ENTITY Value_list  -- C1
+SUBTYPE OF ( Property_value );
+  values : LIST [1:?] OF Property_value; 
+END_ENTITY;
+
+ENTITY Value_range  -- C1
+SUBTYPE OF ( Value_with_unit );
+  lower_limit : NUMBER; 
+  upper_limit : NUMBER; 
+END_ENTITY;
+
+ENTITY Value_with_unit ABSTRACT  -- C1
+SUPERTYPE OF ( ONEOF (Numerical_value, Value_limit, Value_range))
+SUBTYPE OF ( Property_value );
+  significant_digits : OPTIONAL INTEGER; 
+  unit               : Unit; 
+END_ENTITY;
+
+ENTITY Work_order;  -- AWM2
+  additional_ids : OPTIONAL SET [1:?] OF Id_with_context; 
+  description    : OPTIONAL STRING; 
+  id             : Id_with_context; 
+  in_response_to : OPTIONAL SET [1:?] OF Work_request; 
+  is_controlling : SET [1:?] OF Activity; 
+  order_type     : STRING; 
+  version_id     : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Work_request;  -- AWM2
+  additional_ids   : OPTIONAL SET [1:?] OF Id_with_context; 
+  description      : OPTIONAL STRING; 
+  id               : Id_with_context; 
+  notified_persons : OPTIONAL SET [1:?] OF Date_and_person_organization; 
+  request_type     : STRING; 
+  requestor        : Date_and_person_organization; 
+  scopes           : OPTIONAL SET [1:?] OF activity_assignment_select; 
+  status           : STRING; 
+  version_id       : OPTIONAL STRING; 
+END_ENTITY;
+
+ENTITY Work_request_relationship;  -- AWM2
+  description   : OPTIONAL STRING; 
+  related       : Work_request; 
+  relating      : Work_request; 
+  relation_type : STRING; 
+END_ENTITY;
+
+END_SCHEMA;

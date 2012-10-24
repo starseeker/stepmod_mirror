@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     $Id: business_object_model.dtd,v 1.27 2009/08/24 09:59:53 mikeward Exp $
+     Author:  Mike Ward,  Eurostep Limited
+     Owner:   Developed by Eurostep.
+     Purpose: DTD for BOM document
+ -->
+<!ENTITY % isodoc SYSTEM "isodoc.ent">
+%isodoc;
+
+<!ENTITY % mapspec SYSTEM "mapping.ent">
+%mapspec;
+
+<!--  business_object_model -->
+<!ELEMENT business_object_model (keywords, abstract?, changes?, contacts, foreword?, purpose,  inscope, outscope?, normrefs?, definition*, abbreviations?, inforeqt, terminology_map?, mapping_table?, imp_meths, usage_guide?, tech_disc?, bibliography?, bom)>
+<!--    
+        name            AP directory name
+	name.french     French name, required for publication, -->
+<!--                    provided by SC4 secretariat  
+ -->
+<!--     
+	module_name     top level implementation module, the AP module
+        title           AP title
+        part            ISO 10303 part number of the AP document
+        purpose         Used to complete the first sentence in the introduction
+                          "This part of ISO 10303 specifies an application protocol (AP) for ....."
+                        and clause 4
+                           "This clause specifies the information required for ....."
+
+        wg.number       SC4 N-number of the AP document
+        wg.number.supersedes    the SC4 N-number of the document that this AP document supercedes
+	version         edition of AP document 
+	object.reg.version     version of AP document in ASN.1 object identifier
+	status          AP document status
+	language        E for English langauge
+	publication.year        year of publication of AP document
+	publication.date CDATA #IMPLIED
+	published       y if published
+	previous.revision.number         
+	previous.revision.year 
+	previous.revision.cancelled 
+	revision.complete 
+	revision.scope 
+	wg.number.ballot_package 
+	wg.number.ballot_comment 
+	checklist.internal_review
+	checklist.project_leader 
+	checklist.convener 
+ Attributes for source control software like RCS or CVS
+        rcs.date      $Date: 2009/08/24 09:59:53 $     
+        rcs.revision  $Revision: 1.27 $                
+-->
+
+<!ATTLIST business_object_model
+	xmlns:xlink CDATA #FIXED "http://www.w3.org/1999/xlink"
+	name NMTOKEN #REQUIRED
+	name.french  CDATA #IMPLIED
+	ap_name NMTOKEN #REQUIRED
+	title CDATA #REQUIRED
+	part NMTOKEN #REQUIRED
+        purpose CDATA #REQUIRED
+	wg.number CDATA #REQUIRED
+	wg.number.supersedes CDATA #IMPLIED
+	version NMTOKEN #REQUIRED
+	object.reg.version NMTOKEN #IMPLIED
+	status (CD | CD-TS | TS | WD) "CD-TS"
+	language (E) "E"
+	publication.year CDATA #REQUIRED
+	publication.date CDATA #IMPLIED
+	published (y | n) "n"
+	previous.revision.number CDATA #IMPLIED
+	previous.revision.year CDATA #IMPLIED
+	previous.revision.cancelled (NO | YES) #IMPLIED
+	revision.complete (NO | YES) #IMPLIED
+	revision.scope CDATA #IMPLIED
+	wg.number.ballot_package CDATA #IMPLIED
+	wg.number.ballot_comment CDATA #IMPLIED
+	checklist.internal_review CDATA #IMPLIED
+	checklist.project_leader CDATA #IMPLIED
+	checklist.convener CDATA #IMPLIED
+	rcs.date CDATA #REQUIRED
+	rcs.revision CDATA #REQUIRED
+        development.folder NMTOKEN #IMPLIED
+>
+
+<!ELEMENT changes (change_summary, change_detail?) >
+<!ELEMENT change_summary (%description.content;)*> 
+<!ELEMENT change_detail (%description.content; | annex_clause | express_ref_inline )* >
+
+<!-- Clause 4 -->
+<!ELEMENT inforeqt (fundamentals, reqtover+)>
+
+<!-- Clause 4.1 immediate text which is 4.1 in San Diego paper -->
+<!ELEMENT fundamentals (data_plan?,description)*>
+
+<!-- Clauses 4.2x one for each module overview -->
+<!ELEMENT reqtover (description)>
+<!ATTLIST reqtover module NMTOKEN #REQUIRED>
+
+<!-- application activity model -->
+<!ELEMENT aam (idef0)>
+<!ELEMENT idef0 (imgfile+)>
+
+<!-- implementation methods -->
+<!ELEMENT imp_meths (imp_meth+)>
+<!ELEMENT imp_meth (description)>
+<!ATTLIST imp_meth
+	general (y | n) "n"
+	part (21 | 22 | 23 | 24 | 25 | 27 | 28 | 29) #IMPLIED
+>
+
+<!-- A clause in the  usage_guide or tech_disc sections -->
+<!ELEMENT annex_clause (%description.content; | annex_clause | express_ref_inline )*>
+<!ATTLIST annex_clause
+        title         CDATA       #REQUIRED>
+
+
+<!--                    usage guide                                -->
+<!ELEMENT usage_guide (%description.content; | annex_clause )*>
+
+
+
+<!ELEMENT tech_disc (%description.content; | annex_clause )*>
+
+<!-- Terminology map -->
+<!ELEMENT terminology_map (term_map)>
+
+<!-- the mapping of a business term to a term defined in an ap documet or module -->
+<!ELEMENT term_map (description, business_term, ap_term?, module_term?)>
+
+<!ELEMENT business_term (%description.content;)*>
+<!ATTLIST business_term
+        term_id CDATA #REQUIRED>
+
+<!ELEMENT ap_term EMPTY>
+<!ATTLIST ap_term 
+        term_id CDATA #REQUIRED
+        application_protocol CDATA #REQUIRED>
+
+<!ELEMENT module_term EMPTY>
+<!ATTLIST module_term
+        term_id CDATA #REQUIRED
+        module CDATA #REQUIRED>
+
+<!--  reference to EXPRESS name to be listed inline            -->
+<!ELEMENT  express_ref_inline  (#PCDATA) >
+<!ATTLIST  express_ref_inline
+             linkend    CDATA                              #REQUIRED>
+
+
+

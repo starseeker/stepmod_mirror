@@ -1,4 +1,4 @@
--- Generated on 17/10/2012 15:14:39 by ExpressPrettyPrint version: 4.0.0.53, PDTec AG
+-- Generated on 25/10/2012 13:06:18 by ExpressPrettyPrint version: 4.0.0.61, PDTec AG
 -- From: Harmonized AP242 BO Model.exp
 
 SCHEMA AP242_BusinessObjectModel;
@@ -488,7 +488,7 @@ END_TYPE;
 
 TYPE EventOrDateSelect = SELECT(
   DateTimeString,
-  EVENT
+  Event
 );
 END_TYPE;
 
@@ -822,7 +822,7 @@ END_TYPE;
 TYPE PeriodOrDateSelect = SELECT(
   DateTimeString,
   Duration,
-  EVENT
+  Event
 );
 END_TYPE;
 
@@ -1305,14 +1305,12 @@ DERIVE
   SELF\PartRelationship.relationType : ClassString := 'alternate';
 UNIQUE
   UR1: relating, related;
-WHERE
-  WR1: relating :<>: related;
 END_ENTITY;
 
 ENTITY AlternativeSolution
   SUPERTYPE OF(ONEOF(FinalSolution, SupplierSolution, TechnicalSolution));
   id : IdentifierSelect;
-  name : DescriptorSelect;
+  name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
   versionId : OPTIONAL IdentifierSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
@@ -1472,7 +1470,7 @@ ENTITY BreakdownElementAssociation;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   associatedBreakdown : BreakdownVersion;
-  associatedElemenent : BreakdownElement;
+  associatedElement : BreakdownElement;
 END_ENTITY;
 
 ENTITY BreakdownElementVersion;
@@ -2346,7 +2344,7 @@ END_ENTITY;
 
 ENTITY GeometricCoordinateSpace;
   id : IdentifierSelect;
-  coordinateType : coordinateTypeEnum;
+  coordinateType : ClassSelect;
   accuracies : OPTIONAL SET[1:?] OF MeasureQualification;
   dimensionality : INTEGER;
   units : OPTIONAL SET[1:?] OF Unit;
@@ -3050,7 +3048,6 @@ ENTITY PlyOrientationAngle
   ABSTRACT
   SUPERTYPE OF(ONEOF(DrapedOrientationAngle, LaidOrientationAngle));
   description : OPTIONAL DescriptorSelect;
-  relationType : OPTIONAL ClassSelect;
   angleReference : AngleSelect;
   fiberDirection : DirectionOfFiberOrientationWithinAPly;
   reinforcementDirection : ReinforcementOrientationBasis;
@@ -3599,7 +3596,7 @@ END_ENTITY;
 ENTITY ShapeDescriptionAssociation;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  role : OPTIONAL ClassSelect;
+  role : ClassSelect;
   definingGeometry : GeometricModelOrExternalRepresentationSelect;
   isDefiningShapeFor : ShapeInformationSelect;
 END_ENTITY;

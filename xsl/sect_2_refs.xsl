@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
+$Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -159,10 +159,24 @@ $Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
           
           <xsl:variable name="stdno_prefix" select="substring-before($stdno, '-')"/>
           <xsl:variable name="stdno_suffix" select="substring-after($stdno, '-')"/>
-          <xsl:variable name="part_no_length" select="string-length($stdno_suffix)"/>
+          <!--<xsl:variable name="part_no_length" select="string-length($stdno_suffix)"/>
+          <xsl:variable name="std_no_length" select="string-length($stdno_prefix)"/>
           <xsl:variable name="no_of_leading_zeros" select="number(6 - $part_no_length)"/>
+          <xsl:variable name="no_of_leading_zeros_std_no" select="number(6 - $std_no_length)"/>-->
           
-          <xsl:variable name="leading_zeros">
+          <xsl:variable name="stdno_prefix_leading_zeros">
+            <xsl:call-template name="get_leading_zeros">
+              <xsl:with-param name="no_of_leading_zeros_param" select="number(6 - string-length($stdno_prefix))"/>
+            </xsl:call-template>
+          </xsl:variable>
+          
+          <xsl:variable name="stdno_suffix_leading_zeros">
+            <xsl:call-template name="get_leading_zeros">
+              <xsl:with-param name="no_of_leading_zeros_param" select="number(6 - string-length($stdno_suffix))"/>
+            </xsl:call-template>
+          </xsl:variable>
+          
+          <!--<xsl:variable name="leading_zeros">
             <xsl:choose>
               <xsl:when test="$no_of_leading_zeros=1">0</xsl:when>
               <xsl:when test="$no_of_leading_zeros=2">00</xsl:when>
@@ -170,12 +184,27 @@ $Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
               <xsl:when test="$no_of_leading_zeros=4">0000</xsl:when>
               <xsl:when test="$no_of_leading_zeros=5">00000</xsl:when>
             </xsl:choose>
-          </xsl:variable>
+          </xsl:variable>-->
           
-          <xsl:value-of select="concat($stdno_prefix,$leading_zeros, $stdno_suffix)"/>
+          <!-- MWD -->
+          
+         <!-- <xsl:variable name="leading_zeros_std_no">
+            <xsl:choose>
+              <xsl:when test="$no_of_leading_zeros_std_no=1">0</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=2">00</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=3">000</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=4">0000</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=5">00000</xsl:when>
+            </xsl:choose>
+          </xsl:variable>-->
+          
+          <!-- MWD -->
+          <xsl:value-of select="concat($stdno_prefix_leading_zeros, $stdno_prefix, $stdno_suffix_leading_zeros, $stdno_suffix)"/>
+          <!--<xsl:value-of select="concat($leading_zeros_std_no, $stdno_prefix, $leading_zeros, $stdno_suffix)"/>--><!-- MWD $leading_zeros_std_no added -->
           
         </xsl:when>
         
+       
         
        <!-- <xsl:when test="contains($stdno,'10303-')">
           
@@ -211,7 +240,26 @@ $Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
           <xsl:value-of select="concat('13584',$leading_zeros, substring-after($stdno,'13584-'))"/>
         </xsl:when>-->
         <xsl:otherwise>
-          <xsl:value-of select="$stdno"/>
+          <!--<xsl:variable name="std_no_length" select="string-length($stdno)"/>
+          <xsl:variable name="no_of_leading_zeros_std_no" select="number(6 - $std_no_length)"/>
+          <xsl:variable name="leading_zeros_std_no">
+            <xsl:choose>
+              <xsl:when test="$no_of_leading_zeros_std_no=1">0</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=2">00</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=3">000</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=4">0000</xsl:when>
+              <xsl:when test="$no_of_leading_zeros_std_no=5">00000</xsl:when>
+            </xsl:choose>
+          </xsl:variable>-->
+          
+          <xsl:variable name="stdno_leading_zeros">
+            <xsl:call-template name="get_leading_zeros">
+              <xsl:with-param name="no_of_leading_zeros_param" select="number(6 - string-length($stdno))"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:value-of select="concat($stdno_leading_zeros, $stdno)"/>
+          <!--<xsl:value-of select="concat($leading_zeros_std_no, $stdno)"/>-->
+          <!--<xsl:value-of select="$stdno"/>-->
         </xsl:otherwise>
       </xsl:choose>     
     </xsl:attribute>
@@ -220,6 +268,17 @@ $Id: sect_2_refs.xsl,v 1.13 2010/06/11 10:33:14 mikeward Exp $
     </xsl:attribute>
     <xsl:apply-templates select="./*" mode="copy"/>
   </normref>  
+</xsl:template>
+  
+<xsl:template name="get_leading_zeros">
+  <xsl:param name="no_of_leading_zeros_param"/>
+  <xsl:choose>
+    <xsl:when test="$no_of_leading_zeros_param=1">0</xsl:when>
+    <xsl:when test="$no_of_leading_zeros_param=2">00</xsl:when>
+    <xsl:when test="$no_of_leading_zeros_param=3">000</xsl:when>
+    <xsl:when test="$no_of_leading_zeros_param=4">0000</xsl:when>
+    <xsl:when test="$no_of_leading_zeros_param=5">00000</xsl:when>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="normref" mode="group">

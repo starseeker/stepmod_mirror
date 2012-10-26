@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_xsd_der.xsl,v 1.7 2009/08/24 10:01:42 mikeward Exp $
+$Id: sect_annex_xsd_der.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display BOM Annex B
@@ -20,7 +20,7 @@ $Id: sect_annex_xsd_der.xsl,v 1.7 2009/08/24 10:01:42 mikeward Exp $
       <xsl:with-param name="annex_no" select="'B'"/>
       <xsl:with-param name="heading" select="'Derivation of the XML schema'"/>
       <xsl:with-param name="aname" select="'annexe'"/>
-      <xsl:with-param name="informative" select="'informative'"/>
+      <xsl:with-param name="informative" select="'normative'"/>
     </xsl:call-template>
     
     <h2>

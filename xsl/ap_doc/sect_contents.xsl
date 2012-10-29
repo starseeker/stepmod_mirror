@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
+$Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -114,6 +114,11 @@ $Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
     </xsl:if>
+      <xsl:if test="@business_object_model">
+          &#160;&#160;&#160;&#160;&#160;
+        <a href="./4_info_reqs{$FILE_EXT}#43" target="{$target}">4.3 Business object model</a>
+        <br/>
+      </xsl:if>
     <a href="./5_main{$FILE_EXT}" target="{$target}">5 Module interpreted model</a>
     <br/>
     <a href="./6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a><br/>
@@ -213,7 +218,7 @@ $Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
     </xsl:apply-templates>
 
     <xsl:if test="$module_xml/module/arm_lf/express-g">
-      <xsl:variable name="al_armexpressg">
+      <xsl:variable name="al_bomexpressg">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'ARMexpressG'"/>
           <xsl:with-param name="annex_list" select="$annex_list"/>
@@ -221,13 +226,13 @@ $Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+        <xsl:value-of select="$al_bomexpressg"/> ARM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>
 
     <xsl:if test="$module_xml/module/mim_lf/express-g">
-      <xsl:variable name="al_armexpressg">
+      <xsl:variable name="al_bomexpressg">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'MIMexpressG'"/>
           <xsl:with-param name="annex_list" select="$annex_list"/>
@@ -235,7 +240,7 @@ $Id: sect_contents.xsl,v 1.52 2010/02/03 11:56:23 robbod Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
+        Annex <xsl:value-of select="$al_bomexpressg"/> MIM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>

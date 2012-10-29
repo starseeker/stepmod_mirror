@@ -218,7 +218,7 @@ $Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
     </xsl:apply-templates>
 
     <xsl:if test="$module_xml/module/arm_lf/express-g">
-      <xsl:variable name="al_bomexpressg">
+      <xsl:variable name="al_armexpressg">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'ARMexpressG'"/>
           <xsl:with-param name="annex_list" select="$annex_list"/>
@@ -226,13 +226,13 @@ $Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_bomexpressg"/> ARM EXPRESS-G diagrams
+        <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>
 
     <xsl:if test="$module_xml/module/mim_lf/express-g">
-      <xsl:variable name="al_bomexpressg">
+      <xsl:variable name="al_armexpressg">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'MIMexpressG'"/>
           <xsl:with-param name="annex_list" select="$annex_list"/>
@@ -240,7 +240,7 @@ $Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_bomexpressg"/> MIM EXPRESS-G diagrams
+        Annex <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>

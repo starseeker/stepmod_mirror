@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.30 2009/12/24 17:42:04 lothartklein Exp $
+$Id: application_protocol_toc.xsl,v 1.31 2010/02/03 11:56:23 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -94,7 +94,12 @@ $Id: application_protocol_toc.xsl,v 1.30 2009/12/24 17:42:04 lothartklein Exp $
                 &#160;&#160;<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#42">4.2 Information requirements model</a>
               </small>
               <br/>
-						
+              <xsl:if test="@business_object_model">
+                <small>
+                  &#160;&#160;<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#43">4.3 Business object model</a>
+                </small>
+                <br/>
+              </xsl:if>
               <a href="{$application_protocol_root}/sys/5_main{$FILE_EXT}">5 Module interpreted model</a>
               <br/>
               <a href="{$application_protocol_root}/sys/6_ccs{$FILE_EXT}">6 Conformance requirements</a>

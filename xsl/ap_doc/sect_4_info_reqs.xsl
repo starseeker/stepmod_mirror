@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.24 2008/04/23 20:52:04 darla Exp $
+$Id: sect_4_info_reqs.xsl,v 1.25 2008/05/21 17:34:55 abf Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -22,6 +22,24 @@ $Id: sect_4_info_reqs.xsl,v 1.24 2008/04/23 20:52:04 darla Exp $
     <xsl:variable name="f_expg" select="concat('./f_arm_expg',$FILE_EXT)"/>
     <xsl:variable name="sect51" select="concat('./5_mim',$FILE_EXT)"/>
 
+    <xsl:variable name="BOM_number" >
+	    <!-- 
+	    value set to the number of document if a BOM exists and BOM xml file can be read, 0 if exists but file cannot be read, -1 if does not exist
+	    -->
+	    <xsl:choose>
+		    <xsl:when test="/application_protocol/@business_object_model">
+		      <xsl:variable name="BOM_file" 
+				    select="concat('../../data/business_object_models/',@business_object_model,'/business_object_model.xml')" />
+			    <xsl:variable name="BOM_part" select="document($BOM_file)/business_object_model/@part" /> 
+		      <xsl:choose>
+				    <xsl:when test="$BOM_part"><xsl:value-of select="$BOM_part" /></xsl:when>
+				<xsl:otherwise>0</xsl:otherwise>
+			     </xsl:choose>
+		     </xsl:when>
+		     <xsl:otherwise>-1</xsl:otherwise>
+	    </xsl:choose>
+    </xsl:variable>
+  
 
     <xsl:variable name="module" select="/application_protocol/@module_name"/>
     <xsl:variable name="module_ok">
@@ -126,6 +144,23 @@ $Id: sect_4_info_reqs.xsl,v 1.24 2008/04/23 20:52:04 darla Exp $
      (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>)
      as represented in the following list of modules.
      <xsl:apply-templates select="inforeqt/reqtover"/>
+     <xsl:choose>
+        <xsl:when test="$BOM_number>0" >
+          <xsl:variable name="BOM_ref" select="concat('../../../business_object_models/',@business_object_model, '/home', $FILE_EXT)"/>
+        <h2><a name="43">4.3&#160;Business object model</a></h2>
+        <p>The business objects for this application protocol are defined in the business object model module 
+          (<a href="{$BOM_ref}" target="_blank"> ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>).
+        </p>
+       </xsl:when>
+       <xsl:when test="$BOM_number = 0" >
+	    <xsl:call-template name="error_message">
+        	  <xsl:with-param name="message">
+			  <xsl:value-of select="concat('Error AP43: The business object model ',/application_protocol/@business_object_model,
+				  ' does not exist. Correct or delete business_object_model attribute in application_protocol.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>        
+       </xsl:when>
+     </xsl:choose>
    </xsl:template>		
 		
 	

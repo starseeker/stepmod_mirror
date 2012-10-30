@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.21 2010/02/19 15:01:56 robbod Exp $
+$Id: banner.xsl,v 1.22 2010/02/21 10:48:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -146,9 +146,24 @@ $Id: banner.xsl,v 1.21 2010/02/19 15:01:56 robbod Exp $
                 </p>
                 <p class="bannermenuitem">
                   <a href="ap_numbers{$FILE_EXT}" target="index">
-                    Parts,
+                    Parts
                   </a>
                   Leader
+                </p>
+              </td>
+              
+              <!-- BOM -->
+              <td align="left" valign="top">
+                <p class="bannermenu">Business Object Models</p>
+                <p class="bannermenuitem">
+                  <a href="bom_alpha{$FILE_EXT}" target="index">
+                    Alphabetical,
+                  </a>
+                </p>
+                <p class="bannermenuitem">
+                  <a href="bom_numbers{$FILE_EXT}" target="index">
+                    Parts,
+                  </a>
                 </p>
               </td>
 

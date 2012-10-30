@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -78,10 +78,16 @@ $Id: sect_contents.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
             <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 Business object model type definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 Business object model capabilities</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 Business object model entity definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 Fundamental concepts and assumptions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#43" target="{$target}">4.3 Business object model type definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#44" target="{$target}">4.4 Business object model entity definitions</a>
           </td>
           <td valign="top">
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>

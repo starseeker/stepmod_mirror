@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.2 2012/10/30 14:23:27 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -12,20 +12,15 @@ $Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   <xsl:import href="business_object_model_clause.xsl"/>
   
   <xsl:output method="html"/>
-	
+  
+  <xsl:variable name="annex_c" select="concat('./annex_bom_expg',$FILE_EXT)"/>
+  
   <xsl:template match="business_object_model">
-    <xsl:call-template name="clause_header">
-      <xsl:with-param name="heading" select="'4 Business Object model requirements'"/>
-      <xsl:with-param name="aname" select="'bom'"/>
-    </xsl:call-template>
-    <xsl:variable name="f_expg" select="concat('./f_arm_expg',$FILE_EXT)"/>
-    
-
-
-    <xsl:variable name="model" select="/business_object_model/@name"/>
-    <xsl:variable name="model_title" select="/business_object_model/@title"/>
-    <xsl:variable name="model_no" select="/business_object_model/@part"/>
-    <xsl:variable name="ap_doc" select="/business_object_model/@ap_name"/>
+    <xsl:variable name="model" select="./@name"/>
+    <xsl:variable name="purpose" select="normalize-space(./@purpose)"/>
+    <xsl:variable name="ap_doc" select="./@ap_name"/>
+    <xsl:variable name="ap_number" select="substring-after(substring-before($ap_doc, '_'), 'ap')"/>
+    <xsl:variable name="model_title" select="./@title"/>
     <xsl:variable name="model_ok">
       <xsl:call-template name="check_model_exists">
         <xsl:with-param name="model" select="$model"/>
@@ -39,9 +34,9 @@ $Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
+    
     <xsl:variable name="model_dir" select="./@name"/>
-      
-
+    <xsl:variable name="model_no" select="/business_object_model/@part"/>
     <xsl:variable name="model_xml" select="document(concat('../../data/business_object_models/', $model_dir, '/business_object_model.xml'))"/>
     
     <xsl:variable name="model_partno">
@@ -64,15 +59,48 @@ $Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
       </xsl:call-template>
     </xsl:if>
 
-    <p>
-      This clause specifies the information required for 
-      <xsl:value-of select="normalize-space(@purpose)"/>.
-    </p>
-    <p>
-      The information requirements are defined as the Business Object Model (BOM) of the application protocol <xsl:value-of select="$ap_doc"/>.
-    </p>
 
-    <xsl:variable name="annex_c" select="concat('./annex_bom_expg',$FILE_EXT)"/>
+    <xsl:apply-templates select="inforeqt">
+      <xsl:with-param name="model_param" select="$model"/>
+      <xsl:with-param name="purpose_param" select="$purpose"/>
+      <xsl:with-param name="ap_number_param" select="$ap_number"/>
+    </xsl:apply-templates>
+
+    <!--<xsl:variable name="model_clause4" select="concat('../../../business_object_models/',$model,'/sys/4_info_reqs',$FILE_EXT)"/>
+     The detailed information requirements for this BO model are defined in
+     Clause <a href="{$module_clause4}">4</a> of   
+     the BO model  
+     (<a href="{$model_href}"><xsl:value-of select="$model_partno"/>)</a>.-->
+     <!--<p class="note">
+       <small>
+         NOTE&#160;1&#160;&#160;
+         The BO model EXPRESS 
+         <a href="index_arm_express{$FILE_EXT}" target="index">index</a>
+         contains a complete list of all BO model objects identified in the information requirements in
+          Clause <a href="{$module_clause4}">4</a> of   
+         the BO model  
+         (<a href="{$model_href}"><xsl:value-of select="$model_partno"/></a>).
+       </small>
+     </p>-->
+  
+  </xsl:template>
+  
+  <xsl:template match="inforeqt">
+    <xsl:param name="model_param"/>
+    <xsl:param name="purpose_param"/>
+    <xsl:param name="ap_number_param"/>
+    
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'4 Business object model information requirements'"/>
+      <xsl:with-param name="aname" select="'bom'"/>
+    </xsl:call-template>
+    <p>
+      This clause specifies the information required for <xsl:value-of select="$purpose_param"/>.
+    </p>
+    <p>
+      This clause specifies the information requirements for the business object model of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
+      The information requirements are specified as a set of capabilities, and application objects.
+    </p>
     <p class="note">
       <small>
         NOTE&#160;&#160;A graphical representation of the information requirements is given in Annex <a href="{$annex_c}">C</a>.
@@ -80,70 +108,49 @@ $Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
     </p>
     <p class="note">
       <small>
-        NOTE&#160;&#160;The BO M to ARM mapping specification will be provided as Clause 5 in a later stage of this document..
+        NOTE&#160;&#160;The mapping specification is specified in 5.1. It shows how the business objects are mapped to the Application Reference Model (ARM) of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
       </small>
     </p>
     <p>
-      This clause defines the information requirements to which implementations shall conform using the EXPRESS language as defined in ISO 10303-11. 
-      The following begins the <xsl:value-of select="$model_title"/> business object model schema.
-      
+      This clause defines the information requirements to which business object model implementations shall conform using the EXPRESS language as defined in ISO 10303-11. The following begins the AP<xsl:value-of select="$ap_number_param"/> business object model schema.
+      EXPRESS specification:
     </p>
     <p>
       <u>EXPRESS specification:</u><br/>
       (*<br/>
-      SCHEMA <xsl:value-of select="concat($model, '_bom')"/>;<br/>
+      SCHEMA <xsl:value-of select="concat($model_param, '_bom')"/>;<br/>
       *)
     </p>
-
-    <xsl:apply-templates select="inforeqt/fundamentals"/>
-
-    <h2><a name="42">4.2&#160;Business object model entity definitions</a></h2>
-    <xsl:variable name="model_clause4" select="concat('../../../business_object_models/',$model,'/sys/4_info_reqs',$FILE_EXT)"/>
-     The detailed information requirements for this BO model are defined in
-<!--     Clause <a href="{$module_clause4}">4</a> of  --> 
-     the BO model  
-     (<a href="{$model_href}"><xsl:value-of select="$model_partno"/>)</a>.
-     <p class="note">
-       <small>
-         NOTE&#160;1&#160;&#160;
-         The BO model EXPRESS 
-         <a href="index_arm_express{$FILE_EXT}" target="index">index</a>
-         contains a complete list of all
-         BO model objects identified in the information requirements in
-<!--         Clause <a href="{$module_clause4}">4</a> of  --> 
-         the BO model  
-         (<a href="{$model_href}"><xsl:value-of select="$model_partno"/></a>).
-       </small>
-     </p>
-     <!--<p class="note">
-       <small>
-         NOTE&#160;2&#160;&#160;
-         The module 
-         <a href="index_arm_modules{$FILE_EXT}" target="index">index</a>
-         contains a complete list of all the modules used in the BOM of
-         this part of ISO 10303. 
-       </small>
-     </p>-->
-
-     <!--<h2><a name="421">4.2.1&#160;Model overview</a></h2>
-     The following subclauses contain a business overview of the
-     requirements contained in the BOM module 
-     (<a href="{$model_href}"><xsl:value-of select="$model_partno"/></a>)
-     as represented in the following list of modules.-->
-     <!--<xsl:apply-templates select="inforeqt/reqtover"/>-->
-   </xsl:template>		
+    
+    
+    <xsl:apply-templates select="capabilities"/>
+    <xsl:apply-templates select="fundamentals"/>
+    <xsl:apply-templates select="types"/>
+    <xsl:apply-templates select="entities"/>
+  </xsl:template>
+  
+  
+  
+  <xsl:template match="capabilities">
+    <h2><a name="41">4.1&#160;Business object model capabilities</a></h2>
+    
+    <p>
+      This subclause specifies the capabilities for the business object model. The capabilities and their definitions are specified below.
+    </p>
+    <xsl:apply-templates select="description"/>
+    <xsl:apply-templates select="capability"/>
+  </xsl:template>
 		
+	<xsl:template match="capability">
+	   
+	  <h3><a name="41x">4.1.<xsl:value-of select="position()"/>&#160;<xsl:value-of select="./@title"/></a></h3>
+	  <xsl:apply-templates select="description"/>
+	</xsl:template>
 	
    <xsl:template match="fundamentals">
-     <h2><a name="41">4.1&#160;Business object model type definitions</a></h2>
+     <h2><a name="42">4.2&#160;Fundamental concepts and assumptions</a></h2>
 
-    <xsl:if test="string-length(normalize-space(/business_object_model/@purpose))=0">
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message"
-          select="'Error BOMdoc 41: business_object_model.xml/business_object_model/@purpose not specified'"/>
-      </xsl:call-template>
-    </xsl:if>
-
+    
      <p>
        This subclause describes the business context for the information
        required for 
@@ -186,7 +193,14 @@ $Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
      <xsl:apply-templates/>
    </xsl:template>
  
-
+  <xsl:template match="types">
+    <h2><a name="43">4.3&#160;Business object model type definitions</a></h2>
+  </xsl:template>
+  
+  <xsl:template match="entities">
+    <h2><a name="44">4.4&#160;Business object model entity definitions</a></h2>
+  </xsl:template>
+  
 
   <!-- <xsl:template match="reqtover">
      <xsl:variable name="model" select="@module"/>

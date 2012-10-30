@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.25 2008/05/21 17:34:55 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -97,21 +97,21 @@ $Id: sect_4_info_reqs.xsl,v 1.25 2008/05/21 17:34:55 mikeward Exp $
 
     <xsl:apply-templates select="inforeqt/fundamentals"/>
 
-    <h2><a name="42">4.2&#160;BOM entity definitions</a></h2>
+    <h2><a name="42">4.2&#160;Business object model entity definitions</a></h2>
     <xsl:variable name="model_clause4" select="concat('../../../business_object_models/',$model,'/sys/4_info_reqs',$FILE_EXT)"/>
-     The detailed information requirements for this BOM are defined in
+     The detailed information requirements for this BO model are defined in
 <!--     Clause <a href="{$module_clause4}">4</a> of  --> 
-     the BOM  
+     the BO model  
      (<a href="{$model_href}"><xsl:value-of select="$model_partno"/>)</a>.
      <p class="note">
        <small>
          NOTE&#160;1&#160;&#160;
-         The BOM EXPRESS 
+         The BO model EXPRESS 
          <a href="index_arm_express{$FILE_EXT}" target="index">index</a>
          contains a complete list of all
-         BOM objects identified in the information requirements in
+         BO model objects identified in the information requirements in
 <!--         Clause <a href="{$module_clause4}">4</a> of  --> 
-         the BOM  
+         the BO model  
          (<a href="{$model_href}"><xsl:value-of select="$model_partno"/></a>).
        </small>
      </p>
@@ -135,7 +135,7 @@ $Id: sect_4_info_reqs.xsl,v 1.25 2008/05/21 17:34:55 mikeward Exp $
 		
 	
    <xsl:template match="fundamentals">
-     <h2><a name="41">4.1&#160;BOM type definitions</a></h2>
+     <h2><a name="41">4.1&#160;Business object model type definitions</a></h2>
 
     <xsl:if test="string-length(normalize-space(/business_object_model/@purpose))=0">
       <xsl:call-template name="error_message">

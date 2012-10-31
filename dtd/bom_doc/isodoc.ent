@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: isodoc.ent,v 1.11 2011/12/09 15:12:16 mikeward Exp $
+     $Id: isodoc.ent,v 1.1 2012/10/24 06:17:38 mikeward Exp $
      Author:  Mike Ward,  Eurostep Limited
      Owner:   Developed by Euroste.
      Purpose: DTD for general BOM ISO elements 
  -->
- 
- <!-- BOM -->
-  
+
+<!--	entity parameters	-->
 <!ENTITY % desctext SYSTEM "text.ent">                            
 %desctext;
 
-<!ENTITY % isodoc-common SYSTEM "../isodoc-common.ent">
-%isodoc-common;
+<!ENTITY % HTMLsymbol PUBLIC "-//W3C//ENTITIES Symbols for XHTML//EN" "xhtml-symbol.ent">
+     %HTMLsymbol;
+     
+<!ENTITY % HTMLspecial PUBLIC "-//W3C//ENTITIES Special for XHTML//EN" "xhtml-special.ent">
+     %HTMLspecial;
 
-<!-- use the %description.content defined in text.ent              -->
+<!ENTITY % HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" "xhtml-lat1.ent">
+    %HTMLlat1;
+
+<!--<!ENTITY % refs-and-defs SYSTEM "refs-and-defs.ent">
+%refs-and-defs;-->
+
+<!ENTITY % contacts SYSTEM "contacts.ent">
+%contacts;
+
 <!ELEMENT description (%description.content;)*>
+
+             <!-- bibliographic elements -->
+<!ENTITY % bib-elts 
+  "#PCDATA
+  | orgname
+  | pubdate
+  | stdnumber
+  | subtitle
+  | stdtitle
+  | ulink
+  | primary-responsibility
+  | publisher
+  | institution
+  | place">
 
 <!-- Data planning model -->
 <!ELEMENT data_plan (imgfile+)>
@@ -50,3 +74,183 @@
 
 <!--                    express-g diagrams                         -->
 <!ELEMENT express-g (imgfile+ | img+)>
+
+
+<!--                    purpose of module                          -->
+<!ELEMENT purpose (%text-elts; | %block-elts; | %single-block-elts;)*>
+
+<!--                    bibliography                               -->
+<!ELEMENT bibliography (bibitem.inc | bibitem | bibitem.resource | bibitem.module | bibitem.ap)+>
+<!ATTLIST bibliography output_default (no | yes) "yes">
+
+<!--                    bibiographic item                          -->
+<!ELEMENT bibitem (%bib-elts;)*>
+<!-- an identifer for the bibliographic item.  It should be unique to the repository -->
+<!-- If n then the bibliographic item has not been published                     -->
+<!ATTLIST bibitem
+	id ID #IMPLIED
+        published (y | n) "y" >
+
+<!-- A list of bibitems that can be included in module.xml -->
+<!ELEMENT bibitem.list ((bibitem | bibitem.techreport | bibitem.book)+)>
+<!--                    included bibilographic item                -->
+<!ELEMENT bibitem.inc EMPTY>
+<!ATTLIST bibitem.inc
+	ref NMTOKEN #REQUIRED
+>
+
+<!ELEMENT bibitem.module  EMPTY>
+<!ATTLIST bibitem.module name NMTOKEN #REQUIRED>
+
+<!ELEMENT bibitem.ap EMPTY>
+<!ATTLIST bibitem.ap name NMTOKEN #REQUIRED>
+
+<!ELEMENT bibitem.resource EMPTY>
+<!ATTLIST bibitem.resource name NMTOKEN #REQUIRED>
+
+<!ELEMENT bibitem.techreport (primary-responsibility?, stdtitle, institution?, report-type?, number?, pubdate?, ulink?)>
+<!ATTLIST bibitem.techreport
+	id ID #IMPLIED
+        published (y | n) "y"
+>
+
+<!ELEMENT bibitem.book (primary-responsibility, stdtitle, place?, publisher?, pubdate?, ulink?)>
+<!ATTLIST bibitem.book
+	id ID #IMPLIED
+        published (y | n) "y"
+>
+
+<!--                    definition of a term                       -->
+<!ELEMENT def          (%text-elts;  | %block-elts; | %single-block-elts;)*>
+
+<!--                    definition                                 -->
+<!ELEMENT definition   (term, synonym*, def)                                  >
+<!ATTLIST definition
+             id         CDATA                              #IMPLIED  >
+
+<!--                    acronym                                    -->
+<!ELEMENT acronym      (#PCDATA)                                    >
+
+<!--                    synonym                                    -->
+<!ELEMENT synonym       (#PCDATA)                                    >
+
+<!--                    abbreviation                               -->
+<!ELEMENT abbreviation (acronym, (term | term.ref))                   >
+<!ATTLIST abbreviation
+             id         ID                                 #IMPLIED  >
+
+<!-- The abbreviations used in a module -->
+<!ELEMENT abbreviations (abbreviation*, abbreviation.inc*)+ >
+
+<!-- abbreviation inclusion -->
+<!ELEMENT abbreviation.inc EMPTY>
+<!ATTLIST abbreviation.inc linkend NMTOKEN #REQUIRED>
+
+<!-- A list of abbreviations that can be included in module.xml -->
+<!ELEMENT abbreviation.list (abbreviation+) >
+
+<!--                    term                                       -->
+<!ELEMENT term         (#PCDATA)                                    >
+<!ATTLIST term
+             id         CDATA                              #IMPLIED
+             linkend    IDREF                              #IMPLIED
+             url        CDATA                              #IMPLIED  >
+             
+
+<!-- a reference to a term that is defined elsewhere -->
+<!ELEMENT term.ref     EMPTY>
+<!ATTLIST term.ref     linkend            NMTOKEN         #REQUIRED
+                        normref            NMTOKEN         #IMPLIED>
+
+<!-- normative reference inclusion -->
+<!ELEMENT  normref.inc (term.ref*)>
+
+<!--                    normative reference                        -->
+<!ELEMENT  normref      (stdref, term*)                              >
+<!ATTLIST normref
+             url CDATA #IMPLIED
+             id  CDATA #REQUIRED
+             docbook-atts CDATA #FIXED "url #DEFAULT"
+             docbook NMTOKEN #FIXED "bibliomixed" >
+
+<!-- 
+        The normative references used in a module 
+        Either listed explicitly or referenced for inclusion through
+        normref.inc
+-->
+
+<!ELEMENT normrefs (normref*, normref.inc*) >
+
+
+<!-- the id of a normative reference to be included -->
+<!ATTLIST normref.inc normref NMTOKEN #IMPLIED>
+<!-- the name of a module to be included as a normative reference -->
+<!ATTLIST normref.inc module.name NMTOKEN #IMPLIED>
+<!-- the name of an integrated resource  to be included as a normative reference --> 
+<!ATTLIST normref.inc resource.name NMTOKEN #IMPLIED>
+
+<!-- A list of normative references that can be included in module.xml -->
+<!ELEMENT normref.list (normref+) >
+
+
+
+<!--                    standard reference                         -->
+<!ELEMENT stdref       (%bib-elts;)*                                >
+<!-- If y then the standard has been published                     -->
+<!ATTLIST stdref       published               (y | n) "y"          >
+
+<!--                    organization name                          -->
+<!ELEMENT orgname      (#PCDATA)                                    >
+<!ATTLIST orgname
+             docbook    NMTOKEN                     #FIXED "orgname" >
+
+<!--                    publication date                           -->
+<!ELEMENT pubdate      (#PCDATA)                                    >
+<!ATTLIST pubdate
+             docbook    NMTOKEN                     #FIXED "pubdate" >
+
+<!--                    release information                        -->
+<!ELEMENT stdnumber  (#PCDATA)                                      >
+<!ATTLIST stdnumber
+             docbook    NMTOKEN                 #FIXED "stdnumber"   >
+
+<!--                    subtitle                                   -->
+<!ELEMENT subtitle     (#PCDATA)                                    >
+<!ATTLIST subtitle
+             docbook    NMTOKEN                    #FIXED "subtitle" >
+
+<!--                    title of standard                          -->
+<!ELEMENT stdtitle     (#PCDATA)                                    >
+<!ATTLIST stdtitle
+             docbook    NMTOKEN                       #FIXED "title" >
+
+<!--                    link to URL                                -->
+<!ELEMENT ulink        (#PCDATA)                                    >
+<!ATTLIST ulink
+             docbook    NMTOKEN                       #FIXED "ulink" >
+
+<!ELEMENT primary-responsibility        (#PCDATA)                                    >
+<!ATTLIST primary-responsibility
+             docbook    NMTOKEN                       #FIXED "primary-responsibility" >
+
+<!ELEMENT publisher        (#PCDATA)                                    >
+<!ATTLIST publisher
+             docbook    NMTOKEN                       #FIXED "publisher" >
+
+<!ELEMENT institution        (#PCDATA)                                    >
+<!ATTLIST institution
+             docbook    NMTOKEN                       #FIXED "institution" >
+
+<!ELEMENT place        (#PCDATA)                                    >
+<!ATTLIST place
+             docbook    NMTOKEN                       #FIXED "place" >
+
+<!ELEMENT report-type        (#PCDATA)                                    >
+<!ATTLIST report-type
+             docbook    NMTOKEN                       #FIXED "report-type" >
+
+<!ELEMENT number        (#PCDATA)                                    >
+<!ATTLIST number
+             docbook    NMTOKEN                       #FIXED "number" >
+             
+

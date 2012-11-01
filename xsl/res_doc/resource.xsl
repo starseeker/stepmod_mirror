@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.85 2011/06/24 08:37:04 philsp Exp $
+$Id: resource.xsl,v 1.86 2012/08/31 17:59:42 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2158,11 +2158,13 @@ the types, entity specializations, and functions that are specific to this part 
               </xsl:variable>
               <!-- eliminate status info like TS, CD-TS, etc -->
               <xsl:variable name="orgname_cleaned">
-                <xsl:choose>
-                  <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
-				<!--  Add 'Z', so that it is placed at the of the list while sorting -->                  
-                  <xsl:otherwise>Z<xsl:value-of select="$orgname"/></xsl:otherwise>
-                </xsl:choose>  
+              	<xsl:choose>
+              		<xsl:when test="$orgname='ISO'">AISO</xsl:when>
+              		<xsl:when test="$orgname='ISO/TS'">AISO</xsl:when>
+              		<xsl:when test="$orgname='ISO/IEC'">BIEC</xsl:when>
+              		<xsl:when test="$orgname='IEC'">CIEC</xsl:when>
+              		<xsl:otherwise>D<xsl:value-of select="$orgname"/></xsl:otherwise>
+              	</xsl:choose>   
               </xsl:variable>
                 <!-- Try to 'normalize' part and subpart numbers -->
                 <xsl:variable name="series" select="substring-before($part,'-')"/>

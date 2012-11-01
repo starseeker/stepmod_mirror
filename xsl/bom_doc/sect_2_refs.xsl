@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
+$Id: sect_2_refs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display normative references clause for a BOM.
@@ -56,7 +56,7 @@ $Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
       <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
-        <xsl:sort select='part'/>
+        <xsl:sort select="part"/>
         <xsl:for-each select="string/*">
          <xsl:copy-of select="."/>
         </xsl:for-each>
@@ -66,7 +66,7 @@ $Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
       <xsl:variable name="normrefs_to_be_sorted_set" select="exslt:node-set($normrefs_to_be_sorted)"/>
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
-        <xsl:sort select='part'/>
+        <xsl:sort select="part"/>
         <xsl:for-each select="string/*">
          <xsl:copy-of select="."/>
         </xsl:for-each>
@@ -223,9 +223,11 @@ $Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
               <!-- eliminate status info like TS, CD-TS, etc -->
               <xsl:variable name="orgname_cleaned">
                 <xsl:choose>
-                  <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
-				  <!--  Add 'Z', so that it is placed at the of the list while sorting -->                  
-                  <xsl:otherwise>Z<xsl:value-of select="$orgname"/></xsl:otherwise>
+                  <xsl:when test="$orgname='ISO'">AISO</xsl:when>
+                  <xsl:when test="$orgname='ISO/TS'">AISO</xsl:when>
+                  <xsl:when test="$orgname='ISO/IEC'">BIEC</xsl:when>
+                  <xsl:when test="$orgname='IEC'">CIEC</xsl:when>
+                  <xsl:otherwise>D<xsl:value-of select="$orgname"/></xsl:otherwise>
                 </xsl:choose>  
               </xsl:variable>
                 <!-- Try to 'normalize' part and subpart numbers -->

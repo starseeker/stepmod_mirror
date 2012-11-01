@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
+$Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -175,29 +175,7 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
               <xsl:with-param name="no_of_leading_zeros_param" select="number(6 - string-length($stdno_suffix))"/>
             </xsl:call-template>
           </xsl:variable>
-          
-          <!--<xsl:variable name="leading_zeros">
-            <xsl:choose>
-              <xsl:when test="$no_of_leading_zeros=1">0</xsl:when>
-              <xsl:when test="$no_of_leading_zeros=2">00</xsl:when>
-              <xsl:when test="$no_of_leading_zeros=3">000</xsl:when>
-              <xsl:when test="$no_of_leading_zeros=4">0000</xsl:when>
-              <xsl:when test="$no_of_leading_zeros=5">00000</xsl:when>
-            </xsl:choose>
-          </xsl:variable>-->
-          
-          <!-- MWD -->
-          
-         <!-- <xsl:variable name="leading_zeros_std_no">
-            <xsl:choose>
-              <xsl:when test="$no_of_leading_zeros_std_no=1">0</xsl:when>
-              <xsl:when test="$no_of_leading_zeros_std_no=2">00</xsl:when>
-              <xsl:when test="$no_of_leading_zeros_std_no=3">000</xsl:when>
-              <xsl:when test="$no_of_leading_zeros_std_no=4">0000</xsl:when>
-              <xsl:when test="$no_of_leading_zeros_std_no=5">00000</xsl:when>
-            </xsl:choose>
-          </xsl:variable>-->
-          
+               
           <!-- MWD -->
           <xsl:value-of select="concat($stdno_prefix_leading_zeros, $stdno_prefix, $stdno_suffix_leading_zeros, $stdno_suffix)"/>
           <!--<xsl:value-of select="concat($leading_zeros_std_no, $stdno_prefix, $leading_zeros, $stdno_suffix)"/>--><!-- MWD $leading_zeros_std_no added -->
@@ -282,11 +260,12 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
 </xsl:template>
 
 <xsl:template match="normref" mode="group">
-  <xsl:variable name="orgname" select="normalize-space(stdref/orgname)"/>
+  <xsl:variable name="orgname" select="normalize-space(./stdref/orgname)"/>
   <xsl:choose>
     <xsl:when test="$orgname='ISO'">AISO</xsl:when>
+    <xsl:when test="$orgname='ISO/TS'">AISO</xsl:when>
     <xsl:when test="$orgname='ISO/IEC'">BIEC</xsl:when>
-    <xsl:when test="$orgname='ISO/IEC'">CISOIEC</xsl:when>
+    <xsl:when test="$orgname='IEC'">CIEC</xsl:when>
     <xsl:otherwise>DOTHER</xsl:otherwise>
   </xsl:choose>  
 </xsl:template>
@@ -480,7 +459,6 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
       <xsl:with-param name="module" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-    
   
   <xsl:element name="normref">
     <xsl:attribute name="id">
@@ -488,13 +466,16 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
           <xsl:variable name="no_of_leading_zeros" select="number(6 - $part_no_length)"/>
           
           <xsl:variable name="leading_zeros">
-            <xsl:choose>
+            <xsl:call-template name="get_leading_zeros">
+              <xsl:with-param name="no_of_leading_zeros_param" select="$no_of_leading_zeros"/>
+            </xsl:call-template>
+            <!--<xsl:choose>
               <xsl:when test="$no_of_leading_zeros=1">0</xsl:when>
               <xsl:when test="$no_of_leading_zeros=2">00</xsl:when>
               <xsl:when test="$no_of_leading_zeros=3">000</xsl:when>
               <xsl:when test="$no_of_leading_zeros=4">0000</xsl:when>
               <xsl:when test="$no_of_leading_zeros=5">00000</xsl:when>
-            </xsl:choose>
+            </xsl:choose>-->
           </xsl:variable>
           
       <xsl:value-of select="concat('10303', $leading_zeros, @part)"/>
@@ -516,10 +497,11 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
 <xsl:template match="normref_nodes" mode="output_normrefs">
   
   <xsl:apply-templates select="normref" mode="output_html">    
-    <xsl:sort select="@group"/>
+    <xsl:sort select="@group" data-type="text"/>
     <xsl:sort select="@id" data-type="text"/>
   </xsl:apply-templates>
   <xsl:apply-templates select="normref.resource" mode="check_resources"/>
+  
   <xsl:if test="normref/stdref[@published='n']">
     <table width="200">
       <tr>
@@ -554,6 +536,7 @@ $Id: sect_2_refs.xsl,v 1.14 2010/09/12 16:43:33 radack Exp $
     <xsl:if test="count(following-sibling::normref[@id=$id])=0">
       <xsl:variable name="stdnumber" select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
       <xsl:variable name="current_module_status" select="../@current_module_status"/>
+      
       <p>
         <xsl:value-of select="$stdnumber"/>
         <xsl:if test="stdref[@published='n']">

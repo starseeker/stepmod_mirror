@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.22 2008/06/26 14:36:30 abf Exp $
+$Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -269,9 +269,11 @@ $Id: sect_2_refs.xsl,v 1.22 2008/06/26 14:36:30 abf Exp $
               <!-- eliminate status info like TS, CD-TS, etc -->
               <xsl:variable name="orgname_cleaned">
                 <xsl:choose>
-                  <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
-				  <!--  Add 'Z', so that it is placed at the of the list while sorting -->                  
-                  <xsl:otherwise>Z<xsl:value-of select="$orgname"/></xsl:otherwise>
+                  <xsl:when test="$orgname='ISO'">AISO</xsl:when>
+                  <xsl:when test="$orgname='ISO/TS'">AISO</xsl:when>
+                  <xsl:when test="$orgname='ISO/IEC'">BIEC</xsl:when>
+                  <xsl:when test="$orgname='IEC'">CIEC</xsl:when>
+                  <xsl:otherwise>D<xsl:value-of select="$orgname"/></xsl:otherwise>
                 </xsl:choose>  
               </xsl:variable>
                 <!-- Try to 'normalize' part and subpart numbers -->

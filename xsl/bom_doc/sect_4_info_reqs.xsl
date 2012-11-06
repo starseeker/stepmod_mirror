@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.2 2012/10/30 14:23:27 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.3 2012/10/30 23:04:37 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -112,21 +112,20 @@ $Id: sect_4_info_reqs.xsl,v 1.2 2012/10/30 14:23:27 mikeward Exp $
       </small>
     </p>
     <p>
-      This clause defines the information requirements to which business object model implementations shall conform using the EXPRESS language as defined in ISO 10303-11. The following begins the AP<xsl:value-of select="$ap_number_param"/> business object model schema.
-      EXPRESS specification:
+      This clause defines the information requirements to which business object model implementations shall conform using the EXPRESS language as defined in ISO 10303-11. <!--The following begins the AP<xsl:value-of select="$ap_number_param"/> business object model schema.
+      EXPRESS specification:-->
     </p>
-    <p>
+    <!--<p>
       <u>EXPRESS specification:</u><br/>
       (*<br/>
       SCHEMA <xsl:value-of select="concat($model_param, '_bom')"/>;<br/>
       *)
-    </p>
+    </p>-->
     
     
     <xsl:apply-templates select="capabilities"/>
     <xsl:apply-templates select="fundamentals"/>
-    <xsl:apply-templates select="types"/>
-    <xsl:apply-templates select="entities"/>
+    <xsl:apply-templates select="bom"/>
   </xsl:template>
   
   
@@ -193,14 +192,14 @@ $Id: sect_4_info_reqs.xsl,v 1.2 2012/10/30 14:23:27 mikeward Exp $
      <xsl:apply-templates/>
    </xsl:template>
  
-  <xsl:template match="types">
+  <!--<xsl:template match="types">
     <h2><a name="43">4.3&#160;Business object model type definitions</a></h2>
   </xsl:template>
   
   <xsl:template match="entities">
     <h2><a name="44">4.4&#160;Business object model entity definitions</a></h2>
   </xsl:template>
-  
+  -->
 
   <!-- <xsl:template match="reqtover">
      <xsl:variable name="model" select="@module"/>
@@ -311,5 +310,10 @@ $Id: sect_4_info_reqs.xsl,v 1.2 2012/10/30 14:23:27 mikeward Exp $
 
   </xsl:template>
 
+ 
+  <!-- overwrites the template declared in business_object_model.xsl -->
+ <!-- <xsl:template match="business_object_model">
+    <xsl:apply-templates select="bom"/>
+  </xsl:template>-->
 
 </xsl:stylesheet>

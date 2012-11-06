@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.181 2010/06/01 20:36:38 lothartklein Exp $
+$Id: common.xsl,v 1.182 2012/03/15 07:07:19 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1766,6 +1766,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       <xsl:call-template name="get_href_from_express_ref">
         <xsl:with-param name="linkend" select="@linkend"/>
       </xsl:call-template>
+      
     </xsl:variable>
 
     <xsl:variable name="last_section">
@@ -1807,6 +1808,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:when test="contains($last_section,':arm_lf_express:')">
           <xsl:value-of select="substring-after($last_section,':arm_lf_express:')"/>
         </xsl:when>
+        
+        <!-- if the express_ref is of the form
+          linkend="" -->
+        <xsl:when test="contains($last_section,':bom:')">
+          <xsl:value-of select="substring-after($last_section,':bom:')"/>
+        </xsl:when>
 
         <xsl:otherwise>
           <xsl:value-of select="$last_section"/>
@@ -1823,6 +1830,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                     @linkend,
                     '# is incorrectly specified.')"/>
         </xsl:call-template>
+      
         <xsl:choose>
           <xsl:when test="string-length(normalize-space(.))>0">
             <b><xsl:apply-templates/></b>
@@ -1862,6 +1870,13 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:with-param name="module" select="substring-before($nlinkend,':')"/>
       </xsl:call-template>
     </xsl:variable>
+     
+     <!-- BOM -->
+     <xsl:variable name="model">
+       <xsl:call-template name="model_name2">
+         <xsl:with-param name="model_param" select="substring-before($nlinkend,':')"/>
+       </xsl:call-template>
+     </xsl:variable>
 
 
     <xsl:variable
@@ -1877,7 +1892,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                         or $nlinkend1='mim_lf_express'
                         or $nlinkend1='mim_express'
                         or $nlinkend1='ir_express'
-						or $nlinkend1='ir'">
+						            or $nlinkend1='ir'
+						            or $nlinkend1='bom'"><!-- BOM -->
           <xsl:value-of select="$nlinkend1"/>
         </xsl:when>
         <xsl:otherwise>
@@ -1928,6 +1944,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+        <!-- BOM -->
+        <xsl:when test="$arm_mim_ir='bom'">
+          <xsl:value-of
+            select="concat($baselink,'business_object_models/',$model,
+            '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='arm_express'">
@@ -3226,6 +3248,10 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       <xsl:variable
         name="module"
         select="substring-before($nlinkend,':')"/>
+      
+      <xsl:variable
+        name="model"
+        select="substring-before($nlinkend,':')"/>
 
 	  <xsl:variable 
 		  name="module_section" 
@@ -3246,6 +3272,13 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 			</xsl:call-template>
 
 		  </xsl:when>
+		  
+		  <xsl:when test="$nlinkend1='bom'"><!-- BOM -->
+		    <xsl:call-template name="model_directory2">
+		      <xsl:with-param name="model" select="$model"/>
+		      </xsl:call-template>
+		  </xsl:when>
+		  
 		  <xsl:otherwise>
         <xsl:call-template name="resource_directory">
           <xsl:with-param name="module" select="$module"/>
@@ -3346,6 +3379,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:when test="$arm_mim_res='reference'">
             <xsl:value-of select="concat('../data/reference/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
+          <xsl:when test="$arm_mim_res='bom'"><!-- BOM -->
+            <xsl:value-of select="concat($mod_dir,'/bom.xml')"/>
+          </xsl:when>
         </xsl:choose>
       </xsl:variable>
 
@@ -3426,7 +3462,7 @@ is case sensitive.')"/>
                         The data type ', $schema,'.',$entity_type,' does not exist.#Note linkend
 is case sensitive.')"/>
             </xsl:call-template>
-
+            
           </xsl:if>
 
         </xsl:when>
@@ -3486,7 +3522,11 @@ is case sensitive.')"/>
   <xsl:variable 
     name="resdoc_section" 
     select="substring-before($nlinkend,':')"/>
-
+  
+  <!-- BOM -->
+  <xsl:variable 
+    name="model_section" 
+    select="substring-before($nlinkend,':')"/>
 
   <xsl:variable 
     name="nlinkend1"
@@ -3521,11 +3561,17 @@ is case sensitive.')"/>
         </xsl:call-template>  -->
         <xsl:value-of select="'true'"/>
       </xsl:when>
+      <!-- BOM -->
+      <xsl:when test="$nlinkend1='bom'">
+        <xsl:value-of select="'true'"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'false'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+  
+  
   
   <xsl:variable name="arm_mim_ir_section">
     <xsl:choose>
@@ -3537,7 +3583,8 @@ is case sensitive.')"/>
                       or $nlinkend1='mim_lf_express'
                       or $nlinkend1='ir'
                       or $nlinkend1='ir_express'
-                      or $nlinkend1='reference'">
+                      or $nlinkend1='reference'
+                      or $nlinkend1='bom'"><!-- BOM -->
         <xsl:value-of select="$nlinkend1"/>
       </xsl:when>
       <xsl:otherwise>
@@ -4978,6 +5025,40 @@ is case sensitive.')"/>
     &lt;<a href="{$href}"><xsl:value-of select="$href"/></a>&gt;<xsl:text/>
   </xsl:template>
   
+  <!-- BOM -->
+  <xsl:template name="model_directory2">
+    <xsl:param name="model"/>
+    <xsl:variable name="model_dir">
+      <xsl:call-template name="model_name2">
+        <xsl:with-param name="model_param" select="$model"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat('../data/business_object_models/', $model_dir)"/>
+    <!--<xsl:value-of select="string('../data/business_object_models/managed_model_based_3d_engineering')"/>-->
+  </xsl:template>
   
+  <!-- BOM -->
+  <xsl:template name="model_name2">
+    <xsl:param name="model_param"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="model_lcase"
+      select="translate(
+      normalize-space(translate($model_param,$UPPER, $LOWER)),
+      '&#x20;','_')"/>
+    <!-- hack to cope with fact that begining of linkend does not necessarily end with 'bom' (not sure why there is no similar problem with '_arm' or '_mim') -->
+    <xsl:variable name="mod_name">
+      <xsl:choose>
+        <xsl:when test="contains($model_lcase,'_bom')">
+          <xsl:value-of select="substring-before($model_lcase,'_bom')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="string($model_lcase)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:value-of select="substring-before($model_lcase,'_bom')"/>
+    </xsl:variable>
+    <xsl:value-of select="$mod_name"/>
+  </xsl:template>
   
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.33 2005/03/03 16:33:17 robbod Exp $
+$Id: business_object_model.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -12,8 +12,9 @@ $Id: business_object_model.xsl,v 1.33 2005/03/03 16:33:17 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <!-- <xsl:import href="../module.xsl"/> -->
   <!--<xsl:import href="business_object_model_toc.xsl"/>-->
-  <!--<xsl:import href="../express_code.xsl"/>-->
+  <xsl:import href="../express_code.xsl"/>
   <xsl:import href="common.xsl"/>
+  <xsl:import href="sect_4_express.xsl"/>
   <!--<xsl:import href="../projmg/bomdoc_issues.xsl"/>
 -->
   <xsl:variable name="global_xref_list">
@@ -262,9 +263,9 @@ $Id: business_object_model.xsl,v 1.33 2005/03/03 16:33:17 robbod Exp $
   <xsl:variable name="linkend" select="@linkend"/>
 
   <xsl:variable name="first_sect">
-    <!--<xsl:call-template name="check_express_ref_first_section">
+    <xsl:call-template name="check_express_ref_first_section">
       <xsl:with-param name="linkend" select="$linkend"/>
-    </xsl:call-template>-->
+    </xsl:call-template>
   </xsl:variable>
 
   <xsl:choose>
@@ -498,7 +499,145 @@ is case sensitive.')"/>
   </xsl:choose>
 </xsl:template>
  
-
+  <xsl:template match="bom">
+    <h2><a name="43">4.3&#160;Business object model type definitions</a></h2>
+    <xsl:variable name="model" select="../../@name"/>
+    <xsl:variable name="model_dir" select="$model"/>
+    <xsl:variable name="bom_xml" select="concat('../../data/business_object_models/', $model_dir,'/bom.xml')"/>
+    <xsl:variable name="bom_node" select="document($bom_xml)"/>
+    <p>
+      <u>EXPRESS specification:</u><br/>
+      (*<br/>
+      SCHEMA <xsl:value-of select="concat($model, '_bom')"/>;<br/>
+      *)
+    </p>
+    <!--<xsl:apply-templates select="$bom_node/express/schema/interface"/>
+    <xsl:apply-templates select="$bom_node/express/schema/constant"/>-->
+    <!-- display the EXPRESS for the types in the schema. -->
+    <xsl:apply-templates select="$bom_node/express/schema/type"/>
+    
+    <h2><a name="44">4.4&#160;Business object model entity definitions</a></h2>
+    
+    <!-- display the EXPRESS for the entities in the ARM.
+    The template is in sect4_express.xsl -->
+    <xsl:apply-templates select="$bom_node/express/schema/entity"/>
+    
+    <!--
+    <xsl:variable name="c_expg"
+      select="concat('./c_arm_expg',$FILE_EXT)"/>
+    <xsl:variable name="sect51" 
+      select="concat('./5_mapping',$FILE_EXT,'#mapping')"/>
+    
+    <xsl:variable name="current_module">
+      <xsl:call-template name="module_display_name">
+        <xsl:with-param name="module" select="../@name"/>
+      </xsl:call-template>           
+    </xsl:variable>
+    
+    <p class="note">
+      <small>
+        NOTE&#160;1&#160;&#160;A graphical representation of the information
+        requirements is given in 
+        Annex <a href="{$c_expg}">C</a>.
+      </small>
+    </p>
+    
+    <p class="note">
+      <small>
+        NOTE&#160;2&#160;&#160;The mapping specification is specified in 
+        <a href="{$sect51}">5.1</a>. It shows how
+        the information requirements are met by using common resources and
+        constructs defined or imported in the MIM schema of this application
+        module. 
+      </small>
+    </p>
+    
+    <p>
+      This clause defines the information requirements to which implementations shall
+      conform using the EXPRESS language as defined in ISO 10303-11.   
+      <xsl:choose>
+        <xsl:when test="$arm_node/express/schema/interface">
+          The following begins the 
+          <b><xsl:value-of select="$arm_node/express/schema/@name"/></b>
+          schema and identifies the necessary external references.
+        </xsl:when>
+        <xsl:otherwise>
+          The following begins the 
+          <b><xsl:value-of select="$current_module"/></b> schema.
+        </xsl:otherwise>
+      </xsl:choose>
+    </p>
+    
+    <!-\- Just display the description of the schema. -\->
+    <xsl:apply-templates 
+      select="$arm_node/express/schema" mode="description"/>
+    
+    
+    <!-\- there is only one schema in a module -\->
+    <xsl:variable 
+      name="schema_name" 
+      select="$arm_node/express/schema/@name"/>
+    
+    <xsl:call-template name="check_schema_name">
+      <xsl:with-param name="arm_mim_schema" select="'arm'"/>
+      <xsl:with-param name="schema_name" select="$schema_name"/>
+    </xsl:call-template>
+    
+    <xsl:variable name="xref">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <!-\- output any issuess against the schema   -\->
+    <!-\-<xsl:call-template name="output_express_issue">
+      <xsl:with-param name="schema" select="$schema_name"/>
+    </xsl:call-template>-\-> 
+    <u>EXPRESS specification: </u>
+    <code>
+      <br/>    <br/>
+      *)<br/>
+      <a name="{$xref}">
+        SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
+      </a>
+      <br/>(*<br/>
+    </code>
+   
+    
+    <!-\- display the constant EXPRESS. The template is in sect4_express.xsl -\->
+    
+    
+    
+    
+    <!-\- display the EXPRESS for the subtype.contraints in the ARM.
+      The template is in sect4_express.xsl -\->
+    <xsl:apply-templates 
+      select="$arm_node/express/schema/subtype.constraint"/>
+    
+    <!-\- display the EXPRESS for the functions in the ARM
+      The template is in sect4_express.xsl -\->
+    <xsl:apply-templates 
+      select="$arm_node/express/schema/function"/>
+    
+    <!-\- display the EXPRESS for the entities in the ARM. 
+      The template is in sect4_express.xsl -\->
+    <xsl:apply-templates 
+      select="$arm_node/express/schema/rule"/>
+    
+    <!-\- display the EXPRESS for the procedures in the ARM. 
+      The template is in sect4_express.xsl -\->
+    <xsl:apply-templates 
+      select="$arm_node/express/schema/procedure"/>-->
+    
+    
+    <code>
+      <br/>    <br/>
+      *)<br/>
+      END_SCHEMA;&#160;&#160;--&#160;<!--<xsl:value-of select="$arm_node/express/schema/@name"/>-->
+      <br/>(*
+    </code>
+    
+  </xsl:template>
 
 
 </xsl:stylesheet>

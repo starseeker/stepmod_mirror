@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.128 2012/08/24 22:43:25 lothartklein Exp $
+     $Id: sect_4_express.xsl,v 1.1 2012/11/06 09:37:44 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -936,9 +936,9 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable name="clause_header">
+  <!--<xsl:variable name="clause_header">
     <xsl:value-of select="concat($clause_number, ' BOM type definitions')"/>   
-  </xsl:variable>
+  </xsl:variable>-->
   
   <!--<h2><xsl:value-of select="$clause_header"/></h2>-->
   
@@ -959,11 +959,11 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
    
   <xsl:if test="position()=1">
     <!-- first entity so output the intro -->
-    <h2>
+   <!-- <h2>
       <a name="types">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h2>
+    </h2>-->
     <p>
       <xsl:value-of select="$clause_intro"/>
     </p>
@@ -1008,9 +1008,9 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
         <xsl:apply-templates select="." mode="expressg_icon"/>
       </h2>  -->    
 
-  <xsl:call-template name="check_type_name">
+  <!--<xsl:call-template name="check_type_name">
     <xsl:with-param name="type_name" select="@name"/>
-  </xsl:call-template>
+  </xsl:call-template>-->
 
 
   <xsl:apply-templates select="./select" mode="description"/>
@@ -3709,7 +3709,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:choose>    
   </xsl:variable>
 
-  <xsl:variable name="augmented_clause_number" select="number($clause_number+2)"/>
+  <xsl:variable name="augmented_clause_number" select="number($clause_number+1)"/>
   <xsl:variable name="main_clause">
     <xsl:value-of select="concat('4.',$augmented_clause_number)"/>      
   </xsl:variable>

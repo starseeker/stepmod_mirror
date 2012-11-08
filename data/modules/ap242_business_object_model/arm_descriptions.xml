@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="ap242_businessobjectmodel" schema_file="AP242_BusinessObjectModel.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/11/07 09:35:55 $" rcs.revision="$Revision: 1.146 $">
+<ext_descriptions module_directory="ap242_businessobjectmodel" schema_file="AP242_BusinessObjectModel.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/11/07 16:54:04 $" rcs.revision="$Revision: 1.147 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: AP242_BusinessObjectModel
    <express_ref linkend="ap242_businessobjectmodel::AP242_BusinessObjectModel"/>
@@ -3591,8 +3591,22 @@ is a string to specify a date and an optional time of day. The representation of
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.CentreOfMass">
-        A <b>CentreOfMass</b> is a type of
+<p>        A <b>CentreOfMass</b> is a type of
         <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ShapeDependentProperty" />
+		that is the centre of the mass of a body. The relative position of the <b>CentreOfMass</b> within the body is an invariant 
+		datum relative to rotation and translation. The <b>CentreOfMass</b> is a characteristic of a part, not its shape.
+</p>
+		<note number="1">
+			If a shape representation is present, the <b>CentreOfMass</b> is usually derivable from the shape representation. 
+			However, as a characteristic of a part, it may be pre-defined in order to reflect a requirement.
+		</note>
+		<note number="2">
+			In order to convey the information about the actual centre of mass of a geometric model, the use of 
+			<express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeneralShapeDependentProperty"/> 
+			with value 'centroid' for its attribute 
+			<express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeneralShapeDependentProperty.propertyType"/>  
+			is appropriate.
+		</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3601,6 +3615,8 @@ is a string to specify a date and an optional time of day. The representation of
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.CentreOfMass.centrePoint">
+	a point in three-dimensional space that defines the location of a <b>CentreOfMass</b> in the 
+	<express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeometricCoordinateSpace"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3609,6 +3625,13 @@ is a string to specify a date and an optional time of day. The representation of
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.CentreOfMass.definedIn">
+		<p>the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeometricCoordinateSpace"/> in 
+		which the property is applicable.</p>
+		<note  number="3">The values of geometry related properties are specified relative to a 
+		<express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeometricCoordinateSpace"/>.
+		</note>
+		<example>A <b>CentreOfMass</b> may be specified in different coordinate spaces for different 
+		dimensioning applications.</example>
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: Certification  
@@ -3817,7 +3840,33 @@ is a string to specify a date and an optional time of day. The representation of
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.Class">
-        A <b>Class</b> is a
+       <p> A <b>Class</b> is a classification of an object which characterizes all objects of the same kind; such a classification is 
+        independent from the application of the classified object. </p>
+        <example number="1">A fastener with subclasses, such as fastener with 2 or 3 fixture holes, a bracket with subclasses, 
+        e.g., with 90 or 100 degrees bending angle, or screws with subclasses such as metal screws or machine screws are examples for <b>Class</b>.</example>
+		<example number="2">
+			<p>For facilitating an effective part retrieval for slotted screws, several <b>Class</b> objects may be defined to classify screws:</p>
+			<ul>
+				<li>A <b>Class</b> *1 with <b>description</b> 'slotted screws' and three subclasses with the <b>description</b>s *2: 'slotted cheese head 
+				screws - product grade A', *3: 'slotted pan head screws - product grade A', and *4: 'slotted countersunk flat head screws - 
+				product grade A'.</li>
+				<li>Each of the <b>Class</b> objects is based on a <b>Class</b> that further defines where the definition of the <b>Class</b> comes from. 
+				For <b>Class</b> *1 this is a company internal <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ExternalClassSystem"/> for 'screw classes'. For the other <b>Class</b> objects these are ISO 
+				standardized <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ExternalClassSystem"/> objects, namely for *2 'ISO 1207', for *3 'ISO 1580', and for *4 'ISO 2010'.</li>
+				<li>The <b>Class</b> objects may be characterized further by <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ClassAttribute"/> objects. According to ISO 1207, the <b>Class</b> *2 has 
+				the attributes *11 with <b>id</b> 'd' and <b>description</b> 'thread', *12 with <b>id</b> 'l' and <b>description</b> 'nominal length', *13 with <b>id</b> 
+				'mechanical properties' and <b>description</b> 'property class', etc. The possible values 'M1.6', 'M2', ..., 'M10' for 
+				<express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ClassAttribute"/> *11 may be defined as <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> objects in a set of the attribute <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.Class_attribute.allowedValues"/>. The according specification 
+				is given as <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue.name"/> of the AO <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/>. The <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> refer as their definition to 
+				a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyDefinition"/> with the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyDefinition.propertyType"/> 'nominal metric thread diameter'.</li>
+				<li>To identify the designation 'Cheese head screw ISO 1207 - M5 x 20 x 4.8', a subclass of <b>Class</b>  *2 is defined with the 
+				same <b>description</b> and classification <b>source</b> and the <b>description</b> 'slotted cheese head screws ISO 1207 -M5 x 20 x 4.8' but 
+				with the values for <b>Class_attribute</b> corresponding to *11 restricted to 'M5' only, i.e., to get just the M5 screws, 
+				corresponding to *12 restricted to value '20' only, and corresponding to *13 restricted to value '4.8' only (for steel 
+				according to ISO 898-1 [7]).</li>
+			</ul>
+		</example>
+
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -7646,6 +7695,7 @@ shall not be related to itself.
 <ext_description linkend="AP242_BusinessObjectModel.ExpandedUncertainty">
         A <b>ExpandedUncertainty</b> is a type of
         <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.StandardUncertainty" />
+         that specifies the factor of an uncertainty.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -7654,7 +7704,8 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ExpandedUncertainty.coverageFactor">
-</ext_description><!-- 
+ the multiplier of the uncertainty of the value. 
+ </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: ExplicitTransformation2d  
    <express_ref linkend="ap242_businessobjectmodel::AP242_BusinessObjectModel.ExplicitTransformation2d"/>
@@ -8203,7 +8254,9 @@ the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectMo
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ExternalPropertyDefinition">
-        A <b>ExternalPropertyDefinition</b> is a
+<p>        An <b>ExternalPropertyDefinition</b> is the definition of a particular quality, which is externally defined.
+</p>
+		<example>An <b>ExternalPropertyDefinition</b> may reflect physics or arbitrary user defined measurements.</example>
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8223,6 +8276,13 @@ the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectMo
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ExternalPropertyDefinition.allowedUnits">
+		<p>	the unit or set of units that are accepted. 
+</p>
+		<example>A company may accept a mass specified in kilograms or tons, but not in grams or pounds.</example>
+		
+<p>A <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit"/> of a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> representing the <b>ExternalPropertyDefinition</b> shall not be expressed with a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.Unit"/> that is not contained in the <b>allowedUnits</b>, if the <b>allowedUnits</b> is specified. If specified, the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit.unit"/> attribute of <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit"/> of a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> representing the <b>ExternalPropertyDefinition</b> shall be contained in the <b>allowedUnits</b>, if the <b>allowedUnits</b> is specified.
+The value of this attribute need not be specified.
+</p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8240,6 +8300,7 @@ the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectMo
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ExternalPropertyDefinition.ur:UR1">
+the proxies of the <b>ExternalPropertyDefinition</b> shall be unique.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: ExternalRepresentation  
@@ -8383,7 +8444,7 @@ the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectMo
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ExternalTypeQualifier">
-        A <b>ExternalTypeQualifier</b> is a
+        A <b>ExternalTypeQualifier</b> is an external specification of the type of a datum.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8850,8 +8911,15 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.GeneralShapeDependentProperty">
-        A <b>GeneralShapeDependentProperty</b> is a type of
+<p>        A <b>GeneralShapeDependentProperty</b> is a type of
         <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ShapeDependentProperty" />
+                that defines a user-defined characteristic of an object. The 
+        <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> specified by a 
+        <b>GeneralShapeDependentProperty</b> is derived from geometry.
+</p>		<note>The <b>GeneralShapeDependentProperty</b> may be used for the purpose of validation of geometric models.</note>
+		<example  number="1">If a geometry model is exchanged between two partners, the calculation of various properties of the bodies, such as centre of mass, overall surface, or overall volume, is performed by originator and recipient. When comparing these set of values, the existence of deficiencies in the received model can be easily detected.
+</example>
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8860,6 +8928,18 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.GeneralShapeDependentProperty.propertyType">
+		<p>		the type of characteristic that is specified for an object.
+The following values shall be used:</p>
+		<ul>
+			<li>'centroid': The <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> identifies the centre point of the mass of a body. The relative position of this point within the body is an invariant datum relative to rotation and translation.;
+<example  number="2">An example, where the use of this <b>GeneralShapeDependentProperty</b> with <b>propertyType</b> 'centroid' is used instead of the object <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.CentreOfMass"/>, is the following: sometimes the <b>GeneralShapeDependentProperty</b> is calculated by some system at some point of time. But there are cases where the information, e.g., the <b>GeneralShapeDependentProperty</b> of a die, is transferred into a following stage, e.g., in order to perform a feasibility check, where there is only a simplified shape representation that does not allow to calculate the exact <b>GeneralShapeDependentProperty</b>. Yet, in this stage the information about the <b>GeneralShapeDependentProperty</b> is needed in order to check whether the transport of a die with a crane is feasible.</example>
+			</li>
+			<li>'surface area': The <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> specifies the overall surface of the bodies contained in the referenced shape.;
+
+</li>
+			<li>'volume': The <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> specifies the overall volume of the bodies contained in the referenced shape.
+</li>
+		</ul>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8868,6 +8948,7 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.GeneralShapeDependentProperty.propertyValue">
+	the value that is given for a particular characteristic.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -8876,6 +8957,8 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.GeneralShapeDependentProperty.unit">
+	the unit in which the <b>GeneralShapeDependentProperty</b> is expressed.
+      The value of this attribute need not be specified.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: GeometricalRelationship  
@@ -11372,7 +11455,7 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.MeasureQualification">
-        A <b>MeasureQualification</b> is a
+        A <b>MeasureQualification</b> is a means to provide information about measurements in which there is an associated uncertainty. The uncertainty may be specified as precision, qualitative uncertainty, or expanded uncertainty, and the type of the related datum shall be included. The uncertainty is defined in clause 2 of "The Guide to the Expression of Uncertainty in Measurement". 
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11403,7 +11486,8 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.MeasureQualification.qualifiers">
-</ext_description>
+  specifies the qualifier for the <b>MeasureQualification</b>. A qualifier can be either an <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.UncertaintyQualifier"/>, a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PrecisionQualifier"/>, an <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ExternalTypeQualifier"/>, an <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PreDefinedQualifier"/> .
+	  </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: MeasureQualification  Where: encapsulated 
@@ -11412,6 +11496,7 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.MeasureQualification.wr:encapsulated">
+ A <b>MeasureQualification</b> shall be used in exactly one other object.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: ModelProperty  
@@ -11419,7 +11504,7 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ModelProperty">
-        A <b>ModelProperty</b> is a
+        A <b>ModelProperty</b> is a mechanism to assign a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyDefinition"/> to a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeometricModel"/>, or a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.StyledModel"/>.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11428,6 +11513,10 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ModelProperty.definition">
+	the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyDefinition"/>
+	 that is assigned to a 
+	 <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.GeometricModel"/>, or a 
+	 <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.StyledModel"/>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11436,6 +11525,8 @@ Where applicable the following values shall be used:</p>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.ModelProperty.specifiedValue">
+	the model to which a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyDefinition"/> 
+	is assigned.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: ModelPropertyAssignment  
@@ -14171,7 +14262,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.PreDefinedTypeQualifier">
-        A <b>PreDefinedTypeQualifier</b> is a
+        A <b>PreDefinedTypeQualifier</b> is a specification of the type of a datum with predefined values.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14180,7 +14271,8 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.PreDefinedTypeQualifier.name">
-        the words or set of words by which the <b>PreDefinedTypeQualifier</b> is known.
+<p>        the words or set of words by which the <b>PreDefinedTypeQualifier</b> is known.
+</p>
 	    <note>This attribute supports multiple names in different contexts as well as multi linguism.</note>
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -16450,6 +16542,14 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.PropertyDefinition.allowedUnits">
+		<p>	the unit or set of units that are accepted. 
+</p>
+		<example>A company may accept a mass specified in kilograms or tons, but not in grams or pounds.</example>
+		
+<p>A <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit"/> of a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> representing the <b>PropertyDefinition</b> shall not be expressed with a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.Unit"/> that is not contained in the <b>allowedUnits</b>, if the <b>allowedUnits</b> is specified. If specified, the <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit.unit"/> attribute of <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.ValueWithUnit"/> of a <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.PropertyValue"/> representing the <b>PropertyDefinition</b> shall be contained in the <b>allowedUnits</b>, if the <b>allowedUnits</b> is specified.
+The value of this attribute need not be specified.
+</p>
+
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PropertyDefinitionAssignment  
@@ -17075,7 +17175,8 @@ shall not be related to itself.
   -->
 <ext_description linkend="AP242_BusinessObjectModel.QualitativeUncertainty">
         A <b>QualitativeUncertainty</b> is a type of
-        <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.UncertaintyQualifier" />
+        <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.UncertaintyQualifier" />.
+        The uncertainty is defined in clause 2 of "The Guide to the Expression of Uncertainty in Measurement". 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -17084,6 +17185,8 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.QualitativeUncertainty.uncertaintyValue">
+        the words or set of words by which the <b>QualitativeUncertainty</b> is described.
+	    <note>This attribute supports multiple names in different contexts as well as multi linguism.</note>
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: QuantifiedPartOccurrence  
@@ -19516,8 +19619,9 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.StandardUncertainty">
-        A <b>StandardUncertainty</b> is a type of
-        <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.UncertaintyQualifier" />
+        A <b>StandardUncertainty</b> is a type of 
+        <express_ref linkend="ap242_business_object_model:arm:AP242_BusinessObjectModel.UncertaintyQualifier" />.
+        A StandardUncertainty may be an ExpandedUncertainty. The uncertainty is defined in clause 2 of "The Guide to the Expression of Uncertainty in Measurement".
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19526,7 +19630,7 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.StandardUncertainty.uncertaintyValue">
-</ext_description><!-- 
+ specifies a REAL value of the uncertainty. </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: StockMaterial  
    <express_ref linkend="ap242_businessobjectmodel::AP242_BusinessObjectModel.StockMaterial"/>
@@ -20311,7 +20415,7 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.UncertaintyQualifier">
-        A <b>UncertaintyQualifier</b> is a
+        A <b>UncertaintyQualifier</b> specifies an uncertainty as defined in clause 2 of "The Guide to the Expression of Uncertainty in Measurement".
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -20331,6 +20435,8 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="AP242_BusinessObjectModel.UncertaintyQualifier.measureName">
+        the words or set of words by which the <b>UncertaintyQualifier</b> is known.
+	    <note>This attribute supports multiple names in different contexts as well as multi linguism.</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

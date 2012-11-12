@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
+$Id: sect_contents.xsl,v 1.3 2012/10/30 23:05:31 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -12,25 +12,30 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <!--<xsl:import href="../sect_contents.xsl"/>-->
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause_nofooter.xsl"/>
+  <!-- <xsl:import href="business_object_model_clause_nofooter.xsl"/> -->
+  <xsl:import href="business_object_model_clause.xsl"/>
   <xsl:output method="html"/>
   
  
 	
-  <!--<xsl:template match="business_object_model">
-    <xsl:apply-templates select="../business_object_model" mode="contents"/>
+  <xsl:template match="business_object_model">
+    <xsl:apply-templates select="." mode="linear"/>
+    <xsl:apply-templates select="." mode="contents_tables_figures"/>
+    <!--
     <xsl:apply-templates select="../business_object_model" mode="contents_tables_figures"/>
     <!-\- no longer required by ISO
        <xsl:apply-templates select="../business_object_model" mode="copyright"/>
        -\->
+      
     <br/><br/>
     <p>&#169; ISO <xsl:value-of select="@publication.year"/> &#8212; All rights reserved</p>
-  </xsl:template>-->
+    -->
+  </xsl:template>
 	
   <xsl:template match="business_object_model" mode="contents">
     <xsl:param name="target" select="'_self'"/>
    <!-- if complete is yes then display the introduction foreword etc -->
-    <xsl:param name="complete" select="'no'"/>
+    <xsl:param name="complete" select="'yes'"/>
    
    <!-- <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -88,6 +93,9 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#44" target="{$target}">4.4 Business object model entity definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
           </td>
           <td valign="top">
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
@@ -106,109 +114,78 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
           </td>
         </tr>
       </table>
+</small>
+  </xsl:template>
+
+  <xsl:template match="business_object_model" mode="linear">
+    <xsl:param name="target" select="'_self'"/>
+   <!-- if complete is yes then display the introduction foreword etc -->
+    <xsl:param name="complete" select="'yes'"/>
    
-<!--
-    &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e1" target="{$target}">E.1 Document identification</A><br/>
-    &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e2" target="{$target}">E.2 Schema identification</A><br/>
-    <xsl:if test="$short='no'">
-      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-      <A HREF="./annex_obj_reg{$FILE_EXT}#e21" target="{$target}">E.2.1 <xsl:value-of select="$arm_xml/@name"/> schema identification</A><br/>    
-      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-      <A HREF="./annex_obj_reg{$FILE_EXT}#e22" target="{$target}">E.2.2 <xsl:value-of select="$mim_xml/@name"/> schema identification</A><br/>
-      <xsl:if test="$module_xml//arm_lf">
-        <xsl:variable name="arm_lf_xml" select="concat($ap_module_dir,'/arm_lf.xml')"/>
-        <xsl:variable name="arm_schema_lf"  select="document($arm_lf_xml)/express/schema/@name"/>
-        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-        <A HREF="./annex_obj_reg{$FILE_EXT}#e23" target="{$target}">E.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</A><br/>     
-      </xsl:if>
-      <xsl:if test="$module_xml//mim_lf">
-        <xsl:variable name="mim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
-        <xsl:variable name="mim_schema_lf" select="document($mim_lf_xml)/express/schema/@name"/>
-        &#160;&#160;&#160;&#160;&#160;
-        <A HREF="./annex_obj_reg{$FILE_EXT}#e24" target="{$target}">E.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
-      </xsl:if>
-    </xsl:if>
--->
-    
-   <!-- <br/>
-    
-   
-    <xsl:variable name="al_com_int">
-      <xsl:call-template name="annex_letter" >
-        <xsl:with-param name="annex_name" select="'computerinterpretablelisting'"/>
-        <xsl:with-param name="annex_list" select="$annex_list"/>
+   <!-- <xsl:variable name="annex_list">
+      <xsl:apply-templates select="." mode="annex_list"/>
+    </xsl:variable>
+
+    <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
+    <xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
+	
+    <xsl:variable name="business_object_model_dir">
+      <xsl:call-template name="business_object_model_directory">
+        <xsl:with-param name="business_object_model" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
-    <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">
-      Annex <xsl:value-of select="$al_com_int"/> Computer interpretable listing
-    </a>
-    <br/>
-
-    <xsl:if test="./usage_guide">
-      <xsl:variable name="al_uguide">
-        <xsl:call-template name="annex_letter" >
-          <xsl:with-param name="annex_name" select="'usageguide'"/>
-          <xsl:with-param name="annex_list" select="$annex_list"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <a href="./annex_guide{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
-      </a>
-      <br/>
-      <xsl:apply-templates select="./usage_guide/annex_clause" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-        
-        <xsl:with-param name="annex_file"  select="'annex_guide'"/>
-        <xsl:with-param name="annex_letter"  select="$al_uguide"/>
-      </xsl:apply-templates>
-    </xsl:if>
-
-    <xsl:if test="./tech_disc">
-      <xsl:variable name="al_tech_disc">
-        <xsl:call-template name="annex_letter">
-          <xsl:with-param name="annex_name" select="'techdisc'"/>
-          <xsl:with-param name="annex_list" select="$annex_list"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <a href="./annex_tech_disc{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_tech_disc"/> Technical discussions
-      </a>
-      <br/>
-      <xsl:apply-templates select="./tech_disc/annex_clause" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-        
-        <xsl:with-param name="annex_file"  select="'annex_tech_disc'"/>
-        <xsl:with-param name="annex_letter"  select="$al_tech_disc"/>
-      </xsl:apply-templates>
-    </xsl:if>
-    
-    <xsl:if test="./changes/change_detail">
-      <xsl:variable name="al_changes">
-        <xsl:call-template name="annex_letter" >
-          <xsl:with-param name="annex_name" select="'changedetail'"/>
-          <xsl:with-param name="annex_list" select="$annex_list"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <a href="./annex_changes{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_changes"/> Detailed changes
-      </a>
-      <br/>
-      <xsl:apply-templates select="./changes/change_detail/annex_clause" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-        
-        <xsl:with-param name="annex_file"  select="'annex_changes'"/>
-        <xsl:with-param name="annex_letter"  select="$al_changes"/>
-      <xsl:with-param name="max-depth" select="2"/>
-      <xsl:with-param name="current-depth" select="0"/>
-
-      </xsl:apply-templates>
-      </xsl:if> -->
-
-   
-  </small>
+   		
+    <xsl:variable name="ccs_xml" select="document(concat($business_object_model_dir, '/ccs.xml'))"/>-->
+            <xsl:if test="$complete='yes'">
+              <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
+              <br/>
+              <a href="./contents{$FILE_EXT}" target="{$target}">Table of contents</a>
+              <br/>
+              <a href="./cover{$FILE_EXT}#copyright" target="{$target}">Copyright</a>
+              <br/>
+              <a href="./foreword{$FILE_EXT}" target="{$target}">Foreword</a>
+              <br/>
+              <a href="./introduction{$FILE_EXT}" target="{$target}">Introduction</a>
+              <br/>
+              <a href="./1_scope{$FILE_EXT}" target="{$target}">1 Scope</a>
+              <br/>
+              <a href="./2_refs{$FILE_EXT}" target="{$target}">2 Normative references</a>
+              <br/>
+            </xsl:if>
+            <a href="./3_defs{$FILE_EXT}" target="{$target}">3 Terms, definitions and abbreviated terms</a>  
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./3_defs{$FILE_EXT}#termsdefns" target="{$target}">3.1 Terms and definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./3_defs{$FILE_EXT}#abbrvterms" target="{$target}">3.2 Abbreviated terms</a>
+            <br/>
+            <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 BOM type definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 BOM entity definitions</a>
+            <br/>
+            <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
+            <br/>
+            <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
+            <br/>
+            <a href="./annex_xsd_der{$FILE_EXT}" target="{$target}">Annex B Derivation of XML schema</a>
+            <br/>
+            <a href="./annex_bom_expg{$FILE_EXT}" target="{$target}">Annex C BO model EXPRESS-G</a>&#160;&#160;<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
+            <br/>
+            <a href="./annex_bom_uml{$FILE_EXT}" target="{$target}">Annex D BO model UML diagrams</a>&#160;&#160;<img align="middle" border="0" alt="UML" src="../../../../images/uml.gif"/>
+            <br/>
+            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex E Computer interpretable listings</a>
+            <br/>
+            <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
+            <br/>
+            <a href="./index_apdoc{$FILE_EXT}#index" target="{$target}">Index</a>
   </xsl:template>
-  
-  <xsl:template match="business_object_model" mode="contents_tables_figures">
+
+<xsl:template match="business_object_model" mode="contents_tables_figures">
     <xsl:param name="target" select="'_self'"/>
     <xsl:variable name="ap_module_dir">
       <xsl:call-template name="business_object_model_directory">
@@ -216,7 +193,7 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:if test="count(//figure|//data_plan)!=0">
+    <xsl:if test="count(//figure)!=0">
       <h2>Figures</h2>
       <small>
       <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
@@ -226,15 +203,15 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
       <xsl:apply-templates select="//purpose" mode="data_plan_figure">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
-
+      
       <xsl:apply-templates select="//purpose//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
-
+      
       <xsl:apply-templates select="//fundamentals" mode="data_plan_figure">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
-
+      
       <xsl:apply-templates select="//inscope//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
@@ -244,15 +221,6 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
       </xsl:apply-templates>
 
       <xsl:apply-templates select="//inforeqt//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-
-      <xsl:apply-templates select="//aam/idef0/imgfile" mode="aam_figure">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//usage_guide//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
@@ -375,16 +343,7 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
   </small>
 
 
-    <!--
-    <h2><a name="index">Index</a></h2>
-    <a href="index_arm_modules{$FILE_EXT}">ARM modules</a><br/>
-    <a href="index_mim_modules{$FILE_EXT}">MIM modules</a><br/>
-    <a href="index_resources{$FILE_EXT}">Resource schemas</a><br/>
-    <a href="index_arm_express{$FILE_EXT}">ARM EXPRESS</a><br/>
-    <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
-    <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>
-    <a href="index_arm_express_nav{$FILE_EXT}">ARM EXPRESS Navigation</a><br/>
-    -->
+
   </xsl:template>
 	
 
@@ -458,27 +417,6 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
 
 
 
-<xsl:template match="arms_in_ccs" mode="toc">
-  <xsl:param name="table_number" select="0"/>
-  <xsl:param name="target" select="'_self'"/>
-  <a href="./6_ccs{$FILE_EXT}#cc_arm_table" target="{$target}">
-    Table 
-    <xsl:value-of select="$table_number"/>
-    &#8212; Conformance class ARM elements
-  </a>
-  <br/>
-</xsl:template>
-
-<xsl:template match="mims_in_ccs" mode="toc">
-  <xsl:param name="target" select="'_self'"/>
-  <xsl:param name="table_number" select="0"/>
-  <a href="./6_ccs{$FILE_EXT}#cc_mim_table" target="{$target}">
-    Table 
-    <xsl:value-of select="$table_number"/> 
-    &#8212; Conformance class MIM elements
-  </a>
-  <br/>
-</xsl:template>
 
 <!-- Note - this is no longer required on the contents page by ISO -->
 <xsl:template match="business_object_model" mode="copyright">
@@ -516,57 +454,8 @@ $Id: sect_contents.xsl,v 1.2 2012/10/30 14:27:17 mikeward Exp $
     <xsl:value-of select="$clause_hdr"/>
   </a>
   <br/>
-  <!-- 
-  <a name="cc_arm_table">
-	<a href="6_ccs_arm_table{$FILE_EXT}">          
-      Table 1 &#8212; Conformance class(es) and option(s) ARM elements
-    </a>  
-  </a>
-  <br/>
-  <a name="cc_mim_table">
-    <a href="6_ccs_mim_table{$FILE_EXT}">
-      Table 2 &#8212; Conformance class(es) and option(s) MIM elements
-    </a>  
-  </a>
-  <br/> -->
 </xsl:template>
 
-<xsl:template match="idef0" mode="toc">
-  <xsl:param name="target" select="'_self'"/>
-  <xsl:param name="short" select="'no'"/>
-  &#160;&#160;&#160;&#160;&#160;
-  <a href="./annex_aam{$FILE_EXT}#activity_defn" target="{$target}">
-    F.1 Application activity model definitions
-  </a>
-  <br/>
-  <xsl:if test="$short='no'">
-    <xsl:for-each select="./page/activity|./icoms/icom">
-      <xsl:sort select="normalize-space(./name)"/>
-      <xsl:variable name="clause_aname">
-        <xsl:choose>
-          <!-- only use the name if no identifier provided -->
-          <xsl:when test="string-length(normalize-space(@identifier))=0">
-            <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="translate(normalize-space(@identifier),' ','_')"/>
-          </xsl:otherwise>
-        </xsl:choose>        
-      </xsl:variable>
-      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-      <a href="./annex_aam{$FILE_EXT}#{$clause_aname}" target="{$target}">
-        <xsl:value-of select="concat('F.1.',position(),' ',normalize-space(./name))"/>
-      </a>
-      <br/>
-    </xsl:for-each>
-  </xsl:if>
-  &#160;&#160;&#160;&#160;&#160;
-  <a href="./annex_aam{$FILE_EXT}#activity_diags" target="{$target}">
-      F.2 Application activity model diagrams 
-  </a>
-  <br/>
-
-</xsl:template>
 
 <xsl:template match="reqtover" mode="toc">
   <xsl:param name="target" select="'_self'"/>

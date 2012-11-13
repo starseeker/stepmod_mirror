@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: common.xsl,v 1.2 2012/11/06 09:46:36 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -494,10 +494,10 @@ $Id: common.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
 		  <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
 		    <xsl:choose>
 		      <xsl:when test="./graphic.element/@page">
-			<xsl:value-of select="concat('../../modules/', $mod, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+			<xsl:value-of select="concat('../../modules/', $mod, '/bomexpg',./graphic.element/@page,$FILE_EXT)"/>                  
 		      </xsl:when>
 		      <xsl:otherwise>
-			<xsl:value-of select="concat('../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
+			<xsl:value-of select="concat('../../modules/', $mod, '/bomexpg1', $FILE_EXT)"/>
 		      </xsl:otherwise>
 		    </xsl:choose>
 		  </xsl:when>
@@ -515,12 +515,10 @@ $Id: common.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
 	      </xsl:when>
 	      <xsl:otherwise>
 		<xsl:choose>
-		  <xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
-		    <xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
+		  <xsl:when test="substring($schema, string-length($schema)-3)='_bom'">
+		    <xsl:value-of select="concat	($module_root,'/../../business_object_models/', $mod, '/bomexpg1', $FILE_EXT)"/>
 		  </xsl:when>
-		  <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-		    <xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
-		  </xsl:when>
+		  
 		</xsl:choose>
 	      </xsl:otherwise>
 	    </xsl:choose>
@@ -575,7 +573,7 @@ $Id: common.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
       <xsl:with-param name="filename" select="@file"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:variable name="model" select="../../../../business_object_model/@name"/>
+  <xsl:variable name="model" select="//business_object_model/@name"/>
   <xsl:variable name="href" select="concat('../../../business_object_models/', $model, '/', $file)"/>
   
     <a href="{$href}" target="_self">

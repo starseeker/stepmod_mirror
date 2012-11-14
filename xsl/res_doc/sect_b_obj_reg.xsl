@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.7 2009/08/24 10:34:36 lothartklein Exp $
+$Id: sect_b_obj_reg.xsl,v 1.8 2012/08/24 21:50:14 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -79,7 +79,7 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2009/08/24 10:34:36 lothartklein Exp $
   <!-- for now I will just get the names from the resource.xml rather than go to the schemas --> 
  
  <xsl:for-each select="./schema">
-   <xsl:variable name="schema" select="@name"/>
+   <xsl:variable name="schema" select="translate(@name,$UPPER, $LOWER)" />
 
    <h2>B.2.<xsl:value-of select="concat(position(),  ' ')"/><xsl:value-of select="$schema"/> schema identification</h2>
 
@@ -90,7 +90,7 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2009/08/24 10:34:36 lothartklein Exp $
   </p>
   <p align="center">
     <xsl:value-of 
-      select="concat($object_reg,' schema(', position(), ') ', $schema,'(1) }' )"/>
+      select="concat($object_reg,' object(1) ', $schema,'(', position(), ') }' )"/>
   </p>
   <p>
     is assigned to the <xsl:value-of select="$schema"/> schema. 

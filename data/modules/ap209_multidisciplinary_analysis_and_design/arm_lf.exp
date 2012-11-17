@@ -1,5 +1,5 @@
 (*
-$Id: arm_lf.exp,v 1.7 2012/10/11 02:22:06 thomasrthurman Exp $
+$Id: arm_lf.exp,v 1.8 2012/10/17 20:27:15 thomasrthurman Exp $
 WG12N2615 - ISO/CD - 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS ARM LF
 *)
 
@@ -10512,7 +10512,7 @@ ENTITY Multi_level_reference_designator
       leaf_node : PRODUCT_VIEW_DEFINITION_OR_REFERENCE := SELF\Product_occurrence_definition_relationship.related_view;  -- RELATED_VIEW : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
       root_node : PRODUCT_VIEW_DEFINITION := SELF\Product_occurrence_definition_relationship.relating_view;  -- RELATING_VIEW : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
 
-    : product_view_definition_or_reference := location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view;
+--bug 4666    : product_view_definition_or_reference := location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view;
 UNIQUE
   UR1 : location;
 END_ENTITY;
@@ -21411,13 +21411,14 @@ END_RULE;
 (* Implicit interfaced from: Assembly_structure_arm *)
 (* E2: SUBTYPE_CONSTRAINT assembly_component_relationship_constraint FOR ASSEMBLY_COMPONENT_RELATIONSHIP; *)
 -- generated from SUBTYPE_CONSTRAINT assembly_component_relationship_constraint
-
+--bug 4662
 RULE total_over_assembly_component_relationship_constraint FOR( ASSEMBLY_COMPONENT_RELATIONSHIP);
 WHERE
-  wr1 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap209_multidisciplinary_analysis_and_design_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0;
-  wr2 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap209_multidisciplinary_analysis_and_design_arm.MULTI_LEVEL_REFERENCE_DESIGNATOR'] * TYPEOF(p) ) = 0)) = 0;
-  wr3 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap209_multidisciplinary_analysis_and_design_arm.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
-  wr4 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap209_multidisciplinary_analysis_and_design_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
+  wr1 : SIZEOF(QUERY(p <* ASSEMBLY_COMPONENT_RELATIONSHIP | 
+  SIZEOF(['Ap209_multidisciplinary_analysis_and_design_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION',
+          'Ap209_multidisciplinary_analysis_and_design_arm.MULTI_LEVEL_REFERENCE_DESIGNATOR',
+          'Ap209_multidisciplinary_analysis_and_design_arm.NEXT_ASSEMBLY_USAGE',
+          'Ap209_multidisciplinary_analysis_and_design_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0;
 END_RULE;
 
 (* Implicit interfaced from: Machining_features_arm *)

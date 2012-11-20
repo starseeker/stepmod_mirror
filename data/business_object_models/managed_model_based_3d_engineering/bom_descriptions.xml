@@ -8,8 +8,8 @@
   schema_file="bom.xml" 
   describe.selects="YES" 
   describe.subtype_constraints="YES" 
-  rcs.date="$Date: 2012/11/20 13:45:31 $" 
-  rcs.revision="$Revision: 1.18 $">
+  rcs.date="$Date: 2012/11/20 14:50:30 $" 
+  rcs.revision="$Revision: 1.19 $">
   
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: managed_model_based_3d_engineering_bom
@@ -1166,9 +1166,9 @@ An <b>Activity</b> is an identification of the occurrence of an action that has 
 <ext_description linkend="managed_model_based_3d_engineering_bom.Activity.id">
      <p>  the identifier or set of identifiers for the <b>Activity</b>.
     
-      The value of this attribute need not be specified.
-    <note number="2">This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note>
-</p>
+      The value of this attribute need not be specified.</p>
+    <note number="1">This attribute supports multi identification in different contexts as described in <express_ref linkend="fundamentals"/>.</note>
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1364,9 +1364,9 @@ An <b>Activity</b> is an identification of the occurrence of an action that has 
 <ext_description linkend="managed_model_based_3d_engineering_bom.ActivityAssignment.id">
       <p> the identifier or set of identifiers for the <b>ActivityAssignment</b>.
     
-      The value of this attribute need not be specified.
+      The value of this attribute need not be specified.</p>
     <note number="2">This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note>
-</p>
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1641,8 +1641,8 @@ An <b>Activity</b> is an identification of the occurrence of an action that has 
 <ext_description linkend="managed_model_based_3d_engineering_bom.ActivityMethodRelationship.relating">
 	<p>       
 	 one object of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ActivityMethod"/> that is part of the relationship. 
-		    <note number="1">The semantics of this attribute are defined by the attribute <b>relationType</b>.</note>
-		</p>
+		</p>    <note number="1">The semantics of this attribute are defined by the attribute <b>relationType</b>.</note>
+		
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -7145,8 +7145,27 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Effectivity">
-        An <b>Effectivity</b> is a
-      </ext_description>
+ <p> An <b>Effectivity</b> is an identification of the valid use of an aspect of product data tracked by date, event, serial number or lot size.</p>
+ <note number="1">
+An instance of <b>Effectivity</b> may define a period or a part of ineffectivity, i.e., of invalid use, if it is referred to by an instance of 
+<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.EffectivityAssignment"/> with 
+<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.EffectivityAssignment.effectivityIndication"/> set to 'false'.
+</note>
+A 'start' value shall always be specified for a particular type of <b>Effectivity</b>, an 'end' value may be specified.
+<note number="2">
+This application protocol does not allow to specify effectivity or ineffectivity intervals without start values.
+</note>
+        <note number="3">
+If period or lot-size are not specified, the effectivity or ineffectivity is endless.
+</note>
+        <p>An <b>Effectivity</b> may 'inherit' its interval from another <b>Effectivity</b> through an 
+        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.EffectivityRelationship"/> with 
+        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.EffectivityRelationship.relationType"/> 
+        'inheritance'. If a 'start' and no 'end' is specified, the period or lot-size is then added to 'start' in order to get the actual 'end' of the effectivity or ineffectivity.
+</p>
+        <p>If both 'start' and 'end' are specified, the period should not be specified because of redundancy. If specified, it shall be equal to the measure 
+        between the 'start' and the 'end' of the effectivity or ineffectivity.</p>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: Effectivity  Attribute: id 
@@ -7213,7 +7232,11 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.EffectivityAssignment">
-        A <b>EffectivityAssignment</b> is a
+<p>An <b>Effectivity_assignment</b> is an object that associates an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Effectivity"/> 
+with the product or activity data whose effectivity is controlled by the associated <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Effectivity"/>. 
+The association of an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Effectivity"/> to product or activity data does not imply any statement concerning 
+the effectivity outside of the specified interval. The same applies in the absence of any assigned effectivity, i.e. no statement concerning the 
+effectivity is implied.</p>
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12346,7 +12369,11 @@ Where applicable the following values shall be used:</p>
 			<li>'owner': The assigned <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Person"/> or 
 			<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> owns the referenced object, and has final say over its disposition and any changes to it;
 </li>
+<<<<<<< bom_descriptions.xml
+			<li>'read access�: The assigned <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Person"/> or 
+=======
 			<li>'read access': The assigned <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Person"/> or 
+>>>>>>> 1.19
 			<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> neither has the right to modify any attributes of the referenced object, nor to modify, create or delete objects that are attached directly or indirectly to the referenced object;
 </li>
 			<li>'supplier': The assigned <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Person"/> or 

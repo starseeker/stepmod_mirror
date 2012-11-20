@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.86 2012/08/31 17:59:42 lothartklein Exp $
+$Id: resource.xsl,v 1.87 2012/11/01 19:06:30 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2076,10 +2076,12 @@ the types, entity specializations, and functions that are specific to this part 
     <xsl:when test="function-available('msxsl:node-set')">
       <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+      	
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
         <xsl:sort select='part'/>
+      	
         <xsl:for-each select="string/*">
-         <xsl:copy-of select="."/>
+        	<xsl:copy-of select="."/>
         </xsl:for-each>
       </xsl:for-each>
     </xsl:when>
@@ -2088,8 +2090,9 @@ the types, entity specializations, and functions that are specific to this part 
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
         <xsl:sort select='part'/>
+      	
         <xsl:for-each select="string/*">
-         <xsl:copy-of select="."/>
+        	<xsl:copy-of select="."/>
         </xsl:for-each>
       </xsl:for-each>
     </xsl:when>
@@ -2166,8 +2169,26 @@ the types, entity specializations, and functions that are specific to this part 
               		<xsl:otherwise>D<xsl:value-of select="$orgname"/></xsl:otherwise>
               	</xsl:choose>   
               </xsl:variable>
-                <!-- Try to 'normalize' part and subpart numbers -->
-                <xsl:variable name="series" select="substring-before($part,'-')"/>
+            	
+            	
+            	
+            	<!-- Try to 'normalize' part and subpart numbers -->
+                <!--<xsl:variable name="series" select="substring-before($part,'-')"/>-->
+            	
+            	<xsl:variable name="series">
+            		<xsl:choose>
+            			<xsl:when test="contains($part, '-')">
+            				<xsl:value-of select="substring-before($part,'-')"/>
+            			</xsl:when>
+            			<xsl:otherwise>
+            				<xsl:value-of select="$part"/>
+            			</xsl:otherwise>
+            		</xsl:choose>
+            	</xsl:variable>
+            	
+            	
+            	
+            	
                 <!-- normalize with longest possible series (10303) -->                    
                 <xsl:variable name="series_norm">
                 <xsl:choose>

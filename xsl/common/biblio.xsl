@@ -62,7 +62,8 @@
 					<xsl:value-of select="$number_inc"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:number count="bibitem"/>
+					<!--<xsl:number count="bibitem"/>-->
+					<xsl:number count="*" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -70,7 +71,7 @@
 		<p>
 			<A NAME="{$frag}"/>
 
-      [<xsl:value-of select="$number_start+$number"/>] 
+			[<xsl:value-of select="$number_start+$number"/>] 
       <xsl:apply-templates select="." mode="bibitem_content"/>
 			<xsl:apply-templates select="ulink"/>
 		</p>

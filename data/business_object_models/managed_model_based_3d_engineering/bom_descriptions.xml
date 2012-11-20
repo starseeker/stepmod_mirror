@@ -8,8 +8,8 @@
   schema_file="bom.xml" 
   describe.selects="YES" 
   describe.subtype_constraints="YES" 
-  rcs.date="$Date: 2012/11/20 12:54:50 $" 
-  rcs.revision="$Revision: 1.14 $">
+  rcs.date="$Date: 2012/11/20 13:06:05 $" 
+  rcs.revision="$Revision: 1.15 $">
   
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: managed_model_based_3d_engineering_bom
@@ -14202,8 +14202,12 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply">
-        A <b>Ply</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart" />
+    A <b>Ply</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart"/> that defines one of the layers of constant thickness material that make up a composite part. A <b>Ply</b> is a contiguous structure with a defined boundary that is made of one or more <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyPiece"/> objects (see following figure).
+                <note number="1"> A Ply may be a sheet pre-impregnated with resin material or a single-pass in a filament winding. Ply pieces that comprise a Ply must be of the same constant thickness material and fiber orientation (if fiber orientation is required). A Ply can also be the application of an isotropic material of constant thickness to an area. A Ply may not necessarily be a physical piece of material but an idealization of material in a zone that shares common fiber orientation and boundary.</note>
+                <note number="2"> The boundary of a Ply defines the edge of the material used to make the Ply, and includes an outer boundary and, if required, inner boundaries.</note>      
+                                                <figure number="3" id="Ply">
+                                               <title>Ply</title>
+             <img src="ply.gif"/></figure>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14212,6 +14216,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.materialType">
+                specifies the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.StockMaterial"/> that the Ply is made of.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14220,6 +14225,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.constituents">
+                specifies the list of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyPiece"/> objects that make up the <b>Ply</b>. There shall exist one or more <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyPiece"/>s for the <b>Ply</b>. The value of this attribute need not be specified.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14228,6 +14234,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.materialOrientation">
+                specifies the direction of the reinforcement fibers within a <b>Ply</b>. For materials with multiple orientations of fibers, orientation shall correspond to the warp direction of the material. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14236,6 +14243,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.plyThickness">
+                specifies the thickness that the <b>Ply</b> will contribute to part thickness after curing. The <b>plyThickness</b> is constant over the whole area of the <b>Ply</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14244,6 +14252,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.shape">
+                specifies the geometric representation for the <b>Ply</b> (<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyShape"/>). The value of this attribute need not be specified. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14253,6 +14262,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.wr:WR1">
+                plyThickness value must be superior or equal to 0.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14262,15 +14272,20 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.Ply.wr:WR2">
-</ext_description><!-- 
+                the unit name of the weight attribute, inherited from ConstitentPart, must be 'length'.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyLaminate  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyLaminate"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminate">
-        A <b>PlyLaminate</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart" />
+    A <b>PlyLaminate</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart"/> that is formed by two or more <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> objects that mate with each other. The plies have unique orientation and shape within the <b>PlyLaminate</b>. 
+                <note>Examples of PlyLaminate shape include angle, cap, flat, general contour, simple contour, complex contour, channel, etc. (see following figure). </note>
+                                               <figure number="4" id="PlyLaminate">
+                                               <title>Ply laminate</title>
+             <img src="PlyLaminate.gif"/></figure>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14279,6 +14294,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminate.plyTable">
+                specifies the ordered list of the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> sets that make up the <b>PlyLaminate</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14287,15 +14303,17 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminate.shape">
-</ext_description><!-- 
+                specifies the overall geometric representation of the <b>PlyLaminate</b> such as the edge of the <b>PlyLaminate</b> and any internal cutouts. The shape shall be one of the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyLaminateShapeSelect"/> entities. The value of this attribute need not be specified. 
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyLaminateSequenceDefinition  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyLaminateSequenceDefinition"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminateSequenceDefinition">
-        A <b>PlyLaminateSequenceDefinition</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart" />
+    A <b>PlyLaminateSequenceDefinition</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart"/> that is an illustration of a single unique sequence or layer within a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyLaminate"/>. The sequence or layer contains one or more plies.
+                <note> When more than one ply resides in the same sequence or layer, the plies must not overlap. If plies do overlap they must be put on separate sequence or layers.</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14304,15 +14322,21 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminateSequenceDefinition.pliesInSequence">
-</ext_description><!-- 
+                specifies the set of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> that are laminated at the sequence. There shall exist one or more <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> for the <b>PlyLaminateSequenceDefinition</b>. 
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyLaminateTable  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyLaminateTable"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminateTable">
-        A <b>PlyLaminateTable</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LaminateTable" />
+    A <b>PlyLaminateTable</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LaminateTable"/> that provides an ordered list of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> objects. The ordered list provides basic placement position within the laminate (see following figure). 
+                <note number="1">The valid components of a <b>PlyLaminateTable</b> are plies only.</note>
+                <note number="2">The <b>PlyLaminateTable</b> is only valid to describe a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LaminateTable"/>.</note>
+                                               <figure number="5" id="PlyLaminateTable">
+                                               <title>Ply laminate table</title>
+                                               <img src="PlyLaminateTable.gif"/></figure>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14321,15 +14345,19 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyLaminateTable.sequence">
-</ext_description><!-- 
+                specifies an ordered list of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> sets that make up the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyLaminate"/>. There shall be not less than two <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyLaminateSequenceDefinition"/> for the <b>PlyLaminateTable</b>.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyOrientationAngle  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyOrientationAngle"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle">
-        A <b>PlyOrientationAngle</b> is a
-      </ext_description>
+                A <b>PlyOrientationAngle</b> is an entitie that defines a particular direction within a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/>. The direction is defined in the coordinate axis of a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ReinforcementOrientationBasis"/>. The measurement is in degrees between -90 and +90. A <b>PlyOrientationAngle</b> may be one either a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.DrapedOrientationAngle"/> or a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LaidOrientationAngle"/>.  
+                <note number="1">For materials with multiple fiber orientations, the direction shall correspond to the warp direction of the material. Warp fibers are the primary load carrying fibers within a fabric material.</note>
+                <note number="2">In the design of a particular composite part, a finite set of <b>PlyOrientationAngle</b> values are established for use. An example of a set of commonly used <b>PlyOrientationAngle</b> is (0, 90, +45, -45).</note>
+    </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyOrientationAngle  Attribute: description 
@@ -14338,25 +14366,9 @@ shall not be related to itself.
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle.description">
         the text or the set of texts that provide further information about the <b>PlyOrientationAngle</b>.
-	    
-	      The value of this attribute need not be specified.
-	    </ext_description>
-<!-- 
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   Schema: AP242_BusinessObjectModel  Entity: PlyOrientationAngle  Attribute: relationType 
-   <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyOrientationAngle.relationType"/>
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-  -->
-<ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle.relationType">
-			        the meaning of the relationship. 
-				    
-				      The value of this attribute need not be specified.
-				    
-				Where applicable, the following class names shall be used:
-						<ul>
-<li>'value': value description; </li>
-</ul>
-</ext_description>
+                    
+                      The value of this attribute need not be specified.
+                    </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyOrientationAngle  Attribute: angleReference 
@@ -14364,6 +14376,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle.angleReference">
+specifies the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalCurve"/>, <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Direction"/>, or a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalPointPath"/> to serve as a reference for ply orientation. The <b>angleReference</b> shall be one of the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AngleSelect"/> entities for the <b>PlyOrientationAngle</b>. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14372,6 +14385,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle.fiberDirection">
+specifies the direction of the fiber within the ply.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14380,15 +14394,20 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyOrientationAngle.reinforcementDirection">
-</ext_description><!-- 
+specifies the coordinate axis in which the <b>fiberDirection</b> is defined.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyPiece  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyPiece"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyPiece">
-        A <b>PlyPiece</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart" />
+                A <b>PlyPiece</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ConstituentPart"/>. 
+                It is a single portion of a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> that may be combined with other ply pieces on the same layer to make up the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/>. 
+                A <b>PlyPiece</b> has the same material and orientation direction as defined for the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/> of which it is a portion.
+                <note><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.StockMaterial"/> may be too small to fully cover the area of a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/>. In this case the application may allow two or more pieces to be used. </note>
+                <example>Tape strips are a typical example of <b>PlyPieces</b> that are grouped together to fill a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyShape"/>.</example>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14397,22 +14416,25 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyPiece.shape">
+                specifies the geometric representation of the <b>PlyPiece</b>. The shape shall be a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyShape"/>. The shape need not be specified for a particular <b>PlyPiece</b>.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   Schema: AP242_BusinessObjectModel  Entity: PlyPiece  Attribute: warp_surface 
-   <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyPiece.warp_surface"/>
+   Schema: AP242_BusinessObjectModel  Entity: PlyPiece  Attribute: warpSurface 
+   <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyPiece.warpSurface"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-<ext_description linkend="managed_model_based_3d_engineering_bom.PlyPiece.warp_surface">
-</ext_description><!-- 
+<ext_description linkend="managed_model_based_3d_engineering_bom.PlyPiece.warpSurface">
+                specifies whether or not the material warp surface is away from the basis surface, when the value of this attribute is set to true or false respectively. Material warp surface is the side of the material where the majority of the fibers are located. 
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PlyShape  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.PlyShape"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyShape">
-        A <b>PlyShape</b> is a
+        A <b>PlyShape</b> is the association of a geometric representation to define the shape of a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Ply"/>. 
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14421,6 +14443,7 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyShape.basis">
+                specifies the shape representation that the <b>PlyShape</b> is derived from or that is used as its basis of definition. The value of this attribute need not be specified. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14429,7 +14452,9 @@ shall not be related to itself.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PlyShape.definingModel">
-</ext_description><!-- 
+                the geometric representation used for the <b>PlyShape</b>. The definingModel shall be one of the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PlyLaminateShapeSelect"/> entities.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: Point  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.Point"/>
@@ -17616,7 +17641,7 @@ If <b>RectangularSize</b> is not a <express_ref linkend="managed_model_based_3d_
       <p> the identifier or set of identifiers for the <b>ReinforcementOrientationBasis</b>.
     
       The value of this attribute need not be specified.
-   <note>This attribute supports multi identification in different contexts as described in clause for <b>fundamental concepts</b>.</note></p>
+   <note>This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note></p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19233,8 +19258,8 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.SmearedMaterial">
-        A <b>SmearedMaterial</b> is a type of
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ZoneStructuralMakeup" />
+    A <b>SmearedMaterial</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ZoneStructuralMakeup"/> that provides the material properties for an idealized zone or area of a part. 
+                <note> A <b>SmearedMaterial</b> can represent the material properties of a single <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.StockMaterial"/> by having the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PercentageLaminateTable"/> reference one <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.StockMaterial"/> and set its percent value of that materials constituent to 100%. </note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19243,7 +19268,9 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.SmearedMaterial.totalThickness">
-</ext_description><!-- 
+                specifies the thickness or depth of the zone defined by the <b>SmearedMaterial</b>.
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: Specification  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.Specification"/>
@@ -19888,8 +19915,9 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial">
-        A <b>StockMaterial</b> is a
-      </ext_description>
+    A <b>StockMaterial</b> is the material typically procured from a material supplier to fabricate a Part.
+                <note>The StockMaterial in this Part of 10303 is limited to the material types that physically become all or a portion of the finished part.</note>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: StockMaterial  Attribute: id 
@@ -19897,8 +19925,8 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.id">
-       the identifier or set of identifiers for the <b>StockMaterial</b>.
-    <note>This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note>
+     <p>  the identifier or set of identifiers for the <b>StockMaterial</b>.
+    <note>This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note></p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19907,8 +19935,8 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.name">
-        the words or set of words by which the <b>StockMaterial</b> is known.
-	    <note>This attribute supports multiple names in different contexts as well as multi linguism.</note>
+     <p>   the words or set of words by which the <b>StockMaterial</b> is known.
+                    <note>This attribute supports multiple names in different contexts as well as multi linguism.</note></p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19918,9 +19946,9 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.description">
         the text or the set of texts that provide further information about the <b>StockMaterial</b>.
-	    
-	      The value of this attribute need not be specified.
-	    </ext_description>
+                    
+                      The value of this attribute need not be specified.
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: StockMaterial  Attribute: versionId 
@@ -19928,10 +19956,10 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.versionId">
-        the identification or set of identifications of a particular version of the <b>StockMaterial</b>.
-	    
-	      The value of this attribute need not be specified.
-	    <note>This attribute supports multi identification in different contexts as described in <b>clause for fundamental concepts</b></note>
+    <p>    the identification or set of identifications of a particular version of the <b>StockMaterial</b>.
+                    
+                      The value of this attribute need not be specified.
+                    <note>This attribute supports multi identification in different contexts as described in <clause_ref linkend="fundamentals"/>.</note></p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19940,6 +19968,7 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.stockMaterialType">
+                specifies the material type for the <b>StockMaterial</b>. A <b>StockMaterial</b> may be either a AnisotropicMaterial or a BraidedAssembly, or a DiscontinuousFiberAssembly, or a FilamentAssembly, or a IsotropicMaterial, or a StockCore, or a WovenAssembly.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19948,6 +19977,7 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.propertyValues">
+                specifies the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.MaterialPropertyValue"/> that defines the behavior of the <b>StockMaterial</b> to an external response. 
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19956,7 +19986,9 @@ The <b>pageCount</b> shall only be used in cases where the <b>SizeProperty</b> i
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.StockMaterial.referenceDirection">
-</ext_description><!-- 
+                specifies the direction for the <b>StockMaterial</b> such as cell direction, grain direction, etc. The value of this attribute need not be specified. 
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: StringValue  
    <express_ref linkend="ap242_businessobjectmodel::managed_model_based_3d_engineering_bom.StringValue"/>

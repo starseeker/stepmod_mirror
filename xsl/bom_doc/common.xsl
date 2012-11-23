@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.2 2012/11/06 09:46:36 mikeward Exp $
+$Id: common.xsl,v 1.3 2012/11/13 10:56:27 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -1443,7 +1443,475 @@ $Id: common.xsl,v 1.2 2012/11/06 09:46:36 mikeward Exp $
     <xsl:value-of select="$ret_val"/>
   </xsl:template>
   
-  
+  <!-- BOM -->
+  <xsl:template match="bom_ref">
+    <!-- remove all whitespace -->
+    <xsl:variable
+      name="nlinkend"
+      select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+
+    <xsl:variable name="bom_sect">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend,':')">
+          <xsl:value-of select="substring-before($nlinkend,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="model">
+      <xsl:call-template name="business_object_model_name">
+        <xsl:with-param name="business_object_model" select="$bom_sect"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable
+      name="nlinkend1"
+      select="substring-after($nlinkend,':')"/>
+
+    <xsl:variable name="section_tmp">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend1,':')">
+          <xsl:value-of select="substring-before($nlinkend1,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend1"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- now check that section is a valid reference -->
+    <xsl:variable name="section">
+      <xsl:choose>
+        <xsl:when test="$section_tmp='introduction'
+                        or $section_tmp='1_scope'
+                        or $section_tmp='1_inscope'
+                        or $section_tmp='1_outscope'
+                        or $section_tmp='2_normrefs'
+                        or $section_tmp='3_definition'
+                        or $section_tmp='3_abbreviations'
+                        or $section_tmp='4_general'
+                        or $section_tmp='4_capabilities'
+                        or $section_tmp='4_fundamentals'
+                        or $section_tmp='4_interfaces'
+                        or $section_tmp='4_constants'
+                        or $section_tmp='4_types'
+                        or $section_tmp='4_entities'
+												or $section_tmp='4_subtype_constraints'
+                        or $section_tmp='4_rules'
+                        or $section_tmp='4_functions'
+                        or $section_tmp='4_procedures'
+                        or $section_tmp='5_mappings'">
+                       
+                        
+          <xsl:value-of select="$section_tmp"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <!--
+               error - will be picked up after the  href variable is set.
+               -->
+          <xsl:value-of select="'error'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable
+      name="nlinkend2"
+      select="substring-after($nlinkend1,':')"/>
+
+    <xsl:variable name="construct_tmp">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend2,':')">
+          <xsl:value-of select="substring-before($nlinkend2,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend2"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable
+      name="nlinkend3"
+      select="substring-after($nlinkend2,':')"/>
+
+    <xsl:variable name="id">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend3,':')">
+          <xsl:value-of select="substring-before($nlinkend3,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend3"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="construct">
+      <xsl:choose>
+        <!-- test that a valid value is given for construct -->
+        <xsl:when test="$construct_tmp='example'
+                        or $construct_tmp='note'
+                        or $construct_tmp='figure'
+                        or $construct_tmp='table'">
+          <xsl:choose>
+            <!-- test that an id has been given -->
+            <xsl:when test="$id!=''">
+              <xsl:value-of select="concat('#',$construct_tmp,'_',$id)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <!--
+                   error - will be picked up after the  href variable is set.
+                   -->
+              <xsl:value-of select="'error'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:when test="$construct_tmp=''"/>
+
+        <xsl:otherwise>
+          <!--
+               error - will be picked up after the  href variable is set.
+               -->
+          <xsl:value-of select="'error'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+
+    <xsl:variable name="href">
+      <xsl:choose>
+        <xsl:when test="$model=''">
+          <!--
+               error do nothing as the error will be picked up after the
+               href variable is set.
+               -->
+        </xsl:when>
+        <xsl:when test="$section='error'">
+          <!--
+               error do nothing as the error will be picked up after the
+               href variable is set.
+               -->
+        </xsl:when>
+        <xsl:when test="$construct='error'">
+          <!--
+               error do nothing as the error will be picked up after the
+               href variable is set.
+               -->
+        </xsl:when>
+        <xsl:when test="$section=''">
+          <xsl:value-of
+            select="concat('../../../business_object_models/',$model,'/sys/introduction',
+                    $FILE_EXT)"/>
+        </xsl:when>
+        <xsl:when test="$section='introduction'">
+          <xsl:value-of
+            select="concat('../../../business_object_models/',$model,'/sys/introduction', $FILE_EXT, $construct)"/>
+        </xsl:when>
+
+        <xsl:when test="$section='1_scope'">
+          <xsl:choose>
+            <xsl:when test="$construct">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,$construct)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,'#scope')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='1_inscope'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,'#inscope')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='1_outscope'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,'#outscope')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/1_scope',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='2_normrefs'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/2_refs',$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/2_refs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='3_definition'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/3_defs',$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/3_defs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='3_abbreviations'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+          <xsl:value-of
+            select="concat('../../../business_object_models/',$model, '/sys/3_defs',$FILE_EXT)"/>
+        </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model, '/sys/3_defs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        
+        <xsl:when test="$section='4_general'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                '/sys/4_info_reqs',$FILE_EXT,'#general')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_capabilities'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                '/sys/4_info_reqs',$FILE_EXT,'#capabilities')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        
+        <xsl:when test="$section='4_fundamentals'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                '/sys/4_info_reqs',$FILE_EXT,'#fundamentals')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_interfaces'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#interfaces')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_constants'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#constants')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_types'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#types')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_entities'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#entities')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+				
+        <xsl:when test="$section='4_subtype_constraints'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#subtype_constraints')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+ 
+        <xsl:when test="$section='4_rules'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#rules')"/>              
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>              
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_functions'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#functions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='4_procedures'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,'#procedures')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/4_info_reqs',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="$section='5_mappings'">
+          <xsl:choose>
+            <xsl:when test="$construct=''">
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/5_main',$FILE_EXT,'#mappings')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of
+                select="concat('../../../business_object_models/',$model,
+                        '/sys/5_main',$FILE_EXT,$construct)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        
+
+        
+        <xsl:otherwise>
+          <!--
+               error - will be picked up after the  href variable is set.
+               -->
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- debug
+    [sect:<xsl:value-of select="$section"/>]
+    [module:<xsl:value-of select="$module"/>]
+    [href:<xsl:value-of select="$href"/>]
+    [construct:<xsl:value-of select="$construct"/>]
+         -->
+    <xsl:choose>
+      <xsl:when test="$href=''">
+        <xsl:call-template name="error_message">
+          <xsl:with-param
+            name="message"
+            select="concat('ERROR c3: module_ref linkend #',
+                    $nlinkend,
+                    '# is incorrectly specified.')"/>
+        </xsl:call-template>
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <a href="{$href}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            <!--<xsl:variable name="model_name">
+              <xsl:call-template name="module_display_name">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>-->
+            <a href="{$href}"><xsl:value-of select="$model"/></a>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   
 </xsl:stylesheet>
 

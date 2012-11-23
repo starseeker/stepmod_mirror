@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: business_object_model.xsl,v 1.2 2012/11/06 09:45:56 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -486,7 +486,7 @@ is case sensitive.')"/>
                         '# is incorrectly specified.')"/>
             </xsl:call-template>-->          
         </xsl:otherwise>
-
+       
       </xsl:choose>
 
     </xsl:when>
@@ -500,7 +500,7 @@ is case sensitive.')"/>
 </xsl:template>
  
   <xsl:template match="bom">
-    <h2><a name="43">4.3&#160;Business object model type definitions</a></h2>
+    <h2><a name="types">4.4&#160;Business object model type definitions</a></h2>
     <xsl:variable name="model" select="../../@name"/>
     <xsl:variable name="model_dir" select="$model"/>
     <xsl:variable name="bom_xml" select="concat('../../data/business_object_models/', $model_dir,'/bom.xml')"/>
@@ -516,7 +516,7 @@ is case sensitive.')"/>
     <!-- display the EXPRESS for the types in the schema. -->
     <xsl:apply-templates select="$bom_node/express/schema/type"/>
     
-    <h2><a name="44">4.4&#160;Business object model entity definitions</a></h2>
+    <h2><a name="entities">4.5&#160;Business object model entity definitions</a></h2>
     
     <!-- display the EXPRESS for the entities in the ARM.
     The template is in sect4_express.xsl -->

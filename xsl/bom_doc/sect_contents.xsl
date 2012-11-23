@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.3 2012/10/30 23:05:31 mikeward Exp $
+$Id: sect_contents.xsl,v 1.4 2012/11/12 10:36:22 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -83,19 +83,22 @@ $Id: sect_contents.xsl,v 1.3 2012/10/30 23:05:31 mikeward Exp $
             <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 Business object model capabilities</a>
+            <a href="./4_info_reqs{$FILE_EXT}#general" target="{$target}">4.1 General</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 Fundamental concepts and assumptions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#capabilities" target="{$target}">4.2 Business object model capabilities</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#43" target="{$target}">4.3 Business object model type definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#fundamentals" target="{$target}">4.3 Fundamental concepts and assumptions</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#44" target="{$target}">4.4 Business object model entity definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
+            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./5_main{$FILE_EXT}#mappings" target="{$target}">5 Business object model mapping</a>
           </td>
           <td valign="top">
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>

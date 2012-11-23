@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.13 2008/05/21 17:34:55 abf Exp $
+$Id: sect_5_main.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -34,21 +34,28 @@ $Id: sect_5_main.xsl,v 1.13 2008/05/21 17:34:55 abf Exp $
       </xsl:call-template>
     </xsl:if>
 
-    <xsl:call-template name="clause_header">
-      <xsl:with-param name="heading" select="'5 Business Object model mapping'"/>
+    <!--<xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'5 Business object model mapping'"/>
       <xsl:with-param name="aname" select="'bom'"/>
-    </xsl:call-template>
+    </xsl:call-template>-->
+    <h1>
+      <a name="mappings">5 Business object model mapping</a>
+    </h1>
+    
+    
 
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
-    <p>
-	The mapping from the Business Object Model to the Application Reference Model is defined here. 
-    </p>
+   
     <h2>
-      <a name="mapping">5.1 Mapping specification</a>
+      5.1 Mapping specification
     </h2>
-    <a name="mappings"/>
+    
+    <p>
+      The mapping from the Business Object Model to the Application Reference Model is defined here. 
+    </p>
+    <!--<a name="mappings"/>-->
 
     <xsl:call-template name="bom_mapping_syntax"/>
 

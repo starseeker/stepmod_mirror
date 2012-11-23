@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.3 2012/10/30 23:04:37 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.4 2012/11/06 09:39:48 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -94,6 +94,8 @@ $Id: sect_4_info_reqs.xsl,v 1.3 2012/10/30 23:04:37 mikeward Exp $
       <xsl:with-param name="heading" select="'4 Business object model information requirements'"/>
       <xsl:with-param name="aname" select="'bom'"/>
     </xsl:call-template>
+    <h2><a name="general">4.1&#160;General</a></h2>
+    
     <p>
       This clause specifies the information required for <xsl:value-of select="$purpose_param"/>.
     </p>
@@ -131,7 +133,7 @@ $Id: sect_4_info_reqs.xsl,v 1.3 2012/10/30 23:04:37 mikeward Exp $
   
   
   <xsl:template match="capabilities">
-    <h2><a name="41">4.1&#160;Business object model capabilities</a></h2>
+    <h2><a name="capabilities">4.2&#160;Business object model capabilities</a></h2>
     
     <p>
       This subclause specifies the capabilities for the business object model. The capabilities and their definitions are specified below.
@@ -147,7 +149,7 @@ $Id: sect_4_info_reqs.xsl,v 1.3 2012/10/30 23:04:37 mikeward Exp $
 	</xsl:template>
 	
    <xsl:template match="fundamentals">
-     <h2><a name="42">4.2&#160;Fundamental concepts and assumptions</a></h2>
+     <h2><a name="fundamentals">4.3&#160;Fundamental concepts and assumptions</a></h2>
 
     
      <p>

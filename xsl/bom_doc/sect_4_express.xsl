@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.1 2012/11/06 09:37:44 mikeward Exp $
+     $Id: sect_4_express.xsl,v 1.2 2012/11/07 15:53:23 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3709,7 +3709,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:choose>    
   </xsl:variable>
 
-  <xsl:variable name="augmented_clause_number" select="number($clause_number+1)"/>
+  <xsl:variable name="augmented_clause_number" select="number($clause_number+2)"/>
   <xsl:variable name="main_clause">
     <xsl:value-of select="concat('4.',$augmented_clause_number)"/>      
   </xsl:variable>

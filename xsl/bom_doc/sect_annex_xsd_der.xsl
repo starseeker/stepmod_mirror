@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_xsd_der.xsl,v 1.2 2012/10/26 23:12:46 mikeward Exp $
+$Id: sect_annex_xsd_der.xsl,v 1.3 2012/11/30 16:51:29 darla Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display BOM Annex B
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:cnf="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"
+  xmlns:doc="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:document"
+  xmlns:exp="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:common" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="1.0">
 
   
   <xsl:import href="business_object_model.xsl"/>
   <xsl:import href="business_object_model_clause.xsl"/>
-  <xsl:output method="html"/>
-  
+  <xsl:output method="html" indent="yes"/>
+ 
   
   <xsl:template match="business_object_model">
     <xsl:call-template name="annex_header">
@@ -240,38 +246,117 @@ $Id: sect_annex_xsd_der.xsl,v 1.2 2012/10/26 23:12:46 mikeward Exp $
       The XML element corresponding to an aggregate valued EXPRESS attribute shall be declared to be of type "IDREFS" in case of reference 
       or for containment usage maxOccurs= "unbounded ".
     </p>
-    <h2>
-      <a name="b2">
-        B.2 Containment and referencing rules
+    <h3>
+      <a name="b1_6">
+        B.1.6 Containment and referencing rules
       </a>
-    </h2>
+    </h3>
     <p>
       Reference mapping rules:
-    <ul>
-      <li>Master data - for elements defined directly under XML root element e.g., Organization, Person</li>
-      <li>Structure elements - for elements that are reused and referenced as structure elements e.g., Documents, Parts</li>
-     
-    </ul> 
-      </p>
-   <p>
-     
+      <ul>
+        <li>Master data - for elements defined directly under XML root element e.g., Organization, Person</li>
+        <li>Structure elements - for elements that are reused and referenced as structure elements e.g., Documents, Parts</li>
+        
+      </ul> 
+    </p>
+    <p>
+      
       
       
       Containment mapping rules:
       <ul>
         
-      
+        
         <li>Simple attributes e.g., String values</li>
         <li>Elements that cannot exist stanalone but depend from another object and cannot be reused e.g., DateTime, TranslatedString, PropertyValue</li>
         <li>Grouping of elements in master-revision pattern, like Part -> PartVersion, Document -> DocumentVersion</li>
         <li>For relationships containment shall be performed along the relating attribute</li>
-                <li>For EXPRESS SET attributes that shall be represented as containment plural form shall be changed to singular form, 
-                  e.g., ConcernedOrganizations -&gt; ConcernedOrganization. It is needed to keep semantics correctness (maxOccurs= "unbounded")</li>
+        <li>For EXPRESS SET attributes that shall be represented as containment plural form shall be changed to singular form, 
+          e.g., ConcernedOrganizations -&gt; ConcernedOrganization. It is needed to keep semantics correctness (maxOccurs= "unbounded")</li>
         <li>A contained element cannot be defined as RootObject</li>
         <li>If a containment is made along an attribute of kind SELECT type, the above rule shall apply to all members of the SELECT type</li>
       </ul>
     </p>
+    <h2>
+      <a name="b2">
+        B.2 XML configuration specification        
+      </a>
+    </h2>
     
+    <p>This section contains the configuration specification.</p>
+    
+    
+    <xsl:variable name="bom_dir" select="./@name"/>
+    
+    <xsl:variable name="config_file">
+      <xsl:choose>
+        <xsl:when test="$FILE_EXT='.xml'">
+          <xsl:value-of select="concat('../../data/business_object_models/', $bom_dir,'/p28_config.xml')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('../../data/business_object_models/', $bom_dir,'/p28_config.htm')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    
+    <p>
+      &lt;iso_10303_28 
+      version=""
+      xmlns="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:document"
+      xmlns:cnf="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"
+      xmlns:exp="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:common"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:document ../../implementation_resources/iso10303_28_document_schema/doc.xsd 
+      urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language ../../implementation_resources/iso10303_28_configuration_language_schema/cnf.xsd 
+      urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:common ../../implementation_resources/iso10303_28_base_xml_schema/exp.xsd "&gt;
+    </p>
+    <xsl:apply-templates select="document(string($config_file))//doc:iso_10303_28/*"  mode="nconfig">
+      
+    </xsl:apply-templates>
+    <p>
+      &lt;/iso_10303_28&gt;
+    </p>
   </xsl:template>
+  
+  <xsl:template match="*" mode="nconfig">
+    <xsl:param name="spaceparam">&#160;&#160;&#160;</xsl:param>
+    <xsl:variable name="newspaceparam"><xsl:value-of select="$spaceparam"/>&#160;&#160;&#160;</xsl:variable>
+    <xsl:variable name="element_name" select="name(.)"/>
+   
+    
+    <xsl:choose>
+      <xsl:when test="./*">
+    
+        <xsl:value-of select="$spaceparam"/>&lt;<xsl:value-of select="$element_name"/>
+    
+      <xsl:choose>
+        <xsl:when test="$element_name='configuration'">&#160;xmlns="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"</xsl:when>
+        <xsl:when test="$element_name='schema'">&#160;xmlns="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language"</xsl:when>
+      </xsl:choose>
+       <xsl:for-each select="@*">
+         &#160;<xsl:value-of select="name(.)"/>=&quot;<xsl:value-of select="."/>&quot;
+         <xsl:copy-of select="./namespace::*"/>
+       </xsl:for-each>
+    &gt;<br/>
+    <xsl:apply-templates select="*" mode="nconfig">
+      <xsl:with-param name="spaceparam" select="$newspaceparam"/>
+    </xsl:apply-templates>
+    <xsl:value-of select="$spaceparam"/>&lt;/<xsl:value-of select="name(.)"/>&gt;<br/>
+        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$spaceparam"/>&lt;<xsl:value-of select="$element_name"/>
+        <xsl:for-each select="@*">
+          &#160;<xsl:value-of select="name(.)"/>=&quot;<xsl:value-of select="."/>&quot;
+          <xsl:copy-of select="./namespace::*"/>
+        </xsl:for-each>
+        /&gt;<br/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  
+  
 	
 </xsl:stylesheet>

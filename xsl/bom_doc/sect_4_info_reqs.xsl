@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.6 2012/12/07 18:23:15 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -10,8 +10,24 @@ $Id: sect_4_info_reqs.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="business_object_model.xsl"/>
   <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="../expressg_icon.xsl"/>
   
   <xsl:output method="html"/>
+  
+  <!-- global variable - Used by templates in expressg_icon.xsl to
+    resolve href for expressg icon -->
+  <xsl:variable name="arm_expressg"/>
+  
+  <!-- global variable - Used by templates in expressg_icon.xsl to
+    resolve href for expressg icon -->
+  <xsl:variable name="mim_expressg" />
+  
+  <!-- global variable - Used by templates in expressg_icon.xsl to
+    resolve href for expressg icon -->
+ <!-- <xsl:variable name="bom_expressg"  >
+    <xsl:call-template name="make_bom_expressg_node_set"/>
+    </xsl:variable>-->
+  
   
   <xsl:variable name="annex_c" select="concat('./annex_bom_expg',$FILE_EXT)"/>
   

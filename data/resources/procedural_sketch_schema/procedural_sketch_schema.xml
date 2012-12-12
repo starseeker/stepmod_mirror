@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="procedural_sketch_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="procedural_sketch_schema">
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="count_measure"/>
+         <interfaced.item name="length_measure"/>
+         <interfaced.item name="plane_angle_measure"/>
+         <interfaced.item name="positive_length_measure"/>
+         <interfaced.item name="positive_plane_angle_measure"/>
+         <interfaced.item name="positive_ratio_measure"/>
+      </interface>
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="circle"/>
+         <interfaced.item name="conic"/>
+         <interfaced.item name="cross_product"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="direction"/>
+         <interfaced.item name="geometric_representation_item"/>
+         <interfaced.item name="line"/>
+         <interfaced.item name="point_on_curve"/>
+         <interfaced.item name="trimmed_curve"/>
+      </interface>
+      <interface kind="reference" schema="geometric_model_schema">
+         <interfaced.item name="geometric_curve_set"/>
+         <interfaced.item name="geometric_set"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation_item_relationship"/>
+      </interface>
+      <interface kind="reference" schema="sketch_schema">
+         <interfaced.item name="sketch_element_select"/>
+      </interface>
+      <interface kind="reference" schema="explicit_geometric_constraint_schema">
+         <interfaced.item name="near_point_relationship"/>
+         <interfaced.item name="non_negative_length_measure"/>
+      </interface>
+      <type name="circle_or_circular_arc">
+         <select selectitems="circle trimmed_curve"/>
+         <where expression="circular_type(SELF)" label="WR1"/>
+      </type>
+      <type name="line_or_trimmed_line">
+         <select selectitems="line trimmed_curve"/>
+         <where expression="linear_type(SELF)" label="WR1"/>
+      </type>
+      <type name="polygon_circle_type">
+         <enumeration items="inscribed circumscribed"/>
+      </type>
+      <type name="ps_sketch_element_select">
+         <select basedon="sketch_element_select" selectitems="sketch_create_curve_element sketch_create_pattern_element sketch_operate_transform"/>
+      </type>
+      <type name="rotation_direction">
+         <enumeration items="cw ccw"/>
+      </type>
+      <entity name="create_centreline" supertypes="sketch_create_curve_element">
+         <explicit name="first_ref_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_ref_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(first_ref_point, second_ref_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_chamfer" supertypes="sketch_create_curve_element">
+         <explicit name="first_line">
+            <typename name="line"/>
+         </explicit>
+         <explicit name="to_right_of_first_line">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="second_line">
+            <typename name="line"/>
+         </explicit>
+         <explicit name="to_right_of_second_line">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="first_chamfer_length">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="second_chamfer_length" optional="YES">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="trim_option">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="first_line &lt;&gt; second_line" label="WR1"/>
+         <where expression="cross_product(first_line.dir, second_line.dir).magnitude &lt;&gt; 0.0" label="WR2"/>
+      </entity>
+      <entity abstract.supertype="YES" name="create_circle" super.expression="ONEOF (create_circle_centre_point, create_circle_concentric, create_circle_3_tangents, create_circle_2_points, create_circle_3_points)" supertypes="sketch_create_curve_element"/>
+      <entity name="create_circle_2_points" supertypes="create_circle">
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <derived expression="distance_between_cartesian_points (first_point, second_point)" name="diameter">
+            <typename name="length_measure"/>
+         </derived>
+         <where expression="distance_between_cartesian_points(first_point, second_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_circle_3_points" supertypes="create_circle">
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="third_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="non_collinear_2d_points (first_point, second_point, third_point)" label="WR1"/>
+      </entity>
+      <entity name="create_circle_3_tangents" supertypes="create_circle">
+         <explicit name="first_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="first_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <explicit name="second_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="second_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <explicit name="third_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="third_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <where expression="first_curve &lt;&gt; second_curve" label="WR1"/>
+         <where expression="second_curve &lt;&gt; third_curve" label="WR2"/>
+         <where expression="third_curve &lt;&gt; first_curve" label="WR3"/>
+         <where expression="first_near_point\representation_item_relationship.relating_representation_item :=: first_curve" label="WR4"/>
+         <where expression="second_near_point\representation_item_relationship.relating_representation_item :=: second_curve" label="WR5"/>
+         <where expression="third_near_point\representation_item_relationship.relating_representation_item :=: third_curve" label="WR6"/>
+      </entity>
+      <entity name="create_circle_centre_point" supertypes="create_circle">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="create_circle_concentric" supertypes="create_circle">
+         <explicit name="reference_element">
+            <typename name="circle_or_circular_arc"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="create_circular_arc" super.expression="ONEOF (create_circular_arc_concentric, create_circular_arc_3_tangents, create_circular_arc_centre_ends, create_circular_arc_start_centre_angle, create_circular_arc_start_centre_length, create_circular_arc_start_end_angle, create_circular_arc_start_end_direction, create_circular_arc_start_end_radius, create_circular_arc_3_points, create_circular_arc_angles)" supertypes="sketch_create_curve_element"/>
+      <entity name="create_circular_arc_3_points" supertypes="create_circular_arc">
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="third_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="non_collinear_2d_points (first_point, second_point, third_point)" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_3_tangents" supertypes="create_circular_arc">
+         <explicit name="first_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="first_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <explicit name="second_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="second_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <explicit name="third_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="third_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <where expression="first_curve &lt;&gt; second_curve" label="WR1"/>
+         <where expression="second_curve &lt;&gt; third_curve" label="WR2"/>
+         <where expression="third_curve &lt;&gt; first_curve" label="WR3"/>
+         <where expression="first_near_point\representation_item_relationship.relating_representation_item :=: first_curve" label="WR4"/>
+         <where expression="second_near_point\representation_item_relationship.relating_representation_item :=: second_curve" label="WR5"/>
+         <where expression="third_near_point\representation_item_relationship.relating_representation_item :=: third_curve" label="WR6"/>
+      </entity>
+      <entity name="create_circular_arc_angles" supertypes="create_circular_arc">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="start_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="end_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where expression="start_angle &lt;&gt; end_angle" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_centre_ends" supertypes="create_circular_arc">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="three_distinct_points(start_point, end_point, centre_point)" label="WR1"/>
+         <where expression="distance_between_cartesian_points (centre_point, start_point) = distance_between_cartesian_points (centre_point, end_point)" label="WR2"/>
+      </entity>
+      <entity name="create_circular_arc_concentric" supertypes="create_circular_arc">
+         <explicit name="reference_curve">
+            <typename name="circle_or_circular_arc"/>
+         </explicit>
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(start_point, end_point) &lt;&gt; 0.0" label="WR1"/>
+         <where expression="distance_between_cartesian_points(start_point, centre_of_circle_or_circular_arc(reference_curve)) = distance_between_cartesian_points (end_point, centre_of_circle_or_circular_arc(reference_curve))" label="WR2"/>
+      </entity>
+      <entity name="create_circular_arc_start_centre_angle" supertypes="create_circular_arc">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_angle">
+            <typename name="positive_plane_angle_measure"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(centre_point, start_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_start_centre_length" supertypes="create_circular_arc">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="chord_length">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(centre_point, start_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_start_end_angle" supertypes="create_circular_arc">
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="arc_angle">
+            <typename name="positive_plane_angle_measure"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(start_point, end_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_start_end_direction" supertypes="create_circular_arc">
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="start_direction">
+            <typename name="direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(start_point, end_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_circular_arc_start_end_radius" supertypes="create_circular_arc">
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="arc_rotation_direction">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(start_point, end_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_divided_curve" supertypes="sketch_create_curve_element">
+         <explicit name="selected_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="division_point">
+            <typename name="point_on_curve"/>
+         </explicit>
+         <where expression="division_point.basis_curve :=: selected_curve" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="create_ellipse" super.expression="ONEOF (create_ellipse_3_points, create_ellipse_centre_point)" supertypes="sketch_create_curve_element"/>
+      <entity name="create_ellipse_3_points" supertypes="create_ellipse">
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="third_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="non_collinear_2d_points(first_point, second_point, third_point)" label="WR1"/>
+      </entity>
+      <entity name="create_ellipse_centre_point" supertypes="create_ellipse">
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="non_collinear_2d_points(centre_point, first_point, second_point)" label="WR1"/>
+      </entity>
+      <entity name="create_fillet" supertypes="sketch_create_curve_element">
+         <explicit name="first_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="to_right_of_first_curve">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="second_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="to_right_of_second_curve">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="trim_option">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="near_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="first_curve &lt;&gt; second_curve" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="create_line_segment" super.expression="ONEOF (create_line_segment_2_points, create_line_segment_point_tangent, create_line_segment_2_tangents)" supertypes="sketch_create_curve_element"/>
+      <entity name="create_line_segment_2_points" supertypes="create_line_segment">
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(start_point, end_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_line_segment_2_tangents" supertypes="create_line_segment">
+         <explicit name="first_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="first_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <explicit name="second_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="second_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <where expression="first_curve &lt;&gt; second_curve" label="WR1"/>
+         <where expression="first_near_point\representation_item_relationship.relating_representation_item :=: first_curve" label="WR2"/>
+         <where expression="second_near_point\representation_item_relationship.relating_representation_item :=: second_curve" label="WR3"/>
+      </entity>
+      <entity name="create_line_segment_point_tangent" supertypes="create_line_segment">
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="tangent_curve">
+            <typename name="curve"/>
+         </explicit>
+         <explicit name="tangent_curve_near_point">
+            <typename name="near_point_relationship"/>
+         </explicit>
+         <where expression="tangent_curve_near_point\representation_item_relationship.relating_representation_item :=: tangent_curve" label="WR1"/>
+      </entity>
+      <entity name="create_parabolic_arc" supertypes="sketch_create_curve_element">
+         <explicit name="first_end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="intermediate_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_end_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="three_distinct_points(first_end_point, intermediate_point, second_end_point)" label="WR1"/>
+      </entity>
+      <entity name="create_pattern_circular" supertypes="sketch_create_pattern_element">
+         <explicit name="number_of_replicates">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="angle_increment">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="radial_alignment">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="reference_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="number_of_replicates &gt; 0" label="WR1"/>
+      </entity>
+      <entity name="create_pattern_rectangular" supertypes="sketch_create_pattern_element">
+         <explicit name="row_direction">
+            <typename name="direction"/>
+         </explicit>
+         <explicit name="row_number">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="column_number">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="row_spacing">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="column_spacing">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="column_augmentation_direction" optional="YES">
+            <typename name="rotation_direction"/>
+         </explicit>
+         <where expression="(row_number &gt; 0) AND (column_number &gt; 0)" label="WR1"/>
+      </entity>
+      <entity name="create_polygon" supertypes="sketch_create_curve_element">
+         <explicit name="polygon_sides">
+            <typename name="count_measure"/>
+         </explicit>
+         <explicit name="centre_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="start_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="circle_type">
+            <typename name="polygon_circle_type"/>
+         </explicit>
+         <explicit name="circle_radius">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <where expression="distance_between_cartesian_points(centre_point, start_point) &lt;&gt; 0.0" label="WR1"/>
+      </entity>
+      <entity name="create_polyline" supertypes="sketch_create_curve_element">
+         <explicit name="points">
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="distinct_points(points)" label="WR1"/>
+      </entity>
+      <entity name="create_rectangle" supertypes="sketch_create_curve_element">
+         <explicit name="first_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="second_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="third_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="non_collinear_2d_points (first_point, second_point, third_point)" label="WR1"/>
+      </entity>
+      <entity name="create_spline" supertypes="sketch_create_curve_element">
+         <explicit name="points">
+            <aggregate lower="4" type="LIST" upper="?"/>
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="closed">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="distinct_points(points)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="sketch_command" super.expression="ONEOF (sketch_create_curve_element, sketch_create_pattern_element, sketch_operate_transform)"/>
+      <entity abstract.supertype="YES" name="sketch_create_curve_element" super.expression="ONEOF (create_line_segment, create_centreline, create_polyline, create_rectangle, create_polygon, create_circular_arc, create_circle, create_ellipse, create_spline, create_parabolic_arc, create_fillet, create_chamfer, create_divided_curve)" supertypes="sketch_command geometric_representation_item">
+         <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="sketch_create_pattern_element" super.expression="ONEOF (create_pattern_rectangular, create_pattern_circular)" supertypes="sketch_command geometric_curve_set">
+         <explicit name="selected_objects">
+            <typename name="geometric_curve_set"/>
+         </explicit>
+         <where expression="NOT(have_pattern_element_in_geometric_curve_set(selected_objects))" label="WR1"/>
+         <where expression="SELF\geometric_representation_item.dim = 2" label="WR2"/>
+      </entity>
+      <entity abstract.supertype="YES" name="sketch_operate_transform" super.expression="ONEOF (sketch_transform_translate, sketch_transform_rotate, sketch_transform_mirror, sketch_transform_scale)" supertypes="sketch_command geometric_representation_item">
+         <explicit name="selected_objects">
+            <typename name="geometric_curve_set"/>
+         </explicit>
+         <explicit name="preserve_selected_objects">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
+      </entity>
+      <entity name="sketch_transform_mirror" supertypes="sketch_operate_transform">
+         <explicit name="reference_axis">
+            <typename name="line_or_trimmed_line"/>
+         </explicit>
+      </entity>
+      <entity name="sketch_transform_rotate" supertypes="sketch_operate_transform">
+         <explicit name="rotation_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="rotation_centre">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="objects_rotation_direction" optional="YES">
+            <typename name="rotation_direction"/>
+         </explicit>
+      </entity>
+      <entity name="sketch_transform_scale" supertypes="sketch_operate_transform">
+         <explicit name="scale_x">
+            <typename name="positive_ratio_measure"/>
+         </explicit>
+         <explicit name="scale_y">
+            <typename name="positive_ratio_measure"/>
+         </explicit>
+         <explicit name="fixed_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+      </entity>
+      <entity name="sketch_transform_translate" supertypes="sketch_operate_transform">
+         <explicit name="displacement_x">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="displacement_y">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <function name="centre_of_circle_or_circular_arc">
+         <parameter name="coca">
+            <typename name="circle_or_circular_arc"/>
+         </parameter>
+         <typename name="cartesian_point"/>
+         <algorithm>IF ('GEOMETRY_SCHEMA.TRIMMED_CURVE' IN TYPEOF(coca)) THEN
+		RETURN (coca\trimmed_curve.basis_curve\circle\conic.position.location);
+	ELSE
+		RETURN (coca\circle\conic.position.location);
+	END_IF;</algorithm>
+      </function>
+      <function name="circular_type">
+         <parameter name="tr">
+            <typename name="circle_or_circular_arc"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ('GEOMETRY_SCHEMA.TRIMMED_CURVE' IN TYPEOF(tr)) THEN
+		IF ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (tr\trimmed_curve.basis_curve)) THEN
+			RETURN (TRUE);
+		ELSE
+			RETURN (FALSE);
+		END_IF;
+	END_IF;
+
+	RETURN (TRUE);</algorithm>
+      </function>
+      <function name="distance_between_cartesian_points">
+         <parameter name="pt1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <typename name="length_measure"/>
+         <algorithm>LOCAL
+	temp_dis : length_measure;
+END_LOCAL;
+
+	temp_dis := SQRT ( ((pt1.coordinates[1]-pt2.coordinates[1])**2)+((pt1.coordinates[2]-pt2.coordinates[2])**2) );
+
+	RETURN(temp_dis);</algorithm>
+      </function>
+      <function name="distinct_points">
+         <parameter name="pts">
+            <aggregate lower="3" type="LIST" upper="?"/>
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>REPEAT index := LOINDEX(pts) TO HIINDEX(pts) - 1;
+		IF (distance_between_cartesian_points(pts[index], pts[index + 1]) = 0.0) THEN
+			RETURN (FALSE);
+		END_IF;
+	END_REPEAT;
+
+	RETURN (TRUE);</algorithm>
+      </function>
+      <function name="have_pattern_element_in_geometric_curve_set">
+         <parameter name="cs">
+            <typename name="geometric_curve_set"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>REPEAT index := LOINDEX(cs\geometric_set.elements) TO HIINDEX(cs\geometric_set.elements);
+		IF ('PROCEDURAL_SKETCH_SCHEMA.SKETCH_CREATE_PATTERN_ELEMENT' IN TYPEOF(cs\geometric_set.elements[index])) THEN
+			RETURN (TRUE);
+		END_IF;
+	END_REPEAT;
+
+	RETURN (FALSE);</algorithm>
+      </function>
+      <function name="linear_type">
+         <parameter name="tr">
+            <typename name="line_or_trimmed_line"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ('GEOMETRY_SCHEMA.TRIMMED_CURVE' IN TYPEOF(tr)) THEN
+		IF ('GEOMETRY_SCHEMA.LINE' IN TYPEOF (tr\trimmed_curve.basis_curve)) THEN
+			RETURN (TRUE);
+		ELSE
+			RETURN (FALSE);
+		END_IF;
+	END_IF;
+
+	RETURN (TRUE);</algorithm>
+      </function>
+      <function name="midpoint">
+         <parameter name="pt1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <typename name="cartesian_point"/>
+         <algorithm>LOCAL
+	temp_pt : cartesian_point;
+END_LOCAL;
+
+	temp_pt.coordinates[1] := (pt1.coordinates[1] + pt2.coordinates[1]) / 2;
+	temp_pt.coordinates[2] := (pt1.coordinates[2] + pt2.coordinates[2]) / 2;
+
+	RETURN (temp_pt);</algorithm>
+      </function>
+      <function name="non_collinear_2d_points">
+         <parameter name="pt1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt3">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ((pt1.dim =2) AND (pt2.dim =2) AND (pt3.dim =2)) THEN
+		IF (three_distinct_points(pt1, pt2, pt3)) THEN
+			IF ((pt2.coordinates[2]-pt1.coordinates[2])*(pt3.coordinates[1]-pt1.coordinates[1]) &lt;&gt; (pt3.coordinates[2]-pt1.coordinates[2])* (pt2.coordinates[1]-pt1.coordinates[1])) THEN
+				RETURN (TRUE);
+			END_IF;
+		  END_IF;
+	END_IF;
+
+	RETURN (FALSE);</algorithm>
+      </function>
+      <function name="three_distinct_points">
+         <parameter name="pt1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="pt3">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ((distance_between_cartesian_points(pt1, pt2) &lt;&gt; 0.0) AND (distance_between_cartesian_points(pt2, pt3) &lt;&gt; 0.0) AND (distance_between_cartesian_points(pt3, pt1) &lt;&gt; 0.0)) THEN
+		RETURN (TRUE);
+	END_IF;
+
+	RETURN (FALSE);</algorithm>
+      </function>
+   </schema>
+</express>

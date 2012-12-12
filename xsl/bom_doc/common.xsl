@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.3 2012/11/13 10:56:27 mikeward Exp $
+$Id: common.xsl,v 1.4 2012/11/23 09:34:11 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.182 2012/03/15 07:07:19 lothartklein Exp $
+$Id: common.xsl,v 1.183 2012/11/06 09:45:15 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1534,6 +1534,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         </xsl:when>
         <xsl:when test="contains($module_lcase,'_mim')">
           <xsl:value-of select="substring-before($module_lcase,'_mim')"/>
+        </xsl:when>
+        <xsl:when test="contains($module_lcase,'_bom')">
+          <xsl:value-of select="substring-before($module_lcase,'_bom')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="string($module_lcase)"/>
@@ -4096,6 +4099,12 @@ is case sensitive.')"/>
         <xsl:with-param name="module" select="$schema"/>
       </xsl:call-template>
     </xsl:variable>
+    
+    <xsl:variable name="model_name">
+      <xsl:call-template name="model_name2">
+        <xsl:with-param name="model_param" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
 
     <xsl:variable name="href_expg">
       <xsl:choose>
@@ -4107,9 +4116,21 @@ is case sensitive.')"/>
             <xsl:otherwise>
               <xsl:value-of select="concat('../../',$module_name,'/armexpg1',$FILE_EXT)"/>
             </xsl:otherwise>
-          </xsl:choose>
-          
+          </xsl:choose>   
         </xsl:when>
+        
+        <xsl:when test="substring($schema, string-length($schema)-3)='_bom'">
+          <xsl:choose>
+            <xsl:when test="./graphic.element/@page">
+              <xsl:value-of select="concat('../../',$model_name,'/bomexpg',./graphic.element/@page,$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat('../../',$model_name,'/bomexpg1',$FILE_EXT)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        
+        
         <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
           <xsl:choose>
             <xsl:when test="./graphic.element/@page">
@@ -5028,11 +5049,13 @@ is case sensitive.')"/>
   <!-- BOM -->
   <xsl:template name="model_directory2">
     <xsl:param name="model"/>
+    
     <xsl:variable name="model_dir">
       <xsl:call-template name="model_name2">
         <xsl:with-param name="model_param" select="$model"/>
       </xsl:call-template>
     </xsl:variable>
+    
     <xsl:value-of select="concat('../data/business_object_models/', $model_dir)"/>
     <!--<xsl:value-of select="string('../data/business_object_models/managed_model_based_3d_engineering')"/>-->
   </xsl:template>

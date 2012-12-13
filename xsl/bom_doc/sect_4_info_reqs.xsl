@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.6 2012/12/07 18:23:15 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.7 2012/12/12 15:23:28 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:import href="business_object_model.xsl"/>
+<xsl:import href="sect_4_express.xsl"/>  
+<xsl:import href="business_object_model.xsl"/>
   <xsl:import href="business_object_model_clause.xsl"/>
   <xsl:import href="../expressg_icon.xsl"/>
   

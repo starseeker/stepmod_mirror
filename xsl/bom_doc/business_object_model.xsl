@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.2 2012/11/06 09:45:56 mikeward Exp $
+$Id: business_object_model.xsl,v 1.3 2012/11/23 09:34:11 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -27,7 +27,10 @@ $Id: business_object_model.xsl,v 1.2 2012/11/06 09:45:56 mikeward Exp $
           </xsl:call-template>
         </xsl:variable>
         
-        <xsl:variable name="express_xml" select="concat($business_object_model_dir,'/arm.xml')"/>
+        <xsl:variable name="express_xml" select="concat($business_object_model_dir,'/bom.xml')"/>
+        <xsl:call-template name="build_xref_list">
+          <xsl:with-param name="express" select="document($express_xml)/express"/>
+        </xsl:call-template>
         <!--<xsl:call-template name="build_xref_list">
           <xsl:with-param name="express" select="document($express_xml)/express"/>
         </xsl:call-template>

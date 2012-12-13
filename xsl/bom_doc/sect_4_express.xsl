@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.2 2012/11/07 15:53:23 mikeward Exp $
+     $Id: sect_4_express.xsl,v 1.3 2012/11/23 09:34:11 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1134,7 +1134,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   <xsl:if test="@genericentity='YES' or @genericentity='yes'">
     GENERIC_ENTITY
   </xsl:if>
-
+  
   SELECT<xsl:if test="@basedon">
     BASED_ON 
       <xsl:call-template name="link_object">

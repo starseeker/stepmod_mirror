@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.20 2006/11/14 21:53:17 mikeward Exp $
+     $Id: express_link.xsl,v 1.21 2009/07/02 09:20:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -502,13 +502,13 @@
   <xsl:param name="first_prefix" select="'yes'"/>
   <xsl:param name="clause" select="section"/>
   <xsl:param name="and_for_last_pair" select="'no'"/>
-
+  
   <xsl:variable name="sorted_list">
     <xsl:call-template name="sort_list">
       <xsl:with-param name="list" select="$list"/>
     </xsl:call-template>
   </xsl:variable>
-
+  
   <xsl:call-template name="link_list">
     <xsl:with-param name="list" select="$sorted_list"/>
     <xsl:with-param name="object_used_in_schema_name" select="$object_used_in_schema_name"/>

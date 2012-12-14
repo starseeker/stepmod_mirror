@@ -1,4 +1,4 @@
-//$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $
+//$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a publication package
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");
+    ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -79,7 +79,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication_index SYSTEM \"../../dtd/publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
@@ -143,6 +143,13 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  </application_protocols>");
 	ts.WriteLine("  -->");
 	ts.WriteLine("");
+        ts.WriteLine("  <!-- The list of business object models to be published as individual ISO parts -->");
+	ts.WriteLine("  <!-- Commented out as most APs do not have BO Models ");
+	ts.WriteLine("  <business_object_models>");
+	ts.WriteLine("    <bom_doc name=\"\"/>");
+	ts.WriteLine("  </business_object_models>");
+	ts.WriteLine("  -->");
+	ts.WriteLine("");
 	ts.WriteLine("</publication_index>");
 	ts.Close();
 
@@ -155,7 +162,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -174,7 +181,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -193,7 +200,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.6 2005/04/01 21:01:33 thendrix Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

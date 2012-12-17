@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.7 2012/12/12 15:23:28 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.8 2012/12/13 22:21:21 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -25,9 +25,9 @@ $Id: sect_4_info_reqs.xsl,v 1.7 2012/12/12 15:23:28 mikeward Exp $
   
   <!-- global variable - Used by templates in expressg_icon.xsl to
     resolve href for expressg icon -->
- <!-- <xsl:variable name="bom_expressg"  >
+  <xsl:variable name="bom_expressg"  >
     <xsl:call-template name="make_bom_expressg_node_set"/>
-    </xsl:variable>-->
+    </xsl:variable>
   
   
   <xsl:variable name="annex_c" select="concat('./annex_bom_expg',$FILE_EXT)"/>

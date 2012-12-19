@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.13 2012/12/19 14:33:10 robbod Exp $
+$Id: publication_summary.xsl,v 1.14 2012/12/19 14:53:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -293,16 +293,22 @@ $Id: publication_summary.xsl,v 1.13 2012/12/19 14:33:10 robbod Exp $
             </a>
           </td>
           
-          <xsl:variable name="status"
-            select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
+          
+          <xsl:variable name="part" select="$bom_node/@part"/>
+          <xsl:variable name="status" 
+            select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-','')"/>
+          <xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>
+          <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
+          
           <!-- BOM  express -->
           <td>
             <xsl:variable name="bomexpfile"
               select="concat('part',
               $bom_node/@part,
-              $status, '_wg3n',
-              $bom_node/@wg.number,
+              $status, $prefix,
+              $bom_node/@wg.number.bom.exp,
               'bom.exp')"/>
+            
             <xsl:variable name="bomexp_href" select="concat($bom_dir_name,'/inserts/',$bomexpfile)"/>
             <a href="{$bomexp_href}">
               <xsl:value-of select="$bomexpfile"/>
@@ -315,8 +321,8 @@ $Id: publication_summary.xsl,v 1.13 2012/12/19 14:33:10 robbod Exp $
             <xsl:variable name="bomxsdfile"
               select="concat('part',
               $bom_node/@part,
-              $status, '_wg3n',
-              $bom_node/@wg.number,
+              $status, $prefix,
+              $bom_node/@wg.number.bom.xsd,
               'bom.xsd')"/>
             <xsl:variable name="bomxsd_href" select="concat($bom_dir_name,'/inserts/',$bomxsdfile)"/>
             <a href="{$bomxsd_href}">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.37 2012/12/19 14:33:10 robbod Exp $
+<!--  $Id: build.xsl,v 1.38 2012/12/19 15:06:42 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1827,6 +1827,15 @@ Purpose: To build the initial ANT publication file.
   		</xsl:attribute>
   	</xsl:element>
   	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMABSTRACTXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
 	<xsl:element name="property">
 		<xsl:attribute name="name">BOMEXPRESS</xsl:attribute>
 	  <xsl:attribute name="value">
@@ -2773,7 +2782,17 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="menu" select="$menu"/>
 				</xsl:apply-templates>
 			</xsl:element>
-
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMABSTRACTXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_abstract.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>			
 
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
@@ -5829,9 +5848,6 @@ Purpose: To build the initial ANT publication file.
 		<!-- copy the BOM abstracts -->
 		<!-- RBN - changed to move as per request from ISO 
 		<xsl:element name="copy"> -->
-		
-	<!--	
-		
 		<xsl:element name="move">
 			<xsl:attribute name="file">
 				<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name,'/sys/abstract.htm')"/>
@@ -5839,10 +5855,9 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="tofile">
 				<xsl:value-of select="concat($bomdoc_dir,'abstracts/abstract_',$bomdoc_xml/business_object_model/@part,'.htm')"/>
 			</xsl:attribute>
-		</xsl:element>-->
+		</xsl:element>
 		
 		<!-- copy the BOM  express -->
-		<!-- NOT YET IMPLEMENTED -->
 		<xsl:apply-templates select="." mode="copy_express">
 			<xsl:with-param name="express_dir" select="concat($bomdoc_dir,'inserts/')"/>
 		</xsl:apply-templates>
@@ -6383,14 +6398,14 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="part" select="$bom_node/@part"/>
 		<xsl:variable name="status" 
 			select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-','')"/>
-		<xsl:variable name="prefix" select="concat('part',$part,$status,'_wg3n')"/>
-		
+		<xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>
+		<xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
 		
 		<xsl:variable name="bomexpfile"
 			select="concat('part',
 			$bom_node/@part,
-			$status, '_wg3n',
-			$bom_node/@wg.number,
+			$status, $prefix,
+			$bom_node/@wg.number.bom.exp,
 			'bom.exp')"/>
 		<xsl:element name="copy">
 			<xsl:attribute name="file">
@@ -6399,14 +6414,12 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="tofile">
 				<xsl:value-of select="concat($express_dir1,$bomexpfile)"/>
 			</xsl:attribute>
-		</xsl:element>
-		
-		
+		</xsl:element>		
 		<xsl:variable name="bomxsdfile"
 			select="concat('part',
 			$bom_node/@part,
-			$status, '_wg3n',
-			$bom_node/@wg.number,
+			$status, $prefix,
+			$bom_node/@wg.number.bom.xsd,
 			'bom.xsd')"/>
 		<xsl:element name="copy">
 			<xsl:attribute name="file">

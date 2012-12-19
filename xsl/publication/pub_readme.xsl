@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_readme.xsl,v 1.10 2006/02/22 23:01:13 thendrix Exp $
+$Id: pub_readme.xsl,v 1.11 2006/10/19 15:47:34 darla Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -89,6 +89,57 @@ references in Clause 2.
 
   </xsl:template>
 
+  <xsl:template match="business_object_model">
+    <xsl:variable name="bom_full_no">
+      <!-- TDB <xsl:call-template name="get_module_pageheader">
+        <xsl:with-param name="bom" select="."/>
+        </xsl:call-template>-->
+      BOM - TBD
+    </xsl:variable>
+    <xsl:variable name="standard_type">
+      <xsl:choose>
+        <xsl:when test="@status='TS'">
+          <xsl:value-of select="'Technical Specification'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'ISO standard'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="standard_no">
+      <xsl:choose>
+        <xsl:when test="@status='TS'">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('ISO 10303-',@part)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:text/><xsl:value-of select="$standard_no"/>
+    TC 184/SC 4
+    
+    To access the <xsl:value-of select="concat($standard_type,' ',$bom_full_no)"/>
+    open the file "iso10303_<xsl:value-of select="@part"/>.htm".
+    
+    The folders 
+    "data"
+    "images"
+    contain the various components of the main document.
+    
+    To expand the document, unzip the file into an empty directory.
+    NOTE - if you already purchased other Application modules, then unzip the
+    file into the same directory as the other modules.
+    If asked when unzipping the file, you should overwrite any file in the images directory.
+    
+   
+    NOTE
+    The HTML will have a number of broken links as this part is dependent on a
+    number of other ISO 10303 parts which are listed in the normative
+    references in Clause 2. 
+    
+  </xsl:template>
 
   <xsl:template match="application_protocol">
     <xsl:variable name="ap_full_no">

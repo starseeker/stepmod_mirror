@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.34 2010/12/22 08:28:45 robbod Exp $
+<!--  $Id: build.xsl,v 1.35 2010/12/27 18:44:48 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -12,6 +12,8 @@ Purpose: To build the initial ANT publication file.
   
   <xsl:import href="../../xsl/ap_doc/common.xsl"/>
   <xsl:import href="../../xsl/res_doc/common.xsl"/>
+	<!-- BOM -->
+  <xsl:import href="../../xsl/bom_doc/common.xsl"/>
 
   <xsl:output method="xml" indent="yes"/>
 
@@ -91,6 +93,11 @@ Purpose: To build the initial ANT publication file.
 			<xsl:apply-templates select="." mode="target_isoresdocs"/>
 			<xsl:apply-templates select="." mode="target_publish_isoresdocs"/>
 		  </xsl:if>
+			<!-- BOMS -->
+			<xsl:if test="./business_object_models/bom_doc">
+				<xsl:apply-templates select="." mode="target_isobomdocs"/>
+				<xsl:apply-templates select="." mode="target_publish_isobomdocs"/>
+			</xsl:if>
 		  <xsl:apply-templates select="." mode="target_all"/>
 		</project>
 	  </xsl:otherwise>
@@ -240,6 +247,14 @@ Purpose: To build the initial ANT publication file.
 		  <xsl:value-of select="'../../../../data/resources/'"/>
 		</xsl:attribute>
 	  </xsl:element>
+		
+	  <!-- BOMS -->
+	  <xsl:element name="property">
+	     <xsl:attribute name="name">STEPMOD_DATA_BOMS</xsl:attribute>
+		 <xsl:attribute name="value">
+		   <xsl:value-of select="'../../../../data/business_object_models/'"/>
+		 </xsl:attribute>
+	  </xsl:element>
 
 	  <xsl:element name="property">
 		<xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
@@ -262,6 +277,8 @@ Purpose: To build the initial ANT publication file.
 		   modules are part of that document -->
 	  <xsl:if test="./application_protocols">
 		<xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+	  	<!-- BOM -->
+	  	<xsl:apply-templates select="." mode="dependent_bom_doc_variables"/>
 		<xsl:apply-templates select="." mode="apdoc_variables"/>
 	  </xsl:if>
 
@@ -274,8 +291,12 @@ Purpose: To build the initial ANT publication file.
 		<xsl:apply-templates select="." mode="dependent_res_doc_variables"/>
 		<xsl:apply-templates select="." mode="resdoc_variables"/>
 	  </xsl:if>
-
-	</xsl:element>
+	 <!-- BOMS -->
+		<xsl:if test="./business_object_models">
+			<!--<xsl:apply-templates select="." mode="dependent_ap_doc_variables"/>-->
+			<xsl:apply-templates select="." mode="bomdoc_variables"/>
+		</xsl:if>
+	 </xsl:element>
   </xsl:template>
 
 
@@ -710,7 +731,7 @@ Purpose: To build the initial ANT publication file.
 	</xsl:text>
   </xsl:template>
 
-
+	<!-- variables for building the AP documents -->
   <xsl:template match="publication_index" mode="apdoc_variables">
 	<xsl:element name="property">
 	  <xsl:attribute name="name">APDIR</xsl:attribute>
@@ -1406,81 +1427,452 @@ Purpose: To build the initial ANT publication file.
 	</xsl:element>
   </xsl:template>
 
+  <!-- BOM -->
+  <!-- variables for building the business object models -->
+  <xsl:template match="publication_index" mode="bomdoc_variables">
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMDOCDIR</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:value-of select="concat('data/business_object_models/',./business_object_models/bom_doc/@name)"/>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+	<xsl:element name="property">
+	  <xsl:attribute name="name">BOMDOCS</xsl:attribute>
+	  <xsl:attribute name="value">
+	  	<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+	  	  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/**/*.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
 
-  <!-- generate the target "normref_check" -->
-  <!-- Note - that this target should be included in isoindex, but left out
-	   as not all publication packages have a normref_check file yet -->
-	<!-- See: http://locke.dcnicn.com/bugzilla/iso10303/show_bug.cgi?id=3786#c1 
- 	<xsl:template match="publication_index" mode="target_normref_check">
+	<xsl:element name="property">
+	  <xsl:attribute name="name">BOM1SCOPEXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOM2REFSXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOM3DEFSXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOM4INFOREQSXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/4_info_reqs.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOM5MAINXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/5_main.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXEXPGXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/annex_bom_expg.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+  	</xsl:element>
+    	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXUMLXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/annex_bom_uml.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXCOMPINTXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/annex_comp_int.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXOBJREGXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/annex_obj_reg.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXXSDDERXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/annex_xsd_der.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMBIBLIOXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	
+  		<xsl:element name="property">
+  		<xsl:attribute name="name">BOMINDEXXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/bom_index.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOMCONTENTSXML</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMCOVERXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMFOREWORDXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms -->
+  		<xsl:element name="property">
+  		<xsl:attribute name="name">BOMFRAMEBOMTITLE</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/frame_title.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMFRAMETITLE</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/frame_title.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMFRAMETOC</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/frame_toc.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms -->
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMHELP</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/help.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element> 
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms -->
+ 	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESS</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms -->  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESSINNER</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express_inner.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESSNAV</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express_nav.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESSNAVINNER</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express_nav_inner.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESSNAVTOP</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express_nav_top.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMEXPRESSTOP</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_express_top.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMMAPPINGINNER</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_mapping_inner.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMMAPPINGTOP</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_mapping_top.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMDOC</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bomdoc.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<!-- MIKE: file not built in stepmod/utils/build.xml boms --> 
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">INDEXBOMMMAPPRINGS</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/index_bom_mappings.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMINTRODUCTIONXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMISOCOVERXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMISOCOVERHTM</xsl:attribute>
+  		<xsl:attribute name="value">${BOMDOCDIR}/sys/isocover.htm</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/bom.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMHOMEXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/home.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMDESCRIPTIONSXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/bom_descriptions.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMEXPGXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/bomexpg*.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMANNEXCOMPINTXML</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/annex_comp_int.xml'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOMEXPRESS</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/*.exp'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
+  	
+  	<xsl:element name="property">
+  		<xsl:attribute name="name">BOMXSD</xsl:attribute>
+  		<xsl:attribute name="value">
+  			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+  				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+  				<xsl:with-param name="suffix" select="'/*.xsd'"/>
+  			</xsl:apply-templates>
+  		</xsl:attribute>
+  	</xsl:element>
+  	
+	<xsl:element name="property">
+		<xsl:attribute name="name">BOMGIFS</xsl:attribute>
+	  <xsl:attribute name="value">
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/*.gif'"/>
+		  <xsl:with-param name="terminate" select="'NO'"/>
+		</xsl:apply-templates>
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/*.png'"/>
+		  <xsl:with-param name="terminate" select="'NO'"/>
+		</xsl:apply-templates>
+		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+		  <xsl:with-param name="suffix" select="'/*.jpg'"/>
+		</xsl:apply-templates>
+	  </xsl:attribute>
+	</xsl:element>
 	<xsl:text>
 	</xsl:text>
-	<target name="normref_check" depends="init" 
-			description="Create normative reference check">
-	  <dependset>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${PUBSRCDTD}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.dtd, **/*.ent'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${STEPMODSTYLES}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.xsl'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="srcfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'${PUBSRCDIR}'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'**/*.xml'"/>
-		  </xsl:attribute>
-		</xsl:element>
-		<xsl:element name="targetfileset">
-		  <xsl:attribute name="dir">
-			<xsl:value-of select="'.'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="includes">
-			<xsl:value-of select="'${PUBSRCDIR}/*.htm*'"/>
-		  </xsl:attribute>
-		</xsl:element>
-	  </dependset>
-	  <xsl:element name="xslt">
-		<xsl:attribute name="in">
-		  <xsl:value-of select="'${PUBSRCDIR}/sys/normref_check.xml'"/>
-		</xsl:attribute>
-		<xsl:attribute name="out">
-		  <xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
-		</xsl:attribute>
-		<xsl:attribute name="destdir">
-		  <xsl:value-of select="'${PUBDIR}'"/>
-		</xsl:attribute>
-		<xsl:attribute name="extension">
-		  <xsl:value-of select="'.htm'"/>
-		</xsl:attribute>
-		<xsl:attribute name="style">
-		  <xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/normref_check.xsl'"/>
-		</xsl:attribute>
-		<param name="output_type" expression="HTM"/>
-		<param name="stepmodhome" expression="."/>
-		<xsl:element name="param">
-		  <xsl:attribute name="name">
-			<xsl:value-of select="'date'"/>
-		  </xsl:attribute>
-		  <xsl:attribute name="expression">
-			<xsl:value-of select="'${DATE}'"/>
-		  </xsl:attribute>
-		</xsl:element>
-	  </xsl:element>
-	</target>
   </xsl:template>
+	
+	
 
--->
+
   <!-- generate the target "isoindex" -->
   <xsl:template match="publication_index" mode="target_isoindex">
 	<xsl:text>
@@ -2098,6 +2490,334 @@ Purpose: To build the initial ANT publication file.
 
   </xsl:template>
 
+	<!-- BOM -->
+	
+	<!-- generate the target "target_isobomdocs" -->
+	<xsl:template match="publication_index" mode="target_isobomdocs">
+		<xsl:param name="menu"/>
+		<xsl:text>
+		</xsl:text>
+		<target
+			xsl:extension-element-prefixes="exslt"        
+			name="isobomdocs" depends="init" 
+			description="generate HTML for all BOMs listed in the publication_index">
+			
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMHOMEXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/home.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>         
+			</xsl:element>
+			
+			<!-- MIKE: This is copied from the utils build - Not sure that this is used - there is no data/business_object_models/**/index.xml
+			-->
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMFRAMETOC}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/frame_toc.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMFRAMETITLE}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/frame_title.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMDESCRIPTIONSXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/descriptions.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMEXPGXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/imgfile.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMCONTENTSXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_contents.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOM1SCOPEXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_1_scope.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOM2REFSXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_2_refs.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOM3DEFSXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_3_defs.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOM4INFOREQSXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_4_info_reqs.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOM5MAINXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_5_main.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMANNEXOBJREGXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_annex_obj_reg.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMBIBLIOXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_biblio.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMANNEXEXPGXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_annex_bom_expg.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMANNEXUMLXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_annex_bom_uml.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMANNEXXSDDERXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_annex_xsd_der.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMANNEXCOMPINTXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_annex_comp_int.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMCOVERXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_cover.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMISOCOVERXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/sect_isocover.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			
+			
+			<!-- move the ISO cover page to cover page -->
+			<xsl:element name="move">
+				<xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
+					<xsl:attribute name="includes">${BOMISOCOVERHTM}</xsl:attribute>
+				</xsl:element>
+				<mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
+			</xsl:element> 
+			
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMFOREWORDXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_foreword.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINTRODUCTIONXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_introduction.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+
+
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="'${TMPDIR}'"/>
+				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="includes">
+						<xsl:value-of select="'${BOMEXPRESS}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+			
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="'${TMPDIR}'"/>
+				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="includes">
+						<xsl:value-of select="'${BOMXSD}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+			
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="'${TMPDIR}'"/>
+				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="includes">
+						<xsl:value-of select="'${BOMGIFS}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+		</target>
+	</xsl:template>
 
   <!-- generate the target "target_isomodules" -->
   <xsl:template match="publication_index" mode="target_isomodules">
@@ -2158,7 +2878,19 @@ Purpose: To build the initial ANT publication file.
 		  </xsl:attribute>
 		</xsl:element>
 	  </dependset>
-
+	
+	  <!-- MIKE - not sure why this is here - it is different to previous version DELETE
+		
+		<xsl:element name="xslt">
+			<xsl:attribute name="includes">
+				<xsl:value-of select="'${RESDOCSCOPEXML}'"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_1_scope.xsl'"/>
+			</xsl:attribute>
+			<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
+		</xsl:element>
+	
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${CONTENTSXML}'"/>
@@ -2169,7 +2901,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:apply-templates select="." mode="modules_target_style_attributes">
 		  <xsl:with-param name="menu" select="$menu"/>
 		</xsl:apply-templates>
-	  </xsl:element>
+	  </xsl:element>-->
 
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
@@ -3463,7 +4195,51 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:element>
    </xsl:template>
 
-
+	<!-- BOM -->
+	<!-- called from template match="publication_index" mode="target_isobomdocs" -->
+	<xsl:template match="publication_index"
+		mode="bomdocs_target_style_attributes">
+		<xsl:param name="menu"/>
+		<xsl:attribute name="destdir">
+			<xsl:value-of select="'${TMPDIR}'"/>
+		</xsl:attribute>
+		<xsl:attribute name="extension">
+			<xsl:value-of select="'.htm'"/>
+		</xsl:attribute>
+		<param name="output_type" expression="HTM"/>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'INLINE_ERRORS'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'publication'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${PUBLICATION}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'output_rcs'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${OUTPUT_RCS}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'menubar_file'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${ISOMENU}'"/>
+			</xsl:attribute>
+		</xsl:element>
+	</xsl:template>
 
    <!-- generate the target "isoapdocs" -->
    <xsl:template match="publication_index" mode="target_isoapdocs">
@@ -4448,7 +5224,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_contents.xsl'"/>
 		 </xsl:attribute>
 		 <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
-	   </xsl:element>      
+	   </xsl:element>
 
 	   <xsl:element name="xslt">
 		 <xsl:attribute name="includes">
@@ -4727,8 +5503,7 @@ Purpose: To build the initial ANT publication file.
    </xsl:template>
 
    <!-- called from template match="publication_index" mode="target_isoresdocs" -->
-   <xsl:template match="publication_index"
-	 mode="resdoc_target_style_attributes">
+   <xsl:template match="publication_index" mode="resdoc_target_style_attributes">
 	 <xsl:attribute name="destdir">
 	   <xsl:value-of select="'${TMPDIR}'"/>
 	 </xsl:attribute>
@@ -4778,7 +5553,57 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:element>      
    </xsl:template>
 
-
+<!-- BOM -->
+	<!-- called from template match="publication_index" mode="target_isoresdocs" -->
+	<xsl:template match="publication_index" mode="bomdoc_target_style_attributes">
+		<xsl:attribute name="destdir">
+			<xsl:value-of select="'${TMPDIR}'"/>
+		</xsl:attribute>
+		<xsl:attribute name="extension">
+			<xsl:value-of select="'.htm'"/>
+		</xsl:attribute>
+		<param name="output_type" expression="HTM"/>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'publication'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${PUBLICATION}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'output_rcs'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${OUTPUT_RCS}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'output_issues'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'INLINE_ERRORS'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${INLINE_ERRORS}'"/>
+			</xsl:attribute>
+		</xsl:element>
+		<xsl:element name="param">
+			<xsl:attribute name="name">
+				<xsl:value-of select="'menubar_file'"/>
+			</xsl:attribute>
+			<xsl:attribute name="expression">
+				<xsl:value-of select="'${ISOMENU}'"/>
+			</xsl:attribute>
+		</xsl:element>      
+	</xsl:template>
 
    <!-- generate the target "publish_isoapdocs" -->
    <xsl:template match="publication_index" mode="target_publish_isoapdocs">
@@ -4931,6 +5756,139 @@ Purpose: To build the initial ANT publication file.
 	   </xsl:attribute>
 	 </xsl:element>
    </xsl:template>
+
+	<!-- BOM -->
+	<xsl:template match="bom_doc" mode="target_publish_isobomdocs">
+		<xsl:variable name="bomdoc_file" select="concat('../../data/business_object_models/',@name,'/business_object_model.xml')"/>
+		<xsl:variable name="bomdoc_xml" select="document($bomdoc_file)"/>
+		
+		<xsl:variable name="bomdoc_iso_no" select="concat('iso10303_',$bomdoc_xml/business_object_model/@part)"/>
+		<xsl:variable name="bomdoc_dir" select="concat('${PUBDIR}/',$bomdoc_iso_no,'/')"/>
+		
+		<xsl:text>
+		</xsl:text>
+		<xsl:comment>Publish Business Object models: <xsl:value-of select="@name"/> </xsl:comment>
+		
+		<!-- generate the publication record for the BOM  doc -->
+		<xsl:apply-templates select="." mode="pub_record_style"/>
+		
+		<!-- the readme -->
+		<xsl:element name="xslt">
+			<xsl:attribute name="in">
+				<xsl:value-of select="concat('data/business_object_models/',@name,'/business_object_model.xml')"/>
+			</xsl:attribute>
+			<xsl:attribute name="out">
+				<xsl:value-of select="concat($bomdoc_dir,$bomdoc_iso_no,'_readme.txt')"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_readme.xsl'"/>
+			</xsl:attribute>        
+			<xsl:attribute name="destdir">
+				<xsl:value-of select="$bomdoc_dir"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<!-- make sure that the CR/LF are windows for the readme -->
+		<xsl:element name="fixcrlf">
+			<xsl:attribute name="srcdir">
+				<xsl:value-of select="$bomdoc_dir"/>
+			</xsl:attribute>
+			<xsl:attribute name="includes">
+				<xsl:value-of select="concat($bomdoc_iso_no,'_readme.txt')"/>
+			</xsl:attribute>
+			<xsl:attribute name="eol">
+				<xsl:value-of select="'crlf'"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<!-- the frontpage redirected to business_object_model cover page -->
+		<xsl:element name="xslt">
+			<xsl:attribute name="in">
+				<xsl:value-of select="concat('data/business_object_models/',@name,'/business_object_model.xml')"/>
+			</xsl:attribute>
+			<xsl:attribute name="out">
+				<xsl:value-of select="concat($bomdoc_dir,$bomdoc_iso_no,'.htm')"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
+			</xsl:attribute>        
+			<xsl:attribute name="destdir">
+				<xsl:value-of select="$bomdoc_dir"/>
+			</xsl:attribute>
+			<param name="output_type" expression="HTM"/>
+		</xsl:element>    
+		<xsl:element name="copy">
+			<xsl:attribute name="todir">
+				<xsl:value-of select="concat($bomdoc_dir,'images')"/>
+			</xsl:attribute>
+			<xsl:element name="fileset">
+				<xsl:attribute name="dir">
+					<xsl:value-of select="'${TMPDIR}/images'"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:element>
+		<xsl:element name="copy">
+			<xsl:attribute name="todir">
+				<xsl:value-of select="concat($bomdoc_dir,'data/business_object_models/',@name)"/>
+			</xsl:attribute>
+			<xsl:element name="fileset">
+				<xsl:attribute name="dir">
+					<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name)"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:element>
+	
+		<!-- copy the BOM abstracts -->
+		<!-- RBN - changed to move as per request from ISO 
+		<xsl:element name="copy"> -->
+		
+	<!--	
+		
+		<xsl:element name="move">
+			<xsl:attribute name="file">
+				<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name,'/sys/abstract.htm')"/>
+			</xsl:attribute>
+			<xsl:attribute name="tofile">
+				<xsl:value-of select="concat($bomdoc_dir,'abstracts/abstract_',$bomdoc_xml/business_object_model/@part,'.htm')"/>
+			</xsl:attribute>
+		</xsl:element>-->
+		
+		<!-- copy the BOM  express -->
+		<!-- NOT YET IMPLEMENTED -->
+		<xsl:apply-templates select="." mode="copy_express">
+			<xsl:with-param name="express_dir" select="concat($bomdoc_dir,'express/')"/>
+		</xsl:apply-templates>
+		
+		<xsl:element name="zip">
+			<xsl:attribute name="zipfile">
+				<xsl:value-of select="concat('${PUBDIR}/zip/iso10303_',$bomdoc_xml/business_object_model/@part,'.zip')"/>
+			</xsl:attribute>
+			<xsl:attribute name="basedir">
+				<xsl:value-of select="$bomdoc_dir"/>
+			</xsl:attribute>
+			<xsl:attribute name="excludes">
+				<xsl:value-of select="'**/*.zip'"/>
+			</xsl:attribute>
+			<xsl:attribute name="includes">
+				<xsl:value-of select="'**'"/>
+			</xsl:attribute>
+		</xsl:element>
+	</xsl:template>
+	
+	
+	<!-- BOM -->
+	<!-- generate the target "publish_isobomdocs" -->
+	<xsl:template match="publication_index" mode="target_publish_isobomdocs">
+		<xsl:text>
+		</xsl:text>
+		<xsl:element name="target">
+			<xsl:attribute name="name">publish_isobomdocs</xsl:attribute>
+			<xsl:attribute name="depends">isoindex, isobomdocs</xsl:attribute>
+			<xsl:attribute name="description">Copy HTML for boms listed in
+				publication_index to publication directory</xsl:attribute>
+			<xsl:apply-templates select="//bom_doc" mode="target_publish_isobomdocs"/>
+		</xsl:element>
+	</xsl:template>
 
    <!-- generate the target "publish_isomodules" -->
    <xsl:template match="publication_index" mode="target_publish_isomodules">
@@ -5311,6 +6269,8 @@ Purpose: To build the initial ANT publication file.
 	   <xsl:apply-templates select="./resource_docs" mode="target_all"/>
 	   <xsl:apply-templates select="./modules" mode="target_all"/>
 	   <xsl:apply-templates select="./application_protocols" mode="target_all"/>
+	 	<!-- BOM -->
+	 	<xsl:apply-templates select="./business_object_models" mode="target_all"/>
 	 </xsl:variable>
 	 <xsl:variable name="target">
 	   <xsl:call-template name="output_comma_separated_list">
@@ -5335,6 +6295,11 @@ Purpose: To build the initial ANT publication file.
    <xsl:template match="application_protocols" mode="target_all">
 	 publish_isoapdocs
    </xsl:template>
+	
+	<!-- BOM -->
+	<xsl:template match="business_object_models" mode="target_all">
+		publish_isobomdocs
+	</xsl:template>
 
    <!-- generate the target "isodepmodules_publication_record" -->
    <xsl:template match="publication_index" mode="target_isodepmodules_publication_record">
@@ -5546,7 +6511,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:if>
    </xsl:template>
 
-   <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
+   <xsl:template match="resource|module|application_protocol|res_doc|bom_doc" mode="list">
 	 <xsl:param name="prefix" select="''"/>
 	 <xsl:param name="suffix" select="''"/>
 	 <xsl:param name="terminate" select="'YES'"/>
@@ -5613,6 +6578,10 @@ Purpose: To build the initial ANT publication file.
    <xsl:template match="application_protocols" mode="present">
 	 3
    </xsl:template>
+ 
+	<xsl:template match="business_object_models" mode="present">
+		4
+	</xsl:template>
 
    <xsl:template match="publication_index" mode="check_single">
 	 <xsl:variable name="present1">
@@ -5694,7 +6663,32 @@ Purpose: To build the initial ANT publication file.
 	   </xsl:otherwise>
 	 </xsl:choose>
    </xsl:template>
-
+	
+	
+    <!-- BOM -->
+	<!-- run a check on each business_object_model doc listed in publication_index -->
+	<!--<xsl:template match="bom_doc" mode="check">
+		<xsl:variable name="bomdoc_ok">
+			<xsl:call-template name="check_bomdoc_exists">
+				<xsl:with-param name="bomdoc" select="@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:choose>
+			<xsl:when test="$bomdoc_ok!='true'">
+				<xsl:message>
+					************************************************************
+					ERROR 1 
+					<xsl:value-of select="$bomdoc_ok"/>
+					************************************************************
+				</xsl:message>
+				<xsl:value-of select="'false'"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="'true'"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>-->
+	
 
    <!-- run a check on each application protocol listed in publication_index -->
    <xsl:template match="ap_doc" mode="check">
@@ -6516,6 +7510,130 @@ Purpose: To build the initial ANT publication file.
     </xsl:element>
   </xsl:template>
 
+	<!-- BOM -->
+	<!-- Generates the style task for generating the publication record for a
+		bom -->
+	<xsl:template match="bom_doc" mode="pub_record_style">
+		<xsl:variable name="bom_file" select="concat('../../data/business_object_models/',@name,'/business_object_model.xml')"/>
+		<xsl:variable name="bom_xml" select="document($bom_file)"/>
+		<xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_dir_dot_entry_',@name)"/>
+		<xsl:variable name="CVS_dir_dvlp_entry" select="concat('CVS_dir_dvlp_entry_',@name)"/>
+		<xsl:variable name="CVS_dir_sys_entry" select="concat('CVS_dir_sys_entry_',@name)"/>
+		<xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_',@name)"/>
+		<xsl:variable name="CVS_dir_xslp28xsd_entry" select="concat('CVS_dir_xslp28xsd_entry_',@name)"/>
+		
+		<xsl:element name="loadfile">
+			<xsl:attribute name="property">
+				<xsl:value-of select="$CVS_dir_dot_entry"/>
+			</xsl:attribute>
+			<xsl:attribute name="srcfile">
+				<xsl:value-of
+					select="concat('data/business_object_models/',@name,'/CVS/Entries')"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="loadfile">
+			<xsl:attribute name="property">
+				<xsl:value-of select="$CVS_dir_dvlp_entry"/>
+			</xsl:attribute>
+			<xsl:attribute name="srcfile">
+				<xsl:value-of
+					select="concat('data/business_object_models/',@name,'/dvlp/CVS/Entries')"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="loadfile">
+			<xsl:attribute name="property">
+				<xsl:value-of select="$CVS_dir_sys_entry"/>
+			</xsl:attribute>
+			<xsl:attribute name="srcfile">
+				<xsl:value-of
+					select="concat('data/business_object_models/',@name,'/sys/CVS/Entries')"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="loadfile">
+			<xsl:attribute name="property">
+				<xsl:value-of select="$CVS_dir_xsl_entry"/>
+			</xsl:attribute>
+			<xsl:attribute name="srcfile">
+				<xsl:value-of
+					select="concat('xsl','/CVS/Entries')"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="loadfile">
+			<xsl:attribute name="property">
+				<xsl:value-of select="$CVS_dir_xslp28xsd_entry"/>
+			</xsl:attribute>
+			<xsl:attribute name="srcfile">
+				<xsl:value-of
+					select="concat('xsl/p28xsd','/CVS/Entries')"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="xslt">
+			<xsl:attribute name="force">yes</xsl:attribute>
+			<xsl:attribute name="in">
+				<xsl:value-of select="concat('data/business_object_models/',@name,'/business_object_model.xml')"/>
+			</xsl:attribute>
+			<xsl:attribute name="out">
+				<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name,'/publication_record.xml')"/>
+			</xsl:attribute>
+			<xsl:attribute name="style">
+				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_record.xsl'"/>
+			</xsl:attribute>        
+			<xsl:attribute name="destdir">
+				<xsl:value-of select="'${TMPDIR}'"/>
+			</xsl:attribute>
+			<xsl:element name="param">
+				<xsl:attribute name="name">CVS_dir_dot_entry</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="concat('${',$CVS_dir_dot_entry,'}')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">CVS_dir_dvlp_entry</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="concat('${',$CVS_dir_dvlp_entry,'}')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">CVS_dir_sys_entry</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="concat('${',$CVS_dir_sys_entry,'}')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">CVS_dir_xsl_entry</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="concat('${',$CVS_dir_xsl_entry,'}')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">CVS_dir_xslp28xsd_entry</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="concat('${',$CVS_dir_xslp28xsd_entry,'}')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">
+					<xsl:value-of select="'CVS_tag'"/>
+				</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="'${CVS_tag}'"/>
+				</xsl:attribute>
+			</xsl:element>
+			<xsl:element name="param">
+				<xsl:attribute name="name">
+					<xsl:value-of select="'PUBLICATION_DATE'"/>
+				</xsl:attribute>
+				<xsl:attribute name="expression">
+					<xsl:value-of select="'${PUB_DATE}'"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:element>
+	</xsl:template>
 
   <xsl:template match="publication_index" mode="target_finish">
     <xsl:text>

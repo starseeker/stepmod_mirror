@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.10 2010/12/22 08:20:45 robbod Exp $
+$Id: publication_summary.xsl,v 1.11 2011/04/14 11:20:00 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -95,12 +95,35 @@ $Id: publication_summary.xsl,v 1.10 2010/12/22 08:20:45 robbod Exp $
       <xsl:apply-templates select="./modules" mode="table_hdr"/>
       <xsl:apply-templates select="./resource_docs" mode="table_hdr"/>
       <xsl:apply-templates select="./application_protocols" mode="table_hdr"/>
+      <!-- BOM -->
+      <xsl:apply-templates select="./business_object_models" mode="table_hdr"/>
       
     </body>
   </HTML>
   </xsl:template>
 
-
+  <!-- BOM -->
+  <xsl:template match="business_object_models" mode="table_hdr">
+    <p/>
+    <table border="1">
+      <tr>
+        <td><b>Business Object Model</b></td>
+        <td><b>Part</b></td>
+        <td><b>Edition</b></td>
+        <td><b>Stage</b></td>
+        <td><b>Year of<br/>publication</b></td>
+        <td><b>Abstract</b></td>
+        <td><b>ARM EXPRESS</b></td>
+        <td><b>ARM LF EXPRESS</b></td>          
+        <td><b>MIM EXPRESS</b></td>
+        <td><b>MIM LF EXPRESS</b></td>
+        <td><b>ZIP file for ISO</b></td>
+        <td><b>CVS file revisions</b></td>
+      </tr>
+      <xsl:apply-templates select="./bom_doc" mode="table_row"/>
+    </table>
+  </xsl:template>
+  
   <xsl:template match="modules" mode="table_hdr">
     <p/>
     <table border="1">
@@ -157,6 +180,251 @@ $Id: publication_summary.xsl,v 1.10 2010/12/22 08:20:45 robbod Exp $
     </table>
   </xsl:template>
 
+<!-- BOM -->
+  <xsl:template match="bom_doc" mode="table_row">
+    <xsl:variable name="bom_doc_ok">
+      <xsl:call-template name="check_bom_doc_exists">
+        <xsl:with-param name="bom_doc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$bom_doc_ok='true'">
+        <xsl:variable name="bom_file"
+          select="concat('../../data/business_object_models/',@name,'/business_object_model.xml')"/>
+        <xsl:variable name="bom_node"
+          select="document($bom_file)/business_object_model"/>
+        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/iso10303_',$bom_node/@part)"/>
+        
+        <xsl:variable name="bom_dir_name"
+          select="concat('iso10303_',$bom_node/@part)"/>
+        
+        <tr>
+          <!-- Part -->
+          <td>
+            <xsl:variable name="bom_cover"
+              select="concat($bom_dir_name,'.htm')"/>
+            <xsl:variable name="bom_xref"
+              select="concat($pub_dir,'/',$bom_cover)"/>
+            <xsl:value-of select="concat(@name,'&#160;')"/> 
+            <a href="{$bom_xref}">
+              <xsl:value-of select="$bom_cover"/>
+            </a>
+          </td>
+          
+          <!-- Part -->
+          <td>
+            <xsl:choose>
+              <xsl:when test="$bom_node/@part">
+                <xsl:value-of select="concat('10303-',$bom_node/@part)"/>
+                
+                <!-- check that the part number in repository_index - that in
+                  bom_doc -->
+                <xsl:variable name="bom_doc" select="@name"/>
+                <xsl:variable name="repo_bom_number"
+                  select="document('../../repository_index.xml')/repository_index/business_object_models/business_object_model[@name=$bom_doc]/@part"/>
+                <xsl:if test="$repo_bom_number != $bom_node/@part">
+                  <br/>
+                  <font color="#FF0000" size="-1">
+                    The part number in repository_index
+                    (<xsl:value-of select="$repo_bom_number"/>)
+                    does not equal that in module 
+                    (<xsl:value-of select="$bom_node/@part"/>).
+                  </font>
+                </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Version -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($bom_node/@version))>0">
+                <xsl:value-of select="$bom_node/@version"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Status -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($bom_node/@status))>0">
+                <xsl:value-of select="$bom_node/@status"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Year -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space($bom_node/@publication.year))>0">
+                <xsl:value-of select="$bom_node/@publication.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- SC4 cover page -->
+          <!-- <td>
+            <xsl:variable name="sc4_xref"
+            select="concat($pub_dir,'/data/business_object_models/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
+            <a href="{$sc4_xref}">sc4_cover.htm</a>
+            </td>
+          -->
+          <!-- Abstract -->
+          <td>
+            <xsl:variable name="abstract_name"
+              select="concat('abstract_',$bom_node/@part,'.htm')"/>
+            <xsl:variable name="abstract_xref"
+              select="concat($pub_dir,'/abstracts/',$abstract_name)"/>
+            <a href="{$abstract_xref}">
+              <xsl:value-of select="$abstract_name"/>
+            </a>
+          </td>
+          
+          <xsl:variable name="status"
+            select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
+          <!-- ARM express -->
+          <td>
+            <xsl:variable name="armfile"
+              select="concat('part',
+              $bom_node/@part,
+              $status, '_wg',
+              $bom_node/@sc4.working_group,'n',
+              $bom_node/@wg.number.arm,
+              'arm.exp')"/>
+            <xsl:variable name="arm_href" select="concat($bom_dir_name,'express/',$armfile)"/>
+            <a href="{$arm_href}">
+              <xsl:value-of select="$armfile"/>
+            </a>
+          </td>
+          
+          
+          <!-- ARM Long form express -->
+          <xsl:choose>
+            <xsl:when test="$bom_node/@wg.number.arm_lf">
+              <td>
+                <xsl:variable name="arm_lf_file"
+                  select="concat('part',
+                  $bom_node/@part,
+                  $status, '_wg',
+                  $bom_node/@sc4.working_group,'n',
+                  $bom_node/@wg.number.arm_lf,
+                  'arm_lf.exp')"/>
+                <xsl:variable name="arm_lf_href" select="concat($bom_dir_name,'express/',$arm_lf_file)"/>
+                <a href="{$arm_lf_href}">
+                  <xsl:value-of select="$arm_lf_file"/>
+                </a>
+              </td>
+            </xsl:when>
+            <xsl:otherwise>
+              <td>
+                No Long Form
+              </td>
+            </xsl:otherwise>
+          </xsl:choose>
+          
+          
+          <!-- MIM express -->
+          <td>
+            <xsl:variable name="mimfile"
+              select="concat('part',
+              $bom_node/@part,
+              $status, '_wg',
+              $bom_node/@sc4.working_group,'n',
+              $bom_node/@wg.number.mim,
+              'mim.exp')"/>
+            <xsl:variable name="mim_href" select="concat($bom_dir_name,'express/',$mimfile)"/>
+            <a href="{$mim_href}">
+              <xsl:value-of select="$mimfile"/>
+            </a>
+          </td>
+          
+          
+          <!-- MIM Long form express -->
+          <xsl:choose>
+            <xsl:when test="$bom_node/@wg.number.mim_lf">
+              <td>
+                <xsl:variable name="mim_lf_file"
+                  select="concat('part',
+                  $bom_node/@part,
+                  $status, '_wg',
+                  $bom_node/@sc4.working_group,'n',
+                  $bom_node/@wg.number.mim_lf,
+                  'mim_lf.exp')"/>
+                <xsl:variable name="mim_lf_href" 
+                  select="concat($bom_dir_name,'express/',$mim_lf_file)"/>
+                <a href="{$mim_lf_href}">
+                  <xsl:value-of select="$mim_lf_file"/>
+                </a>
+              </td>
+            </xsl:when>
+            <xsl:otherwise>
+              <td>
+                No Long Form
+              </td>
+            </xsl:otherwise>
+          </xsl:choose>
+          
+          <!-- ZIP file -->
+          <td>
+            <xsl:variable name="zipfile_name" 
+              select="concat($bom_dir_name,'.zip')"/>
+            <xsl:variable name="zipfile_xref" select="concat('./zip/',$zipfile_name)"/>
+            <a href="{$zipfile_xref}">
+              <xsl:value-of select="$zipfile_name"/>
+            </a>
+          </td>
+          
+          <!-- CVS revisions -->
+          <td>
+            <xsl:variable name="cvs_xref"
+              select="concat($pub_dir,'/data/modules/',@name,'/publication_record.xml')"/>
+            
+            <a href="{$cvs_xref}">publication_record.xml</a>
+          </td>
+        </tr>
+      </xsl:when>
+      <!-- bom_doc does not exist in repository index -->
+      <xsl:otherwise>
+        <tr>
+          <td>
+            <xsl:value-of select="../@name"/>
+          </td>
+          <td>
+            <xsl:value-of select="@name"/>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Error publication1: ', $bom_doc_ok)"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+        </tr>      
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <xsl:template match="module" mode="table_row">
     <xsl:variable name="module_ok">
       <xsl:call-template name="check_module_exists">

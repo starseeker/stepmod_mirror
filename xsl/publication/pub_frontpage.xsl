@@ -50,6 +50,34 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     </html>
   </xsl:template>
 
+  <xsl:template match="business_object_model">
+    <xsl:variable name="new_page" select="concat('data/business_object_models/',@name,'/sys/cover',$FILE_EXT)"/>
+    <html>
+      <head>
+        <xsl:element name="meta">
+          <xsl:attribute name="http-equiv">Refresh</xsl:attribute>
+          <xsl:attribute name="content">
+            <xsl:value-of select="concat('0; URL=',$new_page)"/>
+          </xsl:attribute>
+        </xsl:element>
+        <title>
+          <!-- output the part page title -->
+          <xsl:apply-templates 
+            select="."
+            mode="title"/>
+        </title>
+      </head>
+      <body>
+        <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 0 seconds')"/><br/>
+        If not select 
+        <a href="{$new_page}">
+          <xsl:value-of select="$new_page"/>
+        </a>
+      </body>
+    </html>
+  </xsl:template>
+  
+  
   <xsl:template match="application_protocol">
     <xsl:variable name="new_page" select="concat('data/application_protocols/',@name,'/home',$FILE_EXT)"/>
     <html>

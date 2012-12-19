@@ -91,8 +91,22 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </modules>
     </publication_record>
   </xsl:template>
+  
+  <xsl:template match="business_object_model">
+    <!--
+      <xsl:variable name="module_xml"
+      select="document(concat('../../data/modules/',@name,'/module.xml'))"/> -->
+    <xsl:variable name="edition" select="@version"/>
+    <publication_record>
+      <business_object_models>
+        <xsl:apply-templates select="." mode="published_part">
+          <xsl:with-param name="edition" select="$edition"/>
+        </xsl:apply-templates>
+      </business_object_models>
+    </publication_record>
+  </xsl:template>
 
-  <xsl:template match="module|application_protocol|resource" mode="published_part">
+  <xsl:template match="module|application_protocol|resource|business_object_model" mode="published_part">
     <xsl:param name="edition"/>
     <xsl:element name="published_part">
       <xsl:attribute name="name">

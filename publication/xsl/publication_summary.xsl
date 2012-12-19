@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.12 2012/12/19 10:35:07 robbod Exp $
+$Id: publication_summary.xsl,v 1.13 2012/12/19 14:33:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -338,7 +338,7 @@ $Id: publication_summary.xsl,v 1.12 2012/12/19 10:35:07 robbod Exp $
           <!-- CVS revisions -->
           <td>
             <xsl:variable name="cvs_xref"
-              select="concat($pub_dir,'/data/modules/',@name,'/publication_record.xml')"/>
+              select="concat($pub_dir,'/data/business_object_models/',@name,'/publication_record.xml')"/>
             
             <a href="{$cvs_xref}">publication_record.xml</a>
           </td>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.35 2010/12/27 18:44:48 lothartklein Exp $
+<!--  $Id: build.xsl,v 1.36 2012/12/19 10:35:07 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -5856,7 +5856,7 @@ Purpose: To build the initial ANT publication file.
 		<!-- copy the BOM  express -->
 		<!-- NOT YET IMPLEMENTED -->
 		<xsl:apply-templates select="." mode="copy_express">
-			<xsl:with-param name="express_dir" select="concat($bomdoc_dir,'express/')"/>
+			<xsl:with-param name="express_dir" select="concat($bomdoc_dir,'inserts/')"/>
 		</xsl:apply-templates>
 		
 		<xsl:element name="zip">
@@ -6372,10 +6372,65 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:element>
 	   </xsl:element>
 	 </xsl:element>
-
-
    </xsl:template>
 
+
+	<xsl:template match="bom_doc" mode="copy_express">
+		<xsl:param name="express_dir"/>
+		<xsl:variable name="bom" select="@name"/>
+		<xsl:variable name="bom_node"
+			select="document(concat('../../data/business_object_models/',$bom,'/business_object_model.xml'))/business_object_model"/>
+		<xsl:variable name="bom_iso_no" select="concat('iso10303_',$bom_node/@part)"/>
+		<xsl:variable name="express_dir1">
+			<xsl:choose>
+				<xsl:when test="$express_dir">
+					<xsl:value-of select="$express_dir"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat('${PUBDIR}/',$bom_iso_no,'/','inserts/')"/>  
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<xsl:variable name="part" select="$bom_node/@part"/>
+		<xsl:variable name="status" 
+			select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-','')"/>
+		<xsl:variable name="prefix" select="concat('part',$part,$status,'_wg3n')"/>
+		
+		
+		<xsl:variable name="bomexpfile"
+			select="concat('part',
+			$bom_node/@part,
+			$status, '_wg3n',
+			$bom_node/@wg.number,
+			'bom.exp')"/>
+		<xsl:element name="copy">
+			<xsl:attribute name="file">
+				<xsl:value-of select="concat('data/business_object_models/',@name,'/bom.exp')"/>
+			</xsl:attribute>
+			<xsl:attribute name="tofile">
+				<xsl:value-of select="concat($express_dir1,$bomexpfile)"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+		
+		<xsl:variable name="bomxsdfile"
+			select="concat('part',
+			$bom_node/@part,
+			$status, '_wg3n',
+			$bom_node/@wg.number,
+			'bom.xsd')"/>
+		<xsl:element name="copy">
+			<xsl:attribute name="file">
+				<xsl:value-of select="concat('data/business_object_models/',@name,'/bom.xsd')"/>
+			</xsl:attribute>
+			<xsl:attribute name="tofile">
+				<xsl:value-of select="concat($express_dir1,$bomxsdfile)"/>
+			</xsl:attribute>
+		</xsl:element>
+		
+	</xsl:template>
+	
    <xsl:template match="module" mode="copy_express">
 	 <xsl:param name="express_dir"/>
 	 <xsl:variable name="module" select="@name"/>

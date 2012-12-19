@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.11 2011/04/14 11:20:00 lothartklein Exp $
+$Id: publication_summary.xsl,v 1.12 2012/12/19 10:35:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -113,10 +113,8 @@ $Id: publication_summary.xsl,v 1.11 2011/04/14 11:20:00 lothartklein Exp $
         <td><b>Stage</b></td>
         <td><b>Year of<br/>publication</b></td>
         <td><b>Abstract</b></td>
-        <td><b>ARM EXPRESS</b></td>
-        <td><b>ARM LF EXPRESS</b></td>          
-        <td><b>MIM EXPRESS</b></td>
-        <td><b>MIM LF EXPRESS</b></td>
+        <td><b>BOM EXPRESS</b></td>
+        <td><b>BOM XSD</b></td>
         <td><b>ZIP file for ISO</b></td>
         <td><b>CVS file revisions</b></td>
       </tr>
@@ -297,87 +295,35 @@ $Id: publication_summary.xsl,v 1.11 2011/04/14 11:20:00 lothartklein Exp $
           
           <xsl:variable name="status"
             select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
-          <!-- ARM express -->
+          <!-- BOM  express -->
           <td>
-            <xsl:variable name="armfile"
+            <xsl:variable name="bomexpfile"
               select="concat('part',
               $bom_node/@part,
-              $status, '_wg',
-              $bom_node/@sc4.working_group,'n',
-              $bom_node/@wg.number.arm,
-              'arm.exp')"/>
-            <xsl:variable name="arm_href" select="concat($bom_dir_name,'express/',$armfile)"/>
-            <a href="{$arm_href}">
-              <xsl:value-of select="$armfile"/>
+              $status, '_wg3n',
+              $bom_node/@wg.number,
+              'bom.exp')"/>
+            <xsl:variable name="bomexp_href" select="concat($bom_dir_name,'/inserts/',$bomexpfile)"/>
+            <a href="{$bomexp_href}">
+              <xsl:value-of select="$bomexpfile"/>
             </a>
           </td>
           
           
-          <!-- ARM Long form express -->
-          <xsl:choose>
-            <xsl:when test="$bom_node/@wg.number.arm_lf">
-              <td>
-                <xsl:variable name="arm_lf_file"
-                  select="concat('part',
-                  $bom_node/@part,
-                  $status, '_wg',
-                  $bom_node/@sc4.working_group,'n',
-                  $bom_node/@wg.number.arm_lf,
-                  'arm_lf.exp')"/>
-                <xsl:variable name="arm_lf_href" select="concat($bom_dir_name,'express/',$arm_lf_file)"/>
-                <a href="{$arm_lf_href}">
-                  <xsl:value-of select="$arm_lf_file"/>
-                </a>
-              </td>
-            </xsl:when>
-            <xsl:otherwise>
-              <td>
-                No Long Form
-              </td>
-            </xsl:otherwise>
-          </xsl:choose>
-          
-          
-          <!-- MIM express -->
+          <!-- BOM XSD -->
           <td>
-            <xsl:variable name="mimfile"
+            <xsl:variable name="bomxsdfile"
               select="concat('part',
               $bom_node/@part,
-              $status, '_wg',
-              $bom_node/@sc4.working_group,'n',
-              $bom_node/@wg.number.mim,
-              'mim.exp')"/>
-            <xsl:variable name="mim_href" select="concat($bom_dir_name,'express/',$mimfile)"/>
-            <a href="{$mim_href}">
-              <xsl:value-of select="$mimfile"/>
+              $status, '_wg3n',
+              $bom_node/@wg.number,
+              'bom.xsd')"/>
+            <xsl:variable name="bomxsd_href" select="concat($bom_dir_name,'/inserts/',$bomxsdfile)"/>
+            <a href="{$bomxsd_href}">
+              <xsl:value-of select="$bomxsdfile"/>
             </a>
           </td>
           
-          
-          <!-- MIM Long form express -->
-          <xsl:choose>
-            <xsl:when test="$bom_node/@wg.number.mim_lf">
-              <td>
-                <xsl:variable name="mim_lf_file"
-                  select="concat('part',
-                  $bom_node/@part,
-                  $status, '_wg',
-                  $bom_node/@sc4.working_group,'n',
-                  $bom_node/@wg.number.mim_lf,
-                  'mim_lf.exp')"/>
-                <xsl:variable name="mim_lf_href" 
-                  select="concat($bom_dir_name,'express/',$mim_lf_file)"/>
-                <a href="{$mim_lf_href}">
-                  <xsl:value-of select="$mim_lf_file"/>
-                </a>
-              </td>
-            </xsl:when>
-            <xsl:otherwise>
-              <td>
-                No Long Form
-              </td>
-            </xsl:otherwise>
-          </xsl:choose>
           
           <!-- ZIP file -->
           <td>

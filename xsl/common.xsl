@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.183 2012/11/06 09:45:15 mikeward Exp $
+$Id: common.xsl,v 1.184 2012/12/12 15:28:20 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1304,6 +1304,36 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:variable>
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
+  
+  <!-- given the name of a module, check to see whether it has been
+    included in the repository_index.xml file
+    Return true or if not found, an error message.
+  -->
+  <xsl:template name="check_bom_doc_exists">
+    <xsl:param name="bom_doc"/>
+    
+    <xsl:variable name="bom_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$bom_doc"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="ret_val">
+      <xsl:choose>
+        <xsl:when
+          test="document('../repository_index.xml')/repository_index/business_object_models/business_object_model[@name=$bom_name]">
+          <xsl:value-of select="'true'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of
+            select="concat(' The Business object model ', $bom_name,
+            ' is not identified as a business_object_model in repository_index.xml')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+  
 
   <!-- given the name of a schema, check to see whether it has bee
        included in the repository_index.xml file as an

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.9 2012/12/17 21:14:04 mikeward Exp $
+$Id: expressg_icon.xsl,v 1.10 2012/12/19 08:50:25 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -323,9 +323,9 @@ $Id: expressg_icon.xsl,v 1.9 2012/12/17 21:14:04 mikeward Exp $
 
   </xsl:template>
   
-  <!--<xsl:variable name="bom_expressg">
+  <xsl:variable name="bom_expressg">
     <xsl:call-template name="make_bom_expressg_node_set"/>
-  </xsl:variable>-->
+  </xsl:variable>
   
   <xsl:template name="expressg_icon">
     <xsl:param name="schema"/>

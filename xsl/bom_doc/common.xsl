@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.4 2012/11/23 09:34:11 mikeward Exp $
+$Id: common.xsl,v 1.5 2012/12/12 15:29:22 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -264,7 +264,7 @@ $Id: common.xsl,v 1.4 2012/11/23 09:34:11 mikeward Exp $
     </xsl:variable>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="first_char" select="substring(translate(model,$LOWER,$UPPER),1,1)"/>
+    <xsl:variable name="first_char" select="substring(translate($model,$LOWER,$UPPER),1,1)"/>
     <xsl:variable name="business_object_model_name" select="concat($first_char, translate(substring($model,2),'_',' '))"/>
     <xsl:value-of select="$business_object_model_name"/>
   </xsl:template>

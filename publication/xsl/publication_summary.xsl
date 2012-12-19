@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.14 2012/12/19 14:53:05 robbod Exp $
+$Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -297,7 +297,8 @@ $Id: publication_summary.xsl,v 1.14 2012/12/19 14:53:05 robbod Exp $
           <xsl:variable name="part" select="$bom_node/@part"/>
           <xsl:variable name="status" 
             select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-','')"/>
-          <xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>
+          <!--<xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>-->
+          <xsl:variable name="wg" select="12"/>
           <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
           
           <!-- BOM  express -->

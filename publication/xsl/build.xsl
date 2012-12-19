@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.38 2012/12/19 15:06:42 robbod Exp $
+<!--  $Id: build.xsl,v 1.39 2012/12/19 16:39:26 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1564,7 +1564,7 @@ Purpose: To build the initial ANT publication file.
   		<xsl:attribute name="value">
   			<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
   				<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-  				<xsl:with-param name="suffix" select="'/bom_index.xml'"/>
+  				<xsl:with-param name="suffix" select="'/sys/bomindex.xml'"/>
   			</xsl:apply-templates>
   		</xsl:attribute>
   	</xsl:element>
@@ -2524,20 +2524,6 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>         
 			</xsl:element>
 			
-			<!-- MIKE: This is copied from the utils build - Not sure that this is used - there is no data/business_object_models/**/index.xml
-			-->
-			<xsl:element name="xslt">
-				<xsl:attribute name="includes">
-					<xsl:value-of select="'${BOMINDEXXML}'"/>
-				</xsl:attribute>
-				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
-				</xsl:attribute>
-				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
-					<xsl:with-param name="menu" select="$menu"/>
-				</xsl:apply-templates>
-			</xsl:element>
-			
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${BOMFRAMETOC}'"/>
@@ -2599,6 +2585,17 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_contents.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_bomindex.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
 					<xsl:with-param name="menu" select="$menu"/>
@@ -6398,7 +6395,8 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="part" select="$bom_node/@part"/>
 		<xsl:variable name="status" 
 			select="translate(translate($bom_node/@status,$UPPER,$LOWER),'-','')"/>
-		<xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>
+		<!--<xsl:variable name="wg" select="$bom_node/@sc4.working_group"/>-->
+		<xsl:variable name="wg" select="12"/>
 		<xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
 		
 		<xsl:variable name="bomexpfile"

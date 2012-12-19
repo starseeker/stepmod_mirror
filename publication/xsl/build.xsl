@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.36 2012/12/19 10:35:07 robbod Exp $
+<!--  $Id: build.xsl,v 1.37 2012/12/19 14:33:10 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -2879,18 +2879,6 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 	  </dependset>
 	
-	  <!-- MIKE - not sure why this is here - it is different to previous version DELETE
-		
-		<xsl:element name="xslt">
-			<xsl:attribute name="includes">
-				<xsl:value-of select="'${RESDOCSCOPEXML}'"/>
-			</xsl:attribute>
-			<xsl:attribute name="style">
-				<xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_1_scope.xsl'"/>
-			</xsl:attribute>
-			<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
-		</xsl:element>
-	
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">
 		  <xsl:value-of select="'${CONTENTSXML}'"/>
@@ -2901,7 +2889,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:apply-templates select="." mode="modules_target_style_attributes">
 		  <xsl:with-param name="menu" select="$menu"/>
 		</xsl:apply-templates>
-	  </xsl:element>-->
+	  </xsl:element>
 
 	  <xsl:element name="xslt">
 		<xsl:attribute name="includes">

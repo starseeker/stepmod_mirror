@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
+$Id: sect_isocover.xsl,v 1.20 2012/02/27 18:07:14 philsp Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -16,6 +16,7 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
   
   <xsl:import href="ap_doc/common.xsl"/>
   <xsl:import href="res_doc/common.xsl"/>
+  <xsl:import href="bom_doc/common.xsl"/>
 
   <xsl:output method="html"
     doctype-system="http://www.w3.org/TR/html4/loose.dtd"
@@ -55,6 +56,18 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
     <xsl:apply-templates select="$apdoc_xml/application_protocol"/>
 
   </xsl:template>
+  
+  <xsl:template match="business_object_model_clause">
+    <!-- the XML file to which the stylesheet will be applied 
+      NOTE: that the path used by document is relative to the directory
+      of this xsl file
+    -->
+    <xsl:variable 
+      name="bomdoc_xml"
+      select="document(concat('../data/business_object_models/',@directory,'/business_object_model.xml'))"/>
+    <!-- now apply the stylesheet specified in the document -->
+    <xsl:apply-templates select="$bomdoc_xml/business_object_model"/>    
+  </xsl:template>
 
   <xsl:template match="resource_clause">
     <!-- the XML file to which the stylesheet will be applied 
@@ -82,7 +95,7 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
   </xsl:template>
   
 
-  <xsl:template match="module|application_protocol|resource">
+  <xsl:template match="module|application_protocol|resource|business_object_model">
     <HTML>
       <HEAD>
         <xsl:apply-templates select="." mode="meta_data"/>
@@ -322,7 +335,7 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
     </p>
   </xsl:template>
 
-  <xsl:template match="module|application_protocol|resource" mode="dis_copyright">
+  <xsl:template match="module|application_protocol|resource|business_object_model" mode="dis_copyright">
     <xsl:param name="stage" select="'Draft'"/>
       
     <!-- ICS number -->
@@ -486,7 +499,7 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
         </table>
   </xsl:template>
 
-  <xsl:template match="module|application_protocol|resource" mode="is_ts_copyright">
+  <xsl:template match="module|application_protocol|resource|business_object_model" mode="is_ts_copyright">
     <xsl:variable name="page_count">
               <xsl:apply-templates select="." mode="page_count"/> 
     </xsl:variable>
@@ -588,6 +601,50 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
           <xsl:value-of select="$expg_count  + 28" />
         </xsl:template>
 
+
+  <xsl:template match="business_object_model" mode="display_name">
+    Business object model: 
+    <xsl:call-template name="business_object_model_display_name">
+      <xsl:with-param name="model" select="@name"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template match="business_object_model" mode="display_name_french">
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space(@name.french))=0">
+        FRENCH translation of "Business object model": Modèle objet métier
+        <xsl:choose>
+          <xsl:when test="$ERROR_CHECK_ISOCOVER='YES'">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="business_object_model_display_name">
+              <xsl:with-param name="model" select="@name"/>
+              </xsl:call-template>  
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        Module d'application: 
+        <xsl:call-template name="business_object_model_display_name">
+          <xsl:with-param name="model" select="@name.french"/>
+          </xsl:call-template>        
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:if test="@name.french">
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="business_object_model" mode="page_count">
+    <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
+    <xsl:variable name="usage_guide" select="count(.//usage_guide)" />
+    <xsl:value-of select="$expg_count  + 28" />
+  </xsl:template>
+  
   <xsl:template match="application_protocol" mode="page_count">
     <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
       <xsl:variable name="schema_count" select="count(.//schema)" />
@@ -707,7 +764,17 @@ $Id: sect_isocover.xsl,v 1.19 2011/04/14 13:16:28 lothartklein Exp $
     </a>
   </xsl:template>
 
-
+  <xsl:template match="business_object_model" mode="start_link">
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_stdnumber">
+        <xsl:with-param name="part_xml" select="."/>
+      </xsl:call-template>
+    </xsl:variable>    
+    <a href="../home{$FILE_EXT}" target="_self">
+      <xsl:value-of select="$stdnumber"/>
+    </a>
+  </xsl:template>
+  
   <xsl:template match="application_protocol" mode="start_link">
     <xsl:variable name="stdnumber">
       <xsl:call-template name="get_stdnumber">

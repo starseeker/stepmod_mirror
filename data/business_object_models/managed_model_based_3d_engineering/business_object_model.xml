@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  $Id: business_object_model.xml,v 1.28 2012/12/20 14:01:06 mikeward Exp $
+  $Id: business_object_model.xml,v 1.29 2012/12/20 14:50:45 ungerer Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the BOM in the main frame.     
@@ -80,8 +80,8 @@
   previous.revision.year=""
   previous.revision.cancelled="NO" 
   revision.complete="YES" 
-  rcs.date="$Date: 2012/12/20 14:01:06 $"
-  rcs.revision="$Revision: 1.28 $" 
+  rcs.date="$Date: 2012/12/20 14:50:45 $"
+  rcs.revision="$Revision: 1.29 $" 
   development.folder="dvlp">
 
   <keywords> 3D design, assemblies, configuration control, mechanical, kinematics, model-based
@@ -283,22 +283,129 @@
       
       <capability title="Assembly structure">
         <description>
-              <p>
-                This capability enables the representation of relationships between objects to build up various kinds of structures.
-              </p>
-              <p>
-                The structures are defined for part definitions, for part instances that are particular occurrences of part definitions, or between part definitions and part instances.
-              </p>
-              <p>
-                Part instances are used to identify an occurrence of a component in an assembly structure, e.g., to identify the elements of an alternative solution.
-              </p>
-              <p>
-                Among these structures there is a hierarchical assembly structure to represent the relationships be-tween constituents and the assembly.
-              </p>
-              <p>
-                The following business objects are used by this capability:
-              </p>
-              <ul>
+            <p>
+                This capability allows representing relationships between objects to build up various kinds of structures. The structures are defined between part views or between part views and part occurrences.
+			</p>
+			<p>
+				Among the structures supported by this capability is a hierarchical assembly structure to represent the relationships between an assembly and its constituents. For representing hierarchical assembly structures two concepts are supported by this capability: the part view based assembly structure concept and the part occurrences based assembly structure concept.
+			</p>
+			<ul>
+				<li>The part occurrences based assembly structure concept allows building up a hierarchical assembly structure by an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AssemblyDefinition"/> representing the assembly and one or more <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PartOccurrence"/> objects representing its constituents.
+				</li>
+				<li>The part view based assembly structure concept allows building up a hierarchical assembly structure by an AssemblyDefinition object representing the assembly and one or more Part-View objects representing its constituents.
+				</li>
+			</ul>
+            <p>
+				In the part view based assembly structure concept a specific part occurrence can be identified by a single AssemblyViewRelationship object, i.e. part occurrences can exists only in the context of an assembly structure, whereas in the part occurrences based assembly structure concept, part occur-rences can exists independent of an assembly that uses the product occurrences as constituents.
+            </p>
+             <p>
+                Table 1 expresses the mapping from the part view based assembly structure concept to the part oc-currences based assembly structure concept.
+            </p>
+			<p>
+			<table number="1" caption="Mapping from the part view based assembly structure concept to the part occurrences based assembly structure concept">
+				<tr><th>From: part view based assembly structure concept</th>
+					<th>To: part occurrences based assembly structure concept</th>
+					<th>Mapping</th>
+				</tr>
+				<tr>
+					<td>AssemblyDefinition</td>
+					<td>AssemblyDefinition</td>
+					<td>IDENTICAL MAPPING</td>
+				</tr>
+				<tr>
+					<td>AssemblyViewRealtionship</td>
+					<td>AssemblyOccurrenceRelationship || PartOccurrence</td>
+					<td>AssemblyOccurrenceRelationship<br/>
+						AssemblyOccurrenceRelationship.related -><br/>
+						PartOccurrence
+					</td>
+				</tr>
+				<tr>
+					<td>AssemblyViewRealtionship to AssemblyDefintion (as relating)</td>
+					<td>PATH</td>
+					<td>AssemblyOccurrenceRelationship<br/>
+						AssemblyOccurrenceRelationship.relating</td>
+				</tr>
+				<tr>
+					<td>AssemblyViewRealtionship to PartView (as related)</td>
+					<td>PATH</td>
+					<td>AssemblyOccurrenceRelationship<br/>
+						AssemblyOccurrenceRelationship.related -><br/>
+						PartOccurrence<br/>
+						PartOccurrence.definition -><br/>
+						PartView
+					</td>
+				</tr>
+				<tr>
+					<td>PartView</td>
+					<td>PartView</td>
+					<td>IDENTICAL MAPPING</td>
+				</tr>
+			</table>
+			</p>
+            <p>
+                Table 2 expresses the mapping from the part occurrences based assembly structure concept to the simple assembly structure concept.
+            </p>
+			<p>
+			<table number="2" caption="Mapping from the part occurrences based assembly structure concept to the part view based assembly structure concept">
+				<tr><th>From: part occurrences based assembly structure concept</th>
+					<th>To: part view based assembly structure concept</th>
+					<th>Mapping</th>
+				</tr>
+				<tr>
+					<td>AssemblyDefinition</td>
+					<td>AssemblyDefinition</td>
+					<td>IDENTICAL MAPPING</td>
+				</tr>
+				<tr>
+					<td>AssemblyOccurrenceRealtionship</td>
+					<td>AssemblyViewRealtionship</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>AssemblyOccurrenceRealtionship to AssemblyDefinition (as relating)</td>
+					<td>PATH</td>
+					<td>AssemblyViewRelationship<br/>
+						AssemblyViewRelationship.relating -><br/>
+						AssemblyDefinition
+					</td>
+				</tr>
+				<tr>
+					<td>AssemblyOccurrenceRealtionship to PartView (as related)</td>
+					<td>PATH</td>
+					<td>AssemblyViewRelationship<br/>
+						AssemblyViewRelationship.related -><br/>
+						PartView
+					</td>
+				</tr>
+				<tr>
+					<td>PartOccurrence</td>
+					<td>AssemblyViewRelationship</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>PartOccurrence to PartView (as definition)</td>
+					<td>PATH</td>
+					<td>AssemblyViewRelationship<br/>
+						AssemblyViewRelationship.related -><br/>
+						PartView
+					</td>
+				</tr>
+				<tr>
+					<td>PartView</td>
+					<td>PartView</td>
+					<td>IDENTICAL MAPPING</td>
+				</tr>
+			</table>
+			</p>
+			<p>
+			In both concepts the substitution of single assembly relationships is supported.
+			In addition, this capability allows for specifying geometrical relationships and replacement relation-ships between part views. Another structure supported by this Capability is a grouping mechanism that allows representing the grouping of collection members, represented by PartOccurrence objects, to their collection, repre-sented by a CollectionDefinition object.
+			</p>
+			<p>
+            The following business objects are used by this capability:
+			</p>
+            <ul>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AssemblyDefinition"/>;</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AssemblyOccurrenceRelationship"/>;</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AssemblyOccurrenceRelationshipSubstitution"/>;</li>
@@ -326,7 +433,7 @@ This capability enables the representation of parent-child structures, so-called
 This capability also enables the representation of alternative solutions, such as final, supplier or technical solutions. These are implementations of functional and physical breakdown elements.
     </p>	
     <p>
-Finally, part instances, that is, occurrences of parts in certain locations, can be associated with breakdown elements by means of this capability 
+Finally, part occurrences, that is, occurrences of parts in certain locations, can be associated with breakdown elements by means of this capability 
     </p>
 <p>The following business objects are used by this capability:</p>
 <ul>
@@ -467,7 +574,7 @@ This capability provides the ability to identify the shape and structure of comp
 <li>Product configurations are used to identify a manufacturable product out of a possibly large number of variants of a product class by its associated specifications without having an explicit representation of the product, e.g., a customer order for a car.</li>
 <li>Product design association is used to associate an implicit representation of a manufacturable product (ProductConfiguration) with its explicit representation (PartVersion).</li>
 <li>Manufacturing configuration is used to specify the validity of occurrences of parts (PartInstance) with regard to manufacturing aspects in the context of an implicit as well as an explicit representation of a manufacturable product (ProductConfiguration, PartVersion).</li>
-<li>Configurations are used to configure part instances, alternative solutions, breakdown elements, and process plans in the context of the conditions (ClassConditionAssociation, ClassSpecificationAssociation) under which they are valid.</li>
+<li>Configurations are used to configure part occurrences, alternative solutions, breakdown elements, and process plans in the context of the conditions (ClassConditionAssociation, ClassSpecificationAssociation) under which they are valid.</li>
 </ul>
 <p>The following business objects are used by this capability:</p>
 <ul>
@@ -726,7 +833,11 @@ The following business objects are used by this capability:
 <p>This capability enables the representation of machining specific relationships among product and activity data.</p>
 <p>The following business objects are used by this capability:</p>
 <ul>
+<li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AssemblyJoint"/>;</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.MakeFromRelationship"/>;</li>
+<li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.MatedPartAssociation"/>;</li>
+<li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.MatedPartRelationship"/>;</li>
+<li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.MatingDefinition"/>.</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ProcessStateRelationship"/>;</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.SameTimeMachiningRelationship"/>;</li>
 <li><express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ToolPartRelationship"/>.</li>
@@ -761,7 +872,7 @@ The following business objects are used by this capability:
     <description>
 <p>
   This capability provides the ability to represent basic product management information. 
-  It includes information about parts that are either piece parts, raw materials, products, software, or tools, and about versions of them.
+  It includes master data about parts of different types such as piece parts, raw materials, products, software, or tools and about versions of them as well as relationships between parts and relationships between part versions.
 </p>
 <p>The following business objects are used by this capability:</p>
 <ul>
@@ -776,7 +887,8 @@ The following business objects are used by this capability:
   <capability title="Part occurrence">
    <description>
 <p>
-  This capability 
+  This capability provides the capability to represent occurrences of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PartView"/> or <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ProductConfiguration"/> objects. It includes master data about part occurrences as well as relationships between part occurrences.
+  Part occurrences are used to identify an occurrence of a component in an assembly structure, e.g., to identify the elements of an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.AlternativeSolution"/>.  
 </p>
 <p>The following business objects are used by this capability:</p>
 <ul>
@@ -794,8 +906,7 @@ The following business objects are used by this capability:
  <capability title="Part view">
     <description>
 <p>
-  This capability provides the ability to represent basic product management information. 
-  It includes information about different views on part versions.
+  This capability provides the ability to represent basic product management information about different views on part versions as well as relationships between different part views.
 </p>
 <p>The following business objects are used by this capability:</p>
 <ul>
@@ -887,7 +998,9 @@ The following business objects are used by this capability:
 <capability title="Product specification">
     <description>
 <p>This capability provides the capability to describe products with a large number of variants.</p>
-<example> Examples for automotive products are passenger cars, trucks, busses, or engines or components of these products.</example> 
+<example>Examples for aircraft products are propeller aircrafts, jet aircrafts, rocket-powered aircrafta, or engines or components of these products.
+Examples for automotive products are passenger cars, trucks, busses, or engines or components of these products.
+</example> 
 Because of the large number of variants there is no unique identification for each of the variants that could be produced. The main concepts that are used to handle this large number of variants are the following:
 <ul>
 <li>product classes are used to identify sets of similar products to be offered to the market;</li>
@@ -1005,7 +1118,7 @@ and related industrial domains.
    <capability title="Transformation, geometric coordinate space, and coordinate system">
    <description>
 <p>
-  This capability ...
+  This capability represents the information necessary to transform elements from different geometric coordinate spaces and coordinate systems.
 </p>
 <p>The following business objects are used by this capability:</p>
 <ul>

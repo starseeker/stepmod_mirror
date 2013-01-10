@@ -83,7 +83,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
-	ts.WriteLine("  Purpose: A listing of modules to be published ");
+	ts.WriteLine("  Purpose: A listing of modules, AP documents, Resource documents, and/or BO Model documents to be published ");
 	ts.WriteLine("           Note - to generate an ant build for this package, run:");
 	ts.WriteLine("              ant -buildfile buildbuild.xml");
 	ts.WriteLine("           This will create the build.xml file.");
@@ -129,7 +129,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  </modules>");
 	ts.WriteLine("");
 	ts.WriteLine("  <!-- The list of resource documents to be published as individual ISO parts -->");
-	ts.WriteLine("  <!-- Commented out as can not published modules, a resources and APs together ");
+	ts.WriteLine("  <!-- Commented out ");
 	ts.WriteLine("  <resource_docs>");
 	ts.WriteLine("    <res_doc name=\"\"/>");
 	ts.WriteLine("  </resource_docs>");
@@ -137,7 +137,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("");
 	ts.WriteLine("  <!-- The list of application protocols to be published as individual ISO parts -->");
 	ts.WriteLine("  <!-- NOTE - all modules used by AP will be included -->");
-	ts.WriteLine("  <!-- Commented out as can not published modules, a resources and APs together ");
+	ts.WriteLine("  <!-- Commented out ");
 	ts.WriteLine("  <application_protocols>");
 	ts.WriteLine("    <ap_doc name=\"\"/>");
 	ts.WriteLine("  </application_protocols>");

@@ -1,4 +1,4 @@
-//$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $
+//$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a publication package
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $");
+    ts.WriteLine("$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -79,17 +79,17 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication_index SYSTEM \"../../dtd/publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
-	ts.WriteLine("  Purpose: A listing of modules, AP documents, Resource documents, and/or BO Model documents to be published ");
+	ts.WriteLine("  Purpose: A listing of Modules, AP documents, Resource documents, and/or BO Model documents to be published ");
 	ts.WriteLine("           Note - to generate an ant build for this package, run:");
 	ts.WriteLine("              ant -buildfile buildbuild.xml");
 	ts.WriteLine("           This will create the build.xml file.");
 	ts.WriteLine("           Then run: ");
 	ts.WriteLine("              ant all");
-	ts.WriteLine("           to create the HTML files of the individual modules");
+	ts.WriteLine("           to create the HTML files of the individual modules/documents");
 	ts.WriteLine("");
 	ts.WriteLine("     publication_index has the following attributes");
 	ts.WriteLine("           name");
@@ -162,7 +162,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -181,7 +181,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $");
   	ts.WriteLine("Author:  Rob Bodington, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -200,7 +200,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.7 2012/12/14 13:11:56 mikeward Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.9 2013/01/10 22:18:02 mikeward Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
@@ -234,7 +234,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("");
 	ts.WriteLine("To build the publication package:");
 	ts.WriteLine("");
-	ts.WriteLine("1) Add the modules, resources documents and application protocols to be");
+	ts.WriteLine("1) Add the modules, resources documents, application protocols, and/or business object models to be");
 	ts.WriteLine("   published to: publication_index.xml      ");
 	ts.WriteLine("");
 	ts.WriteLine("2) Generate the ANT build file using ANT");

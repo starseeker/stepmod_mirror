@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.10 2012/12/19 08:50:25 mikeward Exp $
+$Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -55,8 +55,16 @@ $Id: expressg_icon.xsl,v 1.10 2012/12/19 08:50:25 mikeward Exp $
           </xsl:call-template>-->
       </xsl:variable>
       
-      <xsl:apply-templates 
-      select="document(concat('../data/business_object_models/', $model_dir,'/business_object_model.xml'))/business_object_model/inforeqt/bom/express-g/imgfile" mode="mk_bom_node"/>
+      <xsl:choose>
+        <xsl:when test="string-length($model_dir) > 1">
+          <xsl:apply-templates 
+            select="document(concat('../data/business_object_models/', $model_dir,'/business_object_model.xml'))/business_object_model/inforeqt/bom/express-g/imgfile" mode="mk_bom_node"/>
+        </xsl:when>
+        <xsl:otherwise/>
+      </xsl:choose>
+      
+      <!--<xsl:apply-templates 
+      select="document(concat('../data/business_object_models/', $model_dir,'/business_object_model.xml'))/business_object_model/inforeqt/bom/express-g/imgfile" mode="mk_bom_node"/>-->
       
     </expg_nodes>
     

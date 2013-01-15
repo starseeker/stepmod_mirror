@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.184 2012/12/12 15:28:20 mikeward Exp $
+$Id: common.xsl,v 1.185 2012/12/19 10:25:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1194,6 +1194,17 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       <xsl:apply-templates/>
   </xsl:element>
 </xsl:template>
+  
+  <xsl:template match="br">
+    <xsl:variable name="node" select="string(name(.))"/>
+    <xsl:element name="{$node}">
+      <!-- copy across the attributes -->
+      <xsl:copy-of select="@*"/>    
+      <xsl:if test="string-length(./text())=0" > 
+        <xsl:value-of select="string('&#x00A0;')" />
+      </xsl:if>
+    </xsl:element>
+  </xsl:template>
 
 <xsl:template match="tr">
   <xsl:variable name="node" select="string(name(.))"/>

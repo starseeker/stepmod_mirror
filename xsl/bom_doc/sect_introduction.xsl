@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_introduction.xsl,v 1.53 2010/03/22 07:25:03 mikeward Exp $
+  $Id: sect_introduction.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the introduction for a BOM document.     
@@ -31,29 +31,18 @@
         <xsl:with-param name="message" select="'Error BOMdoc 41: business_object_model.xml/business_object_model/@purpose not specified'"/>
       </xsl:call-template>
     </xsl:if>
+    <!-- display content of purpose element-->
     <p>
-      This part of ISO 10303 specifies the business object model for ISO 10303-
-      <xsl:value-of select="$model_no"/>, <xsl:value-of select="$model_title"/>. 
-      The information model of this
-      part of ISO 10303 is on a higher level of granularity than the ARM of ISO 10303-INSERT AP # to
-      be better suited for the communication with and understandability by experts of the domains
-      aerospace, defence and automotive. It consists of Business Objects that represent major
-      concepts and information requirements of a subset of ISO 10303-INSERT AP #, INSERT AP TITLE.
-      It uses the vocabulary of the STEP modules where this vocabulary reflects the terminology of
-      the domain experts; otherwise, new vocabulary is introduced. The relationship between the
-      business object model and the ARM of ISO 10303-INSERT AP # is explained in this part of ISO
-      10303. A technical discussion of the business object model is contained in Annex H of ISO
-      10303-INSERT AP #.
+      <xsl:value-of select="./purpose"/>
     </p>
     <p>
       Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the business object model and
       summarizes the functionality and data covered. Clause <a href="3_defs{$FILE_EXT}">3</a> lists
       the terms defined in this part of ISO 10303 and provides pointers to words to terms defined
-      elsewhere. The BO Model of the application are specified in Clause 
+      elsewhere. The BO Model of the application is specified in Clause 
       <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to the application. A
       graphical representation of the information requirements, referred to as the BO model, is
-      given in Annex <a href="annex_arm_expg{$FILE_EXT}">C</a>. A UML representation is given in
-      Annex <a href="annex_bom_uml{$FILE_EXT}">D</a>. A mapping of the BO model to the to xml schema
+      given in Annex <a href="annex_arm_expg{$FILE_EXT}">C</a>. A mapping of the BO model to the to xml schema
       is given in Annex <a href="annex_xsd_der{$FILE_EXT}">B</a>.
     </p>
     <p>
@@ -84,10 +73,6 @@
         <xsl:with-param name="message" select="'Error P1: Insufficient introduction material provided.'"/>
       </xsl:call-template>
     </xsl:if>
-    <!-- display content of purpose element-->
-    <p>
-      <xsl:value-of select="./purpose"/>
-    </p>
   </xsl:template>
 
 </xsl:stylesheet>

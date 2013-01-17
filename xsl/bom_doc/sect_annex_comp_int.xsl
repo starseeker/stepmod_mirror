@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.2 2012/11/30 14:56:03 thomasrthurman Exp $
+$Id: sect_annex_comp_int.xsl,v 1.3 2012/12/05 16:14:12 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -14,7 +14,7 @@ $Id: sect_annex_comp_int.xsl,v 1.2 2012/11/30 14:56:03 thomasrthurman Exp $
 	
   <xsl:template match="business_object_model">
     <xsl:call-template name="annex_header">
-      <xsl:with-param name="annex_no" select="'E'"/>
+      <xsl:with-param name="annex_no" select="'D'"/>
       <xsl:with-param name="heading" select="'Computer interpretable listings'"/>
       <xsl:with-param name="aname" select="'annexe'"/>
       <xsl:with-param name="informative" select="'informative'"/>
@@ -23,7 +23,7 @@ $Id: sect_annex_comp_int.xsl,v 1.2 2012/11/30 14:56:03 thomasrthurman Exp $
   </xsl:template>
   
 
-<!-- Annex E -->
+<!-- Annex D -->
 <xsl:template match="business_object_model" mode="annexe">
   <xsl:variable name="bom_dir" select="./@name"/>
   
@@ -43,13 +43,23 @@ $Id: sect_annex_comp_int.xsl,v 1.2 2012/11/30 14:56:03 thomasrthurman Exp $
   <xsl:variable name="bom_xml" select="concat('../bom', $FILE_EXT)"/>
       
   <p>
-    This annex references a listing of the EXPRESS entity names and corresponding short names as specified or referenced in this part of ISO 10303. 
-    It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text.  
-    These listings are available in computer-interpretable form in Table E.1 and can be found at the following URLs:
+    This annex provides a listing of the Business Object Model EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. It also provides a listing of the XML schema.
+    These listings are available in computer-interpretable form in Table D.1 and can be found at the following URLs:
   </p> 
   <p>
-    EXPRESS:	<a href="http://www.tc184-sc4.org/EXPRESS/">http://www.tc184-sc4.org/EXPRESS/</a>
+    EXPRESS:	<a href="http://standards.iso.org/iso/ts/10303/-3001/-ed-1/tech/express">http://standards.iso.org/iso/ts/10303/-3001/-ed-1/tech/express</a>
+    <br></br>
+    XSD:	<a href="http://standards.iso.org/iso/ts/10303/-3001/-ed-1/tech/xml-schema">http://standards.iso.org/iso/ts/10303/-3001/-ed-1/tech/xml-schema</a>
   </p>
+    <div align="center">
+    <a name="table_e1">
+      <b>
+            Table D.1 &#8212; BO Model EXPRESS and XML schema listings
+      </b>
+    </a>
+  </div>
+<br>
+</br>
   <div align="center">
   <table border="1">
     <tr>

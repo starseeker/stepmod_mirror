@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.26 2011/03/02 05:41:50 mikeward Exp $
+$Id: sect_foreword.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the foreword for a BOM document.     
@@ -184,16 +184,16 @@ $Id: sect_foreword.xsl,v 1.26 2011/03/02 05:41:50 mikeward Exp $
     description methods, implementation methods, conformance testing
     methodology and framework, integrated generic resources, integrated
     application resources, application protocols, abstract test suites,
-    application interpreted constructs and application modules. 
-    This part is a member of the application protocols series.
+    application interpreted constructs, application modules, and business object models. 
+    This part is a member of the business object models series.
   </p>
   <p>
     A complete list of parts of ISO 10303 is available from the following URL: 
   </p>
 <div align="center">
   <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm" target="_blank">
-      http://www.tc184-sc4.org/titles/STEP_Titles.htm</A>.
+    <A HREF="http://standards.iso.org/iso/10303/tech/STEP_Titles.htm" target="_blank">
+      http://standards.iso.org/iso/10303/tech/STEP_Titles.htm</A>.
   </blockquote>
 </div>
   <p>

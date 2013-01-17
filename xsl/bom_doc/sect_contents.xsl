@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
+$Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -96,9 +96,10 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
+<!-- not in DIS
             <br/>
-            &#160;&#160;&#160;&#160;&#160;
             <a href="./5_main{$FILE_EXT}#mappings" target="{$target}">5 Business object model mapping</a>
+-->
           </td>
           <td valign="top">
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
@@ -107,9 +108,7 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
             <br/>
             <a href="./annex_bom_expg{$FILE_EXT}" target="{$target}">Annex C BO model EXPRESS-G</a>&#160;&#160;<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
             <br/>
-            <a href="./annex_bom_uml{$FILE_EXT}" target="{$target}">Annex D BO model UML diagrams</a>&#160;&#160;<img align="middle" border="0" alt="UML" src="../../../../images/uml.gif"/>
-            <br/>
-            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex E Computer interpretable listings</a>
+            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex D Computer interpretable listings</a>
             <br/>
             <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
             <br/>
@@ -170,8 +169,10 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 BOM entity definitions</a>
+<!-- not in DIS
             <br/>
             <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
+-->
             <br/>
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
             <br/>
@@ -179,9 +180,7 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
             <br/>
             <a href="./annex_bom_expg{$FILE_EXT}" target="{$target}">Annex C BO model EXPRESS-G</a>&#160;&#160;<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
             <br/>
-            <a href="./annex_bom_uml{$FILE_EXT}" target="{$target}">Annex D BO model UML diagrams</a>&#160;&#160;<img align="middle" border="0" alt="UML" src="../../../../images/uml.gif"/>
-            <br/>
-            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex E Computer interpretable listings</a>
+            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex D Computer interpretable listings</a>
             <br/>
             <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
             <br/>
@@ -203,15 +202,7 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates select="//purpose" mode="data_plan_figure">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-      
       <xsl:apply-templates select="//purpose//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-      
-      <xsl:apply-templates select="//fundamentals" mode="data_plan_figure">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
       
@@ -268,24 +259,6 @@ $Id: sect_contents.xsl,v 1.5 2012/11/23 09:34:11 mikeward Exp $
       <xsl:apply-templates select="." mode="table_count_cc"/>
     </xsl:variable>
     
-    <a href="./6_ccs{$FILE_EXT}#cc_arm_table" target="{$target}">
-      Table 
-      <xsl:value-of select="$table_count_cc+1"/>
-      &#8212; Conformance class ARM elements
-    </a>
-    <br/>
-
-    <a href="./6_ccs{$FILE_EXT}#cc_mim_table" target="{$target}">
-      Table 
-      <xsl:value-of select="$table_count_cc+2"/> 
-      &#8212; Conformance class MIM elements
-    </a>
-    <br/>
-
-    <a href="./annex_shortnames{$FILE_EXT}#table_b1" target="{$target}">
-      Table B.1 &#8212; MIM short names of entities 
-    </a>
-    <br/>
 
 
     <xsl:variable name="annex_list">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.186 2013/01/15 15:33:02 mikeward Exp $
+$Id: common.xsl,v 1.187 2013/01/17 17:23:32 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -807,13 +807,15 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:when test="./@usemap">
             <xsl:variable name="map1" select="./@usemap"/>
             <xsl:variable name="name1" select="./map/@name"/>
-            <xsl:variable name="shape1" select="./map/area/@shape"/>
-            <xsl:variable name="coords1" select="./map/area/@coords"/>
-            <xsl:variable name="alt2" select="./map/area/@alt"/>
-            <xsl:variable name="href2" select="./map/area/@href"/>
             <img src="{$src}" border="0" usemap="{$map1}" alt="{$alt1}">
               <map name="{$name1}">
-                <area shape="{$shape1}" coords="{$coords1}" alt="{$alt2}" href="{$href2}"/>
+                <xsl:for-each select="./map/area">
+                  <xsl:variable name="shape1" select="./@shape"/>
+                  <xsl:variable name="coords1" select="./@coords"/>
+                  <xsl:variable name="alt2" select="./@alt"/>
+                  <xsl:variable name="href2" select="./@href"/>
+                  <area shape="{$shape1}" coords="{$coords1}" alt="{$alt2}" href="{$href2}"/>
+                </xsl:for-each>
               </map>
             </img> 
           </xsl:when>

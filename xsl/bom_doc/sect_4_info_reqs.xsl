@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.9 2012/12/17 21:15:58 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.10 2013/01/17 09:41:29 ungerer Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -121,7 +121,9 @@ $Id: sect_4_info_reqs.xsl,v 1.9 2012/12/17 21:15:58 mikeward Exp $
       The information requirements are specified as a set of capabilities, and application objects.
     </p>
 	<p>
-	The ISO 10303-<xsl:value-of select="$ap_number_param"/> Business Object Model (in the following just Business Object Model or BO Model) is an information model which is on a high level of granularity and thus is suited for the communication with and understandability by domains experts of Aerospace, Defence, and Automotive. It consists of Business Objects (BO) representing major concepts and information requirements of Model Based 3D Engineering in these domains and uses the vocabulary of the STEP modules where this vocabulary reflects the terminology of the domain experts. For example, in the Business Object Model you find the BO Part with explicit attributes id, name and description. However, the generic template object Product of the modules is not part of the Business Object Model.  The Business Object Model provides a view on the ISO 10303-<xsl:value-of select="$ap_number_param"/> ARM Longform. Consequently the Business Object Model is defined as an EXPRESS model with a mapping to the ARM of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
+	The ISO 10303-<xsl:value-of select="$ap_number_param"/> Business Object Model (in the following just Business Object Model or BO Model) is an information model which is on a high level of granularity and thus is suited for the communication with and understandability by domains experts of Aerospace, Defence, and Automotive. It consists of Business Objects (BO) representing major concepts and information requirements of Model Based 3D Engineering in these domains and uses the vocabulary of the STEP modules where this vocabulary reflects the terminology of the domain experts. For example, in the Business Object Model you find the 
+			BO Activity with explicit attributes actualStartDate, actualEndDate, or ConcernedOrganizations. A domain expert directly understands that he can define a start and an end for an activity, or specify the organizations involved in the activity. 
+			The STEP modules provide this capability, too. However, it is not obvious when looking on the application object Activity in module ISO 10303-1047. This object does not have explicit attributes for dates and organizations. The functionality described above has to be realized by generic assignments of dates with role names "actual start" and 			"actual end", or by generic assignments of organizations with role name "concerned organization". The Business Object Model provides a view on the ISO 10303-<xsl:value-of select="$ap_number_param"/> ARM Longform. Consequently the Business Object Model is defined as an EXPRESS model with a mapping to the ARM of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
 	</p>
 	<p>
 	The Business Object Model uses the principle of explicit modelling and uses the concept of strong classification (as currently defined in the latest editions of ISO 10303-203 and ISO 10303-214, e.g., permissive list values for relation types) for clearly defined domains like geometry, or analysis. These kinds of classifications shall be explicitly defined in the standard. For product structure and other PLM/PDM type information ISO 10303-<xsl:value-of select="$ap_number_param"/> shall enable the use of an externally augmented classification built upon a frame-work template like ISO 22745, ISO 13584, or other RDLs.
@@ -175,30 +177,26 @@ $Id: sect_4_info_reqs.xsl,v 1.9 2012/12/17 21:15:58 mikeward Exp $
    <xsl:template match="fundamentals">
      <h2><a name="fundamentals">4.3&#160;Fundamental concepts and assumptions</a></h2>
 
-    
-     <p>
-       This subclause describes the business context for the information
-       required for 
-       <xsl:value-of select="normalize-space(/business_object_model/@purpose)"/>.
-     </p>
+     <h3>4.3.1&#160;Support of multi identifications in different contexts</h3>
+     <p>This clause describes the concept concerning the definition and application of multi identifications for identifiers in different contexts. This part of ISO 10303 supports 3 kinds of identification:</p>
+     <ul>
+						<li>single identifier without context information</li>
+						<li>single identifier with context information</li>
+						<li>multiple identifier with context information</li>
+					</ul>
+     <p>The specification of a single identifier without context information is done by just applying an identifier string to an identification attribute.</p>
+     <p>The specification of a single identifier with context information is done by applying an Identifier object to an identification attribute. This object carries the context information. The context can be given by an organization, or by an Identifier object, again. For the Identifier, a role name has to be specified.</p>
+     <p class="example">
+      <small>
+        EXAMPLE&#160;&#160;A part is usually identified by a part number unique within an organization. An Identifier object with role "id owner" is used to describe this information.
+      </small>
+    </p>
+     <p>The specification of multiple identifiers is done by applying a set of Identifier object to an identification attribute. The different Identifier objects are distinguished by the role and context.</p>
 
-     <xsl:choose>
-       <xsl:when test="./data_plan">
-         <p>
-           <a name="data_plan"/>
-           The data planning model in
-           <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figures"/>
-           provides an overview of the information requirements of this domain.  
-         </p>
-       </xsl:when>
-       <xsl:when test="/business_object_model/purpose/data_plan">
-         <p> 
-           The data planning model in
-           <xsl:apply-templates select="/business_object_model/purpose/data_plan/imgfile" mode="data_plan_figures"/>
-           provides an overview of the information requirements of this domain.  
-         </p>
-       </xsl:when>
-     </xsl:choose>
+     <h3>4.3.2&#160;Multi-language support</h3>
+<p>This clause describes the concept concerning the definition and application of languages used for multilingual support of string valued attributes in this part of ISO 10303. This standard includes the definition of a language, the association of a value in a language to a string valued attribute, and the association of a set of values in different languages. </p>
+<p>The specification of a value in a particular language for a string valued attribute is done by the object LocalizedString with associated language and text string. The language is defined by a  a language code according to ISO 639-2 and a country code according to ISO 3166-1. Multiple translations are specified by a set of LocalizedString.</p>
+    
 
      <xsl:if test="/business_object_model/terminology_map">
        <p> 

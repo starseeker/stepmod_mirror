@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.185 2012/12/19 10:25:53 robbod Exp $
+$Id: common.xsl,v 1.186 2013/01/15 15:33:02 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -804,6 +804,19 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:otherwise>
       <div align="center">
         <xsl:choose>
+          <xsl:when test="./@usemap">
+            <xsl:variable name="map1" select="./@usemap"/>
+            <xsl:variable name="name1" select="./map/@name"/>
+            <xsl:variable name="shape1" select="./map/area/@shape"/>
+            <xsl:variable name="coords1" select="./map/area/@coords"/>
+            <xsl:variable name="alt2" select="./map/area/@alt"/>
+            <xsl:variable name="href2" select="./map/area/@href"/>
+            <img src="{$src}" border="0" usemap="{$map1}" alt="{$alt1}">
+              <map name="{$name1}">
+                <area shape="{$shape1}" coords="{$coords1}" alt="{$alt2}" href="{$href2}"/>
+              </map>
+            </img> 
+          </xsl:when>
           <xsl:when test="img.area">
             <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
               <MAP ID="map" name="map">

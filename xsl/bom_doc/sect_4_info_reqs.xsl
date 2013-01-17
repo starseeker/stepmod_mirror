@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.8 2012/12/13 22:21:21 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.9 2012/12/17 21:15:58 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -120,14 +120,21 @@ $Id: sect_4_info_reqs.xsl,v 1.8 2012/12/13 22:21:21 mikeward Exp $
       This clause specifies the information requirements for the business object model of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
       The information requirements are specified as a set of capabilities, and application objects.
     </p>
+	<p>
+	The ISO 10303-<xsl:value-of select="$ap_number_param"/> Business Object Model (in the following just Business Object Model or BO Model) is an information model which is on a high level of granularity and thus is suited for the communication with and understandability by domains experts of Aerospace, Defence, and Automotive. It consists of Business Objects (BO) representing major concepts and information requirements of Model Based 3D Engineering in these domains and uses the vocabulary of the STEP modules where this vocabulary reflects the terminology of the domain experts. For example, in the Business Object Model you find the BO Part with explicit attributes id, name and description. However, the generic template object Product of the modules is not part of the Business Object Model.  The Business Object Model provides a view on the ISO 10303-<xsl:value-of select="$ap_number_param"/> ARM Longform. Consequently the Business Object Model is defined as an EXPRESS model with a mapping to the ARM of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
+	</p>
+	<p>
+	The Business Object Model uses the principle of explicit modelling and uses the concept of strong classification (as currently defined in the latest editions of ISO 10303-203 and ISO 10303-214, e.g., permissive list values for relation types) for clearly defined domains like geometry, or analysis. These kinds of classifications shall be explicitly defined in the standard. For product structure and other PLM/PDM type information ISO 10303-<xsl:value-of select="$ap_number_param"/> shall enable the use of an externally augmented classification built upon a frame-work template like ISO 22745, ISO 13584, or other RDLs.
+	</p>
     <p class="note">
       <small>
-        NOTE&#160;&#160;A graphical representation of the information requirements is given in Annex <a href="{$annex_c}">C</a>.
+        NOTE 1&#160;&#160;A graphical representation of the information requirements is given in Annex <a href="{$annex_c}">C</a>.
       </small>
     </p>
     <p class="note">
       <small>
-        NOTE&#160;&#160;The mapping specification is specified in 5.1. It shows how the business objects are mapped to the Application Reference Model (ARM) of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
+ <!--       NOTE 2&#160;&#160;The mapping specification is specified in 5.1. It shows how the business objects are mapped to the Application Reference Model (ARM) of ISO 10303-<xsl:value-of select="$ap_number_param"/>. -->
+        NOTE 2&#160;&#160;The mapping specification will be added in a later edition of this standard. It will show how the business objects are mapped to the Application Reference Model (ARM) of ISO 10303-<xsl:value-of select="$ap_number_param"/>.
       </small>
     </p>
     <p>

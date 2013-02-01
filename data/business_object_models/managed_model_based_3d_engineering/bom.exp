@@ -1,4 +1,4 @@
--- Generated on 19/12/2012 10:20:01 by ExpressPrettyPrint version: 4.0.0.61, PDTec AG
+-- Generated on 01/02/2013 10:40:01 by ExpressPrettyPrint version: 4.0.0.61, PDTec AG
 -- From: Harmonized AP242 BO Model.exp
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -2228,7 +2228,7 @@ ENTITY ExternalRepresentation
   name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
   definedAs : DigitalFile;
-  modelElement : ExternalRepresentationItem;
+  modelElement : OPTIONAL SET [1:?] OF ExternalRepresentationItem;
 END_ENTITY;
 
 ENTITY ExternalRepresentationItem
@@ -2681,10 +2681,10 @@ ENTITY MaterialPropertyDefinition
   name : DescriptorSelect;
 END_ENTITY;
 
-ENTITY MaterialPropertyValue
-  SUBTYPE OF(PropertyValue);
-  SELF\PropertyValue.definition : MaterialPropertyDefinition;
+ENTITY MaterialPropertyValue;
+  definition : MaterialPropertyDefinition;
   environmentCondition : DataEnvironment;
+  materialValue : PropertyValue;
 END_ENTITY;
 
 ENTITY MatingDefinition
@@ -3319,7 +3319,7 @@ END_ENTITY;
 
 ENTITY PropertyValue
   ABSTRACT
-  SUPERTYPE OF(ONEOF(MaterialPropertyValue, StringValue, ValueList, ValueSet, ValueWithUnit));
+  SUPERTYPE OF(ONEOF(StringValue, ValueList, ValueSet, ValueWithUnit));
   name : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   definition : PropertyDefinitionSelect;
@@ -3722,6 +3722,8 @@ ENTITY SuppliedObjectRelationship;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relating : SuppliedObjectSelect;
   related : SuppliedObjectSelect;
+WHERE
+  wr1: TYPEOF(relating) = TYPEOF(related);
 END_ENTITY;
 
 ENTITY SupplierSolution
@@ -3732,6 +3734,7 @@ END_ENTITY;
 
 ENTITY SurfaceCondition;
   id : IdentifierSelect;
+  assignedTo : ShapedElementSelect;
   conditionType : ClassString;
   definedIn : DigitalFile;
 END_ENTITY;

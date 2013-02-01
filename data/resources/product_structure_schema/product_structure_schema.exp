@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.12 2012/10/15 11:15:09 lothartklein Exp $
+$Id: product_structure_schema.exp,v 1.13 2013/01/31 19:51:55 lothartklein Exp $
 ISO TC184/SC4/WG12 N8256 - ISO/IS 10303-44 Product structure configuration - EXPRESS
 *)
 
@@ -162,23 +162,60 @@ WHERE
        * TYPEOF(upper_usage)) = 1;
 END_ENTITY;
 
-FUNCTION unambiguously_specified_multi_level_reference_designator (links : LIST [1:?] OF next_assembly_usage_occurrence) : BOOLEAN;
-  REPEAT i := 1 to SIZEOF(links) - 1;
-    IF NOT (
-      (links[i]\product_definition_relationship.related_product_definition :=:
-       links[i+1]\product_definition_relationship.relating_product_definition)
-      OR
-      (SIZEOF (QUERY (pdr <* USEDIN
-       (links[i]\product_definition_relationship.related_product_definition,
-        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +
-        'RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.relating_product_definition :=: 
-       links[i+1]\product_definition_relationship.relating_product_definition)) = 1))
-    THEN
-      RETURN(FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-END_FUNCTION;
+FUNCTION unambiguously_specified_multi_level_reference_designator (links : LIST[1:?] OF next_assembly_usage_occurrence) : BOOLEAN;
+REPEAT i := 1 to SIZEOF(links) - 1;
+   CASE TRUE OF
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) 
+       AND
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+     BEGIN
+        IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+               OR
+                ((SIZEOF (QUERY (pdr <* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition.formation\product_definition_formation.of_product
+                    :=:
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition.formation\product_definition_formation.of_product)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+     
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) :
+     BEGIN
+         IF NOT (
+            ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition))
+            AND
+                ((SIZEOF (QUERY (pdr <* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_id
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_id)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.id_owning_organization_name
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.id_owning_organization_name)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_definition_id
+                   <> 
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_definition_id)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+     OTHERWISE : RETURN(FALSE);
+   END_CASE;
+
+END_REPEAT;
+RETURN(TRUE);
+END_FUNCTION; 
 
 END_SCHEMA; -- product_structure

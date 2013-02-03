@@ -8,8 +8,8 @@
   schema_file="bom.xml" 
   describe.selects="YES" 
   describe.subtype_constraints="YES" 
-  rcs.date="$Date: 2013/01/26 13:56:11 $" 
-  rcs.revision="$Revision: 1.80 $">
+  rcs.date="$Date: 2013/02/01 16:03:29 $" 
+  rcs.revision="$Revision: 1.81 $">
   
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: managed_model_based_3d_engineering_bom
@@ -4666,9 +4666,10 @@ the first object of <express_ref linkend="managed_model_based_3d_engineering:bom
         A <b>CircularPath</b> is a type of
         <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PathSegment"/> 
         that describes a direction of travel 
-        along an arc of constant radius around an axis. A <b>CircularPath</b> gives a circle for the translational 
-        part of the motion of the origin of the frame of a kinematic link. The interpolation for the orientation of the 
-        frame is performed in synchronous fashion with the interpolation of the translation.
+        along a circular arc that is defined by the start position, the end position and an intermediate position to pass through 
+		between the start and end position. While doing so a link that is traversing along the path is continuously rotating from 
+		the start orientation to the end orientation. The path shall be traversed in linear speed, which is given by the previous 
+		time or parameter value and the new time or parameter value.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -6750,23 +6751,33 @@ the characteristics apply on an individual basis.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.DatedEffectivity">
-  <p>A <b>DatedEffectivity</b> is a type of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Effectivity"/> for which the domain of applicability is defined as an interval of time bounded by dates or events. 
-  The interval may be open-ended.</p>
-  
-  <p>Depending on whether the <b>endDefinition</b> attribute is specified, the actual domain of time defined by a <b>DatedEffectivity</b> is:</p>
-        <ul>
-         <li>
-            either, the time interval between the start and end date or event;
-        </li>
-        <li>
-            or, the open time interval that starts at the start date or event, that is, the effectivity or ineffectivity is endless.
-         </li>
-        </ul>
-        <p>
-If the <b>endDefinition</b> is an event that identifies a point in time that comes before the <b>startDefinition</b>, the actual domain of effectivity is empty.</p>
-        <example>Especially at planning stage it may be useful to bound a <b>DatedEffectivity</b> period by 
+  <p>A <b>DatedEffectivity</b> is a type of 
+  <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Effectivity"/> 
+  for which the domain of applicability is defined as an interval of time, bounded by dates or events. 
+          <example number="1">Especially at planning stage it may be useful to bound a <b>DatedEffectivity</b> period by 
             <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Event"/> objects.
 </example>
+
+  Depending on whether the <b>startDefinition</b> and/or <b>endDefinition</b> are specified, the actual domain of 
+  time defined by a <b>DatedEffectivity</b> is one of the following:</p>
+        <ul>
+         <li>
+if both are specified: the time interval between the start and end date or event;
+        </li>
+        <li>
+if only <b>startDefinition</b> is specified: the open time interval that starts at the start date or event, that is, the 
+effectivity or ineffectivity is endless; or
+        </li>
+        <li>
+if only <b>endDefinition</b> is specified: the open time interval that ends at the end date or event, that is, the beginning 
+of the effectivity or ineffectivity is unspecified. 
+
+<example number="2"> The start date or event may, for example, be omitted to indicate the best-before date of a food product.
+</example>
+         </li>
+        </ul>
+  <p>If the <b>endDefinition</b> identifies a point in time that comes before the <b>startDefinition</b>, 
+  the actual domain of effectivity is empty.</p>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12035,12 +12046,10 @@ that represents the location into which the <b>locatedItem</b> is being placed.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.KinematicPathDefinedByNodes">
-          A <b>KinematicPathDefinedByNodes</b> is a path or a segment of a path along which motion is to take place. The path is defined by nodes. 
-        Nodes are start-points and end-points of paths or segments and points where segments meet. No more than two segments meet in the 
-        same node. 
-The <b>KinematicPathDefinedByNodes</b> has its own t parameter range. The segments are re-parametrised in such a
-         way that the sum of the lengths of their individual t parameter ranges fits the length of the parameter range of the
-        <b>KinematicPathDefinedByNodes</b>, and the ratio between the lengths of the individual parameter ranges remains unchanged.
+          A <b>KinematicPathDefinedByNodes</b> is a parameter or time coordinated path in space along which motion shall take place. 
+		  The path is defined by a start position and orientation in space at a particular parameter or time and a list of segments 
+		  to traverse through. The segments in the list must have increasing time or parameter values that are greater than the 
+		  start value.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12211,12 +12220,10 @@ the parameter value that represents the start location of a travel along the <b>
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinearPath">
          A <b>LinearPath</b> is a type of
         <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PathSegment"/> 
-        that describes a direction of travel along a line. 
-        The x-y-plane of the 
-		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.CoordinateSystem"/> 
-		of the inherited attribute 
-		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PathSegment.placementEnd"/>  
-		shall be normal to the line.    
+        that describes a direction of travel along a straight line, starting from a previous position to a new end position. 
+		While doing so a link that is traversing along the path is continuously rotating from the start orientation to the 
+		end orientation. The path shall be traversed at linear speed, which is given by the previous time or parameter value 
+		and the new time or parameter value.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: LinkMotionAlongPath  
@@ -12224,7 +12231,8 @@ the parameter value that represents the start location of a travel along the <b>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinkMotionAlongPath">        
-         A <b>LinkMotionAlongPath</b> is a definition of movement of a kinematic link along a path.
+         A <b>LinkMotionAlongPath</b> is the definition of parameter or time coordinated movements of one or several links 
+		 along paths in space.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12280,8 +12288,6 @@ the set of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinkMotionAlongPath.representationContext">
 <p> the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.GeometricCoordinateSpace"/>
      that defines the units of measures for the <b>LinkMotionAlongPath</b>.</p>
-    <note number="3"><p> The units defined here override the units defined by the individual items in case of conflict.
-</p></note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12366,7 +12372,12 @@ the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_b
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinkMotionRelationship">
-        A <b>LinkMotionRelationship</b> is a geometric transformation relation of a kinematic path with a kinematic link representation.
+        A <b>LinkMotionRelationship</b> is an association of the 
+		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.GeometricModel"/> or 
+		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalRepresentation"/> 
+		of a link and a 
+		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinkMotionAlongPath"/> 
+		with a parameter or time dependent transformation.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -12427,8 +12438,9 @@ the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_b
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinkMotionRelationship.tranformationOperator">
-the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinkMotionTransformation"/> that specifies the 
-    transformation to relate the kinematic link to the motion path, that is, the <b>relating</b> object to the <b>related</b> object.
+the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinkMotionTransformation"/> 
+that specifies the parameter or time dependent transformation of the link geometry within the 
+<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinkMotionAlongPath"/>.
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: LinkMotionTransformation  
@@ -12436,10 +12448,11 @@ the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_b
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.LinkMotionTransformation">
-        A <b>LinkMotionTransformation</b> is a representation of a transformation of a 
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.KinematicPathDefinedByNodes"/> object, 
-        which is defined in its own  
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.CoordinateSystem"/>.
+        A <b>LinkMotionTransformation</b> is a parameter or time dependent transformation by relating a 
+		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.KinematicPathDefinedByNodes"/> 
+		to a 
+		<express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.CoordinateSystem"/> 
+		of a link.
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -15523,8 +15536,11 @@ the constituents of the shape that a <b>PartShape</b> assigns to its <b>describe
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.PathSegment">
-   <p>     A <b>PathSegment</b> is a
-    portion of a complete kinematic path and describes either a point-to-point, a linear or a circular type of motion.
+   <p>     A <b>PathSegment</b> is a portion of a complete kinematic path and describes the movement of a link from a previous position 
+   and orientation to a new position and orientation in space. A <b>PathSegment</b> is either a 
+   <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.CircularPath"/>, 
+   a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinearPath"/> 
+   or a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PointToPointPath"/>.
 </p>        
 <note  number="1"><p>Linear and circular types of paths are continuous motions, point-to-point paths are discontinuous motions.</p></note>
     
@@ -15563,6 +15579,12 @@ the parameter value that represents the end location of a travel along the <b>Pa
 <li>'cont same gradient same curvature': gradient and curvature of the motion are constant;</li>
 <li>'continuous': the motion is continuous;</li>
 <li>'discontinuous': the motion is interrupted.</li></ul>
+
+<p>For <b>PathSegment</b> objects of types
+   <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.CircularPath"/> or
+   <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.LinearPath"/> 
+the value of <b>transition</b> shall be 'continuous'.</p>
+
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: PercentageLaminateTable  

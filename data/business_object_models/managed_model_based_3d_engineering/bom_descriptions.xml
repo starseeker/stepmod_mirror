@@ -8,8 +8,8 @@
   schema_file="bom.xml" 
   describe.selects="YES" 
   describe.subtype_constraints="YES" 
-  rcs.date="$Date: 2013/02/03 15:00:04 $" 
-  rcs.revision="$Revision: 1.82 $">
+  rcs.date="$Date: 2013/02/03 16:54:45 $" 
+  rcs.revision="$Revision: 1.83 $">
   
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: managed_model_based_3d_engineering_bom
@@ -129,6 +129,44 @@ The <b>CharacterString</b> is a set of characters of which a string is comprised
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.ClassSelect">
+     <p>Classification information can be provided by several ways:</p>
+     <ul>
+		<li>by a simple class string;
+		    <p class="example">
+				  <small>
+					EXAMPLE 1&#160;&#160;A string 'company' specifies that an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> is a company.
+				  </small>
+			</p>
+		    <p class="note">
+				 <small>
+					NOTE&#160;&#160;For the permissive list of values, this notion will be used.
+				  </small>
+			</p>
+		</li>
+		<li>by the definition of an explicit class;
+			<p class="example">
+				  <small>
+					EXAMPLE 2&#160;&#160;A class with <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Class.id"/> 'company' classifies all <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> objects which are companies. The <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Class"/> object allows for additional information like a description.
+				  </small>
+			</p>
+		</li>
+		<li>by the definition of an external class;
+			<p class="example">
+				  <small>
+					EXAMPLE 3&#160;&#160;The information, that an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> is classified as a company, is defined in an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalClass"/> which is referenced by <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalClass.id"/> and <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalClass.source"/>.
+				  </small>
+			</p>
+		</li>
+		<li>by the definition of an external owl class.
+			<p class="example">
+				  <small>
+					EXAMPLE 4&#160;&#160;The information, that an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.Organization"/> is classified as a company, is defined in an <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.ExternalOwlClass"/> which is referenced by an URI.
+				  </small>
+			</p>
+		</li>
+	</ul>
+    
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22277,9 +22315,16 @@ the set that contains only members of superset.</ext_description><!--
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="managed_model_based_3d_engineering_bom.SuppliedObjectRelationship">
-        A <b>SuppliedObjectRelationship</b> is a relationship between two elements of the
-        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.SuppliedObjectSelect"/> list.
-      </ext_description>
+        A <b>SuppliedObjectRelationship</b> is a relationship between two objects of the
+        <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.SuppliedObjectSelect"/> list
+         representing the same object in different organizational contexts.
+<note number="1">The different organizational contexts can be represented by different <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.OrganizationOrPersonInOrganizationAssignment"/>s.
+</note>   
+<note number="2">The concept of multi identification may also be used to distinguish objects in different organizational contexts. However, <b>SuppliedObjectRelationship</b> shall be used if the <b>related</b> object corresponds to an object at the supplier's site and if a distinction of additional information such as name or organizational information is needed.   
+</note>
+<example>Usually, <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PartVersion"/>s that are provided by suppliers have at the supplier's site an id different from the one at the contractor's site: a <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PartVersion"/> that is identified in a company by the identifier 'C425' and the version id 'V2.0' may correspond to the <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.PartVersion"/> that the supplier identifies as '2X45' with the version id 'V3.2'.
+</example>
+</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: SuppliedObjectRelationship  Attribute: description 
@@ -22321,7 +22366,19 @@ the set that contains only members of superset.</ext_description><!--
 <ext_description linkend="managed_model_based_3d_engineering_bom.SuppliedObjectRelationship.related">
 <p>                    the other object of <express_ref linkend="managed_model_based_3d_engineering:bom:managed_model_based_3d_engineering_bom.SuppliedObjectSelect"/> that is part of the relationship. 
 </p>
-</ext_description><!-- 
+</ext_description>
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: AP242_BusinessObjectModel  Entity: SuppliedObjectRelationship  Where: WR1 
+   <express_ref linkend="ap242_businessobjectmodel:bom:managed_model_based_3d_engineering_bom.SuppliedObjectRelationship.wr:WR1"/>
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+<ext_description linkend="managed_model_based_3d_engineering_bom.SuppliedObjectRelationship.wr:WR1">
+        <p>the <b>related</b> and the <b>relating</b> object shall be of same type.</p>
+
+</ext_description>
+<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: AP242_BusinessObjectModel  Entity: SupplierSolution  
    <express_ref linkend="ap242_businessobjectmodel:bom:managed_model_based_3d_engineering_bom.SupplierSolution"/>

@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.14 2013/02/01 20:04:36 thomasrthurman Exp $
+$Id: product_structure_schema.exp,v 1.15 2013/02/05 19:15:15 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8256 - ISO/IS 10303-44 Product structure configuration - EXPRESS
 *)
 
@@ -185,10 +185,35 @@ REPEAT i := 1 to SIZEOF(links) - 1;
           RETURN(FALSE);
         END_IF;
      END;
-     
+
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition))
+       AND
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+     BEGIN
+        IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+                 OR
+                ((SIZEOF (QUERY (pdr <* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                  (links[i]\product_definition_relationship.related_product_definition\product_definition.formation\product_definition_formation.of_product.id
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_id)
+                  AND
+                  (links[i]\product_definition_relationship.related_product_definition\product_definition.if
+                   <> 
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_definition_id)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+
      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition))
        AND
-     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.relating_product_definition)) :
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
        BEGIN
          IF NOT (
                 (links[i]\product_definition_relationship.related_product_definition :=:
@@ -214,6 +239,12 @@ REPEAT i := 1 to SIZEOF(links) - 1;
           RETURN(FALSE);
         END_IF;
      END;
+
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition))
+       AND
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+     RETURN(FALSE);
+
      OTHERWISE : RETURN(FALSE);
    END_CASE;
 

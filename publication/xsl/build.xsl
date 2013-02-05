@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.39 2012/12/19 16:39:26 robbod Exp $
+<!--  $Id: build.xsl,v 1.40 2012/12/19 16:59:09 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -296,7 +296,14 @@ Purpose: To build the initial ANT publication file.
 			<!--<xsl:apply-templates select="." mode="dependent_ap_doc_variables"/>-->
 			<xsl:apply-templates select="." mode="bomdoc_variables"/>
 		</xsl:if>
-	 </xsl:element>
+		<!-- edit which allows for publication of multiple parts within same package -->
+		<xsl:element name="property">
+			<xsl:attribute name="name">MERGEDIR</xsl:attribute>
+			<xsl:attribute name="value">${PUBDIR}/merged_data</xsl:attribute>
+		</xsl:element>
+	</xsl:element>
+  	
+  	
   </xsl:template>
 
 
@@ -1875,6 +1882,8 @@ Purpose: To build the initial ANT publication file.
 		</xsl:apply-templates>
 	  </xsl:attribute>
 	</xsl:element>
+  	
+  	
 	<xsl:text>
 	</xsl:text>
   </xsl:template>
@@ -2025,6 +2034,23 @@ Purpose: To build the initial ANT publication file.
 		</xsl:attribute>
 		<fileset dir="images"/>
 	  </xsl:element>
+		<!-- edit which allows for publication of multiple parts within same package -->
+		<xsl:element name="mkdir">
+			<xsl:attribute name="dir">
+				<xsl:value-of select="'${PUBDIR}/merged_data'"/>
+			</xsl:attribute>          
+		</xsl:element>
+		<xsl:element name="mkdir">
+			<xsl:attribute name="dir">
+				<xsl:value-of select="'${MERGEDIR}/images'"/>
+			</xsl:attribute>          
+		</xsl:element>
+		<xsl:element name="mkdir">
+			<xsl:attribute name="dir">
+				<xsl:value-of select="'${MERGEDIR}/data'"/>
+			</xsl:attribute>          
+		</xsl:element>
+		
 	</target>
 	<xsl:text>
 	</xsl:text>
@@ -5670,7 +5696,9 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="out">
-		 <xsl:value-of select="concat($apdoc_dir,$apdoc_iso_no,'.htm')"/>
+	   	<!-- edit which allows for publication of multiple parts within same package -->
+		 <!--<xsl:value-of select="concat($apdoc_dir,$apdoc_iso_no,'.htm')"/>-->
+	   	<xsl:value-of select="concat('${MERGEDIR}/',$apdoc_iso_no,'.htm')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="style">
 		 <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
@@ -5679,8 +5707,19 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="$apdoc_dir"/>
 	   </xsl:attribute>
 	   <param name="output_type" expression="HTM"/>
-	 </xsl:element>    
+	 </xsl:element>
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/images'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/images'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($apdoc_dir,'images')"/>
 	   </xsl:attribute>
@@ -5689,10 +5728,21 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/images'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the resources -->
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/data/resources'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($apdoc_dir,'data/resources')"/>
 	   </xsl:attribute>
@@ -5701,10 +5751,21 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the modules -->
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/data/modules'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/data/modules'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($apdoc_dir,'data/modules')"/>
 	   </xsl:attribute>
@@ -5713,10 +5774,21 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/data/modules'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the application protocols -->
+     <!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="concat('${MERGEDIR}/data/application_protocols/',@name)"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="concat('${TMPDIR}/data/application_protocols/',@name)"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($apdoc_dir,'data/application_protocols/',@name)"/>
 	   </xsl:attribute>
@@ -5725,7 +5797,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="concat('${TMPDIR}/data/application_protocols/',@name)"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the application protocol abstracts -->
 	 <!-- RBN - changed to move as per request from ISO 
@@ -5811,7 +5883,9 @@ Purpose: To build the initial ANT publication file.
 				<xsl:value-of select="concat('data/business_object_models/',@name,'/business_object_model.xml')"/>
 			</xsl:attribute>
 			<xsl:attribute name="out">
-				<xsl:value-of select="concat($bomdoc_dir,$bomdoc_iso_no,'.htm')"/>
+				<!-- edit which allows for publication of multiple parts within same package -->
+				<!--<xsl:value-of select="concat($bomdoc_dir,$bomdoc_iso_no,'.htm')"/>-->
+				<xsl:value-of select="concat('${MERGEDIR}/',$bomdoc_iso_no,'.htm')"/>
 			</xsl:attribute>
 			<xsl:attribute name="style">
 				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
@@ -5820,8 +5894,20 @@ Purpose: To build the initial ANT publication file.
 				<xsl:value-of select="$bomdoc_dir"/>
 			</xsl:attribute>
 			<param name="output_type" expression="HTM"/>
-		</xsl:element>    
+		</xsl:element> 
+		
+		<!-- edit which allows for publication of multiple parts within same package -->
 		<xsl:element name="copy">
+			<xsl:attribute name="todir">
+				<xsl:value-of select="'${MERGEDIR}/images'"/>
+			</xsl:attribute>
+			<xsl:element name="fileset">
+				<xsl:attribute name="dir">
+					<xsl:value-of select="'${TMPDIR}/images'"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:element>
+       <!-- <xsl:element name="copy">
 			<xsl:attribute name="todir">
 				<xsl:value-of select="concat($bomdoc_dir,'images')"/>
 			</xsl:attribute>
@@ -5830,8 +5916,20 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${TMPDIR}/images'"/>
 				</xsl:attribute>
 			</xsl:element>
-		</xsl:element>
+		</xsl:element> -->
+		
+		<!-- edit which allows for publication of multiple parts within same package -->
 		<xsl:element name="copy">
+			<xsl:attribute name="todir">
+				<xsl:value-of select="concat('${MERGEDIR}/data/business_object_models/',@name)"/>
+			</xsl:attribute>
+			<xsl:element name="fileset">
+				<xsl:attribute name="dir">
+					<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name)"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:element>
+        <!-- <xsl:element name="copy">
 			<xsl:attribute name="todir">
 				<xsl:value-of select="concat($bomdoc_dir,'data/business_object_models/',@name)"/>
 			</xsl:attribute>
@@ -5840,7 +5938,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="concat('${TMPDIR}/data/business_object_models/',@name)"/>
 				</xsl:attribute>
 			</xsl:element>
-		</xsl:element>
+		</xsl:element> -->
 	
 		<!-- copy the BOM abstracts -->
 		<!-- RBN - changed to move as per request from ISO 
@@ -5953,7 +6051,9 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="concat('data/modules/',@name,'/module.xml')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="out">
-		 <xsl:value-of select="concat($module_dir,$module_iso_no,'.htm')"/>
+	   	<!-- edit which allows for publication of multiple parts within same package -->
+		 <!--<xsl:value-of select="concat($module_dir,$module_iso_no,'.htm')"/>-->
+	   	<xsl:value-of select="concat('${MERGEDIR}/',$module_iso_no,'.htm')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="style">
 		 <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
@@ -5964,7 +6064,18 @@ Purpose: To build the initial ANT publication file.
 	   <param name="output_type" expression="HTM"/>
 	 </xsl:element>    
 
+	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/images'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/images'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($module_dir,'images')"/>
 	   </xsl:attribute>
@@ -5973,10 +6084,21 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/images'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the resources -->
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/data/resources'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($module_dir,'data/resources')"/>
 	   </xsl:attribute>
@@ -5985,9 +6107,20 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
-	 <xsl:element name="copy">
+	<!-- edit which allows for publication of multiple parts within same package --> 
+   	<xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="concat('${MERGEDIR}/data/modules/',@name)"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="concat('${TMPDIR}/data/modules/',@name)"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($module_dir,'data/modules/',@name)"/>
 	   </xsl:attribute>
@@ -5996,7 +6129,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="concat('${TMPDIR}/data/modules/',@name)"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- RBN - changed to move as per request from ISO 
 	 <xsl:element name="copy">
@@ -6102,7 +6235,9 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="out">
-		 <xsl:value-of select="concat($resdoc_dir,$resdoc_iso_no,'.htm')"/>
+	   	<!-- edit which allows for publication of multiple parts within same package -->
+		 <!--<xsl:value-of select="concat($resdoc_dir,$resdoc_iso_no,'.htm')"/>-->
+	   	<xsl:value-of select="concat('${MERGEDIR}/',$resdoc_iso_no,'.htm')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="style">
 		 <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
@@ -6112,7 +6247,19 @@ Purpose: To build the initial ANT publication file.
 	   </xsl:attribute>
 	   <param name="output_type" expression="HTM"/>
 	 </xsl:element>    
+   	
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/images'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/images'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($resdoc_dir,'images')"/>
 	   </xsl:attribute>
@@ -6121,10 +6268,21 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/images'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <!-- copy the resources -->
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="'${MERGEDIR}/data/resources'"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($resdoc_dir,'data/resources')"/>
 	   </xsl:attribute>
@@ -6133,7 +6291,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="'${TMPDIR}/data/resources'"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 
 	 <!-- copy the resource_docs  abstracts -->
@@ -6152,7 +6310,18 @@ Purpose: To build the initial ANT publication file.
 
 
 	 <!-- copy the resource docs -->
+   	<!-- edit which allows for publication of multiple parts within same package -->
 	 <xsl:element name="copy">
+	   <xsl:attribute name="todir">
+	   	<xsl:value-of select="concat('${MERGEDIR}/data/resource_docs/',@name)"/>
+	   </xsl:attribute>
+	   <xsl:element name="fileset">
+		 <xsl:attribute name="dir">
+		   <xsl:value-of select="concat('${TMPDIR}/data/resource_docs/',@name)"/>
+		 </xsl:attribute>
+	   </xsl:element>
+	 </xsl:element>
+     <!-- <xsl:element name="copy">
 	   <xsl:attribute name="todir">
 		 <xsl:value-of select="concat($resdoc_dir,'data/resource_docs/',@name)"/>
 	   </xsl:attribute>
@@ -6161,7 +6330,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="concat('${TMPDIR}/data/resource_docs/',@name)"/>
 		 </xsl:attribute>
 	   </xsl:element>
-	 </xsl:element>
+	 </xsl:element> -->
 
 	 <xsl:apply-templates select="." mode="copy_express"/>
 

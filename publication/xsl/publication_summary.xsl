@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
+$Id: publication_summary.xsl,v 1.16 2012/12/19 16:59:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -201,8 +201,12 @@ $Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
           <td>
             <xsl:variable name="bom_cover"
               select="concat($bom_dir_name,'.htm')"/>
+            <!--<xsl:variable name="bom_xref"
+            select="concat($pub_dir,'/',$bom_cover)"/>-->
+            <!-- edit which allows for publication of multiple parts within same package -->
             <xsl:variable name="bom_xref"
-              select="concat($pub_dir,'/',$bom_cover)"/>
+              select="concat('./merged_data/',$bom_cover)"/>
+            
             <xsl:value-of select="concat(@name,'&#160;')"/> 
             <a href="{$bom_xref}">
               <xsl:value-of select="$bom_cover"/>
@@ -400,8 +404,13 @@ $Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
           <td>
             <xsl:variable name="mod_cover"
               select="concat($mod_dir_name,'.htm')"/>
+            <!--<xsl:variable name="mod_xref"
+            select="concat($pub_dir,'/',$mod_cover)"/>-->
+            <!-- edit which allows for publication of multiple parts within same package -->
             <xsl:variable name="mod_xref"
-              select="concat($pub_dir,'/',$mod_cover)"/>
+              select="concat('./merged_data/',$mod_cover)"/>
+            
+            
             <xsl:value-of select="concat(@name,'&#160;')"/> 
             <a href="{$mod_xref}">
               <xsl:value-of select="$mod_cover"/>
@@ -644,8 +653,12 @@ $Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
           <td>
             <xsl:variable name="resdoc_cover"
               select="concat($resdoc_dir_name,'.htm')"/>
+            <!--<xsl:variable name="resdoc_xref"
+            select="concat($pub_dir,'/',$resdoc_cover)"/>-->
+            <!-- edit which allows for publication of multiple parts within same package -->
             <xsl:variable name="resdoc_xref"
-              select="concat($pub_dir,'/',$resdoc_cover)"/>
+              select="concat('./merged_data/',$resdoc_cover)"/>
+            
             <xsl:value-of select="concat(@name,'&#160;')"/> 
             <a href="{$resdoc_xref}">
               <xsl:value-of select="$resdoc_cover"/>
@@ -831,8 +844,11 @@ $Id: publication_summary.xsl,v 1.15 2012/12/19 16:39:26 robbod Exp $
           <td>
             <xsl:variable name="apdoc_cover"
               select="concat($apdoc_dir_name,'.htm')"/>
+            <!--<xsl:variable name="apdoc_xref"
+            select="concat($pub_dir,'/',$apdoc_cover)"/>-->
+            <!-- edit which allows for publication of multiple parts within same package -->
             <xsl:variable name="apdoc_xref"
-              select="concat($pub_dir,'/',$apdoc_cover)"/>
+              select="concat('./merged_data/',$apdoc_cover)"/>
             <xsl:value-of select="@name"/>&#160;
             <a href="{$apdoc_xref}">
               <xsl:value-of select="$apdoc_cover"/>

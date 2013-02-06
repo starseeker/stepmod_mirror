@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_apdoc.xsl,v 1.8 2009/06/17 09:13:19 robbod Exp $
+	$Id: sect_index_bomdoc.xsl,v 1.1 2013/02/06 07:56:59 nigelshaw Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -28,6 +28,11 @@
         <xsl:with-param name="normrefs_list" select="$normrefs"/>
       </xsl:call-template>
     </xsl:variable>
+
+
+    <!-- get the BOM xml to use for indexing -->
+   <xsl:variable name="model_xml" select="document(concat('../../data/business_object_models/',@name, '/bom.xml'))"/>
+
 
     <!--
     <xsl:variable name="application_protocol_dir">
@@ -56,6 +61,12 @@
       </xsl:apply-templates>
       -->
       <xsl:apply-templates select="//capability" mode="get_cap_defn_object">
+      </xsl:apply-templates>
+
+      
+      <xsl:apply-templates select="$model_xml//type" mode="get_bom_defn_object">
+      </xsl:apply-templates>
+      <xsl:apply-templates select="$model_xml//entity" mode="get_bom_defn_object">
       </xsl:apply-templates>
 
       <!--
@@ -157,6 +168,35 @@
       <xsl:attribute name="clause_no">
         <xsl:value-of select="concat('4.2.',position())"/>
       </xsl:attribute>      
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="type" mode="get_bom_defn_object">
+    <xsl:element name="{@name}">
+      <xsl:attribute name="name">
+	      <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="object_href">
+	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',@name)"/>
+      </xsl:attribute>
+      <xsl:attribute name="clause_no">
+        <xsl:value-of select="concat('4.4.',position())"/>
+      </xsl:attribute>      
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="entity" mode="get_bom_defn_object">
+	  <xsl:variable name="this_ent" select="@name" />
+    <xsl:element name="{$this_ent}">
+      <xsl:attribute name="name">
+	      <xsl:value-of select="$this_ent"/>
+      </xsl:attribute>
+      <xsl:attribute name="object_href">
+	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',$this_ent)"/>
+      </xsl:attribute>
+      <xsl:attribute name="clause_no">
+        <xsl:value-of select="concat('4.5.',position())"/>
+      </xsl:attribute>
     </xsl:element>
   </xsl:template>
 

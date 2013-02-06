@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.26 2010/05/25 19:01:07 mikeward Exp $
+$Id: sect_3_defs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display definitions for a BOM.     
@@ -82,7 +82,7 @@ $Id: sect_3_defs.xsl,v 1.26 2010/05/25 19:01:07 mikeward Exp $
 
 <xsl:variable name="def_section">
     <xsl:call-template name="length_normrefs_list">
-      <xsl:with-param name="module_number" select="./@module_name"/>
+      <xsl:with-param name="module_number" select="./@part"/>
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
     </xsl:call-template>
   </xsl:variable>

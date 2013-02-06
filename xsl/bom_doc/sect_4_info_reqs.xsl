@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.10 2013/01/17 09:41:29 ungerer Exp $
+$Id: sect_4_info_reqs.xsl,v 1.11 2013/01/17 11:32:39 ungerer Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -169,8 +169,8 @@ $Id: sect_4_info_reqs.xsl,v 1.10 2013/01/17 09:41:29 ungerer Exp $
   </xsl:template>
 		
 	<xsl:template match="capability">
-	   
-	  <h3><a name="41x">4.2.<xsl:value-of select="position()"/>&#160;<xsl:value-of select="./@title"/></a></h3>
+		<xsl:variable name="this_href" select="concat('42',position())" /> 
+		<h3><a name="{$this_href}">4.2.<xsl:value-of select="position()"/>&#160;<xsl:value-of select="./@title"/></a></h3>
 	  <xsl:apply-templates select="description"/>
 	</xsl:template>
 	

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="document_xsl.xsl" ?>
 
 <!--
-     $Id:  $
+     $Id: update_docs_list.xsl,v 1.1 2010/07/28 14:44:40 radack Exp $
 
      Used to update the file docs.xml when a CR is merged
      into the SMRL.
@@ -17,7 +17,7 @@
   method="xml"
   indent="yes"
   omit-xml-declaration="yes"
-  doctype-system="../../dtd/part1000/docs.dtd"
+  doctype-system="../../../dtd/part1000/docs.dtd"
   encoding="utf-8"
   />
 
@@ -27,7 +27,9 @@
 
 <xsl:template match="docs">
   <xsl:copy>
-    <xsl:apply-templates select="node()|attribute()|comment()"/>
+<!--    <xsl:apply-templates select="node()|attribute()|comment()"/>-->
+<xsl:apply-templates select="node()|attribute::node()|comment()">
+</xsl:apply-templates>
   </xsl:copy>
 </xsl:template>
 
@@ -35,11 +37,14 @@
   <xsl:variable name="name" select="@name"/>
   <xsl:variable name="pub_year_mo">
     <xsl:choose>
-      <xsl:when test="document($CR_list_URI)/docs/doc[@name = $name]">
+      <!--<xsl:when test="document($CR_list_URI)/docs/doc[@name = $name]">
 	<xsl:value-of select="$CR_pub_year_mo"/>
-      </xsl:when>
+      </xsl:when>-->
+        <xsl:when test="document($CR_list_URI)/docs/doc[@name = $name]">
+          <xsl:value-of select="$CR_pub_year_mo"/>
+        </xsl:when>
       <xsl:otherwise>
-	<xsl:value-of select="@pub_year_mo"/>
+  <xsl:value-of select="@pub_year_mo"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

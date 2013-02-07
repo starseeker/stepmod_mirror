@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.40 2012/12/19 16:59:09 robbod Exp $
+<!--  $Id: build.xsl,v 1.41 2013/02/05 21:02:20 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1876,6 +1876,11 @@ Purpose: To build the initial ANT publication file.
 		  <xsl:with-param name="suffix" select="'/*.png'"/>
 		  <xsl:with-param name="terminate" select="'NO'"/>
 		</xsl:apply-templates>
+	  	<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+	  		<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+	  		<xsl:with-param name="suffix" select="'/*.PNG'"/>
+	  		<xsl:with-param name="terminate" select="'NO'"/>
+	  	</xsl:apply-templates>
 		<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 		  <xsl:with-param name="prefix" select="'data/business_object_models/'"/>
 		  <xsl:with-param name="suffix" select="'/*.jpg'"/>

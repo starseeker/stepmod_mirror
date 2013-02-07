@@ -1427,7 +1427,7 @@ ENTITY BeveledSheetRepresentation
   boundarySurface : CompositeSheetRepresentation;
   verticalProfileHeight : NumericalValue;
 WHERE
-  WR1 : TRUE;
+  (SELF.verticalProfileHeight.unit.name='length') AND (SELF.bevelAngle.unit.name='angle');
 END_ENTITY;
 
 ENTITY BoundaryCurveRepresentation;
@@ -1709,7 +1709,7 @@ ENTITY ConstituentPart
   SUBTYPE OF(PartView);
   weight : OPTIONAL NumericalValue;
 WHERE
-  WR1 : TRUE;
+  ((NOT(EXISTS(SELF.weight))) OR ((EXISTS(SELF.weight)) AND (SELF.weight.unit.name='mass')));
 END_ENTITY;
 
 ENTITY ConstituentShapeRepresentation
@@ -2091,8 +2091,6 @@ END_ENTITY;
 
 ENTITY ExternalAdvancedBrepShapeRepresentation
   SUBTYPE OF(ExternalRepresentation);
-WHERE
-  WR1 : TRUE;
 END_ENTITY;
 
 ENTITY ExternalClass;
@@ -2561,7 +2559,7 @@ ENTITY LaminateTable
   basis : ReinforcementOrientationBasis;
   resultingSurface : OrientedSurfaceSelect;
 WHERE
-  WR1 : TRUE;
+  SELF.initialcontext.applicationdomain = 'composites';
 END_ENTITY;
 
 ENTITY LifeCycleStage;
@@ -3027,7 +3025,7 @@ ENTITY Ply
   shape : OPTIONAL PlyShape;
 WHERE
   WR1 : SELF.plyThickness.valueComponent >= 0.0;
-  WR2 : TRUE;
+  WR2 : SELF.plyThickness.unit.name='length';
 END_ENTITY;
 
 ENTITY PlyLaminate
@@ -3097,7 +3095,7 @@ ENTITY ProcessedCore
   madeFromStock : StockMaterial;
   shape : OPTIONAL CoreShapeSelect;
 WHERE
-  WR1 : TRUE;
+  SELF.madeFromStock.stockMaterialType = stock_core;
 END_ENTITY;
 
 ENTITY ProcessOperationDefinition;

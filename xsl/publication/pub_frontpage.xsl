@@ -51,7 +51,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="business_object_model">
-    <xsl:variable name="new_page" select="concat('data/business_object_models/',@name,'/sys/cover',$FILE_EXT)"/>
+    <!-- BOM -->
+    <!--<xsl:variable name="new_page" select="concat('data/business_object_models/',@name,'/sys/cover',$FILE_EXT)"/>-->
+    <xsl:variable name="new_page" select="concat('data/business_object_models/',@name,'/home',$FILE_EXT)"/>
     <html>
       <head>
         <xsl:element name="meta">

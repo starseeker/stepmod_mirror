@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.41 2013/02/05 21:02:20 mikeward Exp $
+<!--  $Id: build.xsl,v 1.42 2013/02/07 01:54:14 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -2799,6 +2799,20 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="menu" select="$menu"/>
 				</xsl:apply-templates>
 			</xsl:element>
+			
+			<!-- BOM INDEX -->
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMDOC}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_index_bomdoc.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${BOMINTRODUCTIONXML}'"/>

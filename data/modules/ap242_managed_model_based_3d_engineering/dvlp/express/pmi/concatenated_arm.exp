@@ -173,18 +173,16 @@ USE FROM Identification_assignment_arm;
 END_SCHEMA;
 
 (*
- ISO TC184/SC4/WG12 N5278 - ISO/TS 10303-1109 Alternative solution - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4928
+ ISO TC184/SC4/WG12 N7726 - ISO/TS 10303-1109 Alternative solution - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5278
 *)
 
 SCHEMA Alternative_solution_arm;
 
 USE FROM Person_organization_assignment_arm;
-
-USE FROM Product_occurrence_arm;
-
+USE FROM Product_occurrence_arm; -- ISO/TS 10303-1063
+USE FROM Functional_breakdown_arm;  -- ISO/TS 10303-1216
 USE FROM Physical_breakdown_arm;
-
 
   TYPE complex_product_select = SELECT
     (Alternative_solution, Functional_element_definition, Physical_element_definition);
@@ -199,7 +197,7 @@ USE FROM Physical_breakdown_arm;
 
   ENTITY Solution_element;
     resolved_requirement: complex_product_select;
-    element: part_occurrence_select;
+    element: Product_occurrence;
     description : OPTIONAL STRING;
   END_ENTITY;
 
@@ -221,13 +219,16 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   N - ISO/CD-TS - 10303- ap242_managed_model_based_3d_engineering - EXPRESS ARM*)
+   ISO TC184/SC4/WG3 N7873 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N2818
+*)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
 
 -- USE FROM Assembly_technology_arm; -- now covered by Mating_structure_arm  
 USE FROM Mating_structure_arm;
 USE FROM Shape_data_quality_inspection_result_arm; -- ISO/TS 10303-1524
+USE FROM Externally_conditioned_data_quality_inspection_result_arm; -- ISO/TS 10303-1822
 USE FROM Geometric_constraints_arm; -- ISO/TS 10303-1789
 USE FROM Machining_features_arm; -- AIC 522 wrapper + ...
 USE FROM Form_feature_in_panel_arm;
@@ -258,12 +259,10 @@ USE FROM Inertia_characteristics_arm; -- ISO/TS 10303-1350
 USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
 USE FROM Mechanical_design_presentation_representation_with_draughting_arm; -- ISO/TS 10303-1315
 USE FROM Modified_swept_solid_arm; -- ISO/TS 10303-1322
-USE FROM Numerical_interface_arm;
 USE FROM Part_and_zone_laminate_tables_arm;  -- ISO/TS 10303-1770
 USE FROM Picture_representation_arm;  -- ISO/TS 10303-1308
 USE FROM Planned_characteristic_arm; -- ISO/TS 10303-1733
 USE FROM Ply_orientation_specification_arm;  -- ISO/TS 10303-1772
-USE FROM Representation_with_uncertainty_arm; -- ISO/TS 10303-1228
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 USE FROM Solid_with_local_modification_arm; -- ISO/TS 10303-1319
 USE FROM Surface_conditions_arm; -- ISO/TS 10303-1110 
@@ -274,7 +273,16 @@ USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_
 USE FROM Product_and_manufacturing_annotation_presentation_arm;
 USE FROM Change_management_arm; -- ISO/TS 10303-1661
 USE FROM Sketch_arm; -- ISO/TS 10303-1792
+USE FROM Tessellated_geometry_arm;  -- ISO/TS 10303-1819
+USE FROM Edge_shape_feature_arm; -- ISO/TS 10303-1673
+USE FROM Point_direction_model_arm;  -- -- ISO/TS 10303-1820
+USE FROM Numerical_interface_arm; -- ISO/TS 10303-1344
 
+TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
+ (Dimensional_size,
+  Property_value_representation);
+END_TYPE;
+    
 TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   -- final_solution -- -- Complex_product subtype,
   -- Simple_property_association, -- already covered by Property_value_association
@@ -317,8 +325,8 @@ TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Organization_relationship,
   Part, -- Item,
   Part_definition_relationship, -- Item_definition_relationship,
-  Part_occurrence, -- Item_instance,
-  Part_occurrence_definition_relationship, -- Item_definition_instance_relationship,
+  Product_occurrence, -- Item_instance,
+  Product_occurrence_definition_relationship, -- Item_definition_instance_relationship,
   Part_occurrence_relationship, -- Item_instance_relationship,
   Part_version, -- Item_version,
   Part_view_definition, -- Design_discipline_item_definition,
@@ -350,6 +358,13 @@ TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   );
 END_TYPE;
 
+TYPE configured_item_select_242 = SELECT BASED_ON configured_item_select WITH (
+  Process_plan,
+  Process_operation_occurrence,
+  Breakdown_element_definition, 
+  Product_occurrence);
+END_TYPE;
+
 TYPE property_assignment_select_242 = SELECT BASED_ON property_assignment_select WITH ( 
   Product_class,
   Product_specification);
@@ -379,16 +394,26 @@ TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SE
 END_TYPE;
 
 TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
-  Part_occurrence);
+  Product_occurrence);
 END_TYPE; 
 
+TYPE representation_proxy_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH (
+    Document_version);
+END_TYPE;
+
 TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
---  activity_element_select,
-  Activity,
---  Classification,
-  Activity_relationship
---  event_reference,
---  project_assignment
+ Activity,
+ Activity_relationship,
+ Alternate_product_relationship,
+ Assembly_bond_definition,
+ Assembly_component_placement_link,
+ Certification,
+ Composite_curve_segment,
+ Identification_assignment,
+ Product_occurrence_definition_relationship,
+ Representation,
+ Representation_context,
+ Representation_item
   );
 END_TYPE;
 
@@ -488,7 +513,6 @@ END_TYPE;
     (Activity, 
     Activity_method, 
     Activity_relationship, 
-    Design_constraint_definition,
     Product_concept, 
     Specification, 
     Specification_category, 
@@ -502,11 +526,6 @@ END_TYPE;
     (External_geometric_model);
   END_TYPE;
 
-  TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH (
-     Geometric_dimension,
-     Property_value_representation);
-  END_TYPE; 
-  
   TYPE security_classification_item_242 = SELECT BASED_ON security_classification_item WITH 
     (Document_definition, 
     Document_version, 
@@ -567,6 +586,13 @@ END_TYPE;
       WR1: SIZEOF(QUERY(is <* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0;
   END_RULE; 
   
+  RULE specific_product_occurrence_definition_relationship FOR 
+      (Product_occurrence_definition_relationship);
+    WHERE
+      WR1: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PART_VIEW_DEFINITION_ARM' + '.PART_VIEW_DEFINITION' IN TYPEOF(occ_rel.relating_view)))) = 0;
+      WR2: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE' IN TYPEOF(occ_rel.related_view)))) = 0;
+  END_RULE; 
+  
   SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;
     ABSTRACT SUPERTYPE;
     ONEOF (
@@ -595,8 +621,8 @@ END_TYPE;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6860 - ISO/TS 10303-1001 Appearance assignment - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5281
+ ISO TC184/SC4/WG12 N8250 - ISO/TS 10303-1001 Appearance assignment - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6860
 *)
 
 
@@ -789,22 +815,18 @@ SCHEMA Area_2d_arm;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- assembly_component - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   ISO TC184/SC4/WG12 N7876 - ISO/TS - 10303-1802 Assembly component - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7313
+*)
+
 SCHEMA Assembly_component_arm;
 
 USE FROM Component_grouping_arm;
-USE FROM General_part_occurrence_feature_joint_arm;
-USE FROM Part_occurrence_arm;
-
-TYPE assembly_component_source = EXTENSIBLE GENERIC_ENTITY SELECT (Part_view_definition);
-END_TYPE;
-
+USE FROM Assembly_shape_arm;
 
 ENTITY Assembly_component
-  SUBTYPE OF (Definition_based_part_occurrence, Part_occurrence_item_shape);
- SELF\Definition_based_product_occurrence.derived_from : assembly_component_source;
-  DERIVE
+  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_shape);
+DERIVE
   SELF\Item_shape.described_element : Assembly_component := SELF;
   assemblies : SET OF Product_view_definition := ac_get_assemblies(SELF);
   groups : SET OF Assembly_group_component := ac_get_groups(SELF);
@@ -832,7 +854,7 @@ WHERE
 END_ENTITY;
 
 ENTITY Physical_component
-  SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);
+  SUBTYPE OF (Assembly_component);
 END_ENTITY;
 
 ENTITY Thermal_component
@@ -930,8 +952,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- $id
- ISO TC184/SC4/WG12 N4xxx - ISO/TS 10303-1af2 Assembly constraint- EXPRESS ARM
+ ISO TC184/SC4/WG12 N7879 - ISO/TS 10303-1794 Assembly constraint- EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7316
 *)
 
 
@@ -1039,7 +1061,8 @@ END_FUNCTION;
 
 END_SCHEMA; -- Assembly_constraint_mim
 (*
-  ISO TC184/SC4/WG12 N4xxx - ISO/CD-TS 10303-1af1 Assembly feature relationship - EXPRESS ARM
+  ISO TC184/SC4/WG12 N7882 - ISO/CD-TS 10303-1795 Assembly feature relationship - EXPRESS ARM
+  Supersedes ISO TC184/SC4/WG12 N7319
 *)
 
 SCHEMA Assembly_feature_relationship_arm;
@@ -1085,20 +1108,74 @@ END_SCHEMA;  -- Assembly_feature_relationship_arm
 
 
 (*
-ISO TC184/SC4/WG12 N6111 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N5287
+   ISO TC184/SC4/WG12 N7897 - ISO/CD-TS - 10303-1808 Assembly shape - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7334
+*)
+
+SCHEMA Assembly_shape_arm;
+
+USE FROM Item_definition_structure_arm;  --        ISO/TS 10303-1345
+USE FROM Part_shape_arm; 
+
+TYPE characterized_product_definition = SELECT (
+    Product_view_definition, 
+    View_definition_relationship,
+    Multi_level_reference_designator);
+END_TYPE;
+
+TYPE internal_or_reflected_shape_element = SELECT (
+    Shape_element,
+    identifier);
+END_TYPE;
+
+TYPE multi_or_next_assembly_usage_occurrence = SELECT (
+    Multi_level_reference_designator,
+    Next_assembly_usage);
+END_TYPE;
+
+ENTITY Assembly_shape
+  SUBTYPE OF (Part_shape);
+  SELF\Item_shape.described_element : Assembly_definition;
+END_ENTITY;  
+
+ENTITY Component_path_shape_element
+    SUBTYPE OF (Part_shape_element);
+    location : multi_or_next_assembly_usage_occurrence;
+    component_shape_element : internal_or_reflected_shape_element;
+  UNIQUE
+    UR1 : location, component_shape_element;
+  WHERE
+    WR1: NOT('ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE' IN TYPEOF(location)) OR
+      EXISTS(location\Assembly_component_relationship.location_indicator); 
+END_ENTITY;
+
+ENTITY Part_occurrence_shape
+  SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element : Definition_based_product_occurrence;
+END_ENTITY;  
+
+END_SCHEMA;
+(*
+ISO TC184/SC4/WG12 N7729 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N6111
 *) 
 
 
 SCHEMA Assembly_structure_arm;
 
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+USE FROM Product_view_definition_reference_arm; -- ISO/TS 10303-1738
 
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
+TYPE product_view_definition_or_reference = SELECT (
+    Product_view_definition, 
+    Generic_product_view_definition_reference);
+END_TYPE;
 
 ENTITY Assembly_component_relationship
-  ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage,
+  ABSTRACT SUPERTYPE OF (ONEOF (Multi_level_reference_designator,
+  								Next_assembly_usage,
                                 Promissory_usage,
                                 Component_upper_level_identification))
   SUBTYPE OF (Product_occurrence_definition_relationship);
@@ -1122,14 +1199,26 @@ WHERE
   WR5: SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE', 'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1;
 END_ENTITY;
 
+ENTITY Multi_level_reference_designator
+  SUBTYPE OF (Assembly_component_relationship);
+  location : LIST[1:?] OF UNIQUE Next_assembly_usage;
+DERIVE
+  SELF\Product_occurrence_definition_relationship.relating_view RENAMED root_node 
+     : Product_view_definition := location[1]\Product_occurrence_definition_relationship.relating_view;
+  SELF\Product_occurrence_definition_relationship.related_view RENAMED leaf_node 
+    : product_view_definition_or_reference := location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view;
+UNIQUE
+  UR1 : location;
+END_ENTITY;
+
 ENTITY Next_assembly_usage
   SUBTYPE OF (Assembly_component_relationship);
 END_ENTITY;
 
 ENTITY Product_occurrence_definition_relationship
-  ABSTRACT SUPERTYPE ;
-  relating_view : Product_view_definition;
-  related_view : Product_view_definition;
+  ABSTRACT SUPERTYPE;
+  relating_view : product_view_definition_or_reference;
+  related_view : product_view_definition_or_reference;
 END_ENTITY;
 
 ENTITY Promissory_usage
@@ -1139,14 +1228,15 @@ END_ENTITY;
 SUBTYPE_CONSTRAINT assembly_component_relationship_constraint FOR Assembly_component_relationship;
   ABSTRACT SUPERTYPE;
   TOTAL_OVER (Component_upper_level_identification, 
+  			  Multi_level_reference_designator,
               Next_assembly_usage, 
               Promissory_usage);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Assembly_structure_arm
 (*
-   ISO TC184/SC4/WG12 N6330 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5611
+   ISO TC184/SC4/WG12 N7942 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7379
 *)
 
 
@@ -1157,7 +1247,7 @@ SCHEMA Assembly_technology_arm;
 	USE FROM Physical_component_feature_arm;
 	
 	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
-	USE FROM Product_identification_extension_arm;	-- ISO/TS 10303-1738
+	USE FROM Product_view_definition_reference_arm;	-- ISO/TS 10303-1738
 
  	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Assembly_bond_definition);
@@ -1215,7 +1305,7 @@ SCHEMA Assembly_technology_arm;
   ENTITY Assembly_bond_definition;
       name                                    : STRING;   
 --      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
-      associated_definition                   : Externally_defined_view_definition;
+      associated_definition                   : Product_view_definition_reference_with_local_representation;
       bonded_feature_1                        : bond_feature;
       bonded_feature_2                        : bond_feature;
     INVERSE
@@ -1250,7 +1340,7 @@ SCHEMA Assembly_technology_arm;
     SUBTYPE OF (Component_feature_joint);
       SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : Physical_component_feature; -- assembled_feature_select;
       SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : Physical_component_feature; -- assembled_feature_select;
-      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_item_shape; -- assembly_module_or_assembly_group_component;
+      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_shape; -- assembly_module_or_assembly_group_component;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
         associated_assembly;
@@ -1299,15 +1389,15 @@ SCHEMA Assembly_technology_arm;
 END_SCHEMA;
 
 (*
- ISO TC184/SC4/WG12 N6628 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5290
+ ISO TC184/SC4/WG12 N7945 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7382
 *)
 
 SCHEMA Associative_draughting_elements_arm;
 
-USE FROM Shape_property_assignment_arm; -- ISO/CD-TS 10303-1032
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
-USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
+USE FROM Draughting_element_arm; -- ISO/TS 10303-1310
 
   TYPE annotation_occurrence_associativity_item = SELECT
     (Fill_area,
@@ -1354,17 +1444,17 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6863 - ISO/TS 10303-1132 Associative text - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5293
+ ISO TC184/SC4/WG12 N7948 - ISO/TS 10303-1132 Associative text - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7385
 *)
 
 SCHEMA Associative_text_arm;
 
-USE FROM Appearance_assignment_arm; -- ISO/CD-TS 10303-1136
+USE FROM Appearance_assignment_arm; -- ISO/TS 10303-1136
 
 USE FROM Colour_arm;          -- ISO/TS 10303-1002
 
-USE FROM Text_appearance_arm; -- ISO/CD-TS 10303-1136
+USE FROM Text_appearance_arm; -- ISO/TS 10303-1136
 
   TYPE at_appearance_select = SELECT BASED_ON appearance_select  WITH
     (Text_style);
@@ -1455,7 +1545,8 @@ END_SCHEMA;  -- Attribute_classification_arm
 
 
 (*
- ISO TC184/SC4/WG12 N7190 - ISO/TS 10303-1801 B_spline_geometry - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8253 - ISO/TS 10303-1801 B_spline_geometry - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7190
 *)
 
 SCHEMA B_spline_geometry_arm; 
@@ -1583,8 +1674,8 @@ FUNCTION positive_surface_weights(bss: Rational_b_spline_surface) : BOOLEAN;
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N7229 - ISO/TS 10303-1651 Basic curve - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6866
+   ISO TC184/SC4/WG12 N7825 - ISO/TS 10303-1651 Basic curve - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N77388
 *)
 
 SCHEMA Basic_curve_arm;
@@ -1635,8 +1726,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N6216 - ISO/TS 10303-1773 Basic data representation - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5296
+   ISO TC184/SC4/WG12 N7951 - ISO/TS 10303-1773 Basic data representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6216
 *)
 SCHEMA Basic_data_representation_arm;
 
@@ -1702,8 +1793,8 @@ USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
 
 END_SCHEMA;
 (*
-  ISO TC184/SC4/WG12 N6872 - ISO/TS 10303-1323 Basic geometric topology - EXPRESS ARM
-  Supersedes ISO TC184/SC4/WG12 N5299
+  ISO TC184/SC4/WG12 N8256 - ISO/TS 10303-1323 Basic geometric topology - EXPRESS ARM
+  Supersedes ISO TC184/SC4/WG12 N6872
 *)
 
 SCHEMA Basic_geometric_topology_arm;
@@ -1737,8 +1828,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-ISO TC184/SC4/WG12 N7193 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6869
+ISO TC184/SC4/WG12 N7828 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7193
 *) 
 
 SCHEMA Basic_geometry_arm;
@@ -1918,8 +2009,8 @@ USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 END_SCHEMA; 
 
 (*
- ISO TC184/SC4/WG12 N6622 - ISO/TS 10303-1316 Camera view 3d - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5308
+ ISO TC184/SC4/WG12 N7699 - ISO/TS 10303-1316 Camera view 3d - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6622
 *)
 
 SCHEMA Camera_view_3d_arm;
@@ -2014,7 +2105,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Certification_arm
 (*
-   ISO TC184/SC4/WG12 N3930 - ISO/TS 10303-1661 Change management - EXPRESS ARM
+   ISO TC184/SC4/WG12 N8307 - ISO/TS 10303-1661 Change management - EXPRESS ARM
 *)
 
 SCHEMA Change_management_arm;
@@ -2088,8 +2179,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6944 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6219
+   ISO TC184/SC4/WG12 N7957 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7394
 *)
 
 SCHEMA Characteristic_arm;
@@ -2114,6 +2205,7 @@ SCHEMA Characteristic_arm;
   TYPE characteristic_data_table_cell = SELECT ( 
     Null_representation_item, 
     String_representation_item, 
+    Numerical_item_with_global_unit,
     Numerical_item_with_unit, 
     Value_list, 
     Value_set); 
@@ -2256,6 +2348,13 @@ SCHEMA Characteristic_arm;
       SELF\Representation.items : SET [1:1] OF Value_with_tolerances;
   END_ENTITY;
 
+  ENTITY Qualified_tolerance_characteristic
+    SUBTYPE OF (Tolerance_characteristic);
+      SELF\Representation.items : SET[1:4] OF Qualified_numerical_item_with_unit;
+    WHERE
+      WR1: valid_qualified_tolerance_characteristic(SELF);
+  END_ENTITY;
+
   ENTITY Range_characteristic
     SUBTYPE OF (Property_value_representation);
       SELF\Representation.items : SET[2:2] OF Numerical_item_with_unit;
@@ -2288,17 +2387,56 @@ SCHEMA Characteristic_arm;
   END_ENTITY;
 
   ENTITY Tolerance_characteristic
-    ABSTRACT SUPERTYPE OF ((ONEOF (Minimum_tolerance_characteristic,
+    ABSTRACT SUPERTYPE OF ((ONEOF (
+      Maximum_tolerance_characteristic,
+      Minimum_tolerance_characteristic,
+      Nominal_tolerance_characteristic,
+      Plus_minus_tolerance_characteristic,
+      Qualified_tolerance_characteristic,
       Statistical_tolerance_characteristic,
       Symmetrical_tolerance_characteristic,
-      Maximum_tolerance_characteristic,
-      Plus_minus_tolerance_characteristic,
-      Nominal_tolerance_characteristic)) ANDOR Length_tolerance_characteristic)
+      Typical_tolerance_characteristic
+      )) ANDOR Length_tolerance_characteristic)
     SUBTYPE OF (Property_value_representation);
     WHERE
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
       WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
+
+  ENTITY Typical_tolerance_characteristic
+    SUBTYPE OF (Tolerance_characteristic);
+      SELF\Representation.items : SET [1:1] OF Value_limit;
+    WHERE
+      WR1: SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'typical';      
+  END_ENTITY;
+
+  FUNCTION valid_qualified_tolerance_characteristic (input : Qualified_tolerance_characteristic) : BOOLEAN;
+ --no more than one of the Type_qualifier.name shall be 'nominal'
+ --no more than one of the Type_qualifier.name shall be 'typical'
+ --no more than one of the Type_qualifier.name shall be 'maximium'
+ --no more than one of the Type_qualifier.name shall be 'minimum'
+ --Type_qualifier.name shall be drawn only from 'nominal', 'typical' , 'maximium', 'minimum'
+  LOCAL
+     bag_data : BAG OF STRING := [];
+     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
+  END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
+    REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers);
+     IF 'QUALIFIED_MEASURE_ARM.TYPE_QUALIFIER' IN TYPEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j])
+      THEN
+        bag_data := bag_data + input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers[j]\Type_qualifier.name;
+     END_IF;
+    END_REPEAT;
+  END_REPEAT;
+
+  IF (SIZEOF(bag_to_set(bag_data)) = SIZEOF(bag_data)) AND
+     (VALUE_UNIQUE(bag_data)) AND 
+     (SIZEOF(valid_set * bag_data) = SIZEOF(bag_data)) 
+  THEN RETURN(TRUE);
+  END_IF;
+    
+   RETURN(FALSE);
+  END_FUNCTION; 
 
   FUNCTION valid_range(input1 : Numerical_item_with_unit;
                        input2 : Numerical_item_with_unit) : BOOLEAN;
@@ -2339,7 +2477,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- characterized_representation - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7885 - ISO/CD-TS - 10303-1805 Characterized representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7322
 *)
 
 SCHEMA Characterized_representation_arm;
@@ -2650,8 +2789,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Classification_assignment_arm
 (*
- ISO TC184/SC4/WG12 N5317 - ISO/TS 10303-1111 Classification with attributes - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4964
+ ISO TC184/SC4/WG12 N7960 - ISO/TS 10303-1111 Classification with attributes - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7397
 *)
 
 SCHEMA Classification_with_attributes_arm;
@@ -2769,27 +2908,23 @@ END_ENTITY;
 
 END_SCHEMA;  -- Colour_arm
 (*
-   ISO TC184/SC4/WG12 N6339 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5623
+   ISO TC184/SC4/WG12 N7963 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7400
 *)
 
 SCHEMA Component_feature_arm;
 
 	USE FROM Assembly_component_arm;
-	USE FROM General_part_occurrence_feature_joint_arm;
+	USE FROM Assembly_shape_arm;
 
 	TYPE cf_groupable_item = SELECT BASED_ON groupable_item WITH 
 	   (Component_feature);
 	END_TYPE; 
 
-	TYPE feature_select = EXTENSIBLE GENERIC_ENTITY SELECT
-		(General_part_feature);
-	END_TYPE;
-
   ENTITY Component_feature
     ABSTRACT SUPERTYPE
-    SUBTYPE OF (General_part_occurrence_feature);
-      definition           : OPTIONAL feature_select;
+    SUBTYPE OF (Definitional_shape_element);
+      definition           : OPTIONAL General_part_feature;
       SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
     UNIQUE
       UR1 : definition,associated_component;
@@ -2798,14 +2933,15 @@ SCHEMA Component_feature_arm;
 
   ENTITY Component_feature_joint
      ABSTRACT SUPERTYPE
-  SUBTYPE OF (Component_feature_relationship, General_component_feature_joint);
-    SELF\Shape_element_relationship.relating RENAMED feature_1 : Component_feature;
-    SELF\Shape_element_relationship.related RENAMED feature_2 : Component_feature;
-    SELF\Shape_element.containing_shape RENAMED associated_definition : Assembly_item_shape;
+  SUBTYPE OF (Component_feature_relationship, Shape_element);
+    SELF\Component_feature_relationship.relating RENAMED feature_1 : Component_feature;
+    SELF\Component_feature_relationship.related  RENAMED feature_2 : Component_feature;
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Item_shape;
     WHERE
       WR1 : feature_1 <> feature_2;
       WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
-      WR3 : SELF\Shape_element.containing_shape\Item_shape.described_element = feature_1\Shape_element.containing_shape\Item_shape.described_element;      
+      WR3 : associated_definition :=: feature_1\Shape_element.containing_shape;      
+      WR4 : associated_definition :=: feature_2\Shape_element.containing_shape;      
   END_ENTITY;
 
   ENTITY Component_feature_make_from_relationship
@@ -2832,8 +2968,8 @@ SCHEMA Component_feature_arm;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6953 - ISO/TS 10303-1656 Component grouping - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6342
+   ISO TC184/SC4/WG12 N7966 - ISO/TS 10303-1656 Component grouping - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7403
 *)
 
 SCHEMA Component_grouping_arm;
@@ -2967,8 +3103,8 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6881 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5320
+   ISO TC184/SC4/WG12 N7780 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7406
 *)
 
 SCHEMA Composite_constituent_shape_arm;
@@ -2995,6 +3131,8 @@ USE FROM Manifold_surface_arm; -- ISO/CD-TS 10303-1509
 
 USE FROM Shell_based_wireframe_arm; -- ISO/TS 10303-1502
 
+USE FROM Tessellated_geometry_arm; -- ISO/TS 10303-1819
+
 USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
   TYPE boundary_class_zone = SELECT 
@@ -3010,6 +3148,7 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
      Geometrically_bounded_wireframe_shape_representation,
      Manifold_surface_shape_representation,
      Shell_based_wireframe_shape_representation,
+     Tessellated_shape_representation,
      Three_d_geometry_set);
   END_TYPE;
 
@@ -3020,13 +3159,14 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
   END_TYPE;
 
   TYPE ply_laminate_shape = EXTENSIBLE GENERIC_ENTITY SELECT 
-    (Composite_sheet_representation,
-     Three_d_geometry_set,
-     Advanced_brep_shape_representation,
+    (Advanced_brep_shape_representation,
+     Composite_sheet_representation,
      Csg_model,
      Curve_swept_solid,
      Elementary_brep_shape_representation,
-     Faceted_brep_shape_representation);
+     Faceted_brep_shape_representation,
+     Tessellated_shape_representation,
+     Three_d_geometry_set);
   END_TYPE; 
  
   TYPE ply_piece_shape = SELECT 
@@ -3141,7 +3281,8 @@ END_SCHEMA;
 
   
 (*
- ISO TC184/SC4/WG12 N7232 - ISO/TS 10303-1525 - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7831 - ISO/TS 10303-1525 Composite surface - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7232
 *)
 
 
@@ -3296,8 +3437,8 @@ END_ENTITY;
 END_SCHEMA;  -- Configuration_item_arm
 
 (*
-	ISO TC184/SC4/WG12 N5329 - ISO/TS 10303-1131 Construction geometry - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N4934
+	ISO TC184/SC4/WG12 N7771 - ISO/TS 10303-1131 Construction geometry - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N5329
 *) 
 
 SCHEMA Construction_geometry_arm;
@@ -3332,8 +3473,8 @@ USE FROM Basic_curve_arm;    -- ISO/TS 10303-1651
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6950 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6345
+   ISO TC184/SC4/WG12 N7972 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7409
 *) 
 SCHEMA Constructive_solid_geometry_2d_arm;
  
@@ -3366,13 +3507,15 @@ USE FROM Basic_curve_arm; -- ISO/TS 10303-1651
     SUBTYPE OF (Primitive_2d);
   END_ENTITY;
 
-  ENTITY Boolean_result_2d
-    SUBTYPE OF (Detailed_geometric_model_element);
+  ENTITY Boolean_result_2d 	 
+	SUBTYPE OF (Detailed_geometric_model_element); 	 
   END_ENTITY;
-	
+	   
   ENTITY Csg_2d_model
     SUBTYPE OF (Geometric_model);
       SELF\Representation.items : SET [1:?] OF primitive_or_boolean_result_2d;   
+  WHERE
+    WR1: SELF\Geometric_model.context_of_items\Geometric_coordinate_space.dimension_count = 2;
   END_ENTITY;
 
   ENTITY Curve_style_parameters
@@ -3416,8 +3559,8 @@ USE FROM Basic_curve_arm; -- ISO/TS 10303-1651
 
 END_SCHEMA;
 (*
-ISO TC184/SC4/WG12 N6878 - ISO/TS 10303-1068 Constructive solid geometry 3d - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6228
+ISO TC184/SC4/WG12 N7822 - ISO/TS 10303-1068 Constructive solid geometry 3d - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N6878
 *) 
 
 
@@ -3432,8 +3575,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Constructive_solid_geometry_3d_arm
 (*
-   ISO TC184/SC4/WG12 N7086 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6616
+   ISO TC184/SC4/WG12 N7975 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7412
 *) 
 
 SCHEMA Contextual_shape_positioning_arm;
@@ -3560,8 +3703,8 @@ USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 END_SCHEMA;
 (*
-	ISO TC184/SC4/WG12 N7058 - ISO/TS 10303-1003 Curve appearance - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N5338
+	ISO TC184/SC4/WG12 N7672 - ISO/TS 10303-1003 Curve appearance - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N7058
 *) 
 
 SCHEMA Curve_appearance_arm; 
@@ -3635,7 +3778,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N2913 - ISO/TS 10303-1010 Date time - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7978 - ISO/TS 10303-1010 Date time - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2913
 *) 
 
 
@@ -3732,7 +3876,10 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   N - ISO/CD-TS - 10303- default_setting_association - EXPRESS ARM*)
+    ISO TC184/SC4/WG12 N7888 - ISO/CD-TS - 10303-1809 Default setting association - EXPRESS ARM
+    Supersedes ISO TC184/SC4/WG12 N7325
+*)
+    
 (* UNDER DEVELOPMENT *)
 SCHEMA Default_setting_association_arm;
 
@@ -3798,14 +3945,14 @@ END_ENTITY;
 
 END_SCHEMA;
 (*  
-ISO TC184/SC4/WG12 N4260 - ISO/TS 10303-1052 Default tolerance - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N2870
+ISO TC184/SC4/WG12 N7981 - ISO/TS 10303-1052 Default tolerance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7415
 *) 
 
 
 SCHEMA Default_tolerance_arm;
 
-USE FROM File_identification_arm;  -- ISO/TS 10303-1127
+USE FROM Document_assignment_arm; -- ISO/TS 10303-1122
 USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
 USE FROM Default_setting_association_arm;
@@ -3815,12 +3962,15 @@ TYPE cell_entry_select = SELECT
     Upper_lower_toleranced_datum);
 END_TYPE; 
 
-TYPE general_tolerance_table_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (General_tolerance_table, File);
+TYPE general_tolerance_table_select = SELECT
+   (General_tolerance_table, 
+    Document_version,
+    Document);
 END_TYPE; 
 
 TYPE limit_select = SELECT
-   (Significant_number_of_digits, 
+   (Number_of_decimal_places,
+    Significant_number_of_digits, 
     Upper_lower_limit);
 END_TYPE; 
 
@@ -3836,19 +3986,23 @@ ENTITY General_tolerances
   tolerance_class : STRING;
 END_ENTITY;
 
+ENTITY Number_of_decimal_places;
+   number_of_places_after_decimal_separator : INTEGER;
+END_ENTITY;
+ 
 ENTITY Plus_minus_toleranced_datum;
   tolerance_value : Numerical_item_with_unit;
 END_ENTITY;
 
 ENTITY Significant_number_of_digits;
-  number_of_digits : STRING;
+  number_of_digits : INTEGER;
 END_ENTITY;
 
 ENTITY Tolerance_table_cell;
-  cell_value : cell_entry_select;
+  cell_value : OPTIONAL cell_entry_select;
   description : STRING;
   limit : limit_select;
-  tolerance_class : STRING;
+  tolerance_class : OPTIONAL STRING;
   tolerance_table : General_tolerance_table;
 END_ENTITY;
 
@@ -3864,8 +4018,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Default_tolerance_arm
 (* 
-ISO TC184/SC4/WG12 N5344 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N4278
+ISO TC184/SC4/WG12 N7984 - ISO/TS 10303-1130 Derived shape element - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7418
 *) 
 
 
@@ -3893,7 +4047,9 @@ ENTITY Centre_of_symmetry
   SUPERTYPE OF (ONEOF (
     Centre_axis,
     Centre_plane,
-    Centre_point))
+    Centre_point,
+    Median_curve,
+    Median_surface))
   SUBTYPE OF (Derived_shape_element);
 END_ENTITY;
 
@@ -3929,6 +4085,11 @@ ENTITY Geometric_alignment
   SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
 END_ENTITY;
 
+ENTITY Geometric_contact
+  SUBTYPE OF (Derived_shape_element);
+  SELF\Derived_shape_element.derived_from : SET[2:2] OF Shape_element;
+END_ENTITY;
+
 ENTITY Geometric_intersection
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[2:?] OF Shape_element;
@@ -3939,6 +4100,18 @@ ENTITY Extension
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
 END_ENTITY;
 
+ENTITY Median_curve
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+ENTITY Median_surface
+  SUBTYPE OF (Centre_of_symmetry);
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
 ENTITY Parallel_offset
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
@@ -3947,11 +4120,6 @@ END_ENTITY;
 ENTITY Perpendicular_to
   SUBTYPE OF (Derived_shape_element);
   SELF\Derived_shape_element.derived_from : SET[1:1] OF Shape_element;
-END_ENTITY;
-
-ENTITY Geometric_contact
-  SUBTYPE OF (Derived_shape_element);
-  SELF\Derived_shape_element.derived_from : SET[2:2] OF Shape_element;
 END_ENTITY;
 
 ENTITY Tangent_plane
@@ -3972,16 +4140,37 @@ ENTITY Offset_shape_element
 END_ENTITY;
 
 END_SCHEMA;
+
 (*
-   ISO TC184/SC4/WG12 N6887 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6231
+ ISO TC184/SC4/WG12 N3799 - ISO/CD-TS 10303-1232 Design material aspects - EXPRESS ARM
+*)
+
+SCHEMA Design_material_aspects_arm;
+
+USE FROM Generic_material_aspects_arm;
+
+USE FROM Product_view_definition_arm;
+
+USE FROM Shape_property_assignment_arm;
+
+TYPE dma_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+  (Item_shape,
+   Product_view_definition,
+   Shape_element);
+END_TYPE;
+
+END_SCHEMA;
+
+(*
+   ISO TC184/SC4/WG12 N7987 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7421
 *)
 
 SCHEMA Design_product_data_management_arm;
 
 USE FROM Characterizable_object_arm; -- ISO/TS 10303-1765 
 USE FROM Classification_with_attributes_arm;	-- ISO/TS 10303-1111
-USE FROM Generic_material_aspects_arm;	-- ISO/TS 10303-1681
+USE FROM Design_material_aspects_arm;	-- ISO/TS 10303-1681
 USE FROM Information_rights_arm;    -- ISO/TS 10303-1241
 USE FROM Item_definition_structure_arm;	-- ISO/TS 10303-1345
 USE FROM Pre_defined_product_data_management_specializations_arm; -- ISO/TS 10303-1760
@@ -3994,11 +4183,34 @@ USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
 	
   TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
-    (Document,
-     Document_version);
+    (Activity, 
+     Activity_method, 
+     Activity_property, 
+     Applied_activity_assignment, 
+     Assembly_component_relationship, 
+     Assigned_property, 
+     Contract, 
+     Event, 
+     File,  
+     Organization, 
+     Person, 
+     Person_in_organization,
+     Product, 
+     Product_concept, 
+     Product_configuration, 
+     Product_version, 
+     Product_version_relationship, 
+     Product_view_definition, 
+     Project, 
+     View_definition_relationship);
   END_TYPE;
 
-  TYPE design_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
+  TYPE design_pdm_breakdown_of_target = SELECT BASED_ON breakdown_of_target WITH (
+    Product_concept,
+    Product_configuration);
+  END_TYPE;
+
+  TYPE design_pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
     (Certification,
      Document_definition,
      Effectivity,
@@ -4106,8 +4318,7 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
   END_TYPE;
 
   TYPE design_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
-    (Organization, 
-     Person_in_organization,
+    (organization_or_person_in_organization_select,
      Product_version,
      Work_order);
   END_TYPE;
@@ -4134,7 +4345,9 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
   END_TYPE; 
 
   TYPE design_pdm_groupable_item = SELECT BASED_ON groupable_item WITH 
-    (Group_relationship);
+    (Group_relationship,
+     Identification_assignment,
+     Name_assignment);
   END_TYPE; 
 
   TYPE design_pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_identification_item WITH 
@@ -4289,9 +4502,9 @@ END_ENTITY;
     WHERE
       WR1:  SIZEOF(QUERY (p <* Product | 
        (SIZEOF (QUERY (pv1 <*
-       USEDIN(p,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VERSION.OF_PRODUCT') |  
+       USEDIN(p,'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT') |  
        (SIZEOF (QUERY (pv2 <*
-       USEDIN(p,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VERSION.OF_PRODUCT')
+       USEDIN(p,'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT')
        |  pv1.id = pv2.id)) > 1)
        )) > 0)
        )) = 0;  
@@ -4323,15 +4536,15 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5350 - ISO/TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4702
+   ISO TC184/SC4/WG12 N7990 - ISO/TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5350
 *)
 
 SCHEMA Dimension_and_tolerance_callouts_arm;
 
-USE FROM Associative_draughting_elements_arm; -- ISO/CD-TS 10303-1311
-USE FROM Draughting_annotation_arm; -- ISO/CD-TS 10303-1206
-USE FROM Draughting_element_specialisations_arm; -- ISO/CD-TS 10303-1312
+USE FROM Associative_draughting_elements_arm; -- ISO/TS 10303-1311
+USE FROM Draughting_annotation_arm; -- ISO/TS 10303-1206
+USE FROM Draughting_element_specialisations_arm; -- ISO/TS 10303-1312
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
 
   TYPE datc_draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON draughting_model_item_definition WITH (
@@ -4353,8 +4566,8 @@ USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
   
 END_SCHEMA;
 (*
-ISO TC184/SC4/WG12 N6890 - ISO/TS 10303-1050 Dimension tolerance - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6676
+ISO TC184/SC4/WG12 N7993 - ISO/TS 10303-1050 Dimension tolerance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7427
 *) 
 
 
@@ -4364,9 +4577,6 @@ USE FROM Derived_shape_element_arm;    -- ISO/TS 10303-1130
 USE FROM Document_assignment_arm;    -- ISO/TS 10303-1122
 USE FROM Extended_measure_representation_arm;    -- ISO/TS 10303-1106
 USE FROM Value_with_unit_extension_arm;  -- ISO/TS 10303-1753
-
-TYPE dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE;
 
 TYPE adjoining_or_centred = ENUMERATION OF ( 
   adjoining,
@@ -4386,6 +4596,32 @@ TYPE dimension_value_select = SELECT
     Value_limit);
 END_TYPE; 
 
+TYPE diameter_qualifier_enumeration = ENUMERATION OF (
+  centre_outer,
+  centre_inner,
+  outer_centre,
+  outer_outer,
+  outer_inner,
+  inner_centre,
+  inner_outer,
+  inner_inner);
+END_TYPE;
+
+TYPE diameter_type = ENUMERATION OF (
+   circular_or_cylindrical_diameter,
+   spherical_diameter,
+   toroidal_minor_diameter,
+   toroidal_major_diameter,
+   toroidal_high_major_diameter,
+   toroidal_low_major_diameter);
+END_TYPE;
+
+TYPE dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE edge_of_undefined_shape_size_element = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
 TYPE geometric_dimension_modifier = EXTENSIBLE ENUMERATION OF (
   two_point_size, -- (LP) 
   local_size_defined_by_a_sphere, -- (LS)
@@ -4403,6 +4639,7 @@ TYPE geometric_dimension_modifier = EXTENSIBLE ENUMERATION OF (
   range_rank_order_size, -- (SR) 
   any_part_of_the_feature, -- 'APF' 
   any_cross_section, -- '/0'
+  specific_fixed_cross_section, -- SCS
   common_tolerance, -- 'CT'
   free_state_condition, -- (F)
   statistical, -- ASME only
@@ -4416,10 +4653,25 @@ TYPE limitation_definition_select = SELECT
     Plus_minus_bounds);
 END_TYPE; 
 
+TYPE radial_type = ENUMERATION OF (
+   circular_or_cylindrical_radius,
+   spherical_radius,
+   toroidal_minor_radius,
+   toroidal_major_radius,
+   toroidal_high_major_radius,
+   toroidal_low_major_radius);
+END_TYPE;
+
 TYPE tolerance_principle_type = ENUMERATION OF (
   envelope_requirement, 
   independency, 
   default);
+END_TYPE;
+
+TYPE undefined_edge_shape_enumeration_direction = ENUMERATION OF ( 
+  true_neighbor,               
+  false_neighbor,
+  both_neighbors);
 END_TYPE;
 
 ENTITY Angular_location
@@ -4444,17 +4696,17 @@ ENTITY Curved_size
 END_ENTITY;
 
 ENTITY Diameter_size
-  SUBTYPE OF (Dimensional_size);
+   SUBTYPE OF (Dimensional_size);
+   geometry_type : diameter_type;
 END_ENTITY;
 
 ENTITY Dimensional_size
   ABSTRACT SUPERTYPE OF (ONEOF (Angular_size,
                                 Curved_size,
                                 Diameter_size,
+                                Edge_of_undefined_shape_size,
                                 Machining_feature_size,
                                 Radial_size,
-                                Spherical_diameter_size,
-                                Spherical_radial_size,
                                 Thickness_size))
   SUBTYPE OF (Geometric_dimension);
   is_applied_to : dimension_target;
@@ -4487,6 +4739,7 @@ END_ENTITY;
 ENTITY Linear_distance
   SUBTYPE OF (Dimensional_location);
   orientation : OPTIONAL Axis_placement;
+  diameter_qualifier : OPTIONAL diameter_qualifier_enumeration;
 END_ENTITY;
 
 ENTITY Dimensional_location
@@ -4498,6 +4751,15 @@ ENTITY Dimensional_location
   directed : OPTIONAL BOOLEAN;
   origin : dimension_target;
   target : dimension_target;
+END_ENTITY;
+
+ENTITY Edge_of_undefined_shape_size
+  SUBTYPE OF (Dimensional_size);
+  orientation : undefined_edge_shape_enumeration_direction;
+  SELF\Dimensional_size.is_applied_to : edge_of_undefined_shape_size_element;
+  SELF\Geometric_dimension.dimension_value : Tolerance_range;
+UNIQUE
+  UR1 : is_applied_to, orientation;
 END_ENTITY;
 
 ENTITY Machining_feature_size
@@ -4512,23 +4774,13 @@ END_ENTITY;
 
 ENTITY Plus_minus_bounds;
   lower_bound : Value_with_unit;
-  significant_digits : OPTIONAL INTEGER;
-  upper_bound : Value_with_unit;
-  value_determination : OPTIONAL STRING;
+  upper_bound         : Value_with_unit;
 END_ENTITY;
 
 ENTITY Radial_size
-  SUBTYPE OF (Dimensional_size);
-  radius_type : OPTIONAL adjoining_or_centred;
-END_ENTITY;
-
-ENTITY Spherical_diameter_size
-  SUBTYPE OF (Dimensional_size);
-END_ENTITY;
-
-ENTITY Spherical_radial_size
-  SUBTYPE OF (Dimensional_size);
-  radius_type : OPTIONAL adjoining_or_centred;
+   SUBTYPE OF (Dimensional_size);
+   radius_type : OPTIONAL adjoining_or_centred;
+   geometry_type : radial_type;
 END_ENTITY;
 
 ENTITY Thickness_size
@@ -4538,13 +4790,13 @@ END_ENTITY;
 
 ENTITY Tolerance_range;
   lower_range : Numerical_item_with_unit;
-  significant_digits : OPTIONAL INTEGER;
   upper_range : Numerical_item_with_unit;
 END_ENTITY;
 
 END_SCHEMA;  -- Dimension_tolerance_arm
 (*
-ISO TC184/SC4/WG12 N2957 - ISO/TS 10303-1121 Document and version identification - EXPRESS ARM
+ISO TC184/SC4/WG12 N7708 - ISO/TS 10303-1121 Document and version identification - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N2957
 *)
 
 
@@ -4572,8 +4824,8 @@ END_RULE;
 
 END_SCHEMA;  -- Document_and_version_identification_arm
 (*
-ISO TC184/SC4/WG12 N7106 - ISO/TS 10303-1122 Document assignment - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N1189
+ISO TC184/SC4/WG12 N7714 - ISO/TS 10303-1122 Document assignment - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7106
 *)
 
 
@@ -4593,12 +4845,13 @@ TYPE assigned_document_select = SELECT
     File);
 END_TYPE; 
 
-TYPE documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
+  (Product_view_definition);
 END_TYPE; 
 
 ENTITY Document_assignment;
   assigned_document : assigned_document_select;
-  is_assigned_to : documented_element_select;
+  is_assigned_to : SET[1:?] OF documented_element_select;
   role : STRING;
 END_ENTITY;
 
@@ -4748,8 +5001,8 @@ END_TYPE;
 END_SCHEMA;  -- Document_management_arm
 
  (*
- ISO TC184/SC4/WG12 N6037 - ISO/TS 10303-1126 Document properties - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N3226
+ ISO TC184/SC4/WG12 N7996 - ISO/TS 10303-1126 Document properties - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7430
 *)
 
 
@@ -4838,13 +5091,13 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5353 - ISO/TS 10303-1206 Draughting annotation - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4705
+   ISO TC184/SC4/WG12 N7801 - ISO/TS 10303-1206 Draughting annotation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5353
 *)
 
 SCHEMA Draughting_annotation_arm;
 
-USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
+USE FROM Draughting_element_arm; -- ISO/TS 10303-1310
 
   TYPE da_draughting_callout_content_select = SELECT BASED_ON draughting_callout_content_select WITH 
     (Annotation_subfigure, 
@@ -4999,8 +5252,8 @@ USE FROM Curve_appearance_arm; -- ISO/CD-TS 10303-1003
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N7074 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5359
+   ISO TC184/SC4/WG12 N7675 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7074
 *)
 
 SCHEMA Draughting_element_specialisations_arm;
@@ -5092,14 +5345,14 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
   END_ENTITY;
 
   ENTITY Draughting_element
-    SUPERTYPE OF(ONEOF(
-      Datum_feature_callout,
-      Datum_target_callout, 
-      Dimension,
-      Dimension_prefix,
-      Dimension_suffix,
-      Geometric_tolerance_callout,
-      Surface_condition_callout))
+    SUPERTYPE OF(
+      Datum_feature_callout ANDOR 
+      Datum_target_callout ANDOR 
+      Dimension ANDOR 
+      Dimension_prefix ANDOR 
+      Dimension_suffix ANDOR 
+      Geometric_tolerance_callout ANDOR 
+      Surface_condition_callout)
     SUBTYPE OF(Draughting_callout);
   END_ENTITY;
 
@@ -5126,8 +5379,8 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6893 - ISO/TS 10303-1309 Drawing definition - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5362
+   ISO TC184/SC4/WG12 N7999 - ISO/TS 10303-1309 Drawing definition - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7433
 *)
 
 SCHEMA Drawing_definition_arm;
@@ -5222,7 +5475,60 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N1168 - ISO/TS 10303-1057 Effectivity - EXPRESS ARM
+   ISO TC184/SC4/WG12 N3966 - ISO/TS 10303-1673 Edge shape feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N3414
+*)
+
+SCHEMA Edge_shape_feature_arm;
+
+	USE FROM Layered_2d_shape_arm;	-- ISO/TS 10303-1693
+	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654	
+
+  TYPE board_side = ENUMERATION OF (primary, secondary); 
+  END_TYPE;
+
+  ENTITY Bevel_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
+      bevel_width : Length_tolerance_characteristic;
+      bevel_angle : Tolerance_characteristic;
+    WHERE
+      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR
+        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR
+        (SIZEOF(QUERY(it <* bevel_angle\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))
+         )) = 0);
+      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR
+        (SIZEOF(QUERY(it <* bevel_angle\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))
+           )) = 1);
+  END_ENTITY;
+
+  ENTITY Edge_shape_model
+    ABSTRACT SUPERTYPE OF (ONEOF (Bevel_edge_feature_shape_model,
+ Step_edge_feature_shape_model,
+ Radius_edge_feature_shape_model))
+    SUBTYPE OF (Planar_shape_model);
+      applied_surface : board_side;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Representation.name);
+  END_ENTITY;
+
+  ENTITY Radius_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
+      radius_length : Length_tolerance_characteristic;
+  END_ENTITY;
+
+  ENTITY Step_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
+      step_width : Length_tolerance_characteristic;
+      step_depth : Length_tolerance_characteristic;
+  END_ENTITY;
+
+END_SCHEMA;
+
+(*
+ ISO TC184/SC4/WG12 N8259 - ISO/TS 10303-1057 Effectivity - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N8002
 *)
    
 SCHEMA Effectivity_arm;
@@ -5233,8 +5539,10 @@ USE FROM Value_with_unit_arm;  -- ISO/TS 10303-1054
    
 ENTITY Dated_effectivity
   SUBTYPE OF (Effectivity);
-  start_bound : date_or_event;
+  start_bound : OPTIONAL date_or_event;
   end_bound   : OPTIONAL date_or_event;
+WHERE
+  WR1: EXISTS(start_bound) OR EXISTS(end_bound);
 END_ENTITY;
 
 ENTITY Effectivity
@@ -5277,7 +5585,7 @@ SCHEMA Effectivity_application_arm;
    
 USE FROM Effectivity_arm; -- ISO/TS 10303-1057
    
-TYPE effectivity_item = EXTENSIBLE SELECT; 
+TYPE effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT; 
 END_TYPE;
    
 ENTITY Effectivity_assignment;
@@ -5296,13 +5604,14 @@ END_ENTITY;
 END_SCHEMA;
 
 (* 
-	ISO TC184/SC4/WG12 N7089 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N6695
+	ISO TC184/SC4/WG12 N8005 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N7089
 *)
    
 SCHEMA Elemental_geometric_shape_arm;
  
 USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
+USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
 
 USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 
@@ -5311,8 +5620,9 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 	Cartesian_transformation_3d);
   END_TYPE;
 
-  TYPE geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT 
-    (Detailed_geometric_model_element);
+  TYPE geometric_model_item = SELECT 
+    (Detailed_geometric_model_element,
+     Detailed_topological_model_element);
   END_TYPE;
 
   TYPE template_definition_select = EXTENSIBLE SELECT (Geometric_model);
@@ -5441,8 +5751,8 @@ END_SCHEMA;
 
 
 (*
-ISO TC184/SC4/WG12 N6896 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6561
+ISO TC184/SC4/WG12 N8008 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N6896
 *)
    
 SCHEMA Elemental_topology_arm;
@@ -5590,7 +5900,8 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N7223- ISO/TS 10303-1527 Elementary function - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7858- ISO/TS 10303-1527 Elementary function - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7223
 *)
 
 SCHEMA Elementary_function_arm;
@@ -5767,7 +6078,8 @@ END_ENTITY;
 END_SCHEMA;  -- Event_assignment_arm
 
 (*
- ISO TC184/SC4/WG12 N7202 - ISO/TS 10303-1788 Explicit constraints - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7846 - ISO/TS 10303-1788 Explicit constraints - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7202
 *)
 
 
@@ -5845,8 +6157,8 @@ END_ENTITY;
 
 END_SCHEMA; -- Explicit_constraint_schema_arm
 (*
- ISO TC184/SC4/WG12 N7214 - ISO/TS 10303-1342 Expression - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2555
+ ISO TC184/SC4/WG12 N7861 - ISO/TS 10303-1342 Expression - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7214
 *)
 
 
@@ -5859,7 +6171,7 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
 	
 	USE FROM Generic_expression_arm;
 	USE FROM Numeric_expression_arm;
-	REFERENCE FROM Numeric_expression_arm(is_int_expr);
+	REFERENCE FROM Numeric_expression_arm(Is_int_expr);
 	
  	ENTITY Concat_expression
  	SUBTYPE OF (String_expression, Multiple_arity_generic_expression);
@@ -5888,7 +6200,7 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
  	WHERE
  	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand))
  	AND ('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index));
- 	WR2: is_int_expr (index);
+ 	WR2: Is_int_expr (index);
  	END_ENTITY;
 	
   	
@@ -5952,8 +6264,8 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
  	AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION'
  	IN TYPEOF(index2));
  	WR2: SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3;
- 	WR3: is_int_expr (index1);
- 	WR4: is_int_expr (index2);
+ 	WR3: Is_int_expr (index1);
+ 	WR4: Is_int_expr (index2);
  	END_ENTITY;
  	
  	
@@ -5963,8 +6275,8 @@ END_SCHEMA; -- Explicit_constraint_schema_arm
 	
 	END_SCHEMA; 
 (*
-   ISO TC184/SC4/WG12 N6619 - ISO/TS 10303-1667 Extended basic geometry - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5365
+   ISO TC184/SC4/WG12 N8262 - ISO/TS 10303-1667 Extended basic geometry - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6619
 *)
 
 SCHEMA Extended_basic_geometry_arm;
@@ -6005,8 +6317,8 @@ USE FROM Geometric_model_relationship_arm;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5368 - ISO/TS 10303-1776 Extended date - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4696
+   ISO TC184/SC4/WG12 N8011 - ISO/TS 10303-1776 Extended date - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5368
 *)
 SCHEMA Extended_date_arm; 
 
@@ -6079,8 +6391,8 @@ USE FROM Date_time_arm;
 
 END_SCHEMA; 
 (*
-ISO TC184/SC4/WG12 N5371 - ISO/TS 10303-1106 Extended measure representation - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N4834
+ISO TC184/SC4/WG12 N8265 - ISO/TS 10303-1106 Extended measure representation - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N5371
 *) 
 
 
@@ -6273,7 +6585,8 @@ USE FROM Plib_class_reference_arm; -- ISO/TS 10303-1291
   
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N1228 - ISO/TS 10303-1033 External model - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7678 - ISO/TS 10303-1033 External model - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N1228
 *)
 
 SCHEMA External_model_arm;
@@ -6287,26 +6600,26 @@ SUBTYPE OF (Geometric_model);
    SELF\Representation.items: SET[1:1] OF Axis_placement;
    external_file: Digital_file;
 WHERE
-WR1: SELF\Representation.context_of_items.dimension_count = 3;
+WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 3;
 WR2: SELF\Representation.context_of_items.kind = 'external';
 END_ENTITY;
 
 END_SCHEMA;
 
 (*
- ISO TC184/SC4/WG12 N6679 - ISO/TS 10303-1129 External properties - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5543
+ ISO TC184/SC4/WG12 N8014 - ISO/TS 10303-1129 External properties - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7439
 *)
 
 SCHEMA External_properties_arm;
 
-USE FROM External_library_arm; -- ISO/CD-TS 10303-1778
+USE FROM External_library_arm; -- ISO/TS 10303-1778
 
 USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 
 USE FROM Independent_property_arm; -- ISO/TS 10303-1036
 
-USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
+USE FROM Plib_class_reference_arm; -- ISO/TS 10303-1291
 
 
   TYPE external_property_select = SELECT (Plib_property_reference, External_library_property);
@@ -6333,13 +6646,13 @@ USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N5383 - ISO/TS 10303-1779 External representation item - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4744
+ ISO TC184/SC4/WG12 N7777 - ISO/TS 10303-1779 External representation item - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5383
 *)
 
 SCHEMA External_representation_item_arm;
 
-USE FROM External_library_arm; -- ISO/CD-TS 10303-1778
+USE FROM External_library_arm; -- ISO/TS 10303-1778
 
 USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
 
@@ -6353,6 +6666,12 @@ USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
     SUBTYPE OF (External_representation_item);
   END_ENTITY;
 
+  ENTITY Externally_defined_representation
+    SUBTYPE OF (Representation);
+    SELF\Representation.items : SET [1:?] OF External_representation_item;
+    external_source : External_source;
+  END_ENTITY;
+  
 END_SCHEMA;
 (*
    ISO TC184/SC4/WG12 N5386 - ISO/TS 10303-1331 External source - EXPRESS ARM
@@ -6393,6 +6712,307 @@ USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 END_SCHEMA;
 (*
+   ISO TC184/SC4/WG12 N7756 - ISO/CD-TS - 10303-1821 Externally conditioned data quality criteria - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_criteria_arm;
+
+  USE FROM Document_assignment_arm;
+
+  USE FROM Product_data_quality_criteria_arm;
+
+  USE FROM Externally_conditioned_data_quality_inspection_result_arm;
+
+  REFERENCE FROM Support_resource_arm
+    (bag_to_set);
+ 
+  TYPE ecdq_documented_element_select =  EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+   (Externally_conditioned_data_quality_criterion);
+  END_TYPE; 
+  
+  ENTITY Disallowed_assembly_relationship_usage
+    SUBTYPE OF(Use_of_restricted_functionality);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP']);
+  END_ENTITY;
+
+  ENTITY Excessive_use_of_groups
+    SUBTYPE OF(Use_of_restricted_functionality);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, ['GROUP_ARM.GROUP']);
+  END_ENTITY;
+  
+  ENTITY Excessive_use_of_layers
+    SUBTYPE OF(Use_of_restricted_functionality);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,['LAYER_ASSIGNMENT_ARM.LAYER']);
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_criteria_representation
+    SUBTYPE OF(Data_quality_criteria_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_ARM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_criterion
+    SUPERTYPE OF (ONEOF(Violation_of_agreed_conditions_on_system_environment,
+                        Miscellaneous_violation,
+                        Use_of_restricted_functionality))
+    SUBTYPE OF(Data_quality_criterion,Data_quality_measurement_requirement);
+    WHERE
+      WR1 : SIZEOF(USEDIN(SELF,
+            'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+            'DATA_QUALITY_CRITERION_ASSESSMENT_ASSOCIATION.'+
+            'CRITERION'
+            )) = 0;
+      WR2 : SIZEOF(USEDIN(SELF,
+                    'PRODUCT_DATA_QUALITY_CRITERIA_ARM.'+
+                    'DATA_QUALITY_CRITERION_MEASUREMENT_ASSOCIATION.'+
+                    'RELATING_REPRESENTATION_ITEM')) = 0;
+  END_ENTITY;
+
+  ENTITY Inappropriate_element_visibility
+    SUBTYPE OF(Miscellaneous_violation);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['APPEARANCE_ASSIGNMENT_ARM.STYLED_ELEMENT']);
+  END_ENTITY;
+
+  ENTITY Inappropriate_use_of_layer
+    SUBTYPE OF(Use_of_restricted_functionality);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['LAYER_ASSIGNMENT_ARM.LAYER']);
+  END_ENTITY;
+
+  ENTITY Inconsistent_element_reference
+    SUBTYPE OF(Miscellaneous_violation);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+    ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY Miscellaneous_violation
+    ABSTRACT SUPERTYPE OF (ONEOF(Inappropriate_element_visibility,
+                        Inconsistent_element_reference,
+                        Non_referenced_coordinate_system,
+                        Unused_shape_element,
+                        Wrong_element_name))
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  END_ENTITY;
+
+  ENTITY Non_agreed_accuracy_parameter_usage
+    SUBTYPE OF(Violation_of_agreed_conditions_on_system_environment);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+     ['FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT']);
+  END_ENTITY;
+  
+  ENTITY  Non_agreed_scale_usage
+    SUBTYPE OF(Violation_of_agreed_conditions_on_system_environment);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['ELEMENTAL_GEOMETRIC_SHAPE_ARM.CARTESIAN_TRANSFORMATION_3D']);
+  END_ENTITY;
+
+  ENTITY Non_agreed_unit_usage
+    SUBTYPE OF(Violation_of_agreed_conditions_on_system_environment);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF,
+     ['FOUNDATION_REPRESENTATION_ARM.NUMERICAL_REPRESENTATION_CONTEXT']);
+  END_ENTITY;
+
+  ENTITY Non_referenced_coordinate_system
+    SUBTYPE OF(Miscellaneous_violation);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT']);
+  END_ENTITY;
+
+  ENTITY Unused_shape_element
+    SUBTYPE OF(Miscellaneous_violation);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  ENTITY Use_of_restricted_functionality
+    ABSTRACT SUPERTYPE OF (ONEOF(Disallowed_assembly_relationship_usage,
+                        Excessive_use_of_groups,
+                        Excessive_use_of_layers,
+                        Inappropriate_use_of_layer))
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  END_ENTITY;
+  
+  ENTITY Violation_of_agreed_conditions_on_system_environment
+    ABSTRACT SUPERTYPE OF (ONEOF(Non_agreed_accuracy_parameter_usage,
+                        Non_agreed_scale_usage,
+                        Non_agreed_unit_usage))
+    SUBTYPE OF(Externally_conditioned_data_quality_criterion);
+  END_ENTITY;
+
+  ENTITY Wrong_element_name
+    SUBTYPE OF(Miscellaneous_violation);
+  WHERE
+    WR1: validate_ecdq_inspected_elements_type(SELF, 
+      ['FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM']);
+  END_ENTITY;
+
+  FUNCTION validate_ecdq_inspected_elements_type
+      (ei:Externally_conditioned_data_quality_criterion;
+       type_list:BAG OF STRING):LOGICAL;
+       LOCAL
+         edqir: SET OF
+          Externally_conditioned_data_quality_inspection_result:=[];
+         dir: SET OF
+          Data_quality_inspection_instance_report:=[];
+         ediri: SET OF
+          Externally_conditioned_Data_quality_inspection_instance_report_item:=[];
+         t_type_list:BAG OF STRING:=[];
+       END_LOCAL;
+    
+       -- STEP-1
+       -- collect all Externally_conditioned_data_quality_inspection_instance_report_item
+       -- instances associated with the given Externally_conditioned_data_quality_criterion
+       -- via Externally_conditioned_data_quality_inspection_result and
+       -- data_quality_instance_report
+  
+       edqir := QUERY(q <* bag_to_set(USEDIN(ei,
+                     'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+                     'DATA_QUALITY_INSPECTION_RESULT.'+
+                     'CRITERION_INSPECTED'))|
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT'
+              IN TYPEOF(q));
+       IF(SIZEOF(edqir) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+       REPEAT i:= 1 TO SIZEOF(edqir);
+         dir := dir + QUERY(q <* bag_to_set(USEDIN(edqir[i],
+                     'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+                     'DATA_QUALITY_INSPECTION_REPORT.'+
+                     'INSPECTION_RESULT'))|
+             'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'DATA_QUALITY_INSPECTION_INSTANCE_REPORT'
+              IN TYPEOF(q));
+       END_REPEAT;
+       IF(SIZEOF(dir) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+  
+       REPEAT i:= 1 TO SIZEOF(dir);
+         ediri := ediri + QUERY(q <* dir[i].inspected_instances|
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+
+             'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_INSTANCE_REPORT_ITEM'
+              IN TYPEOF(q));
+       END_REPEAT;
+  
+       -- STEP-2
+       -- check whether the types of inspected_elements attribute
+       -- of collected instances include all the type names 
+       -- in the type list given as an input argument of this 
+       -- function and they do not include any other type names. 
+  
+       -- If there is no instance_report_item, then this function returns true.
+       IF(SIZEOF(ediri) = 0) THEN
+         RETURN(TRUE);
+       END_IF;
+    
+       -- When reports exist, then perform checking process.
+       REPEAT i:= 1 TO SIZEOF(ediri);
+         -- If size of inspected_elements is not equal to the size of
+         -- type_list, then return false.
+         IF(SIZEOF(ediri[i].inspected_elements) <> 
+            SIZEOF(type_list)) THEN
+           RETURN(FALSE);
+         END_IF;
+         -- check all elements of type_lists 
+         -- for each elements of inspected_elements.
+         t_type_list := type_list;
+         REPEAT j:= 1 TO SIZEOF(ediri[i].inspected_elements);
+           REPEAT k:= 1 TO SIZEOF(t_type_list);
+             IF(t_type_list[k] IN
+                TYPEOF(ediri[i].inspected_elements[j])) THEN
+              t_type_list := t_type_list - t_type_list[k];
+              ESCAPE;
+             END_IF;
+           END_REPEAT;
+         END_REPEAT;
+         IF(SIZEOF(t_type_list) > 0) THEN
+           RETURN(FALSE);
+         END_IF;
+       END_REPEAT;
+    
+      RETURN(TRUE);
+  END_FUNCTION;
+
+END_SCHEMA;
+(*
+   ISO TC184/SC4/WG12 N7759 - ISO/CD-TS - 10303-1822 Externally conditioned data quality inspection result - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Externally_conditioned_data_quality_inspection_result_arm;
+
+  USE FROM Appearance_assignment_arm;
+
+  USE FROM Assembly_structure_arm;
+
+  USE FROM Elemental_geometric_shape_arm;
+
+  USE FROM Externally_conditioned_data_quality_criteria_arm;
+  
+  USE FROM Foundation_representation_arm;
+
+  USE FROM Group_arm;
+  
+  USE FROM Layer_assignment_arm;
+
+  USE FROM Product_data_quality_inspection_result_arm;
+
+  REFERENCE FROM Support_resource_arm(bag_to_set);
+
+  TYPE inspected_ecdq_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
+    (Assembly_component_relationship,
+     Axis_placement, 
+     Cartesian_transformation_3d, 
+     Group,
+     Layer,
+     Numerical_representation_context, 
+     Representation_item,
+     Styled_element);
+  END_TYPE;
+
+  ENTITY Externally_conditioned_data_quality_inspection_result_representation
+    SUBTYPE OF(Data_quality_inspection_result_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.' +
+                               'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_inspection_result
+    SUBTYPE OF(Data_quality_inspection_result);
+    WHERE
+      WR1 : 'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERIA_ARM.'+
+            'EXTERNALLY_CONDITIONED_DATA_QUALITY_CRITERION' IN TYPEOF
+            (SELF\data_quality_inspection_result.criterion_inspected);
+  END_ENTITY;
+
+  ENTITY Externally_conditioned_data_quality_inspection_instance_report_item
+    SUBTYPE OF(Data_quality_inspection_instance_report_item);
+      SELF\Data_quality_inspection_instance_report_item.inspected_elements : SET [1:?] OF inspected_ecdq_element_select;
+      WHERE
+        WR1 : SIZEOF(QUERY(i1 <* 
+                bag_to_set(USEDIN(SELF, 'PRODUCT_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ 
+                'DATA_QUALITY_INSPECTION_INSTANCE_REPORT.'+ 'INSPECTED_INSTANCES'))|
+                NOT('EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT_ARM.'+ 
+                    'EXTERNALLY_CONDITIONED_DATA_QUALITY_INSPECTION_RESULT' 
+                    IN TYPEOF(i1.inspection_result))))=0;
+  END_ENTITY;
+
+END_SCHEMA;
+(*
  ISO TC184/SC4/WG12 N1285 - ISO/TS 10303-1512 Faceted boundary representation - EXPRESS ARM
 *)
 
@@ -6407,8 +7027,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N6965 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6375
+   ISO TC184/SC4/WG12 N8017 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7442
 *)
 
 SCHEMA Feature_and_connection_zone_arm; 
@@ -6439,7 +7059,7 @@ END_ENTITY;
 
 ENTITY Feature_definition_with_connection_area
   SUBTYPE OF (Shape_feature_definition);
-  connection_area : SET [1:?] OF Connection_zone;
+  connection_area : OPTIONAL SET [1:?] OF Connection_zone;
 END_ENTITY;
 
 ENTITY Non_definitional_shape_element 	 
@@ -6546,14 +7166,15 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- form_feature_in_panel - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   ISO TC184/SC4/WG12 N7891 - ISO/CD-TS - 10303-1806 Form feature in panel - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7328
+*)
 SCHEMA Form_feature_in_panel_arm;
 
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 USE FROM Value_with_unit_extension_arm;    -- ISO/TS 10303-1753
 USE FROM Basic_geometry_arm;    -- ISO/TS 10303-1652
-USE FROM Machining_features_arm;    -- ISO/CD-TS 10303-xxxx
+USE FROM Machining_features_arm;    -- ISO/TS 10303-1814
 USE FROM Elemental_topology_arm;    -- ISO/TS 10303-1005
 
 TYPE angle_reference_enumeration = ENUMERATION OF 
@@ -6906,59 +7527,6 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-   N - ISO/CD-TS - 10303- general_part_feature - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA General_part_feature_arm;
-
-USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
-USE FROM Feature_and_connection_zone_arm; --          ISO/TS 10303-1671
-
-ENTITY Part_item_shape
-  SUBTYPE OF (Item_shape);
-  SELF\Item_shape.described_element : Part_view_definition;
-END_ENTITY;  
-
-ENTITY General_part_feature
-  SUBTYPE OF (Definitional_shape_element);
-  SELF\Shape_element.containing_shape : Part_item_shape; 
-END_ENTITY;  
-
-END_SCHEMA;
-(*
-   N - ISO/CD-TS - 10303- general_part_occurrence_feature_joint - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA General_part_occurrence_feature_joint_arm;
-
-USE FROM Item_definition_structure_arm;  --        ISO/TS 10303-1345
-USE FROM General_part_feature_arm; 
-
-ENTITY Assembly_item_shape
-  SUBTYPE OF (Part_item_shape);
-  SELF\Item_shape.described_element : Assembly_definition;
-END_ENTITY;  
-
-ENTITY Part_occurrence_item_shape
-  SUBTYPE OF (Item_shape);
-  SELF\Item_shape.described_element : Definition_based_part_occurrence;
-END_ENTITY;  
-
-ENTITY General_part_occurrence_feature
-  SUBTYPE OF (Definitional_shape_element);
-  SELF\Shape_element.containing_shape : Part_occurrence_item_shape; 
-END_ENTITY;  
-
-ENTITY General_component_feature_joint
-  SUBTYPE OF (Shape_element, Shape_element_relationship);
-  SELF\Shape_element.containing_shape : Assembly_item_shape; 
-  SELF\Shape_element_relationship.relating : General_part_occurrence_feature;
-  SELF\Shape_element_relationship.related : General_part_occurrence_feature;
-WHERE
-  WR1: relating <> related;
--- WRx : relating and related have to be for Definition_based_part_occurrence that are in the assembly_definition called out by the containing_shape
-END_ENTITY;  
-
-END_SCHEMA;
-(*
 ISO TC184/SC4/WG12 N7067 - ISO/TS 10303-1007 General surface appearance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N5398
 *) 
@@ -7023,8 +7591,8 @@ USE FROM Curve_appearance_arm; -- ISO/TS 10303-1003
 	
 END_SCHEMA;
 (* 
- ISO TC184/SC4/WG12 N7217 - ISO/TS 10303-1341 Generic expression - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2552
+ ISO TC184/SC4/WG12 N7864 - ISO/TS 10303-1341 Generic expression - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7217
 *)
 
 SCHEMA Generic_expression_arm;
@@ -7194,8 +7762,8 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5401 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4979
+   ISO TC184/SC4/WG12 N7720 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5401
 *)
 
 SCHEMA Generic_material_aspects_arm;
@@ -7258,80 +7826,8 @@ USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5404 - ISO/TS 10303-1762 Generic product occurrence - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4997
-*)
-
-SCHEMA Generic_product_occurrence_arm;
-
-  USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
-  USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
-  USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106	
-  USE FROM Specified_product_arm;	-- ISO/TS 10303-1104	
-
-  TYPE extended_value_with_unit = EXTENSIBLE SELECT (
-    Value_with_unit, 
-    Value_limit, 
-    Value_range);
-  END_TYPE;
-
-  ENTITY Definition_based_product_occurrence
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (Product_occurrence);
-      derived_from: Product_view_definition;
-    WHERE
-      WR1: SELF\Product_view_definition.defined_version = derived_from.defined_version;
-  END_ENTITY;
-
-  ENTITY Product_occurrence
-    ABSTRACT SUPERTYPE OF ((ONEOF (Definition_based_product_occurrence,
-         Specification_based_product_occurrence)) AND 
-         ONEOF (Product_occurrence_with_quantity, 
-         Single_instance))
-    SUBTYPE OF (Product_view_definition);
-    DERIVE
-      SELF\Product_view_definition.initial_context : View_definition_context := View_definition_context('','',?);
-    INVERSE
-      occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
-      view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
-    WHERE
-      WR1: SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) >= 1;
-      WR2: NOT EXISTS(SELF\Product_view_definition.additional_characterization);
-      WR3: SIZEOF(QUERY( oc <* occurrence_contexts |
-            NOT( NOT('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(oc)) OR
-                 NOT EXISTS(oc\Assembly_component_relationship.quantity))
-               )) = 0;
-  END_ENTITY;
-
-  ENTITY Product_occurrence_with_quantity
-    ABSTRACT SUPERTYPE OF (ONEOF (Quantified_instance, Selected_instance))
-    SUBTYPE OF (Product_occurrence);
-      occurrence_quantity : OPTIONAL extended_value_with_unit;
-  END_ENTITY;
-
-  ENTITY Quantified_instance
-    SUBTYPE OF (Product_occurrence_with_quantity);
-      SELF\Product_occurrence_with_quantity.occurrence_quantity : Value_with_unit;
-  END_ENTITY;
-
-  ENTITY Selected_instance
-    SUBTYPE OF (Product_occurrence_with_quantity);
-      quantity_criterion : OPTIONAL STRING;
-  END_ENTITY;
-
-  ENTITY Single_instance
-    SUBTYPE OF (Product_occurrence);
-  END_ENTITY;
-
-  ENTITY Specification_based_product_occurrence
-    ABSTRACT SUPERTYPE 
-    SUBTYPE OF (Product_occurrence);
-      SELF\Product_view_definition.defined_version : Specification_based_product_version;
-  END_ENTITY;
-
-END_SCHEMA;
-(*
- ISO TC184/SC4/WG12 N7205 - ISO/TS 10303-1789 Geometric constraints - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7849 - ISO/TS 10303-1789 Geometric constraints - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7205
 *)
 
 SCHEMA Geometric_constraints_arm;
@@ -7761,8 +8257,8 @@ END_ENTITY;
 
 END_SCHEMA; -- Geometric_constraints_arm
 (*
-   ISO TC184/SC4/WG12 N6905 - ISO/TS 10303-1403 Geometric model relationship - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6613
+   ISO TC184/SC4/WG12 N8023 - ISO/TS 10303-1403 Geometric model relationship - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6905
 *)
    
 SCHEMA Geometric_model_relationship_arm;
@@ -7811,277 +8307,301 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-ISO TC184/SC4/WG12 N6908 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6756
+ISO TC184/SC4/WG12 N8026 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7448
 *) 
 
 
 SCHEMA Geometric_tolerance_arm;
 
-USE FROM Derived_shape_element_arm;    -- ISO/TS 10303-1130
-USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
-USE FROM Value_with_unit_extension_arm;  -- ISO/TS 10303-1753
-USE FROM Support_resource_arm;
-USE FROM Shape_composition_arm;         --  ISO/TS 10303-1742
-USE FROM Dimension_tolerance_arm;    -- ISO/TS 10303-1050
-USE FROM Feature_and_connection_zone_arm;
+ USE FROM Derived_shape_element_arm;    -- ISO/TS 10303-1130
 
-TYPE affected_plane_geometric_tolerance_select = SELECT (
-  Line_profile_tolerance,
-  Parallelism_tolerance,
-  Perpendicularity_tolerance,
-  Position_tolerance,
-  Straightness_tolerance,
-  Symmetry_tolerance);
-END_TYPE;
+ USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
+
+ USE FROM Value_with_unit_extension_arm;    -- ISO/TS 10303-1753
+
+ USE FROM Support_resource_arm;    -- ISO/TS 10303-1800
+
+ USE FROM Shape_composition_arm;    -- ISO/TS 10303-1742
+
+ USE FROM Dimension_tolerance_arm;    -- ISO/TS 10303-1050
+
+ USE FROM Feature_and_connection_zone_arm;    -- ISO/TS 10303-1671
+
+
+TYPE directed_or_oriented_geometric_tolerance_select = SELECT
+    (Line_profile_tolerance, 
+    Parallelism_tolerance, 
+    Perpendicularity_tolerance, 
+    Position_tolerance, 
+    Straightness_tolerance, 
+    Symmetry_tolerance);
+END_TYPE; 
 
 TYPE area_unit_type = EXTENSIBLE ENUMERATION OF 
    (circular,
     square,
     rectangular);
+END_TYPE; 
+
+TYPE collection_plane_orientation = EXTENSIBLE ENUMERATION OF
+   (perpendicular, 
+    parallel);
 END_TYPE;
 
 TYPE common_datum_list = LIST[1:?] OF Datum_reference_element;
-END_TYPE;
+END_TYPE; 
+
+TYPE datum_or_common_datum = SELECT
+    (common_datum_list, 
+    Datum);
+END_TYPE; 
+
+TYPE datum_reference_modifier = EXTENSIBLE SELECT
+    (Datum_reference_modifier_with_value, 
+    simple_datum_reference_modifier);
+END_TYPE; 
 
 TYPE datum_reference_modifier_type = EXTENSIBLE ENUMERATION OF 
    (circular_or_cylindrical,
     spherical,
-    distance);
+    distance,
+    projected);
 END_TYPE; 
 
-TYPE datum_or_common_datum = SELECT (
-  Common_datum_list, 
-  Datum);
+TYPE directed_tolerance_zone_type = ENUMERATION OF
+   (perpendicular, 
+    parallel, 
+    including);
 END_TYPE;
 
-TYPE datum_reference_modifier = EXTENSIBLE SELECT (
-  datum_reference_modifier_with_value, 
-  simple_datum_reference_modifier);
-END_TYPE;
-
-TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT (
-  Dimensional_location,
-  Dimensional_size);
-END_TYPE;
-
-TYPE geometrical_tolerance_modifier = EXTENSIBLE ENUMERATION OF ( 
-  maximum_material_requirement,
-  least_material_requirement,
-  reciprocity_requirement,
-  any_cross_section,
-  free_state,
-  common_zone,
-  minor_diameter,
-  major_diameter,
-  pitch_diameter,
-  line_element,
-  not_convex,
-  statistical_tolerance,
-  tangent_plane,
-  each_radial_element);
+TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
+   (maximum_material_requirement,
+    least_material_requirement,
+    reciprocity_requirement,
+    any_cross_section,
+    free_state,
+    common_zone,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter,
+    line_element,
+    not_convex,
+    statistical_tolerance,
+    tangent_plane,
+    each_radial_element,
+    separate_requirement);
 END_TYPE; 
 
-TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF ( 
-  free_state,
-  basic,
-  translation,
-  least_material_requirement,
-  maximum_material_requirement,
-  point,
-  line,
-  plane,
-  orientation,
-  any_cross_section,
-  contacting_feature,
-  distance_variable,
-  degree_of_freedom_constraint_x,
-  degree_of_freedom_constraint_y,
-  degree_of_freedom_constraint_z,
-  degree_of_freedom_constraint_u,
-  degree_of_freedom_constraint_v,
-  degree_of_freedom_constraint_w);
+TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Dimensional_location, 
+    Dimensional_size);
 END_TYPE; 
 
-TYPE tolerance_zone_type = ENUMERATION OF ( 
-  within_a_circle,               
-  between_two_concentric_circles,
-  between_two_equidistant_curves,
-  within_a_cylinder,
-  between_two_coaxial_cylinders,
-  between_two_equidistant_surfaces,
-  non_uniform,
-  cylindrical_or_circular,
-  spherical, 
-  not_known);
+TYPE oriented_tolerance_zone_type = ENUMERATION OF
+   (perpendicular, 
+    parallel, 
+    angular);
 END_TYPE;
+
+TYPE simple_datum_reference_modifier = EXTENSIBLE ENUMERATION OF 
+   (free_state,
+    basic,
+    translation,
+    least_material_requirement,
+    maximum_material_requirement,
+    point,
+    line,
+    plane,
+    orientation,
+    any_cross_section,
+    any_longitudinal_section,
+    contacting_feature,
+    distance_variable,
+    degree_of_freedom_constraint_x,
+    degree_of_freedom_constraint_y,
+    degree_of_freedom_constraint_z,
+    degree_of_freedom_constraint_u,
+    degree_of_freedom_constraint_v,
+    degree_of_freedom_constraint_w,
+    minor_diameter,
+    major_diameter,
+    pitch_diameter);
+END_TYPE; 
+
+TYPE tolerance_zone_target = SELECT
+    (Dimensional_location, 
+    Dimensional_size, 
+    General_datum_reference, 
+    Geometric_tolerance);
+END_TYPE; 
+
+TYPE tolerance_zone_type = ENUMERATION OF 
+   (within_a_circle,
+    between_two_concentric_circles,
+    between_two_equidistant_curves,
+    within_a_cylinder,
+    between_two_coaxial_cylinders,
+    between_two_equidistant_surfaces,
+    non_uniform,
+    cylindrical_or_circular,
+    spherical,
+    not_known);
+END_TYPE; 
 
 ENTITY Affected_plane_tolerance_zone
-  SUBTYPE OF (Tolerance_zone);
-  SELF\Tolerance_zone.zone_for : SET[1:?] OF affected_plane_geometric_tolerance_select;
-  affected_plane : Axis_placement_shape_element;
+   SUBTYPE OF (Directed_or_oriented_tolerance_zone);
+   affected_plane : Axis_placement_shape_element;
 END_ENTITY;
 
 ENTITY All_around_shape_element
-  SUBTYPE OF (Composite_shape_element);
+   SUBTYPE OF (Continuous_shape_element);
 END_ENTITY;
 
-ENTITY Axis_placement_shape_element
-  SUBTYPE OF (Associated_shape_element);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Axis_placement := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+ENTITY All_around_shape_element_along_collection_plane
+   SUBTYPE OF (All_around_shape_element);
+   base : Datum_system;
+   orientation : collection_plane_orientation;  
 END_ENTITY;
 
 ENTITY Angularity_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
+END_ENTITY;
+
+ENTITY Axis_placement_shape_element
+   SUBTYPE OF (Associated_shape_element);
+DERIVE
+   SELF\Associated_shape_element.associated_item : Axis_placement := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
 END_ENTITY;
 
 ENTITY Between_shape_element
-  SUBTYPE OF (Continuous_shape_element);
+   SUBTYPE OF (Continuous_shape_element);
+   start_features : SET[1:?] OF Definitional_shape_element;
+   end_features : SET[1:?] OF Definitional_shape_element;
 END_ENTITY;
 
 ENTITY Circular_runout_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  angle : OPTIONAL REAL;
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   angle : OPTIONAL REAL;
+   datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Coaxiality_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Concentricity_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
 END_ENTITY;
 
 ENTITY Contacting_feature
-  SUBTYPE OF (Non_definitional_shape_element);
+   SUBTYPE OF (Non_definitional_shape_element);
 END_ENTITY;
 
 ENTITY Continuous_shape_element
-  SUBTYPE OF (Composite_shape_element);
+   SUPERTYPE OF ( ONEOF (Between_shape_element, All_around_shape_element) )
+   SUBTYPE OF (Composite_shape_element);
 END_ENTITY;
 
 ENTITY Cylindricity_tolerance
-  SUBTYPE OF (Geometric_tolerance);
+   SUBTYPE OF (Geometric_tolerance);
 END_ENTITY;
 
 ENTITY Datum
-  SUBTYPE OF (Shape_element);
-  identification : identifier;
-END_ENTITY;
-
-ENTITY Datum_axis
-  SUBTYPE OF (Situation_feature, Axis_placement_shape_element);
-END_ENTITY;
-
-ENTITY Datum_plane
-  SUBTYPE OF (Situation_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
-END_ENTITY;
-
-ENTITY Datum_point
-  SUBTYPE OF (Situation_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Cartesian_point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
-END_ENTITY;
-
-ENTITY Situation_feature
-  ABSTRACT SUPERTYPE OF (ONEOF (Datum_axis, Datum_plane, Datum_point))
-  SUBTYPE OF (Non_definitional_shape_element, Associated_shape_element);
-  owner : Datum_reference_compartment;
+   SUBTYPE OF (Shape_element);
+   identification : identifier;
 END_ENTITY;
 
 ENTITY Datum_feature
-  ABSTRACT SUPERTYPE OF (ONEOF (
-    Dimensional_location_with_datum_feature,
-    Dimensional_size_with_datum_feature,
-    Nominal_datum_feature,
-    Datum_feature_of_size))
-  SUBTYPE OF (Shape_element);
-  of_datum : Datum;
+   SUPERTYPE OF (ONEOF (Dimensional_location_with_datum_feature,
+                       Dimensional_size_with_datum_feature))
+   SUBTYPE OF (Definitional_shape_element);
+   of_datum : Datum;
 UNIQUE
-  UR1: of_datum;
-END_ENTITY;
-   
-ENTITY Dimensional_location_with_datum_feature
-  SUBTYPE OF (Datum_feature, Dimensional_location);
+   UR1: of_datum;
 END_ENTITY;
 
-ENTITY Dimensional_size_with_datum_feature
-  SUBTYPE OF (Datum_feature, Dimensional_size);
+ENTITY Datum_reference_compartment
+   SUBTYPE OF (General_datum_reference);
+   point_situation_feature : OPTIONAL Point_shape_element;
+   plane_situation_feature : OPTIONAL Plane_shape_element;
+   straight_line_situation_feature : OPTIONAL Axis_placement_shape_element;
+INVERSE
+   owner : Datum_system FOR constituents;
 END_ENTITY;
 
-ENTITY Nominal_datum_feature
-  SUBTYPE OF (Datum_feature, Definitional_shape_element);
-END_ENTITY;
-   
-ENTITY Datum_feature_of_size
-  SUBTYPE OF (Datum_feature, Centre_of_symmetry);
+ENTITY Datum_reference_element
+   SUBTYPE OF (General_datum_reference);
+DERIVE
+   usage : General_datum_reference := sts_get_general_datum_reference(SELF);
+WHERE
+   WR1: SELF <> usage;
+   WR2: EXISTS(usage);
 END_ENTITY;
 
 ENTITY Datum_reference_modifier_with_value;
-  modifier_type : datum_reference_modifier_type;
-  modifier_value : Length_data_element;
-END_ENTITY;
-
-ENTITY Datum_target
-  ABSTRACT SUPERTYPE OF (ONEOF (Placed_target, Target_area, Target_curve))
-  SUBTYPE OF (Shape_element);
-  target_id : STRING;
-  movement_direction : OPTIONAL Direction;
-  of_datum : Datum;
-  target_feature : OPTIONAL Shape_element;
-UNIQUE
-  UR1: of_datum, target_id;
+   modifier_type : datum_reference_modifier_type;
+   modifier_value : Length_data_element;
 END_ENTITY;
 
 ENTITY Datum_system
-  SUBTYPE OF (Non_definitional_shape_element);
-  constituents : LIST [1:3] OF UNIQUE Datum_reference_compartment;
---WHERE
---  WR1: SELF\shape_aspect.product_definitional = FALSE;
-END_ENTITY;    
+   SUBTYPE OF (Non_definitional_shape_element);
+   constituents : LIST[1:3] OF UNIQUE Datum_reference_compartment;
+END_ENTITY;
 
 ENTITY Datum_system_with_associated_model_coordinate_system
-  SUBTYPE OF (Axis_placement_shape_element, Datum_system);
-END_ENTITY;  
+   SUBTYPE OF (Axis_placement_shape_element, Datum_system);
+END_ENTITY;
 
-ENTITY General_datum_reference
-  ABSTRACT SUPERTYPE OF (ONEOF (Datum_reference_compartment, Datum_reference_element))
-  SUBTYPE OF (Non_definitional_shape_element);
-  base : datum_or_common_datum;
-  modifiers : OPTIONAL SET [1:?] OF datum_reference_modifier;
-END_ENTITY;  
+ENTITY Datum_target
+   ABSTRACT SUPERTYPE OF (ONEOF (Placed_target,
+                                Target_area,
+                                Target_curve))
+   SUBTYPE OF (Shape_element);
+   target_id : STRING;
+   movement_direction : OPTIONAL Direction;
+   of_datum : Datum;
+   target_feature : OPTIONAL Shape_element;
+UNIQUE
+   UR1: of_datum, target_id;
+END_ENTITY;
 
-ENTITY Datum_reference_compartment
-  SUBTYPE OF (General_datum_reference);
-INVERSE
-  owner : Datum_system FOR constituents;  
-  axis  : SET[0:1] OF Datum_axis for owner;
-  plane : SET[0:1] OF Datum_plane for owner;
-  point : SET[0:1] OF Datum_point for owner;
-END_ENTITY;  
+ENTITY Dimensional_location_with_datum_feature
+   SUBTYPE OF (Datum_feature, Dimensional_location);
+END_ENTITY;
 
-ENTITY Datum_reference_element
-  SUBTYPE OF (General_datum_reference);
- DERIVE
-  usage : General_datum_reference := sts_get_general_datum_reference(SELF);
-WHERE
-  WR1: SELF <> usage;
-  WR2: EXISTS(usage);   
+ENTITY Dimensional_size_with_datum_feature
+   SUBTYPE OF (Datum_feature, Dimensional_size);
+END_ENTITY;
+
+ENTITY Directed_or_oriented_tolerance_zone
+  ABSTRACT SUPERTYPE OF ( ONEOF (Tolerance_zone_with_datum, Affected_plane_tolerance_zone))
+  SUBTYPE OF (Tolerance_zone);
+   SELF\Tolerance_zone.zone_for : SET[1:?] OF directed_or_oriented_geometric_tolerance_select;
 END_ENTITY;  
+  
+ENTITY Directed_tolerance_zone
+  SUBTYPE OF (Tolerance_zone_with_datum);
+  direction : directed_tolerance_zone_type;
+END_ENTITY;
 
 ENTITY Flatness_tolerance
-  SUBTYPE OF (Geometric_tolerance);
+   SUBTYPE OF (Geometric_tolerance);
+END_ENTITY;
+
+ENTITY General_datum_reference
+   ABSTRACT SUPERTYPE OF (ONEOF (Datum_reference_compartment,
+                                Datum_reference_element))
+   SUBTYPE OF (Non_definitional_shape_element);
+   base : datum_or_common_datum;
+   modifiers : OPTIONAL SET[1:?] OF datum_reference_modifier;
 END_ENTITY;
 
 ENTITY Geometric_tolerance
-  ABSTRACT SUPERTYPE OF (ONEOF (Angularity_tolerance,
+   ABSTRACT SUPERTYPE OF (ONEOF (Angularity_tolerance,
                                 Circular_runout_tolerance,
                                 Coaxiality_tolerance,
                                 Concentricity_tolerance,
@@ -8096,189 +8616,215 @@ ENTITY Geometric_tolerance
                                 Surface_profile_tolerance,
                                 Symmetry_tolerance,
                                 Total_runout_tolerance));
-  name : OPTIONAL STRING;
-  applied_to : geometric_tolerance_target;
-  modifiers : SET[1:?] OF geometrical_tolerance_modifier;
-  qualifying_note : OPTIONAL STRING;
-  first_unit_size : OPTIONAL Length_data_element;
-  area_unit_type : OPTIONAL area_unit_type;
-  second_unit_size : OPTIONAL Length_data_element;
-  significant_digits : OPTIONAL INTEGER;
-  tolerance_value : Value_with_unit;
-  value_determination : OPTIONAL STRING;
-  unequally_disposed_tolerance_zone_displacement : OPTIONAL Length_data_element;
+   id : OPTIONAL identifier;
+   name : OPTIONAL label;
+   applied_to : geometric_tolerance_target;
+   modifiers : SET[1:?] OF geometric_tolerance_modifier;
+   qualifying_note : OPTIONAL STRING;
+   first_unit_size : OPTIONAL Length_data_element;
+   area_unit_type : OPTIONAL area_unit_type;
+   second_unit_size : OPTIONAL Length_data_element;
+   tolerance_value : Value_with_unit;
+   unequally_disposed_tolerance_zone_displacement : OPTIONAL Length_data_element;
 WHERE
-  WR1: (NOT (EXISTS(first_unit_size))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(first_unit_size.value_component));
-  WR2: (NOT (EXISTS(tolerance_value))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
-  WR3: (NOT (EXISTS(significant_digits))) OR (significant_digits > 0);
+   WR1: (NOT (EXISTS(first_unit_size))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(first_unit_size.value_component));
 END_ENTITY;
 
 ENTITY Geometric_tolerance_relationship;
-  relation_type : STRING;
-  relating : Geometric_tolerance;
-  related : Geometric_tolerance;
+   relation_type : STRING;
+   relating : Geometric_tolerance;
+   related : Geometric_tolerance;
 END_ENTITY;
 
 ENTITY Line_profile_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : OPTIONAL Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : OPTIONAL Datum_system;
 INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Non_uniform_zone_definition
-  SUBTYPE OF (Tolerance_zone_definition);
+   SUBTYPE OF (Tolerance_zone_definition);
 END_ENTITY;
 
 ENTITY Parallelism_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
 INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Perpendicularity_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : OPTIONAL Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : OPTIONAL Datum_system;
 INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Placed_target
-  ABSTRACT SUPERTYPE OF (ONEOF (Target_circle,
-  								Target_circular_curve,
+   ABSTRACT SUPERTYPE OF (ONEOF (Target_circle,
+                                Target_circular_curve,
                                 Target_point,
                                 Target_rectangle,
                                 Target_straight_line))
-  SUBTYPE OF (Datum_target);
-  defined_in : Geometric_coordinate_space;
-  parameter_reference : Axis_placement;
+   SUBTYPE OF (Datum_target);
+   defined_in : Geometric_coordinate_space;
+   parameter_reference : Axis_placement;
+END_ENTITY;
+
+ENTITY Plane_shape_element
+   SUBTYPE OF (Associated_shape_element);
+DERIVE
+   SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+END_ENTITY;
+
+ENTITY Point_shape_element
+   SUBTYPE OF (Associated_shape_element);
+DERIVE
+   SELF\Associated_shape_element.associated_item : Point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
 END_ENTITY;
 
 ENTITY Position_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
 INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Projected_zone_definition
-  SUBTYPE OF (Tolerance_zone_definition);
-  projection_end : Shape_element;
-  projection_length : Length_data_element;
+   SUBTYPE OF (Tolerance_zone_definition);
+   projection_end : Shape_element;
+   projection_length : Length_data_element;
 END_ENTITY;
 
 ENTITY Projected_zone_definition_with_offset
-  SUBTYPE OF (Projected_zone_definition);
-  offset : Length_data_element;
+   SUBTYPE OF (Projected_zone_definition);
+   offset : Length_data_element;
 END_ENTITY;
 
 ENTITY Roundness_tolerance
-  SUBTYPE OF (Geometric_tolerance);
+   SUBTYPE OF (Geometric_tolerance);
 END_ENTITY;
 
-ENTITY Straightness_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
-END_ENTITY;
-
-ENTITY Surface_profile_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : OPTIONAL Datum_system;
-END_ENTITY;
-
-ENTITY Symmetry_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  datum_system : Datum_system;
-INVERSE
-  tolerance_zone_with_affected_plane : SET [0:1] OF Affected_plane_tolerance_zone FOR zone_for;
-END_ENTITY;
-
-ENTITY Target_area
-  SUBTYPE OF (Datum_target);
-  is_defined_by : Shape_element;
-END_ENTITY;
-
-ENTITY Target_circle
-  SUBTYPE OF (Placed_target);
-  diameter : Numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Target_circular_curve
-  SUBTYPE OF (Placed_target);
-  diameter : Numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Target_curve
-  SUBTYPE OF (Datum_target);
-  is_defined_by : Shape_element;
-END_ENTITY;
-
-ENTITY Target_point
-  SUBTYPE OF (Placed_target);
-END_ENTITY;
-
-ENTITY Target_rectangle
-  SUBTYPE OF (Placed_target);
-  target_length : Numerical_item_with_unit;
-  target_width : Numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Target_straight_line
-  SUBTYPE OF (Placed_target);
-  target_length : Numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Tolerance_zone
-  SUBTYPE OF (Shape_element);
-  form_type : tolerance_zone_type;
-  zone_for : SET[1:?] OF Geometric_tolerance;
-END_ENTITY;
-
-ENTITY Tolerance_zone_definition
-  SUPERTYPE OF (ONEOF (Projected_zone_definition,
-                       Non_uniform_zone_definition,
-                       Runout_zone_definition));
-  zone : Tolerance_zone;
-  boundaries : SET[0:?] OF Shape_element;
+ENTITY Oriented_tolerance_zone
+  SUBTYPE OF (Tolerance_zone_with_datum);
+  orientation : oriented_tolerance_zone_type;
+  angle : OPTIONAL Angle_data_element;
+WHERE
+  WR1 : (orientation <> oriented_tolerance_zone_type.angular) XOR EXISTS(angle);
 END_ENTITY;
 
 ENTITY Runout_zone_definition
-  SUBTYPE OF (Tolerance_zone_definition);
-  angle : Angle_data_element;
-  orientation_defining_relationship : OPTIONAL Shape_element_relationship;
+   SUBTYPE OF (Tolerance_zone_definition);
+   angle : Angle_data_element;
+   orientation_defining_relationship : OPTIONAL Shape_element_relationship;
 END_ENTITY;
+
+ENTITY Straightness_tolerance
+   SUBTYPE OF (Geometric_tolerance);
+INVERSE
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
+END_ENTITY;
+
+ENTITY Surface_profile_tolerance
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : OPTIONAL Datum_system;
+END_ENTITY;
+
+ENTITY Symmetry_tolerance
+   SUBTYPE OF (Geometric_tolerance);
+   datum_system : Datum_system;
+INVERSE
+   directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
+END_ENTITY;
+
+ENTITY Target_area
+   SUBTYPE OF (Datum_target);
+   is_defined_by : Shape_element;
+END_ENTITY;
+
+ENTITY Target_circle
+   SUBTYPE OF (Placed_target);
+   diameter : Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Target_circular_curve
+   SUBTYPE OF (Placed_target);
+   diameter : Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Target_curve
+   SUBTYPE OF (Datum_target);
+   is_defined_by : Shape_element;
+END_ENTITY;
+
+ENTITY Target_point
+   SUBTYPE OF (Placed_target);
+END_ENTITY;
+
+ENTITY Target_rectangle
+   SUBTYPE OF (Placed_target);
+   target_length : Numerical_item_with_unit;
+   target_width : Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Target_straight_line
+   SUBTYPE OF (Placed_target);
+   target_length : Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Tolerance_zone
+   SUBTYPE OF (Shape_element);
+   form_type : tolerance_zone_type;
+   zone_for : SET[1:?] OF tolerance_zone_target;
+END_ENTITY;
+
+ENTITY Tolerance_zone_with_datum
+  SUPERTYPE OF (ONEOF (Directed_tolerance_zone, Oriented_tolerance_zone))
+  SUBTYPE OF (Directed_or_oriented_tolerance_zone);
+  datum_reference : Datum_system;
+END_ENTITY;
+
+ENTITY Tolerance_zone_definition
+   SUPERTYPE OF (ONEOF (Projected_zone_definition,
+                       Non_uniform_zone_definition,
+                       Runout_zone_definition));
+   zone : Tolerance_zone;
+   boundaries : SET[0:?] OF Shape_element;
+END_ENTITY;
+ 
 
 ENTITY Total_runout_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  angle : Angle_data_element;
-  datum_system : Datum_system;
+   SUBTYPE OF (Geometric_tolerance);
+   angle : Angle_data_element;
+   datum_system : Datum_system;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element; 
-  (ONEOF (
-    All_around_shape_element,
-    Continuous_shape_element,
-    Composite_group_shape_element
-  ));
-END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element;
+   ONEOF (Continuous_shape_element,
+         Composite_group_shape_element);
+ END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
-  ONEOF (Datum,
-         Datum_feature,
-         Datum_target,
-         Tolerance_zone);
-END_SUBTYPE_CONSTRAINT;
+SUBTYPE_CONSTRAINT gl_associated_shape_element_subtypes FOR Associated_shape_element;
+   ONEOF (Axis_placement_shape_element,
+         Plane_shape_element,
+         Point_shape_element);
+ END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT gl_non_definitional_shape_element_subtypes FOR Non_definitional_shape_element;
-  ONEOF (Contacting_feature,
+   ONEOF (Contacting_feature,
          Datum_system,
          General_datum_reference);
-END_SUBTYPE_CONSTRAINT;
+ END_SUBTYPE_CONSTRAINT;
 
-FUNCTION sts_get_general_datum_reference(input : Datum_reference_element) : General_datum_reference;
-    LOCAL
+SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
+   ONEOF (Datum,
+         Datum_target,
+         Tolerance_zone);
+ END_SUBTYPE_CONSTRAINT;
+
+FUNCTION sts_get_general_datum_reference
+ (input : Datum_reference_element) : General_datum_reference; LOCAL
       general_datum_reference_bag : BAG OF General_datum_reference :=
       (USEDIN(input, 'GEOMETRIC_TOLERANCE_ARM.' + 'GENERAL_DATUM_REFERENCE.' + 'BASE'));
     END_LOCAL;
@@ -8287,8 +8833,7 @@ FUNCTION sts_get_general_datum_reference(input : Datum_reference_element) : Gene
       RETURN (general_datum_reference_bag[1]);
     ELSE
       RETURN (?);
-    END_IF;
-END_FUNCTION;
+    END_IF; END_FUNCTION; 
 
 END_SCHEMA;  -- Geometric_tolerance_arm
 (*
@@ -8319,7 +8864,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- ISO TC184/SC4/WG12 N7235 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7834 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7235
 *)
 
 SCHEMA Geometrically_bounded_surface_arm;
@@ -8423,8 +8969,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Identification_assignment_arm
 (*  
-   ISO TC184/SC4/WG12 N5407 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4940
+   ISO TC184/SC4/WG12 N8232 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5407
 *)
 SCHEMA Incomplete_data_reference_mechanism_arm;
 
@@ -8487,8 +9033,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Independent_property_representation_arm
 (*
- ISO TC184/SC4/WG12 N2637 - ISO/TS 10303-1350 Inertia characteristics - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2074
+ ISO TC184/SC4/WG12 N8029 - ISO/TS 10303-1350 Inertia characteristics - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2637
 *)
 
 SCHEMA Inertia_characteristics_arm;
@@ -8623,16 +9169,14 @@ END_ENTITY;
 END_SCHEMA;  -- Information_rights_arm
 
 (*
- ISO TC184/SC4/WG12 N6911 - ISO/TS 10303-1345 Item definition structure - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N6240
+ ISO TC184/SC4/WG12 N7732 - ISO/TS 10303-1345 Item definition structure - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6911
 *)
 
 SCHEMA Item_definition_structure_arm;
 
 USE FROM Effectivity_application_arm; -- ISO/TS 10303-1059
-
-USE FROM Part_occurrence_arm; -- ISO/TS 10303-1715
-
+USE FROM Product_occurrence_arm; -- ISO/TS 10303-1715
 USE FROM Product_structure_arm; -- ISO/TS 10303-1134
 
   TYPE effectivity_item_for_replacement  = SELECT BASED_ON effectivity_item WITH
@@ -8640,7 +9184,7 @@ USE FROM Product_structure_arm; -- ISO/TS 10303-1134
   END_TYPE;
 
   ENTITY Assembled_part_association
-    SUBTYPE OF (Assembly_component_relationship, Part_occurrence_definition_relationship);
+    SUBTYPE OF (Assembly_component_relationship);
       SELF\Product_occurrence_definition_relationship.relating_view : Assembly_definition;
   END_ENTITY;
 
@@ -8670,7 +9214,7 @@ USE FROM Product_structure_arm; -- ISO/TS 10303-1134
     WHERE 
       WR1: SIZEOF( QUERY( pdr <* Part_definition_relationship | 
         (pdr\View_definition_relationship.relation_type = 'definition replacement') AND 
-        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))
+        (SIZEOF( USEDIN(pdr,'EFFECTIVITY_APPLICATION_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))
 	     = 0; 
   END_RULE; 
 
@@ -8685,7 +9229,9 @@ USE FROM Product_structure_arm; -- ISO/TS 10303-1134
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- kinematic_analysis_control_and_result - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7900 - ISO/CD-TS - 10303-1817 Kinematic analysis control and result - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7337
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Kinematic_analysis_control_and_result_arm;
 
@@ -8746,7 +9292,9 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- kinematic_motion_representation - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7903 - ISO/CD-TS - 10303-1796 Kinematic motion representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7340
+*)
 
 SCHEMA Kinematic_motion_representation_arm;
 
@@ -8798,8 +9346,8 @@ END_ENTITY;
 
 ENTITY Link_motion_relationship
   SUBTYPE OF (Definitional_representation_relationship, Geometric_model_relationship_with_transformation);
-  SELF\Representation_relationship.rep_1 : link_or_shape_representation;
-  SELF\Representation_relationship.rep_2 : Link_motion_representation_along_path;
+  SELF\Geometric_model_relationship.rep_1 : link_or_shape_representation;
+  SELF\Geometric_model_relationship.rep_2 : Link_motion_representation_along_path;
   transformation_operator : Link_motion_transformation;
 WHERE
   WR1: transformation_operator.transform_item_1 IN rep_1.items;
@@ -8940,7 +9488,9 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- kinematic_state - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7906 - ISO/CD-TS - 10303-1798 Kinematic state - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7343
+*)
 
 SCHEMA Kinematic_state_arm;
 
@@ -9159,7 +9709,9 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- kinematic_structure - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7909 - ISO/CD-TS - 10303-1797 Kinematic structure - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7346
+*)
 
 SCHEMA Kinematic_structure_arm;
 
@@ -9615,6 +10167,18 @@ WHERE
        (lower_limit_actual_translation_y < upper_limit_actual_translation_y);
 END_ENTITY;
 
+ENTITY Tool_attachment_point_frame 
+  SUBTYPE OF (Axis_placement_3d);
+DERIVE  
+  SELF\Representation_item.name : label := ?;
+END_ENTITY;  
+
+ENTITY Tool_centre_point_frame
+  SUBTYPE OF (Axis_placement_3d);
+DERIVE  
+  SELF\Representation_item.name : label := ?;
+END_ENTITY;  
+
 ENTITY Unconstrained_pair
   SUBTYPE OF (Low_order_kinematic_pair);
 DERIVE  
@@ -9901,9 +10465,17 @@ SUBTYPE_CONSTRAINT kss_representation_subtypes FOR Representation;
          Geometric_model);
 END_SUBTYPE_CONSTRAINT;
 
+
+SUBTYPE_CONSTRAINT ks_axis_placement_3d_subtypes FOR Axis_placement_3d;
+  ONEOF (Tool_attachment_point_frame,
+         Tool_centre_point_frame);
+END_SUBTYPE_CONSTRAINT;
+
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- kinematic_topology - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7912 - ISO/CD-TS - 10303-1799 Kinematic topology - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7349
+*)
 
 SCHEMA Kinematic_topology_arm;
 
@@ -10071,8 +10643,36 @@ USE FROM Group_arm;	-- ISO/TS 10303-1113
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- machining_features - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   ISO TC184/SC4/WG12 N7762 - ISO/TS 10303-1693 Layered 2d shape - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6420
+*)
+
+SCHEMA Layered_2d_shape_arm;
+
+	USE FROM Constructive_solid_geometry_2d_arm;	-- ISO/TS 10303-1731
+	USE FROM Wireframe_2d_arm; 	-- ISO/TS 10303-1347
+	USE FROM Shape_feature_arm;	-- ISO/TS 10303-xxxx
+
+  ENTITY Planar_projected_shape_model
+    SUBTYPE OF (Planar_shape_model);
+    WHERE
+      WR1 : NOT EXISTS(SELF\Representation.name);
+  END_ENTITY;
+
+  ENTITY Planar_shape_model
+    ABSTRACT SUPERTYPE OF(Planar_projected_shape_model) 
+    SUBTYPE OF (Geometric_model);
+    WHERE
+      WR1 : SELF\Geometric_model.context_of_items.dimension_count = 2;
+  END_ENTITY;
+
+END_SCHEMA;
+
+(*
+   ISO TC184/SC4/WG12 N7915 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7352
+*)
+
 SCHEMA Machining_features_arm;
          
 USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
@@ -10253,7 +10853,7 @@ END_ENTITY;
 
 ENTITY Compound_feature
   SUBTYPE OF (Machining_feature);
-  element : SET[1:?] OF Compound_feature_element;
+  element : SET[2:?] OF Compound_feature_element;
 END_ENTITY;  
 
 ENTITY Compound_feature_element;
@@ -10323,7 +10923,7 @@ END_ENTITY;
 ENTITY Defined_thread
   SUBTYPE OF (Thread);
   crest : OPTIONAL Numerical_item_with_unit;
-  minor_diamter : OPTIONAL Numerical_item_with_unit;
+  minor_diameter : OPTIONAL Numerical_item_with_unit;
   pitch_diameter : OPTIONAL Numerical_item_with_unit;
   major_diameter : Numerical_item_with_unit;
 END_ENTITY;  
@@ -11033,7 +11633,7 @@ END_ENTITY;
 ENTITY Turned_knurl
   ABSTRACT SUPERTYPE OF (ONEOF (Diagonal_knurl, Diamond_knurl, Straight_knurl))
   SUBTYPE OF (Knurl);
-  nominal_diamter : Numerical_item_with_unit;
+  nominal_diameter : Numerical_item_with_unit;
   diametrical_pitch : Numerical_item_with_unit;
   root_fillet : OPTIONAL Numerical_item_with_unit;
   number_of_teeth : OPTIONAL Numerical_item_with_unit;
@@ -11061,8 +11661,8 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N4287 - ISO/TS 10303-1288 Management resource information - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N3079
+ ISO TC184/SC4/WG12 N7711 - ISO/TS 10303-1288 Management resource information - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N4287
 *) 
 
 
@@ -11142,25 +11742,19 @@ END_SCHEMA;  -- Management_resource_information_arm
 
 
 (*
-   ISO TC184/SC4/WG12 N5416 - ISO/TS 10303-1702 Manifold subsurface - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4943
+   ISO TC184/SC4/WG12 N8032 - ISO/TS 10303-1702 Manifold subsurface - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5416
 *)
 
 SCHEMA Manifold_subsurface_arm;
 
 USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
-  TYPE ms_geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_model_item WITH
-    (Connected_face_set);
-  END_TYPE;
-
-
   TYPE manifold_subsurface_shape_representation_item = SELECT (
     Axis_placement_3d,
     Geometric_placement_operation,
     Connected_face_set);
   END_TYPE;
-
 
   TYPE open_shell_or_subsurface = SELECT
     (Manifold_surface_shape_representation,
@@ -11179,8 +11773,8 @@ USE FROM Manifold_surface_arm;	-- ISO/TS 10303-1509
 
 END_SCHEMA;
 (*
-	ISO TC184/SC4/WG12 N7196 - ISO/TS 10303-1509 Manifold surface - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N6243
+	ISO TC184/SC4/WG12 N7837 - ISO/TS 10303-1509 Manifold surface - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N7196
 *)
 
 
@@ -11268,7 +11862,9 @@ END_TYPE;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- mating_structure - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7918 - ISO/CD-TS - 10303-1815 Mating structure - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7355
+*)
 
 SCHEMA Mating_structure_arm;
 
@@ -11291,12 +11887,14 @@ TYPE mating_type = EXTENSIBLE ENUMERATION OF (
   sewing,
   spot_welding,
   stapling,
-  welding);
+  welding,
+  soldering,
+  friction_welding);
 END_TYPE;
 
 ENTITY Mated_part_relationship;
   mating_joints : OPTIONAL SET[1:?] OF Assembly_joint;
-  mating_material : OPTIONAL SET [1:?] OF Definition_based_part_occurrence;
+  mating_material : OPTIONAL SET [1:?] OF Definition_based_product_occurrence;
   mating_types : OPTIONAL SET [1:?] OF mating_type;
   relating : Assembled_part_association;
   related : Assembled_part_association;
@@ -11449,17 +12047,16 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- model_based_3d_geometrical_dimensioning_and_tolerancing_representation - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7921 - ISO/CD-TS - 10303-1816 Model based 3d geometrical dimensioning and tolerancing representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7358
+*)
 
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
 
-USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
+USE FROM Part_shape_arm;
+USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
-TYPE mb3dgdtr_geometric_model_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_model_item WITH
-  (Connected_face_set, Edge_loop);
-END_TYPE;
-  
 TYPE nominal_3d_integral_feature_geometry = SELECT (
   Advanced_face, 
   Edge_curve,
@@ -11474,34 +12071,50 @@ TYPE nominal_3d_derived_feature_geometry = SELECT (
   Surface);
 END_TYPE;
 
-TYPE mb3gdtsr_geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_tolerance_target WITH (
+TYPE mb3gdtsr_geometric_tolerance_target = SELECT BASED_ON geometric_tolerance_target WITH (
   Nominal_3d_feature);
 END_TYPE;
 
-TYPE mb3gdtsr_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
+TYPE mb3gdtsr_dimension_target = SELECT BASED_ON dimension_target WITH (
   Nominal_3d_feature, Datum_reference_compartment);
 END_TYPE;
 
+TYPE mb3gdtsr_edge_of_undefined_shape_size_element = SELECT 
+  BASED_ON edge_of_undefined_shape_size_element WITH (
+  Nominal_3D_edge);  
+END_TYPE;
+
 ENTITY Gdt_representation_shape
-  SUBTYPE OF (Nominal_3d_model_shape);
+  SUBTYPE OF (Nominal_3d_model_shape, Part_shape);
 WHERE
   WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
 END_ENTITY;  
   
+ENTITY Nominal_3d_edge
+  SUBTYPE OF (Nominal_3d_integral_feature);
+DERIVE
+  SELF\Associated_shape_element.associated_item : Edge_curve := association\Geometric_item_specific_usage.identified_item;
+WHERE
+  WR1: 'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN
+     TYPEOF(SELF\Associated_shape_element.associated_item);
+END_ENTITY;
+
 ENTITY Nominal_3d_feature 
   ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
-  SUBTYPE OF (Associated_shape_element);
+  SUBTYPE OF (Associated_shape_element, Part_shape_element);
   SELF\Shape_element.containing_shape : Gdt_representation_shape;
-END_ENTITY;    
+END_ENTITY;
 
-ENTITY Nominal_3d_integral_feature SUBTYPE OF (Nominal_3d_feature);
+ENTITY Nominal_3d_integral_feature
+  SUBTYPE OF (General_part_feature, Nominal_3d_feature);
 DERIVE
   SELF\Associated_shape_element.associated_item : nominal_3d_integral_feature_geometry := association\Geometric_item_specific_usage.identified_item;
 WHERE
   WR1: EXISTS(associated_item);
 END_ENTITY;    
 
-ENTITY Nominal_3d_derived_feature SUBTYPE OF (Nominal_3d_feature, Derived_shape_element);
+ENTITY Nominal_3d_derived_feature
+  SUBTYPE OF (Nominal_3d_feature, Derived_shape_element);
   SELF\Derived_shape_element.derived_from: SET [1:?] OF Nominal_3d_feature;
 DERIVE
   SELF\Associated_shape_element.associated_item : nominal_3d_derived_feature_geometry := association\Geometric_item_specific_usage.identified_item;
@@ -11635,7 +12248,8 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N7220 - ISO/TS 10303-1526 Numeric expression - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7867 - ISO/TS 10303-1526 Numeric expression - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7220
 *)
 	
 	SCHEMA Numeric_expression_arm;
@@ -12053,7 +12667,7 @@ END_IF;
 	RETURN (FALSE);
 END_FUNCTION; 
 
-FUNCTION is_int_expr (arg: Numeric_expression) : BOOLEAN;
+FUNCTION Is_int_expr (arg: Numeric_expression) : BOOLEAN;
 
 LOCAL
 	i: INTEGER;
@@ -12167,14 +12781,14 @@ END_FUNCTION;
 	END_SCHEMA;         
       
 (*
- ISO TC184/SC4/WG12 N7226 - ISO/TS 10303-1346 Numeric function - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4507
+ ISO TC184/SC4/WG12 N7870 - ISO/TS 10303-1346 Numeric function - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7226
 *)
 
 	SCHEMA Numeric_function_arm;
 	
 	USE FROM Expression_arm;
-	REFERENCE FROM Numeric_expression_arm(is_int_expr);
+	REFERENCE FROM Numeric_expression_arm(Is_int_expr);
 	
 	USE FROM Elementary_function_arm;
 	
@@ -12211,8 +12825,8 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N2558 - ISO/TS 10303-1344 Numerical interface - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N1799
+ ISO TC184/SC4/WG12 N8035 - ISO/TS 10303-1344 Numerical interface - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7451
 *)
 
 SCHEMA Numerical_interface_arm;
@@ -12246,7 +12860,8 @@ END_ENTITY;
 END_SCHEMA;   
 
 (*
- ISO TC184/SC4/WG12 N7208 - ISO/TS 10303-1790 Parameterization and variational representation - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7852 - ISO/TS 10303-1790 Parameterization and variational representation - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7208
 *)
 
 SCHEMA Parameterization_and_variational_representation_arm;
@@ -12513,7 +13128,8 @@ FUNCTION validate_attribute_id(attid : attribute_identifier) : BOOLEAN;
   
   -- check that no invalid characters occur subsequently
 
-  REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
+  REPEAT i := 2 TO id_length
+   WHILE id_valid = TRUE;
     IF NOT (attid[i] IN valid_chars) THEN 
       id_valid := FALSE;
     END_IF;
@@ -12528,7 +13144,9 @@ END_FUNCTION;
 END_SCHEMA;
 
 (*
-   N - ISO/CD-TS - 10303- parametric_representation - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7924 - ISO/CD-TS - 10303-1813 Parametric representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7361
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Parametric_representation_arm;
 
@@ -12545,8 +13163,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6051 - ISO/TS 10303-1022 Part and version identification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5437
+ ISO TC184/SC4/WG12 N7702 - ISO/TS 10303-1022 Part and version identification - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6051
 *) 
 
 
@@ -12568,28 +13186,36 @@ END_ENTITY;
 
 END_SCHEMA;  -- Part_and_version_identification_arm
 (*
-   ISO TC184/SC4/WG12 N6249 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5440
+   ISO TC184/SC4/WG12 N7783 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6249
 *)
 
 SCHEMA Part_and_zone_laminate_tables_arm;
 
-USE FROM Composite_constituent_shape_arm; -- ISO/CD-TS 10303-1767
+USE FROM Composite_constituent_shape_arm; -- ISO/TS 10303-1767
 
-USE FROM Ply_orientation_specification_arm; -- ISO/CD-TS 10303-1772
+USE FROM Ply_orientation_specification_arm; -- ISO/TS 10303-1772
 
-USE FROM Shape_property_assignment_arm; -- ISO/CD-TS 10303-1032
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
-USE FROM Stock_material_arm; -- ISO/CD-TS 10303-1771
+USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
 
   TYPE component_class_for_assembly = SELECT 
     (Composite_assembly,
      Filament_laminate,
+     Part_view_definition,     
      Ply,
      Ply_laminate,
      Processed_core);
   END_TYPE;
+
+ TYPE filament_assembly_material = SELECT 
+    (Braided_assembly,
+     Filament_laminate,
+     Woven_assembly);
+  END_TYPE;
+
 
   TYPE thickness_laminate_table_component = SELECT 
     (Filament_laminate,
@@ -12626,7 +13252,7 @@ USE FROM Stock_material_arm; -- ISO/CD-TS 10303-1771
 
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
-      made_from : Filament_assembly;
+      made_from : Filament_assembly_material;
       shape     : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
@@ -12735,8 +13361,8 @@ USE FROM Stock_material_arm; -- ISO/CD-TS 10303-1771
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6914 - ISO/TS 10303-1115 Part collection - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N6246
+ ISO TC184/SC4/WG12 N7744 - ISO/TS 10303-1115 Part collection - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6914
 *)
 
 SCHEMA Part_collection_arm;
@@ -12744,7 +13370,7 @@ SCHEMA Part_collection_arm;
 USE FROM Product_occurrence_arm;
 
   ENTITY Collected_item_association
-    SUBTYPE OF (Part_occurrence_definition_relationship);
+    SUBTYPE OF (Product_occurrence_definition_relationship);
       SELF\Product_occurrence_definition_relationship.relating_view : Collection_definition;
     WHERE
       WR1: NOT ('PART_COLLECTION_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF));
@@ -12780,41 +13406,33 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5446 - ISO/TS 10303-1715 Part occurrence - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4961
+   ISO TC184/SC4/WG12 N7894 - ISO/TS 10303-1807 General part feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7331
 *)
 
-SCHEMA Part_occurrence_arm;
-USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
-USE FROM Generic_product_occurrence_arm;	-- ISO/CD-TS 10303-1762
-USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
+SCHEMA Part_shape_arm;
 
-  ENTITY Definition_based_part_occurrence
-    SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence);
-      SELF\Definition_based_product_occurrence.derived_from : Part_view_definition;
-  END_ENTITY;
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
+USE FROM Feature_and_connection_zone_arm; --          ISO/TS 10303-1671
 
-  ENTITY Part_occurrence
-    ABSTRACT SUPERTYPE SUBTYPE OF (Product_occurrence);
-      SELF\Product_view_definition.defined_version : Part_version;
-  END_ENTITY;
+ENTITY Part_shape
+  SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element : Part_view_definition;
+END_ENTITY;  
 
-  ENTITY Part_occurrence_definition_relationship
-    SUBTYPE OF (Product_occurrence_definition_relationship);
-      SELF\Product_occurrence_definition_relationship.relating_view : Part_view_definition;
-      SELF\Product_occurrence_definition_relationship.related_view  : Part_occurrence;
-    DERIVE
-      id : STRING := SELF\Product_occurrence_definition_relationship.related_view\Product_view_definition.id;
-  END_ENTITY;
+ENTITY Part_shape_element
+  SUBTYPE OF (Shape_element);
+  SELF\Shape_element.containing_shape : Part_shape; 
+END_ENTITY;  
 
-  ENTITY Specification_based_part_occurrence
-    SUBTYPE OF (Specification_based_product_occurrence, Part_occurrence);
-  END_ENTITY;
+ENTITY General_part_feature
+  SUBTYPE OF (Definitional_shape_element, Part_shape_element);
+END_ENTITY;  
 
-END_SCHEMA; 
+END_SCHEMA;
 (*
-ISO TC184/SC4/WG12 N3220 - ISO/TS 10303-1023 Part view definition - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N2109
+ ISO TC184/SC4/WG12 N8038 - ISO/TS 10303-1023 Part view definition - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7454
 *) 
 
 
@@ -12980,8 +13598,8 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N6492 - ISO/TS 10303-1721 Physical component feature - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4110
+   ISO TC184/SC4/WG12 N7765 - ISO/TS 10303-1721 Physical component feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6492
 *)
 
 SCHEMA Physical_component_feature_arm; 
@@ -12993,7 +13611,6 @@ SCHEMA Physical_component_feature_arm;
   END_ENTITY;
 
   ENTITY Physical_component_terminal
-    ABSTRACT SUPERTYPE
     SUBTYPE OF (Component_terminal,
  			Physical_component_feature);
       SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
@@ -13059,14 +13676,16 @@ USE FROM Presentation_hierarchy_arm; -- ISO/TS 10303-1330
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N4146 - ISO/TS 10303-1733 Planned characteristic - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3543
+   ISO TC184/SC4/WG12 N8278 - ISO/TS 10303-1733 Planned characteristic - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N4146
 *)
 
 SCHEMA Planned_characteristic_arm;
 
+	USE FROM Group_arm; --  ISO/TS 10303-1113
 	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
 	USE FROM Requirement_assignment_arm;	-- ISO/TS 10303-1233
+	USE FROM Process_plan_arm; -- ISO/TS 10303-1803
  
   TYPE evaluation_result_value = ENUMERATION OF
     (pass,
@@ -13080,13 +13699,28 @@ SCHEMA Planned_characteristic_arm;
      valid,
      to_be_evaluated);
   END_TYPE;
+  
+  TYPE evaluation_activity_select = SELECT 
+     (Activity,
+      Process_operation_occurrence);
+  END_TYPE;  
+
+  TYPE pc_groupable_item = SELECT BASED_ON groupable_item WITH (
+    Evaluated_characteristic);
+  END_TYPE;
 
   ENTITY Evaluated_characteristic
     SUPERTYPE OF (Rule_based_evaluated_characteristic);
+      id : OPTIONAL STRING;
+      name : OPTIONAL STRING;
+      description : OPTIONAL STRING;
       planned_product_data          : Planned_characteristic;
       product_data_status           : evaluation_type;
-      product_characterization_data : OPTIONAL SET[1:?] OF Property_value_representation;
+      product_characterization_data : Property_representation; -- was OPTIONAL SET[1:?] OF Property_value_representation;
       evaluation_result             : evaluation_result_value;
+	  evaluation_activity           : OPTIONAL evaluation_activity_select;
+  WHERE
+    WR1: product_characterization_data.property.described_element :=: planned_product_data.reference_requirement.assigned_to;
   END_ENTITY;
 
   ENTITY Evaluation_view_definition
@@ -13099,14 +13733,16 @@ SCHEMA Planned_characteristic_arm;
 
   ENTITY Planned_characteristic;
       reference_requirement              : Requirement_assignment;
-      planned_coordinated_characteristic : Property_value_representation;
+      planned_coordinated_characteristic : Property_representation; -- from the Requirement_view_definition, was Property_value_representation;
+  WHERE
+    WR1: planned_coordinated_characteristic.property.described_element :=: reference_requirement.assigned_requirement; -- same Requirement_view_definition
   END_ENTITY;
 
   ENTITY Rule_based_evaluated_characteristic
     SUBTYPE OF (Evaluated_characteristic);
       evaluating_rule : Rule_definition;
   END_ENTITY;
-
+  
 END_SCHEMA;
 (*
  ISO TC184/SC4/WG12 N5455 - ISO/TS 10303-1291 Plib class reference - EXPRESS ARM
@@ -13133,8 +13769,8 @@ END_SCHEMA;
 
 
 (*
- ISO TC184/SC4/WG12 N5458 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4780
+ ISO TC184/SC4/WG12 N7753 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5458
 *)
 
 SCHEMA Ply_orientation_specification_arm;
@@ -13203,8 +13839,53 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N5546 - ISO/TS 10303-1760 Pre defined product data management specializations - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5000
+   ISO TC184/SC4/WG12 N7669 - ISO/CD-TS - 10303-1820 Point direction model - EXPRESS ARM
+*)
+
+SCHEMA Point_direction_model_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+TYPE point_or_point_direction_sequence = SELECT (
+  Point_direction_sequence,
+  Point_sequence);
+END_TYPE;  
+
+TYPE point_or_point_direction = SELECT (
+  Point,
+  Point_direction);
+END_TYPE;  
+
+ENTITY Point_direction_model
+  SUBTYPE OF (Geometric_model);
+  SELF\Representation.items : SET [1:?] OF point_or_point_direction_sequence;
+END_ENTITY;
+
+ENTITY Point_direction
+  SUBTYPE OF (Detailed_geometric_model_element);
+  origin : Cartesian_point;
+  axis : Direction;
+END_ENTITY;  
+
+ENTITY Point_direction_sequence
+  SUBTYPE OF (Detailed_geometric_model_element);
+  items : LIST [1:?] OF point_or_point_direction;
+END_ENTITY;  
+
+ENTITY Point_sequence
+  SUBTYPE OF (Detailed_geometric_model_element);
+  items : LIST [1:?] OF Cartesian_point;
+END_ENTITY;  
+
+SUBTYPE_CONSTRAINT pdim_exclusive_detailed_geometric_model_element FOR Detailed_geometric_model_element;
+  ABSTRACT SUPERTYPE;
+  ONEOF (Point_direction, Point_direction_sequence, Point_sequence, Point);
+END_SUBTYPE_CONSTRAINT; 
+
+END_SCHEMA;
+(*
+   ISO TC184/SC4/WG12 N7798 - ISO/TS 10303-1760 Pre defined product data management specializations - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5546
 *)
 SCHEMA Pre_defined_product_data_management_specializations_arm;
 
@@ -13607,7 +14288,8 @@ SCHEMA Presentation_hierarchy_arm;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6917 - ISO/TS 10303-1791 Primitive solids - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7819 - ISO/TS 10303-1791 Primitive solids - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6917
 *)
 
 
@@ -13679,8 +14361,8 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA; -- Primitive_solids_arm
 (*
- ISO TC184/SC4/WG12 N5464 - ISO/TS 10303-1317 Procedural shape model - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4786
+ ISO TC184/SC4/WG12 N7696 - ISO/TS 10303-1317 Procedural shape model - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5464
 *)
 
 SCHEMA Procedural_shape_model_arm;
@@ -13762,7 +14444,9 @@ USE FROM Procedural_shape_model_arm; -- ISO/CD-TS 10303-1317
 END_SCHEMA;
 
 (*
-   N - ISO/CD-TS - 10303- process_plan - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7927 - ISO/CD-TS - 10303-1803 Process plan - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7364
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Process_plan_arm;
 
@@ -13770,22 +14454,27 @@ USE FROM Activity_method_arm; -- ISO/TS 10303-1049
 USE FROM Product_view_definition_arm; -- ISO/TS 10303-1019
 USE FROM Support_resource_arm; -- ISO/TS 10303-1800
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
-USE FROM Part_occurrence_arm; --          ISO/TS 10303-1715
 USE FROM Specification_control_arm; -- ISO/TS 10303-1112
 USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
+
 
 
 TYPE process_operation_input_or_output_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Assembly_component_relationship,
   Part_view_definition,
-  Part_occurrence);
+  Product_occurrence);
 END_TYPE; 
 
 TYPE resource_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT (
-  Part_occurrence,
+  Product_occurrence,
   Part_view_definition,
   Resource_requirement_type);
 END_TYPE; 
+
+TYPE process_state_relationship_direction = ENUMERATION OF (
+  bidirectional_process_state_relationship,
+  unidirectional_process_state_relationship);
+END_TYPE;
 
 ENTITY Resource_requirement_type; -- for descriptive_specification
   name : label;
@@ -13794,6 +14483,7 @@ END_ENTITY;
 
 ENTITY Process_state_relationship
   SUBTYPE OF (Part_definition_relationship);
+  direction : OPTIONAL process_state_relationship_direction;
 END_ENTITY;
 
 ENTITY Process_operation_definition;
@@ -13910,7 +14600,9 @@ END_SCHEMA;
 
 
 (*
-   N - ISO/CD-TS - 10303- product_and_manufacturing_annotation_presentation - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7930 - ISO/CD-TS - 10303-1812 Product and manufacturing annotation presentation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7367
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_annotation_presentation_arm;
 
@@ -13926,7 +14618,9 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- product_and_manufacturing_information_view_context - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7933 - ISO/CD-TS - 10303-1810 Product and manufacturing information view context - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7370
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Product_and_manufacturing_information_view_context_arm;
 
@@ -13953,7 +14647,7 @@ END_ENTITY;
 ENTITY Gdt_representation_view_context 
   SUBTYPE OF (Part_view_definition_context);
 DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'geometrically dimensioning and tolerancing representation';
+  SELF\View_definition_context.application_domain : STRING := 'geometrical dimensioning and tolerancing representation';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 --  dimensioning_standard : dimensioning_document := ISO; -- some expression through the documents, see wr4, may help writing further rules
 -- note: when we write the rules we will decide which derived attribute to use
@@ -13983,6 +14677,8 @@ ENTITY Surface_finish_view_context
 DERIVE
   SELF\View_definition_context.application_domain : STRING := 'surface finish';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
 END_ENTITY;
 
 ENTITY Machining_feature_view_context 
@@ -13990,6 +14686,8 @@ ENTITY Machining_feature_view_context
 DERIVE
   SELF\View_definition_context.application_domain : STRING := 'machining feature';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
 END_ENTITY;
 
 ENTITY Material_specification_view_context 
@@ -13997,22 +14695,54 @@ ENTITY Material_specification_view_context
 DERIVE
   SELF\View_definition_context.application_domain : STRING := 'material specification';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
 END_ENTITY;
 
 ENTITY Process_state_view_context 
   SUBTYPE OF (Part_view_definition_context);
 DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'model based product geometry';
+  SELF\View_definition_context.application_domain : STRING := 'process state';
   SELF\View_definition_context.life_cycle_stage : STRING := 'design';
 WHERE
   WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
 END_ENTITY;
 
+ENTITY Kinematic_mechanism_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'kinematic_mechanism';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
+END_ENTITY;
+
+ENTITY Kinematic_state_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'kinematic state';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
+END_ENTITY;
+
+ENTITY Motion_context  
+  SUBTYPE OF (Part_view_definition_context);
+DERIVE
+  SELF\View_definition_context.application_domain : STRING := 'motion';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+WHERE
+  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_context;
   ONEOF (
     Gdt_representation_view_context, 
+    Kinematic_mechanism_context,
+    Kinematic_state_context,
     Model_based_view_context, 
     Model_based_3d_annotation_presentation_view_context,
+    Motion_context,
     Surface_finish_view_context,
     Machining_feature_view_context,
     Material_specification_view_context,
@@ -14021,7 +14751,9 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   N - ISO/CD-TS - 10303- product_and_manufacturing_information_with_nominal_3d_models - EXPRESS ARM*)
+   ISO TC184/SC4/WG12 N7936 - ISO/CD-TS - 10303-1811 Product and manufacturing information with nominal 3d models - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7373
+*)
 
 SCHEMA Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
@@ -14040,8 +14772,11 @@ END_TYPE;
 
 ENTITY Nominal_3d_model_shape
   SUBTYPE OF (Associated_item_shape);
+DERIVE
+   SELF\Associated_item_shape.associated_model : advanced_face_model := SELF\Associated_item_shape.association\Property_definition_representation.used_representation;  
 WHERE
   WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.initial_context); 
+  WR2: EXISTS(associated_model);
 END_ENTITY;  
 
 END_SCHEMA;
@@ -14123,10 +14858,13 @@ END_ENTITY;
 END_SCHEMA;  -- Product_as_individual_arm
 
 (*
-   N - ISO/CD-TS - 10303- product_as_individual_assembly_and_test - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   ISO TC184/SC4/WG12 N7939 - ISO/CD-TS - 10303-1804 Product as individual assembly and test - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7376
+*)
+
 SCHEMA Product_as_individual_assembly_and_test_arm;
 
+USE FROM Planned_characteristic_arm; -- ISO/TS 10303-1733
 USE FROM Product_as_individual_arm; -- ISO/TS 10303-1164
 USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
 USE FROM Process_plan_arm;
@@ -14141,7 +14879,7 @@ ENTITY Product_as_individual_assembly
   
   SELF\Product_occurrence_definition_relationship.relating_view: Product_as_individual_view;
   SELF\Product_occurrence_definition_relationship.related_view: Product_as_individual_view;
-  is_realization_of : Part_occurrence;
+  is_realization_of : Product_occurrence;
 WHERE
   WR1: NOT(EXISTS(SELF\Assembly_component_relationship.quantity));
 END_ENTITY; 
@@ -14167,10 +14905,17 @@ ENTITY Applied_process_operation_occurrence;
   source : Process_operation_occurrence;
 END_ENTITY;
 
+ENTITY Evaluated_characteristic_of_product_as_individual_test_result
+  SUBTYPE OF (Evaluated_characteristic);
+WHERE      
+   WR1: 'PRODUCT_AS_INDIVIDUAL_ASSEMBLY_AND_TEST_ARM.APPLIED_INDEPENDENT_TEST_RESULT_PROPERTY' IN
+        TYPEOF(SELF\Evaluated_characteristic.product_characterization_data.definition);
+END_ENTITY;
+
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N5473 - ISO/TS 10303-1248 Product breakdown - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4798
+ ISO TC184/SC4/WG12 N7774 - ISO/TS 10303-1248 Product breakdown - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5473
 *) 
 
 
@@ -14181,6 +14926,10 @@ USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 
+  TYPE breakdown_of_target = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Product_view_definition);
+  END_TYPE;
+  
   TYPE breakdown_element_realization_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
     (Breakdown_element_realization, 
      Breakdown_element_usage);
@@ -14238,9 +14987,9 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
     name        : STRING;
     description : OPTIONAL STRING;
     breakdown   : Breakdown_version;
-    of_view     : Product_view_definition;
+    of_target   : breakdown_of_target;
   END_ENTITY;
-
+  
   ENTITY Breakdown_version
     SUBTYPE OF (Product_version);
       SELF\Product_version.of_product : Breakdown;
@@ -14259,8 +15008,8 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 END_SCHEMA; 
 
 (*
- ISO TC184/SC4/WG12 N6255 - ISO/TS 10303-1103 Product class - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5476
+ ISO TC184/SC4/WG12 N7792 - ISO/TS 10303-1103 Product class - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6255
 *)
 
 SCHEMA Product_class_arm;
@@ -14600,7 +15349,8 @@ END_TYPE;
 END_SCHEMA;
 
 (*
-   WG12N7178 - ISO/TS 10303-1521 product_data_quality_criteria - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7807 - ISO/TS 10303-1521 Product data quality criteria - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7178
 *)
 
 SCHEMA Product_data_quality_criteria_arm;
@@ -14702,14 +15452,14 @@ SCHEMA Product_data_quality_criteria_arm;
   ENTITY Detailed_report_request_with_number_of_data
     SUBTYPE OF(detailed_report_request);
       number_of_data : INTEGER;
-    WHERE
-      WR1 : SELF\detailed_report_request.detailed_report_request_type
-            <> inferior_quality_element;
+    DERIVE
+      SELF\detailed_report_request.detailed_report_request_type:detailed_report_type:= measured_element;
   END_ENTITY;
 
 END_SCHEMA;
 (*
-   WG12N7175 - ISO/TS 10303-1520 product_data_quality_definition - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7804 - ISO/TS 10303-1520 Product data quality definition - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7175
 *)
 
 SCHEMA Product_data_quality_definition_arm;
@@ -14768,7 +15518,8 @@ SCHEMA Product_data_quality_definition_arm;
 
 END_SCHEMA;
 (*
-   WG12N7181 - ISO/TS 10303-1522 product_data_quality_inspection_result - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7810 - ISO/TS 10303-1522 Product data quality inspection result - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7181
 *)
 
 SCHEMA Product_data_quality_inspection_result_arm;
@@ -14783,6 +15534,9 @@ SCHEMA Product_data_quality_inspection_result_arm;
 
   REFERENCE FROM Support_resource_arm
     (bag_to_set);
+
+  TYPE inspected_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
 
   TYPE statistical_value_type = ENUMERATION OF
     (number_of_inspected_instances,
@@ -14872,6 +15626,7 @@ SCHEMA Product_data_quality_inspection_result_arm;
 
   ENTITY Data_quality_inspection_instance_report_item
     SUBTYPE OF(Representation_item);
+    inspected_elements : SET [1:?] OF inspected_element_select;
     WHERE
       WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
                             'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
@@ -14926,73 +15681,86 @@ END_ENTITY;
 
 END_SCHEMA;  -- Product_identification_arm
 (*
-   ISO TC184/SC4/WG12 N4161 - ISO/TS 10303-1738 Product identification extension - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3585
-*)
-
- SCHEMA Product_identification_extension_arm;
-
-	USE FROM External_item_identification_assignment_arm;	-- ISO/TS 10303-1128
-	USE FROM Product_view_definition_arm;	-- ISO/TS 10303-1019
-
- 	TYPE pie_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Externally_defined_view_definition);
-	END_TYPE;
-
-
-  ENTITY Externally_defined_view_definition
-    SUBTYPE OF (Product_view_definition);
-    INVERSE
-      source : External_source_identification FOR item;
-  END_ENTITY;
-
-
-
-  ENTITY Library_view_definition
-    SUBTYPE OF (Externally_defined_view_definition);
-    DERIVE
-      library : STRING := SELF\Externally_defined_view_definition.source.source_id;
-  END_ENTITY;
-
- END_SCHEMA;
-(*
-   ISO TC184/SC4/WG12 N4266 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N2598
+   ISO TC184/SC4/WG12 N7750 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N4266
 *) 
 
 SCHEMA Product_occurrence_arm;
 
-USE FROM Part_occurrence_arm;
-USE FROM Functional_breakdown_arm;
-USE FROM Specified_product_arm;
+  USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
+  USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
+  USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106	
+  USE FROM Specified_product_arm;	-- ISO/TS 10303-1104	
+  USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
 
-TYPE part_occurrence_select = SELECT 
- (Part_occurrence);
-END_TYPE;
+  TYPE extended_value_with_unit = EXTENSIBLE SELECT (
+    Value_with_unit, 
+    Value_limit, 
+    Value_range);
+  END_TYPE;
 
--- have no idea why this is needed
-TYPE function_occurrence_select = SELECT
-   (Definition_based_function_occurrence, 
-    Specification_based_function_occurrence);
-END_TYPE; 
+  ENTITY Definition_based_product_occurrence
+    SUBTYPE OF (Product_occurrence);
+      derived_from: Part_view_definition;
+    WHERE
+      WR1: SELF\Product_view_definition.defined_version = derived_from.defined_version;
+  END_ENTITY;
 
-ENTITY Definition_based_function_occurrence
-  SUBTYPE OF (Definition_based_product_occurrence);
-  SELF\Definition_based_product_occurrence.derived_from :
-Functional_element_definition;
-END_ENTITY;
+  ENTITY Product_occurrence
+    ABSTRACT SUPERTYPE OF ((ONEOF (Definition_based_product_occurrence,
+         Specification_based_product_occurrence)) AND 
+         ONEOF (Product_occurrence_with_quantity, 
+         Single_instance))
+    SUBTYPE OF (Product_view_definition);
+      SELF\Product_view_definition.defined_version : Part_version;
+    DERIVE
+      SELF\Product_view_definition.initial_context : View_definition_context := View_definition_context('','',?);
+    INVERSE
+      occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
+      view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
+    WHERE
+      WR1: SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) >= 1;
+      WR2: NOT EXISTS(SELF\Product_view_definition.additional_characterization);
+      WR3: SIZEOF(QUERY( oc <* occurrence_contexts |
+            NOT( NOT('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(oc)) OR
+                 NOT EXISTS(oc\Assembly_component_relationship.quantity))
+               )) = 0;
+  END_ENTITY;
 
-ENTITY Specification_based_function_occurrence
-  SUBTYPE OF (Specification_based_product_occurrence, Single_instance);
-WHERE
-  WR1: 'PRODUCT_OCCURRENCE_ARM.FUNCTIONAL_ELEMENT_VERSION' IN
-TYPEOF(SELF\Product_view_definition.defined_version);
-END_ENTITY;
+  ENTITY Product_occurrence_with_quantity
+    ABSTRACT SUPERTYPE OF (ONEOF (Quantified_instance, Selected_instance))
+    SUBTYPE OF (Product_occurrence);
+      occurrence_quantity : OPTIONAL extended_value_with_unit;
+  END_ENTITY;
+
+  ENTITY Quantified_instance
+    SUBTYPE OF (Product_occurrence_with_quantity);
+      SELF\Product_occurrence_with_quantity.occurrence_quantity : Value_with_unit;
+  END_ENTITY;
+
+  ENTITY Selected_instance
+    SUBTYPE OF (Product_occurrence_with_quantity);
+      quantity_criterion : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Single_instance
+    SUBTYPE OF (Product_occurrence);
+  END_ENTITY;
+
+  ENTITY Specification_based_product_occurrence
+    SUBTYPE OF (Product_occurrence);
+      SELF\Product_view_definition.defined_version : Specification_based_part_version;
+  END_ENTITY;
+
+  ENTITY Specification_based_part_version
+    SUBTYPE OF (Specification_based_product_version, Part_version);
+  END_ENTITY;
+  
 
 END_SCHEMA; 
 (*
- ISO TC184/SC4/WG12 N7092 - ISO/TS 10303-1343 Product placement - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N6685
+ ISO TC184/SC4/WG12 N8247 - ISO/TS 10303-1343 Product placement - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7092
 *)
 
 SCHEMA Product_placement_arm;
@@ -15181,8 +15949,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-ISO TC184/SC4/WG12 N3227 - ISO/TS 10303-1034 Product view definition properties - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N1231
+ISO TC184/SC4/WG12 N8289 - ISO/TS 10303-1034 Product view definition properties - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N3227
 *) 
 
 
@@ -15202,6 +15970,38 @@ END_TYPE;
 
 END_SCHEMA;  -- Product_view_definition_properties_arm
 (*
+   ISO TC184/SC4/WG12 N7768 - ISO/TS 10303-1823 Product view definition reference - EXPRESS ARM*)
+
+SCHEMA Product_view_definition_reference_arm;
+
+	USE FROM Support_resource_arm; -- ISO/TS 10303-1800
+	USE FROM External_item_identification_assignment_arm;	-- ISO/TS 10303-1128
+	USE FROM Product_view_definition_arm;	-- ISO/TS 10303-1019
+
+ 	TYPE pie_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Generic_product_view_definition_reference);
+	END_TYPE;
+
+  ENTITY Generic_product_view_definition_reference
+    ABSTRACT SUPERTYPE OF ( ONEOF ( Product_view_definition_reference, 
+                  Product_view_definition_reference_with_local_representation) );
+    source : External_source_identification;
+  END_ENTITY;
+
+  ENTITY Product_view_definition_reference
+    SUBTYPE OF (Generic_product_view_definition_reference);
+    product_id : identifier;
+    product_definition_formation_id : identifier;
+    product_definition_id : identifier;
+    id_owning_organization_name : OPTIONAL label;
+  END_ENTITY;
+
+  ENTITY Product_view_definition_reference_with_local_representation
+    SUBTYPE OF (Generic_product_view_definition_reference, Product_view_definition);
+  END_ENTITY;
+
+END_SCHEMA;
+(*
  ISO TC184/SC4/WG12 N2939 - ISO/TS 10303-1041 Product view definition relationship - EXPRESS ARM
 *)
 
@@ -15209,14 +16009,19 @@ END_SCHEMA;  -- Product_view_definition_properties_arm
 SCHEMA Product_view_definition_relationship_arm;
 
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+USE FROM Product_view_definition_reference_arm; -- ISO/TS 10303-1738
 
+TYPE as_product_view_definition_or_reference = SELECT (
+    Product_view_definition, 
+    Generic_product_view_definition_reference);
+END_TYPE;
 
 ENTITY View_definition_relationship;
   id : OPTIONAL STRING;
   relation_type : OPTIONAL STRING;
   description : OPTIONAL STRING;
-  relating_view : Product_view_definition;
-  related_view : Product_view_definition;
+  relating_view : as_product_view_definition_or_reference;
+  related_view : as_product_view_definition_or_reference;
 END_ENTITY;
 
 ENTITY View_definition_usage
@@ -15596,8 +16401,8 @@ END_RULE;
 END_SCHEMA; 
 
 (*
- ISO TC184/SC4/WG12 N4263 - ISO/TS 10303-1061 Project - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2930
+ ISO TC184/SC4/WG12 N8293 - ISO/TS 10303-1061 Project - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N4263
 *)
 
 
@@ -15643,8 +16448,35 @@ END_ENTITY;
 
 END_SCHEMA;  -- Project_arm
 (*
- ISO TC184/SC4/WG12 N4374 - ISO/TS 10303-1030 Property assignment - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2972
+ISO TC184/SC4/WG12 N6582 - ISO/TS 10303-1399 Property as definition - EXPRESS ARM
+*) 
+
+
+SCHEMA Property_as_definition_arm;
+
+USE FROM Product_view_definition_properties_arm;    -- ISO/TS 10303-1034
+
+
+TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+ENTITY Representation_proxy_item
+  SUBTYPE OF (Representation_item);
+  item : representation_proxy_select;
+END_ENTITY;
+
+ENTITY Single_property_is_definition
+  SUBTYPE OF (Assigned_property);
+  SELF\Assigned_property.described_element : Product_view_definition;
+UNIQUE
+  UR1: SELF\Assigned_property.described_element;
+END_ENTITY;
+
+END_SCHEMA;  -- Property_as_definition_arm
+
+(*
+ ISO TC184/SC4/WG12 N8041 - ISO/TS 10303-1030 Property assignment - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7457
 *)
 
 
@@ -15692,8 +16524,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Property_assignment_arm
 (*
-   ISO TC184/SC4/WG12 N6558 - ISO/TS 10303-1782 Qualified measure - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5482
+   ISO TC184/SC4/WG12 N7723 - ISO/TS 10303-1782 Qualified measure - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6558
 *)
 
 SCHEMA Qualified_measure_arm;
@@ -15710,7 +16542,8 @@ USE FROM Measure_representation_arm; -- ISO/TS 10303-1118
   TYPE value_qualifier = SELECT
     (Precision_qualifier,
      Type_qualifier,
-     Uncertainty_qualifier);
+     Uncertainty_qualifier,
+     Value_format_type_qualifier);
   END_TYPE;
 
   ENTITY Expanded_uncertainty
@@ -15730,7 +16563,7 @@ USE FROM Measure_representation_arm; -- ISO/TS 10303-1118
   END_ENTITY;
 
   ENTITY Precision_qualifier;
-    precision_value : INTEGER;
+     significant_digits : INTEGER;
   END_ENTITY;
 
   ENTITY Pre_defined_type_qualifier
@@ -15758,6 +16591,11 @@ USE FROM Measure_representation_arm; -- ISO/TS 10303-1118
       uncertainty_value : STRING; 
   END_ENTITY;
 
+  ENTITY Representation_with_uncertainty
+    SUBTYPE OF (Representation);
+    uncertainty : SET[1:?] OF Uncertainty_with_unit;
+  END_ENTITY;
+
   ENTITY Standard_uncertainty
     SUPERTYPE OF (Expanded_uncertainty)
     SUBTYPE OF (Uncertainty_qualifier);
@@ -15776,38 +16614,13 @@ USE FROM Measure_representation_arm; -- ISO/TS 10303-1118
       description  : STRING; 
   END_ENTITY;
 
+  ENTITY Value_format_type_qualifier;
+     value_format_type : STRING;
+    WHERE
+     WR1: LENGTH(value_format_type) <= 80;
+  END_ENTITY;
+
 END_SCHEMA;
-(*
- ISO TC184/SC4/WG12 N2549 - ISO/TS 10303-1228 Representation with uncertainty - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N1941
-*)
-
-
-SCHEMA Representation_with_uncertainty_arm;
-
-USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
-
-USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
-
-
-ENTITY Representation_item_with_uncertainty
-  SUBTYPE OF (Representation_item);
-  uncertainty : SET[1:?] OF Uncertainty_value;
-END_ENTITY;
-
-ENTITY Representation_with_uncertainty
-  SUBTYPE OF (Representation);
-  uncertainty : SET[1:?] OF Uncertainty_with_unit;
-END_ENTITY;
-
-ENTITY Uncertainty_value;
-  name : STRING;
-  description : OPTIONAL STRING;
-  uncertainty : STRING;
-END_ENTITY;
-
-END_SCHEMA;  -- Representation_with_uncertainty_arm
-
 (*
 ISO TC184/SC4/WG12 N7131 - ISO/TS 10303-1233 Requirement assignment - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6129
@@ -15887,13 +16700,14 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-ISO TC184/SC4/WG12 N6842 - ISO/TS 10303-1141 Requirement view definition - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N4284
+ISO TC184/SC4/WG12 N8295 - ISO/TS 10303-1141 Requirement view definition - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N6842
 *) 
 
 
 SCHEMA Requirement_view_definition_arm;
 
+USE FROM Property_as_definition_arm; -- ISO/TS 10303-1399
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 
 USE FROM Requirement_identification_and_version_arm;    -- ISO/TS 10303-1140
@@ -15902,6 +16716,12 @@ USE FROM Requirement_identification_and_version_arm;    -- ISO/TS 10303-1140
 ENTITY Requirement_view_definition
   SUBTYPE OF (Product_view_definition);
   SELF\Product_view_definition.defined_version : Requirement_version;
+END_ENTITY;
+
+ENTITY Single_requirement_view_definition
+  SUBTYPE OF (Requirement_view_definition);
+INVERSE
+  definition : Single_property_is_definition FOR described_element;
 END_ENTITY;
 
 END_SCHEMA;  -- Requirement_view_definition_arm
@@ -16007,8 +16827,8 @@ USE FROM Layer_assignment_arm; -- ISO/CD-TS 10303-1008
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N4173 - ISO/TS 10303-1742 Shape composition - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3597
+   ISO TC184/SC4/WG12 N8044 - ISO/TS 10303-1742 Shape composition - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7460
 *)
 
 SCHEMA Shape_composition_arm; 
@@ -16031,7 +16851,8 @@ SCHEMA Shape_composition_arm;
 
 END_SCHEMA;
 (*
-   WG12N7184 - ISO/TS 10303-1523 shape_data_quality_criteria - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7813 - ISO/TS 10303-1523 Shape data quality criteria - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7184
 *)
 
 SCHEMA Shape_data_quality_criteria_arm;
@@ -18321,7 +19142,7 @@ SCHEMA Shape_data_quality_criteria_arm;
     END_LOCAL;
     IF(('SHAPE_DATA_QUALITY_CRITERIA_ARM.'
        +'SHAPE_DATA_QUALITY_VALUE_RANGE') IN TYPEOF(iv)) THEN
-      retval := TYPEOF(iv.upper_limit\Value_with_unit.value_component);
+      retval := TYPEOF(iv\Shape_data_quality_value_range.upper_limit\Value_with_unit.value_component);
     END_IF;
     IF(('SHAPE_DATA_QUALITY_CRITERIA_ARM.'
        +'SHAPE_DATA_QUALITY_VALUE_LIMIT') IN TYPEOF(iv)) THEN
@@ -18332,7 +19153,8 @@ SCHEMA Shape_data_quality_criteria_arm;
   
 END_SCHEMA;
 (*
-   WG12N7187 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
+   ISO TC184/SC4/WG12 N7816 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7187
 *)
 
 SCHEMA Shape_data_quality_inspection_result_arm;
@@ -18364,25 +19186,62 @@ SCHEMA Shape_data_quality_inspection_result_arm;
   REFERENCE FROM Product_data_quality_inspection_result_arm
     (inspected_product_view_definition);
 
-  TYPE measured_value_select = SELECT
-    (boolean_value,
-     measure_value,
-     Plane_angle_and_ratio_pair,
-     Plane_angle_and_length_pair);
+  TYPE b_spline_or_composite_curve_select = SELECT
+    (B_spline_curve,
+     Composite_curve);
+  END_TYPE;
+
+  TYPE b_spline_or_rectangular_composite_surface_select = SELECT
+    (B_spline_surface,
+     Rectangular_composite_surface);
   END_TYPE;
 
   TYPE boolean_value = BOOLEAN;
   END_TYPE;
 
-  TYPE u_or_v_parameter = ENUMERATION OF
-    (u_parameter,
-     v_parameter);
+  TYPE closed_or_open_shell_select = SELECT
+    (Closed_shell,
+     Open_shell);
   END_TYPE;
 
-  TYPE b_spline_or_rectangular_composite_surface_select = SELECT
-    (b_spline_surface,
-     rectangular_composite_surface
-     );
+  TYPE inspected_shape_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON inspected_element_select WITH
+    (Axis_placement,
+     b_spline_or_composite_curve_select,
+     b_spline_or_rectangular_composite_surface_select,
+     closed_or_open_shell_select,
+     Connected_face_set,
+     Curve,
+     Direction,
+     Edge_curve,
+     Edge_loop,
+     Face_surface,
+ 	 Manifold_solid_brep,
+     Point,
+     Surface,
+     Vertex_point);
+  END_TYPE;
+
+  TYPE location_of_extreme_value_select = SELECT
+    (B_spline_curve_knot_locator,
+     B_spline_curve_segment,
+     B_spline_surface_knot_locator,
+     B_spline_surface_patch,
+     B_spline_surface_strip,
+     Boundary_curve_of_b_spline_or_rectangular_composite_surface,
+     Composite_curve_transition_locator,
+     Face_bound,
+     inspected_shape_element_select,
+     Oriented_edge,
+     Point_on_edge_curve,
+     Point_on_face_surface,
+     Rectangular_composite_surface_transition_locator);
+  END_TYPE;
+
+  TYPE measured_value_select = SELECT
+    (boolean_value,
+     measure_value,
+     Plane_angle_and_length_pair,
+     Plane_angle_and_ratio_pair);
   END_TYPE;
 
   TYPE surface_boundary_type = ENUMERATION OF
@@ -18392,48 +19251,9 @@ SCHEMA Shape_data_quality_inspection_result_arm;
      v_parameter_max);
   END_TYPE;
 
-  TYPE location_of_extreme_value_select = SELECT
-    (Inspected_shape_element_select,
-     B_spline_surface_knot_locator,
-     B_spline_curve_knot_locator,
-     B_spline_curve_segment,
-     B_spline_surface_strip,
-     B_spline_surface_patch,
-     Composite_curve_transition_locator,
-     Rectangular_composite_surface_transition_locator,
-     Boundary_curve_of_b_spline_or_rectangular_composite_surface,
-     Oriented_edge,
-     Face_bound,
-     Point_on_edge_curve,
-     Point_on_face_surface
-     );
-  END_TYPE;
-
-  TYPE inspected_shape_element_select = SELECT
-    (edge_loop,
-     edge_curve,
-     face_surface,
-     curve,
-     surface,
-     vertex_point,
-     closed_or_open_shell_select,
-     b_spline_or_rectangular_composite_surface_select,
-     Point,
-     connected_face_set,
- 	 manifold_solid_brep,
-     direction,
-    Axis_placement,
-     b_spline_or_composite_curve_select);
-  END_TYPE;
-
-  TYPE closed_or_open_shell_select = SELECT
-    (closed_shell,
-    open_shell);
-  END_TYPE;
-
-  TYPE b_spline_or_composite_curve_select = SELECT
-    (b_spline_curve,
-     composite_curve);
+  TYPE u_or_v_parameter = ENUMERATION OF
+    (u_parameter,
+     v_parameter);
   END_TYPE;
 
   ENTITY Shape_data_quality_inspection_criterion_report
@@ -18557,7 +19377,7 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
   ENTITY Shape_data_quality_inspection_instance_report_item
     SUBTYPE OF(Data_quality_inspection_instance_report_item);
-      inspected_elements : SET [1:?] OF inspected_shape_element_select;
+      SELF\Data_quality_inspection_instance_report_item.inspected_elements : SET [1:?] OF inspected_shape_element_select;
       measured_value     : measured_value_select;
   END_ENTITY;
 
@@ -18573,10 +19393,7 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
   ENTITY Shape_data_quality_inspection_result
     SUBTYPE OF(Data_quality_inspection_result);
-    WHERE
-      WR1 : 'SHAPE_DATA_QUALITY_CRITERIA_ARM.'+
-            'SHAPE_DATA_QUALITY_CRITERION' IN TYPEOF
-            (SELF\data_quality_inspection_result.criterion_inspected);
+    SELF\data_quality_inspection_result.criterion_inspected:shape_data_quality_criterion;
   END_ENTITY;
 
   ENTITY Shape_data_quality_inspection_result_representation
@@ -18712,8 +19529,8 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6923 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4236
+   ISO TC184/SC4/WG12 N8047 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7463
 *)
 
 SCHEMA Shape_feature_arm;
@@ -18777,8 +19594,8 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (* 
-	ISO TC184/SC4/WG12 N6929 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N6258
+	ISO TC184/SC4/WG12 N8050 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N7466
 *)
 
 
@@ -18919,7 +19736,9 @@ ENTITY Shape_element;
     element_name     : STRING;
     description      : OPTIONAL STRING;
     containing_shape : Item_shape;
-  WHERE
+UNIQUE
+    UR1: id, containing_shape;    
+WHERE
     WR1: EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) <> TYPEOF(SELF));
 END_ENTITY;
 
@@ -19007,7 +19826,8 @@ END_TYPE;
 
 END_SCHEMA;  -- Single_part_representation_arm
 (*
- ISO TC184/SC4/WG12 N7211 - ISO/TS 10303-1792 Sketch - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7855 - ISO/TS 10303-1792 Sketch - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7211
 *)
 
 
@@ -19188,15 +20008,15 @@ END_ENTITY;
   
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N5497 - ISO/TS 10303-1319 Solid with local modification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N4810
+ ISO TC184/SC4/WG12 N7795 - ISO/TS 10303-1319 Solid with local modification - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5497
  *)
 
 SCHEMA Solid_with_local_modification_arm;
 
-USE FROM Basic_geometric_topology_arm; -- ISO/CD-TS 10303-1323
+USE FROM Basic_geometric_topology_arm; -- ISO/TS 10303-1323
 
-USE FROM Procedural_solid_model_arm; -- ISO/CD-TS 10303-131
+USE FROM Procedural_solid_model_arm; -- ISO/TS 10303-131
 
 USE FROM Topologically_bounded_surface_arm; -- ISO/TS 10303-1511
 
@@ -19632,8 +20452,8 @@ USE FROM Topologically_bounded_surface_arm; -- ISO/TS 10303-1511
 END_SCHEMA;
 
 (*
- ISO TC184/SC4/WG12 N2595 - ISO/TS 10303-1108 Specification based configuration - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N1729
+ ISO TC184/SC4/WG12 N7705 - ISO/TS 10303-1108 Specification based configuration - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2595
 *)
 
 SCHEMA Specification_based_configuration_arm;
@@ -19672,7 +20492,7 @@ LOCAL
   ndea_set : SET OF Effectivity_assignment := [];
 END_LOCAL;
   ndea_set := QUERY(ea <* Effectivity_assignment | 
-	NOT ('SPECIFICATION_BASED_CONFIGURATION_ARM.DATED_EFFECTIVITY' IN TYPEOF(ea.assigned_effectivity)));
+	NOT ('EFFECTIVITY_ARM.DATED_EFFECTIVITY' IN TYPEOF(ea.assigned_effectivity)));
 WHERE
   WR1: SIZEOF(QUERY(ea <* ndea_set | 
 		(SIZEOF(['SPECIFICATION_BASED_CONFIGURATION_ARM.CONFIGURATION']*type_of_set(ea.items))>0) )) =0;
@@ -19690,7 +20510,7 @@ RETURN(result);
 END_FUNCTION;
 
 FUNCTION consistent_configuration_type(config: Configuration): BOOLEAN;
-IF ('SPECIFICATION_BASED_CONFIGURATION_ARM.CLASS_CONDITION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
+IF ('PRODUCT_CLASS_ARM.CLASS_CONDITION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
   IF config.configuration_type = configuration_kind.usage THEN
     RETURN(config.is_solution_for\Class_condition_association.condition_type ='part usage');
   ELSE
@@ -19698,7 +20518,7 @@ IF ('SPECIFICATION_BASED_CONFIGURATION_ARM.CLASS_CONDITION_ASSOCIATION' IN TYPEO
   END_IF;
 END_IF;
 
-IF ('SPECIFICATION_BASED_CONFIGURATION_ARM.CLASS_SPECIFICATION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
+IF ('PRODUCT_CLASS_ARM.CLASS_SPECIFICATION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
   IF config.configuration_type = configuration_kind.usage THEN
     RETURN(config.is_solution_for\Class_specification_association.association_type ='part usage');
   ELSE 
@@ -19712,8 +20532,8 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6673 - ISO/TS 10303-1112 Specification control - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5500
+ ISO TC184/SC4/WG12 N8053 - ISO/TS 10303-1112 Specification control - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6673
 *)
 
 
@@ -19746,7 +20566,7 @@ USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
 	Solution_element);
   END_TYPE;
 
-  TYPE sc_configured_element = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON configured_item_select WITH (
+  TYPE sc_configured_element = SELECT BASED_ON configured_item_select WITH (
     Alternative_solution);
   END_TYPE;
 
@@ -19803,8 +20623,8 @@ USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
 
   ENTITY Part_occurrence_relationship
     SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.relating_view : part_occurrence_select;
-      SELF\View_definition_relationship.related_view  : part_occurrence_select;
+      SELF\View_definition_relationship.relating_view : Product_occurrence;
+      SELF\View_definition_relationship.related_view  : Product_occurrence;
   END_ENTITY;
 
   ENTITY Replaced_usage_relationship
@@ -19964,15 +20784,15 @@ USE FROM Product_class_arm; -- ISO/TS 10303-1103
   
 END_SCHEMA;
 (*
-	ISO TC184/SC4/WG12 N6364 - ISO/TS 10303-1771 Stock material - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N5509
+	ISO TC184/SC4/WG12 N7786 - ISO/TS 10303-1771 Stock material - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N6364
 *)
 
 SCHEMA Stock_material_arm;
 
 USE FROM Approval_arm; -- ISO/TS 10303-1012
 
-USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
+USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
 
 USE FROM Generic_material_aspects_arm; -- ISO/TS 10303-1681
 
@@ -19981,9 +20801,12 @@ USE FROM Specification_document_arm; -- ISO/TS 10303-1747
 USE FROM Part_view_definition_arm; -- ISO/TS 10303-1023
 
   TYPE ply_stock_material = SELECT 
-    (Discontinuous_fiber_assembly,
+    (Anisotropic_material,
+     Braided_assembly,
+     Discontinuous_fiber_assembly,
      Filament_assembly,
-     Isotropic_material);
+     Isotropic_material,
+     Woven_assembly);
   END_TYPE;
 
   TYPE sma_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
@@ -20034,8 +20857,8 @@ END_SCHEMA;
 
 
 (*
-   ISO TC184/SC4/WG12 N7061 - ISO/TS 10303-1749 Styled curve - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5512
+   ISO TC184/SC4/WG12 N8056 - ISO/TS 10303-1749 Styled curve - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7469
 *)
 
 SCHEMA Styled_curve_arm;
@@ -20081,7 +20904,8 @@ USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG12 N6938 - ISO/TS 10303-1800 Support resource - EXPRESS ARM
+   ISO TC184/SC4/WG12 N8059 - ISO/TS 10303-1800 Support resource - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7472
 *)
 SCHEMA Support_resource_arm;
 
@@ -20129,8 +20953,8 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N6267 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5515
+ ISO TC184/SC4/WG12 N8062 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7475
 *)
 
 SCHEMA Surface_conditions_arm;
@@ -20354,6 +21178,236 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
+   ISO TC184/SC4/WG12 N7666 - ISO/CD-TS 10303-1819 Tessellated geometry - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7641
+*)
+
+SCHEMA Tessellated_geometry_arm;
+
+USE FROM Advanced_boundary_representation_arm;
+USE FROM Basic_curve_arm;
+USE FROM Basic_geometry_arm;
+USE FROM Basic_geometric_topology_arm;
+USE FROM Draughting_element_arm; -- ISO/TS 10303-1310
+USE FROM Elemental_geometric_shape_arm;
+USE FROM Elemental_topology_arm;
+REFERENCE FROM Foundation_representation_arm(Using_representations);
+
+TYPE edge_or_curve = SELECT
+  (Edge,
+   Curve);
+END_TYPE;
+
+TYPE face_or_surface = SELECT
+  (Face,
+   Surface);
+END_TYPE;  
+
+TYPE path_or_composite_curve = SELECT
+ (Path,
+  Composite_curve);
+END_TYPE;  
+
+TYPE tessellated_edge_or_vertex = SELECT
+   (Tessellated_edge,
+    Tessellated_vertex);
+END_TYPE;
+
+TYPE tg_draughting_callout_content_select = SELECT BASED_ON draughting_callout_content_select WITH (
+  Tessellated_anotation);
+END_TYPE;
+
+ENTITY Tessellated_anotation
+   SUBTYPE OF (Annotation_element);
+   SELF\Styled_element.element : Tessellated_item;
+END_ENTITY;
+
+ ENTITY Tessellated_shape_representation
+    SUBTYPE OF (Geometric_model);
+     SELF\Representation.items : SET[1 : ?] OF Tessellated_item;
+ WHERE
+   WR1:'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEORMETRIC_COORDINATE_SPACE' IN
+        TYPEOF(SELF\Representation.context_of_items);
+ END_ENTITY;
+
+  ENTITY Tessellated_item
+     ABSTRACT SUPERTYPE OF (ONEOF (
+       Coordinates_list, 
+       Tessellated_solid, 
+       Tessellated_shell, 
+       Tessellated_wire, 
+       Tessellated_geometric_set, Tessellated_curve_set, Tessellated_point_set, Tessellated_surface_set, 
+       Tessellated_structured_item))
+     SUBTYPE OF (Detailed_geometric_model_element);
+     WHERE
+      WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN
+         TYPEOF(using_rep)))) = 0; 
+ END_ENTITY;
+ 
+  
+ ENTITY Repositioned_tessellated_item
+     SUBTYPE OF(Tessellated_item);
+     location: Axis_placement_3d;
+ WHERE  
+   WR1: NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL',
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID',                
+                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0);
+ END_ENTITY; 
+ 
+ 
+ ENTITY Tessellated_geometric_set
+     SUBTYPE OF (Tessellated_item);
+      children: SET [1:?] OF Tessellated_item;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_solid
+    SUBTYPE OF (Tessellated_item);
+      items: SET [1:?] OF Tessellated_structured_item ;
+    geometric_link: OPTIONAL Manifold_solid_brep;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_shell
+    SUBTYPE OF (Tessellated_item);
+    items: SET [1:?] OF Tessellated_structured_item ;
+    topological_link: OPTIONAL Connected_face_set;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_wire
+    SUBTYPE OF (Tessellated_item);
+    items: SET [1:?] OF tessellated_edge_or_vertex;
+    geometric_model_link: OPTIONAL path_or_composite_curve;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_curve_set
+    SUBTYPE OF (Tessellated_item);
+    coordinates : coordinates_list;
+    line_strips : LIST [1:?] OF LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_structured_item
+    SUPERTYPE OF (ONEOF (Tessellated_face, Tessellated_edge, Tessellated_vertex))
+    SUBTYPE OF (Tessellated_item);
+ END_ENTITY;
+
+ 
+ ENTITY Tessellated_edge
+    SUBTYPE OF (Tessellated_structured_item);
+    coordinates: coordinates_list;
+    geometric_link: OPTIONAL edge_or_curve;
+    line_strip : LIST [2:?] OF INTEGER;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_connecting_edge
+    SUBTYPE OF (Tessellated_edge);
+    smooth: LOGICAL;
+    face1: Tessellated_face;
+    face2: Tessellated_face;
+    line_strip_face1 : LIST [2:?] OF INTEGER;
+    line_strip_face2 : LIST [2:?] OF INTEGER;
+ WHERE
+   WR1 : SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2);
+   WR2:  SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip);
+ END_ENTITY;
+ 
+ ENTITY Tessellated_point_set
+    SUBTYPE OF (Tessellated_item);
+    coordinates: coordinates_list;
+    point_list: LIST [1:?] OF INTEGER;
+ END_ENTITY;
+ 
+ 
+ ENTITY Tessellated_vertex
+    SUBTYPE OF (Tessellated_structured_item);
+    coordinates: COORDINATES_LIST;
+    topological_link: OPTIONAL Vertex_point;
+    point_index : INTEGER;
+ END_ENTITY;
+ 
+ ENTITY Tessellated_surface_set
+   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_surface_set, Complex_triangulated_surface_set)) 
+   SUBTYPE OF (Tessellated_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+  WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY Triangulated_surface_set
+   SUBTYPE OF (Tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY Complex_triangulated_surface_set
+   SUBTYPE OF (Tessellated_surface_set);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_surface_set.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_surface_set.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ 
+ ENTITY Tessellated_face
+   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_face, Complex_triangulated_face)) 
+   SUBTYPE OF (Tessellated_structured_item);
+    coordinates : coordinates_list;
+    pnmax : INTEGER;
+    normals : LIST [0:?] OF LIST [3:3] OF REAL;
+    geometric_link: OPTIONAL face_or_surface;
+ WHERE
+     WR1: ((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax));
+ END_ENTITY;
+ 
+ ENTITY Triangulated_face
+   SUBTYPE OF (Tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangles : LIST [1:?] OF LIST [3:3] OF INTEGER;
+ WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax <> coordinates.npoints));
+ END_ENTITY;   
+ 
+ ENTITY Complex_triangulated_face
+   SUBTYPE OF (Tessellated_face);
+     pnindex :  LIST [0:?] OF INTEGER;
+     triangle_strips : LIST [0:?] OF LIST [3:?] OF INTEGER;
+     triangle_fans : LIST [0:?] OF LIST [3:?] OF INTEGER;
+  WHERE
+     WR1: ((SIZEOF(pnindex) = 0)  OR (SIZEOF(pnindex) = SELF\Tessellated_face.pnmax));
+     WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax <> coordinates.npoints));
+     WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+ END_ENTITY; 
+ 
+ 
+ ENTITY Coordinates_list
+    SUBTYPE OF (Tessellated_item);
+    npoints : INTEGER;
+    position_coords : LIST [1:?] OF LIST [3:3] OF REAL;
+ WHERE
+    WR1: npoints = SIZEOF(position_coords);
+    WR2: SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0;
+ END_ENTITY;
+
+
+END_SCHEMA;
+(*
    ISO TC184/SC4/WG12 N4218 - ISO/TS 10303-1757 Test select product - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3679
 *)
@@ -20369,8 +21423,8 @@ SCHEMA Test_select_product_arm;
 
 END_SCHEMA;
 (*
-ISO TC184/SC4/WG12 N5524 - ISO/TS 10303-1136 Text appearance - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N4774
+ISO TC184/SC4/WG12 N8065 - ISO/TS 10303-1136 Text appearance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N5524
 *) 
 
 
@@ -20470,8 +21524,8 @@ USE FROM Basic_geometry_arm;   -- ISO/TS 10303-1652
 
 END_SCHEMA;  
 (*
-   ISO TC184/SC4/WG12 N7077 - ISO/TS 10303-1750 Text representation - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N5527
+   ISO TC184/SC4/WG12 N8068 - ISO/TS 10303-1750 Text representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7077
 *)
 
 SCHEMA Text_representation_arm;
@@ -20536,8 +21590,8 @@ USE FROM Associative_text_arm; -- ISO/TS 10303-1132
 
 END_SCHEMA;
 (*
-  ISO TC184/SC4/WG12 N5530 - ISO/TS 10303-1320 Thickened face solid - EXPRESS ARM
-  Supersedes ISO TC184/SC4/WG12 N4825
+  ISO TC184/SC4/WG12 N8071 - ISO/TS 10303-1320 Thickened face solid - EXPRESS ARM
+  Supersedes ISO TC184/SC4/WG12 N7478
 *)
 
 SCHEMA Thickened_face_solid_arm;
@@ -20628,7 +21682,8 @@ END_ENTITY;
 END_SCHEMA;  -- Time_interval_assignment_arm
 
 (*
- ISO TC184/SC4/WG12 N7199 - ISO/TS 10303-1511 Topologically bounded surface - EXPRESS ARM
+ ISO TC184/SC4/WG12 N7840 - ISO/TS 10303-1511 Topologically bounded surface - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7199
 *)
 
 SCHEMA Topologically_bounded_surface_arm;
@@ -20643,7 +21698,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-ISO TC184/SC4/WG12 N7238 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
+ISO TC184/SC4/WG12 N7843 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7238
 *) 
 
 
@@ -20793,8 +21849,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Value_with_unit_arm
 (*
-   ISO TC184/SC4/WG12 N5533 - ISO/TS 10303-1753 Value with unit extension - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4976
+   ISO TC184/SC4/WG12 N8244 - ISO/TS 10303-1753 Value with unit extension - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5533
 *)
 
 SCHEMA Value_with_unit_extension_arm;
@@ -21024,7 +22080,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N2945 - ISO/TS 10303-1043 Work order - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8074 - ISO/TS 10303-1043 Work order - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7481
 *)
 
 
@@ -21048,7 +22105,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Work_order_arm
 (*
- ISO TC184/SC4/WG12 N2947 - ISO/TS 10303-1042 Work request - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8077 - ISO/TS 10303-1042 Work request - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2947
 *)
 
 
@@ -21074,7 +22132,7 @@ END_ENTITY;
 
 ENTITY Work_request;
   request_id : STRING;
-  version_id : STRING;
+  version_id : OPTIONAL STRING;
   description : OPTIONAL STRING;
   purpose : STRING;
 END_ENTITY;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
+$Id: sect_contents.xsl,v 1.7 2013/01/17 13:53:14 ungerer Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -189,11 +189,12 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
 
 <xsl:template match="business_object_model" mode="contents_tables_figures">
     <xsl:param name="target" select="'_self'"/>
-    <xsl:variable name="ap_module_dir">
+    <xsl:variable name="bom_desc_dir">
       <xsl:call-template name="business_object_model_directory">
         <xsl:with-param name="business_object_model" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
+     <xsl:variable name="bom_desc" select="document(concat($bom_desc_dir,'/bom_descriptions.xml'))"/>
 
     <xsl:if test="count(//figure)!=0">
       <h2>Figures</h2>
@@ -215,6 +216,11 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
       </xsl:apply-templates>
 
       <xsl:apply-templates select="//inforeqt//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+     <!-- included figures in BOM_descriptions file -->
+
+     <xsl:apply-templates select="$bom_desc//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
@@ -250,6 +256,10 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
 
+     <xsl:apply-templates select="$bom_desc//table" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
     <!-- not yet implemented terminology map -->
     <xsl:apply-templates select="//terminology_map//table" mode="toc"> 
       <xsl:with-param name="target" select="$target"/>
@@ -270,7 +280,8 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
         <xsl:with-param name="annex_list" select="$annex_list"/>
       </xsl:call-template>
     </xsl:variable>
-  <xsl:variable name="module" select="@module_name"/>
+
+    <!-- <xsl:variable name="module" select="@module_name"/>
   <xsl:variable name="module_ok">
     <xsl:call-template name="check_module_exists">
       <xsl:with-param name="module" select="$module"/>
@@ -284,7 +295,8 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
       </xsl:with-param>
     </xsl:call-template>
   </xsl:if>
-  <xsl:variable name="module_dir">
+  -->
+  <!-- <xsl:variable name="module_dir">
     <xsl:call-template name="business_object_model_directory">
       <xsl:with-param name="business_object_model" select="$module"/>
     </xsl:call-template>
@@ -297,12 +309,14 @@ $Id: sect_contents.xsl,v 1.6 2012/12/19 17:22:09 mikeward Exp $
           Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS short and long form listings
         </a>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:otherwise> -->
         <a href="./annex_comp_int{$FILE_EXT}#table_e1" target="{$target}">
           Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS listings
-        </a>
+  </a>
+  <!--
       </xsl:otherwise>
     </xsl:choose>
+    -->
     <br/>
 
     <xsl:apply-templates select="//usage_guide//table" mode="toc">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.3 2012/11/23 09:34:11 mikeward Exp $
+$Id: business_object_model.xsl,v 1.4 2012/12/13 22:19:53 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -86,12 +86,15 @@ $Id: business_object_model.xsl,v 1.3 2012/11/23 09:34:11 mikeward Exp $
     <xsl:variable name="business_object_model_dir" select="./@name"/>
      
     <xsl:variable name="annex_list">
+	    <!--
       <xsl:if
         test="document(concat($business_object_model_dir,'/business_object_model.xml'))/business_object_model/arm_lf/express-g">
         <xsl:value-of select="' BOMexpressG '"/>
-      </xsl:if>
-      <!--
+</xsl:if>
+-->
+        <xsl:value-of select="' BOMexpressG '"/>
       <xsl:value-of select="' computerinterpretablelisting '"/>
+      <!--
       <xsl:if test="./usage_guide">
         <xsl:value-of select="' usageguide '"/>
       </xsl:if>
@@ -118,7 +121,7 @@ $Id: business_object_model.xsl,v 1.3 2012/11/23 09:34:11 mikeward Exp $
   <xsl:variable name="pos"
     select="string-length(translate(substring-before($annex_list,$annex),concat($UPPER,$LOWER),''))"/>
 
-  <xsl:value-of select="substring('GHIJK',$pos,1)"/> 
+  <xsl:value-of select="substring('CDEF',$pos,1)"/> 
 </xsl:template>
 
   <xsl:template match="business_object_model" mode="abstract">

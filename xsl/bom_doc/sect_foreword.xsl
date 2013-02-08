@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_foreword.xsl,v 1.2 2013/01/17 13:53:15 ungerer Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the foreword for a BOM document.     
@@ -192,8 +192,8 @@ $Id: sect_foreword.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   </p>
 <div align="center">
   <blockquote>
-    <A HREF="http://standards.iso.org/iso/10303/tech/STEP_Titles.htm" target="_blank">
-      http://standards.iso.org/iso/10303/tech/STEP_Titles.htm</A>.
+    <A HREF="http://standards.iso.org/iso/10303/tech/step_titles.htm" target="_blank">
+      http://standards.iso.org/iso/10303/tech/step_titles.htm</A>.
   </blockquote>
 </div>
   <p>

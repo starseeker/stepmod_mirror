@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.225 2011/10/07 19:59:10 thomasrthurman Exp $
+$Id: module.xsl,v 1.228 2011/11/05 11:07:04 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -885,8 +885,8 @@ TT remove since locke is no longer available.
   </p>
 <div align="center">
   <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm" target="_blank">
-      http://www.tc184-sc4.org/titles/STEP_Titles.htm</A>.
+    <A HREF="http://standards.iso.org/iso/10303/tech/step_titles.htm" target="_blank">
+      http://standards.iso.org/iso/10303/tech/step_titles.htm</A>.
   </blockquote>
 </div>
   <p>

@@ -8,6 +8,8 @@
       <interface kind="reference" schema="product_definition_schema">
          <interfaced.item name="product"/>
          <interfaced.item name="product_definition"/>
+         <interfaced.item name="product_definition_formation"/>
+         <interfaced.item name="product_definition_reference"/>
          <interfaced.item name="product_definition_relationship"/>
          <interfaced.item name="acyclic_product_definition_relationship"/>
          <interfaced.item name="product_definition_or_reference"/>
@@ -175,21 +177,72 @@
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>REPEAT i := 1 to SIZEOF(links) - 1;
-    IF NOT (
-      (links[i]\product_definition_relationship.related_product_definition :=:
-       links[i+1]\product_definition_relationship.relating_product_definition)
-      OR
-      (SIZEOF (QUERY (pdr &lt;* USEDIN
-       (links[i]\product_definition_relationship.related_product_definition,
-        'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +
-        'RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.relating_product_definition :=: 
-       links[i+1]\product_definition_relationship.relating_product_definition)) = 1))
-    THEN
-      RETURN(FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN(TRUE);</algorithm>
+--case 1 all in one file; had to disambiguate link[i].relating instance type to distinguish case 1 from case 3.
+   CASE TRUE OF
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.relating_product_definition)) 
+       AND
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) 
+       AND
+      ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+     BEGIN
+        IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+                 OR
+                ((SIZEOF (QUERY (pdr &lt;* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition.formation\product_definition_formation.of_product
+                    :=:
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition.formation\product_definition_formation.of_product)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+
+--case 2 ; intermediate node reference from main to external file or both node references in external file. links[i].relating instance can be either pd or pdref.
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition))
+       AND
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+       BEGIN
+         IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+                 OR
+                ((SIZEOF (QUERY (pdr &lt;* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_id
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_id)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.id_owning_organization_name
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.id_owning_organization_name)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_definition_id
+                   &lt;&gt; 
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_definition_id)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+
+--case 3 should never see -- link in external file referencing a node in main assembly file. Note link is just links[i].
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.relating_product_definition))
+       AND
+     ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) :
+     RETURN(FALSE);
+
+     OTHERWISE : RETURN(FALSE);
+   END_CASE;
+
+END_REPEAT;
+RETURN(TRUE);</algorithm>
       </function>
    </schema>
 </express>

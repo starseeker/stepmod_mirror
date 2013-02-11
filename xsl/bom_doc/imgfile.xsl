@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: imgfile.xsl,v 1.2 2013/02/11 12:32:51 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Dipplay EXPRESS-G BOM diagrams
@@ -57,7 +57,7 @@ $Id: imgfile.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
               <xsl:when test="./@file">
                 <h1>
                   <xsl:apply-templates
-                    select="$bom_xml/application_protocol//imgfile" 
+                    select="$bom_xml//imgfile" 
                     mode="nav_arrows">
                     <xsl:with-param name="file" select="@file"/>
                   </xsl:apply-templates>
@@ -192,14 +192,12 @@ $Id: imgfile.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
 	
   <xsl:template match="imgfile" mode="nav_arrows">
     <xsl:param name="file"/>
+    
     <xsl:if test="$file=@file">
+      
       <xsl:variable name="home">
         <xsl:choose>
-          <xsl:when test="name(../..)='aam'">
-            <xsl:call-template name="set_file_ext">
-              <xsl:with-param name="filename" select="'./sys/annex_aam.xml'"/>
-            </xsl:call-template>
-          </xsl:when>
+          
           <xsl:when test="name(../..)='purpose'">
             <xsl:value-of select="concat('./sys/introduction',$FILE_EXT,'#data_plan')"/>
           </xsl:when>

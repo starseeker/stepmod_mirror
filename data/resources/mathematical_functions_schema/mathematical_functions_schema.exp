@@ -1,7 +1,7 @@
 (*
 WG12 N4886 Part 50 EXPRESS as modified by TC1 2007-07-25 (WG12 N4885) and by TC2 WG12 N8315
 2013-01-18*)
-(* $Id: mathematical_functions_schema.exp,v 1.14 2013/02/04 23:07:03 thomasrthurman Exp $ *)
+(* $Id: mathematical_functions_schema.exp,v 1.15 2013/02/04 23:08:28 thomasrthurman Exp $ *)
 
 
 SCHEMA mathematical_functions_schema;
@@ -358,6 +358,19 @@ ENTITY complex_number_literal
   real_part : REAL;
   imag_part : REAL;
 END_ENTITY;
+
+ENTITY complex_number_literal_polar
+  SUBTYPE OF (complex_number_literal);
+  modulus  : REAL;  -- was radius
+  argument : REAL; -- was angle 
+DERIVE
+  SELF\complex_number_literal.real_part : REAL := modulus * cos(argument);
+  SELF\complex_number_literal.imag_part : REAL := modulus * sin(argument);
+WHERE
+  WR1: modulus  >= 0;
+  WR2: argument <= 2*PI;
+END_ENTITY;
+
 ENTITY logical_literal
   SUBTYPE OF (generic_literal);
   lit_value : LOGICAL;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.14 2003/09/19 09:08:12 mikeward Exp $
+$Id: imgfile.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Dipplay EXPRESS-G BOM diagrams
@@ -25,7 +25,7 @@ $Id: imgfile.xsl,v 1.14 2003/09/19 09:08:12 mikeward Exp $
       <xsl:choose>
         <xsl:when test="./@file">
           <xsl:apply-templates 
-            select="$bom_xml/business_object_model//imgfile" mode="imgfiletitle">
+            select="$bom_xml//imgfile" mode="imgfiletitle">
             <xsl:with-param name="file" select="@file"/>
           </xsl:apply-templates>
         </xsl:when>
@@ -106,14 +106,39 @@ $Id: imgfile.xsl,v 1.14 2003/09/19 09:08:12 mikeward Exp $
   
   <xsl:template match="imgfile" mode="imgfiletitle">
     <xsl:param name="file"/>
+    
     <xsl:if test="$file=@file">
-      <xsl:apply-templates select=".." mode="imgfiletitle">
+      
+      <xsl:variable name="number">
+        <xsl:number/>
+      </xsl:variable>
+      <xsl:variable name="total">
+        <xsl:value-of select="count(../imgfile)-1"/>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="$number=1">
+          <xsl:value-of
+            select="concat('Figure C.',$number, 
+            ' &#8212; BO Model schema level EXPRESS-G diagram
+            ',$number,' of 1')"
+          />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of
+            select="concat('Figure C.',$number, 
+            ' &#8212; BO Model entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"
+          />
+        </xsl:otherwise>
+      </xsl:choose>
+      <!--<xsl:apply-templates select=".." mode="imgfiletitle">
         <xsl:with-param name="number">
           <xsl:number/>
         </xsl:with-param>
-      </xsl:apply-templates>
+      </xsl:apply-templates>-->
     </xsl:if>
   </xsl:template>
+  
+  
   
   <xsl:template match="data_plan" mode="imgfiletitle">
     <xsl:param name="number"/>
@@ -162,6 +187,8 @@ $Id: imgfile.xsl,v 1.14 2003/09/19 09:08:12 mikeward Exp $
       select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>    
     <xsl:value-of select="concat('Figure F.', $fig_no, ' &#8212; ', $node, ' ', $fig_title)"/>
   </xsl:template>
+  
+  
 	
   <xsl:template match="imgfile" mode="nav_arrows">
     <xsl:param name="file"/>

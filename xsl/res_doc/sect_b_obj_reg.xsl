@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.8 2012/08/24 21:50:14 lothartklein Exp $
+$Id: sect_b_obj_reg.xsl,v 1.9 2012/11/14 23:16:12 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -51,6 +51,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2012/08/24 21:50:14 lothartklein Exp $
     </xsl:choose>
   </xsl:variable>
 
+<!-- added variable for just the part number -->
+  <xsl:variable
+    name="object_reg_minus_version" 
+    select="concat('{ iso standard 10303 part(',@part,')')"/>
+
   <h2>
     <a name="b1">
       B.1 Document Identification 
@@ -77,10 +82,10 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2012/08/24 21:50:14 lothartklein Exp $
 
   <!-- there is are potentially several  schemas in an integrated resource -->
   <!-- for now I will just get the names from the resource.xml rather than go to the schemas --> 
- 
+ <!-- from bug #4660 added schema version as separate variable -->
  <xsl:for-each select="./schema">
    <xsl:variable name="schema" select="translate(@name,$UPPER, $LOWER)" />
-
+   <xsl:variable name="schema_version" select="concat(' version(', @version, ')')" />
    <h2>B.2.<xsl:value-of select="concat(position(),  ' ')"/><xsl:value-of select="$schema"/> schema identification</h2>
 
   <p>
@@ -90,7 +95,7 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2012/08/24 21:50:14 lothartklein Exp $
   </p>
   <p align="center">
     <xsl:value-of 
-      select="concat($object_reg,' object(1) ', $schema,'(', position(), ') }' )"/>
+      select="concat($object_reg_minus_version, $schema_version, ' object(1) ', $schema,'(', position(), ') }' )"/>
   </p>
   <p>
     is assigned to the <xsl:value-of select="$schema"/> schema. 

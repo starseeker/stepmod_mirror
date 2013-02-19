@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_introduction.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+  $Id: sect_introduction.xsl,v 1.2 2013/01/17 13:53:15 ungerer Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the introduction for a BOM document.     
@@ -42,7 +42,7 @@
       elsewhere. The BO Model of the application is specified in Clause 
       <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to the application. A
       graphical representation of the information requirements, referred to as the BO model, is
-      given in Annex <a href="annex_arm_expg{$FILE_EXT}">C</a>. A mapping of the BO model to the to xml schema
+      given in Annex <a href="annex_bom_expg{$FILE_EXT}">C</a>. A mapping of the BO model to the to xml schema
       is given in Annex <a href="annex_xsd_der{$FILE_EXT}">B</a>.
     </p>
     <p>

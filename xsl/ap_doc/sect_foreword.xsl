@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.27 2013/02/06 20:57:43 darla Exp $
+$Id: sect_foreword.xsl,v 1.28 2013/02/08 20:22:32 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -206,9 +206,10 @@ $Id: sect_foreword.xsl,v 1.27 2013/02/06 20:57:43 darla Exp $
   </p>
 <div align="center">
   <blockquote>
-    <a href="http://standards.iso.org/iso/10303/tech/step_ritles.htm" target="_blank">
-      &lt;http://www.tc184-sc4.org/titles/step_titles.htm&gt;
-    </a>.
+    
+     <A HREF="http://standards.iso.org/iso/10303/tech/step_titles.htm" target="_blank">
+      http://standards.iso.org/iso/10303/tech/step_titles.htm</A>.
+    
   </blockquote>
 </div>
    <xsl:variable name="annex_list">

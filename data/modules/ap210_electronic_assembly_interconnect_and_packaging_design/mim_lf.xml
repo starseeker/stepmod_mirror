@@ -4,8 +4,8 @@
 
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="ap210_electronic_assembly_interconnect_and_packaging_design_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
-   <schema name="Ap210_electronic_assembly_interconnect_and_packaging_design_mim_LF">
-      <constant expression="'Fri Nov 16 14:02:57 2012'" name="schema_date">
+   <schema name="Ap210_electronic_assembly_interconnect_and_packaging_design_mim_lf">
+      <constant expression="'Wed Feb 20 8:31:01 2013'" name="schema_date">
          <builtintype type="STRING"/>
       </constant>
       <constant expression="make_real_interval_from_min(0.0, closed)" name="the_nonnegative_reals">
@@ -608,6 +608,9 @@
       <type name="instance_usage_context_select">
          <select selectitems="product_definition_relationship product_definition_usage"/>
       </type>
+      <type name="internal_or_reflected_shape_aspect">
+         <select selectitems="shape_aspect identifier"/>
+      </type>
       <type name="interpolation_type">
          <enumeration items="undefined_interpolation_type discontinuous_interpolation_type synchronous_interpolation_type linear_interpolation_type"/>
       </type>
@@ -776,6 +779,9 @@
       </type>
       <type name="multi_language_attribute_item">
          <select selectitems="action action_directive action_method action_property action_relationship actuated_kinematic_pair alternate_product_relationship application_context applied_certification_assignment applied_document_reference applied_document_usage_constraint_assignment applied_external_identification_assignment applied_identification_assignment applied_organizational_project_assignment approval approval_relationship approval_status assembly_component_usage_substitute attribute_value_assignment certification certification_type colour configuration_design configuration_item contract data_environment date_role date_time_role descriptive_representation_item document_relationship document_usage_role draughting_title effectivity effectivity_relationship event_occurrence external_source general_property general_property_relationship geometric_representation_item geometric_tolerance group group_relationship identification_role information_right information_usage_right kinematic_pair make_from_usage_option mapped_item name_assignment object_role organization_relationship organization_role organizational_project organizational_project_relationship organizational_project_role person_and_organization person_and_organization_role presentation_layer_assignment process_product_association product product_concept product_concept_feature product_concept_feature_association product_concept_relationship product_definition product_definition_context product_definition_formation product_definition_formation_relationship product_definition_relationship product_definition_shape product_definition_substitute product_related_product_category property_definition property_definition_relationship representation representation_relationship requirement_for_action_resource resource_property resource_requirement_type security_classification security_classification_assignment shape_aspect shape_aspect_relationship shape_representation styled_item time_interval_role topological_representation_item uncertainty_measure_with_unit uncertainty_qualifier usage_association versioned_action_request versioned_action_request_relationship"/>
+      </type>
+      <type name="multi_or_next_assembly_usage_occurrence">
+         <select selectitems="multi_level_reference_designator next_assembly_usage_occurrence"/>
       </type>
       <type name="name_attribute_select">
          <select selectitems="action_request_solution address configuration_design context_dependent_shape_representation derived_unit effectivity person_and_organization product_definition product_definition_substitute property_definition_representation"/>
@@ -2125,7 +2131,7 @@
          </derived>
          <where expression="NOT EXISTS(SELF\property_definition.description)" label="WR1"/>
       </entity>
-      <entity name="assembly_component_usage" super.expression="ONEOF (multi_level_reference_designator, next_assembly_usage_occurrence, promissory_usage_occurrence, specified_higher_usage_occurrence)" supertypes="product_definition_usage">
+      <entity name="assembly_component_usage" super.expression="quantified_assembly_component_usage ANDOR ONEOF (multi_level_reference_designator, next_assembly_usage_occurrence, promissory_usage_occurrence, specified_higher_usage_occurrence)" supertypes="product_definition_usage">
          <explicit name="reference_designator" optional="YES">
             <typename name="identifier"/>
          </explicit>
@@ -3398,6 +3404,24 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
+      <entity name="complex_number_literal_polar" supertypes="complex_number_literal">
+         <explicit name="modulus">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="argument">
+            <builtintype type="REAL"/>
+         </explicit>
+         <derived expression="modulus * cos(argument)" name="real_part">
+            <builtintype type="REAL"/>
+            <redeclaration entity-ref="complex_number_literal"/>
+         </derived>
+         <derived expression="modulus * sin(argument)" name="imag_part">
+            <builtintype type="REAL"/>
+            <redeclaration entity-ref="complex_number_literal"/>
+         </derived>
+         <where expression="modulus  &gt;= 0" label="WR1"/>
+         <where expression="{0 &lt;= argument &lt;= 2*PI}" label="WR2"/>
+      </entity>
       <entity name="complex_passage_padstack_definition" supertypes="stratum_stack_dependent_template passage_padstack_definition"/>
       <entity name="complex_shelled_solid" supertypes="shelled_solid">
          <explicit name="thickened_face_list">
@@ -3532,6 +3556,18 @@
       </entity>
       <entity name="component_mounting_feature" supertypes="physical_component_feature"/>
       <entity name="component_part_2d_non_planar_geometric_representation_relationship" supertypes="shape_representation_relationship representation_relationship_with_transformation"/>
+      <entity name="component_path_shape_aspect" supertypes="shape_aspect">
+         <explicit name="location">
+            <typename name="multi_or_next_assembly_usage_occurrence"/>
+         </explicit>
+         <explicit name="component_shape_aspect">
+            <typename name="internal_or_reflected_shape_aspect"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+            <unique.attribute attribute="component_shape_aspect"/>
+         </unique>
+      </entity>
       <entity name="component_terminal" super.expression="ONEOF (physical_component_terminal, laminate_component_join_terminal)" supertypes="component_feature"/>
       <entity name="component_termination_passage" supertypes="plated_passage"/>
       <entity name="component_termination_passage_template" supertypes="continuous_template inter_stratum_feature_template"/>
@@ -10651,16 +10687,6 @@
             <redeclaration entity-ref="kinematic_path_segment"/>
          </derived>
       </entity>
-      <entity name="polar_complex_number_literal" supertypes="generic_literal">
-         <explicit name="radius">
-            <builtintype type="REAL"/>
-         </explicit>
-         <explicit name="angle">
-            <builtintype type="REAL"/>
-         </explicit>
-         <where expression="radius &gt;= 0" label="WR1"/>
-         <where expression="{ 0 &lt;= angle &lt; 2*PI }" label="WR2"/>
-      </entity>
       <entity name="polar_complex_number_region" supertypes="maths_space generic_literal">
          <explicit name="centre">
             <typename name="complex_number_literal"/>
@@ -12339,9 +12365,6 @@
          <where expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;        SELF\shape_aspect_relationship.relating_shape_aspect" label="WR1"/>
       </entity>
       <entity name="scalar_variable" supertypes="abstract_variable"/>
-      <entity name="scattering_parameter" supertypes="polar_complex_number_literal">
-         <where expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\polar_complex_number_literal ||&#10;       SELF\scattering_parameter))) = 0" label="WR1"/>
-      </entity>
       <entity name="schema_based_model_parameter" supertypes="model_parameter"/>
       <entity name="screw_pair" supertypes="low_order_kinematic_pair_with_motion_coupling">
          <explicit name="pitch">
@@ -15343,7 +15366,7 @@
       </entity>
       <entity name="zone_structural_makeup" super.expression="ONEOF ((smeared_material_definition AND thickness_laminate_table), (smeared_material_definition AND percentage_laminate_table), thickness_laminate_table, percentage_laminate_table, smeared_material_definition)" supertypes="laminate_table"/>
       <rule appliesto="application_context" name="Ap210_electronic_assembly_interconnect_and_packaging_design_mim_dot_application_protocol_definition_required">
-         <where expression="SIZEOF( QUERY( ac &lt;* application_context | &#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | &#10;                apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design' &#10;                )) &gt; 0) &#10;              )) &gt; 0" label="WR1"/>
+         <where expression="SIZEOF( QUERY( ac &lt;* application_context | &#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | &#10;                ((apd.application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering') &#10;                OR&#10;                (apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design'))&#10;                )) &gt; 0) &#10;              )) &gt; 0" label="WR1"/>
       </rule>
       <rule appliesto="product_definition_formation" name="alternative_solution_requires_solution_definition">
          <algorithm>LOCAL
@@ -15902,7 +15925,7 @@ END_LOCAL;</algorithm>
          <where expression="SIZEOF ( QUERY( gdt_pdc &lt;* gdt_representation_view_contexts |&#10;  &#9;         &#9;SIZEOF(['ISO 1101', 'ASME Y14.5'] * get_associated_mandatory_document_ids(gdt_pdc) ) = 0 )&#10;  &#9;       ) = 0" label="WR11"/>
          <where expression="SIZEOF ( QUERY( mb3d_pdc &lt;* model_based_3d_annotation_presentation_view_contexts |&#10;  &#9;             SIZEOF(['ISO 1101', 'ISO 16792', 'ASME Y14.41', 'ASME Y14.5'] * get_associated_mandatory_document_ids(mb3d_pdc) ) = 0)         &#10;  &#9;       ) = 0" label="WR12"/>
       </rule>
-      <rule appliesto="abstracted_expression_function action_method_role action_resource_type application_defined_function atom_based_literal attribute_value_role b_spline_basis b_spline_function basic_sparse_matrix binary_literal camera_model_d2 cartesian_complex_number_region cartesian_transformation_operator complex_number_literal concept_feature_relationship concept_feature_relationship_with_condition constant_function definite_integral_expression definite_integral_function edge_blended_solid effectivity_context_role elementary_function event_occurrence_role explicit_procedural_representation_item_relationship explicit_table_function expression_denoted_function extended_tuple_space externally_listed_data finite_function founded_item function_application function_space general_linear_function homogeneous_linear_function imported_curve_function imported_point_function imported_surface_function imported_volume_function indirectly_selected_elements integer_tuple_literal linearized_table_function listed_data local_time maths_enum_literal maths_function maths_tuple_literal modified_solid_with_placed_configuration one_direction_repeat_factor oriented_open_shell oriented_path parallel_composed_function partial_derivative_expression partial_derivative_function polar_complex_number_region procedural_representation procedural_representation_sequence product_definition_effectivity quantifier_expression rationalize_function real_tuple_literal reindexed_array_function repackaging_function restriction_function runout_zone_orientation selector_function series_composed_function solid_with_depression solid_with_hole solid_with_pocket solid_with_protrusion solid_with_shape_element_pattern solid_with_slot swept_area_solid symbol_target two_direction_repeat_factor user_selected_elements volume" name="validate_dependently_instantiable_entity_data_types">
+      <rule appliesto="abstracted_expression_function action_method_role action_resource_type application_defined_function atom_based_literal attribute_value_role b_spline_basis b_spline_function basic_sparse_matrix binary_literal camera_model_d2 cartesian_complex_number_region cartesian_transformation_operator complex_number_literal concept_feature_relationship concept_feature_relationship_with_condition constant_function definite_integral_expression definite_integral_function edge_blended_solid effectivity_context_role elementary_function event_occurrence_role explicit_procedural_representation_item_relationship explicit_table_function expression_denoted_function extended_tuple_space externally_listed_data finite_function founded_item function_application function_space general_linear_function homogeneous_linear_function imported_curve_function imported_point_function imported_surface_function imported_volume_function indirectly_selected_elements integer_tuple_literal linearized_table_function listed_data maths_enum_literal maths_function maths_tuple_literal modified_solid_with_placed_configuration one_direction_repeat_factor oriented_open_shell oriented_path parallel_composed_function partial_derivative_expression partial_derivative_function polar_complex_number_region procedural_representation procedural_representation_sequence product_definition_effectivity quantifier_expression rationalize_function real_tuple_literal reindexed_array_function repackaging_function restriction_function runout_zone_orientation selector_function series_composed_function solid_with_depression solid_with_hole solid_with_pocket solid_with_protrusion solid_with_shape_element_pattern solid_with_slot swept_area_solid symbol_target two_direction_repeat_factor user_selected_elements volume" name="validate_dependently_instantiable_entity_data_types">
          <algorithm>LOCAL
   number_of_input_instances : INTEGER;
   previous_in_chain : LIST OF GENERIC := [];
@@ -15952,7 +15975,6 @@ END_LOCAL;
   all_instances := all_instances + integer_tuple_literal;
   all_instances := all_instances + linearized_table_function;
   all_instances := all_instances + listed_data;
-  all_instances := all_instances + local_time;
   all_instances := all_instances + maths_enum_literal;
   all_instances := all_instances + maths_function;
   all_instances := all_instances + maths_tuple_literal;
@@ -16224,7 +16246,7 @@ END_IF;
          </parameter>
          <parameter name="relatives">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="product_definition"/>
+            <typename name="product_definition_or_reference"/>
          </parameter>
          <parameter name="specific_relation">
             <builtintype type="STRING"/>
@@ -26017,21 +26039,72 @@ END_LOCAL;
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>REPEAT i := 1 to SIZEOF(links) - 1;
-    IF NOT (
-      (links[i]\product_definition_relationship.related_product_definition :=:
-       links[i+1]\product_definition_relationship.relating_product_definition)
-      OR
-      (SIZEOF (QUERY (pdr &lt;* USEDIN
-       (links[i]\product_definition_relationship.related_product_definition,
-        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_RELATIONSHIP.' +
-        'RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.relating_product_definition :=: 
-       links[i+1]\product_definition_relationship.relating_product_definition)) = 1))
-    THEN
-      RETURN(FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN(TRUE);</algorithm>
+--case 1 all in one file; had to disambiguate link[i].relating instance type to distinguish case 1 from case 3.
+   CASE TRUE OF
+      ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.relating_product_definition)) 
+       AND
+      ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) 
+       AND
+      ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+     BEGIN
+        IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+                 OR
+                ((SIZEOF (QUERY (pdr &lt;* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition.formation\product_definition_formation.of_product
+                    :=:
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition.formation\product_definition_formation.of_product)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+
+--case 2 ; intermediate node reference from main to external file or both node references in external file. links[i].relating instance can be either pd or pdref.
+     ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition))
+       AND
+     ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i+1]\product_definition_relationship.relating_product_definition)) :
+       BEGIN
+         IF NOT (
+                (links[i]\product_definition_relationship.related_product_definition :=:
+                 links[i+1]\product_definition_relationship.relating_product_definition)
+                 OR
+                ((SIZEOF (QUERY (pdr &lt;* USEDIN(links[i]\product_definition_relationship.related_product_definition,
+                          'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION') |
+                          pdr\product_definition_relationship.relating_product_definition :=: 
+                          links[i+1]\product_definition_relationship.relating_product_definition)) = 1)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_id
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_id)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.id_owning_organization_name
+                    =
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.id_owning_organization_name)
+                  AND
+                   (links[i]\product_definition_relationship.related_product_definition\product_definition_reference.product_definition_id
+                   &lt;&gt; 
+                    links[i+1]\product_definition_relationship.relating_product_definition\product_definition_reference.product_definition_id)))
+         THEN
+          RETURN(FALSE);
+        END_IF;
+     END;
+
+--case 3 should never see -- link in external file referencing a node in main assembly file. Note link is just links[i].
+     ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(links[i]\product_definition_relationship.relating_product_definition))
+       AND
+     ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION' IN TYPEOF(links[i]\product_definition_relationship.related_product_definition)) :
+     RETURN(FALSE);
+
+     OTHERWISE : RETURN(FALSE);
+   END_CASE;
+
+END_REPEAT;
+RETURN(TRUE);</algorithm>
       </function>
       <function name="unique_in_product_definition">
          <parameter name="item">

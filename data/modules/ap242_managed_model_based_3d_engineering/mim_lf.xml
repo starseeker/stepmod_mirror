@@ -4,8 +4,8 @@
 
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="ap242_managed_model_based_3d_engineering_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
-   <schema name="Ap242_managed_model_based_3d_engineering_mim_LF">
-      <constant expression="'Thu Feb 07 19:34:02 2013'" name="schema_date">
+   <schema name="Ap242_managed_model_based_3d_engineering_mim_lf">
+      <constant expression="'Feb 19 18:28:57 2013'" name="schema_date_stamp">
          <builtintype type="STRING"/>
       </constant>
       <constant expression="make_extended_tuple_space(&#10;    the_zero_tuple_space, the_integers)" name="the_integer_tuples">
@@ -969,9 +969,6 @@
       </type>
       <type name="repackage_options">
          <enumeration items="ro_nochange ro_wrap_as_tuple ro_unwrap_tuple"/>
-      </type>
-      <type name="representation_proxy_select">
-         <select selectitems="property_definition"/>
       </type>
       <type name="represented_definition">
          <select selectitems="general_property property_definition property_definition_relationship shape_aspect shape_aspect_relationship"/>
@@ -3253,6 +3250,24 @@
          <explicit name="imag_part">
             <builtintype type="REAL"/>
          </explicit>
+      </entity>
+      <entity name="complex_number_literal_polar" supertypes="complex_number_literal">
+         <explicit name="modulus">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="argument">
+            <builtintype type="REAL"/>
+         </explicit>
+         <derived expression="modulus * cos(argument)" name="real_part">
+            <builtintype type="REAL"/>
+            <redeclaration entity-ref="complex_number_literal"/>
+         </derived>
+         <derived expression="modulus * sin(argument)" name="imag_part">
+            <builtintype type="REAL"/>
+            <redeclaration entity-ref="complex_number_literal"/>
+         </derived>
+         <where expression="modulus  &gt;= 0" label="WR1"/>
+         <where expression="{0 &lt;= argument &lt;= 2*PI}" label="WR2"/>
       </entity>
       <entity name="complex_shelled_solid" supertypes="shelled_solid">
          <explicit name="thickened_face_list">
@@ -9839,16 +9854,6 @@
             <redeclaration entity-ref="kinematic_path_segment"/>
          </derived>
       </entity>
-      <entity name="polar_complex_number_literal" supertypes="generic_literal">
-         <explicit name="radius">
-            <builtintype type="REAL"/>
-         </explicit>
-         <explicit name="angle">
-            <builtintype type="REAL"/>
-         </explicit>
-         <where expression="radius &gt;= 0" label="WR1"/>
-         <where expression="{ 0 &lt;= angle &lt; 2*PI }" label="WR2"/>
-      </entity>
       <entity name="polar_complex_number_region" supertypes="maths_space generic_literal">
          <explicit name="centre">
             <typename name="complex_number_literal"/>
@@ -11052,11 +11057,7 @@
          </inverse>
          <where expression="item_in_context(SELF.mapping_origin,&#10;        SELF.mapped_representation.context_of_items)" label="WR1"/>
       </entity>
-      <entity name="representation_proxy_item" supertypes="representation_item">
-         <explicit name="item">
-            <typename name="representation_proxy_select"/>
-         </explicit>
-      </entity>
+      <entity name="representation_proxy_item" supertypes="representation_item"/>
       <entity name="representation_relationship">
          <explicit name="name">
             <typename name="label"/>
@@ -11450,9 +11451,6 @@
          </explicit>
       </entity>
       <entity name="scalar_variable" supertypes="abstract_variable"/>
-      <entity name="scattering_parameter" supertypes="polar_complex_number_literal">
-         <where expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\polar_complex_number_literal ||&#10;       SELF\scattering_parameter))) = 0" label="WR1"/>
-      </entity>
       <entity name="screw_pair" supertypes="low_order_kinematic_pair_with_motion_coupling">
          <explicit name="pitch">
             <typename name="length_measure"/>

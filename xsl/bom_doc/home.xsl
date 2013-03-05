@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: home.xsl,v 1.6 2012-11-09 17:51:07 mikeward Exp $
+  $Id: home.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM.     
@@ -38,7 +38,7 @@
         src="./sys/frame_title{$FILE_EXT}"
         frameborder="0"
         marginwidth="2" marginheight="0" scrolling="no"/>
-      <frameset rows="20%,80%">
+      <frameset rows="30%,70%">
       
         <frame name="index" 
           src="./sys/frame_toc{$FILE_EXT}" 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.4 2013/01/17 13:53:14 ungerer Exp $
+$Id: sect_annex_comp_int.xsl,v 1.5 2013/02/08 11:52:57 ungerer Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -79,13 +79,13 @@ $Id: sect_annex_comp_int.xsl,v 1.4 2013/01/17 13:53:14 ungerer Exp $
     </tr>
     <tr>
       <td>BO XML schema</td>
-      <td></td>
+      <td><a href="bom_xsd.xml" target="info">HTML</a></td>
       <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
       <td>ISO TC184/SC4/WG12 N7649</td>
     </tr>
     <tr>
       <td>BO XML configuration specification</td>
-      <td></td>
+      <td><a href="config_xsd.xml" target="info">HTML</a></td>
       <td><a href="{$bom_p28}" target="_blank">XML</a></td>
       <td>ISO TC184/SC4/WG12 Nxxxx</td>
     </tr>

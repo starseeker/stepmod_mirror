@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.8 2013/02/08 00:05:31 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.9 2013/03/07 13:06:59 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -197,7 +197,7 @@ $Id: sect_contents.xsl,v 1.8 2013/02/08 00:05:31 nigelshaw Exp $
      <xsl:variable name="bom_desc" select="document(concat($bom_desc_dir,'/bom_descriptions.xml'))"/>
 
     <xsl:if test="count(//figure)!=0">
-      <h2>FiguresFOO</h2>
+      <h2>Figures</h2>
       <small>
       <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>

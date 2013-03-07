@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.7 2013/01/17 13:53:14 ungerer Exp $
+$Id: sect_contents.xsl,v 1.8 2013/02/08 00:05:31 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -197,7 +197,7 @@ $Id: sect_contents.xsl,v 1.7 2013/01/17 13:53:14 ungerer Exp $
      <xsl:variable name="bom_desc" select="document(concat($bom_desc_dir,'/bom_descriptions.xml'))"/>
 
     <xsl:if test="count(//figure)!=0">
-      <h2>Figures</h2>
+      <h2>FiguresFOO</h2>
       <small>
       <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
@@ -379,6 +379,11 @@ $Id: sect_contents.xsl,v 1.7 2013/01/17 13:53:14 ungerer Exp $
       <xsl:when test="./ancestor::change_detail[1]">
         <xsl:value-of select="concat('annex_changes',$FILE_EXT)"/>
       </xsl:when>
+      
+      <xsl:when test="./ancestor::ext_description">
+        <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
+      </xsl:when>
+      
     </xsl:choose>
   </xsl:variable>
   

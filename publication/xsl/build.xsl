@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.43 2013/02/07 13:39:03 mikeward Exp $
+<!--  $Id: build.xsl,v 1.44 2013/02/25 21:47:20 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1522,6 +1522,26 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMBOMXSDXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/bom_xsd.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMCONFIGXSDXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/config_xsd.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
 
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMANNEXOBJREGXML</xsl:attribute>
@@ -1821,6 +1841,8 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
+		
+	
 
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMABSTRACTXML</xsl:attribute>
@@ -1987,6 +2009,28 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="bom_doc_param" select="$bom_doc_param"/>
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
 					<xsl:with-param name="suffix" select="'/sys/annex_comp_int.xml'"/>
+				</xsl:call-template>
+			</xsl:attribute>
+		</xsl:element>
+
+		<xsl:element name="property">
+			<xsl:attribute name="name">DBOMBOMXSDXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:call-template name="embedded_bom_doc">
+					<xsl:with-param name="bom_doc_param" select="$bom_doc_param"/>
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/bom_xsd.xml'"/>
+				</xsl:call-template>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">DBOMCONFIGXSDXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:call-template name="embedded_bom_doc">
+					<xsl:with-param name="bom_doc_param" select="$bom_doc_param"/>
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/config_xsd.xml'"/>
 				</xsl:call-template>
 			</xsl:attribute>
 		</xsl:element>
@@ -3065,6 +3109,28 @@ Purpose: To build the initial ANT publication file.
 			</xsl:element>
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
+					<xsl:value-of select="'${DBOMBOMXSDXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_xsd.xsl'"/>
+				</xsl:attribute>
+				<xsl:call-template name="emb_bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:call-template>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${DBOMCONFIGXSDXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_config.xsl'"/>
+				</xsl:attribute>
+				<xsl:call-template name="emb_bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:call-template>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
 					<xsl:value-of select="'${DBOMANNEXOBJREGXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
@@ -3407,6 +3473,28 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_5_main.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMBOMXSDXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_xsd.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
+					<xsl:with-param name="menu" select="$menu"/>
+				</xsl:apply-templates>
+			</xsl:element>
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMCONFIGXSDXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_config.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
 					<xsl:with-param name="menu" select="$menu"/>

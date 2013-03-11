@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.44 2013/02/25 21:47:20 mikeward Exp $
+<!--  $Id: build.xsl,v 1.45 2013/03/09 01:20:54 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1868,10 +1868,22 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-					<xsl:with-param name="suffix" select="'/*.xsd'"/>
+					<xsl:with-param name="suffix" select="'/bom.xsd'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">P28CONFIGXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/p28_config.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		
 
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMGIFS</xsl:attribute>
@@ -2239,6 +2251,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:call-template>
 			</xsl:attribute>
 		</xsl:element>
+		
 		<xsl:element name="property">
 			<xsl:attribute name="name">DBOMEXPRESS</xsl:attribute>
 			<xsl:attribute name="value">
@@ -2256,7 +2269,18 @@ Purpose: To build the initial ANT publication file.
 				<xsl:call-template name="embedded_bom_doc">
 					<xsl:with-param name="bom_doc_param" select="$bom_doc_param"/>
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-					<xsl:with-param name="suffix" select="'/*.xsd'"/>
+					<xsl:with-param name="suffix" select="'/bom.xsd'"/>
+				</xsl:call-template>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">DP28CONFIGXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:call-template name="embedded_bom_doc">
+					<xsl:with-param name="bom_doc_param" select="$bom_doc_param"/>
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/p28_config.xml'"/>
 				</xsl:call-template>
 			</xsl:attribute>
 		</xsl:element>
@@ -3287,7 +3311,7 @@ Purpose: To build the initial ANT publication file.
 						<xsl:value-of select="'.'"/>
 					</xsl:attribute>
 					<xsl:attribute name="includes">
-						<xsl:value-of select="'${EMDBOMEXPRESS}'"/>
+						<xsl:value-of select="'${DBOMEXPRESS}'"/>
 					</xsl:attribute>
 				</xsl:element>
 			</xsl:element>
@@ -3301,7 +3325,21 @@ Purpose: To build the initial ANT publication file.
 						<xsl:value-of select="'.'"/>
 					</xsl:attribute>
 					<xsl:attribute name="includes">
-						<xsl:value-of select="'${EMDBOMXSD}'"/>
+						<xsl:value-of select="'${DBOMXSD}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+			
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="'${TMPDIR}'"/>
+				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="includes">
+						<xsl:value-of select="'${DP28CONFIGXML}'"/>
 					</xsl:attribute>
 				</xsl:element>
 			</xsl:element>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.45 2013/03/09 01:20:54 mikeward Exp $
+<!--  $Id: build.xsl,v 1.46 2013/03/11 23:53:48 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -28,6 +28,22 @@ Purpose: To build the initial ANT publication file.
 
 	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
 	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+	
+	<xsl:variable name="depbompresent">
+		<xsl:variable name="ap_name" select="//publication_index/application_protocols/ap_doc/@name"/>
+		<xsl:variable name="ap_doc_path" select="concat('../../data/application_protocols/', $ap_name, '/application_protocol.xml')"/>
+		<xsl:variable name="bom_name" select="document(string($ap_doc_path))//application_protocol/@business_object_model"/>
+		<xsl:choose>
+			<xsl:when test="string-length($bom_name) > 0">
+				<xsl:value-of select="'YES'"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="'NO'"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	
+	
 
 	<xsl:template match="publication_index">
 
@@ -62,7 +78,8 @@ Purpose: To build the initial ANT publication file.
 				<project xsl:extension-element-prefixes="exslt" name="iso_publication" default="all"
 					basedir="../../..">
 					<xsl:text>
-		  </xsl:text>
+					</xsl:text>
+					
 					<xsl:apply-templates select="." mode="target_variables"/>
 					<xsl:apply-templates select="." mode="target_init"/>
 					<xsl:apply-templates select="." mode="target_isoindex"/>
@@ -253,8 +270,9 @@ Purpose: To build the initial ANT publication file.
 		   modules are part of that document -->
 			<xsl:if test="./application_protocols">
 				<xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
-				<!-- STAND ALONE BOM -->
-				<xsl:apply-templates select="." mode="dependent_bom_doc_variables">
+				<!-- BOM -->
+				<xsl:if test="$depbompresent='YES'">
+					<xsl:apply-templates select="." mode="dependent_bom_doc_variables">
 					<xsl:with-param name="bom_doc_param">
 						<xsl:variable name="ap_name" select="./application_protocols/ap_doc/@name"/>
 						<xsl:variable name="ap_doc_path"
@@ -264,6 +282,8 @@ Purpose: To build the initial ANT publication file.
 						/>
 					</xsl:with-param>
 				</xsl:apply-templates>
+				</xsl:if>
+				
 				<xsl:apply-templates select="." mode="apdoc_variables"/>
 			</xsl:if>
 
@@ -6691,17 +6711,19 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-
-		<xsl:element name="copy">
-			<xsl:attribute name="todir">
-				<xsl:value-of select="concat($apdoc_dir,'data/business_object_models')"/>
-			</xsl:attribute>
-			<xsl:element name="fileset">
-				<xsl:attribute name="dir">
-					<xsl:value-of select="'${TMPDIR}/data/business_object_models'"/>
+		<xsl:if test="$depbompresent='YES'">
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="concat($apdoc_dir,'data/business_object_models')"/>
 				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'${TMPDIR}/data/business_object_models'"/>
+					</xsl:attribute>
+				</xsl:element>
 			</xsl:element>
-		</xsl:element>
+		</xsl:if>
+		
 
 
 		<!-- copy the application protocols -->
@@ -6899,7 +6921,7 @@ Purpose: To build the initial ANT publication file.
 
 		<!-- copy the BOM  express -->
 		<xsl:apply-templates select="." mode="copy_express">
-			<xsl:with-param name="express_dir" select="concat($bomdoc_dir,'inserts/')"/>
+			<xsl:with-param name="express_dir" select="$bomdoc_dir"/>
 		</xsl:apply-templates>
 
 		<xsl:element name="zip">

@@ -4,7 +4,7 @@ type="text/xsl"
 href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
 <ext_descriptions module_directory="qualified_measure_schema" schema_file="qualified_measure_schema.xml"
-rcs.date="$Date: 2012/09/17 10:31:45 $" rcs.revision="$Revision: 1.7 $"
+rcs.date="$Date: 2012/09/27 02:40:16 $" rcs.revision="$Revision: 1.8 $"
 describe.selects="YES"
 describe.subtype_constraints="YES"
 >
@@ -290,21 +290,172 @@ Schema: qualified_measure_schema
 		<p>
 			A <b>value_format_type_qualifier</b> is the specification of the length and pattern of the recommended presentation on media of a value, 
 			including exchange data explicit format. 
-			A <b>value_format_type_qualifier</b> is a superset of Value Format as described in ISO 13584-42 
+			A <b>value_format_type_qualifier</b> is derived from the Value Format as described in ISO 13584-42 
 			and is renamed in this part of ISO 10303 for consistency with other parts of ISO 10303. 
 			Implementations shall be in conformance with ISO 13584-42 when exchanging or storing members of <b>value_format_type_qualifier</b>
-			with the exception of NR5 format which is defined in this part of ISO 10303.  The NR5 format coding is identical to NR2 format with the following exception:
-			the interpretation of the variable length indicator '..' shall be limited to control the number of digits after the decimal-mark with no control over the number
-			of digits preceding the decimal-mark.
-		</p>
+			with the exception of NR5 format which is defined in this part of ISO 10303.
+			D.1 in ISO 13584-42 specifies the subset of the ISO/IEC 14977 EBNF syntactic metalanguage used to specify the value format of properties.
+			The grammar for NR2 and NR5 format is included herein.</p>
 		<note number="1">
-			ISO 13584-42 is not part of the integrated resources of ISO 10303; therefore the EXPRESS declarations are included in this part of ISO 10303.
+			ISO 13584-42 is not part of the integrated resources of ISO 10303; therefore the EXPRESS declarations, meta-identifiers and grammar are included in this part of ISO 10303.
 		</note>
 		<note number="2">
 			The primary purpose for inclusion in this part of ISO 10303 is to support representation of the format of quantitative data types.
 			Legal values and constraints for the attribute are specified in application protocols.  
 			Typical values for the attribute may include real numbers with decimal-mark value format NR2 or NR5.
 		</note>
+		
+			<note number="3">The NR5 format coding is identical to NR2 format with the following exception:
+			the interpretation of the variable length indicator '..' is limited to control the number of digits after the decimal-mark. The NR5 format coding asserts no control over the number
+			of digits preceding the decimal-mark.
+		    </note>
+		
+<p>The meta-identifiers used in the grammar that define the various value formats are the following:</p>
+		<ul>
+			<li>dot = '.';</li>
+<li>
+	decimalMark = '.';
+	
+</li>
+<li>
+	exponentIndicator = 'E';
+	
+</li><li>
+	numeratorIndicator = 'N';
+	
+</li>
+<li>
+	denominatorIndicator = 'D';
+	
+</li>
+<li>
+	leadingDigit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+	
+</li>
+<li>
+	lengthOfExponent = leadingDigit, {trailingDigit};
+	
+</li>
+<li>
+	lengthOfIntegerPart = (leadingDigit, {trailingDigit});
+	
+</li>
+<li>
+	lengthOfNumerator = leadingDigit, {trailingDigit};
+	
+</li>
+<li>
+	lengthOfDenominator = leadingDigit, {trailingDigit};
+	
+</li>
+<li>
+	lengthOfFractionalPart = (leadingDigit, {trailingDigit}) | '0' ;
+	
+</li>
+<li>
+	lengthOfIntegralPart = (leadingDigit, {trailingDigit})| '0' ;
+	
+</li>
+<li>
+	lengthOfNumber = leadingDigit, {trailingDigit};
+	
+</li>
+<li>
+	trailingDigit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+	
+</li>
+<li>
+	signedExponent = 'S';
+	
+</li>
+<li>
+	signedNumber = space,'S';
+	
+</li>
+<li>
+	space = ' ';
+	
+</li>
+<li>
+	variableLengthIndicator = '..';
+	
+</li>
+<li>
+	decimalMark: separator between integral and fractional part of numbers of format NR2 or NR3 or NR5.
+	
+</li>
+<li>
+	leadingDigit: first cipher of a number comprising one or more ciphers.
+	
+</li>
+<li>
+	trailingDigit: one of the ciphers that combines to form numbers, except the first one.	
+	
+</li>
+		</ul>
+		
+		<p>NR2-value format
+		The NR2-value syntax specifies the format of a real property value that does not need an exponent.</p>
+		
+		<p>Syntax rule:
+		NR2Value = 'NR2', ((signedNumber, variableLengthIndicator) | (signedNumber, space) | variableLengthIndicator | space), lengthOfIntegralPart, decimalMark, lengthOfFractionalPart;
+		</p>
+<p>		The meaning of NR2-value format components for value representation is as follows:
+</p>
+<ul>
+	<li>'NR2': the value shall be a real.
+	<note number="4">
+		NR2 number values shall not contain any spaces.
+	</note>
+	</li>
+	<li>lengthOfFractionalPart: number of digits of the fractional part of the number. 
+		
+		<note number="5">
+If preceded by a variableLengthIndicator the actual number of digits of the fractional part may be less.		
+		</note>
+	</li>
+	<li>
+lengthOfIntegralPart: number of digits of the integral part of the number.		
+		<note number="6">
+If preceded by a variableLengthIndicator the actual number of digits of the integral part may be less.			
+		</note>
+	</li>
+	<li>
+signedNumber: if signedNumber is present, the related number shall have either a positive, negative, or zero value. In case of positive values a '+' sign may be present. Negative values shall be preceded by a '-' sign. The value zero shall not be preceded by a '-' sign.
+	</li>
+	
+	<li>
+		variableLengthIndicator: if variableLengthIndicator is present, either the integral part shall contain a number of digits that is less than or equal to lengthOfIntegralPart or the fractional part of the number shall contain a number of digits that is less than or equal to lengthOfFractionalPart. At least one cipher shall be present in the number.
+		<note number="7">It is valid for both the number of digits for the integral and fractional parts to be less than their respective specifications concurrently.</note>
+	</li>
+</ul>		
+		
+		<p>Syntax rule:
+			NR5Value = 'NR5', ((signedNumber, variableLengthIndicator) | (signedNumber, space) | variableLengthIndicator | space),  lengthOfFractionalPart;
+		</p>
+		<p>		The meaning of NR5-value format components for value representation is as follows:
+		</p>
+		<ul>
+			<li>'NR5': the value shall be a real.
+				<note number="8">
+					NR5 number values shall not contain any spaces.
+				</note>
+			</li>
+			<li>lengthOfFractionalPart: number of digits of the fractional part of the number. 
+				
+				<note number="9">
+					If preceded by a variableLengthIndicator the actual number of digits of the fractional part may be less.		
+				</note>
+			</li>
+			
+			<li>
+				signedNumber: if signedNumber is present, the related number shall have either a positive, negative, or zero value. In case of positive values a '+' sign may be present. Negative values shall be preceded by a '-' sign. The value zero shall not be preceded by a '-' sign.
+			</li>
+			
+			<li>
+				variableLengthIndicator: if variableLengthIndicator is present, the fractional part of the number shall contain a number of digits that is less than or equal to lengthOfFractionalPart. At least one cipher shall be present in the number.
+			</li>
+		</ul>		
 		<example number="1">
 			The format of the real number 2.00 may be represented as "NR2 3.3" where the physical file presentation would be '002.00'.
 		</example>

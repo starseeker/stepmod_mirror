@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.7 2013/03/07 15:02:10 ungerer Exp $
+$Id: sect_annex_comp_int.xsl,v 1.6 2013/03/06 21:01:54 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -42,6 +42,8 @@ $Id: sect_annex_comp_int.xsl,v 1.7 2013/03/07 15:02:10 ungerer Exp $
   <xsl:variable name="bom_xsd" select="'../bom.xsd'"/>
   <xsl:variable name="bom_xml" select="concat('../bom', $FILE_EXT)"/>
   <xsl:variable name="bom_p28" select="'../p28_config.xml'"/>
+  <xsl:variable name="bom_xsd_file" select="concat('config_xsd', $FILE_EXT)"/>
+  <xsl:variable name="config_xml_file" select="concat('config_xsd', $FILE_EXT)"/>
       
   <p>
     This annex provides a listing of the Business Object Model EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. It also provides a listing of the XML schema and the XML configuration specification.
@@ -79,13 +81,13 @@ $Id: sect_annex_comp_int.xsl,v 1.7 2013/03/07 15:02:10 ungerer Exp $
     </tr>
     <tr>
       <td>BO XML schema</td>
-      <td><a href="bom_xsd.xml" target="info">HTML</a></td>
+      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
       <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
       <td>ISO TC184/SC4/WG12 N8326</td>
     </tr>
     <tr>
       <td>BO XML configuration specification</td>
-      <td><a href="config_xsd.xml" target="info">HTML</a></td>
+      <td><a href="{$config_xml_file}" target="info">HTML</a></td>
       <td><a href="{$bom_p28}" target="_blank">XML</a></td>
       <td>ISO TC184/SC4/WG12 N8328</td>
     </tr>

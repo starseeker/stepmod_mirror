@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.6 2013/03/06 21:01:54 mikeward Exp $
+$Id: sect_annex_comp_int.xsl,v 1.9 2013/03/13 21:10:56 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -42,7 +42,7 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2013/03/06 21:01:54 mikeward Exp $
   <xsl:variable name="bom_xsd" select="'../bom.xsd'"/>
   <xsl:variable name="bom_xml" select="concat('../bom', $FILE_EXT)"/>
   <xsl:variable name="bom_p28" select="'../p28_config.xml'"/>
-  <xsl:variable name="bom_xsd_file" select="concat('config_xsd', $FILE_EXT)"/>
+  <xsl:variable name="bom_xsd_file" select="concat('bom_xsd', $FILE_EXT)"/>
   <xsl:variable name="config_xml_file" select="concat('config_xsd', $FILE_EXT)"/>
       
   <p>

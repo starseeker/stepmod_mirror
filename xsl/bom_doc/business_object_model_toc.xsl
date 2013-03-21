@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: business_object_model_toc.xsl,v 1.31 2010/02/03 11:56:23 mikeward Exp $
+  $Id: business_object_model_toc.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for an BOM document.     
@@ -85,7 +85,7 @@
           <td valign="TOP">
             <p class="toc">
               <a href="{$business_object_model_root}/sys/annex_exp_lf{$FILE_EXT}">
-                A EXPRESS expanded listings
+                A Listings
               </a>
               <br/>
               <a href="{$business_object_model_root}/sys/annex_shortnames{$FILE_EXT}">

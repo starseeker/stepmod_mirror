@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.7 2008/04/23 20:52:04 darla Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -13,6 +13,12 @@ $Id: sect_annex_exp_lf.xsl,v 1.7 2008/04/23 20:52:04 darla Exp $
   <xsl:output method="html"/>
 	
   <xsl:template match="application_protocol">
+    
+    <!-- BOM -->
+    <xsl:variable name="bom_name" select="@business_object_model"/>
+    
+    
+    
 
     <xsl:variable name="module" select="@module_name"/>
     <xsl:variable name="module_ok">
@@ -64,7 +70,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.7 2008/04/23 20:52:04 darla Exp $
 
     <xsl:call-template name="annex_header">
       <xsl:with-param name="annex_no" select="'A'"/>
-      <xsl:with-param name="heading" select="'EXPRESS expanded listings'"/>
+      <xsl:with-param name="heading" select="'Listings'"/>
       <xsl:with-param name="aname" select="'annexa_lf'"/>
       <xsl:with-param name="informative" select="'normative'"/>
     </xsl:call-template>
@@ -107,6 +113,80 @@ $Id: sect_annex_exp_lf.xsl,v 1.7 2008/04/23 20:52:04 darla Exp $
       the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
+    <!-- BOM -->
+    <xsl:if test="string-length($bom_name) > 0">
+      
+      <xsl:variable name="bom_number">
+        <xsl:variable name="path_to_bom" select="concat('../../data/business_object_models/', $bom_name, '/business_object_model.xml')"/>
+        <xsl:value-of select="document($path_to_bom)//business_object_model/@part"/>
+      </xsl:variable>
+      
+      <xsl:variable name="bom_iso_number" select="concat('ISO/TS 10303-', $bom_number)"/>
+      
+      <xsl:variable name="path_to_bom_home" select="concat('../../../../data/business_object_models/', $bom_name, '/home', $FILE_EXT)"/>
+      
+    <!-- BOM exp -->
+      
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'A.3 BO Model EXPRESS listing'"/>
+      <xsl:with-param name="aname" select="'annexa3'"/>
+    </xsl:call-template>
+      
+    <xsl:variable name="bom_exp_href" 
+      select="concat('../../../business_object_models/',$bom_name,'/bom',$FILE_EXT)"/>
+    <p>
+      The 
+      <a href="{$bom_exp_href}" target="_blank">
+        BO Model EXPRESS 
+      </a>
+      expanded listing for this part of ISO 10303 is provided in 
+      <!--     Annex <a href="{$annex_e_href}">E</a> of  --> 
+      the BO Model, 
+      <a href="{$path_to_bom_home}" target="_blank"><xsl:value-of select="$bom_iso_number"/></a>.
+    </p>
+      
+      <!-- BOM xsd -->
+    
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'A.4 BO Model XML Schema listing'"/>
+      <xsl:with-param name="aname" select="'annexa4'"/>
+    </xsl:call-template>
+    <xsl:variable name="bom_xsd_href" 
+      select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd',$FILE_EXT)"/>
+    
+    <p>
+      The 
+      <a href="{$bom_xsd_href}" target="_blank">
+        BO Model XML Schema 
+      </a>
+      listing for this part of ISO 10303 is provided in 
+      <!--     Annex <a href="{$annex_e_href}">E</a> of  --> 
+      the BO Model, 
+      <a href="{$path_to_bom_home}" target="_blank"><xsl:value-of select="$bom_iso_number"/></a>.
+    </p>
+    
+      <!-- BOM config -->
+    
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'A.5 BO Model XSD Configuration listing'"/>
+      <xsl:with-param name="aname" select="'annexa5'"/>
+    </xsl:call-template>
+      
+    <xsl:variable name="bom_config_href" 
+      select="concat('../../../business_object_models/',$bom_name,'/sys/config_xsd',$FILE_EXT)"/>
+    
+    <p>
+      The 
+      <a href="{$bom_config_href}" target="_blank">
+        BO Model XSD Configuration
+      </a>
+      listing for this part of ISO 10303 is provided in 
+      <!--     Annex <a href="{$annex_e_href}">E</a> of  --> 
+      the BO Model, 
+      <a href="{$path_to_bom_home}" target="_blank"><xsl:value-of select="$bom_iso_number"/></a>.
+    </p>
+    </xsl:if>
+    
   </xsl:template> 
 
 

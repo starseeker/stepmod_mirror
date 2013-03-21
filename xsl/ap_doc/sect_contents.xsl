@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
+$Id: sect_contents.xsl,v 1.55 2012/10/29 16:44:00 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -28,6 +28,9 @@ $Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
     <xsl:param name="complete" select="'no'"/>
     <!-- if short is yes then display level 3 entries -->
     <xsl:param name="short" select="'yes'"/>
+
+    <!-- BOM -->
+    <xsl:variable name="bom_name" select="@business_object_model"/>
 
     <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -125,12 +128,26 @@ $Id: sect_contents.xsl,v 1.53 2010/03/22 07:25:03 robbod Exp $
     <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="toc">
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
-    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A EXPRESS expanded listings</a>
+    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A Listings</a>
     <br/>
     &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_exp_lf{$FILE_EXT}#annexa1" target="{$target}">A.1 ARM EXPRESS expanded listing</a><br/>
     &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_exp_lf{$FILE_EXT}#annexa2" target="{$target}">A.2 MIM EXPRESS expanded listing</a><br/>
+
+
+      <!-- BOM -->
+      <xsl:if test="string-length($bom_name) > 0">
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./annex_exp_lf{$FILE_EXT}#annexa3" target="{$target}">A.3 BO Model EXPRESS listing</a><br/>
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./annex_exp_lf{$FILE_EXT}#annexa4" target="{$target}">A.4 BO Model XML Schema listing</a><br/>
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./annex_exp_lf{$FILE_EXT}#annexa5" target="{$target}">A.5 BO Model XSD Configuration listing</a><br/>
+        
+      </xsl:if>
+
+
 
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
       Annex B MIM short names

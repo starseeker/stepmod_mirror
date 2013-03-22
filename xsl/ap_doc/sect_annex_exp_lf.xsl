@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.9 2013/03/21 20:39:01 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -79,8 +79,11 @@ $Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
       <xsl:with-param name="heading" select="'A.1 ARM EXPRESS expanded listing'"/>
       <xsl:with-param name="aname" select="'annexa1'"/>
     </xsl:call-template>
+   <!-- <xsl:variable name="arm_lf_href" 
+   select="concat('../../../modules/',$module,'/sys/e_exp_arm_lf',$FILE_EXT)"/>-->
+    
     <xsl:variable name="arm_lf_href" 
-      select="concat('../../../modules/',$module,'/sys/e_exp_arm_lf',$FILE_EXT)"/>
+      select="concat('../../../modules/',$module,'/arm_lf.exp')"/>
 
     <xsl:variable name="annex_e_href" 
       select="concat('../../../modules/',$module,'/sys/e_exp',$FILE_EXT)"/>
@@ -101,7 +104,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
       <xsl:with-param name="aname" select="'annexa2'"/>
     </xsl:call-template>
     <xsl:variable name="mim_lf_href" 
-      select="concat('../../../modules/',$module,'/sys/e_exp_mim_lf',$FILE_EXT)"/>
+      select="concat('../../../modules/',$module,'/arm_lf.exp')"/>
 
     <p>
       The 
@@ -133,7 +136,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
     </xsl:call-template>
       
     <xsl:variable name="bom_exp_href" 
-      select="concat('../../../business_object_models/',$bom_name,'/bom',$FILE_EXT)"/>
+      select="concat('../../../business_object_models/',$bom_name,'/bom.exp')"/>
     <p>
       The 
       <a href="{$bom_exp_href}" target="_blank">
@@ -152,7 +155,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
       <xsl:with-param name="aname" select="'annexa4'"/>
     </xsl:call-template>
     <xsl:variable name="bom_xsd_href" 
-      select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd',$FILE_EXT)"/>
+      select="concat('../../../business_object_models/',$bom_name,'/bom.xsd')"/>
     
     <p>
       The 
@@ -173,7 +176,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.8 2008/05/21 17:34:55 abf Exp $
     </xsl:call-template>
       
     <xsl:variable name="bom_config_href" 
-      select="concat('../../../business_object_models/',$bom_name,'/sys/config_xsd',$FILE_EXT)"/>
+      select="concat('../../../business_object_models/',$bom_name,'/p28_config.xml')"/>
     
     <p>
       The 

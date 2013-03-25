@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.9 2013/03/21 20:39:01 mikeward Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.10 2013/03/22 15:20:26 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -104,7 +104,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.9 2013/03/21 20:39:01 mikeward Exp $
       <xsl:with-param name="aname" select="'annexa2'"/>
     </xsl:call-template>
     <xsl:variable name="mim_lf_href" 
-      select="concat('../../../modules/',$module,'/arm_lf.exp')"/>
+      select="concat('../../../modules/',$module,'/mim_lf.exp')"/>
 
     <p>
       The 

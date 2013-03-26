@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.46 2013/03/11 23:53:48 mikeward Exp $
+<!--  $Id: build.xsl,v 1.47 2013/03/12 21:04:01 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -30,15 +30,22 @@ Purpose: To build the initial ANT publication file.
 	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 	
 	<xsl:variable name="depbompresent">
-		<xsl:variable name="ap_name" select="//publication_index/application_protocols/ap_doc/@name"/>
-		<xsl:variable name="ap_doc_path" select="concat('../../data/application_protocols/', $ap_name, '/application_protocol.xml')"/>
-		<xsl:variable name="bom_name" select="document(string($ap_doc_path))//application_protocol/@business_object_model"/>
 		<xsl:choose>
-			<xsl:when test="string-length($bom_name) > 0">
+			<xsl:when test="//publication_index/business_object_models/bom_doc" >
 				<xsl:value-of select="'YES'"/>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="'NO'"/>
+				<xsl:variable name="ap_name" select="//publication_index/application_protocols/ap_doc/@name"/>
+				<xsl:variable name="ap_doc_path" select="concat('../../data/application_protocols/', $ap_name, '/application_protocol.xml')"/>
+				<xsl:variable name="bom_name" select="document(string($ap_doc_path))//application_protocol/@business_object_model"/>
+				<xsl:choose>
+					<xsl:when test="string-length($bom_name) > 0">
+						<xsl:value-of select="'YES'"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="'NO'"/>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>

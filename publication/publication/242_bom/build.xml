@@ -26,11 +26,11 @@
 				the correct values for the CVS tag and module edition
 				------------------------------------------------------------ </fail>
       <property name="PUBLICATION" value="YES"/>
-      <property name="PUBDIR" value="publication/isopub/ap242_bom"/>
-      <property name="SC4COVERDIR" value="publication/isopub/ap242_bom/sc4covers"/>
-      <property name="TMPDIR" value="publication/isopub/ap242_bom/tmp"/>
-      <property name="ISOMENU" value="./publication/publication/ap242_bom/menubar_iso.xml"/>
-      <property name="PUBSRCDIR" value="publication/publication/ap242_bom"/>
+      <property name="PUBDIR" value="publication/isopub/242_bom"/>
+      <property name="SC4COVERDIR" value="publication/isopub/242_bom/sc4covers"/>
+      <property name="TMPDIR" value="publication/isopub/242_bom/tmp"/>
+      <property name="ISOMENU" value="./publication/publication/242_bom/menubar_iso.xml"/>
+      <property name="PUBSRCDIR" value="publication/publication/242_bom"/>
       <property name="PUBSRCDTD" value="publication/dtd"/>
       <property name="PUBSRCSTYLES" value="publication/xsl"/>
       <property name="APDOCS_INLINE_ERRORS" value="'yes'"/>
@@ -117,7 +117,7 @@
       <xslt in="${PUBSRCDIR}/publication_index.xml" out="${PUBDIR}/readme.txt" destdir="${PUBDIR}" extension=".txt" style="${PUBSRCSTYLES}/publication_readme.xsl">
          <param name="date" expression="${DATE}"/>
       </xslt>
-      <fixcrlf srcdir="publication/isopub/ap242_bom" includes="readme.txt" eol="crlf"/>
+      <fixcrlf srcdir="publication/isopub/242_bom" includes="readme.txt" eol="crlf"/>
    </target>
     
    <target name="finish" depends="isoindex" description="remove the temporary files and zip the results.">
@@ -125,7 +125,22 @@
       <zip zipfile="${PUBDIR}/WG12N_${DATE}.zip" basedir="${PUBDIR}/" includes="**" excludes="*.zip, **/Thumbs.db"/>
    </target>
 	
-   
+   <target name="resources" depends="init" description="generate common resources">
+      <dependset>
+         <srcfileset dir="${STEPMODDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+         <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
+         <srcfilelist dir="." files="${RESOURCESXML}"/>
+         <targetfileset dir="${TMPDIR}" includes="/data/resources/**/*.htm"/>
+      </dependset>
+      <xslt includes="${RESOURCESXML}" destdir="${TMPDIR}" extension=".htm" style="${STEPMODSTYLES}/express.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_background" expression="${OUTPUT_RESOURCES_BACKGROUND}"/>
+         <param name="background_image" expression="greybackground.jpg"/>
+      </xslt>
+      <copy todir="${TMPDIR}">
+         <fileset dir="." includes="${RESOURCESEXP}"/>
+      </copy>
+   </target>
 		
    <target name="isobomdocs" depends="init" description="generate HTML for a BOM listed in the publication_index">
       <xslt includes="${BOMHOMEXML}" style="${STEPMODSTYLES}/bom_doc/home.xsl" destdir="${TMPDIR}" extension=".htm">

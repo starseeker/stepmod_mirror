@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
+$Id: sect_2_refs.xsl,v 1.24 2012/11/01 19:03:20 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -422,7 +422,12 @@ $Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
             <xsl:variable name="resource" select="substring-after($first,'resource:')"/>
             <xsl:value-of select="$resource"/>
           </xsl:when>
-          
+	  <!-- added nsw -->
+          <xsl:when test="contains($first,'model:')">
+            <xsl:variable name="model" select="substring-after($first,'model:')"/>
+            <xsl:value-of select="$model"/>
+   	 </xsl:when>
+	  <!-- end added nsw -->
           <xsl:otherwise/>
           
         </xsl:choose>
@@ -839,10 +844,10 @@ $Id: sect_2_refs.xsl,v 1.23 2008/11/14 13:47:06 darla Exp $
   <xsl:element name="part">
   <!-- Need to 'normalize' the length so that we can easier sort it -->
     <xsl:choose>
-      <xsl:when test="string-length(@part)=1">ISO-10303-000<xsl:value-of select="@part"/></xsl:when>
-      <xsl:when test="string-length(@part)=2">ISO-10303-00<xsl:value-of select="@part"/></xsl:when>
-      <xsl:when test="string-length(@part)=3">ISO-10303-0<xsl:value-of select="@part"/></xsl:when>
-      <xsl:when test="string-length(@part)=4">ISO-10303-<xsl:value-of select="@part"/></xsl:when>      
+      <xsl:when test="string-length(@part)=1">AISO-10303-000<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=2">AISO-10303-00<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=3">AISO-10303-0<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=4">AISO-10303-<xsl:value-of select="@part"/></xsl:when>      
       <xsl:otherwise>
             <xsl:call-template name="error_message">
               <xsl:with-param name="message">

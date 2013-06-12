@@ -1,5 +1,5 @@
 (*
- $Id: bom.exp,v 1.16 2013/02/21 10:38:07 ungerer Exp $
+ $Id: bom.exp,v 1.17 2013/02/21 10:41:56 ungerer Exp $
  ISO TC184/SC4/WG12 N8327 - ISO DIS 10303-3001 Managed model based 3d engineering - EXPRESS BOM
  Supersedes ISO TC184/SC4/WG12 N2816
  
@@ -120,6 +120,14 @@ TYPE ActivityMethodAssignmentSelect = SELECT(
   WorkRequest
 );
 END_TYPE;
+
+TYPE ActuatedDirection = ENUMERATION OF (
+  bidirectional,
+  positive_only,
+  negative_only,
+  not_actuated
+);
+END_TYPE; 
 
 TYPE AngleSelect = SELECT(
   CoordinateSystem,
@@ -511,6 +519,18 @@ TYPE ExternalSourceSelect = SELECT(
 );
 END_TYPE;
 
+TYPE ExternalCurveOrSurfaceSelect = SELECT (
+  ExternalCurve,
+  ExternalSurface
+);
+END_TYPE;	
+
+TYPE ExternalTrimmedCurveOrSurfaceSelect = SELECT (
+  ExternalTrimmedCurve,
+  ExternalRectangularTrimmedSurface
+);
+END_TYPE;	
+
 TYPE FinalDefinitionSelect = SELECT(
   IndividualPartView,
   PartView,
@@ -604,6 +624,18 @@ END_TYPE;
 TYPE GeometricModelOrExternalRepresentationSelect = SELECT(
   ExternalRepresentation,
   GeometricModel
+);
+END_TYPE;
+
+TYPE HighOrderKinematicPairType = ENUMERATION OF (
+  linearFlexibleAndPlanarCurvePair,
+  pointOnSurfacePair,
+  pointOnPlanarCurvePair,
+  planarCurvePair,
+  rollingCurvePair,
+  slidingCurvePair,
+  rollingSurfacePair,
+  slidingSurfacePair
 );
 END_TYPE;
 
@@ -721,6 +753,14 @@ TYPE InformationUsageRightAssignmentSelect = SELECT(
 );
 END_TYPE;
 
+TYPE InterpolationType = ENUMERATION OF (
+  undefinedInterpolationType,
+  discontinuousInterpolationType,
+  synchronous_interpolationType,
+  linearInterpolationType
+);
+END_TYPE; 
+
 TYPE InZoneSelect = SELECT(
   ActivityMethod,
   ActivityMethodAssignment,
@@ -742,6 +782,27 @@ END_TYPE;
 TYPE LifeCycleStageSelect = SELECT(
   LifeCycleStage,
   ProxySelect
+);
+END_TYPE;
+
+TYPE LowOrderKinematicPairType = ENUMERATION OF (
+  cylindricalPair,
+  fullyConstrainedPair,
+  planarPair,
+  prismaticPair,
+  revolutePair,
+  sphericalPair,
+  sphericalPair_with_pin,
+  unconstrainedPair,
+  universalPair
+);
+END_TYPE;
+
+TYPE LowOrderKinematicPairWithMotionCouplingType = ENUMERATION OF (
+	gearPair,
+	linearFlexibleAndPinionPair,
+	rackAndPinionPair,
+	screwPair
 );
 END_TYPE;
 
@@ -791,6 +852,9 @@ TYPE OrientedSurfaceSelect = SELECT(
   ExternalSurface
 );
 END_TYPE;
+
+TYPE ParameterValue = REAL;
+END_TYPE; 
 
 TYPE PartInformationSelect = SELECT(
   BreakdownElement,
@@ -844,6 +908,10 @@ TYPE PhysicalElementSelect = SELECT(
   PartView
 );
 END_TYPE;
+
+TYPE PlaneAngleMeasure = REAL;
+END_TYPE; 
+
 
 TYPE PlyLaminateShapeSelect = SELECT(
   CompositeSheetRepresentation,
@@ -1013,6 +1081,9 @@ TYPE RequirementVersionOrViewSelect = SELECT(
 );
 END_TYPE;
 
+TYPE RotationAboutAxes = LIST[1:3] OF PlaneAngleMeasure;
+END_TYPE; 
+
 TYPE SecurityClassificationSelect = SELECT(
   Activity,
   ActivityAssignment,
@@ -1065,6 +1136,12 @@ TYPE ShapeInformationSelect = SELECT(
   ShapeElementRelationship,
   ShapedElementSelect
 );
+END_TYPE;
+
+TYPE SimpleOrSpatialRotation = SELECT (
+  RotationAboutAxes,
+  RotationAboutDirection
+); 
 END_TYPE;
 
 TYPE SingleIdentifierSelect = SELECT(
@@ -1176,6 +1253,9 @@ END_TYPE;
 TYPE TranslatedStringSet = SET[1:?] OF LocalizedString;
 END_TYPE;
 
+TYPE TranslationAlongAxes = LIST[1:3] OF LengthMeasure;
+END_TYPE; 
+
 TYPE TypeQualifierSelect = SELECT(
   ExternalTypeQualifier,
   PreDefinedTypeQualifier
@@ -1277,6 +1357,15 @@ ENTITY ActivityRelationship;
   related : Activity;
 WHERE
   WR1: relating :<>: related;
+END_ENTITY;
+
+ENTITY ActuatedPair;
+  tx : OPTIONAL ActuatedDirection;
+  ty : OPTIONAL ActuatedDirection;
+  tz : OPTIONAL ActuatedDirection;
+  rx : OPTIONAL ActuatedDirection;
+  ry : OPTIONAL ActuatedDirection;
+  rz : OPTIONAL ActuatedDirection;
 END_ENTITY;
 
 ENTITY AddElement
@@ -2261,6 +2350,14 @@ ENTITY ExternalTessellatedShapeRepresentation
   SUBTYPE OF(ExternalRepresentation);
 END_ENTITY;
 
+ENTITY ExternalRectangularTrimmedSurface
+  SUBTYPE OF (ExternalSurface);
+END_ENTITY;
+
+ENTITY ExternalTrimmedCurve
+  SUBTYPE OF (ExternalCurve);
+END_ENTITY;	
+
 ENTITY ExternalTypeQualifier;
   sameAs : OPTIONAL ProxySelect;
 END_ENTITY;
@@ -2392,6 +2489,24 @@ END_ENTITY;
 
 ENTITY Hardcopy
   SUBTYPE OF(File);
+END_ENTITY;
+
+ENTITY HighOrderKinematicPair
+  SUBTYPE OF (KinematicPair);
+  kind : HighOrderKinematicPairType;
+  model1 : ExternalGeometricModel; 
+  model2 : OPTIONAL ExternalGeometricModel; 
+  curveOrSurface1 : ExternalCurveOrSurfaceSelect;
+  curveOrSurface2 : OPTIONAL ExternalCurveOrSurfaceSelect;
+  orientation : OPTIONAL BOOLEAN;
+  range1 : OPTIONAL ExternalTrimmedCurveOrSurfaceSelect;
+  range2 : OPTIONAL ExternalTrimmedCurveOrSurfaceSelect;
+  lowerLimitYaw : OPTIONAL PlaneAngleMeasure;
+  upperLimitYaw : OPTIONAL PlaneAngleMeasure;
+  lowerLimitPitch : OPTIONAL PlaneAngleMeasure;
+  upperLimitPitch : OPTIONAL PlaneAngleMeasure;
+  lowerLimitRoll : OPTIONAL PlaneAngleMeasure;
+  upperLimitRoll : OPTIONAL PlaneAngleMeasure;
 END_ENTITY;
 
 ENTITY Identifier;
@@ -2539,11 +2654,76 @@ ENTITY InstancePlacement;
   referenceComponent : BreakdownElementView;
 END_ENTITY;
 
+ENTITY InterpolatedConfigurationModel;
+  id : IdentifierSelect;
+  name : OPTIONAL DescriptorSelect;
+  description : OPTIONAL DescriptorSelect;
+  versionId : OPTIONAL IdentifierSelect;
+  definedIn : GeometricCoordinateSpace;
+  parameterUnit : Unit;
+  synchronisedSequences : SET[1:?] OF InterpolatedConfigurationSequence;
+END_ENTITY;
+
+ENTITY InterpolatedConfigurationSequence;
+  segments : LIST[2:?] OF InterpolatedConfigurationSegment;
+END_ENTITY;
+
+ENTITY InterpolatedConfigurationSegment;
+  state : MechanismState;
+  t_parameter : ParameterValue;
+  interpolation : interpolationType;
+END_ENTITY;
+
 ENTITY InZoneAssociation;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   locatedItem : InZoneSelect;
   zone : BreakdownElementView;
+END_ENTITY;
+
+ENTITY KinematicLink;
+  id : IdentifierSelect;
+  name : OPTIONAL DescriptorSelect;
+  description : OPTIONAL DescriptorSelect;
+  versionId : OPTIONAL IdentifierSelect;
+  definedIn : GeometricCoordinateSpace;
+  ofModel : OPTIONAL ExternalGeometricModel;
+  paitFrames : SET[1:?] OF CoordinateSystem;
+END_ENTITY;
+
+ENTITY KinematicLinkToPartOccurrenceAssociation;
+  associatedLink : KinematicLink;
+  associatedTo : AssemblyOccurrenceRelationship;	
+END_ENTITY;
+
+ENTITY KinematicMechanismAssociation;
+  associatedMechanism : Mechanism;
+  associatedTo : AssemblyDefinition;
+  baseLink : KinematicLink;
+UNIQUE
+  ur1 : associatedTo;  
+END_ENTITY;
+
+ENTITY KinematicPair
+  ABSTRACT SUPERTYPE OF ( ONEOF (
+		LowOrderKinematicPair, 
+		LowOrderKinematicPairWithMotionCoupling, 
+		HighOrderKinematicPair));
+  link1 : KinematicLink;
+  link2 : KinematicLink;
+  pairFrame1 : CoordinateSystem;
+  pairFrame2 : CoordinateSystem;
+  actuation : OPTIONAL ActuatedPair;
+END_ENTITY;
+
+ENTITY KinematicPairValue;
+  appliesToPair : KinematicPair;
+  actualTranslation : OPTIONAL TranslationAlongAxes;
+  actualRotation : OPTIONAL RotationAboutAxes;
+  actualPointOnCurve1 : OPTIONAL ExternalPointOnCurve;
+  actualPointOnCurve2 : OPTIONAL ExternalPointOnCurve;
+  actualPointOnSurface1 : OPTIONAL ExternalPointOnSurface;
+  actualPointOnSurface2 : OPTIONAL ExternalPointOnSurface;
 END_ENTITY;
 
 ENTITY KinematicPathDefinedByNodes;
@@ -2615,6 +2795,38 @@ ENTITY LocalizedString;
   text : CharacterString;
 WHERE
   encapsulated: SIZEOF(USEDIN(SELF,''))=1;
+END_ENTITY;
+
+ENTITY LowOrderKinematicPair
+  SUBTYPE OF (KinematicPair);
+  kind : LowOrderKinematicPairType;
+  lowerLimitActualTranslationX : OPTIONAL LengthMeasure;
+  upperLimitActualTranslationX : OPTIONAL LengthMeasure;
+  lowerLimitActualTranslationY : OPTIONAL LengthMeasure;
+  upperLimitActualTranslationY : OPTIONAL LengthMeasure;
+  lowerLimitActualTranslationZ : OPTIONAL LengthMeasure;
+  upperLimitActualTranslationZ : OPTIONAL LengthMeasure;
+  lowerLimitActualRotationX : OPTIONAL PlaneAngleMeasure;
+  upperLimitActualRotationX : OPTIONAL PlaneAngleMeasure;
+  lowerLimitActualRotationY : OPTIONAL PlaneAngleMeasure;
+  upperLimitActualRotationY : OPTIONAL PlaneAngleMeasure;
+  lowerLimitActualRotationZ : OPTIONAL PlaneAngleMeasure;
+  upperLimitActualRotationZ : OPTIONAL PlaneAngleMeasure;
+END_ENTITY;
+
+ENTITY LowOrderKinematicPairWithMotionCoupling
+  SUBTYPE OF (KinematicPair);
+  kind : LowOrderKinematicPairWithMotionCouplingType;
+  pitch : OPTIONAL LengthMeasure;
+  radius1 : OPTIONAL LengthMeasure;
+  radius2 : OPTIONAL LengthMeasure;
+  lowerLimitRackDisplacement : OPTIONAL LengthMeasure;
+  upperLimitRackDisplacement : OPTIONAL LengthMeasure;
+  lowerLimitActualRotation : OPTIONAL PlaneAngleMeasure;
+  upperLimitActualRotation : OPTIONAL PlaneAngleMeasure;
+  bevel : OPTIONAL PlaneAngleMeasure;
+  helical_angle : OPTIONAL PlaneAngleMeasure;
+  gear_ratio : OPTIONAL REAL;
 END_ENTITY;
 
 ENTITY LotConfiguration
@@ -2717,6 +2929,24 @@ WHERE
   encapsulated: SIZEOF(USEDIN(SELF,''))=1;
 END_ENTITY;
 
+ENTITY Mechanism;
+  id : IdentifierSelect;
+  name : OPTIONAL DescriptorSelect;
+  description : OPTIONAL DescriptorSelect;
+  versionId : OPTIONAL IdentifierSelect;
+  definedIn : GeometricCoordinateSpace;
+  items : SET[1:?] OF KinematicPair;
+END_ENTITY;
+
+ENTITY MechanismState;
+  id : IdentifierSelect;
+  name : OPTIONAL DescriptorSelect;
+  description : OPTIONAL DescriptorSelect;
+  versionId : OPTIONAL IdentifierSelect;
+  representedMechanism : Mechanism;
+  items : SET[1:?] OF KinematicPairValue;
+END_ENTITY;
+
 ENTITY ModelProperty;
   definition : PropertyDefinitionSelect;
   specifiedValue : ModelPropertyValueSelect;
@@ -2750,6 +2980,16 @@ ENTITY MomentsOfInertia
   SELF\ShapeDependentProperty.definedIn : GeometricCoordinateSpace;
   inertiaValue : ARRAY[1:3] OF ARRAY[1:3] OF NumericalValue;
   referenceAxisPlacement : CoordinateSystem;
+END_ENTITY;
+
+TYPE MotionModel = SELECT (
+  LinkMotionAlongPath,
+  InterpolatedConfigurationModel);
+END_TYPE;	
+
+ENTITY MotionModelAssociation; 
+  associatedModel : MotionModel;
+  associatedTo : AssemblyDefinition;
 END_ENTITY;
 
 ENTITY NamedSize
@@ -3542,6 +3782,12 @@ ENTITY RetentionPeriod;
   start : EventOrDateSelect;
 END_ENTITY;
 
+ENTITY RotationAboutDirection
+  SUBTYPE OF (DetailedGeometricModelElement);
+  directionOfAxis : Direction;
+  rotationAngle : PlaneAngleMeasure;
+END_ENTITY;
+
 ENTITY SameTimeMachiningRelationship
   SUBTYPE OF(PartOccurrenceRelationship);
   placement : OPTIONAL TransformationSelect;
@@ -3820,6 +4066,14 @@ ENTITY TimeIntervalEffectivity
   SUBTYPE OF(Effectivity);
   effectivityPeriod : TimeInterval;
 END_ENTITY;
+
+ENTITY ToolAttachmentPointFrame
+  SUBTYPE OF (CoordinateSystem);
+END_ENTITY;	
+	
+ENTITY ToolCentrePointFrame
+  SUBTYPE OF (CoordinateSystem);
+END_ENTITY;	
 
 ENTITY ToolPartRelationship
   SUBTYPE OF(PartViewRelationship);

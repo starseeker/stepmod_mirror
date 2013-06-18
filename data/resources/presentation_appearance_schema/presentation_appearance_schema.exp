@@ -21,6 +21,9 @@ REFERENCE FROM geometry_schema
      polyline, 
      vector);
 
+REFERENCE FROM topology_schema
+    (topological_representation_item);
+
 REFERENCE FROM group_schema
   (group);
 
@@ -261,7 +264,8 @@ REFERENCE FROM support_resource_schema
   TYPE styled_item_target = SELECT
     (geometric_representation_item,
      mapped_item,
-     representation);
+     representation,
+     topological_representation_item);
   END_TYPE;
 
   TYPE surface_side = ENUMERATION OF
@@ -385,9 +389,11 @@ REFERENCE FROM support_resource_schema
   ENTITY curve_style
     SUBTYPE OF (founded_item);
       name         : label;
-      curve_font   : curve_font_or_scaled_curve_font_select;
-      curve_width  : size_select;
-      curve_colour : colour;
+      curve_font   : OPTIONAL curve_font_or_scaled_curve_font_select;
+      curve_width  : OPTIONAL size_select;
+      curve_colour : OPTIONAL colour;
+  WHERE
+    WR1: EXISTS(curve_font) OR EXISTS(curve_width) OR EXISTS(curve_colour);
   END_ENTITY;
 
   ENTITY curve_style_curve_pattern
@@ -435,11 +441,15 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (curve_style);
       curve_ends    : squared_or_rounded;
       curve_corners : squared_or_rounded;
+  WHERE
+    WR1: EXISTS(curve_width);
   END_ENTITY;
 
   ENTITY curve_style_with_extension
     SUBTYPE OF (curve_style);
       curve_extensions   : length_measure;
+  WHERE
+    WR1: EXISTS(curve_width);
   END_ENTITY;
 
   ENTITY draughting_pre_defined_curve_font

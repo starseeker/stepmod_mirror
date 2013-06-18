@@ -20,6 +20,9 @@
          <interfaced.item name="polyline"/>
          <interfaced.item name="vector"/>
       </interface>
+      <interface kind="reference" schema="topology_schema">
+         <interfaced.item name="topological_representation_item"/>
+      </interface>
       <interface kind="reference" schema="group_schema">
          <interfaced.item name="group"/>
       </interface>
@@ -162,7 +165,7 @@
          <select extensible="NO" genericentity="NO" selectitems="group presentation_layer_assignment presentation_set representation representation_item representation_relationship"/>
       </type>
       <type name="styled_item_target">
-         <select extensible="NO" genericentity="NO" selectitems="geometric_representation_item mapped_item representation"/>
+         <select extensible="NO" genericentity="NO" selectitems="geometric_representation_item mapped_item representation topological_representation_item"/>
       </type>
       <type name="surface_side">
          <enumeration extensible="NO" items="positive negative both"/>
@@ -258,15 +261,16 @@
          <explicit name="name" optional="NO">
             <typename name="label"/>
          </explicit>
-         <explicit name="curve_font" optional="NO">
+         <explicit name="curve_font" optional="YES">
             <typename name="curve_font_or_scaled_curve_font_select"/>
          </explicit>
-         <explicit name="curve_width" optional="NO">
+         <explicit name="curve_width" optional="YES">
             <typename name="size_select"/>
          </explicit>
-         <explicit name="curve_colour" optional="NO">
+         <explicit name="curve_colour" optional="YES">
             <typename name="colour"/>
          </explicit>
+         <where expression="EXISTS(curve_font) OR EXISTS(curve_width) OR EXISTS(curve_colour)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="curve_style_curve_pattern" supertypes="geometric_representation_item">
          <explicit name="pattern" optional="NO">
@@ -334,11 +338,13 @@
          <explicit name="curve_corners" optional="NO">
             <typename name="squared_or_rounded"/>
          </explicit>
+         <where expression="EXISTS(curve_width)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="curve_style_with_extension" supertypes="curve_style">
          <explicit name="curve_extensions" optional="NO">
             <typename name="length_measure"/>
          </explicit>
+         <where expression="EXISTS(curve_width)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="draughting_pre_defined_curve_font" supertypes="pre_defined_curve_font">
          <where expression="SELF.name IN&#10;        ['continuous',&#10;         'chain',&#10;         'chain double dash',&#10;         'dashed',&#10;         'dotted']" label="WR1"/>

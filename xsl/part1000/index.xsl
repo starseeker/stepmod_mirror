@@ -52,6 +52,33 @@
 		&#160;&#160;&#160;&#160;<a href="{$file_ref1}" target="info"><xsl:value-of select="concat('TC ',@cor,': ',@pub_year_mo)"/></a>
 	      </xsl:for-each>
 	    </xsl:if>
+	  	<xsl:if test="doc/dam">
+	  		<xsl:for-each select="doc/dam">
+	  			<xsl:variable name="file_ref1">
+	  				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+	  			</xsl:variable>
+	  			<br/>
+	  			&#160;&#160;&#160;&#160;<a href="{$file_ref1}" target="info"><xsl:value-of select="concat('DAM ',@cor,': ',@pub_year_mo)"/></a>
+	  		</xsl:for-each>
+	  	</xsl:if>
+	  	<xsl:if test="doc/fdam">
+	  		<xsl:for-each select="doc/fdam">
+	  			<xsl:variable name="file_ref1">
+	  				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+	  			</xsl:variable>
+	  			<br/>
+	  			&#160;&#160;&#160;&#160;<a href="{$file_ref1}" target="info"><xsl:value-of select="concat('FDAM ',@cor,': ',@pub_year_mo)"/></a>
+	  		</xsl:for-each>
+	  	</xsl:if>
+	  	<xsl:if test="doc/amendment">
+	  		<xsl:for-each select="doc/amendment">
+	  			<xsl:variable name="file_ref1">
+	  				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+	  			</xsl:variable>
+	  			<br/>
+	  			&#160;&#160;&#160;&#160;<a href="{$file_ref1}" target="info"><xsl:value-of select="concat('AMENDMENT ',@cor,': ',@pub_year_mo)"/></a>
+	  		</xsl:for-each>
+	  	</xsl:if>
 	  </td>
 	  <td><xsl:value-of select="doc/@edition"/></td>
 	  <td><xsl:value-of select="doc/@pub_year_mo"/></td>
@@ -473,6 +500,54 @@
 	</xsl:for-each>
 	<xsl:text>]</xsl:text>
       </xsl:if>
+    	<xsl:if test="doc/dam">
+    		<xsl:variable name="directory">
+    			<xsl:call-template name="get_directory"/>
+    		</xsl:variable>
+    		<xsl:text> [DAM </xsl:text>
+    		<xsl:for-each select="doc/dam">
+    			<xsl:variable name="file_ref1">
+    				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+    			</xsl:variable>
+    			<a href="{$file_ref1}" target="info"><xsl:value-of select="@cor"/></a>
+    			<xsl:if test="position() lt last()">
+    				<xsl:text>, </xsl:text>
+    			</xsl:if>
+    		</xsl:for-each>
+    		<xsl:text>]</xsl:text>
+    	</xsl:if>
+    	<xsl:if test="doc/fdam">
+    		<xsl:variable name="directory">
+    			<xsl:call-template name="get_directory"/>
+    		</xsl:variable>
+    		<xsl:text> [FDAM </xsl:text>
+    		<xsl:for-each select="doc/fdam">
+    			<xsl:variable name="file_ref1">
+    				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+    			</xsl:variable>
+    			<a href="{$file_ref1}" target="info"><xsl:value-of select="@cor"/></a>
+    			<xsl:if test="position() lt last()">
+    				<xsl:text>, </xsl:text>
+    			</xsl:if>
+    		</xsl:for-each>
+    		<xsl:text>]</xsl:text>
+    	</xsl:if>
+    	<xsl:if test="doc/amendment">
+    		<xsl:variable name="directory">
+    			<xsl:call-template name="get_directory"/>
+    		</xsl:variable>
+    		<xsl:text> [AMENDMENT </xsl:text>
+    		<xsl:for-each select="doc/amendment">
+    			<xsl:variable name="file_ref1">
+    				<xsl:value-of select="concat('../../resource_docs/',$directory,'/',@filename)"/>
+    			</xsl:variable>
+    			<a href="{$file_ref1}" target="info"><xsl:value-of select="@cor"/></a>
+    			<xsl:if test="position() lt last()">
+    				<xsl:text>, </xsl:text>
+    			</xsl:if>
+    		</xsl:for-each>
+    		<xsl:text>]</xsl:text>
+    	</xsl:if>
     </xsl:for-each>
     <br/>
   </xsl:template>

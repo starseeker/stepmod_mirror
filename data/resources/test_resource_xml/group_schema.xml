@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="descriptions.xml" language_version="2" 
+rcs.date="$Date: 2012/07/26 12:56:04 $" rcs.revision="$Revision: 1.10 $">
+<description>
+   (*
+   $Id: group_schema.exp,v 1.11 2012/10/15 11:15:09 lothartklein Exp $
+   
+   ISO TC184/SC4/WG12 N9990
+   
+   EXPRESS Source: ISO 10303-041 ed4 Fundamentals of product description and support - Group Schema
+   
+   The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
+   and derivations of the Schema:
+   
+   Copyright ISO 2013  All rights reserved
+   Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
+   to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
+   implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
+   subject to the following conditions:
+   
+   THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE USE OR OTHER DEALINGS IN THE SCHEMA.
+   
+   In addition, any modified copy of the Schema shall include the following notice:
+   
+   THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+   ISO 10303-041 ed4 Fundamentals of product description and support - Group Schema,
+   AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD.
+   *)
+</description>
+   <application name="JSDAI" owner="LKSoft" source="group_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="group_schema">
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="get_id_value"/>
+         <interfaced.item name="id_attribute"/>
+         <interfaced.item name="id_attribute_select"/>
+      </interface>
+      <type name="gs_id_attribute_select">
+         <select basedon="id_attribute_select" selectitems="group"/>
+      </type>
+      <entity name="group">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <derived expression="get_id_value(SELF)" name="id">
+            <typename name="identifier"/>
+         </derived>
+         <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
+      </entity>
+      <entity name="group_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_group">
+            <typename name="group"/>
+         </explicit>
+         <explicit name="related_group">
+            <typename name="group"/>
+         </explicit>
+      </entity>
+      <function name="acyclic_group_relationship">
+         <parameter name="relation">
+            <typename name="group_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="group"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF group_relationship;
+    END_LOCAL;
+
+    IF relation.relating_group IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(grp &lt;* bag_to_set(USEDIN(relation.relating_group, 'GROUP_SCHEMA.' + 'GROUP_RELATIONSHIP.' + 'RELATED_GROUP')) | specific_relation IN TYPEOF(grp));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_group_relationship(x[i], relatives + relation.relating_group, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+   </schema>
+</express>

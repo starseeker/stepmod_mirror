@@ -1,0 +1,88 @@
+(*
+$Id: group_schema.exp,v 1.11 2012/10/15 11:15:09 lothartklein Exp $
+
+ISO TC184/SC4/WG12 N9990
+   
+EXPRESS Source: ISO 10303-041 ed4 Fundamentals of product 
+description and support - Group Schema
+   
+The following permission notice and disclaimer shall be 
+included in all copies of this EXPRESS schema ("the Schema"), 
+and derivations of the Schema:
+
+Copyright ISO 2013  All rights reserved
+Permission is hereby granted, free of charge in perpetuity, to 
+any person obtaining a copy of the Schema,
+to use, copy, modify, merge and distribute free of charge, 
+copies of the Schema for the purposes of developing, 
+implementing, installing and using software based on the Schema, 
+and to permit persons to whom the Schema is furnished to do so, 
+subject to the following conditions:
+
+THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
+USE OR OTHER DEALINGS IN THE SCHEMA.
+
+In addition, any modified copy of the Schema shall include the following notice:
+
+THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+ISO 10303-041 ed4 Fundamentals of product description and 
+support - Group Schema,
+AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD.
+
+*)
+
+SCHEMA group_schema;
+
+  REFERENCE FROM support_resource_schema (
+    label, 
+    bag_to_set, 
+    identifier, 
+    text);
+  REFERENCE FROM basic_attribute_schema (
+    get_id_value, 
+    id_attribute,
+    id_attribute_select);
+    
+  TYPE gs_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    group);
+  END_TYPE;
+    
+  ENTITY group;
+    name : label;
+    description : OPTIONAL text;
+  DERIVE
+    id : identifier := get_id_value(SELF);
+  WHERE
+    WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+  END_ENTITY;
+
+  ENTITY group_relationship;
+    name : label;
+    description : OPTIONAL text;
+    relating_group : group;
+    related_group : group;
+  END_ENTITY;
+
+  FUNCTION acyclic_group_relationship (relation : group_relationship; relatives : SET [1:?] OF group; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF group_relationship;
+    END_LOCAL;
+
+    IF relation.relating_group IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(grp <* bag_to_set(USEDIN(relation.relating_group, 'GROUP_SCHEMA.' + 'GROUP_RELATIONSHIP.' + 'RELATED_GROUP')) | specific_relation IN TYPEOF(grp));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_group_relationship(x[i], relatives + relation.relating_group, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+END_SCHEMA;

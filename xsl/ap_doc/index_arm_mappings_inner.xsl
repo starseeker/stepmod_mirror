@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -503,9 +503,6 @@ $Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
 						substring($this-entity,2))" />
 
 	<xsl:if test="string-length($this-item) > 0" >
-<!--
-	VVVV<xsl:value-of select="$test" />VVVV<xsl:value-of select="$this-item" />XXX
--->	
 
 <!-- this may fail if a select type contains another select type -->
 
@@ -581,7 +578,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
                                             		<xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
                                             		<xsl:with-param 
                                             			name="message" 
-                                            			select="concat('Error APmapindex4: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' entity: ', $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW Expected ',$MAPPING_OF,' in path')"/>                                                  
+                                            			select="concat('Error APmapindex4: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' for entity: ', $this-item,' attribute ',$this-attribute,' in ',$entity-module,' - Expected ',$MAPPING_OF,' in path')"/>                                                  
                                             	</xsl:call-template>
                                             </xsl:otherwise>
                                           </xsl:choose>
@@ -594,7 +591,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
 						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			        		  <xsl:with-param 
 					            name="message" 
-                                                    select="concat('Error APmapindex3: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' entity: ', $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW ')"/>                                                  
+                                                    select="concat('Error APmapindex3: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' for entity: ', $this-item,' attribute ',$this-attribute,' in module ',$entity-module)"/>                                                  
 						</xsl:call-template>    				
  					</xsl:otherwise>
 				</xsl:choose>
@@ -633,9 +630,6 @@ $Id: index_arm_mappings_inner.xsl,v 1.27 2009/03/25 11:53:39 robbod Exp $
 					</xsl:otherwise>
 				</xsl:choose>
 				
-
-
-
 			</xsl:when>
 
 		</xsl:choose>

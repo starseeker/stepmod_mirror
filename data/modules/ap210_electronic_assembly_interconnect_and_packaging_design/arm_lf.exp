@@ -1,5 +1,5 @@
 (*
-   $Id: arm_lf.exp,v 1.52 2013/03/05 14:37:06 thomasrthurman Exp $
+   $Id: arm_lf.exp,v 1.53 2013/05/15 14:15:53 thomasrthurman Exp $
    ISO TC184/SC4/WG12 8339 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM Long form 
    Supersedes ISO TC184/SC4/WG3 N8231
    patched 2013-05-15 to add solderdam to enumeration. bugzilla #4772.
@@ -242,7 +242,7 @@ CONSTANT
  'tool improvement'];
 
 
-	schema_date : STRING := 'Wed May 15 15:12:43:01 2013';
+	schema_date : STRING := 'Sun Sep 22 14:46:0:0 2013';
 
 
 
@@ -4913,7 +4913,7 @@ INVERSE
 	access_mechanisms: SET [2:?] OF Assembly_module_component_terminal FOR containing_shape;
 WHERE
 	WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-	WR2 : usage_view = access_mechanisms[1]\Assembly_module_component_terminal.definition\Assembly_module_terminal.associated_definition;
+	WR2 : usage_view = access_mechanisms[1]\Assembly_module_component_terminal.definition\Assembly_module_terminal.containing_shape;
 END_ENTITY;
 
 
@@ -15807,8 +15807,8 @@ END_ENTITY;
 
 ENTITY Non_feature_shape_element_relationship
 	SUBTYPE OF (Shape_element_relationship);
-	SELF\Shape_element_relationship.related : Non_feature_shape_element;
 	SELF\Shape_element_relationship.relating : Non_feature_shape_element;
+	SELF\Shape_element_relationship.related : Non_feature_shape_element;
 UNIQUE
 	UR1 : related, relating;
 END_ENTITY;
@@ -16748,8 +16748,8 @@ ENTITY Part_device;
 	included_device : Bare_die;
 	item_identification : STRING;
 INVERSE
-	device_2d_position: SET [0:1] OF Device_2d_position FOR placed_device;
 	device_3d_position: SET [0:1] OF Device_3d_position FOR placed_device;
+	device_2d_position: SET [0:1] OF Device_2d_position FOR placed_device;
 UNIQUE
 	UR1 : defined_packaged_part, item_identification;
 END_ENTITY;
@@ -18242,7 +18242,10 @@ END_ENTITY;
 
 
 ENTITY Planar_projected_shape_model
-	SUPERTYPE OF ((Assembly_component_2d_shape_model ANDOR ONEOF (Part_template_planar_shape_model, Physical_unit_planar_shape_model)))
+	SUPERTYPE OF (Assembly_component_2d_shape_model 
+	ANDOR ONEOF 
+	(Part_template_planar_shape_model, 
+	Physical_unit_planar_shape_model))
 	SUBTYPE OF (Planar_shape_model);
 WHERE
 	WR1 : NOT EXISTS(SELF\Representation.name);

@@ -591,7 +591,17 @@ $Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
 						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			        		  <xsl:with-param 
 					            name="message" 
-                                                    select="concat('Error APmapindex3: Unable to locate mapping for select item: ', $this-select/@name ,' in module: ',$this-select/../@name,' for entity: ', $this-item,' attribute ',$this-attribute,' in module ',$entity-module)"/>                                                  
+               select="concat('Error APmapindex3: Unable to locate mapping for select item: ', 
+                               $this-select/@name ,
+                               ' in module: ',
+                               $this-select/../@name,
+                               ' for entity: ',
+                               $this-item,
+                               ' attribute ',
+                               $this-attribute,
+                               ' in module ',
+                               $entity-module,
+                               ' [Hint:',$this-entity,'.',$this-attribute,']')"/>                                                  
 						</xsl:call-template>    				
  					</xsl:otherwise>
 				</xsl:choose>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_5_main.xsl,v 1.2 2012/11/23 09:34:11 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -495,7 +495,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 <xsl:template match="be|ba" mode="output_mapping">
   <xsl:apply-templates select="." mode="output_id_description"/>
   <!-- only output a table if it will be populated -->
-  <xsl:if test="./aimelt or ./source or ./rules or ./refpath or ./refpath_extend">
+  <xsl:if test="./armelt or ./source or ./rules or ./refpath or ./refpath_extend">
     <table>
       <xsl:apply-templates select="./armelt"  mode="specification"/>
       <xsl:apply-templates select="./source"  mode="specification"/>

@@ -1,5 +1,5 @@
 (*
-$Id: variational_representation_schema.exp,v 1.8 2011/06/16 21:22:16 thomasrthurman Exp $ 
+$Id: variational_representation_schema.exp,v 1.9 2011/11/11 12:17:31 lothartklein Exp $ 
 ISO TC184/SC4/WG12 N4852 - ISO 10303-108 paramaterization_schema - EXPRESS
 THIS IS DOCUMENT I CONTAINING REVISED EXPRESS FOR 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT GEOMETRIC  
 PRODUCT MODELS' TO TAKE INTO ACCOUNT TC1 FOR THAT DOCUMENT -- 2008-03-17  *) 
@@ -32,7 +32,8 @@ REFERENCE FROM explicit_geometric_constraint_schema   -- ISO 10303-108
 
 REFERENCE FROM iso13584_generic_expressions_schema    -- ISO 13584-20
   (environment,
-   generic_variable);
+   generic_variable,
+   variable_semantics);
 
 ENTITY variational_representation_item
   ABSTRACT SUPERTYPE OF (auxiliary_geometric_representation_item)
@@ -84,12 +85,12 @@ WHERE
   WR5: current_result :=: SELF\representation_relationship.rep_2;
 END_ENTITY;
 
-FUNCTION invalidate_vrep_item(item : representation_item) 
+FUNCTION invalidate_vrep_item(item : variational_representation_item) 
                                    : BOOLEAN;
 
   LOCAL
     reps    : SET[1:?] OF representation := using_representations(item);
-    ri    : SET[1:?] OF variational_representation_item;
+    svri    : SET[1:?] OF variational_representation_item;
     iar     : instance_attribute_reference;
     i       : INTEGER;
     n       : INTEGER := HIINDEX(reps);
@@ -115,9 +116,9 @@ FUNCTION invalidate_vrep_item(item : representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        ri := QUERY(q <* reps[i]\representation.items | 
+        svri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* ri | 
+        IF SIZEOF(QUERY(r <* svri | 
           item IN (r\free_form_constraint.reference_elements + r\free_form_constraint.constrained_elements))) = 0
         THEN 
           RETURN(TRUE);
@@ -130,9 +131,6 @@ FUNCTION invalidate_vrep_item(item : representation_item)
     IN TYPEOF(item))
   THEN
     REPEAT i := 1 TO SIZEOF(item\fixed_instance_attribute_set.fixed_attributes);
---next line is previous
---      IF (reps <> using_representations(item\fixed_instance_attribute_set.fixed_attributes[i]))
---is this intent?
       IF (reps <> using_representations(item\fixed_instance_attribute_set.fixed_attributes[i]\instance_attribute_reference.owning_instance))
       THEN
         RETURN(TRUE);
@@ -154,9 +152,9 @@ FUNCTION invalidate_vrep_item(item : representation_item)
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        ri := QUERY(q <* reps[i]\representation.items | 
+        svri := QUERY(q <* reps[i]\representation.items | 
           'EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.EXPLICIT_GEOMETRIC_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r <* ri | 
+        IF SIZEOF(QUERY(r <* svri | 
           item IN r\explicit_geometric_constraint.reference_elements)) = 0
         THEN
           RETURN(TRUE);

@@ -1,4 +1,5 @@
-(* Genenerated from: ../../irs/wg12n550.exp *)
+(* Document WG12N8364 EXPRESS listing of ISO 10303-104ed1 TC2 *)
+(* Keith Hunten 07/31/2013 *)
 
 SCHEMA structural_response_representation_schema;
 
@@ -94,9 +95,9 @@ TYPE coordinate_system_type = ENUMERATION OF
 END_TYPE;
 
 TYPE element_order = ENUMERATION OF
-     (linear,
-      quadratic,
-      cubic);
+     (linear_order,
+      quadratic_order,
+      cubic_order);
 END_TYPE;
 
 TYPE plane_2d_element_purpose = SELECT
@@ -254,10 +255,10 @@ TYPE integration_rule = ENUMERATION OF
 END_TYPE;
 
 TYPE shape_function = ENUMERATION OF
-     (lagrangian,
-      serendipity,
-      hermitian,
-      unspecified);
+     (lagrangian_function,
+      serendipity_function,
+      hermitian_function,
+      unspecified_function);
 END_TYPE;
 
 TYPE volume_2d_element_representation = SELECT
@@ -363,7 +364,6 @@ ENTITY fea_model
   SUBTYPE OF (representation);
   creating_software         : text;
   intended_analysis_code    : SET [1:?] OF text;
-  (* description               : text;*)
   analysis_type             : text;
 UNIQUE
   UR1:  SELF\representation.name;
@@ -1122,7 +1122,6 @@ END_ENTITY;
 ENTITY point_element_representation
   SUBTYPE OF (element_representation);
   model_ref                 : fea_model;
-  (* description               : text;*)
   matrix_set                : SET [1:?] OF point_element_matrix;
 UNIQUE
   UR1: model_ref, SELF\representation.name;
@@ -1163,7 +1162,6 @@ ENTITY directionally_explicit_element_representation
   SUBTYPE OF (element_representation);
   model_ref                 : fea_model;
   systems_and_freedoms      : LIST [2:2] OF system_and_freedom;
-  (* description               : text;*)
   coefficient               : directionally_explicit_element_coefficient;
 UNIQUE
   UR1: model_ref, SELF\representation.name;
@@ -1187,7 +1185,6 @@ END_ENTITY;
 ENTITY explicit_element_representation
   SUBTYPE OF (element_representation);
   model_ref                 : fea_model;
-  (* description               : text; *)
   matrix                    : explicit_element_matrix;
 UNIQUE
   UR1: model_ref, SELF\representation.name;
@@ -1935,13 +1932,13 @@ FUNCTION required_1d_nodes
 
   end_nodes := 2;
 
-  IF (order = element_order.linear) THEN
+  IF (order = linear) THEN
     additional_nodes := 0;
   END_IF;
-  IF (order = element_order.quadratic) THEN
+  IF (order = quadratic) THEN
     additional_nodes := 1;
   END_IF;
-  IF (order = element_order.cubic) THEN
+  IF (order = cubic) THEN
     additional_nodes := 2;
   END_IF;
 
@@ -1959,33 +1956,33 @@ FUNCTION required_2d_nodes
     edge_face_body_nodes    : INTEGER;
   END_LOCAL;
 
-  IF (element_shape = element_2d_shape.triangle) THEN
+  IF (element_shape = element_2d_shape.triangle_element) THEN
     vertex_nodes := 3;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 3;
       edge_face_body_nodes := 3;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 6;
       edge_face_body_nodes := 7;
     END_IF;
   END_IF;
 
-  IF (element_shape = element_2d_shape.quadrilateral) THEN
+  IF (element_shape = element_2d_shape.quadrilateral_element) THEN
     vertex_nodes := 4;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 4;
       edge_face_body_nodes := 5;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 8;
       edge_face_body_nodes := 12;
     END_IF;
@@ -2006,65 +2003,65 @@ FUNCTION required_3d_nodes
     edge_face_body_nodes    : INTEGER;
   END_LOCAL;
 
-  IF (element_shape = volume_3d_element_shape.hexahedron) THEN
+  IF (element_shape = volume_3d_element_shape.hexahedron_element) THEN
     vertex_nodes := 8;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 12;
       edge_face_body_nodes := 19;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 24;
       edge_face_body_nodes := 56;
     END_IF;
   END_IF;
 
-  IF (element_shape = volume_3d_element_shape.wedge) THEN
+  IF (element_shape = volume_3d_element_shape.wedge_element) THEN
     vertex_nodes := 6;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 9;
       edge_face_body_nodes := 12;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 18;
       edge_face_body_nodes := 34;
     END_IF;
   END_IF;
 
-  IF (element_shape = volume_3d_element_shape.tetrahedron) THEN
+  IF (element_shape = volume_3d_element_shape.tetrahedron_element) THEN
     vertex_nodes := 4;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 6;
       edge_face_body_nodes := 6;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 12;
       edge_face_body_nodes := 16;
     END_IF;
   END_IF;
 
-  IF (element_shape = volume_3d_element_shape.pyramid) THEN
+  IF (element_shape = volume_3d_element_shape.pyramid_element) THEN
     vertex_nodes := 5;
-    IF (order = element_order.linear) THEN
+    IF (order = linear) THEN
       edge_nodes           := 0;
       edge_face_body_nodes := 0;
     END_IF;
-    IF (order = element_order.quadratic) THEN
+    IF (order = quadratic) THEN
       edge_nodes           := 8;
       edge_face_body_nodes := 9;
     END_IF;
-    IF (order = element_order.cubic) THEN
+    IF (order = cubic) THEN
       edge_nodes           := 16;
       edge_face_body_nodes := 25;
     END_IF;

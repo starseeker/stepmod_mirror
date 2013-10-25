@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.82 2006/06/20 15:22:46 thendrix Exp $
+$Id: sect_5_mapping.xsl,v 1.83 2007/03/09 15:01:03 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -267,6 +267,7 @@ The clause title contains:</p>
 		<li>the term PATH, when the considered ARM entity attribute refers to an entity data type or to a SELECT type that contains or may contain entity data types;</li>
 		<li>the term IDENTICAL MAPPING, when both application objects
     involved in an application assertion map to the same instance of a MIM entity data type;</li>
+		<li>the term NO MAPPING EXTENSION PROVIDED, when the extension to an extensible SELECT TYPE has no impact;</li>
 		<li>the syntax /SUPERTYPE(&lt;supertype name&gt;)/, when the considered ARM entity is mapped as its supertype;</li>
 		<li>one or more constructs /SUBTYPE(&lt;subtype name&gt;)/, when the mapping of the considered ARM entity is the union of the mapping of its subtypes.</li>
 		</ul>
@@ -282,8 +283,9 @@ When the mapping of an application element involves more than one MIM element, e
     resource document;</li>
 <li>the ISO standard number and
     part number of this part of ISO 10303, for those MIM elements that are defined in the MIM schema of this part.</li>
-</ul><p>
-		This section is omitted when the keywords PATH or IDENTICAL MAPPING are used in the MIM element section.
+</ul>
+  <p>
+  This section is omitted when the keywords PATH or IDENTICAL MAPPING or NO MAPPING EXTENSION PROVIDED are used in the MIM element section.
   </p> 
   <p>
     <b>Rules:</b> 

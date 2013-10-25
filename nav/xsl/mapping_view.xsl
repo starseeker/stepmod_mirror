@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.20 2004/10/06 04:15:18 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -306,8 +306,11 @@ $Id: mapping_view.xsl,v 1.20 2004/10/06 04:15:18 nigelshaw Exp $
 					</xsl:if>
 				</xsl:when>			
 				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
-				<!-- do nothing - except check that a refpath exists ???? to do ????-->
+				<!-- do nothing -->
 				</xsl:when>			
+				<xsl:when test="normalize-space(aimelt) = 'NO MAPPING EXTENSION PROVIDED'" >
+					<!-- do nothing -->
+				</xsl:when>
 				<xsl:when test="contains(aimelt,'&#x0A;')" >
 				<!-- multi-line mapping case ???? to do ????-->
 				
@@ -517,11 +520,14 @@ $Id: mapping_view.xsl,v 1.20 2004/10/06 04:15:18 nigelshaw Exp $
 
 			<xsl:choose>
 				<xsl:when test="normalize-space(aimelt) = 'PATH'" >
-				<!-- do nothing - except check that a refpath exists ???? to do ????-->
+				<!-- do nothing -->
 				</xsl:when>			
 				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
 				<!-- do nothing -->
 				</xsl:when>			
+				<xsl:when test="normalize-space(aimelt) = 'NO MAPPING EXTENSION PROVIDED'" >
+					<!-- do nothing -->
+				</xsl:when>
 				<xsl:when test="contains(aimelt,'&#x0A;')" >
 				<!-- multi-line mapping case ???? to do ????-->
 				

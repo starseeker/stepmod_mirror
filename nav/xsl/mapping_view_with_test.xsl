@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.12 2003/08/22 06:35:31 robbod Exp $
+$Id: mapping_view_with_test.xsl,v 1.13 2004/06/04 14:28:36 mikeward Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -316,7 +316,10 @@ $Id: mapping_view_with_test.xsl,v 1.12 2003/08/22 06:35:31 robbod Exp $
 				</xsl:when>			
 				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
 				<!-- do nothing - except check that a refpath exists ???? to do ????-->
-				</xsl:when>			
+				</xsl:when>	
+				<xsl:when test="normalize-space(aimelt) = 'NO MAPPING EXTENSION PROVIDED'" >
+					<!-- do nothing - except check that a refpath exists ???? to do ????-->
+				</xsl:when>
 				<xsl:when test="contains(aimelt,'&#x0A;')" >
 				<!-- multi-line mapping case ???? to do ????-->
 				
@@ -531,9 +534,11 @@ $Id: mapping_view_with_test.xsl,v 1.12 2003/08/22 06:35:31 robbod Exp $
 				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
 				<!-- do nothing -->
 				</xsl:when>			
+				<xsl:when test="normalize-space(aimelt) = 'NO MAPPING EXTENSION PROVIDED'" >
+					<!-- do nothing -->
+				</xsl:when>
 				<xsl:when test="contains(aimelt,'&#x0A;')" >
 				<!-- multi-line mapping case ???? to do ????-->
-				
 				</xsl:when>
 				<xsl:when test="contains(aimelt,'.')" >
 				<!-- attribute mapping case -->

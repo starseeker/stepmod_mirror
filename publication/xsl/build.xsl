@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.47 2013/03/12 21:04:01 mikeward Exp $
+<!--  $Id: build.xsl,v 1.48 2013/03/26 22:40:05 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1110,11 +1110,13 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCGIFS</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<!--
+					tt This appears to be left over from modules
+					<xsl:apply-templates select="resource_docs/res_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.exp'"/>
 					<xsl:with-param name="terminate" select="'NO'"/>
-				</xsl:apply-templates>
+				</xsl:apply-templates>-->
 				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.gif'"/>
@@ -1425,7 +1427,27 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
-
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">RESDOCRESOURCESSCHEMAXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+					<xsl:with-param name="prefix" select="'data/resources/'"/>
+					<xsl:with-param name="suffix" select="'.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPRESS</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+					<xsl:with-param name="prefix" select="'data/resources/'"/>
+					<xsl:with-param name="suffix" select="'.exp'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGGIFS</xsl:attribute>
 			<xsl:attribute name="value">
@@ -6118,7 +6140,7 @@ Purpose: To build the initial ANT publication file.
 
 		<xsl:apply-templates select="." mode="target_resources_publication_record"/>
 
-		<target name="isoresdocs" depends="init" description="generate HTML for all modules">
+		<target name="isoresdocs" depends="init" description="generate HTML for specified resource">
 			<dependset>
 				<xsl:element name="srcfileset">
 					<xsl:attribute name="dir">
@@ -6437,6 +6459,15 @@ Purpose: To build the initial ANT publication file.
 				<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 			</xsl:element>
 
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${RESDOCRESOURCESSCHEMAXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
+			</xsl:element>
 
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
@@ -6465,6 +6496,21 @@ Purpose: To build the initial ANT publication file.
 					</xsl:attribute>
 				</xsl:element>
 			</xsl:element>
+			
+			<xsl:element name="copy">
+				<xsl:attribute name="todir">
+					<xsl:value-of select="'${TMPDIR}'"/>
+				</xsl:attribute>
+				<xsl:element name="fileset">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="includes">
+						<xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPRESS}'"/>
+					</xsl:attribute>
+				</xsl:element>
+			</xsl:element>
+			
 		</target>
 	</xsl:template>
 
@@ -7147,7 +7193,7 @@ Purpose: To build the initial ANT publication file.
 	 </xsl:text>
 		<xsl:element name="target">
 			<xsl:attribute name="name">publish_isoresdocs</xsl:attribute>
-			<xsl:attribute name="depends">isoindex, resources, isoresdocs</xsl:attribute>
+			<xsl:attribute name="depends">isoindex, isoresdocs</xsl:attribute>
 			<xsl:attribute name="description">Copy HTML to publication directory</xsl:attribute>
 			<xsl:apply-templates select="//res_doc" mode="target_publish_isoresdocs"/>
 		</xsl:element>

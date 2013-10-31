@@ -30,6 +30,7 @@
       <interface kind="reference" schema="iso13584_generic_expressions_schema">
          <interfaced.item name="environment"/>
          <interfaced.item name="generic_variable"/>
+         <interfaced.item name="variable_semantics"/>
       </interface>
       <entity name="auxiliary_geometric_representation_item" supertypes="geometric_representation_item variational_representation_item"/>
       <entity name="variational_current_representation_relationship" supertypes="representation_relationship">
@@ -60,12 +61,12 @@
       </entity>
       <function name="invalidate_vrep_item">
          <parameter name="item">
-            <typename name="representation_item"/>
+            <typename name="variational_representation_item"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>LOCAL
     reps    : SET[1:?] OF representation := using_representations(item);
-    ri    : SET[1:?] OF variational_representation_item;
+    svri    : SET[1:?] OF variational_representation_item;
     iar     : instance_attribute_reference;
     i       : INTEGER;
     n       : INTEGER := HIINDEX(reps);
@@ -91,9 +92,9 @@
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        ri := QUERY(q &lt;* reps[i]\representation.items | 
+        svri := QUERY(q &lt;* reps[i]\representation.items | 
           'EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r &lt;* ri | 
+        IF SIZEOF(QUERY(r &lt;* svri | 
           item IN (r\free_form_constraint.reference_elements + r\free_form_constraint.constrained_elements))) = 0
         THEN 
           RETURN(TRUE);
@@ -106,9 +107,6 @@
     IN TYPEOF(item))
   THEN
     REPEAT i := 1 TO SIZEOF(item\fixed_instance_attribute_set.fixed_attributes);
---next line is previous
---      IF (reps &lt;&gt; using_representations(item\fixed_instance_attribute_set.fixed_attributes[i]))
---is this intent?
       IF (reps &lt;&gt; using_representations(item\fixed_instance_attribute_set.fixed_attributes[i]\instance_attribute_reference.owning_instance))
       THEN
         RETURN(TRUE);
@@ -130,9 +128,9 @@
   THEN
     BEGIN 
       REPEAT i := 1 TO n;
-        ri := QUERY(q &lt;* reps[i]\representation.items | 
+        svri := QUERY(q &lt;* reps[i]\representation.items | 
           'EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.EXPLICIT_GEOMETRIC_CONSTRAINT' IN TYPEOF(q));
-        IF SIZEOF(QUERY(r &lt;* ri | 
+        IF SIZEOF(QUERY(r &lt;* svri | 
           item IN r\explicit_geometric_constraint.reference_elements)) = 0
         THEN
           RETURN(TRUE);

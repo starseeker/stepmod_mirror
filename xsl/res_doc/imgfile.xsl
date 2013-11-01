@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.18 2011/11/08 13:28:39 lothartklein Exp $
+$Id: imgfile.xsl,v 1.19 2011/11/09 22:52:17 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -91,6 +91,7 @@ $Id: imgfile.xsl,v 1.18 2011/11/08 13:28:39 lothartklein Exp $
     </HEAD>
 
     <body>
+      
       <xsl:variable name="module" select="@module"/>
       <xsl:variable name="self" select="."/>
       <xsl:choose>
@@ -285,13 +286,29 @@ $Id: imgfile.xsl,v 1.18 2011/11/08 13:28:39 lothartklein Exp $
           </xsl:choose>
         </xsl:when>
         <!--        <xsl:when test="../../schema">-->
-        <xsl:when test="contains(@file,'expg')">  <!-- was 'schemaexpg', but this didn't work for AICs -->
-          <xsl:variable name="schname" select="substring-before(@file,'expg')" />
-            <xsl:value-of 
-              select="concat('Figure D.',$number_any - $interface_diag_count, 
-                      ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $number,' of ', $img_count, ')' )" />
+        <xsl:when test="contains(@file,'expg')"> 
+          <!-- was 'schemaexpg', but this didn't work for AICs LK?-->
+          <!-- this made the code unable to distinguish between 'diagexpg' and 'schemaexpg' and caused a nubmering problem, but I've fixed things now so that AICS work too -->
+          
+          <xsl:choose>
+            <xsl:when test="contains(@file,'diagexpg')">
+              <xsl:if test="string-length(@title) > 3" >
+                <xsl:value-of 
+                  select="concat('Figure  1  &#8212; ',@title)" />
+              </xsl:if>
             </xsl:when>
             <xsl:otherwise>
+              <xsl:variable name="schname" select="substring-before(@file,'expg')" />
+               <xsl:value-of 
+              select="concat('Figure D.',$number_any - $interface_diag_count, 
+                      ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $number,' of ', $img_count, ')' )" />
+            </xsl:otherwise>
+          </xsl:choose>
+          
+         
+          </xsl:when>
+          <xsl:otherwise>
+              
               <xsl:if test="string-length(@title) > 3" >
                 <xsl:value-of 
                   select="concat('Figure  1  &#8212; ',@title)" />

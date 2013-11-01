@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.38 2010/12/27 14:26:23 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.39 2011/04/14 13:16:28 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -291,58 +291,65 @@ $Id: sect_contents.xsl,v 1.38 2010/12/27 14:26:23 lothartklein Exp $
 
          </xsl:when>
 
-         <xsl:when test="contains(@file,'expg')"> <!-- was 'schemaexpg', but this didn't work for AICs -->
-           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
+           <xsl:when test="contains(@file,'expg')">
+               <!-- was 'schemaexpg', but this didn't work for AICs LK? -->
+               <!-- this only partially solved the problem. See below [1] MWD -->
+               <xsl:variable name="schname" select="substring-before(@file,'expg')" />
              
-             <xsl:variable name="total-no" >
-               <xsl:value-of select="count(..//imgfile[contains(./@file,$schname)])" />                   
+               <xsl:variable name="total-no" >
+                   <xsl:value-of select="count(..//imgfile[contains(./@file,$schname)])" />                   
                </xsl:variable>
                
                <xsl:variable name="this-ones-no">
-                 <!--                 <xsl:value-of select="count(..//imgfile/[@file=$file]/position() + 1" /> -->
-                 <!--                 <xsl:value-of select="count(..//imgfile/ancestor-or-self::*[contains(./@file,$schname)])" />                   -->
-                 <xsl:value-of select="position()" />
-                 </xsl:variable>
+                   <!-- <xsl:value-of select="count(..//imgfile/[@file=$file]/position() + 1" /> -->
+                   <!-- <xsl:value-of select="count(..//imgfile/ancestor-or-self::*[contains(./@file,$schname)])" />                   -->
+                   <xsl:value-of select="position()" />
+               </xsl:variable>
                  
-                 <xsl:variable name="diagno" >
-                   <xsl:variable name="trail" select="substring-after(@file,'expg')" />
-                     <xsl:value-of select="substring-before($trail,'.xml')"/> 
-                   </xsl:variable>
+               <xsl:variable name="diagno">
+                   <xsl:variable name="trail" select="substring-after(@file,'expg')"/>
+                   <xsl:value-of select="substring-before($trail,'.xml')"/> 
+               </xsl:variable>
 
-             <xsl:variable name="figtext" >
-               <xsl:value-of 
-                 select="concat('Figure D.',($number - 1), 
-                         ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $this-ones-no,' of ', $total-no,')' )"/>
-             </xsl:variable>
+               <xsl:variable name="figtext" ><!-- [1] tests whether an AIC and fixes numbering accordingly MWD -->
+                   <xsl:choose>
+                     <xsl:when test="contains(@file,'aic')">
+                       <xsl:value-of select="concat('Figure D.', $number, ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $this-ones-no,' of ', $total-no,')' )"/>
+                     </xsl:when>
+                     <xsl:otherwise>
+                       <xsl:value-of select="concat('Figure D.', ($number - 1), ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $this-ones-no,' of ', $total-no,')' )"/>
+                     </xsl:otherwise>
+                   </xsl:choose>
+                 
+                 
+               </xsl:variable>
 
-             <xsl:variable name="resource_dir">
-               <xsl:call-template name="resource_directory">
-                 <xsl:with-param name="resource" select="$schname"/>
-               </xsl:call-template>
-             </xsl:variable>
-             <!--
-             <xsl:message>
-               resource_dir in sect_cont :<xsl:value-of select="$resource_dir"/>
-             </xsl:message>
--->
-             <xsl:variable name="expg_path" select="concat('../../',$resource_dir,'/',$schname,'expg',$diagno)"/>
+               <xsl:variable name="resource_dir">
+                   <xsl:call-template name="resource_directory">
+                       <xsl:with-param name="resource" select="$schname"/>
+                   </xsl:call-template>
+               </xsl:variable>
+           
+               <!-- <xsl:message>resource_dir in sect_cont :<xsl:value-of select="$resource_dir"/></xsl:message> -->
+           
+               <xsl:variable name="expg_path" select="concat('../../',$resource_dir,'/',$schname,'expg',$diagno)"/>
 
-             <xsl:variable name="schema_url">
-               <xsl:choose>
-                 <xsl:when test="$FILE_EXT='.xml'">
-                   <xsl:value-of select="concat($expg_path,'.xml')"/>
-                 </xsl:when>
-                 <xsl:otherwise>
-                   <xsl:value-of select="concat($expg_path,'.htm')"/>
-                 </xsl:otherwise>
-               </xsl:choose>
-             </xsl:variable>
+               <xsl:variable name="schema_url">
+                   <xsl:choose>
+                       <xsl:when test="$FILE_EXT='.xml'">
+                           <xsl:value-of select="concat($expg_path,'.xml')"/>
+                       </xsl:when>
+                       <xsl:otherwise>
+                           <xsl:value-of select="concat($expg_path,'.htm')"/>
+                       </xsl:otherwise>
+                   </xsl:choose>
+               </xsl:variable>
         
-             <xsl:variable name="href" select="$schema_url"/>
+               <xsl:variable name="href" select="$schema_url"/>
                <a href="{$href}"><xsl:value-of select="$figtext"/></a>
                <br/>
-
            </xsl:when>
+           
            
          </xsl:choose>
        </xsl:template>

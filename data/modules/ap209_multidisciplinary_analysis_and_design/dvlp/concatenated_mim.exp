@@ -1,9 +1,10 @@
 (*
-$Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
 *) 
 (*
 ISO TC184/SC4/WG12 N1157 - ISO/TS 10303-1047 Activity - EXPRESS MIM
 *) 
+
 
 
 SCHEMA Activity_mim;
@@ -10764,9 +10765,8 @@ USE FROM systems_engineering_representation_schema   -- ISO 10303-61
    representation_proxy_select); 
 *)
 (*
-
-TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT (
- property_definition) ;
+TYPE pad_representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH 
+ (property_definition) ;
 END_TYPE;
 *)
 
@@ -12373,7 +12373,6 @@ END_SCHEMA;
 
 SCHEMA Value_with_unit_extension_mim;
 	USE FROM Value_with_unit_mim;	-- ISO/TS 10303-1054
-
 	USE FROM iso13584_generic_expressions_schema
 		(environment,
 		variable_semantics);
@@ -12408,15 +12407,6 @@ ENTITY thermal_resistance_unit
  WHERE
    WR1: derive_dimensional_exponents(SELF) = 
         dimensional_exponents ( -1.0, -1.0, -3.0, 0.0, 1.0, 0.0, 0.0 );
-END_ENTITY;
-
-ENTITY polar_complex_number_literal
-  SUBTYPE OF (generic_literal);
-  radius    : REAL;
-  angle     : REAL;
-WHERE
-  WR1: radius >= 0;
-  WR2: { 0 <= angle < 2*PI };
 END_ENTITY;
 
 END_SCHEMA;
@@ -23030,7 +23020,7 @@ END_ENTITY;
 
 END_SCHEMA; -- basis_schema
 (*
-$Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8238 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -23048,7 +23038,7 @@ SCHEMA certification_schema;
 
 END_SCHEMA;
 (* 
-$Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N3213 - ISO/IS 10303-54 Classification and set theory - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N1510
 *) 
@@ -23110,7 +23100,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- classification_schema
 (*
-   $Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+   $Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5952 - ISO 10303-110 Mesh-based computational fluid dynamics - EXPRESS
    Supersedes ISO TC184/SC4/WG12 N2176
 *)
@@ -23304,7 +23294,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- end of conditions_schema
 (*
-$Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8258 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -23395,7 +23385,7 @@ END_ENTITY;
 
 END_SCHEMA; -- configuration_management_schema
 (*
-$Id: concatenated_mim.exp,v 1.5 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.6 2013/09/14 05:07:11 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8239 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -56319,7 +56309,9 @@ END_TYPE;
 TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE se_representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH
+--TYPE se_representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH
+
+TYPE se_representation_proxy_select = SELECT BASED_ON representation_proxy_select WITH
   (action_method,
    state_type,
    state_type_relationship);

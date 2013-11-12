@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.69 2009/07/28 10:45:22 robbod Exp $
+     $Id: express_code.xsl,v 1.70 2009/08/17 14:43:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -431,7 +431,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
     <xsl:if test="@basedon">
       WITH 
     </xsl:if><br/>
-    &#160;&#160;&#160;(<xsl:call-template name="link_list_sorted">
+    &#160;&#160;&#160;(<xsl:call-template name="link_list">
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
@@ -552,7 +552,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
     <br/>
-&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list_sorted">
+&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
     <xsl:with-param name="list" select="@supertypes"/>
     <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -938,7 +938,7 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 
   <xsl:if test="@totalover and 
                 (string-length(@totalover)!=0)">
-    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list_sorted">
+    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list">
     <xsl:with-param name="list" select="@totalover"/>
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'"/>

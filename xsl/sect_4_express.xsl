@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.128 2012/08/24 22:43:25 lothartklein Exp $
+     $Id: sect_4_express.xsl,v 1.129 2012/11/06 09:44:14 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1186,7 +1186,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     <xsl:if test="@basedon">
       WITH 
     </xsl:if><br/>
-    &#160;&#160;&#160;(<xsl:call-template name="link_list_sorted">
+    &#160;&#160;&#160;(<xsl:call-template name="link_list">
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
@@ -1606,7 +1606,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
 <br/>
-    &#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list_sorted">
+    &#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
       <xsl:with-param name="list" select="@supertypes"/>
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -2300,7 +2300,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
   <xsl:if test="@totalover and 
                 (string-length(@totalover)!=0)">
-    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list_sorted">
+    &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list">
     <xsl:with-param name="list" select="@totalover"/>
     <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'"/>
@@ -2373,7 +2373,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
             </xsl:call-template>
           </b>
           shall not be simultaneously of type 
-          <xsl:call-template name="link_list_sorted">
+          <xsl:call-template name="link_list">
             <xsl:with-param name="list" select="$sc_list"/>
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -2399,7 +2399,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
             </xsl:call-template>
           </b>
           shall not be simultaneously of type 
-          <xsl:call-template name="link_list_sorted">
+          <xsl:call-template name="link_list">
             <xsl:with-param name="list" select="$sc_list"/>
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -3957,7 +3957,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                 type
               </xsl:otherwise>
             </xsl:choose>
-            <xsl:call-template name="link_list_sorted">
+            <xsl:call-template name="link_list">
               <xsl:with-param name="suffix" select="', '"/>
               <xsl:with-param name="bold" select="'yes'"/>
               <xsl:with-param name="list" select="@selectitems"/>
@@ -4016,7 +4016,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
               type
             </xsl:otherwise>
           </xsl:choose>
-          <xsl:call-template name="link_list_sorted">
+          <xsl:call-template name="link_list">
             <xsl:with-param name="suffix" select="', '"/>
             <xsl:with-param name="bold" select="'yes'"/>
             <xsl:with-param name="list" select="@selectitems"/>
@@ -4049,7 +4049,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                   type
                 </xsl:otherwise>
               </xsl:choose>              
-              <xsl:call-template name="link_list_sorted">
+              <xsl:call-template name="link_list">
                 <xsl:with-param name="suffix" select="', '"/>
                 <xsl:with-param name="bold" select="'yes'"/>
                 <xsl:with-param name="list" select="@selectitems"/>
@@ -4131,7 +4131,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                   type
                 </xsl:otherwise>
               </xsl:choose>              
-              <xsl:call-template name="link_list_sorted">
+              <xsl:call-template name="link_list">
                 <xsl:with-param name="suffix" select="', '"/>
                 <xsl:with-param name="bold" select="'yes'"/>
                 <xsl:with-param name="list" select="@selectitems"/>

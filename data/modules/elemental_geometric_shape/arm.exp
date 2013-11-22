@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.26 2013/10/01 16:32:54 thomasrthurman Exp $
+	$Id: arm.exp,v 1.27 2013/11/22 14:49:54 thomasrthurman Exp $
 	ISO TC184/SC4/WG12 N8005 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7089
 *)
@@ -28,27 +28,32 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
     SUPERTYPE OF (ONEOF (Axis_placement_2d,
       Axis_placement_3d))
     SUBTYPE OF (Detailed_geometric_model_element);
-      origin : Cartesian_point;
-      x_axis : Direction;
-      y_axis : OPTIONAL Direction;
+      location      : Cartesian_point;
+      axis          : OPTIONAL Direction;
+      ref_direction : OPTIONAL Direction;
     DERIVE
-      dim: INTEGER := SIZEOF(origin.coordinates);
+      dim: INTEGER := SIZEOF(location\Cartesian_point.coordinates);
     WHERE
       WR1: dim >1;
-      WR2: dim = SIZEOF(x_axis.direction_ratios);
-      WR3: dim = SIZEOF(y_axis.direction_ratios);
+      WR2: dim = SIZEOF(axis\Direction.direction_ratios);
+      WR3: dim = SIZEOF(ref_direction\Direction.direction_ratios);
   END_ENTITY;
 
   ENTITY Axis_placement_2d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
     WHERE
-      WR1: NOT EXISTS(y_axis);
+      WR1: NOT EXISTS(axis);
+      WR2: SELF\Axis_placement.dim = 2;
   END_ENTITY;
 
   ENTITY Axis_placement_3d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
     WHERE
-      WR1: EXISTS(y_axis);
+      WR2: SELF\Axis_placement.dim = 3;
+      WR2: NOT EXISTS( axis ) OR ( axis\Direction.dim = 3 );
+      WR3: NOT EXISTS( ref_direction ) OR ( ref_direction\Direction.dim = 3 );
+-- convert to IP
+--     wr4: NOT EXISTS( axis ) OR NOT EXISTS( ref_direction ) OR ( cross_product( axis, ref_direction ).magnitude > 0 );
   END_ENTITY;
 
   ENTITY Axis_placement_mapping;
@@ -136,6 +141,14 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
     SUBTYPE OF (Geometric_placement_operation);
       target : cartesian_transformation;
   END_ENTITY; 
+
+  ENTITY Vector
+    SUBTYPE OF (Detailed_geometric_model_element);
+      orientation: Direction;
+      magnitude: length_measure;
+    WHERE
+      WR1 : magnitude >= 0.0 ;
+  END_ENTITY;
 
 END_SCHEMA;
 

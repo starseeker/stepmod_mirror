@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-52" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="mesh_connectivity_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-52">
+   <application name="JSDAI" owner="LKSoft" source="mesh_connectivity_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="mesh_connectivity_schema">
       <interface kind="reference" schema="mesh_topology_schema">
          <interfaced.item name="mesh"/>
@@ -42,15 +42,15 @@
             <typename name="indices_range"/>
          </explicit>
          <explicit name="transform">
-            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="SELF\mesh_connectivity.index_count"/>
             <builtintype type="INTEGER"/>
          </explicit>
-         <where label="wr1" expression="current :&lt;&gt;: donor"/>
-         <where label="wr2" expression="donor.index_count = index_count"/>
-         <where label="wr3" expression="range.nindices = index_count"/>
-         <where label="wr4" expression="donor_range.nindices = index_count"/>
+         <where expression="current :&lt;&gt;: donor" label="wr1"/>
+         <where expression="( donor\mesh.index_count = SELF\mesh_connectivity.index_count )" label="wr2"/>
+         <where expression="( range\indices_range.nindices = SELF\mesh_connectivity.index_count )" label="wr3"/>
+         <where expression="( donor_range\indices_range.nindices = SELF\mesh_connectivity.index_count )" label="wr4"/>
       </entity>
-      <entity name="mesh_connectivity">
+      <entity abstract.supertype="YES" name="mesh_connectivity" super.expression="ONEOF (matched_mesh_connection, mismatched_mesh_connection)">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -63,15 +63,18 @@
          <explicit name="current">
             <typename name="mesh"/>
          </explicit>
-         <derived name="index_count" expression="current.index_count">
+         <derived expression="current.index_count" name="index_count">
             <builtintype type="INTEGER"/>
          </derived>
       </entity>
       <entity name="mesh_overset_hole" supertypes="mismatched_mesh_connection"/>
-      <entity name="mismatched_donor_mesh">
-         <inverse name="connect" entity="mismatched_mesh_region" attribute="donor"/>
+      <entity abstract.supertype="YES" name="mismatched_donor_mesh" super.expression="ONEOF (structured_donor_mesh, unstructured_donor_mesh)">
+         <explicit name="donor">
+            <typename name="mesh"/>
+         </explicit>
+         <inverse attribute="donor" entity="mismatched_mesh_region" name="connect"/>
       </entity>
-      <entity name="mismatched_mesh_connection" supertypes="mesh_connectivity">
+      <entity abstract.supertype="YES" name="mismatched_mesh_connection" super.expression="ONEOF (mismatched_mesh_region, mesh_overset_hole)" supertypes="mesh_connectivity">
          <explicit name="points">
             <typename name="indices_group"/>
          </explicit>
@@ -86,6 +89,7 @@
          <explicit name="kind">
             <typename name="mismatched_region_type"/>
          </explicit>
+         <where expression="donor.donor :&lt;&gt;: SELF\mesh_connectivity.current" label="wr1"/>
       </entity>
       <entity name="multiple_mesh_block">
          <explicit name="name">
@@ -98,13 +102,14 @@
             <typename name="identifier"/>
          </explicit>
          <explicit name="connectivities">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="mesh_connectivity"/>
          </explicit>
       </entity>
       <entity name="structured_donor_mesh" supertypes="mismatched_donor_mesh">
          <explicit name="donor">
             <typename name="structured_mesh"/>
+            <redeclaration entity-ref="mismatched_donor_mesh"/>
          </explicit>
          <explicit name="points">
             <typename name="listed_real_data"/>
@@ -112,13 +117,14 @@
          <explicit name="vsize">
             <builtintype type="INTEGER"/>
          </explicit>
-         <derived name="index_count" expression="donor.index_count">
+         <derived expression="donor.index_count" name="index_count">
             <builtintype type="INTEGER"/>
          </derived>
       </entity>
       <entity name="unstructured_donor_mesh" supertypes="mismatched_donor_mesh">
          <explicit name="donor">
             <typename name="unstructured_mesh"/>
+            <redeclaration entity-ref="mismatched_donor_mesh"/>
          </explicit>
          <explicit name="cells">
             <typename name="indices_group"/>
@@ -129,9 +135,9 @@
          <explicit name="vsize">
             <builtintype type="INTEGER"/>
          </explicit>
+         <derived expression="donor.index_count" name="index_count">
+            <builtintype type="INTEGER"/>
+         </derived>
       </entity>
-      <subtype.constraint name="sc1_mesh_connectivity" entity="mesh_connectivity" abstract.supertype="YES" super.expression="ONEOF (matched_mesh_connection, mismatched_mesh_connection)"/>
-      <subtype.constraint name="sc1_mismatched_donor_mesh" entity="mismatched_donor_mesh" abstract.supertype="YES" super.expression="ONEOF (structured_donor_mesh, unstructured_donor_mesh)"/>
-      <subtype.constraint name="sc1_mismatched_mesh_connection" entity="mismatched_mesh_connection" abstract.supertype="YES" super.expression="ONEOF (mismatched_mesh_region, mesh_overset_hole)"/>
    </schema>
 </express>

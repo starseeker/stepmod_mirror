@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.24 2012/10/11 05:49:04 liutkuviene Exp $
+	$Id: arm.exp,v 1.26 2013/10/01 16:32:54 thomasrthurman Exp $
 	ISO TC184/SC4/WG12 N8005 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7089
 *)
@@ -30,7 +30,7 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
     SUBTYPE OF (Detailed_geometric_model_element);
       origin : Cartesian_point;
       x_axis : Direction;
-      y_axis : Direction;
+      y_axis : OPTIONAL Direction;
     DERIVE
       dim: INTEGER := SIZEOF(origin.coordinates);
     WHERE
@@ -41,10 +41,14 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
 
   ENTITY Axis_placement_2d
     SUBTYPE OF (Axis_placement);
+    WHERE
+      WR1: NOT EXISTS(y_axis);
   END_ENTITY;
 
   ENTITY Axis_placement_3d
     SUBTYPE OF (Axis_placement);
+    WHERE
+      WR1: EXISTS(y_axis);
   END_ENTITY;
 
   ENTITY Axis_placement_mapping;

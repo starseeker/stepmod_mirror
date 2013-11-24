@@ -1,0 +1,2008 @@
+SCHEMA VEC_modelSchema;
+(*
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:vec="http://www.prostep.org/ecad-if/vec/1.0.5/VEC_modelSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.prostep.org/ecad-if/vec/1.0.5/VEC_modelSchema" version="1.0.5;
+	<!-- VEC XSD V1.0.5 2012-12-20: Compliant to VEC Modules V1.0.5
+
+Change Log:
+For issue details see the KBL-Forum https://track.prostep.com/browse/KBLFRM. To get access to the KBL Forum contact max.ungerer@prostep.com
+
+VEC 1.0.5:
+** Improvement
+    * [KBLFRM-428] - Beziehung zwischen PartOrUsageRelatedSpecification & Role
+    * [KBLFRM-444] - Cavity von der SlotSpecification zum Slot verschieben
+    * [KBLFRM-445] - Erweiterung der TerminalRole um Terminal- & WireReceptionReferences
+    * [KBLFRM-446] - SubUsageNode-Beziehung zwischen UsageNodes soll Composite sein.
+    * [KBLFRM-451] - Für das Objekt "Creation" wird neben dem "Creator" auch ein "ResponsibleDesigner" benötigt
+    * [KBLFRM-453] - Der "UsageNode" sollte einen "usageNodeType" erhalten
+    * [KBLFRM-455] - Direkte Beziehung zwischen ComponentPort und ConnectorHousing.Cavity erforderlich
+    * [KBLFRM-457] - VEC namespace (in Kleinbuchstaben)
+
+** New Feature
+    * [KBLFRM-288] - Modellierung von Bauteilen mit mehreren Bündelanschlüssen
+    * [KBLFRM-408] - Use Case "Stecker oder Sonderkontakt mit mehreren Bündelanschlusspunkten"
+    * [KBLFRM-431] - Referenzierung von identischen Innenleitern
+
+VEC 1.0.4:
+- No model changes
+- Namespace corrected
+- Ordering of Types: changed for VecContent and SimpleType
+- TopologySpecification: ordering of elements changed
+
+VEC 1.0.3:
+** Bug
+    * [KBLFRM-440] - Reihenfolge der Attribute im VEC 1.0.2 Schema in alphabetischer Reihenfolge
+    * [KBLFRM-441] - Änderungen von NumericalValue -> double nicht vollständig erfolgt
+
+VEC 1.0.2:
+** Bug
+    * [KBLFRM-352] - KILOGRAM in SIUnitNames inkorrekt. 
+    * [KBLFRM-355] - CoreSpecification.coreMassInformationPerMetre ist inkonsistent modelliert. 
+    * [KBLFRM-356] - CoreSpecification.coreResistancePerMetre ist inkonsistent modelliert. 
+    * [KBLFRM-363] - Inkonsistes WireType / WireTypeReferenceSystem
+    * [KBLFRM-369] - Sealing Class an der SlotSpecification und nicht am Slot
+    * [KBLFRM-409] - Attribut Description der ModuleFamily & ModuleList besitzt den falschen Typ.
+    * [KBLFRM-410] - WireElement.elementType ist verpflichtend.
+    * [KBLFRM-411] - TerminalReception.GENDER verpflichtend?
+    * [KBLFRM-430] - WireType außerhalb des WireElements
+
+** Decision
+    * [KBLFRM-405] - Behandlung von idrefs bei Verarbeitung von VEC-daten in mehreren Dateien, z.B. Units
+
+	<xs:element name="VecContent : VecContent;
+*)
+
+TYPE configurableElementSelect = SELECT (
+	BuildingBlockPositioning2D,
+	BuildingBlockPositioning3D,
+	ComponentNode,
+	ComponentPort,
+	ConnectionEnd,
+	ConnectionGroup,
+	ContactPoint,
+	Dimension,
+	GeometryNode,
+	GeometrySegment,
+	MatingPoint,
+	Net,
+	NetGroup,
+	NetworkNode,
+	NetworkPort,
+	OccurrenceOrUsage,
+	Path,
+	Placement,
+	RoutableElement,
+	Routing,
+	TopologyNode,
+	TopologySegment,
+	UsageNode,
+	Zone);
+END_TYPE;	
+	
+TYPE date = STRING;
+END_TYPE;
+
+ENTITY AbrasionResistanceClass;
+	ClassKey : STRING;
+	ReferenceSystem : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY AliasIdentification;
+	IdentificationValue : STRING;
+	Scope : OPTIONAL STRING;
+	Description : OPTIONAL LocalizedString;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY AntennaSpecification
+	SUBTYPE OF (EEComponentSpecification);
+	FMin : OPTIONAL NumericalValue;
+	FMax : OPTIONAL NumericalValue;
+	Impedance : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY Approval;
+	Identification : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	CompanyInScope : OPTIONAL STRING;
+	Status : StatusOfApproval;
+	LevelOfApproval : OPTIONAL STRING;
+	Permission : SET[0:?] OF Permission;
+END_ENTITY;
+
+ENTITY BSplineCurve;
+	Degree : INTEGER;
+	ControlPoint : SET[0:?] OF CartesianPoint3D;
+END_ENTITY;
+
+ENTITY BatterySpecification
+	SUBTYPE OF (EEComponentSpecification);
+	U : OPTIONAL NumericalValue;
+	I : OPTIONAL NumericalValue;
+	ICool : OPTIONAL NumericalValue;
+	Capacity : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY BoltMountedFixingSpecification
+	SUBTYPE OF (FixingSpecification);
+	BoltType : OPTIONAL STRING;
+	BoltDiameter : OPTIONAL NumericalValue;
+	BoltHeight : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY BuildingBlockPositioning2D;
+	Referenced2DBuildingBlock : BuildingBlockSpecification2D;
+	CenterPoint : OPTIONAL CartesianPoint2D;
+END_ENTITY;
+
+ENTITY BuildingBlockPositioning3D;
+	Referenced3DBuildingBlock : BuildingBlockSpecification3D;
+	Positioning : OPTIONAL Transformation3D;
+END_ENTITY;
+
+ENTITY BuildingBlockSpecification2D
+	SUBTYPE OF (Specification);
+	BaseUnit : Unit;
+	BoundingBox : CartesianDimension;
+	CartesianPoint : SET[0:?] OF CartesianPoint2D;
+	GeometryNode : SET[0:?] OF GeometryNode2D;
+	GeometrySegment : SET[0:?] OF GeometrySegment2D;
+	PlacedElementViewItem : SET[0:?] OF OccurrenceOrUsageViewItem2D;
+END_ENTITY;
+
+ENTITY BuildingBlockSpecification3D
+	SUBTYPE OF (Specification);
+	Zone : OPTIONAL Zone;
+	BaseUnit : Unit;
+	CartesianPoint : SET[0:?] OF CartesianPoint3D;
+	GeometryNode : SET[0:?] OF GeometryNode3D;
+	GeometrySegment : SET[0:?] OF GeometrySegment3D;
+	PlacedElementViewItem3D : SET[0:?] OF OccurrenceOrUsageViewItem3D;
+END_ENTITY;
+
+ENTITY CableLeadThrough;
+	Identification : OPTIONAL STRING;
+	SegmentDiameter : ValueRange;
+END_ENTITY;
+
+ENTITY CartesianDimension;
+	Height : REAL;
+	Width : REAL;
+END_ENTITY;
+
+ENTITY CartesianPoint2D;
+	X : REAL;
+	Y : REAL;
+	Sheet : OPTIONAL SheetOrChapter;
+END_ENTITY;
+
+ENTITY CartesianPoint3D;
+	X : REAL;
+	Y : REAL;
+	Z : REAL;
+END_ENTITY;
+
+ENTITY CartesianVector
+	ABSTRACT SUPERTYPE OF (ONEOF (CartesianVector2D, CartesianVector3D));
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY CartesianVector2D
+	SUBTYPE OF (CartesianVector);
+	X : REAL;
+	Y : REAL;
+END_ENTITY;
+
+ENTITY CartesianVector3D
+	SUBTYPE OF (CartesianVector);
+	X : REAL;
+	Y : REAL;
+	Z : REAL;
+END_ENTITY;
+
+ENTITY Cavity;
+	Available : OPTIONAL BOOLEAN;
+	CavityNumber : OPTIONAL STRING;
+	WireAddOn : OPTIONAL NumericalValue;
+	CavitySpecification : OPTIONAL CavitySpecification;
+END_ENTITY;
+
+ENTITY CavityMapping;
+	IdentificationA : STRING;
+	IdentificationB : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY CavityMounting;
+	EquippedCavityRef : SET[1:?] OF CavityReference;
+	ReplacedPlug : SET[0:?] OF CavityPlugRole;
+	CavityMountingDetail : SET[0:?] OF CavityMountingDetail;
+END_ENTITY;
+
+ENTITY CavityMountingDetail;
+	EquippedCavityRef : CavityReference;
+	TerminalReceptionReference : TerminalReceptionReference;
+END_ENTITY;
+
+ENTITY CavityPlugRole
+	SUBTYPE OF (Role);
+	CavityPlugSpecification : CavityPlugSpecification;
+	PluggedCavityRef : SET[0:?] OF CavityReference;
+END_ENTITY;
+
+ENTITY CavityPlugSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	CavityDiameter : OPTIONAL ValueRange;
+	Hardness : OPTIONAL NumericalValue;
+	SealingClass : SET[0:?] OF SealingClass;
+END_ENTITY;
+
+ENTITY CavityReference;
+	Identification : OPTIONAL STRING;
+	ComponentPort : OPTIONAL ComponentPort;
+	ReferencedCavity : Cavity;
+END_ENTITY;
+
+ENTITY CavitySealRole
+	SUBTYPE OF (Role);
+	CavitySealSpecification : CavitySealSpecification;
+END_ENTITY;
+
+ENTITY CavitySealSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	CavityDiameter : OPTIONAL ValueRange;
+	Hardness : OPTIONAL NumericalValue;
+	SealingClass : SET[0:?] OF SealingClass;
+	WireElementOutsideDiameter : OPTIONAL ValueRange;
+	WireReceptionType : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY CavitySpecification
+	SUBTYPE OF (Specification);
+	Angle : LIST [0:2] OF NumericalValue;
+	CavityDesign : OPTIONAL STRING;
+	CavityType : OPTIONAL STRING;
+	CavityDiameter : OPTIONAL NumericalValue;
+	MaxWireElementOutsideDiameter : OPTIONAL NumericalValue;
+	NominalTerminalSize : OPTIONAL STRING;
+	PrimaryLocking : OPTIONAL BOOLEAN;
+	Sealable : OPTIONAL BOOLEAN;
+END_ENTITY;
+
+ENTITY ChangeDescription;
+	Identification : OPTIONAL STRING;
+	Label : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	Approver : OPTIONAL Person;
+	ChangeDate : OPTIONAL date;
+	ResponsibleDesigner : Person;
+	RelatedChangeRequest : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Coding;
+	Coding : STRING;
+END_ENTITY;
+
+ENTITY Color;
+	Key : STRING;
+	ReferenceSystem : STRING;
+	Description : SET[0:?] OF LocalizedString;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY CompatibilitySpecification
+	SUBTYPE OF (Specification);
+	CompatibilityStatement : SET[0:?] OF CompatibilityStatement;
+END_ENTITY;
+
+ENTITY CompatibilityStatement;
+	HasCompatibility : BOOLEAN;
+	Cavity : SET[0:?] OF Cavity;
+	CavityPlugSpecification : SET[0:?] OF CavityPlugSpecification;
+	CavitySealSpecification : SET[0:?] OF CavitySealSpecification;
+	CavitySpecification : SET[0:?] OF CavitySpecification;
+	ConnectorHousingSpecification : SET[0:?] OF ConnectorHousingSpecification;
+	Slot : SET[0:?] OF Slot;
+	TerminalSpecification : SET[0:?] OF TerminalSpecification;
+	WireSpecification : SET[0:?] OF WireSpecification;
+END_ENTITY;
+
+ENTITY ComponentNode;
+	Identification : STRING;
+	Abbreviation : OPTIONAL STRING;
+	ComponentNodeType : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	NetworkNode : OPTIONAL NetworkNode;
+	RealizedUsageNode : OPTIONAL UsageNode;
+	ChildNode : SET[0:?] OF ComponentNode;
+	ComponentPort : SET[0:?] OF ComponentPort;
+END_ENTITY;
+
+ENTITY ComponentPort;
+	Identification : STRING;
+	SignalDirection : OPTIONAL SignalDirection;
+	Description : OPTIONAL LocalizedString;
+	NetworkPort : OPTIONAL NetworkPort;
+	Signal : OPTIONAL Signal;
+END_ENTITY;
+
+ENTITY CompositionSpecification
+	SUBTYPE OF (Specification);
+	Component : SET[0:?] OF PartOccurrence;
+END_ENTITY;
+
+ENTITY ConformanceClass;
+	Identification : STRING;
+	Version : STRING;
+	Url : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Connection
+	SUBTYPE OF (RoutableElement);
+	Identification : STRING;
+	Description : SET[0:?] OF LocalizedString;
+	InstallationInstruction : SET[0:?] OF Instruction ;
+	Net : OPTIONAL Net;
+	Signal : Signal;
+	ConnectionEnd : SET[2:?] OF ConnectionEnd;
+END_ENTITY;
+
+ENTITY ConnectionEnd;
+	Identification : STRING;
+	IsExternalEnd : BOOLEAN;
+	Gender : OPTIONAL STRING;
+	InstallationInstruction : SET[0:?] OF Instruction ;
+	ConnectedComponentPort : ComponentPort;
+END_ENTITY;
+
+ENTITY ConnectionGroup;
+	Identification : OPTIONAL STRING;
+	ConnectionGroupType : STRING;
+	InstallationInstruction : SET[0:?] OF Instruction ;
+	Description : SET[0:?] OF LocalizedString;
+	Connection : SET[1:?] OF Connection;
+--	<xs:appinfo>There shall be at least 2 elements referenced.</xs:appinfo>
+	NetGroup : OPTIONAL NetGroup;
+	SubGroup : SET[0:?] OF ConnectionGroup;
+END_ENTITY;
+
+ENTITY ConnectionSpecification
+	SUBTYPE OF (Specification);
+	ComponentNode : SET[0:?] OF ComponentNode;
+	Connection : SET[0:?] OF Connection;
+	ConnectionGroup : SET[0:?] OF ConnectionGroup;
+END_ENTITY;
+
+ENTITY ConnectorHousingRole
+	SUBTYPE OF (Role);
+	SealState : OPTIONAL SealState;
+	ComponentNode : OPTIONAL ComponentNode;
+	ConnectorHousingSpecification : ConnectorHousingSpecification;
+	SegmentConnectionPointReference : SET[0:?] OF SegmentConnectionPointReference;
+	SlotReference : SET[0:?] OF SlotReference;
+END_ENTITY;
+
+ENTITY ConnectorHousingSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	AverageWireLengthAddOn : OPTIONAL NumericalValue;
+	VoltageRange : OPTIONAL ValueRange;
+	Coupleable : OPTIONAL BOOLEAN;
+	SegmentConnectionPoint : SET[0:?] OF SegmentConnectionPoint;
+	Slot : SET[0:?] OF Slot;
+END_ENTITY;
+
+ENTITY ContactPoint;
+	Identification : OPTIONAL STRING;
+	MountedTerminal : OPTIONAL TerminalRole;
+	CavityMounting : SET[0:?] OF CavityMounting;
+	WireMounting : SET[0:?] OF WireMounting;
+END_ENTITY;
+
+ENTITY ContactSystem;
+	ContactResistance : OPTIONAL NumericalValue;
+	JoiningForce : OPTIONAL NumericalValue;
+	FirstTerminal : PartVersion;
+	ReferencedCoreSpecification : CoreSpecification;
+	SecondTerminal : PartVersion;
+END_ENTITY;
+
+ENTITY ContactSystemSpecification
+	SUBTYPE OF (Specification);
+	ContactSystem : SET[0:?] OF ContactSystem;
+END_ENTITY;
+
+ENTITY ContactingSpecification
+	SUBTYPE OF (Specification);
+	ContactPoint : SET[0:?] OF ContactPoint;
+END_ENTITY;
+
+ENTITY Contract;
+	CompanyName : STRING;
+	ContractRole : ContractRole;
+END_ENTITY;
+
+ENTITY CopyrightInformation;
+	CopyrightNote : LocalizedString;
+	Item : SET[1:?] OF ItemVersion;
+END_ENTITY;
+
+ENTITY CoreCurrentInformation;
+	MaxCurrent : NumericalValue;
+	EnvironmentTemperature : NumericalValue;
+	Voltage : NumericalValue;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY CoreSpecification
+	SUBTYPE OF (Specification);
+	CrossSectionArea : OPTIONAL NumericalValue;
+	MassInformation : OPTIONAL MassInformation;
+	Material : SET[0:?] OF Material;
+	OutsideDiameter : OPTIONAL NumericalValue;
+	Resistance : OPTIONAL NumericalValue;
+	Structure : OPTIONAL STRING;
+	type_ : OPTIONAL STRING;
+	CurrentInformation : SET[0:?] OF CoreCurrentInformation;
+	NumberOfStrands : OPTIONAL NumericalValue;
+	PlatingMaterial : SET[0:?] OF Material;
+	StrandCrossSectionArea : OPTIONAL NumericalValue;
+	VoltageRange : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY CorrugatedPipeSpecification
+	SUBTYPE OF (TubeSpecification);
+	CorrugationHeight : OPTIONAL NumericalValue;
+	CorrugationWidth : OPTIONAL NumericalValue;
+	CorrugationGradient : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY Creation;
+	CreationDate : date;
+	Creator : OPTIONAL Person;
+	ResponsibleDesigner : OPTIONAL Person;
+END_ENTITY;
+
+ENTITY CustomProperty
+	ABSTRACT SUPERTYPE OF (ONEOF (NumericalValueProperty, SimpleValueProperty, ValueRangeProperty));
+	PropertyType : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Dimension;
+	DimensionValue : NumericalValue;
+	DimensionLocation : Location;
+	ReferenceLocation : Location;
+	Path : OPTIONAL Path;
+	Tolerance : OPTIONAL Tolerance;
+END_ENTITY;
+
+ENTITY DocumentBasedInstruction
+	SUBTYPE OF (Instruction);
+	ReferencedDocument : DocumentVersion;
+	ReferencedSheetOrChapter : OPTIONAL SheetOrChapter;
+END_ENTITY;
+
+ENTITY DocumentVersion
+	SUBTYPE OF (ItemVersion);
+	DocumentNumber : STRING;
+	DocumentType : OPTIONAL STRING;
+	DocumentVersion : STRING;
+	CreatingSystem : OPTIONAL STRING;
+	DataFormat : OPTIONAL STRING;
+	FileName : OPTIONAL STRING;
+	Location : OPTIONAL STRING;
+	NumberOfSheets : OPTIONAL STRING;
+	ReferencedPart : SET[0:?] OF PartVersion;
+	RelatedDocument : SET[0:?] OF DocumentVersion;
+	ItemEquivalence : SET[0:?] OF ItemEquivalence;
+	SheetOrChapter : SET[0:?] OF SheetOrChapter;
+	Specification : SET[0:?] OF Specification;
+END_ENTITY;
+
+ENTITY EEComponentRole
+	SUBTYPE OF (Role);
+	EEComponentSpecification : EEComponentSpecification;
+	ComponentNode : OPTIONAL ComponentNode;
+	MountingCavity : SET[0:?] OF CavityReference;
+	MountingHousing : SET[0:?] OF ConnectorHousingRole;
+	MountingSlot : SET[0:?] OF SlotReference;
+	HousingComponentRef : SET[0:?] OF HousingComponentReference;
+END_ENTITY;
+
+ENTITY EEComponentSpecification
+	SUPERTYPE OF (ONEOF (BatterySpecification, RelaySpecification, AntennaSpecification, FuseSpecification))
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	HousingComponent :  SET[0:?] OF HousingComponent;
+END_ENTITY;
+
+TYPE ExtendableElementSelect = SELECT (
+		Approval, 
+		BSplineCurve, 
+		CableLeadThrough,
+		CartesianDimension,
+		CartesianPoint2D,
+		CartesianPoint3D,
+		Cavity,
+		CavityMounting,
+		CavityMountingDetail,
+		CavityReference,
+		ChangeDescription,
+		Coding,
+		CompatibilityStatement,
+		configurableElementSelect,
+		ConformanceClass,
+		ContactSystem,
+		Contract,
+		CopyrightInformation,
+		Creation,
+		HousingComponent,
+		Instruction,
+		InternalTerminalConnection,
+		ItemEquivalence,
+		ItemHistoryEntry,
+		ItemVersion,
+		Location,
+		Mapping,
+		MatingDetail,
+		ModuleFamily,
+		ModuleList,
+		OccurrenceOrUsageViewItem2D,
+		OccurrenceOrUsageViewItem3D,
+		Outlet,
+		PathSegment,
+		Permission,
+		PinComponent,
+		Project,
+		Role,
+		RoutingDestinationReference,
+		SegmentConnectionPoint,
+		SegmentCrossSectionArea,
+		SegmentLength,
+		SheetOrChapter,
+		Signal,
+		Slot,
+		Specification,
+		TerminalReception,
+		Tolerance,
+		Transformation2D,
+		Transformation3D,
+		UsageConstraint,
+		VariantCode,
+		VariantConfiguration,
+		VariantGroup,
+		VecContent,
+		WireElement,
+		WireEnd,
+		WireGrouping,
+		WireLength,
+		WireMounting,
+		WireMountingDetail,
+		WireReception);
+END_TYPE;
+
+ENTITY ExtendableElement;
+	target : ExtendableElementSelect;
+	CustomProperty : SET[0:?] OF CustomProperty;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY FileBasedInstruction
+	SUBTYPE OF (Instruction);
+	FileName : STRING;
+	LastModified : OPTIONAL date;
+	DataFormat : OPTIONAL STRING;
+	Location : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY FittingSpecification
+	SUBTYPE OF (WireProtectionSpecification);
+	Form : OPTIONAL STRING;
+	Outlet : SET[0:?] OF Outlet;
+END_ENTITY;
+
+ENTITY FixingRole
+	SUBTYPE OF (Role);
+	FixingSpecification : FixingSpecification;
+END_ENTITY;
+
+ENTITY FixingSpecification
+	SUPERTYPE OF ( ONEOF (HoleMountedFixingSpecification, BoltMountedFixingSpecification))
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	Offset : OPTIONAL NumericalValue;
+	SegmentDiameter : OPTIONAL ValueRange;
+END_ENTITY;
+
+ENTITY FuseSpecification
+	SUBTYPE OF (EEComponentSpecification);
+	FuseType : OPTIONAL STRING;
+	IMax : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY GeneralTechnicalPartSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	ColorInformation : OPTIONAL Color;
+	MassInformation : SET[0:?] OF MassInformation ;
+	MaterialInformation : SET[0:?] OF Material;
+	RobustnessProperties : SET[0:?] OF RobustnessProperties;
+	TemperatureInformation : SET[0:?] OF TemperatureInformation;
+	PartRelation : SET[0:?] OF PartRelation;
+END_ENTITY;
+
+ENTITY GeometryNode
+	ABSTRACT SUPERTYPE OF ( ONEOF (GeometryNode2D, GeometryNode3D));
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	ReferenceNode : OPTIONAL TopologyNode;
+END_ENTITY;
+
+ENTITY GeometryNode2D
+	SUBTYPE OF (GeometryNode);
+	CartesianPoint : CartesianPoint2D;
+END_ENTITY;
+
+ENTITY GeometryNode3D
+	SUBTYPE OF (GeometryNode);
+	CartesianPoint : CartesianPoint3D;
+END_ENTITY;
+
+ENTITY GeometrySegment
+	ABSTRACT SUPERTYPE OF (ONEOF (GeometrySegment2D, GeometrySegment3D));
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	ReferenceSegment : OPTIONAL TopologySegment;
+END_ENTITY;
+
+ENTITY GeometrySegment2D
+	SUBTYPE OF (GeometrySegment);
+	StartVector : CartesianVector2D;
+	EndVector : CartesianVector2D;
+	EndNode : GeometryNode2D;
+	StartNode : GeometryNode2D;
+	PathSegment : SET[0:?] OF PathSegment;
+END_ENTITY;
+
+ENTITY GeometrySegment3D
+	SUBTYPE OF (GeometrySegment);
+	StartVector : CartesianVector3D;
+	EndVector : CartesianVector3D;
+	EndNode : GeometryNode3D;
+	StartNode : GeometryNode3D;
+	BSplineCurve : SET[0:?] OF BSplineCurve;
+END_ENTITY;
+
+ENTITY GrommetRole
+	SUBTYPE OF (Role);
+	GrommetSpecification : GrommetSpecification;
+END_ENTITY;
+
+ENTITY GrommetSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	Hardness : OPTIONAL NumericalValue;
+	HoleDiameter : OPTIONAL NumericalValue;
+	PlateThickness : OPTIONAL ValueRange;
+	GrommetType : OPTIONAL STRING;
+	CableLeadThrough : SET[0:?] OF CableLeadThrough;
+END_ENTITY;
+
+ENTITY HarnessDrawingSpecification2D
+	SUBTYPE OF (Specification);
+	BuildingBlockPositionings : BuildingBlockPositioning2D;
+END_ENTITY;
+
+ENTITY HarnessGeometrySpecification3D
+	SUBTYPE OF (Specification);
+	type_ : GeometryType;
+	BuildingBlockPositionings : SET[0:?] OF BuildingBlockPositioning3D;
+END_ENTITY;
+
+ENTITY HoleMountedFixingSpecification
+	SUBTYPE OF (FixingSpecification);
+	HoleDiameter : OPTIONAL NumericalValue;
+	PlateThickness : OPTIONAL ValueRange;
+END_ENTITY;
+
+ENTITY HousingComponent;
+	Identification : STRING;
+	HousingSpecification : OPTIONAL ConnectorHousingSpecification;
+	PinComponent : SET[0:?] OF PinComponent;
+END_ENTITY;
+
+ENTITY HousingComponentReference;
+	Identification : OPTIONAL STRING;
+	HousingComponent : HousingComponent;
+	PinComponentRef : SET[0:?] OF PinComponentReference;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Instruction
+	ABSTRACT SUPERTYPE OF (ONEOF (TextBasedInstruction, DocumentBasedInstruction, FileBasedInstruction));
+END_ENTITY;
+
+ENTITY InsulationSpecification
+	SUBTYPE OF (Specification);
+	BaseColor : SET[0:?] OF Color;
+	FirstIdentificationColor : SET[0:?] OF Color;
+	SecondIdentificationColor : SET[0:?] OF Color;
+	LabelIdentificationColor : SET[0:?] OF Color;
+	LabelIdentificationType : OPTIONAL STRING;
+	LabelIdentificationValue : OPTIONAL STRING;
+	Material : SET[0:?] OF Material;
+	Thickness : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY InternalTerminalConnection;
+	Identification : STRING;
+	TerminalReception : SET[0:?] OF TerminalReception;
+	WireReception : SET[0:?] OF WireReception;
+END_ENTITY;
+
+ENTITY ItemEquivalence;
+	CompanyName : STRING;
+	Item : SET[1:?] OF ItemVersion;
+--	<xs:appinfo>There shall be at least 2 elements referenced.</xs:appinfo>
+END_ENTITY;
+
+ENTITY ItemHistoryEntry;
+	type_ : HistoryEntryType;
+	PredecessorVersion : ItemVersion;
+	SuccessorVersion : ItemVersion;
+END_ENTITY;
+
+ENTITY ItemVersion
+	ABSTRACT SUPERTYPE OF (ONEOF (PartVersion, DocumentVersion));
+	Abbreviation : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	CompanyName : STRING;
+	Contract : SET[0:?] OF Contract;
+	Approval : SET[0:?] OF Approval ;
+	ChangeDescription : SET[0:?] OF ChangeDescription ;
+	Creation : OPTIONAL Creation;
+END_ENTITY;
+
+ENTITY LocalizedString;
+	LanguageCode : LanguageCode;
+	Value_ : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Location
+	ABSTRACT SUPERTYPE Of (ONEOF (SegmentLocation, NodeLocation));
+	Identification : STRING;
+	MatchingId : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Mapping;
+	A : PartVersion;
+	B : PartVersion;
+--	SlotMapping : SlotSET[0:?] OF Mapping ;
+END_ENTITY;
+
+ENTITY MappingSpecification
+	SUBTYPE OF (Specification);
+	Mapping : SET[0:?] OF Mapping ;
+END_ENTITY;
+
+ENTITY MassInformation;
+	DeterminationType : OPTIONAL ValueDetermination;
+	Value_ : NumericalValue;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Material;
+	Key : STRING;
+	ReferenceSystem : STRING;
+	Description : SET[0:?] OF LocalizedString;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY MatingDetail;
+	Identification : STRING;
+	FirstTerminalReception : TerminalReceptionReference;
+	SecondTerminalReception : TerminalReceptionReference;
+END_ENTITY;
+
+ENTITY MatingPoint;
+	Identification : OPTIONAL STRING;
+	FirstTerminalRole : TerminalRole;
+	SecondTerminalRole : TerminalRole;
+	MatingDetail : SET[0:?] OF MatingDetail;
+END_ENTITY;
+
+ENTITY MatingSpecification
+	SUBTYPE OF (Specification);
+	MatingPoint : SET[0:?] OF MatingPoint;
+END_ENTITY;
+
+ENTITY ModuleFamily;
+	Identification : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	ModuleInFamily : SET[1:?] OF PartWithSubComponentsRole;
+END_ENTITY;
+
+ENTITY ModuleFamilySpecification
+	SUBTYPE OF (Specification);
+	ModuleFamily : ModuleFamily;
+END_ENTITY;
+
+ENTITY ModuleList;
+	Identification : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	CompletionComponents : SET[1:?] OF PartOccurrence;
+	ModuleInList : SET[1:?] OF PartWithSubComponentsRole;
+END_ENTITY;
+
+ENTITY ModuleListSpecification
+	SUBTYPE OF (Specification);
+	ModuleListConfiguration : ModuleList;
+END_ENTITY;
+
+ENTITY Net;
+	Identification : STRING;
+	Description : OPTIONAL LocalizedString;
+	NetworkPort : SET[1:?] OF NetworkPort;
+	Signal : OPTIONAL Signal;
+END_ENTITY;
+
+ENTITY NetGroup;
+	Identification : STRING;
+	NetGroupType : OPTIONAL STRING;
+	Description : OPTIONAL LocalizedString;
+	Net : SET[1:?] OF Net;
+--	<xs:appinfo>There shall be at least 2 elements referenced.</xs:appinfo>
+END_ENTITY;
+
+ENTITY NetSpecification
+	SUBTYPE OF (Specification);
+	Net : SET[0:?] OF Net ;
+	NetGroup : SET[0:?] OF NetGroup ;
+	NetworkNode : SET[0:?] OF NetworkNode;
+END_ENTITY;
+
+ENTITY NetworkNode;
+	Identification : STRING;
+	Abbreviation : OPTIONAL STRING;
+	NetworkNodeType : OPTIONAL STRING;
+	Description : OPTIONAL LocalizedString;
+	RealizedUsageNode : OPTIONAL UsageNode;
+	Port : SET[0:?] OF NetworkPort ;
+END_ENTITY;
+
+ENTITY NetworkPort;
+	Identification : STRING;
+	SignalDirection : OPTIONAL SignalDirection;
+	Description : OPTIONAL LocalizedString;
+	Signal : OPTIONAL Signal;
+END_ENTITY;
+
+ENTITY NodeLocation
+	SUBTYPE OF (Location);
+	ReferencedNode : TopologyNode;
+END_ENTITY;
+
+ENTITY NumericalValue
+	SUBTYPE OF (ValueWithUnit);
+	ValueComponent : REAL;
+END_ENTITY;
+
+ENTITY NumericalValueProperty
+	SUBTYPE OF (CustomProperty);
+	Value_ : NumericalValue;
+END_ENTITY;
+
+ENTITY OccurrenceOrUsage
+	ABSTRACT SUPERTYPE OF (ONEOF (PartUsage, PartOccurrence));
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	Abbreviation : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	RealizedUsageNode : OPTIONAL UsageNode;
+	InstallationInstruction : SET[0:?] OF Instruction ;
+	Role : SET[0:?] OF Role ;
+END_ENTITY;
+
+ENTITY OccurrenceOrUsageViewItem2D;
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	GridSquare : OPTIONAL STRING;
+	OccurrenceOrUsage : OPTIONAL OccurrenceOrUsage;
+	Orientation : OPTIONAL Transformation2D;
+END_ENTITY;
+
+ENTITY OccurrenceOrUsageViewItem3D;
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	OccurrenceOrUsage : OPTIONAL OccurrenceOrUsage;
+	Orientation : OPTIONAL Transformation3D;
+END_ENTITY;
+
+ENTITY OnPointPlacement
+	SUBTYPE OF (Placement);
+	ReferencedLocation : SET[1:?] OF Location;
+END_ENTITY;
+
+ENTITY OnWayPlacement
+	SUBTYPE OF (Placement);
+	EndLocation : Location;
+	StartLocation : Location;
+	Path : OPTIONAL Path;
+END_ENTITY;
+
+ENTITY Outlet;
+	Identification : OPTIONAL STRING;
+	InnerDiameter : OPTIONAL NumericalValue;
+	OuterDiameter : OPTIONAL NumericalValue;
+	NominalSize : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY PartOccurrence
+	SUBTYPE OF (OccurrenceOrUsage);
+	IsSecondaryAlternative : OPTIONAL BOOLEAN;
+	AlternativeOccurrence : SET[0:?] OF PartOccurrence;
+	InstanciatedOccurrence : SET[0:?] OF PartOccurrence;
+	Part : OPTIONAL PartVersion;
+	RealizedPartUsage : OPTIONAL PartUsage;
+	ReferenceElement : SET[0:?] OF PartOccurrence;
+END_ENTITY;
+
+ENTITY PartOrUsageRelatedSpecification
+	SUPERTYPE OF (ONEOF (
+		CavityPlugSpecification,
+		CavitySealSpecification,
+		ConnectorHousingSpecification,
+		EEComponentSpecification,
+		FixingSpecification,
+		GeneralTechnicalPartSpecification,
+		GrommetSpecification,
+		PartStructureSpecification,
+		TerminalSpecification,
+		TopologySpecification,
+		WireProtectionSpecification,
+		WireSpecification))
+	SUBTYPE OF (Specification);
+	SpecialPartType : OPTIONAL STRING;
+	DescribedPart : SET[0:?] OF PartVersion;
+END_ENTITY;
+
+ENTITY PartRelation;
+	RelationType : PartRelationType;
+	AccessoryPart : SET[1:?] OF PartVersion;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY PartStructureSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	Content : OPTIONAL STRING;
+	InBillOfMaterial : SET[0:?] OF PartOccurrence;
+END_ENTITY;
+
+ENTITY PartUsage
+	SUBTYPE OF (OccurrenceOrUsage);
+	PrimaryPartUsageType : OPTIONAL STRING;
+	PartOrUsageRelatedSpecification : SET[0:?] OF PartOrUsageRelatedSpecification;
+END_ENTITY;
+
+ENTITY PartUsageSpecification
+	SUBTYPE OF (Specification);
+	PartUsage : SET[0:?] OF PartUsage ;
+END_ENTITY;
+
+ENTITY PartVersion
+	SUBTYPE OF (ItemVersion);
+	PartNumber : STRING;
+	PartVersion : STRING;
+	PrimaryPartType : STRING;
+	ProcessingInstruction : SET[0:?] OF Instruction ;
+	IsPreferredPart : OPTIONAL STRING;
+	PreferredUseCase : OPTIONAL STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	Project : OPTIONAL Project;
+END_ENTITY;
+
+ENTITY PartWithSubComponentsRole
+	SUBTYPE OF (Role);
+	PartStructureSpecification : PartStructureSpecification;
+	SubComponent : SET[1:?] OF OccurrenceOrUsage;
+END_ENTITY;
+
+ENTITY Path;
+	Segment : SET[0:?] OF TopologySegment;
+END_ENTITY;
+
+ENTITY PathSegment;
+	CurveRadius : OPTIONAL NumericalValue;
+	ControlPoint : SET[0:?] OF CartesianPoint2D;
+END_ENTITY;
+
+ENTITY Permission;
+	Permission : TypeOfPermission;
+	PermissionDate : OPTIONAL date;
+	Permitter : OPTIONAL Person;
+END_ENTITY;
+
+ENTITY Person;
+	CompanyName : OPTIONAL STRING;
+	Department : OPTIONAL STRING;
+	FirstName : OPTIONAL STRING;
+	LastName : STRING;
+	PhoneNumber : OPTIONAL STRING;
+	EmailAddress : OPTIONAL STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY PinComponent;
+	Identification : STRING;
+	SignalDirection : OPTIONAL SignalDirection;
+	PinSpecification : OPTIONAL TerminalSpecification;
+	ReferencedCavity : OPTIONAL Cavity;
+	Signal : OPTIONAL Signal;
+END_ENTITY;
+
+ENTITY PinComponentReference;
+	Identification : OPTIONAL STRING;
+	PinComponent : PinComponent;
+	TerminalRole : OPTIONAL TerminalRole;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Placement
+	ABSTRACT SUPERTYPE OF (ONEOF (OnWayPlacement, OnPointPlacement));
+	Identification : STRING;
+	type_ : OPTIONAL STRING;
+	IsOnTopOf : SET[0:?] OF Placement;
+	PlacedElement : SET[1:?] OF OccurrenceOrUsage;
+END_ENTITY;
+
+ENTITY PlacementSpecification
+	SUBTYPE OF (Specification);
+	Dimension : SET[0:?] OF Dimension ;
+	Location : SET[0:?] OF Location ;
+	Placement : SET[0:?] OF Placement ;
+END_ENTITY;
+
+ENTITY PluggableTerminalRole
+	SUBTYPE OF (TerminalRole);
+END_ENTITY;
+
+ENTITY PluggableTerminalSpecification
+	SUBTYPE OF (TerminalSpecification);
+END_ENTITY;
+
+ENTITY Project;
+	CarClassificationLevel2 : OPTIONAL STRING;
+	CarClassificationLevel3 : OPTIONAL STRING;
+	CarClassificationLevel4 : OPTIONAL STRING;
+	Identification : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+END_ENTITY;
+
+ENTITY RelaySpecification
+	SUBTYPE OF (EEComponentSpecification);
+	IMax : OPTIONAL NumericalValue;
+	RelaisType : OPTIONAL STRING;
+	CoilContact : SET[0:?] OF PinComponent;
+	SwitchContact : SET[0:?] OF PinComponent;
+END_ENTITY;
+
+ENTITY RingTerminalRole
+	SUBTYPE OF (TerminalRole);
+END_ENTITY;
+
+ENTITY RingTerminalSpecification
+	SUBTYPE OF (TerminalSpecification);
+	BoltDiameter : NumericalValue;
+	Thickness : NumericalValue;
+	BoltType : STRING;
+	OutsideDimension : OPTIONAL NumericalValue;
+	TorsionProtection : OPTIONAL BOOLEAN;
+END_ENTITY;
+
+ENTITY RobustnessProperties;
+	Class : STRING;
+	ClassKey : OPTIONAL STRING;
+	ClassReferenceSystem : STRING;
+	HasRobustness : BOOLEAN;
+	Description : SET[0:?] OF LocalizedString;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Role
+	ABSTRACT SUPERTYPE OF (ONEOF (
+		 CavityPlugRole,
+		 CavitySealRole,
+		 ConnectorHousingRole,
+		 EEComponentRole,
+		 FixingRole,
+		 GrommetRole,
+		 PartWithSubComponentsRole,
+		 SpecificRole,
+		 TerminalRole,
+		 WireProtectionRole,
+		 WireRole));
+	Identification : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY RoutableElement
+	ABSTRACT SUPERTYPE OF (ONEOF (Connection, WireElementReference));
+END_ENTITY;
+
+ENTITY Routing;
+	Identification : OPTIONAL STRING;
+	SpecialRoutedComment : OPTIONAL LocalizedString;
+	SpecialRouted : OPTIONAL BOOLEAN;
+	MandatorySegment : SET[0:?] OF TopologySegment;
+	RoutedElement : RoutableElement;
+	Path : Path;
+END_ENTITY;
+
+ENTITY RoutingDestinationReference
+	SUPERTYPE OF (ONEOF (WireReceptionReference, SegmentConnectionPointReference));
+END_ENTITY;
+
+ENTITY RoutingLocation
+	SUBTYPE OF (NodeLocation);
+	LocatedRoutingDestination : RoutingDestinationReference;
+END_ENTITY;
+
+ENTITY RoutingSpecification
+	SUBTYPE OF (Specification);
+	Routing : SET[0:?] OF Routing;
+END_ENTITY;
+
+ENTITY SealingClass;
+	Class : STRING;
+	ClassKey : STRING;
+	ClassReferenceSystem : STRING;
+	Description : SET[0:?] OF LocalizedString;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY SegmentConnectionPoint;
+	Identification : STRING;
+	ReachableCavities : SET[0:?] OF Cavity;
+END_ENTITY;
+
+ENTITY SegmentConnectionPointReference
+	SUBTYPE OF (RoutingDestinationReference);
+	Identification : OPTIONAL STRING;
+	SegmentConnectionPoint : SegmentConnectionPoint;
+END_ENTITY;
+
+ENTITY SegmentCrossSectionArea;
+	Area : NumericalValue;
+	ValueDetermination : ValueDetermination;
+	CrossSectionAreaType : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY SegmentLength;
+	Length_ : NumericalValue;
+	Classification : LengthClassification;
+END_ENTITY;
+
+ENTITY SegmentLocation
+	SUBTYPE OF (Location);
+	Offset : NumericalValue;
+	Anchor : AnchorType;
+	ReferencedSegment : TopologySegment;
+END_ENTITY;
+
+ENTITY SheetOrChapter;
+	Identification : STRING;
+	ReferencedPart : SET[0:?] OF PartVersion;
+END_ENTITY;
+
+ENTITY ShrinkableTubeSpecification
+	SUBTYPE OF (TubeSpecification);
+	ShrinkingFactor : OPTIONAL REAL;
+END_ENTITY;
+
+ENTITY Signal;
+	SignalName : STRING;
+	Description : SET[0:?] OF LocalizedString;
+	RecommendedCoreSpecification : OPTIONAL CoreSpecification;
+	RecommendedInsulationSpecification : OPTIONAL InsulationSpecification;
+END_ENTITY;
+
+ENTITY SignalSpecification
+	SUBTYPE OF (Specification);
+	Signal : SET[0:?] OF Signal;
+END_ENTITY;
+
+ENTITY SimpleValueProperty
+	SUBTYPE OF (CustomProperty);
+	Value_ : STRING;
+END_ENTITY;
+
+ENTITY Slot;
+	ColorInformation : SET[0:?] OF Color;
+	SealingType : OPTIONAL STRING;
+	SlotNumber : OPTIONAL STRING;
+	SealingClass : SET[0:?] OF SealingClass;
+	Coding : OPTIONAL Coding;
+	SlotSpecification : OPTIONAL SlotSpecification;
+	Cavity : Cavity;
+END_ENTITY;
+
+ENTITY SlotLayout;
+	GridX : OPTIONAL NumericalValue;
+	GridY : OPTIONAL NumericalValue;
+	RowCount : OPTIONAL INTEGER;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY SlotMapping;
+	IdentificationA : STRING;
+	IdentificationB : STRING;
+	CavityMapping : SET[0:?] OF CavityMapping;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY SlotReference;
+	Identification : OPTIONAL STRING;
+	ReferencedSlot : Slot;
+	CavityReference : SET[0:?] OF CavityReference;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY SlotSpecification
+	SUBTYPE OF (Specification);
+	EmvProtectionRequired : OPTIONAL BOOLEAN;
+	Gender : OPTIONAL STRING;
+	LayoutType : OPTIONAL STRING;
+	SecondaryLocking : OPTIONAL BOOLEAN;
+	SlotLayout : OPTIONAL SlotLayout;
+	NumberOfCavities : SET[1:?] OF Cavity;
+	Coding : SET[0:?] OF Coding;
+END_ENTITY;
+
+ENTITY SoundDampingClass;
+	ClassKey : STRING;
+	ReferenceSystem : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY SpecificRole
+	SUBTYPE OF (Role);
+	SpecificRoleType : STRING;
+	Specification : PartOrUsageRelatedSpecification;
+END_ENTITY;
+
+ENTITY Specification
+	ABSTRACT SUPERTYPE OF ( ONEOF (
+		BuildingBlockSpecification2D,
+		BuildingBlockSpecification3D,
+		CavitySpecification,
+		CompatibilitySpecification,
+		CompositionSpecification,
+		ConnectionSpecification,
+		ContactSystemSpecification,
+		ContactingSpecification,
+		CoreSpecification,
+		HarnessDrawingSpecification2D,
+		HarnessGeometrySpecification3D,
+		InsulationSpecification,
+		MappingSpecification,
+		MatingSpecification,
+		ModuleFamilySpecification,
+		ModuleListSpecification,
+		NetSpecification,
+		PartOrUsageRelatedSpecification,
+		PartUsageSpecification,
+		PlacementSpecification,
+		RoutingSpecification,
+		SignalSpecification,
+		SlotSpecification,
+		TerminalReceptionSpecification,
+		UsageConstraintSpecification,
+		UsageNodeSpecification,
+		VariantCodeSpecification,
+		VariantConfigurationSpecification,
+		VariantGroupSpecification,
+		WireElementSpecification,
+		WireGroupSpecification,
+		WireGroupingSpecification,
+		WireReceptionSpecification));
+	Identification : STRING;
+	Description : SET[0:?] OF LocalizedString;
+END_ENTITY;
+
+ENTITY SpliceTerminalRole
+	SUBTYPE OF (TerminalRole);
+	SpliceType : OPTIONAL SpliceType;
+	InsulationState : OPTIONAL InsulationState;
+END_ENTITY;
+
+ENTITY SpliceTerminalSpecification
+	SUBTYPE OF (TerminalSpecification);
+END_ENTITY;
+
+ENTITY StripeSpecification
+	SUBTYPE OF (WireProtectionSpecification);
+	Length_ : OPTIONAL NumericalValue;
+	SegmentDiameter : OPTIONAL ValueRange;
+	Width : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY TapeSpecification
+	SUBTYPE OF (WireProtectionSpecification);
+	Backing : SET[0:?] OF Material;
+	Adhesive : SET[0:?] OF Material;
+	Width : SET[0:?] OF NumericalValue;
+	Thickness : SET[0:?] OF NumericalValue;
+	CoilCoreDiameter : SET[0:?] OF NumericalValue;
+END_ENTITY;
+
+ENTITY TemperatureInformation;
+	TemperatureRange : OPTIONAL ValueRange;
+	TemperatureType : OPTIONAL STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY TerminalCurrentInformation;
+	CurrentRange : ValueRange;
+	NominalVoltage : NumericalValue;
+	CoreCrossSectionArea : NumericalValue;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY TerminalReception;
+	Identification : STRING;
+	Gender : OPTIONAL STRING;
+	TerminalReceptionSpecification : OPTIONAL TerminalReceptionSpecification;
+END_ENTITY;
+
+ENTITY TerminalReceptionReference;
+	Identification : OPTIONAL STRING;
+	TerminalReception : TerminalReception;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY TerminalReceptionSpecification
+	SUBTYPE OF (Specification);
+	CavityDesign : OPTIONAL STRING;
+	CavityType : OPTIONAL STRING;
+	NominalSize : OPTIONAL STRING;
+	PlatingMaterial : SET[0:?] OF Material;
+	PrimaryLocking : OPTIONAL BOOLEAN;
+	PullOutForce : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY TerminalRole
+	SUPERTYPE OF (ONEOF (
+		PluggableTerminalRole,
+		RingTerminalRole,
+		SpliceTerminalRole))
+	SUBTYPE OF (Role);
+	SealState : OPTIONAL SealState;
+	ComponentPort : OPTIONAL ComponentPort;
+	TerminalSpecification : TerminalSpecification;
+	TerminalReceptionReference : SET[0:?] OF TerminalReceptionReference;
+	WireReceptionReference : SET[0:?] OF WireReceptionReference;
+END_ENTITY;
+
+ENTITY TerminalSpecification
+	SUPERTYPE OF ( ONEOF (RingTerminalSpecification, PluggableTerminalSpecification, SpliceTerminalSpecification))
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	Angle : LIST [0:2] OF NumericalValue;
+	CurrentInformation : SET[0:?] OF TerminalCurrentInformation;
+	SealingClass : SET[0:?] OF SealingClass;
+	InternalTerminalConnection : SET[0:?] OF InternalTerminalConnection;
+	TerminalReception : SET[0:?] OF TerminalReception;
+	WireReception : SET[0:?] OF WireReception;
+END_ENTITY;
+
+ENTITY TextBasedInstruction
+	SUBTYPE OF (Instruction);
+	InstallationInstruction : LocalizedString;
+END_ENTITY;
+
+ENTITY Tolerance;
+	LowerBoundary : OPTIONAL NumericalValue;
+	UpperBoundary : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY TopologyGroupSpecification
+	SUBTYPE OF (TopologySpecification);
+	TopologySpecification : SET[0:?] OF TopologySpecification;
+END_ENTITY;
+
+ENTITY TopologyNode;
+	Identification : STRING;
+	AliasId : SET[0:?] OF AliasIdentification;
+	MatchingPointId : OPTIONAL STRING;
+	ProcessingInstruction : SET[0:?] OF LocalizedString;
+	NodeType : OPTIONAL NodeType;
+	RealizedUsageNode : OPTIONAL UsageNode;
+END_ENTITY;
+
+ENTITY TopologySegment;
+	Identification : STRING;
+	Form : SegmentForm;
+	AliasId : SET[0:?] OF AliasIdentification;
+	ProcessingInstruction : SET[0:?] OF LocalizedString;
+	EndNode : TopologyNode;
+	StartNode : TopologyNode;
+	CrossSectionAreaInformation : SET[0:?] OF SegmentCrossSectionArea;
+	LengthInformation : SET[0:?] OF SegmentLength;
+END_ENTITY;
+
+ENTITY TopologySpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	TopologyNode : SET[0:?] OF TopologyNode;
+	TopologySegment : SET[0:?] OF TopologySegment;
+	Zone : SET[0:?] OF Zone;
+END_ENTITY;
+
+ENTITY Transformation2D;
+	A11 : REAL;
+	A12 : REAL;
+	A21 : REAL;
+	A22 : REAL;
+	Origin : CartesianPoint2D;
+END_ENTITY;
+
+ENTITY Transformation3D;
+	A11 : REAL;
+	A12 : REAL;
+	A13 : REAL;
+	A21 : REAL;
+	A22 : REAL;
+	A23 : REAL;
+	A31 : REAL;
+	A32 : REAL;
+	A33 : REAL;
+	Origin : CartesianPoint3D;
+END_ENTITY;
+
+ENTITY TubeSpecification
+	SUPERTYPE OF (ONEOF (ShrinkableTubeSpecification, CorrugatedPipeSpecification))
+	SUBTYPE OF (WireProtectionSpecification);
+	BendRadius : OPTIONAL NumericalValue;
+	InnerDiameter : OPTIONAL NumericalValue;
+	WallThickness : OPTIONAL NumericalValue;
+	IsSlit : OPTIONAL BOOLEAN;
+	NominalSize : OPTIONAL STRING;
+	OuterDiameter : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY Unit;
+	UnitName : OPTIONAL STRING;
+	SiUnitName : OPTIONAL SiUnitName;
+	SiPrefix : OPTIONAL SiPrefix;
+	SiUnitDimension : OPTIONAL SiUnitDimension;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY UsageConstraint;
+	UsageConstraint_Type : UsageConstraintType;
+	FromDate : OPTIONAL date;
+	ToDate : OPTIONAL date;
+	FromSerialNumber : OPTIONAL STRING;
+	ToSerialNumber : OPTIONAL STRING;
+	ProjectPhase : OPTIONAL STRING;
+	Project : SET[0:?] OF Project;
+	UsageNodes : SET[0:?] OF UsageNode;
+END_ENTITY;
+
+ENTITY UsageConstraintSpecification
+	SUBTYPE OF (Specification);
+	ContrainedParts : SET[0:?] OF PartVersion;
+	PartUsageConstraint : UsageConstraint;
+END_ENTITY;
+
+ENTITY UsageNode;
+	Abbreviation : OPTIONAL STRING;
+	Identification : STRING;
+	Description : SET[0:?] OF LocalizedString;
+	UsageNodeType : OPTIONAL UsageNodeType;
+	UsedInProject : SET[0:?] OF Project;
+	SubUsageNodes : SET[0:?] OF UsageNode;
+END_ENTITY;
+
+ENTITY UsageNodeSpecification
+	SUBTYPE OF (Specification);
+	UsageNodes : SET[0:?] OF UsageNode;
+END_ENTITY;
+
+ENTITY ValueRange
+	SUBTYPE OF (ValueWithUnit);
+	Minimum : REAL;
+	Maximum : REAL;
+END_ENTITY;
+
+ENTITY ValueRangeProperty
+	SUBTYPE OF (CustomProperty);
+	Value_ : ValueRange;
+END_ENTITY;
+
+ENTITY ValueWithUnit
+	ABSTRACT SUPERTYPE OF (ONEOF (NumericalValue, ValueRange));
+	UnitComponent : Unit;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY VariantCode;
+	Identification : STRING;
+	CodeType : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+END_ENTITY;
+
+ENTITY VariantCodeSpecification
+	SUBTYPE OF (Specification);
+	VariantCode : SET[0:?] OF VariantCode;
+END_ENTITY;
+
+ENTITY VariantConfiguration;
+	Identification : OPTIONAL STRING;
+	Description : SET[0:?] OF LocalizedString;
+	LogisticControlString : OPTIONAL STRING;
+	LogisticControlExpression : OPTIONAL STRING;
+	ConfigurationType : OPTIONAL STRING;
+	configurationElements : SET[0:?] OF configurableElementSelect;
+END_ENTITY;
+
+ENTITY VariantConfigurationSpecification
+	SUBTYPE OF (Specification);
+	VariantConfiguration : SET[0:?] OF VariantConfiguration;
+END_ENTITY;
+
+ENTITY VariantGroup;
+	Identification : STRING;
+	Description : OPTIONAL STRING;
+	GroupType : OPTIONAL STRING;
+	VariantCode : SET[0:?] OF VariantCode;
+END_ENTITY;
+
+ENTITY VariantGroupSpecification
+	SUBTYPE OF (Specification);
+	VariantGroup : SET[0:?] OF VariantGroup;
+END_ENTITY;
+
+ENTITY VecContent;
+	VecVersion : STRING;
+	GeneratingSystemName : OPTIONAL STRING;
+	DateOfCreation : OPTIONAL date;
+	GeneratingSystemVersion : OPTIONAL STRING;
+	CompliantConformanceClass :  SET[0:?] OF ConformanceClass;
+	Contract : SET[0:?] OF Contract;
+	CopyrightInformation : SET[0:?] OF CopyrightInformation;
+	DocumentVersion : SET[0:?] OF DocumentVersion;
+	ItemHistoryEntry : SET[0:?] OF ItemHistoryEntry;
+	PartVersion : SET[0:?] OF PartVersion;
+	Project : SET[0:?] OF Project;
+	Unit : SET[0:?] OF Unit;
+END_ENTITY;
+
+ENTITY WireElement;
+	Identification : STRING;
+	WireElementSpecification : WireElementSpecification;
+END_ENTITY;
+
+ENTITY WireElementReference
+	SUBTYPE OF (RoutableElement);
+	Identification : OPTIONAL STRING;
+	Connection : OPTIONAL Connection;
+	ReferencedWireElement : WireElement;
+	Signal : OPTIONAL Signal;
+	WireEnd : SET[0:?] OF WireEnd;
+	WireLength : SET[0:?] OF WireLength;
+END_ENTITY;
+
+ENTITY WireElementSpecification
+	SUBTYPE OF (Specification);
+	type_ : SET[0:?] OF WireType;
+	MinBendRadiusDynamic : OPTIONAL NumericalValue;
+	MinBendRadiusStatic : OPTIONAL NumericalValue;
+	OutsideDiameter : OPTIONAL NumericalValue;
+	SuitedForDynamicUse : OPTIONAL BOOLEAN;
+	CoreSpecification : OPTIONAL CoreSpecification;
+	InsulationSpecification : OPTIONAL InsulationSpecification;
+	SubWireElementSpecification : SET[0:?] OF WireElementSpecification;
+	WireGroupSpecification : OPTIONAL WireGroupSpecification;
+END_ENTITY;
+
+ENTITY WireEnd;
+	Identification : OPTIONAL STRING;
+	PositionOnWire : REAL;
+END_ENTITY;
+
+ENTITY WireGroupSpecification
+	SUBTYPE OF (Specification);
+	GroupType : STRING;
+	LengthOfTwist : OPTIONAL NumericalValue;
+END_ENTITY;
+
+ENTITY WireGrouping;
+	Identification : STRING;
+	RelatedWireRole : SET[1:?] OF WireElementReference;
+--	<xs:appinfo>There shall be at least 2 elements referenced.</xs:appinfo>
+	WireGroupSpecification : WireGroupSpecification;
+END_ENTITY;
+
+ENTITY WireGroupingSpecification
+	SUBTYPE OF (Specification);
+	WireGrouping : WireGrouping;
+END_ENTITY;
+
+ENTITY WireLength;
+	LengthType : STRING;
+	LengthValue : NumericalValue;
+END_ENTITY;
+
+ENTITY WireMounting;
+	OpenWireEnd : OPTIONAL BOOLEAN;
+	MountedCavitySeal : OPTIONAL CavitySealRole;
+	ReferencedWireEnd : SET[1:?] OF WireEnd;
+	WireMountingDetail : SET[0:?] OF WireMountingDetail;
+END_ENTITY;
+
+ENTITY WireMountingDetail;
+	ContactedWireReception : WireReceptionReference;
+	ReferencedWireEnd : SET[1:?] OF WireEnd;
+END_ENTITY;
+
+ENTITY WireProtectionRole
+	SUBTYPE OF (Role);
+	ProtectionLength : OPTIONAL NumericalValue;
+	TapeOverlap : OPTIONAL STRING;
+	TapingDirection : OPTIONAL TapingDirection;
+	Gradient : OPTIONAL ValueWithUnit;
+	WireProtectionSpecification : WireProtectionSpecification;
+END_ENTITY;
+
+ENTITY WireProtectionSpecification
+	SUPERTYPE OF ( ONEOF (FittingSpecification,  TapeSpecification, TubeSpecification, StripeSpecification))
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	AbrasionResistanceClass : SET[0:?] OF AbrasionResistanceClass;
+	SoundDampingClass : SET[0:?] OF SoundDampingClass;
+END_ENTITY;
+
+ENTITY WireReception;
+	Identification : STRING;
+	WireReceptionSpecification : OPTIONAL WireReceptionSpecification;
+END_ENTITY;
+
+ENTITY WireReceptionReference
+	SUBTYPE OF (RoutingDestinationReference);
+	Identification : OPTIONAL STRING;
+	WireReception : WireReception;
+END_ENTITY;
+
+ENTITY WireReceptionSpecification
+	SUBTYPE OF (Specification);
+	CoreCrossSectionArea : OPTIONAL ValueRange;
+	InsolationDisplacementLength : OPTIONAL NumericalValue;
+	MultiContact : OPTIONAL BOOLEAN;
+	WireReceptionType : OPTIONAL STRING;
+	WireElementOutsideDiameter : OPTIONAL ValueRange;
+	PlatingMaterial : SET[0:?] OF Material;
+	Sealable : OPTIONAL BOOLEAN;
+END_ENTITY;
+
+ENTITY WireRole
+	SUBTYPE OF (Role);
+	WireSpecification : WireSpecification;
+	WireElementReference : SET[0:?] OF WireElementReference;
+END_ENTITY;
+
+ENTITY WireSpecification
+	SUBTYPE OF (PartOrUsageRelatedSpecification);
+	WireElementSpecification : WireElementSpecification;
+	WireElement : WireElement;
+END_ENTITY;
+
+ENTITY WireType;
+	type_ : STRING;
+	ReferenceSystem : STRING;
+--	id : xs:ID" use="required;
+END_ENTITY;
+
+ENTITY Zone;
+	Identification : STRING;
+	Description : OPTIONAL LocalizedString;
+	SubZone : SET[0:?] OF Zone;
+END_ENTITY;
+
+TYPE LanguageCode = ENUMERATION OF (
+	Aa,
+	Ab,
+	Af,
+	Am,
+	Ar,
+	As_,
+	Ay,
+	Az,
+	Ba,
+	Be,
+	Bg,
+	Bh,
+	Bi,
+	Bn,
+	Bo,
+	Br,
+	Ca,
+	Co,
+	Cs,
+	Cy,
+	Da,
+	De,
+	Dz,
+	El,
+	En,
+	Eo,
+	Es,
+	Et,
+	Eu,
+	Fa,
+	Fi,
+	Fj,
+	Fo,
+	Fr,
+	Fy,
+	Ga,
+	Gd,
+	Gl,
+	Gn,
+	Gu,
+	Ha,
+	Hi,
+	He,
+	Hr,
+	Hu,
+	Hy,
+	Ia,
+	Id,
+	Ie,
+	Ik,
+	In_,
+	Is,
+	It,
+	Iu,
+	Iw,
+	Ja,
+	Ji,
+	Jw,
+	Ka,
+	Kk,
+	Kl,
+	Km,
+	Kn,
+	Ko,
+	Ks,
+	Ku,
+	Ky,
+	La,
+	Ln,
+	Lo,
+	Lt,
+	Lv,
+	Mg,
+	Mi,
+	Mk,
+	Ml,
+	Mn,
+	Mo,
+	Mr,
+	Ms,
+	Mt,
+	My,
+	Na,
+	Ne,
+	Nl,
+	No,
+	Oc,
+	Om,
+	Or_,
+	Pa,
+	Pl,
+	Ps,
+	Pt,
+	Qu,
+	Rm,
+	Rn,
+	Ro,
+	Ru,
+	Rw,
+	Sa,
+	Sd,
+	Sg,
+	Sh,
+	Si,
+	Sk,
+	Sl,
+	Sm,
+	Sn,
+	So,
+	Sq,
+	Sr,
+	Ss,
+	St,
+	Su,
+	Sv,
+	Sw,
+	Ta,
+	Te,
+	Tg,
+	Th,
+	Zi,
+	Tk,
+	Tl,
+	Tn,
+	To_,
+	Tr,
+	Ts,
+	Tt,
+	Tw,
+	Ug,
+	Uk,
+	Ur,
+	Uz,
+	Vi,
+	Vo,
+	Wo,
+	Xh,
+	Yi,
+	Yo,
+	Za,
+	Zh,
+	Zu
+);
+END_TYPE;
+
+TYPE PartRelationType = ENUMERATION OF (
+	Mandatory,
+	Optional_,
+	OneOfAll
+);
+END_TYPE;
+
+TYPE GeometryType = ENUMERATION OF (
+	Dmu,
+	Formboard
+);
+END_TYPE;
+
+TYPE InsulationState = ENUMERATION OF (
+	Insulated,
+	Uninsulated
+);
+END_TYPE;
+
+TYPE SpliceType = ENUMERATION OF (
+	InlineSplice,
+	EndSplice
+);
+END_TYPE;
+
+TYPE SealState = ENUMERATION OF (
+	Unsealed,
+	Sealed
+);
+END_TYPE;
+
+TYPE TapingDirection = ENUMERATION OF (
+	Left,
+	Right
+);
+END_TYPE;
+
+TYPE SignalDirection = ENUMERATION OF (
+	In_,
+	Out,
+	InOut
+);
+END_TYPE;
+
+TYPE StatusOfApproval = ENUMERATION OF (
+	NotYetApproved,
+	Approved,
+	Withdrawn
+);
+END_TYPE;
+
+TYPE TypeOfPermission = ENUMERATION OF (
+	Seen,
+	Checked,
+	Released
+);
+END_TYPE;
+
+TYPE ContractRole = ENUMERATION OF (
+	Oem,
+	Supplier,
+	Manufacturer
+);
+END_TYPE;
+
+TYPE HistoryEntryType = ENUMERATION OF (
+	Derivation,
+	Sequence
+);
+END_TYPE;
+
+TYPE SiPrefix = ENUMERATION OF (
+	Milli,
+	Centi,
+	Micro,
+	Kilo,
+	Mega,
+	Tera,
+	Nano
+);
+END_TYPE;
+
+TYPE SiUnitName = ENUMERATION OF (
+	Metre,
+	Gram,
+	Second,
+	Ampere,
+	Kelvin,
+	Hertz,
+	Newton,
+	Pascal,
+	Joule,
+	Watt,
+	Coulomb,
+	Volt,
+	Farad,
+	Ohm,
+	Piece,
+	Pi_
+);
+END_TYPE;
+
+TYPE ValueDetermination = ENUMERATION OF (
+	Calculated,
+	Measured,
+	Estimated
+);
+END_TYPE;
+
+TYPE SiUnitDimension = ENUMERATION OF (
+	Square,
+	Cubic
+);
+END_TYPE;
+
+TYPE AnchorType = ENUMERATION OF (
+	FromStartNode,
+	FromEndNode
+);
+END_TYPE;
+
+TYPE LengthClassification = ENUMERATION OF (
+	Designed,
+	Adapted
+);
+END_TYPE;
+
+TYPE NodeType = ENUMERATION OF (
+	EndNode,
+	Junction,
+	Inliner
+);
+END_TYPE;
+
+TYPE SegmentForm = ENUMERATION OF (
+	Circular,
+	NonCircular
+);
+END_TYPE;
+
+TYPE UsageConstraintType = ENUMERATION OF (
+	Allow,
+	Deny
+);
+END_TYPE;
+
+TYPE UsageNodeType = ENUMERATION OF (
+	Component,
+	Inliner,
+	Splice,
+	Protection,
+	Fixing,
+	Grommet
+);
+END_TYPE;
+
+END_SCHEMA;

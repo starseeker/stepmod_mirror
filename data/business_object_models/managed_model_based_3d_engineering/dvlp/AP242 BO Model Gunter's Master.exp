@@ -2107,7 +2107,7 @@ END_ENTITY;
 ENTITY InterpolatedConfigurationModel
  SUBTYPE OF (GeometricRepresentation);
   parameterUnit : Unit;
-  SELF\GeometricRepresentation.items RENAMED synchronisedSequences : SET[1:?] OF InterpolatedConfigurationSequence;
+  SELF\GeometricRepresentation.items : SET [1:?] OF InterpolatedConfigurationSequence;
 END_ENTITY;
 
 ENTITY InterpolatedConfigurationSegment;
@@ -3844,11 +3844,11 @@ ENTITY Identifier;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   id : IdentifierString;
-  context : OPTIONAL IdentificationContextSelect;
+  identificationContext : OPTIONAL IdentificationContextSelect;
  UNIQUE
-  UR1: id, role, context;
+  UR1: id, role, identificationContext;
  WHERE
-  ContextlessForOrganizationOnly: NOT (NOT EXISTS(context) AND (SIZEOF(USEDIN(SELF, SCHEMA_NAME + 'ORGANIZATION.ID'))=0));
+  ContextlessForOrganizationOnly: NOT (NOT EXISTS(identificationContext) AND (SIZEOF(USEDIN(SELF, SCHEMA_NAME + 'ORGANIZATION.ID'))=0));
 END_ENTITY;
 
 ENTITY IdentifierRelationship;
@@ -3872,9 +3872,10 @@ END_ENTITY;
 ENTITY ExchangeContext;
   description : OPTIONAL DescriptorSelect;
   identificationContext : OPTIONAL IdentificationContextSelect;
-  language : OPTIONAL Language;
+  defaultLanguage : OPTIONAL Language;
+  defaultUnit : OPTIONAL Unit;
  WHERE
-  WR1: EXISTS(language) OR EXISTS (identificationContext);
+  WR1: EXISTS(defaultLanguage) OR EXISTS (identificationContext);
 END_ENTITY;
 
 
@@ -5294,7 +5295,7 @@ ENTITY LaminateTable
   basis : ReinforcementOrientationBasis;
   resultingSurface : Surface;
  WHERE
-  SELF.initialcontext.applicationdomain = 'composites';
+  SELF.initialContext.applicationdomain = 'composites';
 END_ENTITY;
 
 ENTITY PercentageLaminateTable

@@ -1,4 +1,4 @@
--- Generated on 04/12/2013 16:28:54 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
+-- Generated on 05/12/2013 19:24:23 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
 -- From: AP242 BO Model DIS-B-R Version.exp
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -3073,10 +3073,11 @@ END_ENTITY;
 
 ENTITY ExchangeContext;
   description : OPTIONAL DescriptorSelect;
+  defaultLanguage : OPTIONAL Language;
+  defaultUnit : OPTIONAL Unit;
   identificationContext : OPTIONAL IdentificationContextSelect;
-  language : OPTIONAL Language;
 WHERE
-  WR1: EXISTS(language) OR EXISTS (identificationContext);
+  WR1: EXISTS(defaultLanguage) OR EXISTS (identificationContext);
 END_ENTITY;
 
 ENTITY ExchangeContextClassLibrary;
@@ -3385,11 +3386,11 @@ ENTITY Identifier;
   id : IdentifierString;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
-  context : OPTIONAL IdentificationContextSelect;
+  identificationContext : OPTIONAL IdentificationContextSelect;
 UNIQUE
-  UR1: id, role, context;
+  UR1: id, role, identificationContext;
 WHERE
-  ContextlessForOrganizationOnly: NOT (NOT EXISTS(context) AND (SIZEOF(USEDIN(SELF, SCHEMA_NAME + 'ORGANIZATION.ID'))=0));
+  ContextlessForOrganizationOnly: NOT (NOT EXISTS(identificationContext) AND (SIZEOF(USEDIN(SELF, SCHEMA_NAME + 'ORGANIZATION.ID'))=0));
 END_ENTITY;
 
 ENTITY IdentifierRelationship;
@@ -3528,7 +3529,7 @@ END_ENTITY;
 
 ENTITY InterpolatedConfigurationModel
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : null;
+  SELF\GeometricRepresentation.items : SET[1:?] OF InterpolatedConfigurationSequence;
   parameterUnit : Unit;
 END_ENTITY;
 
@@ -3609,7 +3610,7 @@ ENTITY LaminateTable
   basis : ReinforcementOrientationBasis;
   resultingSurface : Surface;
 WHERE
-  SELF.initialcontext.applicationdomain = 'composites';
+  SELF.initialContext.applicationdomain = 'composites';
 END_ENTITY;
 
 ENTITY LifeCycleStage;

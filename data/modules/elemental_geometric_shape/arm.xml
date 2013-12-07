@@ -18,25 +18,30 @@
          <select extensible="YES" genericentity="NO" selectitems="Geometric_model"/>
       </type>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement" super.expression="ONEOF (Axis_placement_2d, Axis_placement_3d)" supertypes="Detailed_geometric_model_element">
-         <explicit name="origin" optional="NO">
+         <explicit name="location" optional="NO">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="x_axis" optional="NO">
+         <explicit name="axis" optional="YES">
             <typename name="Direction"/>
          </explicit>
-         <explicit name="y_axis" optional="NO">
+         <explicit name="ref_direction" optional="YES">
             <typename name="Direction"/>
          </explicit>
-         <derived expression="SIZEOF(origin.coordinates)" name="dim">
+         <derived expression="SIZEOF(location\Cartesian_point.coordinates)" name="dim">
             <builtintype fixed="NO" type="INTEGER"/>
          </derived>
          <where expression="dim &gt;1" label="WR1"/>
-         <where expression="dim = SIZEOF(x_axis.direction_ratios)" label="WR2"/>
-         <where expression="dim = SIZEOF(y_axis.direction_ratios)" label="WR3"/>
+         <where expression="dim = SIZEOF(axis\Direction.direction_ratios)" label="WR2"/>
+         <where expression="dim = SIZEOF(ref_direction\Direction.direction_ratios)" label="WR3"/>
       <where label="IP1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement_2d" supertypes="Axis_placement"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement_3d" supertypes="Axis_placement"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement_2d" supertypes="Axis_placement">
+         <where expression="NOT EXISTS(axis)" label="WR1"/>
+         <where expression="SELF\Axis_placement.dim = 2" label="WR2"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement_3d" supertypes="Axis_placement">
+         <where expression="SELF\Axis_placement.dim = 3" label="WR1"/>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Axis_placement_mapping">
          <explicit name="source" optional="NO">
             <typename name="Axis_placement"/>

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="product_definition_schema" schema_file="product_definition_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/10/12 14:19:36 $" rcs.revision="$Revision: 1.8 $">
+<ext_descriptions module_directory="product_definition_schema" schema_file="product_definition_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/10/15 19:37:16 $" rcs.revision="$Revision: 1.9 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: product_definition_schema
    <express_ref linkend="product_definition_schema::product_definition_schema"/>
@@ -17,7 +17,8 @@
 	<express_ref linkend="product_property_definition_schema:ir_express:product_property_definition_schema.characterized_object"/>
 	and a type of 
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product"/>
-	for the purpose to characterize a product.
+	for the purpose of characterizing a product.
+	<note>Properties that are assigned using <b>characterized_object</b> are outside version control, whereas properties added via <b>product_definition</b> are under version control.</note>
 </ext_description>
 
 
@@ -188,7 +189,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_definition_schema.product_category">
-	A <b>product_category</b> is a type of product.
+	A <b>product_category</b> is a classification that applies to products.
 	<example>
 		In an application protocol whose context includes manufactured parts, 'mechanical part', 'electrical part', 
 		'structural part', 'piping part', 'water pipe', and 'hot water pipe' are examples of types of product.
@@ -280,7 +281,7 @@
 <ext_description linkend="product_definition_schema.product_category.wr:IP1">
 <p>
 	If a <b>product_category</b> participates in a 
-	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category_relationship"/>, 
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category_relationship"/> graph, 
 	the value of the name attribute shall not be identical to the name attribute within any of its parent <b>product_category</b> entity data types.
 </p>
 	
@@ -292,9 +293,13 @@
    <express_ref linkend="product_definition_schema::product_definition_schema.product_category_relationship"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-<ext_description linkend="product_definition_schema.product_category_relationship">
+<p><ext_description linkend="product_definition_schema.product_category_relationship">
 	A <b>product_category_relationship</b> is a hierarchical relationship of one category with another and provides a
-	description of their relationship.
+	description of their relationship. If a 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product"/> 
+		belongs to a 
+		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category"/>, 
+		it also belongs to all of the parent categories.</p>
 	<note number="1">
 		The role of <b>product_category_relationship</b> can be defined in the annotated EXPRESS schemas that use
 		or specialize this entity, or by default, in an agreement of common understanding between the partners sharing this information.
@@ -307,13 +312,7 @@
 		called 'piping part' by using two <b>product_category_relationships</b>, one <b>product_category_relationship</b> between 
 		'piping part' and 'cold water pipe' and the other <b>product_category_relationship</b> between 'piping part' and 'hot water pipe'.
 	</example>
-	<p>
-		If a 
-		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product"/> 
-		belongs to a 
-		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category"/>, 
-		it also belongs to all of the parent categories.
-	</p>
+	
 	<note number="2">
 		Networks of instances of 
 		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category"/> 
@@ -436,13 +435,11 @@
 	<note number="2">
 		A <b>product_definition</b> can identify an occurrence of a product.
 	</note>
-	<example number="3">
-		The left front wheel of a car can be identified by an instance of <b>product_definition</b> in the context of the car.
-	</example>
+	
 	<p>
 		The <b>product_definition</b> entity data type acts as an aggregator for information about the properties of products.
 	</p>
-	<example number="4">
+	<example number="3">
 		The designed shape of an aeroplane can be identified by an instance of the
 		<express_ref linkend="product_property_definition_schema:ir_express:product_property_definition_schema.product_definition_shape"/> 
 		entity data type that is associated with the design <b>product_definition</b> of the aeroplane.
@@ -943,11 +940,18 @@
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_formation"/>.
 </ext_description>
 
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_definition_schema  Entity: generic_product_definition_reference 
+   <express_ref linkend="product_definition_schema::product_definition_schema.generic_product_definition_reference"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+
 
 <ext_description linkend="product_definition_schema.generic_product_definition_reference">
 	A <b>generic_product_definition_reference</b> is a reference to an externally defined
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/> 
-	which may or may not have a local representation.
+	that may or may not have a local representation.
 	A <b>generic_product_definition_reference</b> is either a
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition_reference"/> 
 	or a
@@ -958,6 +962,12 @@
 	defines the location which contains the original definition of the 
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/>. 
 </ext_description>
+<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_definition_schema  Entity: product_definition_reference 
+   <express_ref linkend="product_definition_schema::product_definition_schema.product_definition_reference"/>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
 
 
 <ext_description linkend="product_definition_schema.product_definition_reference">
@@ -1004,8 +1014,7 @@
 	that represents an externally defined
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/>
 	by a local 
-	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/>
-	that provides only minimal information.
+	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/>.
 </ext_description>
 
 
@@ -1122,9 +1131,9 @@
 		The meaning of this attribute can be defined in the annotated EXPRESS schemas that use or specialize
 		this entity, or in an agreement of common understanding between the partners sharing this information.
 	</note>
-	<example number="3">
-		If the <b>product_definition_relationship</b> is an assembly component relationship, the <b>relating_product_definition</b> may be the assembly.
-	</example>
+	<note number="9">
+		In the context of an ISO 10303 application protocol, the <b>product_definition_relationship</b> is an assembly component relationship, the <b>relating_product_definition</b> may be the assembly.
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1139,15 +1148,15 @@
 	that is a part of the relationship. 
 	If one element of the relationship is dependent upon the other, this attribute shall be the dependent one.
 </p>
-	<note number="9">
+	<note number="10">
 		The meaning of this attribute can be defined in the annotated EXPRESS schemas that use or specialize
 		this entity, or in an agreement of common understanding between the partners sharing this information.
 	</note>
-	<example number="4">
-		In an assembly, the <b>related_product_definition</b> may be the 
+	<note number="11">
+		In the context of an ISO 10303 application protocol, the <b>related_product_definition</b> may be the 
 		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/> 
 		that is an element of the assembly.
-	</example>
+	</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1180,7 +1189,7 @@
 		<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_definition"/> 
 		related to a particular kind of nib: a standard nib and a deluxe nib, respectively.
 		The fact that the deluxe nib and the standard nib are interchangeable only in the context of the standard model of ball-point 
-		pen can be established with this construct.
+		pen is established with this construct.
 	</example>
 </ext_description>
 <!-- 
@@ -1324,7 +1333,7 @@
 <ext_description linkend="product_definition_schema.product_related_product_category">
 	A <b>product_related_product_category</b> is a type of 
 	<express_ref linkend="product_definition_schema:ir_express:product_definition_schema.product_category"/> 
-	that identifies members of the class of products that satisfy the type identified by the category.
+	that identifies products that satisfy the type identified by the category.
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

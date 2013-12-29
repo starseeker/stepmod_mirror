@@ -1,6 +1,10 @@
 SCHEMA managed_model_based_3d_engineering_bom;
 
--- Release candidate 5 for IS version
+-- Release candidate 6 for IS version
+-- Changes against RC5:
+--    AMW2: WorkOrderAssignment.assignedActivityMethod --> WorkOrderAssignment.assignedWorkOrder
+--    SBC6: ENTITY Point is now ABSTRACT
+--    SBC2: BreakdownElementAssociation --> BreakdownContext
 
 CONSTANT
  SCHEMA_NAME : STRING := 'MANAGED_MODEL_BASED_3D_ENGINEERING_BOM.';
@@ -518,13 +522,21 @@ ENTITY BreakdownElementRelationship;
   WR1: relating :<>: related;
 END_ENTITY;
 
+
+ENTITY BreakdownContext;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  breakdownContext : BreakdownVersion;
+  breakdownElement : BreakdownElement;
+END_ENTITY;
+(*
 ENTITY BreakdownElementAssociation;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   associatedBreakdown : BreakdownVersion;
   associatedElement : BreakdownElement;
 END_ENTITY;
-
+*)
 ENTITY BreakdownElementVersion;
   id : IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
@@ -895,9 +907,9 @@ ENTITY ProductConfiguration;
   id : IdentifierSelect;
   name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
-  versionId : OPTIONAL IdentifierSelect; -- not in PLCS
+  versionId : OPTIONAL IdentifierSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  sameAs : OPTIONAL SET[1:?] OF ProxySelect; -- not in 242
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
   definingSpecifications : OPTIONAL SET[1:?] OF Specification;
   memberOf : ProductClass;
 INVERSE
@@ -1060,6 +1072,7 @@ TYPE LengthMeasure = REAL;
 END_TYPE;
 
 ENTITY Point
+ ABSTRACT
  SUPERTYPE OF(ONEOF(CartesianPoint, PointOnCurve, PointOnSurface))
  SUBTYPE OF(DetailedGeometricModelItem);
 END_ENTITY;
@@ -4510,7 +4523,7 @@ ENTITY WorkOrderAssignment;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
-  assignedActivityMethod : WorkOrder;
+  assignedWorkOrder : WorkOrder;
   assignedTo : SET[1:?] OF WorkOrderAssignmentSelect;
 END_ENTITY;
 
@@ -4719,7 +4732,7 @@ TYPE DocumentAssignmentSelect = SELECT (
   AssemblyViewRelationshipSubstitution,
   Breakdown,
   BreakdownElement,
-  BreakdownElementAssociation,
+  BreakdownContext, --BreakdownElementAssociation,
   BreakdownElementRealization,
   BreakdownElementVersion,
   BreakdownElementVersionRelationship,

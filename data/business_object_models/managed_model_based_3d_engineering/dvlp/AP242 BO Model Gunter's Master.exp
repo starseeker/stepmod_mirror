@@ -1,10 +1,13 @@
 SCHEMA managed_model_based_3d_engineering_bom;
 
--- Release candidate 6 for IS version
--- Changes against RC5:
---    AMW2: WorkOrderAssignment.assignedActivityMethod --> WorkOrderAssignment.assignedWorkOrder
---    SBC6: ENTITY Point is now ABSTRACT
---    SBC2: BreakdownElementAssociation --> BreakdownContext
+-- Release candidate 7 for IS version
+(*
+Changes against RC6:
+- SBC5: removed duplicate entry AssemblyOccurrenceRelationship from SUPERTYPE clause of ENTITY ViewOccurrenceRelationship
+- added missing attribute "id : OPTIONAL IdentifierSelect;" to PartViewRelationship, OccurrenceRelationship, ViewOccurrenceRelationship, RequirementViewRelationship,
+  AssemblyOccurrenceRelationshipSubstitution, AssemblyViewRelationshipSubstitution, and GeometricRepresentationRelationship
+*)
+
 
 CONSTANT
  SCHEMA_NAME : STRING := 'MANAGED_MODEL_BASED_3D_ENGINEERING_BOM.';
@@ -96,6 +99,7 @@ END_ENTITY;
 
 ENTITY PartViewRelationship
  SUPERTYPE OF(ONEOF(AssemblyViewRelationship, GeometricalRelationship, MakeFromRelationship, ProcessStateRelationship, ReplacedPartViewRelationship, ToolPartRelationship));
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relationType : ClassSelect;
@@ -768,6 +772,7 @@ ENTITY AssemblyOccurrenceRelationship
 END_ENTITY;
 
 ENTITY AssemblyOccurrenceRelationshipSubstitution;
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relating : AssemblyOccurrenceRelationship;
@@ -787,6 +792,7 @@ ENTITY AssemblyViewRelationship
 END_ENTITY;
 
 ENTITY AssemblyViewRelationshipSubstitution;
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relating : AssemblyViewRelationship;
@@ -960,6 +966,7 @@ END_TYPE;
 
 ENTITY OccurrenceRelationship
  SUPERTYPE OF(ONEOF(ReplacedUsageRelationship, SameTimeMachiningRelationship));
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relationType : ClassSelect;
@@ -970,7 +977,8 @@ ENTITY OccurrenceRelationship
 END_ENTITY;
 
 ENTITY ViewOccurrenceRelationship
- SUPERTYPE OF(ONEOF(AssemblyOccurrenceRelationship, AssemblyOccurrenceRelationship, CollectedPartRelationship));
+ SUPERTYPE OF(ONEOF(AssemblyOccurrenceRelationship, CollectedPartRelationship));
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relationType : ClassSelect;
@@ -2695,6 +2703,7 @@ END_ENTITY;
 
 ENTITY RequirementViewRelationship
  SUPERTYPE OF(ONEOF(RequirementCollectionRelationship, RequirementTracingRelationship));
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relationType : ClassSelect;
@@ -5486,6 +5495,7 @@ ENTITY GeometricRepresentationRelationship
     GeometricRepresentationRelationshipWithCartesianTransformation,
     GeometricRepresentationRelationshipWithPlacementTransformation,
     GeometricRepresentationRelationshipWithSameCoordinateSpace));
+  id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   definitional : BOOLEAN;

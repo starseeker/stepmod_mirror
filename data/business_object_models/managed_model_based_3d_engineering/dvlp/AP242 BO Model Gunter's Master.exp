@@ -1,11 +1,20 @@
 SCHEMA managed_model_based_3d_engineering_bom;
 
--- Release candidate 7 for IS version
+-- Release candidate 8 for IS version
 (*
-Changes against RC6:
-- SBC5: removed duplicate entry AssemblyOccurrenceRelationship from SUPERTYPE clause of ENTITY ViewOccurrenceRelationship
-- added missing attribute "id : OPTIONAL IdentifierSelect;" to PartViewRelationship, OccurrenceRelationship, ViewOccurrenceRelationship, RequirementViewRelationship,
-  AssemblyOccurrenceRelationshipSubstitution, AssemblyViewRelationshipSubstitution, and GeometricRepresentationRelationship
+Changes against RC7:
+- E1: moved "endDefinition : OPTIONAL EventOrDateSelect;" from EffectivityAssignment to ENTITY Effectivity (Bug)
+- E1: moved "startDefinition : OPTIONAL EventOrDateSelect;" from EffectivityAssignment to ENTITY Effectivity (Bug)
+- E1: added "wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);" to ENTITY DataValidityEffectivity (Enhancement)
+- E1: added "wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);" to ENTITY TimeIntervalEffectivity (Enhancement)
+- E1: added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to ENTITY Effectivity
+- added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to Document, DocumentVersion, DocumentDefinition, Breakdown, BreakdownContext
+- added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to Certification, Contract, ConfiguredAssemblyEffectivity, Project
+- split MaterialIdentification into Material and MaterialAssignment
+- make AxisPlacement.refDirection optional
+- change TYPE Language to TYPE Language = STRING; END_TYPE (Format according to IS= 639 and ISO 3166)
+- replace GeometricModel in SELECT types by GeometricRepresentation (supertye of GeometricModel)
+
 *)
 
 
@@ -471,6 +480,7 @@ ENTITY Breakdown
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   breakdownType : ClassSelect;
   versions : SET[1:?] OF BreakdownVersion;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
  WHERE
   WR1: NOT(TYPEOF(SELF) = [SCHEMA_NAME + 'BREAKDOWN']) OR ((SELF.breakdownType <> 'physical') AND (SELF.breakdownType <> 'functional') AND (SELF.breakdownType <> 'zonal') AND (SELF.breakdownType <> 'system'));
 END_ENTITY;
@@ -482,6 +492,26 @@ ENTITY BreakdownRelationship;
   relationType : ClassSelect;
   relating : Breakdown;
   related : Breakdown;
+ WHERE
+  WR1: relating :<>: related;
+END_ENTITY;
+
+ENTITY BreakdownVersion;
+  id : IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
+ INVERSE
+  versionOf : Breakdown FOR versions;
+END_ENTITY;
+
+ENTITY BreakdownVersionRelationship;
+  id : OPTIONAL IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  relationType : ClassSelect;
+  relating : BreakdownVersion;
+  related : BreakdownVersion;
  WHERE
   WR1: relating :<>: related;
 END_ENTITY;
@@ -532,6 +562,7 @@ ENTITY BreakdownContext;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   breakdownContext : BreakdownVersion;
   breakdownElement : BreakdownElement;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 (*
 ENTITY BreakdownElementAssociation;
@@ -581,26 +612,6 @@ ENTITY BreakdownElementViewRelationship;
   relationType : ClassSelect;
   relating : BreakdownElementView;
   related : BreakdownElementView;
- WHERE
-  WR1: relating :<>: related;
-END_ENTITY;
-
-ENTITY BreakdownVersion;
-  id : IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
- INVERSE
-  versionOf : Breakdown FOR versions;
-END_ENTITY;
-
-ENTITY BreakdownVersionRelationship;
-  id : OPTIONAL IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  relationType : ClassSelect;
-  relating : BreakdownVersion;
-  related : BreakdownVersion;
  WHERE
   WR1: relating :<>: related;
 END_ENTITY;
@@ -907,6 +918,7 @@ ENTITY ConfiguredAssemblyEffectivity;
   configuredElement : AssemblyDesignSelect;
   resolvedConfiguration : ProductDesignAssociation;
   effectivityDomain : Effectivity;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY ProductConfiguration;
@@ -1060,7 +1072,7 @@ END_ENTITY;
 ENTITY AxisPlacement
  SUBTYPE OF(DetailedGeometricModelItem);
   position : LIST [2:3] OF LengthMeasure;
-  refDirection : LIST [2:3] OF LengthMeasure;
+  refDirection : OPTIONAL LIST [2:3] OF LengthMeasure;
   axis : OPTIONAL LIST [2:3] OF LengthMeasure;
  DERIVE
   dim : INTEGER := SIZEOF(position);
@@ -1281,6 +1293,9 @@ ENTITY Effectivity
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   concernedOrganizations : OPTIONAL SET[1:?] OF Organization;
   effectivityContext : OPTIONAL EffectivityContextSelect;
+  endDefinition : OPTIONAL EventOrDateSelect;
+  startDefinition : OPTIONAL EventOrDateSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 TYPE EffectivityContextSelect = SELECT ( 
@@ -1301,8 +1316,6 @@ ENTITY EffectivityAssignment;
   assignedEffectivity : Effectivity;
   assignedTo : SET[1:?] OF EffectivityAssignmentSelect;
   effectivityIndication : BOOLEAN;
-  endDefinition : OPTIONAL EventOrDateSelect;
-  startDefinition : OPTIONAL EventOrDateSelect;
 END_ENTITY;
 
 TYPE EffectivityAssignmentSelect = SELECT (
@@ -1359,7 +1372,7 @@ TYPE EffectivityAssignmentSelect = SELECT (
   File,
   FileRelationship,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   IdentifierRelationship,
   Identifier,
   IdentifierString,
@@ -1464,6 +1477,8 @@ END_ENTITY;
 
 ENTITY DataValidityEffectivity
  SUBTYPE OF(Effectivity);
+ WHERE
+  wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);
 END_ENTITY;
 
 ENTITY LotEffectivity
@@ -1480,6 +1495,8 @@ END_ENTITY;
 ENTITY TimeIntervalEffectivity
  SUBTYPE OF(Effectivity);
   effectivityPeriod : Duration;
+ WHERE
+  wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);
 END_ENTITY;
 
 
@@ -1910,7 +1927,6 @@ ENTITY ExternalUnit;
 END_ENTITY;
 
 
-
 (*:C2
  ------------------------------------------------------------
   Material
@@ -1919,10 +1935,37 @@ END_ENTITY;
 
 -- not harmonized with PLCS yet
 
-ENTITY MaterialIdentification;
+ENTITY Material;
   id : IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  assignedTo : SET[1:?] OF PropertyAssignmentSelect;
+  sameAs : SET[1:?] OF ProxySelect;
+END_ENTITY;
+
+TYPE MaterialAssignmentSelect = SELECT (
+  BreakdownElementView,
+  AlternativeSolution,
+  PartView,
+  Hardcopy,
+  ViewOccurrenceRelationship,
+  PartViewRelationship,
+  Occurrence,
+  IndividualPartView,
+  ProductConcept,
+  ProductConfiguration,
+  ShapeElement,
+  ShapeElementRelationship,
+  RequirementView
+);
+END_TYPE;
+
+ENTITY MaterialAssignment;
+  id : OPTIONAL IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  role : ClassSelect;
+  assignedMaterial : Material;
+  assignedTo : MaterialAssignmentSelect;
 END_ENTITY;
 
 ENTITY MaterialPropertyAssignment;
@@ -1931,7 +1974,7 @@ ENTITY MaterialPropertyAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedProperty : MaterialPropertyValue;
-  assignedTo : MaterialIdentification;
+  assignedTo : Material;
   definitional : OPTIONAL BOOLEAN;
 END_ENTITY;
 
@@ -2926,13 +2969,13 @@ TYPE SuppliedObjectSelect = SELECT (
   ExternalClassSystem,
   File,
   FormatProperty,
-  GeometricModel,
+  GeometricRepresentation,
   IndividualPartTestResult,
   IndividualPartView,
   InformationRight,
   InformationUsageRight,
   ConfiguredAssemblyEffectivity,
-  MaterialIdentification,
+  Material,
   Organization,
   Part,
   Occurrence,
@@ -3120,7 +3163,7 @@ TYPE ApprovalAssignmentSelect = SELECT (
   ExternalClassSystem,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   Identifier,
   IdentifierRelationship,
   IndividualAssemblyRelationship,
@@ -3133,7 +3176,8 @@ TYPE ApprovalAssignmentSelect = SELECT (
   InformationUsageRight,
   InformationUsageRightAssignment,
   InZone,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   OrganizationOrPersonInOrganizationAssignment,
@@ -3231,6 +3275,7 @@ ENTITY Certification;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   certificationType : ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY CertificationAssignment;
@@ -3287,6 +3332,7 @@ ENTITY Contract;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   contractType : ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
  INVERSE
   releases : SET[0:?] OF OrganizationInContract FOR signedContracts;
 END_ENTITY;
@@ -3332,6 +3378,7 @@ ENTITY Project;
   plannedEndDate : OPTIONAL PeriodOrDateSelect;
   plannedStartDate : OPTIONAL EventOrDateSelect;
   responsibleOrganizations : OPTIONAL SET[1:?] OF Organization;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY ProjectRelationship;
@@ -3469,7 +3516,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT (
   ExternalItem,
   File,
   FileRelationship,
-  GeometricModel,
+  GeometricRepresentation,
   IdentifierRelationship,
   Identifier,
   IdentifierString,
@@ -3482,7 +3529,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT (
   InformationRight,
   InformationUsageRight,
   InformationUsageRightRelationship,
-  MaterialIdentification,
+  Material,
   Organization,
   OrganizationRelationship,
   Part,
@@ -3548,7 +3595,7 @@ END_ENTITY;
 
 -- harmonized with PLCS
 
-TYPE Language = ProxySelect;
+TYPE Language = STRING; -- format: language code (according ISO 639-1 or 639-2) + an optional country code (ISO 3166-1)
 END_TYPE;
 
 TYPE CharacterString = STRING;
@@ -3747,7 +3794,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT (
   DocumentVersion,
   ExternalClassSystem,
   File,
-  GeometricModel,
+  GeometricRepresentation,
   Hardcopy,
   Identifier,
   IdentifierRelationship,
@@ -3756,7 +3803,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT (
   IndividualPartTestResult,
   IndividualPartVersion,
   IndividualPartView,
-  MaterialIdentification,
+  Material,
   Part,
   PartToIndividualPartAssociation,
   PartVersion,
@@ -3999,7 +4046,7 @@ TYPE GeneralOrganizationalDataSelect = SELECT (
   ExternalClassSystem,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   IdentifierRelationship,
   Identifier,
   IdentifierString,
@@ -4012,7 +4059,8 @@ TYPE GeneralOrganizationalDataSelect = SELECT (
   IndividualPartViewRelationship,
   InformationUsageRight,
   InformationUsageRightAssignment,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,
@@ -4322,7 +4370,7 @@ TYPE ActivityAssignmentSelect = SELECT (
   EventAssignment,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   IndividualAssemblyRelationship,
   IndividualPart,
   IndividualPartVersion,
@@ -4330,7 +4378,8 @@ TYPE ActivityAssignmentSelect = SELECT (
   IndividualPartView,
   IndividualPartViewRelationship,
   InformationUsageRightAssignment,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,
@@ -4704,6 +4753,7 @@ ENTITY Document;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   documentTypes : SET[1:?] OF ClassSelect;
   versions : SET[1:?] OF DocumentVersion;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY DocumentAssignment;
@@ -4795,7 +4845,8 @@ TYPE DocumentAssignmentSelect = SELECT (
   InformationUsageRightAssignment,
   InformationUsageRightRelationship,
   InZone,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,
@@ -4878,6 +4929,7 @@ ENTITY DocumentVersion;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   views : OPTIONAL SET[1:?] OF DocumentDefinition;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
  INVERSE
   versionOf : Document FOR versions;
 END_ENTITY;
@@ -4912,6 +4964,7 @@ ENTITY DocumentDefinition
   documentCreation : OPTIONAL CreationProperty;
   documentFormat : OPTIONAL SET[1:?] OF FormatProperty;
   documentSize : OPTIONAL SizeProperty;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
  INVERSE
   viewOf : DocumentVersion FOR views;
 END_ENTITY;

@@ -1,30 +1,30 @@
 SCHEMA VEC_modelSchema;
 
 TYPE configurableElementSelect = SELECT (
-	buildingBlockPositioning2D,
-	buildingBlockPositioning3D,
-	componentNode,
-	componentPort,
-	connectionEnd,
-	connectionGroup,
-	contactPoint,
-	dimension,
-	geometryNode,
-	geometrySegment,
-	matingPoint,
-	net,
-	netGroup,
-	networkNode,
-	networkPort,
-	occurrenceOrUsage,
-	path,
-	placement,
-	routableElement,
-	routing,
-	topologyNode,
-	topologySegment,
-	usageNode,
-	zone);
+	BuildingBlockPositioning2D,
+	BuildingBlockPositioning3D,
+	ComponentNode,
+	ComponentPort,
+	ConnectionEnd,
+	ConnectionGroup,
+	ContactPoint,
+	Dimension,
+	GeometryNode,
+	GeometrySegment,
+	MatingPoint,
+	Net,
+	NetGroup,
+	NetworkNode,
+	NetworkPort,
+	OccurrenceOrUsage,
+	Path,
+	PinComponentBehavior,
+	Placement,
+	Routing,
+	TopologyNode,
+	TopologySegment,
+	UsageNode,
+	Zone);
 END_TYPE;	
 	
 TYPE dateTime = STRING;
@@ -33,7 +33,6 @@ END_TYPE;
 ENTITY AbrasionResistanceClass;
 	classKey : STRING;
 	referenceSystem : STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 (*PDM-merge*)
@@ -41,7 +40,6 @@ ENTITY AliasIdentification;
 	identificationValue : STRING;
 	scope : OPTIONAL STRING;
 	description : SET [0:?] OF AbstractLocalizedString;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY AntennaSpecification
@@ -157,7 +155,6 @@ END_ENTITY;
 (*Geometry-merge*)
 ENTITY CartesianVector
 	ABSTRACT SUPERTYPE OF (ONEOF (CartesianVector2D, CartesianVector3D));
---	id : xs:ID" use="required;
 END_ENTITY;
 
 (*Geometry-merge*)
@@ -185,7 +182,6 @@ END_ENTITY;
 ENTITY CavityMapping;
 	identificationA : STRING;
 	identificationB : STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY CavityMounting;
@@ -265,7 +261,6 @@ ENTITY Color;
 	key : STRING;
 	referenceSystem : STRING;
 	description : SET[0:?] OF LocalizedString;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY CompatibilitySpecification
@@ -321,6 +316,7 @@ ENTITY ConductorCurrentInformation;
 END_ENTITY;
 
 ENTITY ConductorSpecification
+	SUPERTYPE OF (ONEOF (CoreSpecification, ShieldSpecification))
 	SUBTYPE OF (Specification);
 	crossSectionArea : OPTIONAL NumericalValue;
 	massInformation : OPTIONAL NumericalValue;
@@ -437,7 +433,6 @@ ENTITY CoreCurrentInformation;
 	maxCurrent : NumericalValue;
 	environmentTemperature : NumericalValue;
 	voltage : NumericalValue;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY CoreSpecification
@@ -461,9 +456,8 @@ END_ENTITY;
 
 (*PDM-merge*)
 ENTITY CustomProperty
-	ABSTRACT SUPERTYPE OF (ONEOF (NumericalValueProperty, SimpleValueProperty, ValueRangeProperty));
+	ABSTRACT SUPERTYPE OF (ONEOF (LocalizedStringProperty, NumericalValueProperty, SimpleValueProperty, ValueRangeProperty));
 	propertyType : STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY CustomUnit
@@ -481,7 +475,8 @@ ENTITY Dimension;
 	path : OPTIONAL Path;
 END_ENTITY;
 
-ENTITY DimensionAnchor;
+ENTITY DimensionAnchor
+	ABSTRACT SUPERTYPE OF (ONEOF (Location, MeasurementPointReference));	
 END_ENTITY;
 
 ENTITY DocumentBasedInstruction
@@ -599,7 +594,6 @@ END_TYPE;
 ENTITY ExtendableElement;
 	target : ExtendableElementSelect;
 	customProperty : SET[0:?] OF CustomProperty;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY ExternalMapping;
@@ -647,7 +641,7 @@ ENTITY FixingRole
 END_ENTITY;
 
 ENTITY FixingSpecification
-	SUPERTYPE OF ( ONEOF (HoleMountedFixingSpecification, BoltMountedFixingSpecification))
+	SUPERTYPE OF ( ONEOF (EdgeMountedFixingSpecification, HoleMountedFixingSpecification, BoltMountedFixingSpecification))
 	SUBTYPE OF (PartOrUsageRelatedSpecification);
 	offset : OPTIONAL NumericalValue;
 END_ENTITY;
@@ -832,7 +826,6 @@ END_ENTITY;
 
 ENTITY LocalizedString
 	SUBTYPE OF (AbstractLocalizedString);
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY LocalizedStringProperty
@@ -1065,6 +1058,7 @@ END_ENTITY;
 
 ENTITY PartOrUsageRelatedSpecification
 	SUPERTYPE OF (ONEOF (
+		CableDuctSpecification,
 		CavityPlugSpecification,
 		CavitySealSpecification,
 		ConnectorHousingSpecification,
@@ -1073,6 +1067,7 @@ ENTITY PartOrUsageRelatedSpecification
 		GeneralTechnicalPartSpecification,
 		GrommetSpecification,
 		PartStructureSpecification,
+		PlaceableElementSpecification,
 		TerminalSpecification,
 		TopologySpecification,
 		WireProtectionSpecification,
@@ -1085,7 +1080,6 @@ END_ENTITY;
 ENTITY PartRelation;
 	relationType : PartRelationType;
 	accessoryPart : SET[1:?] OF PartVersion;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY PartStructureSpecification
@@ -1295,17 +1289,18 @@ END_ENTITY;
 
 ENTITY Role
 	ABSTRACT SUPERTYPE OF (ONEOF (
-		 CavityPlugRole,
-		 CavitySealRole,
-		 ConnectorHousingRole,
-		 EEComponentRole,
-		 FixingRole,
-		 GrommetRole,
-		 PartWithSubComponentsRole,
-		 SpecificRole,
-		 TerminalRole,
-		 WireProtectionRole,
-		 WireRole));
+		CableDuctRole,
+		CavityPlugRole,
+		CavitySealRole,
+		ConnectorHousingRole,
+		EEComponentRole,
+		FixingRole,
+		GrommetRole,
+		PartWithSubComponentsRole,
+		SpecificRole,
+		TerminalRole,
+		WireProtectionRole,
+		WireRole));
 	identification : OPTIONAL STRING;
 END_ENTITY;
 
@@ -1342,7 +1337,6 @@ ENTITY SealingClass;
 	classKey : STRING;
 	classReferenceSystem : STRING;
 	description : SET[0:?] OF AbstractLocalizedString;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY SegmentConnectionPoint;
@@ -1433,7 +1427,6 @@ ENTITY SlotLayout;
 	gridX : OPTIONAL NumericalValue;
 	gridY : OPTIONAL NumericalValue;
 	rowCount : OPTIONAL INTEGER;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY SlotMapping;
@@ -1466,7 +1459,6 @@ END_ENTITY;
 ENTITY SoundDampingClass;
 	classKey : STRING;
 	referenceSystem : STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY SpecificRole
@@ -1482,10 +1474,12 @@ ENTITY Specification
 		CavitySpecification,
 		CompatibilitySpecification,
 		CompositionSpecification,
+		ConductorSpecification,
 		ConnectionSpecification,
 		ContactSystemSpecification,
 		ContactingSpecification,
 		ExternalMappingSpecification,
+		FillerSpecification,
 		HarnessDrawingSpecification2D,
 		HarnessGeometrySpecification3D,
 		InsulationSpecification,
@@ -1544,14 +1538,12 @@ END_ENTITY;
 ENTITY TemperatureInformation;
 	temperatureRange : OPTIONAL ValueRange;
 	temperatureType : OPTIONAL STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY TerminalCurrentInformation;
 	currentRange : ValueRange;
 	nominalVoltage : NumericalValue;
 	coreCrossSectionArea : NumericalValue;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY TerminalReception;
@@ -1563,7 +1555,6 @@ END_ENTITY;
 ENTITY TerminalReceptionReference;
 	identification : OPTIONAL STRING;
 	terminalReception : TerminalReception;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY TerminalReceptionSpecification
@@ -1689,7 +1680,7 @@ END_ENTITY;
 
 (*PDM-merge*)
 ENTITY Unit
-	ABSTRACT SUPERTYPE OF (ONEOF (SiUnit, USUnit));
+	ABSTRACT SUPERTYPE OF (ONEOF (SiUnit, USUnit, CustomUnit, OtherUnit, CompositeUnit, ImperialUnit, IECUnit));
 	exponent : OPTIONAL INTEGER;
 END_ENTITY;
 
@@ -1741,7 +1732,6 @@ END_ENTITY;
 ENTITY ValueWithUnit
 	ABSTRACT SUPERTYPE OF (ONEOF (NumericalValue, ValueRange));
 	unitComponent : Unit;
---	id : xs:ID" use="required;
 END_ENTITY;
 
 ENTITY VariantCode;
@@ -1925,10 +1915,8 @@ END_ENTITY;
 ENTITY WireType;
 	type_ : STRING;
 	referenceSystem : STRING;
---	id : xs:ID" use="required;
 END_ENTITY;
 
-(*PDM-merge*)
 ENTITY Zone;
 	identification : STRING;
 	description : SET[0:?] OF AbstractLocalizedString;

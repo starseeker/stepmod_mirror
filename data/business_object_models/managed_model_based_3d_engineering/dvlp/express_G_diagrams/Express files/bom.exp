@@ -1,4 +1,4 @@
--- Generated on 30/12/2013 13:43:06 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
+-- Generated on 02/01/2014 15:13:34 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
 -- From: AP242 BO Model Gunter's Master.exp
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -57,7 +57,7 @@ TYPE ActivityAssignmentSelect = SELECT(
   ExternalOwlClass,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   IndividualAssemblyRelationship,
   IndividualPart,
   IndividualPartVersion,
@@ -65,7 +65,8 @@ TYPE ActivityAssignmentSelect = SELECT(
   IndividualPartView,
   IndividualPartViewRelationship,
   InformationUsageRightAssignment,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Occurrence,
@@ -267,7 +268,7 @@ TYPE ApprovalAssignmentSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   Identifier,
   IdentifierRelationship,
   InZone,
@@ -280,7 +281,8 @@ TYPE ApprovalAssignmentSelect = SELECT(
   IndividualPartViewRelationship,
   InformationUsageRight,
   InformationUsageRightAssignment,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Occurrence,
@@ -797,7 +799,8 @@ TYPE DocumentAssignmentSelect = SELECT(
   InformationUsageRight,
   InformationUsageRightAssignment,
   InformationUsageRightRelationship,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Occurrence,
@@ -919,7 +922,7 @@ TYPE EffectivityAssignmentSelect = SELECT(
   File,
   FileRelationship,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1123,7 +1126,7 @@ TYPE GeneralOrganizationalDataSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FrozenAssignment,
-  GeometricModel,
+  GeometricRepresentation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1136,7 +1139,8 @@ TYPE GeneralOrganizationalDataSelect = SELECT(
   IndividualPartViewRelationship,
   InformationUsageRight,
   InformationUsageRightAssignment,
-  MaterialIdentification,
+  Material,
+  MaterialAssignment,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Occurrence,
@@ -1278,7 +1282,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FileRelationship,
-  GeometricModel,
+  GeometricRepresentation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1291,7 +1295,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT(
   InformationRight,
   InformationUsageRight,
   InformationUsageRightRelationship,
-  MaterialIdentification,
+  Material,
   Occurrence,
   OccurrenceRelationship,
   Organization,
@@ -1361,7 +1365,7 @@ TYPE InZoneSelect = SELECT(
 );
 END_TYPE;
 
-TYPE Language = ProxySelect;
+TYPE Language = STRING;
 END_TYPE;
 
 TYPE LengthMeasure = REAL;
@@ -1391,6 +1395,23 @@ TYPE LowOrderKinematicPairWithMotionCouplingTypeEnum = ENUMERATION OF(
   linear_flexible_and_pinion_pair,
   rack_and_pinion_pair,
   screw_pair
+);
+END_TYPE;
+
+TYPE MaterialAssignmentSelect = SELECT(
+  AlternativeSolution,
+  BreakdownElementView,
+  Hardcopy,
+  IndividualPartView,
+  Occurrence,
+  PartView,
+  PartViewRelationship,
+  ProductConcept,
+  ProductConfiguration,
+  RequirementView,
+  ShapeElement,
+  ShapeElementRelationship,
+  ViewOccurrenceRelationship
 );
 END_TYPE;
 
@@ -1798,7 +1819,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT(
   ExternalClassSystem,
   ExternalPropertyDefinition,
   File,
-  GeometricModel,
+  GeometricRepresentation,
   Hardcopy,
   Identifier,
   IdentifierRelationship,
@@ -1807,7 +1828,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT(
   IndividualPartTestResult,
   IndividualPartVersion,
   IndividualPartView,
-  MaterialIdentification,
+  Material,
   Part,
   PartToIndividualPartAssociation,
   PartVersion,
@@ -1895,12 +1916,12 @@ TYPE SuppliedObjectSelect = SELECT(
   ExternalOwlClass,
   File,
   FormatProperty,
-  GeometricModel,
+  GeometricRepresentation,
   IndividualPartTestResult,
   IndividualPartView,
   InformationRight,
   InformationUsageRight,
-  MaterialIdentification,
+  Material,
   Occurrence,
   Organization,
   Part,
@@ -2306,7 +2327,7 @@ ENTITY AxisPlacement
   SUBTYPE OF(DetailedGeometricModelItem);
   axis : OPTIONAL LIST[2:3] OF LengthMeasure;
   position : LIST[2:3] OF LengthMeasure;
-  refDirection : LIST[2:3] OF LengthMeasure;
+  refDirection : OPTIONAL LIST[2:3] OF LengthMeasure;
 DERIVE
   dim : INTEGER := SIZEOF(position);
 WHERE
@@ -2335,6 +2356,7 @@ ENTITY Breakdown
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   breakdownType : ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
   versions : SET[1:?] OF BreakdownVersion;
 WHERE
   WR1: NOT(TYPEOF(SELF) = [SCHEMA_NAME + 'BREAKDOWN']) OR ((SELF.breakdownType <> 'physical') AND (SELF.breakdownType <> 'functional') AND (SELF.breakdownType <> 'zonal') AND (SELF.breakdownType <> 'system'));
@@ -2345,6 +2367,7 @@ ENTITY BreakdownContext;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   breakdownContext : BreakdownVersion;
   breakdownElement : BreakdownElement;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY BreakdownElement;
@@ -2494,6 +2517,7 @@ ENTITY Certification;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   certificationType : ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY CertificationAssignment;
@@ -2670,6 +2694,7 @@ ENTITY ConfiguredAssemblyEffectivity;
   configuredElement : AssemblyDesignSelect;
   effectivityDomain : Effectivity;
   resolvedConfiguration : ProductDesignAssociation;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY ConstituentPart
@@ -2698,6 +2723,7 @@ ENTITY Contract;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   contractType : ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 INVERSE
   releases : SET[0:?] OF OrganizationInContract FOR signedContracts;
 END_ENTITY;
@@ -2747,6 +2773,8 @@ END_ENTITY;
 
 ENTITY DataValidityEffectivity
   SUBTYPE OF(Effectivity);
+WHERE
+  wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);
 END_ENTITY;
 
 ENTITY DateAndPersonAssignment;
@@ -2869,6 +2897,7 @@ ENTITY Document;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   documentTypes : SET[1:?] OF ClassSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
   versions : SET[1:?] OF DocumentVersion;
 END_ENTITY;
 
@@ -2892,6 +2921,7 @@ ENTITY DocumentDefinition
   documentCreation : OPTIONAL CreationProperty;
   documentFormat : OPTIONAL SET[1:?] OF FormatProperty;
   documentSize : OPTIONAL SizeProperty;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 INVERSE
   viewOf : DocumentVersion FOR views;
 END_ENTITY;
@@ -2922,6 +2952,7 @@ ENTITY DocumentVersion;
   id : IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
   views : OPTIONAL SET[1:?] OF DocumentDefinition;
 INVERSE
   versionOf : Document FOR versions;
@@ -2960,6 +2991,9 @@ ENTITY Effectivity
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   concernedOrganizations : OPTIONAL SET[1:?] OF Organization;
   effectivityContext : OPTIONAL EffectivityContextSelect;
+  endDefinition : OPTIONAL EventOrDateSelect;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
+  startDefinition : OPTIONAL EventOrDateSelect;
 END_ENTITY;
 
 ENTITY EffectivityAssignment;
@@ -2970,8 +3004,6 @@ ENTITY EffectivityAssignment;
   assignedEffectivity : Effectivity;
   assignedTo : SET[1:?] OF EffectivityAssignmentSelect;
   effectivityIndication : BOOLEAN;
-  endDefinition : OPTIONAL EventOrDateSelect;
-  startDefinition : OPTIONAL EventOrDateSelect;
 END_ENTITY;
 
 ENTITY EffectivityRelationship;
@@ -3707,10 +3739,20 @@ WHERE
   WR1: relating :<>: related;
 END_ENTITY;
 
-ENTITY MaterialIdentification;
+ENTITY Material;
   id : IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  assignedTo : SET[1:?] OF PropertyAssignmentSelect;
+  sameAs : SET[1:?] OF ProxySelect;
+END_ENTITY;
+
+ENTITY MaterialAssignment;
+  id : OPTIONAL IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  role : ClassSelect;
+  assignedMaterial : Material;
+  assignedTo : MaterialAssignmentSelect;
 END_ENTITY;
 
 ENTITY MaterialPropertyAssignment;
@@ -3719,7 +3761,7 @@ ENTITY MaterialPropertyAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedProperty : MaterialPropertyValue;
-  assignedTo : MaterialIdentification;
+  assignedTo : Material;
   definitional : OPTIONAL BOOLEAN;
 END_ENTITY;
 
@@ -4385,6 +4427,7 @@ ENTITY Project;
   plannedEndDate : OPTIONAL PeriodOrDateSelect;
   plannedStartDate : OPTIONAL EventOrDateSelect;
   responsibleOrganizations : OPTIONAL SET[1:?] OF Organization;
+  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 END_ENTITY;
 
 ENTITY ProjectAssignment;
@@ -4986,6 +5029,8 @@ END_ENTITY;
 ENTITY TimeIntervalEffectivity
   SUBTYPE OF(Effectivity);
   effectivityPeriod : Duration;
+WHERE
+  wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);
 END_ENTITY;
 
 ENTITY TimeIntervalRelationship;

@@ -1,20 +1,10 @@
 SCHEMA managed_model_based_3d_engineering_bom;
 
--- Release candidate 8 for IS version
+-- Release candidate 9 for IS version
 (*
-Changes against RC7:
-- E1: moved "endDefinition : OPTIONAL EventOrDateSelect;" from EffectivityAssignment to ENTITY Effectivity (Bug)
-- E1: moved "startDefinition : OPTIONAL EventOrDateSelect;" from EffectivityAssignment to ENTITY Effectivity (Bug)
-- E1: added "wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);" to ENTITY DataValidityEffectivity (Enhancement)
-- E1: added "wr1: EXISTS(SELF\Effectivity.startDefinition) OR EXISTS(SELF\Effectivity.endDefinition);" to ENTITY TimeIntervalEffectivity (Enhancement)
-- E1: added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to ENTITY Effectivity
-- added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to Document, DocumentVersion, DocumentDefinition, Breakdown, BreakdownContext
-- added "sameAs : OPTIONAL SET[1:?] OF ProxySelect;" to Certification, Contract, ConfiguredAssemblyEffectivity, Project
-- split MaterialIdentification into Material and MaterialAssignment
-- make AxisPlacement.refDirection optional
-- change TYPE Language to TYPE Language = STRING; END_TYPE (Format according to IS= 639 and ISO 3166)
-- replace GeometricModel in SELECT types by GeometricRepresentation (supertye of GeometricModel)
-
+Changes against RC8:
+- TYPE Language = STRING; => TYPE Language = LIST[1:2] OF STRING;
+- merge Material and MaterialAssignment to MaterialIdentification (as before RC8)
 *)
 
 
@@ -1935,14 +1925,12 @@ END_ENTITY;
 
 -- not harmonized with PLCS yet
 
-ENTITY Material;
+ENTITY MaterialIdentification;
   id : IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  sameAs : SET[1:?] OF ProxySelect;
+  assignedTo : SET[1:?] OF MaterialIdentificationAssignmentSelect;
 END_ENTITY;
 
-TYPE MaterialAssignmentSelect = SELECT (
+TYPE MaterialIdentificationAssignmentSelect = SELECT (
   BreakdownElementView,
   AlternativeSolution,
   PartView,
@@ -1959,22 +1947,13 @@ TYPE MaterialAssignmentSelect = SELECT (
 );
 END_TYPE;
 
-ENTITY MaterialAssignment;
-  id : OPTIONAL IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  role : ClassSelect;
-  assignedMaterial : Material;
-  assignedTo : MaterialAssignmentSelect;
-END_ENTITY;
-
 ENTITY MaterialPropertyAssignment;
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedProperty : MaterialPropertyValue;
-  assignedTo : Material;
+  assignedTo : MaterialIdentification;
   definitional : OPTIONAL BOOLEAN;
 END_ENTITY;
 
@@ -2975,7 +2954,7 @@ TYPE SuppliedObjectSelect = SELECT (
   InformationRight,
   InformationUsageRight,
   ConfiguredAssemblyEffectivity,
-  Material,
+  MaterialIdentification,
   Organization,
   Part,
   Occurrence,
@@ -3176,8 +3155,7 @@ TYPE ApprovalAssignmentSelect = SELECT (
   InformationUsageRight,
   InformationUsageRightAssignment,
   InZone,
-  Material,
-  MaterialAssignment,
+  MaterialIdentification,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   OrganizationOrPersonInOrganizationAssignment,
@@ -3529,7 +3507,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT (
   InformationRight,
   InformationUsageRight,
   InformationUsageRightRelationship,
-  Material,
+  MaterialIdentification,
   Organization,
   OrganizationRelationship,
   Part,
@@ -3595,7 +3573,7 @@ END_ENTITY;
 
 -- harmonized with PLCS
 
-TYPE Language = STRING; -- format: language code (according ISO 639-1 or 639-2) + an optional country code (ISO 3166-1)
+TYPE Language = LIST[1:2] OF STRING; -- format: language code (according ISO 639-1 or 639-2) + an optional country code (ISO 3166-1)
 END_TYPE;
 
 TYPE CharacterString = STRING;
@@ -3803,7 +3781,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT (
   IndividualPartTestResult,
   IndividualPartVersion,
   IndividualPartView,
-  Material,
+  MaterialIdentification,
   Part,
   PartToIndividualPartAssociation,
   PartVersion,
@@ -4059,8 +4037,7 @@ TYPE GeneralOrganizationalDataSelect = SELECT (
   IndividualPartViewRelationship,
   InformationUsageRight,
   InformationUsageRightAssignment,
-  Material,
-  MaterialAssignment,
+  MaterialIdentification,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,
@@ -4378,8 +4355,7 @@ TYPE ActivityAssignmentSelect = SELECT (
   IndividualPartView,
   IndividualPartViewRelationship,
   InformationUsageRightAssignment,
-  Material,
-  MaterialAssignment,
+  MaterialIdentification,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,
@@ -4845,8 +4821,7 @@ TYPE DocumentAssignmentSelect = SELECT (
   InformationUsageRightAssignment,
   InformationUsageRightRelationship,
   InZone,
-  Material,
-  MaterialAssignment,
+  MaterialIdentification,
   MaterialPropertyAssignment,
   ModelPropertyAssignment,
   Organization,

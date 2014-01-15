@@ -1,0 +1,1 @@
+java -cp sgentools.jar de.pdtec.schemagen.tools.ModelMappingXmlGen %*

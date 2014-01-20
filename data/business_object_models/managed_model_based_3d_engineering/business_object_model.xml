@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  $Id: business_object_model.xml,v 1.102 2014/01/18 14:24:34 thomasrthurman Exp $
+  $Id: business_object_model.xml,v 1.103 2014/01/20 23:11:14 thomasrthurman Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the BOM in the main frame.     
@@ -56,7 +56,7 @@
      published :
        y if published
 -->
-<business_object_model name="managed_model_based_3d_engineering" name.french="Mod&#232;le d'objets m&#233;tiers de gestion des mod&#232;les 3D d'ing&#233;nierie" ap_name="ap242_managed_model_based_3d_engineering" title="Managed model based 3D engineering business object model" part="3001" purpose="representation of engineering data and product data that is based on a three dimensional model" wg.number="xxxx" wg.number.supersedes="8325" wg.number.bom.exp="xxxx" wg.number.bom.xsd="xxxx" version="1" object.reg.version="1" status="TS" language="E" publication.year="2014" publication.date="2014-01" published="y" checklist.internal_review="" checklist.project_leader="" checklist.convener="" previous.revision.year="" previous.revision.cancelled="NO" revision.complete="YES" rcs.date="$Date: 2014/01/18 14:24:34 $" rcs.revision="$Revision: 1.102 $" development.folder="dvlp">
+<business_object_model name="managed_model_based_3d_engineering" name.french="Mod&#232;le d'objets m&#233;tiers de gestion des mod&#232;les 3D d'ing&#233;nierie" ap_name="ap242_managed_model_based_3d_engineering" title="Managed model based 3D engineering business object model" part="3001" purpose="representation of engineering data and product data that is based on a three dimensional model" wg.number="xxxx" wg.number.supersedes="8325" wg.number.bom.exp="xxxx" wg.number.bom.xsd="xxxx" version="1" object.reg.version="1" status="TS" language="E" publication.year="2014" publication.date="2014-01" published="y" checklist.internal_review="" checklist.project_leader="" checklist.convener="" previous.revision.year="" previous.revision.cancelled="NO" revision.complete="YES" rcs.date="$Date: 2014/01/20 23:11:14 $" rcs.revision="$Revision: 1.103 $" development.folder="dvlp">
 
 	<keywords> 3D design, assemblies, configuration control, mechanical, kinematics, model-based
 		engineering data, archiving </keywords>
@@ -1757,6 +1757,175 @@
 	</inforeqt>
 
   <mapping_table>
+  	<be entity="CircularPath"><armelt>Circular_path</armelt>
+  		<ba attribute="viaPoint" assertion_to="CartesianPoint"><armelt>PATH</armelt>
+  			<refpath>Circular_path.via_point -&gt;
+  				Cartesian_point</refpath>
+  		</ba>
+  	</be>
+  	<be entity="KinematicPathDefinedByNodes"><armelt>Kinematic_path_defined_by_nodes</armelt>
+  		<ba attribute="placementStart" assertion_to="AxisPlacement"><armelt>PATH</armelt>
+  			<refpath>Kinematic_path_defined_by_nodes.placement_start -&gt;
+  				Axis_placement</refpath>
+  		</ba>
+  		<ba attribute="segments" assertion_to="PathSegment"><armelt>PATH</armelt>
+  			<refpath>Kinematic_path_defined_by_nodes.segments[1] -&gt;
+  				Path_node</refpath>
+  		</ba>
+  		<ba attribute="tStart"><armelt>PATH</armelt>
+  			<refpath>Kinematic_path_defined_by_nodes &lt;=
+  				Kinematic_path.t_start -&gt; parameter_value
+  				parameter_value = real</refpath>
+  		</ba>
+  	</be>
+  	<be entity="LinearPath"><armelt>Linear_path</armelt>
+  	</be>
+  	<be entity="LinkMotionAlongPath"><armelt>Link_motion_representation_along_path</armelt>
+  		<ba attribute="items" assertion_to="KinematicPathDefinedByNodes"><armelt>PATH</armelt>
+  			<refpath>Link_motion_representation_along_path &lt;=
+  				Representation.items -&gt;
+  				kinematic_path</refpath>
+  		</ba>
+  		<ba attribute="timeUnit" assertion_to="Unit"><armelt>PATH</armelt>
+  			<refpath>Link_motion_representation_along_path &lt;=
+  				Representation.context_of_items -&gt;
+  				Geometric_representation_context_with_parameter.parameter_unit -&gt;
+  				unit</refpath>
+  		</ba>
+  	</be>
+  	<be entity="LinkMotionDecompositionRelationship"><armelt>Link_motion_relationship</armelt>
+  		<refpath>{[Link_motion_relationship &lt;=
+  			geometric_model_relationship.rep_1 -&gt;
+  			link_or_shape_representation = Geometric_model
+  			Geometric_model &lt;=
+  			Representation =&gt;
+  			Link_motion_representation_along_path]
+  			[Link_motion_relationship &lt;=
+  			geometric_model_relationship.rep_2 -&gt;
+  			link_or_shape_representation = Geometric_model
+  			Geometric_model &lt;=
+  			Representation =&gt;
+  			Link_motion_representation_along_path]}</refpath>
+  		<ba attribute="classifiedAs" assertion_to="Classification"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="CharacterString"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				Definitional_representation_relationship &lt;=
+  				Representation_relationship.description</refpath>
+  		</ba>
+  		<ba attribute="description" assertion_to="Descriptor"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="DescriptorSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="LocalizedString"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="TranslatedStringSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="Identifier"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="IdentifierSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="IdentifierString"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="related" assertion_to="LinkMotionAlongPath"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				geometric_model_relationship.rep_1 -&gt;
+  				link_or_shape_representation = Geometric_model
+  				Geometric_model &lt;=
+  				Representation =&gt;
+  				Link_motion_representation_along_path</refpath>
+  		</ba>
+  		<ba attribute="relating" assertion_to="LinkMotionAlongPath"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				geometric_model_relationship.rep_2 -&gt;
+  				link_or_shape_representation = Geometric_model
+  				Geometric_model &lt;=
+  				Representation =&gt;
+  				Link_motion_representation_along_path</refpath>
+  		</ba>
+  	</be>
+  	<be entity="LinkMotionRelationship"><armelt>Link_motion_relationship</armelt>
+  		<ba attribute="classifiedAs" assertion_to="Classification">
+  		</ba>
+  		<ba attribute="description" assertion_to="CharacterString"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				Definitional_representation_relationship &lt;=
+  				Representation_relationship.description</refpath>
+  		</ba>
+  		<ba attribute="description" assertion_to="Descriptor"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="DescriptorSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="LocalizedString"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="description" assertion_to="TranslatedStringSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="Identifier"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="IdentifierSet"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="id" assertion_to="IdentifierString"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="related" assertion_to="ExternalGeometricModel"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				geometric_model_relationship.rep_1 -&gt;
+  				link_or_shape_representation = Geometric_model
+  				Geometric_model =&gt;
+  				External_geometric_model</refpath>
+  		</ba>
+  		<ba attribute="relating" assertion_to="LinkMotionAlongPath"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				geometric_model_relationship.rep_2 -&gt;
+  				link_or_shape_representation = Geometric_model
+  				Geometric_model &lt;=
+  				Representation =&gt;
+  				Link_motion_representation_along_path</refpath>
+  		</ba>
+  		<ba attribute="relationType" assertion_to="Class"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="relationType" assertion_to="ClassString"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship &lt;=
+  				Definitional_representation_relationship &lt;=
+  				Representation_relationship.relation_type</refpath>
+  		</ba>
+  		<ba attribute="relationType" assertion_to="ExternalClass"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="relationType" assertion_to="ExternalOwlClass"><armelt>NO MAPPING</armelt>
+  		</ba>
+  		<ba attribute="tranformationOperator" assertion_to="LinkMotionTransformation"><armelt>PATH</armelt>
+  			<refpath>Link_motion_relationship.transformation_operator -&gt;
+  				Link_motion_transformation</refpath>
+  		</ba>
+  	</be>
+  	<be entity="LinkMotionTransformation"><armelt>Link_motion_transformation</armelt>
+  		<ba attribute="transformItem1" assertion_to="AxisPlacement"><armelt>PATH</armelt>
+  			<refpath>Link_motion_transformation.transform_item_1 -&gt;
+  				rigid_placement = Axis_placement_3d</refpath>
+  		</ba>
+  		<ba attribute="transformItem2" assertion_to="KinematicPathDefinedByNodes"><armelt>PATH</armelt>
+  			<refpath>Link_motion_transformation.transform_item_2 -&gt;
+  				Kinematic_parth =&gt;
+  				Kinematic_path_defined_by_nodes</refpath>
+  		</ba>
+  	</be>
+  	<be entity="PathSegment"><armelt>Path_node</armelt>
+  		<ba attribute="placementEnd" assertion_to="AxisPlacement"><armelt>PATH</armelt>
+  			<refpath>Path_node.placement_end -&gt;
+  				Axis_placement</refpath>
+  		</ba>
+  		<ba attribute="tEnd"><armelt>PATH</armelt>
+  			<refpath>Path_node &lt;=
+  				Kinematic_path_segment.t_end</refpath>
+  		</ba>
+  		<ba attribute="transition" assertion_to="TransitionCodeEnum"><armelt>PATH</armelt>
+  			<refpath>Path_node &lt;=
+  				Kinematic_path_segment.transition -&gt;
+  				curve_transition_code</refpath>
+  		</ba>
+  	</be>
+  	<be entity="PointToPointPath"><armelt>Point_to_point_path</armelt>
+  	</be>
+  	
   	<be entity="MaterialIdentification"><armelt>Material_identification</armelt>
   		<ba attribute="assignedTo" assertion_to="Activity"><armelt>NO MAPPING</armelt>
   		</ba>

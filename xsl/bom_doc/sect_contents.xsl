@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.9 2013/03/07 13:06:59 mikeward Exp $
+$Id: sect_contents.xsl,v 1.10 2013/03/07 23:06:46 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -96,10 +96,8 @@ $Id: sect_contents.xsl,v 1.9 2013/03/07 13:06:59 mikeward Exp $
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
-<!-- not in DIS
             <br/>
             <a href="./5_main{$FILE_EXT}#mappings" target="{$target}">5 Business object model mapping</a>
--->
           </td>
           <td valign="top">
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
@@ -169,10 +167,8 @@ $Id: sect_contents.xsl,v 1.9 2013/03/07 13:06:59 mikeward Exp $
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 BOM entity definitions</a>
-<!-- not in DIS
             <br/>
             <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
--->
             <br/>
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
             <br/>

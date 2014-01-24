@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.2 2012/11/23 09:34:11 mikeward Exp $
+$Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -547,6 +547,26 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
   </xsl:if>
 </xsl:template>
 
+<xsl:template match="refpath" mode="specification">
+  <xsl:variable name="str">
+    <xsl:call-template name="remove_trailing_whitespace">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="string-length($str)>0">
+    <tr valign="top">
+      <td>Reference path:&#160;&#160;</td>
+      <!--      Checking of ref path disabled for BOM documents
+      <xsl:apply-templates select="." mode="check_ref_path"/> 
+      -->
+      <td>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$str"/>
+        </xsl:call-template>
+      </td>
+    </tr>
+  </xsl:if>
+</xsl:template>
 
 
 

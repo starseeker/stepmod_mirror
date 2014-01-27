@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_xsd_der.xsl,v 1.3 2012/11/30 16:51:29 darla Exp $
+$Id: sect_annex_xsd_der.xsl,v 1.4 2012/12/07 10:36:51 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display BOM Annex B
@@ -188,7 +188,7 @@ $Id: sect_annex_xsd_der.xsl,v 1.3 2012/11/30 16:51:29 darla Exp $
     <p>
       The XML element corresponding to an EXPRESS attribute whose data type is a defined data type with a 
       final underlying type of STRING, INTEGER, REAL, NUMBER, or BOOLEAN shall be declared to have the XML type corresponding to 
-      the underlying type of the defined data type in the EXPRESS type declaration:
+      the underlying type of the defined data type in the EXPRESS type declaration, if not otherwise specified in a configuration directive:
     </p>
     <table border="1">
       <tr>
@@ -209,7 +209,7 @@ $Id: sect_annex_xsd_der.xsl,v 1.3 2012/11/30 16:51:29 darla Exp $
       </tr>
       <tr>
         <td>
-          INTERGER	
+          INTEGER	
         </td>
         <td>
           xs:integer
@@ -232,8 +232,11 @@ $Id: sect_annex_xsd_der.xsl,v 1.3 2012/11/30 16:51:29 darla Exp $
         </td>
       </tr>
     </table>
+    <p>
+      If an EXPRESS attribute type REAL is mapped to an XML element type STRING the  format of this content string shall be according IEEE 754-1985.
+    </p>
     <h4>
-      <a name="b1_5_3">
+      <a name="b1_5_3">      
         B.1.5.3 Attributes with aggregate data types
       </a>
     </h4>

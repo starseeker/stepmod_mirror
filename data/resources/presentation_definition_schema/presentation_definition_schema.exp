@@ -1,16 +1,17 @@
 (*
+$Id$
 ISO TC184/SC4/WG12 N6141 - ISO/IS 10303-46 Visual presentation - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N4830
 *)
 
 SCHEMA presentation_definition_schema;
- 
+
 REFERENCE FROM external_reference_schema
     (externally_defined_item,
      pre_defined_item);
- 
+
 REFERENCE FROM geometric_model_schema (
-	geometric_curve_set);  
+	geometric_curve_set);
 
 REFERENCE FROM geometry_schema
     (axis2_placement,
@@ -19,25 +20,25 @@ REFERENCE FROM geometry_schema
      curve,
      geometric_representation_item,
      point,
-     polyline 
+     polyline
      );
- 
+
 REFERENCE FROM measure_schema
     (positive_ratio_measure);
- 
+
 REFERENCE FROM presentation_appearance_schema
     (styled_item);
 
 REFERENCE FROM presentation_organization_schema
     (annotation_representation_select);
- 
+
 REFERENCE FROM presentation_resource_schema
     (character_glyph_symbol,
      planar_box,
      planar_extent,
      font_select,
      text_font);
- 
+
 REFERENCE FROM representation_schema
     (item_in_context,
      mapped_item,
@@ -52,15 +53,15 @@ REFERENCE FROM support_resource_schema
     (label,
      text,
      bag_to_set);
-     
+
   TYPE annotation_symbol_occurrence_item = SELECT (
     annotation_symbol,
-    defined_symbol); 
+    defined_symbol);
   END_TYPE;
 
   TYPE curve_or_curve_set = SELECT (
     curve,
-    geometric_curve_set); 
+    geometric_curve_set);
   END_TYPE;
 
   TYPE defined_glyph_select = SELECT
@@ -95,17 +96,17 @@ REFERENCE FROM support_resource_schema
   END_TYPE;
 
   TYPE annotation_table_occurrence_item = SELECT(
-    annotation_table, 
-    defined_table); 
-  END_TYPE; 
+    annotation_table,
+    defined_table);
+  END_TYPE;
 
   TYPE annotation_text_occurrence_item = SELECT(
-    text_literal, 
-    annotation_text, 
-    annotation_text_character, 
-    defined_character_glyph, 
-    composite_text); 
-  END_TYPE; 
+    text_literal,
+    annotation_text,
+    annotation_text_character,
+    defined_character_glyph,
+    composite_text);
+  END_TYPE;
 
   TYPE presentable_text = STRING;
     WHERE
@@ -113,13 +114,13 @@ REFERENCE FROM support_resource_schema
   END_TYPE;
 
   TYPE text_string_representation_item = SELECT(
-    text_literal, 
-    annotation_text, 
-    annotation_text_character, 
-    defined_character_glyph, 
-    composite_text, 
-    axis2_placement); 
-  END_TYPE; 
+    text_literal,
+    annotation_text,
+    annotation_text_character,
+    defined_character_glyph,
+    composite_text,
+    axis2_placement);
+  END_TYPE;
 
   ENTITY annotation_curve_occurrence
     SUBTYPE OF (annotation_occurrence);
@@ -132,14 +133,14 @@ REFERENCE FROM support_resource_schema
     WHERE
       WR1: (SELF\geometric_representation_item.dim = 3) OR (SIZEOF (QUERY (curve <* SELF.boundaries |
           NOT (
-              ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (curve)) OR 
-              ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (curve)) OR 
-              ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (curve)) 
-                   AND (curve\b_spline_curve.closed_curve = TRUE) ) OR 
-              ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (curve)) 
-                   AND (curve\composite_curve.closed_curve = TRUE) ) OR 
-              ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (curve)) 
-                   AND (curve\polyline.points[LOINDEX(curve\polyline.points)] = 
+              ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (curve)) OR
+              ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (curve)) OR
+              ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (curve))
+                   AND (curve\b_spline_curve.closed_curve = TRUE) ) OR
+              ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (curve))
+                   AND (curve\composite_curve.closed_curve = TRUE) ) OR
+              ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (curve))
+                   AND (curve\polyline.points[LOINDEX(curve\polyline.points)] =
                         curve\polyline.points[HIINDEX(curve\polyline.points)]) )
               ) )) = 0);
   END_ENTITY;
@@ -160,7 +161,7 @@ REFERENCE FROM support_resource_schema
     WHERE
       WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
              TYPEOF (SELF);
-      WR2: SIZEOF (QUERY (reps <* using_representations(SELF) | 
+      WR2: SIZEOF (QUERY (reps <* using_representations(SELF) |
         NOT('PRESENTATION_ORGANIZATION_SCHEMA.ANNOTATION_REPRESENTATION_SELECT' IN TYPEOF(reps)))) = 0;
   END_ENTITY;
 
@@ -203,7 +204,7 @@ REFERENCE FROM support_resource_schema
   END_ENTITY;
 
   ENTITY annotation_text
-    SUBTYPE OF (mapped_item); 
+    SUBTYPE OF (mapped_item);
       SELF\mapped_item.mapping_target : axis2_placement;
     WHERE
       WR1: 'PRESENTATION_DEFINITION_SCHEMA.TEXT_STRING_REPRESENTATION' IN
@@ -213,7 +214,7 @@ REFERENCE FROM support_resource_schema
   END_ENTITY;
 
   ENTITY annotation_text_character
-    SUBTYPE OF (mapped_item); 
+    SUBTYPE OF (mapped_item);
       alignment                       : text_alignment;
       SELF\mapped_item.mapping_target : axis2_placement;
     WHERE
@@ -318,7 +319,7 @@ REFERENCE FROM support_resource_schema
   WHERE
     WR1: SIZEOF(
            QUERY(mi <* SELF\representation_map.map_usage | NOT('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_SYMBOL' IN TYPEOF(mi)))
-         ) = 0; 
+         ) = 0;
   END_ENTITY;
 
   ENTITY symbol_representation_relationship
@@ -349,32 +350,32 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (symbol_representation);
     WHERE
       WR1: (SIZEOF (QUERY (trr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
-                                                'REPRESENTATION_RELATIONSHIP.REP_1') | 
-            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) 
-            )) = 0) AND 
+                                                'REPRESENTATION_RELATIONSHIP.REP_1') |
+            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))
+            )) = 0) AND
             (SIZEOF (QUERY (trr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
-                                      'REPRESENTATION_RELATIONSHIP.REP_2') | 
-            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) 
+                                      'REPRESENTATION_RELATIONSHIP.REP_2') |
+            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))
             )) = 0);
   END_ENTITY;
 
   ENTITY table_record_field_representation
     SUBTYPE OF (symbol_representation);
     WHERE
-      WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                     'REPRESENTATION_RELATIONSHIP.REP_2')) > 0) 
-                        OR 
-           (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                                                   'REPRESENTATION_MAP.'+ 
-                                                   'MAPPED_REPRESENTATION') | 
+      WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                     'REPRESENTATION_RELATIONSHIP.REP_2')) > 0)
+                        OR
+           (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                                                   'REPRESENTATION_MAP.'+
+                                                   'MAPPED_REPRESENTATION') |
             SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
                                                  'MAPPED_ITEM.'+
-                                                 'MAPPING_SOURCE') |   
-            SIZEOF(QUERY( rep <* using_representations (mi) |                              
+                                                 'MAPPING_SOURCE') |
+            SIZEOF(QUERY( rep <* using_representations (mi) |
                                           'PRESENTATION_DEFINITION_SCHEMA.'+
-                                          'TABLE_RECORD_REPRESENTATION' IN 
+                                          'TABLE_RECORD_REPRESENTATION' IN
                                           TYPEOF (rep))) > 0
-            )) > 0))  
+            )) > 0))
                > 0);
   END_ENTITY;
 
@@ -382,36 +383,36 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (table_record_field_representation);
       clipping_box : planar_box;
     WHERE
-      WR1: item_in_context (SELF.clipping_box, 
+      WR1: item_in_context (SELF.clipping_box,
                             SELF\representation.context_of_items);
   END_ENTITY;
 
   ENTITY table_record_representation
     SUBTYPE OF (symbol_representation);
     WHERE
-      WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                                'REPRESENTATION_RELATIONSHIP.REP_2')) > 0) 
-                        OR 
-           (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                                                   'REPRESENTATION_MAP.'+ 
-                                                   'MAPPED_REPRESENTATION') | 
+      WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                                'REPRESENTATION_RELATIONSHIP.REP_2')) > 0)
+                        OR
+           (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+
+                                                   'REPRESENTATION_MAP.'+
+                                                   'MAPPED_REPRESENTATION') |
             SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
                                                  'MAPPED_ITEM.'+
-                                                 'MAPPING_SOURCE') |   
-	        SIZEOF(QUERY( rep <* using_representations (mi) |                              
+                                                 'MAPPING_SOURCE') |
+	        SIZEOF(QUERY( rep <* using_representations (mi) |
 	                             'PRESENTATION_DEFINITION_SCHEMA.'+
-	                              'TABLE_REPRESENTATION' IN 
+	                              'TABLE_REPRESENTATION' IN
 	                              TYPEOF (rep))) > 0
 
-            )) > 0))  
+            )) > 0))
                > 0);
       WR2: (SIZEOF (QUERY (trr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
-                                                'REPRESENTATION_RELATIONSHIP.REP_1') | 
-            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) 
-            )) = 0) AND 
+                                                'REPRESENTATION_RELATIONSHIP.REP_1') |
+            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))
+            )) = 0) AND
             (SIZEOF (QUERY (trr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
-                                                 'REPRESENTATION_RELATIONSHIP.REP_2') | 
-            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) 
+                                                 'REPRESENTATION_RELATIONSHIP.REP_2') |
+            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))
             )) = 0);
   END_ENTITY;
 
@@ -419,17 +420,17 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (symbol_representation_relationship);
     WHERE
       WR1: NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN
-            TYPEOF (SELF\representation_relationship.rep_1))   
+            TYPEOF (SELF\representation_relationship.rep_1))
            OR
            ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN
            TYPEOF (SELF\representation_relationship.rep_2));
       WR2: NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN
-           TYPEOF (SELF\representation_relationship.rep_1))   
+           TYPEOF (SELF\representation_relationship.rep_1))
            OR
            ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN
            TYPEOF (SELF\representation_relationship.rep_2));
       WR3: NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN
-           TYPEOF (SELF\representation_relationship.rep_1)) 
+           TYPEOF (SELF\representation_relationship.rep_1))
            OR
            ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN
            TYPEOF (SELF\representation_relationship.rep_2));
@@ -438,8 +439,8 @@ REFERENCE FROM support_resource_schema
   ENTITY table_text_relationship
     SUBTYPE OF (annotation_occurrence_relationship);
       field : table_record_field_representation;
-      SELF\annotation_occurrence_relationship.relating_annotation_occurrence : annotation_table_occurrence; 
-      SELF\annotation_occurrence_relationship.related_annotation_occurrence : annotation_text_occurrence; 
+      SELF\annotation_occurrence_relationship.relating_annotation_occurrence : annotation_table_occurrence;
+      SELF\annotation_occurrence_relationship.related_annotation_occurrence : annotation_text_occurrence;
     WHERE
       WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'
          IN TYPEOF (SELF\annotation_occurrence_relationship.
@@ -480,7 +481,7 @@ REFERENCE FROM support_resource_schema
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);
-      SELF\representation.items : SET[1:?] OF text_string_representation_item; 
+      SELF\representation.items : SET[1:?] OF text_string_representation_item;
     WHERE
       WR1: SIZEOF (
          QUERY (item <* SELF\representation.items |
@@ -492,26 +493,26 @@ REFERENCE FROM support_resource_schema
                  TYPEOF (item)) = 0)
          )) >= 1;
      WR2: SIZEOF (
-         QUERY (a2p <* 
-           QUERY (item <* SELF\representation.items | 
+         QUERY (a2p <*
+           QUERY (item <* SELF\representation.items |
              'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN TYPEOF (item)) |
            NOT ((SIZEOF (
-             QUERY (at <* 
-               QUERY (item <* SELF\representation.items | 
-                  'PRESENTATION_DEFINITION_SCHEMA.' + 
-                  'ANNOTATION_TEXT' IN TYPEOF (item)) | 
+             QUERY (at <*
+               QUERY (item <* SELF\representation.items |
+                  'PRESENTATION_DEFINITION_SCHEMA.' +
+                  'ANNOTATION_TEXT' IN TYPEOF (item)) |
                (at\mapped_item.mapping_target :=: a2p))) >= 1) OR
            (SIZEOF (
-             QUERY (atc <* 
+             QUERY (atc <*
                QUERY (item <* SELF\representation.items |
-                 'PRESENTATION_DEFINITION_SCHEMA.' + 
-                 'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) | 
+                 'PRESENTATION_DEFINITION_SCHEMA.' +
+                 'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) |
                (atc\mapped_item.mapping_target :=: a2p))) >= 1)
           ))) = 0;
   END_ENTITY;
 
-  SUBTYPE_CONSTRAINT pds_geometric_representation_item_subtypes FOR geometric_representation_item;  
-    (ONEOF ( 
+  SUBTYPE_CONSTRAINT pds_geometric_representation_item_subtypes FOR geometric_representation_item;
+    (ONEOF (
       annotation_fill_area,
       composite_text,
       curve,
@@ -519,8 +520,8 @@ REFERENCE FROM support_resource_schema
       defined_symbol,
       point,
       symbol_target,
-      text_literal)); 
-  END_SUBTYPE_CONSTRAINT; 
+      text_literal));
+  END_SUBTYPE_CONSTRAINT;
 
   FUNCTION acyclic_composite_text(start_composite : composite_text;
                                 child_text : SET [1:?] OF
@@ -536,10 +537,10 @@ REFERENCE FROM support_resource_schema
                           ('PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'
                            IN TYPEOF (child)));
 
-    IF (SIZEOF (local_composite_text) > 0) 
+    IF (SIZEOF (local_composite_text) > 0)
       THEN
         REPEAT i := 1 TO HIINDEX (local_composite_text);
-          IF (start_composite :=: local_composite_text[i]) 
+          IF (start_composite :=: local_composite_text[i])
             THEN
               RETURN (FALSE);
           END_IF;
@@ -585,32 +586,32 @@ REFERENCE FROM support_resource_schema
       x : SET OF symbol_representation_relationship;
       local_children : SET OF symbol_representation;
     END_LOCAL;
- 
+
     REPEAT i:=1 TO HIINDEX(children);
       IF relation\representation_relationship.rep_1 :=: children[i] THEN
         RETURN(FALSE);
       END_IF;
     END_REPEAT;
- 
+
     x := bag_to_set (USEDIN ( relation\representation_relationship.rep_1,
                   'REPRESENTATION_SCHEMA.'+
                   'REPRESENTATION_RELATIONSHIP.'+ 'REP_2'));
     local_children := children + relation\representation_relationship.rep_1;
- 
+
     IF SIZEOF (x) > 0 THEN
       REPEAT i:=1 TO HIINDEX (x);
-        IF NOT acyclic_symbol_representation_relationship(x[i] , 
+        IF NOT acyclic_symbol_representation_relationship(x[i] ,
                                                   local_children) THEN
           RETURN (FALSE);
         END_IF;
       END_REPEAT;
     END_IF;
- 
+
     RETURN (TRUE);
- 
+
   END_FUNCTION;
 
-  FUNCTION control_characters_free 
+  FUNCTION control_characters_free
     (s : STRING) : BOOLEAN;
 
     LOCAL
@@ -635,7 +636,7 @@ REFERENCE FROM support_resource_schema
       mapped_item_set : SET OF mapped_item;
       table_record_rep_set : SET OF table_record_representation := [];
     END_LOCAL;
- 
+
     table_rep := table\styled_item.item\mapped_item.mapping_source.
       mapped_representation;
     mapped_item_set := QUERY(item <* table_rep.items |
@@ -647,27 +648,27 @@ REFERENCE FROM support_resource_schema
                            TYPEOF(item\mapped_item.mapping_source.
                                       mapped_representation ))
                        );
- 
+
     REPEAT i := 1 TO HIINDEX(mapped_item_set);
       table_record_rep_set := table_record_rep_set +
              mapped_item_set[i].mapping_source.mapped_representation;
     END_REPEAT;
- 
-    symbol_rep_rel_set := bag_to_set (USEDIN(table_rep, 
+
+    symbol_rep_rel_set := bag_to_set (USEDIN(table_rep,
                                  'REPRESENTATION_SCHEMA.'+
                                  'REPRESENTATION_RELATIONSHIP.REP_1'));
- 
+
     REPEAT i := 1 TO HIINDEX(symbol_rep_rel_set);
        table_record_rep_set := table_record_rep_set +
                 symbol_rep_rel_set[i]\representation_relationship.rep_2;
     END_REPEAT;
- 
+
     IF SIZEOF(QUERY( table_record_rep <* table_record_rep_set |
                 (SIZEOF(QUERY( rep_rel <* USEDIN(table_record_rep,
                               'REPRESENTATION_SCHEMA.'+
                               'REPRESENTATION_RELATIONSHIP.REP_1') |
                          ('PRESENTATION_DEFINITION_SCHEMA.' +
-                         'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(rep_rel)) AND  
+                         'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(rep_rel)) AND
                          (rep_rel.rep_2 :=: field)
                          )) > 0)
                          OR
@@ -681,9 +682,9 @@ REFERENCE FROM support_resource_schema
                )) = 0 THEN
       RETURN(FALSE);
     END_IF;
- 
+
     RETURN(TRUE);
- 
+
   END_FUNCTION;
 
-END_SCHEMA; 
+END_SCHEMA;

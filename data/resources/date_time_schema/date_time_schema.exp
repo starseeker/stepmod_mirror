@@ -1,23 +1,23 @@
 (*
-$Id$
+$Id: date_time_schema.exp,v 1.20 2013/11/27 21:40:29 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8369 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
-*) 
+*)
 
 SCHEMA date_time_schema;
 
 REFERENCE FROM basic_attribute_schema   -- ISO 10303-41
   (description_attribute,
    description_attribute_select,
-   get_description_value); 
+   get_description_value);
 
 REFERENCE FROM measure_schema   -- ISO 10303-41
-  (time_measure_with_unit); 
+  (time_measure_with_unit);
 
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    identifier,
    label,
-   text); 
+   text);
 
   TYPE dts_description_attribute_select = SELECT BASED_ON description_attribute_select WITH (
     date_role,
@@ -25,67 +25,67 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
     time_role);
   END_TYPE;
 
-TYPE ahead_or_behind = ENUMERATION OF 
+TYPE ahead_or_behind = ENUMERATION OF
    (ahead,
     exact,
     behind);
-END_TYPE; 
+END_TYPE;
 
 TYPE date_time_or_event_occurrence = SELECT
-   (date_time_select, 
+   (date_time_select,
     event_occurrence);
-END_TYPE; 
+END_TYPE;
 
 TYPE date_time_select = SELECT
-   (date, 
-    date_and_time, 
+   (date,
+    date_and_time,
     local_time);
-END_TYPE; 
+END_TYPE;
 
 TYPE day_in_month_number = INTEGER;
 WHERE
   WR1: {1 <= SELF <= 31};
-END_TYPE; 
+END_TYPE;
 
 TYPE day_in_week_number = INTEGER;
 WHERE
   WR1: { 1 <= SELF <= 7 };
-END_TYPE; 
+END_TYPE;
 
 TYPE day_in_year_number = INTEGER;
 WHERE
   WR1: {1 <= SELF <= 366};
-END_TYPE; 
+END_TYPE;
 
 TYPE hour_in_day = INTEGER;
 WHERE
   WR1: { 0 <= SELF < 24 };
-END_TYPE; 
+END_TYPE;
 
 TYPE minute_in_hour = INTEGER;
 WHERE
   WR1: { 0 <= SELF <= 59 };
-END_TYPE; 
+END_TYPE;
 
 TYPE month_in_year_number = INTEGER;
 WHERE
   WR1: { 1 <= SELF <= 12 };
-END_TYPE; 
+END_TYPE;
 
 TYPE second_in_minute = REAL;
 WHERE
   WR1: { 0 <= SELF < 60.0 };
-END_TYPE; 
+END_TYPE;
 
 TYPE week_in_year_number = INTEGER;
 WHERE
   WR1: { 1 <= SELF <= 53 };
-END_TYPE; 
+END_TYPE;
 
 TYPE year_number = INTEGER;
 WHERE
   WR1: (SELF > 1581);
-END_TYPE; 
+END_TYPE;
 
 ENTITY calendar_date
   SUBTYPE OF (date);
@@ -205,8 +205,10 @@ ENTITY time_interval_with_bounds
   secondary_bound : OPTIONAL date_time_or_event_occurrence;
   duration : OPTIONAL time_measure_with_unit;
 WHERE
-  WR1: NOT (EXISTS(secondary_bound) AND EXISTS(duration));
-  WR2: EXISTS(primary_bound) OR EXISTS(secondary_bound);
+  WR1: EXISTS(primary_bound) OR EXISTS(secondary_bound);
+  WR2: NOT (EXISTS(primary_bound) AND EXISTS(secondary_bound) AND EXISTS(duration));
+  WR3: EXISTS(primary_bound) AND NOT EXISTS(secondary_bound) AND EXISTS(duration) AND duration_is_positive(duration);
+  WR4: EXISTS(secondary_bound) AND NOT EXISTS(primary_bound) AND EXISTS(duration) AND duration_is_negative(duration);
 END_ENTITY;
 
 ENTITY time_role;
@@ -221,15 +223,18 @@ ENTITY week_of_year_and_day_date
   SUBTYPE OF (date);
   week_component : week_in_year_number;
   day_component : OPTIONAL day_in_week_number;
+WHERE
+ WR1: NOT(leap_year(SELF\date.year_component)) OR { 1<= (day_component + (7 * (week_component - 1))) <= 366 };
+ WR2: leap_year(SELF\date.year_component) OR { 1<= (day_component + (7 * (week_component - 1))) <= 365 };
 END_ENTITY;
 
-ENTITY year_month 
+ENTITY year_month
   SUBTYPE OF (date);
   month_component : month_in_year_number;
 END_ENTITY;
 
 FUNCTION acyclic_event_occurrence_relationship
- (relation : event_occurrence_relationship; relatives : SET[1:?] OF event_occurrence; specific_relation : STRING) : BOOLEAN; 
+ (relation : event_occurrence_relationship; relatives : SET[1:?] OF event_occurrence; specific_relation : STRING) : BOOLEAN;
  LOCAL
       x : SET OF event_occurrence_relationship;
     END_LOCAL;
@@ -244,10 +249,10 @@ FUNCTION acyclic_event_occurrence_relationship
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-END_FUNCTION; 
+END_FUNCTION;
 
 FUNCTION acyclic_time_interval_relationship
- (relation : time_interval_relationship; relatives : SET[1:?] OF time_interval; specific_relation : STRING) : BOOLEAN; 
+ (relation : time_interval_relationship; relatives : SET[1:?] OF time_interval; specific_relation : STRING) : BOOLEAN;
   LOCAL
       x : SET OF time_interval_relationship;
     END_LOCAL;
@@ -262,19 +267,38 @@ FUNCTION acyclic_time_interval_relationship
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-END_FUNCTION; 
+END_FUNCTION;
+
+
+FUNCTION duration_is_positive
+ (duration : time_measure_with_unit) : BOOLEAN;
+  IF (duration\measure_with_unit.value_component > 0.0) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+END_FUNCTION;
+
+FUNCTION duration_is_negative
+ (duration : time_measure_with_unit) : BOOLEAN;
+  IF (duration\measure_with_unit.value_component < 0.0) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+END_FUNCTION;
 
 FUNCTION leap_year
- (year : year_number) : BOOLEAN; 
+ (year : year_number) : BOOLEAN;
   IF ((((year MOD 4) = 0) AND ((year MOD 100) <> 0)) OR ((year MOD 400) = 0)) THEN
     RETURN (TRUE);
   ELSE
     RETURN (FALSE);
   END_IF;
-END_FUNCTION; 
+END_FUNCTION;
 
 FUNCTION valid_calendar_date
- (date : calendar_date) : LOGICAL; 
+ (date : calendar_date) : LOGICAL;
   CASE date.month_component OF
     1  : RETURN({ 1 <= date.day_component <= 31 });
     2  : BEGIN
@@ -296,15 +320,15 @@ FUNCTION valid_calendar_date
     12 : RETURN({ 1 <= date.day_component <= 31 });
   END_CASE;
   RETURN (FALSE);
-END_FUNCTION; 
+END_FUNCTION;
 
 FUNCTION valid_time
- (time : local_time) : BOOLEAN; 
+ (time : local_time) : BOOLEAN;
   IF EXISTS(time.second_component) THEN
     RETURN (EXISTS(time.minute_component));
   ELSE
     RETURN (TRUE);
   END_IF;
-END_FUNCTION; 
+END_FUNCTION;
 
 END_SCHEMA;

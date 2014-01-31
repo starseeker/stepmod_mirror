@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="date_time_schema" schema_file="date_time_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2013/12/10 01:38:38 $" rcs.revision="$Revision: 1.9 $">
+<ext_descriptions module_directory="date_time_schema" schema_file="date_time_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2014/01/22 20:36:24 $" rcs.revision="$Revision: 1.10 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: date_time_schema
    <express_ref linkend="date_time_schema::date_time_schema"/>
@@ -441,7 +441,7 @@
   
   <ext_description linkend="date_time_schema.date_role">
 A <b>date_role</b>
- is a role for a <express_ref linkend="date_time_schema::date_time_schema.date"/>
+  	is a role for a <express_ref linkend="date_time_schema:ir_express:date_time_schema.date"/>
 	A <b>date_role</b> is an incompletely modeled concept and requires population related entity data types to form a complete <b>date_role</b>.
 	
 	<note>A <b>date_role</b> is a role for a 
@@ -1158,11 +1158,8 @@ specified.
   -->
 <ext_description linkend="date_time_schema.time_interval_with_bounds.wr:WR1">
 <p>
-	The <b>secondary_bound</b> and <b>duration</b> shall not be specified both for one occurrence of <b>time_interval_with_bounds</b>.
+	Either the <b>primary_bound</b> or the <b>secondary_bound</b> or both shall be specified.
 </p>
-<note>
-	This is enforced to prohibit redundant or inconsistent data.
-</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1172,13 +1169,15 @@ specified.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="date_time_schema.time_interval_with_bounds.wr:WR2">
-	Either the <b>primary_bound</b> or the <b>secondary_bound</b> or both shall be specified.
+	The combination of <b>primary_bound</b>, <b>secondary_bound</b> and <b>duration</b> shall not be specified.
 </ext_description>
-<!-- IP1 -->
-<ext_description linkend="date_time_schema.time_interval_with_bounds.wr:IP1">
-	If <b>primary_bound</b> and <b>secondary_bound</b> are both specified, the point in time identified by
-	<b>primary_bound</b> shall occur before the point in time identified by <b>secondary_bound</b>.
+<!-- WR3 -->
+<ext_description linkend="date_time_schema.time_interval_with_bounds.wr:WR3">
+	If <b>primary_bound</b> is specified and <b>secondary_bound</b> is not specified and if <b>duration</b> is specified, the <b>duration</b> shall be positive.
 </ext_description>
+	<ext_description linkend="date_time_schema.time_interval_with_bounds.wr:WR4">
+		If <b>primary_bound</b> is not specified and <b>secondary_bound</b> is specified, <b>duration</b> shall be specified and the <b>duration</b> shall be negative.
+	</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: date_time_schema  Entity: time_role  
@@ -1282,15 +1281,21 @@ specified.
 	<express_ref linkend="date_time_schema:ir_express:date_time_schema.date"/>.
 </ext_description>
 
-<!-- IP1 -->
-<ext_description linkend="date_time_schema.week_of_year_and_day_date.wr:IP1">
-	The result of the equation <b>day_component</b> + (7 * 
-	<express_ref linkend="date_time_schema:ir_express:date_time_schema.year_month.month_component"/>) shall be between 1 and 365 if the 
+<!-- WR1 -->
+<ext_description linkend="date_time_schema.week_of_year_and_day_date.wr:WR1">
+	The result of the expression <b>day_component</b> + (7 * 
+	<express_ref linkend="date_time_schema:ir_express:date_time_schema.week_of_year_and_day_date.week_component"/>) shall be between 1 and 366 if the 
 	<express_ref linkend="date_time_schema:ir_express:date_time_schema.date.year_component"/> 
-	is not a leap year.
-	Otherwise, the result of this equation shall be between 1 and 366.
+	is a leap year.
 </ext_description>
-
+	
+	<!-- WR2 -->
+	<ext_description linkend="date_time_schema.week_of_year_and_day_date.wr:WR1">
+		The result of the expression <b>day_component</b> + (7 * 
+		<express_ref linkend="date_time_schema:ir_express:date_time_schema.week_of_year_and_day_date.week_component"/>) shall be between 1 and 365 if the 
+		<express_ref linkend="date_time_schema:ir_express:date_time_schema.date.year_component"/> 
+		is not a leap year.
+	</ext_description>
 <!-- +++++++++++ year_month +++++++++++ -->
 <ext_description linkend="date_time_schema.year_month">
 	A <b>year_month</b> is a type of <express_ref linkend="date_time_schema:ir_express:date_time_schema.date"/>
@@ -1386,16 +1391,29 @@ specified.
 	entity.
 </ext_description>
 
-<!-- +++++++++++ leap_year +++++++++++ -->
-<ext_description linkend="date_time_schema.leap_year">
-	The <b>leap_year</b> function determines whether a given year is a leap year or not according to the Gregorian calendar algorithm. 
-	It returns TRUE if the year is a leap year. 
+	<!-- +++++++++++ duration_is_negative +++++++++++ -->
+	<ext_description linkend="date_time_schema.duration_is_negative">
+		The <b>duration_is_negative</b> function determines whether a given <express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> is negative. 
+		It returns TRUE if the <express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> is negative. 
+		Otherwise, it returns FALSE.
+	</ext_description>
+	<!-- year -->
+	<ext_description linkend="date_time_schema.time_interval_with_bounds.duration">
+		(input) the candidate 
+		<express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> 
+		that is being checked.
+	</ext_description>
+	
+	<!-- +++++++++++ duration_is_positive +++++++++++ -->
+	<ext_description linkend="date_time_schema.duration_is_positive">
+		The <b>duration_is_positive</b> function determines whether a given <express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> is positive. 
+		It returns TRUE if the <express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> is a positive. 
 	Otherwise, it returns FALSE.
 </ext_description>
 <!-- year -->
-<ext_description linkend="date_time_schema.leap_year.year">
+	<ext_description linkend="date_time_schema.time_interval_with_bounds.duration">
 	(input) the candidate 
-	<express_ref linkend="date_time_schema:ir_express:date_time_schema.year_number"/> 
+		<express_ref linkend="date_time_schema:ir_express:date_time_schema.time_interval_with_bounds.duration"/> 
 	that is being checked.
 </ext_description>
 

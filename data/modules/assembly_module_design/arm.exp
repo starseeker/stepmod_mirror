@@ -1,7 +1,7 @@
 (*
-   $Id: arm.exp,v 1.59 2012/08/27 21:17:58 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8086 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7493
+   $Id: arm.exp,v 1.60 2012/10/11 05:49:05 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N8420 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8086
 *)
 
 SCHEMA Assembly_module_design_arm;
@@ -12,17 +12,17 @@ SCHEMA Assembly_module_design_arm;
 	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
 	USE FROM Layered_interconnect_simple_template_arm;	-- ISO/TS 10303-1718
 
-	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;         
+	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;
 	    ONEOF (Bare_die_component,
 		Packaged_component,
 		Routed_interconnect_component,
-		Routed_physical_component);    
+		Routed_physical_component);
 	END_SUBTYPE_CONSTRAINT;
 
-	SUBTYPE_CONSTRAINT amd_physical_component_terminal_subtypes FOR Physical_component_terminal;         
+	SUBTYPE_CONSTRAINT amd_physical_component_terminal_subtypes FOR Physical_component_terminal;
 	    ONEOF (Bare_die_component_terminal,
 		Minimally_defined_component_terminal,
-		Packaged_component_join_terminal);    
+		Packaged_component_join_terminal);
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE assembled_feature_select = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -31,8 +31,8 @@ SCHEMA Assembly_module_design_arm;
  		Packaged_component_join_terminal);
 	END_TYPE;
 
-	TYPE assembly_module_or_assembly_group_component = 
-		EXTENSIBLE GENERIC_ENTITY SELECT 
+	TYPE assembly_module_or_assembly_group_component =
+		EXTENSIBLE GENERIC_ENTITY SELECT
 		(Assembly_module_design_view);
 	END_TYPE;
 
@@ -104,7 +104,7 @@ SCHEMA Assembly_module_design_arm;
 
   ENTITY Minimally_defined_component_terminal
     SUBTYPE OF (Physical_component_terminal);
-      SELF\Component_feature.definition : Part_terminal_external_reference;
+      SELF\Component_feature.definition : OPTIONAL Part_terminal_external_reference;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -113,7 +113,7 @@ SCHEMA Assembly_module_design_arm;
     SUBTYPE OF (Packaged_component_join_terminal);
       wire_terminal_length      : Length_tolerance_characteristic;
     WHERE
-      WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | 
+      WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package |
             NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0;
   END_ENTITY;
 

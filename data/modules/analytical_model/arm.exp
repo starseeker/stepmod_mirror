@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.62 2012/07/19 19:36:21 thomasrthurman Exp $
+   $Id: arm.exp,v 1.63 2012/11/09 21:40:58 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N8301 - ISO/TS 10303-1603 Analytical model - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6273
 *)
@@ -12,13 +12,13 @@ USE FROM Document_structure_arm;	-- ISO/TS 10303-1124
 USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
 REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
-  TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+  TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
     (Digital_analytical_model_vector_port);
   END_TYPE;
-	
-  TYPE am_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+
+  TYPE am_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
     (Analytical_model_definition);
-  END_TYPE; 
+  END_TYPE;
 
   TYPE am_parameter_assignment_select = SELECT BASED_ON parameter_assignment_select WITH
     (Analytical_model_parameter);
@@ -26,7 +26,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 
   TYPE am_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
     (Analytical_model_definition);
-  END_TYPE; 
+  END_TYPE;
 
   TYPE analytical_model_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
@@ -59,12 +59,12 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
       signal_variable : SET[1:?] OF analog_port_variable FOR associated_port;
   END_ENTITY;
 
-  ENTITY Analog_port_variable
+  ENTITY Port_variable
     SUPERTYPE OF (ONEOF (Through_port_variable,
  Across_port_variable,
  Transform_port_variable));
       associated_port : Analog_analytical_model_port;
-      variable_name   : STRING; 
+      variable_name   : STRING;
       unit_of_measure : OPTIONAL Unit; --STRING;
     UNIQUE
       UR1 : variable_name,
@@ -73,12 +73,12 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 
   ENTITY Analytical_model
   	SUBTYPE OF (Information_product);
-    UNIQUE 
+    UNIQUE
       UR1: SELF\Product.id;
   END_ENTITY;
 
   ENTITY Analytical_model_application
-    SUBTYPE OF (Representation);  
+    SUBTYPE OF (Representation);
       model_parameter_assignment     : OPTIONAL SET[1:?] OF Parameter_assignment;
       model_representation           : Analytical_model_definition;
     UNIQUE
@@ -89,14 +89,14 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     SUBTYPE OF (Information_definition);
       SELF\Product_view_definition.defined_version 	: Analytical_model_version;
       source_code : SET [1:1] OF Digital_file;
-    DERIVE  
+    DERIVE
 		representation_language: SET[1:1] OF Document_definition :=
-  			get_document_definition(SELF, 'representation language', 
+  			get_document_definition(SELF, 'representation language',
   			'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL');
     INVERSE
       access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
       parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
-	  reference_document : document_assignment FOR is_assigned_to;    	
+	  reference_document : document_assignment FOR is_assigned_to;
   END_ENTITY;
 
   ENTITY Analytical_model_make_from_relationship
@@ -121,7 +121,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
  (ONEOF (Analog_analytical_model_port,
  Digital_analytical_model_port)));
       accessed_analytical_model : Analytical_model_definition;
-      port_name                 : STRING; 
+      port_name                 : STRING;
     UNIQUE
       UR1 : port_name,
  accessed_analytical_model;
@@ -137,7 +137,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     WR1 : assigned_analytical_model_port.accessed_analytical_model =
    associated_analytical_model_application.model_representation;
   END_ENTITY;
-   
+
   ENTITY Analytical_model_port_make_from_relationship;
       associated_make_from : Analytical_model_make_from_relationship;
       reusable_feature     : Analytical_model_port;
@@ -161,14 +161,14 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     SUPERTYPE OF (Analytical_model_scalar_port)
     SUBTYPE OF (Analytical_model_port);
     element_port : LIST [1:?] OF Analytical_model_scalar_port;
-  DERIVE    
-      size : INTEGER := SIZEOF(element_port); -- positive_integer;      
+  DERIVE
+      size : INTEGER := SIZEOF(element_port); -- positive_integer;
   END_ENTITY;
-  
+
   ENTITY Analytical_model_version
   	SUBTYPE OF (Information_version);
   		SELF\Product_version.of_product : Analytical_model;
-  END_ENTITY; 
+  END_ENTITY;
 
   ENTITY Digital_analytical_model_port
   	ABSTRACT SUPERTYPE OF (Digital_analytical_model_vector_port)
@@ -206,7 +206,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     WHERE
       WR1 : EXISTS(SELF\Analog_port_variable.unit_of_measure);
   END_ENTITY;
-  
+
   ENTITY Transform_port_variable
     SUBTYPE OF (Analog_port_variable);
       nominal_signal_flow_direction : signal_flow_direction;
@@ -215,16 +215,16 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
       WR2 : signal_flow_direction.bidirectional <> nominal_signal_flow_direction;
   END_ENTITY;
 
-RULE analytical_model_version_constraint FOR 
+RULE analytical_model_version_constraint FOR
 (Product_version);
 WHERE
   WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-END_RULE; 
+END_RULE;
 
-RULE analytical_model_definition_constraint FOR 
+RULE analytical_model_definition_constraint FOR
 (Product_view_definition);
 WHERE
   WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
-END_RULE; 
+END_RULE;
 
 END_SCHEMA;

@@ -1,36 +1,35 @@
 (*
-   $Id: arm.exp,v 1.86 2012/09/06 21:54:40 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8182 - ISO/TS 10303-1707 Package - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7577
+   $Id: arm.exp,v 1.87 2012/10/11 05:49:03 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N8430 - ISO/TS 10303-1707 Package - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8182
 *)
 
 SCHEMA Package_arm;
 
---	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
 	USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
 	USE FROM Non_feature_shape_element_arm;
-	
+
 
 	USE FROM Part_feature_function_arm;	-- ISO/TS 10303-1712
-	
-	REFERENCE FROM Support_resource_arm(bag_to_set);  
+
+	REFERENCE FROM Support_resource_arm(bag_to_set);
 
   	TYPE mounting_technology_type = EXTENSIBLE ENUMERATION OF
     	(surface_mount,
      	through_hole);
   	END_TYPE;
 
- 	TYPE pa_external_identification_item = SELECT BASED_ON external_identification_item WITH  
+ 	TYPE pa_external_identification_item = SELECT BASED_ON external_identification_item WITH
 		(Package_terminal_template_definition,
 		 Package);
 	END_TYPE;
- 
+
  	TYPE pa_material_item_select = SELECT BASED_ON material_item_select  WITH
    		(Package_body,
     	Package_terminal_template_definition);
-	END_TYPE; 
+	END_TYPE;
 
-	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature; 
+	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature;
 		(ONEOF (Package_body,
 		Package_body_surface,
 		Package_orientation_feature,
@@ -58,14 +57,14 @@ SCHEMA Package_arm;
 		(Seating_plane,
 		 Interface_plane);
 	END_TYPE;
- 
+
   ENTITY Connection_zone_in_part_feature_template_definition
   	SUBTYPE OF (Connection_zone);
   	DERIVE
   		associated_definition : Part_feature_template_definition := containing_shape.described_element;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.element_name);
-  END_ENTITY; 
+  END_ENTITY;
 
   ENTITY Connection_zone_package_interface_plane_relationship;
       interface_plane          : interface_plane_or_seating_plane;
@@ -104,7 +103,7 @@ SCHEMA Package_arm;
       											add_data_element(maximum_body_height_above_seating_plane,maximum_body_height_below_seating_plane),
 											    add_data_element(maximum_body_height_above_seating_plane,maximum_lead_length_below_seating_plane));
       cutout_required                       : LOGICAL := (maximum_body_height_below_seating_plane\Value_with_unit.value_component > 0.0);
-      maximum_installed_height              : length_data_element := 
+      maximum_installed_height              : length_data_element :=
       											add_data_element(maximum_body_height_above_seating_plane,maximum_seating_plane_installation_offset);
       one_orientation_feature               : LOGICAL := (SIZEOF(orientation_feature) = 1);
       two_orientation_features              : LOGICAL := (SIZEOF(orientation_feature) = 2);
@@ -191,13 +190,13 @@ INVERSE
 
   ENTITY Package_orientation_feature
     ABSTRACT SUPERTYPE OF (ONEOF(Primary_orientation_feature, Secondary_orientation_feature, Tertiary_orientation_feature))
-    SUBTYPE OF (Part_feature);    
+    SUBTYPE OF (Part_feature);
            associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
       SELF\Part_feature.associated_definition : Package;
     WHERE
      WR1 : 'GEOMETRIC_TOLERANCE_ARM.DATUM_FEATURE' IN TYPEOF(SELF);
   END_ENTITY;
-  
+
   ENTITY Package_terminal
     SUBTYPE OF (Part_feature, Placed_feature);
       SELF\Placed_feature.definition 		  : Package_terminal_template_definition;
@@ -205,7 +204,7 @@ INVERSE
    INVERSE
       SELF\Part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
     WHERE
-      WR1: SIZEOF(SELF\Definitional_shape_element.surface_conditions) = 0;	  
+      WR1: SIZEOF(SELF\Definitional_shape_element.surface_conditions) = 0;
   END_ENTITY;
 
   ENTITY Package_terminal_template_definition
@@ -220,15 +219,15 @@ INVERSE
     DERIVE
       mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone));
       terminal_core_material : SET [0:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
-     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
-     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') |
+     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' +
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal core material')) = 1)));
       terminal_surface_material : SET [0:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
-     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
-     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') |
+     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' +
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1)));
  	INVERSE
-	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;            
+	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
       WR2 : NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
@@ -280,7 +279,7 @@ INVERSE
   ENTITY Wire_terminal_template_definition
     SUBTYPE OF (Package_terminal_template_definition);
       SELF\Package_terminal_template_definition.internal_connection_zone : SET[1:?] OF Connection_zone_in_part_feature_template_definition;
-      wire_terminal_length                                               : Length_tolerance_characteristic;
+      wire_terminal_length                                               : OPTIONAL Length_tolerance_characteristic;
   END_ENTITY;
 
   FUNCTION add_data_element(

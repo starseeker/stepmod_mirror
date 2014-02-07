@@ -3778,8 +3778,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N7978 - ISO/TS 10303-1010 Date time - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2913
+ ISO TC184/SC4/WG12 N8379 - ISO/TS 10303-1010 Date time - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7978
 *) 
 
 
@@ -3851,7 +3851,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Date_time_arm
 (*
- ISO TC184/SC4/WG12 N1093 - ISO/TS 10303-1014 Date time assignment - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8400 - ISO/TS 10303-1014 Date time assignment - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N1093
 *)
 SCHEMA Date_time_assignment_arm;
 
@@ -5627,23 +5628,30 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
     SUPERTYPE OF (ONEOF (Axis_placement_2d,
       Axis_placement_3d))
     SUBTYPE OF (Detailed_geometric_model_element);
-      origin : Cartesian_point;
-      x_axis : Direction;
-      y_axis : Direction;
+      location      : Cartesian_point;
+      axis          : OPTIONAL Direction;
+      ref_direction : OPTIONAL Direction;
     DERIVE
-      dim: INTEGER := SIZEOF(origin.coordinates);
+      dim: INTEGER := SIZEOF(location\Cartesian_point.coordinates);
     WHERE
       WR1: dim >1;
-      WR2: dim = SIZEOF(x_axis.direction_ratios);
-      WR3: dim = SIZEOF(y_axis.direction_ratios);
+      WR2: dim = SIZEOF(axis\Direction.direction_ratios);
+      WR3: dim = SIZEOF(ref_direction\Direction.direction_ratios);
   END_ENTITY;
 
   ENTITY Axis_placement_2d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
+    WHERE
+      WR1: NOT EXISTS(axis);
+      WR2: SELF\Axis_placement.dim = 2;
   END_ENTITY;
 
   ENTITY Axis_placement_3d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
+    WHERE
+      WR1: SELF\Axis_placement.dim = 3;
+-- convert to IP
+--     wr4: NOT EXISTS( axis ) OR NOT EXISTS( ref_direction ) OR ( cross_product( axis, ref_direction ).magnitude > 0 );
   END_ENTITY;
 
   ENTITY Axis_placement_mapping;
@@ -6152,8 +6160,8 @@ END_ENTITY;
 
 END_SCHEMA; -- Explicit_constraint_schema_arm
 (*
- ISO TC184/SC4/WG12 N7861 - ISO/TS 10303-1342 Expression - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7214
+ ISO TC184/SC4/WG12 N8413 - ISO/TS 10303-1342 Expression - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7861
 *)
 
 
@@ -11816,8 +11824,8 @@ SCHEMA Maths_space_arm;
 
 USE FROM Maths_value_arm;    -- ISO/TS 10303-1092
 
---TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
---END_TYPE; 
+TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
+END_TYPE; 
 
 ENTITY Maths_space;
 END_ENTITY;
@@ -12176,7 +12184,7 @@ USE FROM Swept_solid_arm; -- ISO/CD-TS 10303-1321
 
 END_SCHEMA;
 
-(* 
+(*
  ISO TC184/SC4/WG12 N3242 - ISO/TS 10303-1105 Multi linguism - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2223
 *)
@@ -13822,8 +13830,8 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
       SELF\Representation.context_of_items : Geometric_coordinate_space; 
       SELF\Representation.items            : SET [1:1] OF Axis_placement_3d; 
     DERIVE
-      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.origin;
-      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.x_axis;
+      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
+      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.ref_direction;
     INVERSE 
       tables       : SET[1:?] OF Laminate_table FOR basis; 
       orientations : SET[1:?] OF Ply_orientation_angle FOR rep_2;

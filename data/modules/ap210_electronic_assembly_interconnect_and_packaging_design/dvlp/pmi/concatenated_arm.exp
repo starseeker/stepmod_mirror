@@ -1,5 +1,5 @@
 (*
-$Id: concatenated_arm.exp,v 1.16 2012/11/16 17:39:02 thomasrthurman Exp $
+$Id: concatenated_arm.exp,v 1.17 2013/02/09 00:44:10 thomasrthurman Exp $
 *)
 (*
 ISO TC184/SC4/WG12 N2941 - ISO/TS 10303-1047 Activity - EXPRESS ARM
@@ -537,8 +537,8 @@ END_RULE;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG3 N7789 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG3 N7487
+   ISO TC184/SC4/WG12 N8338 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG3 N7789
 *)
 
 SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
@@ -966,8 +966,8 @@ END_RULE;
 
 END_SCHEMA;
 (*
-   ISO TC184/SC4/WG3 N7873 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N2818
+   ISO TC184/SC4/WG12 N8321 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7873
 *)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
@@ -3174,7 +3174,7 @@ USE FROM Text_appearance_arm; -- ISO/TS 10303-1136
   END_TYPE; 
 
   TYPE at_composite_text_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON composite_text_element_select WITH (
-          annotation_text);
+          Annotation_text);
   END_TYPE; 
   
  
@@ -5788,12 +5788,6 @@ END_SCHEMA;
 
 SCHEMA Date_time_arm;
 
-
-TYPE date_or_date_time_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Calendar_date, 
-    Date_time);
-END_TYPE; 
-
 TYPE day_in_month_number = INTEGER;
 WHERE
   WR1: {1 <= SELF <= 31};
@@ -5864,7 +5858,7 @@ END_SCHEMA;  -- Date_time_arm
 *)
 SCHEMA Date_time_assignment_arm;
 
-USE FROM Date_time_arm; -- ISO/TS 10303-1010
+USE FROM Extended_date_arm; -- ISO/TS 10303-1776
 
    
 TYPE date_or_date_time_item = EXTENSIBLE SELECT;
@@ -6363,7 +6357,8 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
   END_TYPE;
 
   TYPE design_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
-    (organization_or_person_in_organization_select,
+    (Organization, 
+     Person_in_organization,
      Product_version,
      Work_order);
   END_TYPE;
@@ -8585,14 +8580,16 @@ USE FROM Date_time_arm;
     Week_of_year_and_day_date);
   END_TYPE; 
 
-  TYPE ed_date_or_date_time_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_select WITH (
-    Calendar_date, 
-    Year_month, 
-    Date,
-    Ordinal_date, 
-    Week_of_year_and_day_date);
+  TYPE date_or_date_time_select = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Calendar_date, 
+     Date_time,
+     Year_month, 
+     Date,
+     Ordinal_date, 
+     Week_of_year_and_day_date);
   END_TYPE;
-  
+
+
   TYPE day_in_year_number = INTEGER;
     WHERE
       WR1: {1 <= SELF <= 366};
@@ -9491,7 +9488,8 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
   END_TYPE;
 
   TYPE predefined_documentation_layer_purpose = ENUMERATION OF
-    (soldermask,
+    (solderdam,
+     soldermask,
      solderpaste,
      silkscreen,
      generic_layer,
@@ -14225,7 +14223,7 @@ END_ENTITY;
 
 ENTITY Link_motion_transformation;
 --  SUBTYPE OF (Item_defined_transformation);
-  transform_item_1 : Rigid_placement;
+  transform_item_1 : rigid_placement;
   transform_item_2 : Kinematic_path;
 END_ENTITY;
 
@@ -14661,7 +14659,7 @@ END_ENTITY;
 TYPE kinematic_link_representation_items = SELECT (
   Curve,
   Cartesian_point,
-  Rigid_placement,
+  rigid_placement,
   Surface);
 END_TYPE;
   
@@ -15349,9 +15347,9 @@ USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
 REFERENCE FROM Foundation_representation_arm(using_representations);
 
 TYPE kinematic_topology_representation_select = SELECT (
-  kinematic_topology_structure,
-  kinematic_topology_directed_structure,
-  kinematic_topology_network_structure
+  Kinematic_topology_structure,
+  Kinematic_topology_directed_structure,
+  Kinematic_topology_network_structure
 );
 END_TYPE;
 
@@ -20061,8 +20059,8 @@ SCHEMA Maths_space_arm;
 
 USE FROM Maths_value_arm;    -- ISO/TS 10303-1092
 
-TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
-END_TYPE; 
+--TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
+--END_TYPE; 
 
 ENTITY Maths_space;
 END_ENTITY;
@@ -22356,7 +22354,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
-      made_from : Filament_assembly_material;
+      made_from : filament_assembly_material;
       shape     : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
@@ -32767,6 +32765,8 @@ TYPE sc_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_t
    Coating_layer);
 END_TYPE; 
 
+  TYPE measure_qualification_or_value_with_unit = SELECT (Measure_qualification, Value_with_unit); 
+  END_TYPE;
 
   TYPE measuring_gauge_select = EXTENSIBLE GENERIC_ENTITY SELECT (
     Part_view_definition);
@@ -32839,9 +32839,6 @@ END_TYPE;
     SELF\Assigned_property.name : STRING := 'surface texture';
   END_ENTITY;
   
-  TYPE measure_qualification_or_value_with_unit = SELECT (Measure_qualification, Value_with_unit); 
-  END_TYPE;
-
   ENTITY Surface_texture_parameter;
     parameter_value : measure_qualification_or_value_with_unit;
     parameter_name : STRING;
@@ -33930,15 +33927,6 @@ END_ENTITY;
     SUBTYPE OF (Value_with_unit);
   END_ENTITY;
 
-  ENTITY Scattering_parameter_data_element
-    SUBTYPE OF (Value_with_unit);
-      angle : REAL;
-      SELF\Value_with_unit.value_component RENAMED radius : any_number_value;
-    WHERE
-      WR1 : radius >= 0;
-      WR2 : {0 <= angle < 2*PI};
-  END_ENTITY;
-
   ENTITY Solid_angle_data_element
     SUBTYPE OF (Value_with_unit);
     WHERE
@@ -33994,7 +33982,6 @@ SUBTYPE_CONSTRAINT value_with_unit_subtypes FOR Value_with_unit;
  Pressure_data_element,
  Ratio_data_element,
  Resistance_data_element,
- Scattering_parameter_data_element,
  Solid_angle_data_element,
  Thermal_resistance_data_element,
  Thermodynamic_temperature_data_element,

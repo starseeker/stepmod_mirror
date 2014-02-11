@@ -254,8 +254,8 @@ are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
  
         	<cvs command="checkout"
 	        	 tag="${{cvs.stream}}"
-				 cvsRsh="${{cvs.rsh}}"
-				 cvsRoot="${{cvs.root}}"
+				 cvsrsh="${{cvs.rsh}}"
+				 cvsroot="${{cvs.root}}"
 				 package="${{cvs.packageroot.modules}}"
 				 dest="${{checkout.dir}}"
 				 output="${{TMPDIR}}/cvs_checkout.log"

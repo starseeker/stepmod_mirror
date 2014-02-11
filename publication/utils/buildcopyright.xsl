@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
+$Id$
 Ant project to run update tasks:
 FilePurpose - 
 -->
@@ -237,20 +238,20 @@ are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
 	<xsl:template name="do.cvs_checkout">
 		<target name="cvs_checkout" description="CVS checkout of resource express schema files">
 			<echo message="CVS checkout of resource express schema files" />
-			<local name="cvs.username" value="thomasrthurman" />
-    		<local name="cvs.password" value="NOTUSED_cvspassword" />
-    		<local name="cvs.rsh" value="ssh" />
-    		<local name="cvs.root" value=":extssh:${{cvs.username}}@stepmod.cvs.sourceforge.net:/cvsroot/stepmod" />
-    		<local name="cvs.packageroot" value="stepmod" />
-    		<local name="cvs.stream" value="HEAD" />
-    		<xsl:element name="local">
+			<property name="cvs.username" value="thomasrthurman" />
+    		<property name="cvs.password" value="NOTUSED_cvspassword" />
+    		<property name="cvs.rsh" value="ssh" />
+    		<property name="cvs.root" value=":extssh:${{cvs.username}}@stepmod.cvs.sourceforge.net:/cvsroot/stepmod" />
+    		<property name="cvs.packageroot" value="stepmod" />
+    		<property name="cvs.stream" value="HEAD" />
+    		<xsl:element name="property">
 				<xsl:attribute name="name">cvs.packageroot.modules</xsl:attribute>
 				<xsl:attribute name="value">
 					<xsl:apply-templates mode="genExpPathCVS"/>
 				</xsl:attribute>
 			</xsl:element>
 			
-     		<local name="checkout.dir" value="."/>
+     		<property name="checkout.dir" value="."/>
  
         	<cvs command="checkout"
 	        	 tag="${{cvs.stream}}"

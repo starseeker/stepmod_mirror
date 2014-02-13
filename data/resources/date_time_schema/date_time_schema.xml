@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2013/11/22 11:16:21 $" rcs.revision="$Revision: 1.17 $" reference="ISO 10303-41">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41">
    <application name="JSDAI" owner="LKSoft" source="date_time_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="date_time_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -11,6 +11,7 @@
          <interfaced.item name="get_description_value"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="measure_with_unit"/>
          <interfaced.item name="time_measure_with_unit"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
@@ -239,8 +240,9 @@
          </explicit>
          <where expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)" label="WR1"/>
          <where expression="NOT (EXISTS(primary_bound) AND EXISTS(secondary_bound) AND EXISTS(duration))" label="WR2"/>
-         <where expression="EXISTS(primary_bound) AND NOT EXISTS(secondary_bound) AND (NOT EXISTS(duration) OR duration_is_positive(duration))" label="WR3"></where>
-         <where expression="EXISTS(secondary_bound) AND NOT EXISTS(primary_bound) AND EXISTS(duration) AND duration_is_negative(duration)" label="WR4"></where>
+         <where expression="EXISTS(primary_bound) AND NOT EXISTS(secondary_bound) AND (NOT EXISTS(duration) OR duration_is_positive(duration))" label="WR3"/>
+         <where expression="EXISTS(secondary_bound) AND NOT EXISTS(primary_bound) AND EXISTS(duration) AND duration_is_negative(duration)" label="WR4"/>
+      <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="time_role">
          <explicit name="name" optional="NO">
@@ -258,8 +260,9 @@
          <explicit name="day_component" optional="YES">
             <typename name="day_in_week_number"/>
          </explicit>
-         <where expression="NOT(leap_year(SELF\date.year_component)) OR { 1 &lt;= (day_component + (7 * (week_component - 1))) &lt;= 366 }" label="WR1"/>
-         <where expression="leap_year(SELF\date.year_component) OR { 1 &lt;= (day_component + (7 * (week_component - 1))) &lt;= 365 }" label="WR2"></where>
+         <where expression="NOT(leap_year(SELF\date.year_component)) OR { 1&lt;= (day_component + (7 * (week_component - 1))) &lt;= 366 }" label="WR1"/>
+         <where expression="leap_year(SELF\date.year_component) OR { 1&lt;= (day_component + (7 * (week_component - 1))) &lt;= 365 }" label="WR2"/>
+      <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="year_month" supertypes="date">
          <explicit name="month_component" optional="NO">
@@ -320,31 +323,28 @@
     END_REPEAT;
     RETURN (TRUE);</algorithm>
       </function>
-      
       <function name="duration_is_negative">
          <parameter name="duration">
             <typename name="time_measure_with_unit"/>
          </parameter>
          <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF (duration\measure_with_unit.value_component &lt; 0.0) THEN
-            RETURN (TRUE);
-            ELSE
-            RETURN (FALSE);
-            END_IF;</algorithm>
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;</algorithm>
       </function>
-      
       <function name="duration_is_positive">
          <parameter name="duration">
             <typename name="time_measure_with_unit"/>
          </parameter>
          <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF (duration\measure_with_unit.value_component &gt; 0.0) THEN
-            RETURN (TRUE);
-            ELSE
-            RETURN (FALSE);
-            END_IF;</algorithm>
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;</algorithm>
       </function>
-      
       <function name="leap_year">
          <parameter name="year">
             <typename name="year_number"/>

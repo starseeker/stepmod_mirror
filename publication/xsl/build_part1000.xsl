@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.16 2010/04/21 12:21:40 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.17 2010/12/21 15:44:23 robbod Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -81,7 +81,7 @@ Purpose: To build the initial ANT publication file.
 						<xsl:apply-templates select="." mode="target_isoapdocs"/>
 						<xsl:apply-templates select="." mode="target_publish_isoapdocs"/>
 					</xsl:if>
-					<xsl:if test="./resource_docs/res_doc">
+					<xsl:if test="./resource_docs/resource_doc">
 						<xsl:apply-templates select="." mode="target_isoresdocs"/>
 						<xsl:apply-templates select="." mode="target_publish_isoresdocs"/>
 					</xsl:if>
@@ -97,7 +97,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="target">
 			<xsl:attribute name="name">checkcvstag</xsl:attribute>
 			<xsl:attribute name="description">check CVS tag</xsl:attribute>			
-			<xsl:variable name="CVS_tag" select="concat('SMRL_',@name)"/>
+			<xsl:variable name="CVS_tag" select="@name"/>
 			<input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
 				addproperty="do.continue"/>
 			<condition property="do.abort">
@@ -1053,22 +1053,22 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCGIFS</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.exp'"/>
 					<xsl:with-param name="terminate" select="'NO'"/>
 				</xsl:apply-templates>
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.gif'"/>
 					<xsl:with-param name="terminate" select="'NO'"/>
 				</xsl:apply-templates>
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.png'"/>
 					<xsl:with-param name="terminate" select="'NO'"/>
 				</xsl:apply-templates>
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/*.jpg'"/>
 				</xsl:apply-templates>
@@ -1078,7 +1078,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCINDEXXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/resdocindex.xml'"/>
 				</xsl:apply-templates>
@@ -1088,7 +1088,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCABSTRACTXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
 				</xsl:apply-templates>
@@ -1098,7 +1098,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCCONTENTSXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
 				</xsl:apply-templates>
@@ -1108,7 +1108,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCS</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/**/*.xml'"/>
 				</xsl:apply-templates>
@@ -1118,7 +1118,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCSCOPEXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
 				</xsl:apply-templates>
@@ -1128,7 +1128,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCRESDOCINDEXXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/resdocindex.xml'"/>
 				</xsl:apply-templates>
@@ -1138,7 +1138,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCREFSXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
 				</xsl:apply-templates>
@@ -1148,7 +1148,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCDEFSXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
 				</xsl:apply-templates>
@@ -1159,7 +1159,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCMAINXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/main.xml'"/>
 				</xsl:apply-templates>
@@ -1169,7 +1169,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCSCHEMAXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/*_schema.xml'"/>
 				</xsl:apply-templates>
@@ -1179,7 +1179,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCASHORTNAMESXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/a_short_names.xml'"/>
 				</xsl:apply-templates>
@@ -1189,7 +1189,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCBOBJREGXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/b_obj_reg.xml'"/>
 				</xsl:apply-templates>
@@ -1199,7 +1199,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCBIBLIOXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
 				</xsl:apply-templates>
@@ -1209,7 +1209,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCISOCOVERXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
 				</xsl:apply-templates>
@@ -1219,7 +1219,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCCOVERXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
 				</xsl:apply-templates>
@@ -1228,7 +1228,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCCOVERHTM</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/cover.htm'"/>
 				</xsl:apply-templates>
@@ -1238,7 +1238,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCISOCOVERHTM</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/isocover.htm'"/>
 				</xsl:apply-templates>
@@ -1248,7 +1248,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCCEXPSCHEMAXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/c_exp_schema_*.xml'"/>
 				</xsl:apply-templates>
@@ -1258,7 +1258,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCCEXPXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/c_exp.xml'"/>
 				</xsl:apply-templates>
@@ -1268,7 +1268,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCDEXPGXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/d_expg.xml'"/>
 				</xsl:apply-templates>
@@ -1278,7 +1278,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCTECHDISCUSSIONXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/tech_discussion.xml'"/>
 				</xsl:apply-templates>
@@ -1288,7 +1288,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCEXAMPLESXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/examples.xml'"/>
 				</xsl:apply-templates>
@@ -1298,7 +1298,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCADDSCOPE</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/add_scope.xml'"/>
 				</xsl:apply-templates>
@@ -1308,7 +1308,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCFOREWORDXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
 				</xsl:apply-templates>
@@ -1318,7 +1318,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCINTRODUCTIONXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
 				</xsl:apply-templates>
@@ -1328,7 +1328,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCDESCRIPTIONSXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resources/'"/>
 					<xsl:with-param name="suffix" select="'/descriptions.xml'"/>
 				</xsl:apply-templates>
@@ -1338,7 +1338,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCSCHEMADIAGXML</xsl:attribute>
 			<xsl:attribute name="value">
-				<xsl:apply-templates select="resource_docs/res_doc" mode="list">
+				<xsl:apply-templates select="resource_docs/resource_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/resource_docs/'"/>
 					<xsl:with-param name="suffix" select="'/schema_diagexpg*.xml'"/>
 				</xsl:apply-templates>
@@ -1346,7 +1346,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:element>
 
 		<xsl:variable name="resdoc_file"
-			select="concat('../../data/resource_docs/',resource_docs/res_doc/@name,'/resource.xml')"/>
+			select="concat('../../data/resource_docs/',resource_docs/resource_doc/@name,'/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
 
 		<xsl:element name="property">
@@ -4885,11 +4885,11 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="name">publish_isoresdocs</xsl:attribute>
 			<xsl:attribute name="depends">isoindex, resources, isoresdocs</xsl:attribute>
 			<xsl:attribute name="description">Copy HTML to publication directory</xsl:attribute>
-			<xsl:apply-templates select="//res_doc" mode="target_publish_isoresdocs"/>
+			<xsl:apply-templates select="//resource_doc" mode="target_publish_isoresdocs"/>
 		</xsl:element>
 	</xsl:template>
 
-	<xsl:template match="res_doc" mode="target_publish_isoresdocs">
+	<xsl:template match="resource_doc" mode="target_publish_isoresdocs">
 		<xsl:variable name="resdoc_file"
 			select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
@@ -5375,7 +5375,7 @@ Purpose: To build the initial ANT publication file.
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template match="resource|module|application_protocol|res_doc" mode="list">
+	<xsl:template match="resource|module|application_protocol|resource_doc" mode="list">
 		<xsl:param name="prefix" select="''"/>
 		<xsl:param name="suffix" select="''"/>
 		<xsl:param name="terminate" select="'YES'"/>
@@ -5464,7 +5464,7 @@ Purpose: To build the initial ANT publication file.
 	<xsl:template match="part1000.publication_index" mode="check">
 		<xsl:variable name="result">
 			<xsl:apply-templates select="modules/module" mode="check"/>
-			<xsl:apply-templates select="resource_docs/res_doc" mode="check"/>
+			<xsl:apply-templates select="resource_docs/resource_doc" mode="check"/>
 			<xsl:apply-templates select="application_protocols/ap_doc" mode="check"/>
 		</xsl:variable>
 		<xsl:value-of select="normalize-space($result)"/>
@@ -5492,7 +5492,7 @@ Purpose: To build the initial ANT publication file.
 
 
 	<!-- run a check on each resource doc listed in publication_index -->
-	<xsl:template match="res_doc" mode="check">
+	<xsl:template match="resource_doc" mode="check">
 		<xsl:variable name="resdoc_ok">
 			<xsl:call-template name="check_resdoc_exists">
 				<xsl:with-param name="resdoc" select="@name"/>
@@ -5568,7 +5568,7 @@ Purpose: To build the initial ANT publication file.
  possibly excluding any that are explicitly part of the ballot -->
 	<xsl:template name="get_resource_schema_node_set">
 		<xsl:variable name="resource_docs">
-			<xsl:for-each select="/part1000.publication_index/resource_docs/res_doc">
+			<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
 				<xsl:variable name="selected_res" select="@name"/>
 				<xsl:variable name="res_file"
 					select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>
@@ -5637,20 +5637,28 @@ Purpose: To build the initial ANT publication file.
 		</xsl:variable>
 
 		<xsl:variable name="resource_docs">
-			<xsl:for-each select="/part1000.publication_index/resource_docs/res_doc">
+			<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
+				<xsl:message>
+				"hi"	
+				</xsl:message>
 				<xsl:variable name="selected_res" select="@name"/>
-				<xsl:variable name="res_file"
-					select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>
-				<xsl:variable name="res_node" select="document($res_file)"/>
-				<xsl:for-each select="$res_node/resource/schema">
+				<xsl:message>
+					<xsl:value-of select="$selected_res"/>
+				</xsl:message>
+				<!--<xsl:variable name="res_file"
+					select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>-->
+				<!--<xsl:variable name="res_node" select="document($res_file)"/>-->
+				<!--<xsl:for-each select="$res_node/resource/schema">
 					<xsl:value-of select="concat(' ',@name,' ')"/>
-				</xsl:for-each>
+				</xsl:for-each>-->
 			</xsl:for-each>
 		</xsl:variable>
 
 		<xsl:variable name="todo_schema_list"
 			select="concat(string($aps),string($modules),string($resource_docs))"/>
-
+		<xsl:message>
+			<xsl:value-of select="todo_schema_list"/>
+		</xsl:message>
 		<xsl:variable name="mim_schemas">
 			<xsl:call-template name="depends-on-recurse-mim-x">
 				<xsl:with-param name="todo" select="$todo_schema_list"/>
@@ -5752,7 +5760,10 @@ Purpose: To build the initial ANT publication file.
 				<xsl:choose>
 					<xsl:when test="substring-before($this-schema,'_mim')">
 						<xsl:value-of
-							select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"
+							select="concat('../../data/modules/',
+							substring-before(translate($this-schema,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),
+							'_mim'),
+							'/mim.xml')"
 						/>
 					</xsl:when>
 					<xsl:when test="substring-before($this-schema,'_schema')">
@@ -6172,7 +6183,7 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- Generates the style task for generating the publication record for a
      resource document -->
-	<xsl:template match="res_doc" mode="pub_record_style">
+	<xsl:template match="resource_doc" mode="pub_record_style">
 		<xsl:variable name="resdoc_file"
 			select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>

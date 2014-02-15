@@ -1,3 +1,5 @@
+NOTE NOTE: build.xml is modified to remove resources.
+Also this build does not include 3001.
 This directory contains files used to generate a Part 1000 change request package
 
 To build the change request package:

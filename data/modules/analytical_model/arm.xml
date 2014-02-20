@@ -33,28 +33,13 @@
       <type name="signal_flow_direction">
          <enumeration items="unknown_direction not_applicable output_direction input_direction bidirectional"/>
       </type>
-      <entity name="Across_port_variable" supertypes="Analog_port_variable">
-         <where expression="EXISTS(SELF\Analog_port_variable.unit_of_measure)" label="WR1"/>
+      <entity name="Across_port_variable" supertypes="Port_variable">
+         <where expression="EXISTS(SELF\Port_variable.unit_of_measure)" label="WR1"/>
       </entity>
       <entity name="Analog_analytical_model_port" supertypes="Analytical_model_port">
-         <inverse attribute="associated_port" entity="Analog_port_variable" name="signal_variable">
+         <inverse attribute="associated_port" entity="Port_variable" name="signal_variable">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-      </entity>
-      <entity name="Analog_port_variable" super.expression="ONEOF (Through_port_variable, Across_port_variable, Transform_port_variable)">
-         <explicit name="associated_port">
-            <typename name="Analog_analytical_model_port"/>
-         </explicit>
-         <explicit name="variable_name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="unit_of_measure" optional="YES">
-            <typename name="Unit"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="variable_name"/>
-            <unique.attribute attribute="associated_port"/>
-         </unique>
       </entity>
       <entity name="Analytical_model" supertypes="Information_product">
          <unique label="UR1">
@@ -82,7 +67,7 @@
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Digital_file"/>
          </explicit>
-         <derived expression="get_document_definition(SELF, 'representation language', &#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')" name="representation_language">
+         <derived expression="get_document_definition(SELF, 'representation language',&#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')" name="representation_language">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Document_definition"/>
          </derived>
@@ -201,6 +186,21 @@
          <inverse attribute="item" entity="External_source_identification" name="data_encoding_method"/>
          <where expression="SELF\Digital_analytical_model_port.port_type = port_property_type.string_property_type" label="WR1"/>
       </entity>
+      <entity name="Port_variable" super.expression="ONEOF (Through_port_variable, Across_port_variable, Transform_port_variable)">
+         <explicit name="associated_port">
+            <typename name="Analog_analytical_model_port"/>
+         </explicit>
+         <explicit name="variable_name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="unit_of_measure" optional="YES">
+            <typename name="Unit"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="variable_name"/>
+            <unique.attribute attribute="associated_port"/>
+         </unique>
+      </entity>
       <entity name="Terminal_pair_port_equivalence_relationship">
          <explicit name="equivalent_port">
             <typename name="Analytical_model_port"/>
@@ -210,10 +210,10 @@
          </explicit>
          <where expression="(SIZEOF (scalar_ports.element_port) = 2)" label="WR1"/>
       </entity>
-      <entity name="Through_port_variable" supertypes="Analog_port_variable">
-         <where expression="EXISTS(SELF\Analog_port_variable.unit_of_measure)" label="WR1"/>
+      <entity name="Through_port_variable" supertypes="Port_variable">
+         <where expression="EXISTS(SELF\Port_variable.unit_of_measure)" label="WR1"/>
       </entity>
-      <entity name="Transform_port_variable" supertypes="Analog_port_variable">
+      <entity name="Transform_port_variable" supertypes="Port_variable">
          <explicit name="nominal_signal_flow_direction">
             <typename name="signal_flow_direction"/>
          </explicit>

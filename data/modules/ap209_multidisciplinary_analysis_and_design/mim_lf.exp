@@ -11334,7 +11334,7 @@ SCHEMA ap209_multidisciplinary_analysis_and_design_mim_lf;
   ENTITY explicit_unstructured_mesh
     SUBTYPE OF ( unstructured_mesh );
       explicit_model  : fea_model;
-      cells           : ARRAY [1 : cell_count] OF UNIQUE element_representation;
+      cells           : ARRAY [1 : SELF\unstructured_mesh.cell_count] OF UNIQUE element_representation;
   END_ENTITY;
 
   ENTITY expression
@@ -27765,6 +27765,16 @@ SCHEMA ap209_multidisciplinary_analysis_and_design_mim_lf;
              application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering' ) ) ) > 0 ) ) ) > 0 );
 
   END_RULE;
+
+RULE ap209_application_protocol_definition_required FOR
+    (application_context);
+WHERE
+  WR1:  SIZEOF( QUERY( ac <* application_context |
+              (SIZEOF (QUERY (apd <* USEDIN(ac,'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
+                (apd.application_interpreted_model_schema_name = 'ap209_multidisciplinary_analysis_and_design')
+                )) > 0)
+              )) > 0;
+END_RULE;
 
   RULE breakdown_element_requires_product_definition FOR ( product_definition_formation );
 

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id$
 Ant project to run update tasks:
 FilePurpose - 
 -->
@@ -15,7 +14,7 @@ FilePurpose -
 Project to update schema header copyright information in resource schemas that
 are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
 </xsl:comment>
-		<project name="BuildCopyright" default="main" basedir="../../..">
+		<project name="BuildCopyright" default="main" basedir="../..">
 			<!-- properties of build env -->
 			<xsl:text>&#xA;</xsl:text>
 			<xsl:comment>Properties</xsl:comment>
@@ -236,6 +235,17 @@ are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
 	</xsl:template>
 	
 	<xsl:template name="do.cvs_checkout">
+		<xsl:text>&#xA;</xsl:text>
+		<xsl:comment><![CDATA[
+The EXPRESS files can be checked out from stepmod using the following commands:
+===============================================================================
+export CVS_RSH=ssh
+export CVSROOT=:extssh:<username>@stepmod.cvs.sourceforge.net:/cvsroot/stepmod
+iterate over all the resource schemas:
+   cvs checkout stepmod/data/resources/<schema_N>/<schema_N>.exp
+===============================================================================
+]]></xsl:comment>
+		<!--	experimental code
 		<target name="cvs_checkout" description="CVS checkout of resource express schema files">
 			<echo message="CVS checkout of resource express schema files" />
 			<property name="cvs.username" value="thomasrthurman" />
@@ -263,6 +273,7 @@ are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
 				 quiet="true" />
 
 		</target>
+		-->
 	</xsl:template>
 	
 	<!-- mode specific doc[IGR,IAC,IAR] handlers -->
@@ -344,6 +355,9 @@ are referenced by the resource_docs in docs.xml with series IGR, AIC, and IAR
 				</xsl:element>
 				<xsl:element name="file">
 					<xsl:attribute name="name">../../../_hdrend_tag.txt</xsl:attribute>
+				</xsl:element>
+				<xsl:element name="file">
+					<xsl:attribute name="name">_schemaOBID.txt</xsl:attribute>
 				</xsl:element>
 				<xsl:element name="file">
 					<xsl:attribute name="name"><xsl:value-of select="$theSchemaDAT"/></xsl:attribute>

@@ -12,9 +12,8 @@ FilePurpose - extract data from *.exp.xml
 	<xsl:template match="/exp">
 		<!-- output the schema text -->
 		<xsl:variable name="basename" select="substring-before($infilename, '.')"/>
-
-		<xsl:text>SCHEMA </xsl:text><xsl:value-of select="$basename"/>
-		<xsl:value-of select="substring-after(text(), concat('SCHEMA ', $basename))" />
+		<xsl:variable name="textafterbasename" select="substring-after(text(), concat('SCHEMA ', $basename))" />
+		<xsl:value-of select="substring(substring-after($textafterbasename, ';'),2)" />
 	</xsl:template>
 	
 </xsl:stylesheet>

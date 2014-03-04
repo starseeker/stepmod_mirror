@@ -1,5 +1,5 @@
 (*
-$Id: mim_head.txt,v 1.1 2013/02/19 21:34:51 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
 *) 
 (*
 ISO TC184/SC4/WG12 N1157 - ISO/TS 10303-1047 Activity - EXPRESS MIM
@@ -4569,6 +4569,7 @@ ENTITY applied_document_usage_constraint_assignment
 END_ENTITY;
 
 ENTITY document_product_equivalence
+  ABSTRACT SUPERTYPE
   SUBTYPE OF (document_product_association);
 WHERE
   WR1: SELF\document_product_association.name = 'equivalence';
@@ -4578,9 +4579,11 @@ WHERE
 END_ENTITY;
 
 
+(*
 SUBTYPE_CONSTRAINT subtype_mandatory_document_product_association FOR document_product_association;
   ABSTRACT SUPERTYPE;
 END_SUBTYPE_CONSTRAINT;
+*)
 
 END_SCHEMA;  -- Document_assignment_mim
 (*
@@ -6711,12 +6714,12 @@ USE FROM state_type_schema   -- ISO 10303-56
    state_type_relationship); 
 
 
-TYPE state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+--TYPE state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+-- END_TYPE; 
 
 ENTITY applied_state_type_assignment
   SUBTYPE OF (state_type_assignment);
-  items : SET[1:?] OF state_type_of_item;
+--  items : SET[1:?] OF state_type_of_item;
 END_ENTITY;
 
 END_SCHEMA;  -- Foundation_state_definition_mim
@@ -10761,8 +10764,7 @@ SCHEMA Property_as_definition_mim;
 USE FROM Product_view_definition_properties_mim;    -- ISO/TS 10303-1034
 
 USE FROM systems_engineering_representation_schema   -- ISO 10303-61
-  (representation_proxy_item,
-   representation_proxy_select); 
+  (representation_proxy_item); 
 
 
 ENTITY single_property_is_definition
@@ -23046,7 +23048,7 @@ END_ENTITY;
 
 END_SCHEMA; -- basis_schema
 (*
-$Id: concatenated_mim.exp,v 1.11 2014/02/07 23:31:55 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8369 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -23064,7 +23066,7 @@ SCHEMA certification_schema;
 
 END_SCHEMA;
 (* 
-$Id: classification_schema.exp,v 1.10 2005/01/05 00:07:15 thendrix Exp $
+$Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N3213 - ISO/IS 10303-54 Classification and set theory - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N1510
 *) 
@@ -23126,7 +23128,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- classification_schema
 (*
-   $Id: concatenated_mim.exp,v 1.11 2014/02/07 23:31:55 thomasrthurman Exp $
+   $Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5952 - ISO 10303-110 Mesh-based computational fluid dynamics - EXPRESS
    Supersedes ISO TC184/SC4/WG12 N2176
 *)
@@ -23320,7 +23322,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- end of conditions_schema
 (*
-$Id: concatenated_mim.exp,v 1.11 2014/02/07 23:31:55 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8371 - ISO/IS 10303-44 Product structure configuration - EXPRESS
 *)
 
@@ -23411,7 +23413,7 @@ END_ENTITY;
 
 END_SCHEMA; -- configuration_management_schema
 (*
-$Id: concatenated_mim.exp,v 1.11 2014/02/07 23:31:55 thomasrthurman Exp $
+$Id: concatenated_mim.exp,v 1.12 2014/02/26 18:43:55 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N8369 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *)
 
@@ -23896,8 +23898,8 @@ ENTITY grid_coordinates
   SUBTYPE OF (model_property_distribution);
   SELF\model_property_distribution.domain : model_product_domain_with_mesh;
   SELF\model_property_distribution.range  : specified_general_property;
-INVERSE
-  data : SET OF property_distribution_description FOR physical_function;
+--INVERSE
+--  data : SET OF property_distribution_description FOR physical_function;
 WHERE
   wr1 : is_coordinate_property(range);
 END_ENTITY;
@@ -43294,9 +43296,9 @@ ENTITY product_of_mesh;
   operands : LIST [2:2] OF mesh;
   product  : mesh;
 WHERE
-  wr1 : (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND
-        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND
-        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(product));
+  wr1 : ('MESH_TOPOLOGY_SCHEMA' +'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND
+        ('MESH_TOPOLOGY_SCHEMA' +'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND
+        ('MESH_TOPOLOGY_SCHEMA' +'.STRUCTURED_MESH' IN TYPEOF(product));
   wr2 : operands[1].index_count = 1;
   wr3 : operands[1].index_count + operands[2].index_count
         = product.index_count;
@@ -43484,9 +43486,6 @@ END_FUNCTION;
 
 
 
-FUNCTION this_schema : STRING;
-  RETURN('MESH_TOPOLOGY_SCHEMA');
-END_FUNCTION;
 
 
 END_SCHEMA;  -- end of mesh_topology_schema
@@ -49042,8 +49041,8 @@ END_TYPE;
 ENTITY mbna_discrete_data
   SUBTYPE OF (mbna_result);
   gridloc : mesh_location;
-INVERSE
-  data : SET OF property_distribution_description FOR physical_function;
+--INVERSE
+--  data : SET OF property_distribution_description FOR physical_function;
 END_ENTITY;
 
 ENTITY mbna_discrete_data_with_rind
@@ -49054,8 +49053,8 @@ END_ENTITY;
 ENTITY mbna_history
   SUBTYPE OF (mbna_result);
   notes : LIST OF text;
-INVERSE
-  data : SET OF property_distribution_description FOR physical_function;
+--INVERSE
+--  data : SET OF property_distribution_description FOR physical_function;
 END_ENTITY;
 
 ENTITY mbna_result
@@ -49071,8 +49070,8 @@ END_SUBTYPE_CONSTRAINT;
 ENTITY mbna_solution
   SUBTYPE OF (mbna_result);
   gridloc  : mesh_location;
-INVERSE
-  solution : SET OF property_distribution_description FOR physical_function;
+--INVERSE
+--  solution : SET OF property_distribution_description FOR physical_function;
 END_ENTITY;
 
 ENTITY mbna_solution_with_rind
@@ -56427,14 +56426,16 @@ TYPE expression_element = SELECT
   (expression);
 END_TYPE;
 
-TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
+-- TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
+-- END_TYPE;
 
+(*
 TYPE se_representation_proxy_select = SELECT BASED_ON representation_proxy_select WITH
   (action_method,
    state_type,
    state_type_relationship);
 END_TYPE;
+*)
 
 TYPE state_based_behaviour_element = SELECT 
   (state_type,
@@ -56508,12 +56509,12 @@ END_ENTITY;
 
 ENTITY functional_representation_item
 SUBTYPE OF (representation_proxy_item);
-  SELF\representation_proxy_item.item : action_method;
+--  SELF\representation_proxy_item.item : action_method;
 END_ENTITY;
 
 ENTITY representation_proxy_item
 SUBTYPE OF (representation_item);
-  item : representation_proxy_select;
+--  item : representation_proxy_select;
 END_ENTITY;
 
 ENTITY state_based_behaviour_model
@@ -56528,7 +56529,7 @@ END_ENTITY;
 
 ENTITY state_based_behaviour_representation_item
 SUBTYPE OF (representation_proxy_item);
-  SELF\representation_proxy_item.item : state_based_behaviour_element;
+--  SELF\representation_proxy_item.item : state_based_behaviour_element;
 END_ENTITY;
 
 END_SCHEMA;

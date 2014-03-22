@@ -1,5 +1,5 @@
 (*
-$Id: concatenated_arm.exp,v 1.17 2013/02/09 00:44:10 thomasrthurman Exp $
+$Id: concatenated_arm.exp,v 1.18 2014/02/08 14:03:05 thomasrthurman Exp $
 *)
 (*
 ISO TC184/SC4/WG12 N2941 - ISO/TS 10303-1047 Activity - EXPRESS ARM
@@ -308,8 +308,8 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N8301 - ISO/TS 10303-1603 Analytical model - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6273
+   ISO TC184/SC4/WG12 N8418 - ISO/TS 10303-1603 Analytical model - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8301
 *)
 
 SCHEMA Analytical_model_arm;
@@ -320,13 +320,13 @@ USE FROM Document_structure_arm;	-- ISO/TS 10303-1124
 USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
 REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
-  TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+  TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
     (Digital_analytical_model_vector_port);
   END_TYPE;
-	
-  TYPE am_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+
+  TYPE am_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
     (Analytical_model_definition);
-  END_TYPE; 
+  END_TYPE;
 
   TYPE am_parameter_assignment_select = SELECT BASED_ON parameter_assignment_select WITH
     (Analytical_model_parameter);
@@ -334,7 +334,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 
   TYPE am_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
     (Analytical_model_definition);
-  END_TYPE; 
+  END_TYPE;
 
   TYPE analytical_model_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
@@ -356,23 +356,23 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
   END_TYPE;
 
   ENTITY Across_port_variable
-    SUBTYPE OF (Analog_port_variable);
+    SUBTYPE OF (Port_variable);
     WHERE
-      WR1 : EXISTS(SELF\Analog_port_variable.unit_of_measure);
+      WR1 : EXISTS(SELF\Port_variable.unit_of_measure);
   END_ENTITY;
 
   ENTITY Analog_analytical_model_port
     SUBTYPE OF (Analytical_model_port);
     INVERSE
-      signal_variable : SET[1:?] OF analog_port_variable FOR associated_port;
+      signal_variable : SET[1:?] OF Port_variable FOR associated_port;
   END_ENTITY;
 
-  ENTITY Analog_port_variable
+  ENTITY Port_variable
     SUPERTYPE OF (ONEOF (Through_port_variable,
  Across_port_variable,
  Transform_port_variable));
       associated_port : Analog_analytical_model_port;
-      variable_name   : STRING; 
+      variable_name   : STRING;
       unit_of_measure : OPTIONAL Unit; --STRING;
     UNIQUE
       UR1 : variable_name,
@@ -381,12 +381,12 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 
   ENTITY Analytical_model
   	SUBTYPE OF (Information_product);
-    UNIQUE 
+    UNIQUE
       UR1: SELF\Product.id;
   END_ENTITY;
 
   ENTITY Analytical_model_application
-    SUBTYPE OF (Representation);  
+    SUBTYPE OF (Representation);
       model_parameter_assignment     : OPTIONAL SET[1:?] OF Parameter_assignment;
       model_representation           : Analytical_model_definition;
     UNIQUE
@@ -397,14 +397,14 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     SUBTYPE OF (Information_definition);
       SELF\Product_view_definition.defined_version 	: Analytical_model_version;
       source_code : SET [1:1] OF Digital_file;
-    DERIVE  
+    DERIVE
 		representation_language: SET[1:1] OF Document_definition :=
-  			get_document_definition(SELF, 'representation language', 
+  			get_document_definition(SELF, 'representation language',
   			'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL');
     INVERSE
       access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
       parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
-	  reference_document : document_assignment FOR is_assigned_to;    	
+	  reference_document : document_assignment FOR is_assigned_to;
   END_ENTITY;
 
   ENTITY Analytical_model_make_from_relationship
@@ -429,7 +429,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
  (ONEOF (Analog_analytical_model_port,
  Digital_analytical_model_port)));
       accessed_analytical_model : Analytical_model_definition;
-      port_name                 : STRING; 
+      port_name                 : STRING;
     UNIQUE
       UR1 : port_name,
  accessed_analytical_model;
@@ -445,7 +445,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     WR1 : assigned_analytical_model_port.accessed_analytical_model =
    associated_analytical_model_application.model_representation;
   END_ENTITY;
-   
+
   ENTITY Analytical_model_port_make_from_relationship;
       associated_make_from : Analytical_model_make_from_relationship;
       reusable_feature     : Analytical_model_port;
@@ -469,14 +469,14 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
     SUPERTYPE OF (Analytical_model_scalar_port)
     SUBTYPE OF (Analytical_model_port);
     element_port : LIST [1:?] OF Analytical_model_scalar_port;
-  DERIVE    
-      size : INTEGER := SIZEOF(element_port); -- positive_integer;      
+  DERIVE
+      size : INTEGER := SIZEOF(element_port); -- positive_integer;
   END_ENTITY;
-  
+
   ENTITY Analytical_model_version
   	SUBTYPE OF (Information_version);
   		SELF\Product_version.of_product : Analytical_model;
-  END_ENTITY; 
+  END_ENTITY;
 
   ENTITY Digital_analytical_model_port
   	ABSTRACT SUPERTYPE OF (Digital_analytical_model_vector_port)
@@ -510,30 +510,30 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
   	END_ENTITY;
 
   ENTITY Through_port_variable
-    SUBTYPE OF (Analog_port_variable);
+    SUBTYPE OF (Port_variable);
     WHERE
-      WR1 : EXISTS(SELF\Analog_port_variable.unit_of_measure);
+      WR1 : EXISTS(SELF\Port_variable.unit_of_measure);
   END_ENTITY;
-  
+
   ENTITY Transform_port_variable
-    SUBTYPE OF (Analog_port_variable);
+    SUBTYPE OF (Port_variable);
       nominal_signal_flow_direction : signal_flow_direction;
     WHERE
       WR1 : signal_flow_direction.not_applicable <> nominal_signal_flow_direction;
       WR2 : signal_flow_direction.bidirectional <> nominal_signal_flow_direction;
   END_ENTITY;
 
-RULE analytical_model_version_constraint FOR 
+RULE analytical_model_version_constraint FOR
 (Product_version);
 WHERE
   WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-END_RULE; 
+END_RULE;
 
-RULE analytical_model_definition_constraint FOR 
+RULE analytical_model_definition_constraint FOR
 (Product_view_definition);
 WHERE
   WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
-END_RULE; 
+END_RULE;
 
 END_SCHEMA;
 (*
@@ -544,7 +544,7 @@ END_SCHEMA;
 SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 
 	USE FROM Ap242_managed_model_based_3d_engineering_arm; 	-- ISO/TS 10303-442
-		
+
 	USE FROM Assembly_2d_shape_arm;	-- ISO/TS 10303-1632
 	USE FROM Assembly_3d_shape_arm;	-- ISO/TS 10303-1633
 	USE FROM Assembly_module_with_cable_component_2d_arm;	-- ISO/TS 10303-1638
@@ -563,7 +563,7 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 	USE FROM Functional_unit_requirement_allocation_arm;	-- ISO/TS 10303-1680
 	USE FROM Interconnect_2d_shape_arm;	-- ISO/TS 10303-1682
 	USE FROM Interconnect_module_to_assembly_module_relationship_arm;	-- ISO/TS 10303-1685
-	USE FROM Interconnect_non_planar_shape_arm;	-- ISO/TS 10303-1688	
+	USE FROM Interconnect_non_planar_shape_arm;	-- ISO/TS 10303-1688
 	USE FROM Interconnect_placement_requirements_arm;	-- ISO/TS 10303-1690
 	USE FROM Layered_interconnect_module_2d_design_arm;	-- ISO/TS 10303-1695
 	USE FROM Layered_interconnect_module_3d_design_arm;	-- ISO/TS 10303-1696
@@ -582,7 +582,7 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 
 	REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-TYPE ap210_analytical_model_port_assignment_select = SELECT BASED_ON analytical_model_port_assignment_select WITH  
+TYPE ap210_analytical_model_port_assignment_select = SELECT BASED_ON analytical_model_port_assignment_select WITH
 	(Connection_zone,
 	Part_feature);
 END_TYPE;
@@ -591,7 +591,7 @@ TYPE ap210_assembly_module_or_assembly_group_component = SELECT BASED_ON assembl
   Assembly_group_component);
 END_TYPE;
 
-TYPE ap210_change_management_object = SELECT BASED_ON change_management_object WITH 
+TYPE ap210_change_management_object = SELECT BASED_ON change_management_object WITH
 (Adjacent_stratum_surface_embedded_physical_component_surface_definition,
  Alias_identification,
  Alternate_product_relationship,
@@ -652,7 +652,7 @@ TYPE ap210_change_management_object = SELECT BASED_ON change_management_object W
  Device_3d_position,
  Device_terminal_map,
  Device_terminal_map_relationship,
- Geometric_dimension, 
+ Geometric_dimension,
 -- Dimension_qualifier,
 -- Dimension_set,
  Direct_stratum_component_join_implementation,
@@ -701,7 +701,7 @@ TYPE ap210_change_management_object = SELECT BASED_ON change_management_object W
  Mating_connector_placement_relationship,
  Mating_connector_termination,
  Model_parameter,
- Independent_property_relationship, 
+ Independent_property_relationship,
  Next_higher_assembly_interface_requirement,
  Organization,
  Package_external_reference,
@@ -726,7 +726,7 @@ TYPE ap210_change_management_object = SELECT BASED_ON change_management_object W
  Placement_group_area_assignment,
  Planned_characteristic,
  Effectivity,
- Analog_port_variable,
+ Port_variable,
 -- Positional_boundary_and_profile_boundary_member_relationship,
 -- Positional_boundary_definition,
 -- Positional_boundary_member_definition,
@@ -790,7 +790,7 @@ TYPE ap210_change_management_object = SELECT BASED_ON change_management_object W
  Organization_or_person_in_organization_assignment);
 END_TYPE;
 
-TYPE ap210_presentation_association_select = SELECT BASED_ON presentation_association_select WITH 
+TYPE ap210_presentation_association_select = SELECT BASED_ON presentation_association_select WITH
          (Activity,
           Activity_method,
           Activity_relationship,
@@ -801,7 +801,7 @@ TYPE ap210_presentation_association_select = SELECT BASED_ON presentation_associ
           Product_view_definition,
           Product_version,
           View_definition_relationship);
-END_TYPE; 
+END_TYPE;
 
   SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_product_subtypes FOR Product;
     ABSTRACT SUPERTYPE;
@@ -824,17 +824,17 @@ END_TYPE;
   END_SUBTYPE_CONSTRAINT;
 
 (** Need a CC having both Assembly_2d_shape and Interconnect_2d_shape_arm *)
-SUBTYPE_CONSTRAINT component_2d_location_subtypes FOR Component_2d_location;         
+SUBTYPE_CONSTRAINT component_2d_location_subtypes FOR Component_2d_location;
     ONEOF (Component_2d_edge_location,
  Component_2d_embedded_location,
  Component_2d_stacked_location,
- Component_2d_surface_location);    
+ Component_2d_surface_location);
 END_SUBTYPE_CONSTRAINT;
 
-(** Design_specific_assignment_to_assembly_usage_view_arm, 
+(** Design_specific_assignment_to_assembly_usage_view_arm,
 Design_specific_assignment_to_interconnect_usage_view_arm  and
-Assembly_module_macro_definition_arm needs to be brought together for this *)  
-SUBTYPE_CONSTRAINT component_feature_to_physical_usage_view_assignment_subtypes FOR Component_feature_to_physical_usage_view_assignment;     
+Assembly_module_macro_definition_arm needs to be brought together for this *)
+SUBTYPE_CONSTRAINT component_feature_to_physical_usage_view_assignment_subtypes FOR Component_feature_to_physical_usage_view_assignment;
 ONEOF (Component_terminal_to_assembly_module_macro_terminal_assignment,
  Component_terminal_to_assembly_module_interface_terminal_assignment,
  Component_terminal_to_interconnect_module_macro_terminal_assignment,
@@ -843,15 +843,15 @@ ONEOF (Component_terminal_to_assembly_module_macro_terminal_assignment,
 END_SUBTYPE_CONSTRAINT;
 
 (** Subtypes are totally mixed and appear in various schemas - most likely this constraint will remain in some CC *)
-SUBTYPE_CONSTRAINT geometric_representation_relationship_subtypes FOR Geometric_model_relationship;     
+SUBTYPE_CONSTRAINT geometric_representation_relationship_subtypes FOR Geometric_model_relationship;
 (ONEOF (Component_part_2d_non_planar_geometric_representation_relationship,
 Shape_definition_3d_intersection,
- Shape_definition_3d_plane_projection 
- ));    
+ Shape_definition_3d_plane_projection
+ ));
 END_SUBTYPE_CONSTRAINT;
 
 (** Since this includes both lam and interconnect - I guess it will be it top most schema *)
-SUBTYPE_CONSTRAINT part_terminal_subtypes FOR Part_terminal; 
+SUBTYPE_CONSTRAINT part_terminal_subtypes FOR Part_terminal;
 ONEOF (Minimally_defined_bare_die_terminal, -- *lam*
  Assembly_module_terminal, -- *lam*
  Cable_terminal, -- *lam*
@@ -860,45 +860,45 @@ ONEOF (Minimally_defined_bare_die_terminal, -- *lam*
 END_SUBTYPE_CONSTRAINT;
 
 (** It most likely should be in TOP AP210 schema *)
-SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;  
+SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;
     ONEOF (Assembly_module_design_view,
  Interconnect_module_design_view);
 END_SUBTYPE_CONSTRAINT;
 
-(** Assembly_module_with_packaged_connector_component_arm and 
+(** Assembly_module_with_packaged_connector_component_arm and
 Assembly_module_with_interconnect_component_arm  - most likely in some Assembly CC *)
-	SUBTYPE_CONSTRAINT physical_component_interface_terminal_subtypes FOR Physical_component_interface_terminal;     
+	SUBTYPE_CONSTRAINT physical_component_interface_terminal_subtypes FOR Physical_component_interface_terminal;
 		(ONEOF (Packaged_connector_component_interface_terminal,
 		 Interconnect_component_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
 
 (** most likely some Assembly_module_design_view CC *)
-	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR Packaged_part; 
+	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR Packaged_part;
 	    (ONEOF (Minimally_defined_connector, -- Assembly_functional_interface_requirement_arm
 	 	Packaged_connector) ANDOR -- Packaged_connector_model_arm
 	 	Altered_packaged_part); -- Altered_part_arm
 	END_SUBTYPE_CONSTRAINT;
-	
-	SUBTYPE_CONSTRAINT ap210_apd_part_view_definition_subtypes FOR Part_view_definition ; 
+
+	SUBTYPE_CONSTRAINT ap210_apd_part_view_definition_subtypes FOR Part_view_definition ;
 		(ONEOF (Part_usage_view,
 		Part_design_view,
 		Stratum,
 		Physical_unit_interconnect_definition));
-	END_SUBTYPE_CONSTRAINT; 
-	
+	END_SUBTYPE_CONSTRAINT;
+
 	(** It most likely should be in Assembly_module_design_view CC *)
-	SUBTYPE_CONSTRAINT ap210_physical_component_subtypes FOR Physical_component;  
+	SUBTYPE_CONSTRAINT ap210_physical_component_subtypes FOR Physical_component;
 		(ONEOF (Assembly_module_component, --Assembly_module_with_subassembly_arm
 		Bare_die_component, -- Assembly_module_design_arm
 		Cable_component, -- Assembly_module_with_cable_component_arm
 		Interconnect_module_component, -- Assembly_module_with_interconnect_component_arm
 		Packaged_component, -- Assembly_module_design_arm
 		Routed_interconnect_component, -- Assembly_module_design_arm
-		Routed_physical_component)); -- Assembly_module_design_arm 
+		Routed_physical_component)); -- Assembly_module_design_arm
 	END_SUBTYPE_CONSTRAINT;
-	
+
 	(** It most likely should be in Assembly_module_design_view CC *)
-	SUBTYPE_CONSTRAINT ap210_part_usage_view_subtypes FOR Part_usage_view;  
+	SUBTYPE_CONSTRAINT ap210_part_usage_view_subtypes FOR Part_usage_view;
 	    ONEOF (Package,
 		 Bare_die,
 		 Cable_usage_view,
@@ -907,36 +907,36 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		 Interconnect_module_usage_view);
 	END_SUBTYPE_CONSTRAINT;
 
-(** Most likely it is in CC Interconnect_module_design_view *)    
-	SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR Laminate_component_interface_terminal; 
+(** Most likely it is in CC Interconnect_module_design_view *)
+	SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR Laminate_component_interface_terminal;
 		 (ONEOF (Printed_connector_component_interface_terminal,
 		 Component_termination_passage_interface_terminal,
 		 Land_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
 
-(** Most likely it is in CC Interconnect_module_design_view *)    
-	SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR Laminate_component_join_terminal; 
+(** Most likely it is in CC Interconnect_module_design_view *)
+	SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR Laminate_component_join_terminal;
 		 (ONEOF (Component_termination_passage_join_terminal,
 		 Land_join_terminal,
 		 Embedded_physical_component_terminal,
 		 Printed_component_join_terminal));
 	END_SUBTYPE_CONSTRAINT;
-   
+
 (** It most likely should be in Interconnect_module_design_view CC *)
-SUBTYPE_CONSTRAINT planar_projected_shape_model_subtypes FOR Planar_projected_shape_model;  
+SUBTYPE_CONSTRAINT planar_projected_shape_model_subtypes FOR Planar_projected_shape_model;
 	(ONEOF (Assembly_component_2d_shape_model ANDOR
 	 (ONEOF (Part_template_planar_shape_model,
 	 Physical_unit_planar_shape_model))));
-END_SUBTYPE_CONSTRAINT; 
+END_SUBTYPE_CONSTRAINT;
 
 (** Pre_defined_datum_symbol_arm and Layered_interconnect_module_3d_shape_arm are not linked in any way.
 Most likely it should be defined in Interconnect_module_design_view CC *)
- SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR Shape_definition_3d_intersection;  
+ SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR Shape_definition_3d_intersection;
 	 (ONEOF (Edge_segment_cross_section,
 	 Pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
 	 Pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
 	 Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
- END_SUBTYPE_CONSTRAINT;  
+ END_SUBTYPE_CONSTRAINT;
 
 RULE area_component_shape_constraint FOR
     (Area_component);
@@ -951,15 +951,15 @@ WHERE
             NOT(SIZEOF (QUERY (ac2ds <* USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT') |
               NOT('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(ac2ds))
                 )) = 0)
-              )) = 0;              
+              )) = 0;
 END_RULE;
 
-RULE physical_unit_network_definition_constraint FOR 
+RULE physical_unit_network_definition_constraint FOR
 (Physical_unit_network_definition);
 WHERE
-  WR1: SIZEOF ( QUERY ( fund <* Physical_unit_network_definition | 
+  WR1: SIZEOF ( QUERY ( fund <* Physical_unit_network_definition |
 ('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE_DESIGN_VIEW' IN TYPEOF (fund)) OR
-  (SIZEOF(USEDIN(fund,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.' + 
+  (SIZEOF(USEDIN(fund,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.' +
 'PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION')) = 0)
     )) = SIZEOF(Physical_unit_network_definition);
 END_RULE;
@@ -2182,8 +2182,8 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 END_SCHEMA;
 
 (*
-   ISO TC184/SC4/WG12 N8086 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7493
+   ISO TC184/SC4/WG12 N8420 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8086
 *)
 
 SCHEMA Assembly_module_design_arm;
@@ -2194,17 +2194,17 @@ SCHEMA Assembly_module_design_arm;
 	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
 	USE FROM Layered_interconnect_simple_template_arm;	-- ISO/TS 10303-1718
 
-	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;         
+	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;
 	    ONEOF (Bare_die_component,
 		Packaged_component,
 		Routed_interconnect_component,
-		Routed_physical_component);    
+		Routed_physical_component);
 	END_SUBTYPE_CONSTRAINT;
 
-	SUBTYPE_CONSTRAINT amd_physical_component_terminal_subtypes FOR Physical_component_terminal;         
+	SUBTYPE_CONSTRAINT amd_physical_component_terminal_subtypes FOR Physical_component_terminal;
 	    ONEOF (Bare_die_component_terminal,
 		Minimally_defined_component_terminal,
-		Packaged_component_join_terminal);    
+		Packaged_component_join_terminal);
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE assembled_feature_select = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -2213,8 +2213,8 @@ SCHEMA Assembly_module_design_arm;
  		Packaged_component_join_terminal);
 	END_TYPE;
 
-	TYPE assembly_module_or_assembly_group_component = 
-		EXTENSIBLE GENERIC_ENTITY SELECT 
+	TYPE assembly_module_or_assembly_group_component =
+		EXTENSIBLE GENERIC_ENTITY SELECT
 		(Assembly_module_design_view);
 	END_TYPE;
 
@@ -2293,9 +2293,9 @@ SCHEMA Assembly_module_design_arm;
 
   ENTITY Movable_packaged_component_join_terminal
     SUBTYPE OF (Packaged_component_join_terminal);
-      wire_terminal_length      : Length_tolerance_characteristic;
+      wire_terminal_length      : OPTIONAL Length_tolerance_characteristic;
     WHERE
-      WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | 
+      WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package |
             NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0;
   END_ENTITY;
 
@@ -2372,8 +2372,8 @@ END_SCHEMA;
 
 
 (*
-   ISO TC184/SC4/WG12 N8092 - ISO/TS 10303-1642 Assembly module usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7499
+   ISO TC184/SC4/WG12 N8422 - ISO/TS 10303-1642 Assembly module usage view - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8092
 *)
 
 SCHEMA Assembly_module_usage_view_arm;
@@ -2393,14 +2393,14 @@ SCHEMA Assembly_module_usage_view_arm;
       SELF\Part_feature.associated_definition : Assembly_module_usage_view;
       reference_terminal                      : OPTIONAL Packaged_part_interface_terminal;
       related_connector                       : OPTIONAL Next_assembly_usage;
-      SELF\Definitional_shape_element.connection_area      : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;            
+      SELF\Definitional_shape_element.connection_area      : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
     WHERE
-      WR1 : NOT EXISTS(related_connector) OR 
-            (SELF\Shape_element.containing_shape.described_element = 
+      WR1 : NOT EXISTS(related_connector) OR
+            (SELF\Shape_element.containing_shape.described_element =
              related_connector\Product_occurrence_definition_relationship.related_view);
       WR2 : NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator);
-      WR3 : EXISTS(related_connector) OR 
-            (SELF\Shape_element.containing_shape.described_element = 
+      WR3 : EXISTS(related_connector) OR
+            (SELF\Shape_element.containing_shape.described_element =
              SELF\Part_feature.associated_definition);
   END_ENTITY;
 
@@ -2421,8 +2421,8 @@ SCHEMA Assembly_module_usage_view_arm;
 
   ENTITY Layered_assembly_module_usage_view
     SUBTYPE OF (Assembly_module_usage_view);
-      maximum_negative_component_height : OPTIONAL Linear_distance;
-      maximum_positive_component_height : OPTIONAL Linear_distance;
+      maximum_negative_component_height : OPTIONAL Length_data_element;
+      maximum_positive_component_height : OPTIONAL Length_data_element;
   END_ENTITY;
 
 END_SCHEMA;
@@ -2527,6 +2527,7 @@ SCHEMA Assembly_module_with_interconnect_component_arm;
 
   ENTITY Design_view_terminal_component_shape_relationship;
       associating_component_shape          : Geometric_model;
+      source_placement                     : Axis_placement;
       associated_usage                     : conductive_interconnect_terminal_or_interconnect_component_join_terminal;
       associated_terminal_shape_definition : Geometric_model;
       associated_usage_placement           : Axis_placement;
@@ -2572,6 +2573,7 @@ SCHEMA Assembly_module_with_interconnect_component_arm;
   END_ENTITY;
 
 END_SCHEMA;
+
 (*
    ISO TC184/SC4/WG12 N8101 - ISO/TS 10303-1640 Assembly module with macro component - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7508
@@ -5781,8 +5783,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
- ISO TC184/SC4/WG12 N7978 - ISO/TS 10303-1010 Date time - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2913
+ ISO TC184/SC4/WG12 N8379 - ISO/TS 10303-1010 Date time - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7978
 *) 
 
 
@@ -5854,7 +5856,8 @@ END_ENTITY;
 
 END_SCHEMA;  -- Date_time_arm
 (*
- ISO TC184/SC4/WG12 N1093 - ISO/TS 10303-1014 Date time assignment - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8400 - ISO/TS 10303-1014 Date time assignment - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N1093
 *)
 SCHEMA Date_time_assignment_arm;
 
@@ -7880,23 +7883,30 @@ USE FROM Identification_assignment_arm; -- ISO/TS 10303-1021
     SUPERTYPE OF (ONEOF (Axis_placement_2d,
       Axis_placement_3d))
     SUBTYPE OF (Detailed_geometric_model_element);
-      origin : Cartesian_point;
-      x_axis : Direction;
-      y_axis : Direction;
+      location      : Cartesian_point;
+      axis          : OPTIONAL Direction;
+      ref_direction : OPTIONAL Direction;
     DERIVE
-      dim: INTEGER := SIZEOF(origin.coordinates);
+      dim: INTEGER := SIZEOF(location\Cartesian_point.coordinates);
     WHERE
       WR1: dim >1;
-      WR2: dim = SIZEOF(x_axis.direction_ratios);
-      WR3: dim = SIZEOF(y_axis.direction_ratios);
+      WR2: dim = SIZEOF(axis\Direction.direction_ratios);
+      WR3: dim = SIZEOF(ref_direction\Direction.direction_ratios);
   END_ENTITY;
 
   ENTITY Axis_placement_2d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
+    WHERE
+      WR1: NOT EXISTS(axis);
+      WR2: SELF\Axis_placement.dim = 2;
   END_ENTITY;
 
   ENTITY Axis_placement_3d
-    SUBTYPE OF (Axis_placement);
+    SUBTYPE OF ( Axis_placement );
+    WHERE
+      WR1: SELF\Axis_placement.dim = 3;
+-- convert to IP
+--     wr4: NOT EXISTS( axis ) OR NOT EXISTS( ref_direction ) OR ( cross_product( axis, ref_direction ).magnitude > 0 );
   END_ENTITY;
 
   ENTITY Axis_placement_mapping;
@@ -8405,8 +8415,8 @@ END_ENTITY;
 
 END_SCHEMA; -- Explicit_constraint_schema_arm
 (*
- ISO TC184/SC4/WG12 N7861 - ISO/TS 10303-1342 Expression - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7214
+ ISO TC184/SC4/WG12 N8413 - ISO/TS 10303-1342 Expression - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7861
 *)
 
 
@@ -20059,8 +20069,8 @@ SCHEMA Maths_space_arm;
 
 USE FROM Maths_value_arm;    -- ISO/TS 10303-1092
 
---TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
---END_TYPE; 
+TYPE maths_value_including_maths_space = EXTENSIBLE SELECT BASED_ON maths_value WITH (Maths_space);
+END_TYPE; 
 
 ENTITY Maths_space;
 END_ENTITY;
@@ -21458,37 +21468,36 @@ END_ENTITY;
 END_SCHEMA;   
 
 (*
-   ISO TC184/SC4/WG12 N8182 - ISO/TS 10303-1707 Package - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7577
+   ISO TC184/SC4/WG12 N8430 - ISO/TS 10303-1707 Package - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8182
 *)
 
 SCHEMA Package_arm;
 
---	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
 	USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
 	USE FROM Non_feature_shape_element_arm;
-	
+
 
 	USE FROM Part_feature_function_arm;	-- ISO/TS 10303-1712
-	
-	REFERENCE FROM Support_resource_arm(bag_to_set);  
+
+	REFERENCE FROM Support_resource_arm(bag_to_set);
 
   	TYPE mounting_technology_type = EXTENSIBLE ENUMERATION OF
     	(surface_mount,
      	through_hole);
   	END_TYPE;
 
- 	TYPE pa_external_identification_item = SELECT BASED_ON external_identification_item WITH  
+ 	TYPE pa_external_identification_item = SELECT BASED_ON external_identification_item WITH
 		(Package_terminal_template_definition,
 		 Package);
 	END_TYPE;
- 
+
  	TYPE pa_material_item_select = SELECT BASED_ON material_item_select  WITH
    		(Package_body,
     	Package_terminal_template_definition);
-	END_TYPE; 
+	END_TYPE;
 
-	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature; 
+	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature;
 		(ONEOF (Package_body,
 		Package_body_surface,
 		Package_orientation_feature,
@@ -21516,14 +21525,14 @@ SCHEMA Package_arm;
 		(Seating_plane,
 		 Interface_plane);
 	END_TYPE;
- 
+
   ENTITY Connection_zone_in_part_feature_template_definition
   	SUBTYPE OF (Connection_zone);
   	DERIVE
   		associated_definition : Part_feature_template_definition := containing_shape.described_element;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.element_name);
-  END_ENTITY; 
+  END_ENTITY;
 
   ENTITY Connection_zone_package_interface_plane_relationship;
       interface_plane          : interface_plane_or_seating_plane;
@@ -21562,7 +21571,7 @@ SCHEMA Package_arm;
       											add_data_element(maximum_body_height_above_seating_plane,maximum_body_height_below_seating_plane),
 											    add_data_element(maximum_body_height_above_seating_plane,maximum_lead_length_below_seating_plane));
       cutout_required                       : LOGICAL := (maximum_body_height_below_seating_plane\Value_with_unit.value_component > 0.0);
-      maximum_installed_height              : length_data_element := 
+      maximum_installed_height              : length_data_element :=
       											add_data_element(maximum_body_height_above_seating_plane,maximum_seating_plane_installation_offset);
       one_orientation_feature               : LOGICAL := (SIZEOF(orientation_feature) = 1);
       two_orientation_features              : LOGICAL := (SIZEOF(orientation_feature) = 2);
@@ -21649,13 +21658,13 @@ INVERSE
 
   ENTITY Package_orientation_feature
     ABSTRACT SUPERTYPE OF (ONEOF(Primary_orientation_feature, Secondary_orientation_feature, Tertiary_orientation_feature))
-    SUBTYPE OF (Part_feature);    
+    SUBTYPE OF (Part_feature);
            associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
       SELF\Part_feature.associated_definition : Package;
     WHERE
      WR1 : 'GEOMETRIC_TOLERANCE_ARM.DATUM_FEATURE' IN TYPEOF(SELF);
   END_ENTITY;
-  
+
   ENTITY Package_terminal
     SUBTYPE OF (Part_feature, Placed_feature);
       SELF\Placed_feature.definition 		  : Package_terminal_template_definition;
@@ -21663,7 +21672,7 @@ INVERSE
    INVERSE
       SELF\Part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
     WHERE
-      WR1: SIZEOF(SELF\Definitional_shape_element.surface_conditions) = 0;	  
+      WR1: SIZEOF(SELF\Definitional_shape_element.surface_conditions) = 0;
   END_ENTITY;
 
   ENTITY Package_terminal_template_definition
@@ -21678,15 +21687,15 @@ INVERSE
     DERIVE
       mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone));
       terminal_core_material : SET [0:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
-     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
-     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') |
+     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' +
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal core material')) = 1)));
       terminal_surface_material : SET [0:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
-     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
-     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') |
+     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' +
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1)));
  	INVERSE
-	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;            
+	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
       WR2 : NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
@@ -21731,14 +21740,12 @@ INVERSE
 
   ENTITY Wire_terminal
     SUBTYPE OF (Package_terminal);
-   WHERE
-    WR1 : SIZEOF(SELF\Package_terminal.feature_shape) = 0;
   END_ENTITY;
 
   ENTITY Wire_terminal_template_definition
     SUBTYPE OF (Package_terminal_template_definition);
       SELF\Package_terminal_template_definition.internal_connection_zone : SET[1:?] OF Connection_zone_in_part_feature_template_definition;
-      wire_terminal_length                                               : Length_tolerance_characteristic;
+      wire_terminal_length                                               : OPTIONAL Length_tolerance_characteristic;
   END_ENTITY;
 
   FUNCTION add_data_element(
@@ -24770,8 +24777,8 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
       SELF\Representation.context_of_items : Geometric_coordinate_space; 
       SELF\Representation.items            : SET [1:1] OF Axis_placement_3d; 
     DERIVE
-      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.origin;
-      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.x_axis;
+      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
+      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.ref_direction;
     INVERSE 
       tables       : SET[1:?] OF Laminate_table FOR basis; 
       orientations : SET[1:?] OF Ply_orientation_angle FOR rep_2;

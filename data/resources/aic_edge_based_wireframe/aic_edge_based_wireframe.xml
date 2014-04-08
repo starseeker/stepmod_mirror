@@ -1,148 +1,62 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-501"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/aic_edge_based_wireframe/aic_edge_based_wireframe.exp"/>
-
-  <schema name="aic_edge_based_wireframe">
-    <interface
-      kind="use"
-      schema="geometric_model_schema">
-      <interfaced.item
-        name="edge_based_wireframe_model"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="b_spline_curve_with_knots"/>
-      <interfaced.item
-        name="bezier_curve"/>
-      <interfaced.item
-        name="cartesian_transformation_operator_3d"/>
-      <interfaced.item
-        name="circle"/>
-      <interfaced.item
-        name="conic"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="curve_replica"/>
-      <interfaced.item
-        name="ellipse"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-      <interfaced.item
-        name="hyperbola"/>
-      <interfaced.item
-        name="line"/>
-      <interfaced.item
-        name="offset_curve_3d"/>
-      <interfaced.item
-        name="parabola"/>
-      <interfaced.item
-        name="point"/>
-      <interfaced.item
-        name="point_replica"/>
-      <interfaced.item
-        name="polyline"/>
-      <interfaced.item
-        name="quasi_uniform_curve"/>
-      <interfaced.item
-        name="rational_b_spline_curve"/>
-      <interfaced.item
-        name="uniform_curve"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_representation_schema">
-      <interfaced.item
-        name="shape_representation"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="topology_schema">
-      <interfaced.item
-        name="edge_curve"/>
-      <interfaced.item
-        name="vertex_point"/>
-    </interface>
-
-    <entity
-      name="edge_based_wireframe_shape_representation"
-      supertypes="shape_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL', 'AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM', 'AIC_EDGE_BASED_WIREFRAME.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL', 'AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (  QUERY ( ebwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF (  QUERY ( edges &lt;* eb.ces_edges| NOT ('AIC_EDGE_BASED_WIREFRAME.EDGE_CURVE' IN TYPEOF (edges)) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (  QUERY ( ebwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF (  QUERY ( pline_edges &lt;*  QUERY ( edges &lt;* eb.ces_edges| ('AIC_EDGE_BASED_WIREFRAME.POLYLINE' IN TYPEOF (edges\edge_curve.edge_geometry)) )| NOT ( SIZEOF (pline_edges\edge_curve.edge_geometry\polyline.points) &gt; 2) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (  QUERY ( ebwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF (  QUERY ( edges &lt;* eb.ces_edges| NOT (('AIC_EDGE_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (edges.edge_start)) AND ('AIC_EDGE_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (edges.edge_end))) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (  QUERY ( ebwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF (  QUERY ( edges &lt;* eb.ces_edges| NOT valid_wireframe_edge_curve(edges\edge_curve.edge_geometry) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (  QUERY ( ebwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF (  QUERY ( edges &lt;* eb.ces_edges| NOT (valid_wireframe_vertex_point(edges.edge_start\vertex_point.vertex_geometry) AND valid_wireframe_vertex_point(edges.edge_end\vertex_point.vertex_geometry)) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR8"
-        expression="SIZEOF (  QUERY ( mi &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_EDGE_BASED_WIREFRAME.' + 'EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0">
-      </where>
-      <where
-        label="WR9"
-        expression="SELF.context_of_items\geometric_representation_context.coordinate_space_dimension = 3">
-      </where>
-    </entity>
-
-    <function
-      name="valid_wireframe_edge_curve">
-      <parameter
-        name="crv">
-        <typename
-          name="curve"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.LINE', 'AIC_EDGE_BASED_WIREFRAME.CONIC', 'AIC_EDGE_BASED_WIREFRAME.B_SPLINE_CURVE', 'AIC_EDGE_BASED_WIREFRAME.POLYLINE' ] * TYPEOF (crv)) = 1 THEN 
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-501">
+   <application name="JSDAI" owner="LKSoft" source="aic_edge_based_wireframe schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_edge_based_wireframe">
+      <interface kind="use" schema="geometric_model_schema">
+         <interfaced.item name="edge_based_wireframe_model"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="b_spline_curve_with_knots"/>
+         <interfaced.item name="bezier_curve"/>
+         <interfaced.item name="cartesian_transformation_operator_3d"/>
+         <interfaced.item name="circle"/>
+         <interfaced.item name="conic"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="curve_replica"/>
+         <interfaced.item name="ellipse"/>
+         <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="hyperbola"/>
+         <interfaced.item name="line"/>
+         <interfaced.item name="offset_curve_3d"/>
+         <interfaced.item name="parabola"/>
+         <interfaced.item name="point"/>
+         <interfaced.item name="point_replica"/>
+         <interfaced.item name="polyline"/>
+         <interfaced.item name="quasi_uniform_curve"/>
+         <interfaced.item name="rational_b_spline_curve"/>
+         <interfaced.item name="uniform_curve"/>
+      </interface>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+      </interface>
+      <interface kind="use" schema="topology_schema">
+         <interfaced.item name="edge_curve"/>
+         <interfaced.item name="vertex_point"/>
+      </interface>
+      <entity name="edge_based_wireframe_shape_representation" supertypes="shape_representation">
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL', 'AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM', 'AIC_EDGE_BASED_WIREFRAME.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0" label="WR1"/>
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL', 'AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt;= 1" label="WR2"/>
+         <where expression="SIZEOF ( &#10;QUERY ( ebwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF ( &#10;QUERY ( edges &lt;* eb.ces_edges| NOT ('AIC_EDGE_BASED_WIREFRAME.EDGE_CURVE' IN TYPEOF (edges)) )) = 0) )) = 0) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( &#10;QUERY ( ebwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF ( &#10;QUERY ( pline_edges &lt;* &#10;QUERY ( edges &lt;* eb.ces_edges| ('AIC_EDGE_BASED_WIREFRAME.POLYLINE' IN TYPEOF (edges\edge_curve.edge_geometry)) )| NOT ( SIZEOF (pline_edges\edge_curve.edge_geometry\polyline.points) &gt; 2) )) = 0) )) = 0) )) = 0" label="WR4"/>
+         <where expression="SIZEOF ( &#10;QUERY ( ebwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF ( &#10;QUERY ( edges &lt;* eb.ces_edges| NOT (('AIC_EDGE_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (edges.edge_start)) AND ('AIC_EDGE_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (edges.edge_end))) )) = 0) )) = 0) )) = 0" label="WR5"/>
+         <where expression="SIZEOF ( &#10;QUERY ( ebwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF ( &#10;QUERY ( edges &lt;* eb.ces_edges| NOT valid_wireframe_edge_curve(edges\edge_curve.edge_geometry) )) = 0) )) = 0) )) = 0" label="WR6"/>
+         <where expression="SIZEOF ( &#10;QUERY ( ebwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.EDGE_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( eb &lt;* ebwm\edge_based_wireframe_model.ebwm_boundary| NOT ( SIZEOF ( &#10;QUERY ( edges &lt;* eb.ces_edges| NOT (valid_wireframe_vertex_point(edges.edge_start\vertex_point.vertex_geometry) AND valid_wireframe_vertex_point(edges.edge_end\vertex_point.vertex_geometry)) )) = 0) )) = 0) )) = 0" label="WR7"/>
+         <where expression="SIZEOF ( &#10;QUERY ( mi &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_EDGE_BASED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_EDGE_BASED_WIREFRAME.' + 'EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0" label="WR8"/>
+         <where expression="SELF.context_of_items\geometric_representation_context.coordinate_space_dimension = 3" label="WR9"/>
+      </entity>
+      <function name="valid_wireframe_edge_curve">
+         <parameter name="crv">
+            <typename name="curve"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF SIZEOF ([ 'AIC_EDGE_BASED_WIREFRAME.LINE', 'AIC_EDGE_BASED_WIREFRAME.CONIC', 'AIC_EDGE_BASED_WIREFRAME.B_SPLINE_CURVE', 'AIC_EDGE_BASED_WIREFRAME.POLYLINE' ] * TYPEOF (crv)) = 1 THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_EDGE_BASED_WIREFRAME.CURVE_REPLICA' IN TYPEOF (crv) THEN 
@@ -153,33 +67,21 @@
  END_IF ;
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="valid_wireframe_vertex_point">
-      <parameter
-        name="pnt">
-        <typename
-          name="point"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF 'AIC_EDGE_BASED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
+ RETURN (FALSE);</algorithm>
+      </function>
+      <function name="valid_wireframe_vertex_point">
+         <parameter name="pnt">
+            <typename name="point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF 'AIC_EDGE_BASED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_EDGE_BASED_WIREFRAME.POINT_REPLICA' IN TYPEOF (pnt) THEN 
  RETURN (valid_wireframe_vertex_point(pnt\point_replica.parent_pt));
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+ RETURN (FALSE);</algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,348 +1,143 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: aic_drawing_structure_and_administration.xml,v 1.2 2004/05/06 21:30:14 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-505"
-  rcs.date="$Date: 2004/05/06 21:30:14 $"
-  rcs.revision="$Revision: 1.2 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.7"
-    source="../data/resources/aic_drawing_structure_and_administration/aic_drawing_structure_and_administration.exp"/>
-
-  <schema name="aic_drawing_structure_and_administration">
-
-    <interface
-      kind="use"
-      schema="approval_schema">
-      <interfaced.item
-        name="approval"/>
-      <interfaced.item
-        name="approval_date_time"/>
-      <interfaced.item
-        name="approval_person_organization"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="date_time_schema">
-      <interfaced.item
-        name="calendar_date"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="drawing_definition_schema">
-      <interfaced.item
-        name="draughting_title"/>
-      <interfaced.item
-        name="drawing_revision"/>
-      <interfaced.item
-        name="drawing_sheet_revision"/>
-      <interfaced.item
-        name="drawing_sheet_revision_usage"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_2d"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="management_resources_schema">
-      <interfaced.item
-        name="approval_assignment"/>
-      <interfaced.item
-        name="contract_assignment"/>
-      <interfaced.item
-        name="document_reference"/>
-      <interfaced.item
-        name="organization_assignment"/>
-      <interfaced.item
-        name="person_and_organization_assignment"/>
-      <interfaced.item
-        name="person_assignment"/>
-      <interfaced.item
-        name="security_classification_assignment"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="person_organization_schema">
-      <interfaced.item
-        name="organizational_address"/>
-      <interfaced.item
-        name="personal_address"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="presentation_definition_schema">
-      <interfaced.item
-        name="annotation_occurrence"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="presentation_organization_schema">
-      <interfaced.item
-        name="camera_image"/>
-      <interfaced.item
-        name="presentation_size"/>
-      <interfaced.item
-        name="presentation_view"/>
-      <interfaced.item
-        name="presented_item"/>
-      <interfaced.item
-        name="presented_item_representation"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="product_definition_schema">
-      <interfaced.item
-        name="product"/>
-      <interfaced.item
-        name="product_definition"/>
-      <interfaced.item
-        name="product_definition_formation"/>
-    </interface>
-    <type name="approved_item">
-      <select
-        selectitems="drawing_revision drawing_sheet_revision">
-      </select>
-    </type>
-
-    <type name="classified_item">
-      <select
-        selectitems="drawing_revision drawing_sheet_revision">
-      </select>
-    </type>
-
-    <type name="contracted_item">
-      <select
-        selectitems="drawing_revision">
-      </select>
-    </type>
-
-    <type name="draughting_organization_item">
-      <select
-        selectitems="product_definition_formation drawing_revision drawing_sheet_revision">
-      </select>
-    </type>
-
-    <type name="draughting_presented_item_select">
-      <select
-        selectitems="product_definition_formation">
-      </select>
-    </type>
-
-    <type name="specified_item">
-      <select
-        selectitems="drawing_revision">
-      </select>
-    </type>
-
-    <entity
-      name="draughting_approval_assignment"
-      supertypes="approval_assignment">
-      <explicit
-        name="approved_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="approved_item"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* approved_items |'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_REVISION' IN TYPEOF (item)))&lt;=1">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_contract_assignment"
-      supertypes="contract_assignment">
-      <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="contracted_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="draughting_drawing_revision"
-      supertypes="drawing_revision">
-      <where
-        label="WR1"
-        expression="(SIZEOF (USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET')) &gt;= 1) AND(SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_SHEET_REVISION' IN TYPEOF (ais.area)))) = 0)">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (app_ass &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') | NOT (SIZEOF (USEDIN (app_ass.assigned_approval,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'APPROVAL_DATE_TIME.DATED_APPROVAL')) = 1))) = 0">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (app_ass &lt;* USEDIN (ais.area,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') | NOT (SIZEOF (USEDIN (app_ass.assigned_approval,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'APPROVAL_DATE_TIME.DATED_APPROVAL')) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (QUERY (app_ass &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') | NOT (SIZEOF (USEDIN (app_ass.assigned_approval,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'APPROVAL_PERSON_ORGANIZATION.AUTHORIZED_APPROVAL')) &gt;= 1))) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (app_ass &lt;* USEDIN (ais.area,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') | NOT (SIZEOF (USEDIN (app_ass.assigned_approval,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'APPROVAL_PERSON_ORGANIZATION.AUTHORIZED_APPROVAL')) &gt;= 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (USEDIN (SELF, 'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_TITLE.ITEMS')) &lt;= 1">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (USEDIN (ais.area,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'DRAUGHTING_TITLE.ITEMS')) &lt;= 1))) = 0">
-      </where>
-      <where
-        label="WR8"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (item &lt;* ais.area.items | NOT (SIZEOF (TYPEOF(item) *['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.STYLED_ITEM','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PLANAR_BOX']) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR9"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (item &lt;* ais.area.items |(SIZEOF (TYPEOF(item) *['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.STYLED_ITEM','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM']) = 1))) &gt; 0))) = 0">
-      </where>
-      <where
-        label="WR10"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (p_b &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PLANAR_BOX' IN TYPEOF(item))) | NOT (SIZEOF (USEDIN (p_b, 'AIC_DRAWING_STRUCTURE_AND_' +'ADMINISTRATION.PRESENTATION_SIZE.SIZE')) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR11"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PRESENTATION_VIEW' IN TYPEOF(mi.mapping_source.mapped_representation)))) = 0))) = 0">
-      </where>
-      <where
-        label="WR12"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (a2p &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT' IN TYPEOF(item))) | NOT (SIZEOF (USEDIN (a2p,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'MAPPED_ITEM.MAPPING_TARGET')) &gt; 0))) = 0))) = 0">
-      </where>
-      <where
-        label="WR13"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (ais.area.context_of_items. representations_in_context) = 1))) = 0">
-      </where>
-      <where
-        label="WR14"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT (SIZEOF (USEDIN (mi.mapping_source.mapped_representation,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'REPRESENTATION_MAP.MAPPED_REPRESENTATION')) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR15"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT (SIZEOF (QUERY (pv_item &lt;* mi.mapping_source. mapped_representation.items | NOT (SIZEOF (TYPEOF(pv_item) *['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'STYLED_ITEM','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.CAMERA_IMAGE','AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'AXIS2_PLACEMENT']) = 1))) = 0))) = 0))) = 0">
-      </where>
-      <where
-        label="WR16"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT (SIZEOF (QUERY (pv_item &lt;* mi.mapping_source. mapped_representation.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.CAMERA_IMAGE' IN TYPEOF(pv_item)))) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR17"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT (SIZEOF (QUERY (a2p &lt;* QUERY (pv_item &lt;* mi.mapping_source. mapped_representation.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT' IN TYPEOF(pv_item))) |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'REPRESENTATION_MAP.MAPPING_SOURCE' IN ROLESOF (a2p)))) = 1))) = 0))) = 0">
-      </where>
-      <where
-        label="WR18"
-        expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM' IN TYPEOF(item))) | NOT (SIZEOF (mi.mapping_source. mapped_representation.context_of_items. representations_in_context) = 1))) = 0))) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_organization_assignment"
-      supertypes="organization_assignment">
-      <explicit
-        name="assigned_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="draughting_organization_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="draughting_person_and_organization_assignment"
-      supertypes="person_and_organization_assignment">
-      <explicit
-        name="assigned_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="draughting_organization_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="draughting_person_assignment"
-      supertypes="person_assignment">
-      <explicit
-        name="assigned_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="draughting_organization_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="draughting_presented_item"
-      supertypes="presented_item">
-      <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="draughting_presented_item_select"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pir &lt;* USEDIN (SELF,'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +'PRESENTED_ITEM_REPRESENTATION.ITEM') | NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_REVISION' IN TYPEOF (pir.presentation)))) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_security_classification_assignment"
-      supertypes="security_classification_assignment">
-      <explicit
-        name="assigned_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="classified_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="draughting_specification_reference"
-      supertypes="document_reference">
-      <explicit
-        name="specified_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="specified_item"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(SELF.assigned_document.kind.product_data_type ='draughting specification')">
-      </where>
-    </entity>
-
-  </schema>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-505">
+   <application name="JSDAI" owner="LKSoft" source="aic_drawing_structure_and_administration schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_drawing_structure_and_administration">
+      <interface kind="use" schema="approval_schema">
+         <interfaced.item name="approval"/>
+         <interfaced.item name="approval_date_time"/>
+         <interfaced.item name="approval_person_organization"/>
+      </interface>
+      <interface kind="use" schema="date_time_schema">
+         <interfaced.item name="calendar_date"/>
+      </interface>
+      <interface kind="use" schema="drawing_definition_schema">
+         <interfaced.item name="draughting_title"/>
+         <interfaced.item name="drawing_revision"/>
+         <interfaced.item name="drawing_sheet_revision"/>
+         <interfaced.item name="drawing_sheet_revision_usage"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_2d"/>
+      </interface>
+      <interface kind="use" schema="management_resources_schema">
+         <interfaced.item name="approval_assignment"/>
+         <interfaced.item name="contract_assignment"/>
+         <interfaced.item name="document_reference"/>
+         <interfaced.item name="organization_assignment"/>
+         <interfaced.item name="person_and_organization_assignment"/>
+         <interfaced.item name="person_assignment"/>
+         <interfaced.item name="security_classification_assignment"/>
+      </interface>
+      <interface kind="use" schema="person_organization_schema">
+         <interfaced.item name="organizational_address"/>
+         <interfaced.item name="personal_address"/>
+      </interface>
+      <interface kind="use" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_occurrence"/>
+      </interface>
+      <interface kind="use" schema="presentation_organization_schema">
+         <interfaced.item name="camera_image"/>
+         <interfaced.item name="presentation_size"/>
+         <interfaced.item name="presentation_view"/>
+         <interfaced.item name="presented_item"/>
+         <interfaced.item name="presented_item_representation"/>
+      </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product"/>
+         <interfaced.item name="product_definition"/>
+         <interfaced.item name="product_definition_formation"/>
+      </interface>
+      <type name="approved_item">
+         <select selectitems="drawing_revision drawing_sheet_revision"/>
+      </type>
+      <type name="classified_item">
+         <select selectitems="drawing_revision drawing_sheet_revision"/>
+      </type>
+      <type name="contracted_item">
+         <select selectitems="drawing_revision"/>
+      </type>
+      <type name="draughting_organization_item">
+         <select selectitems="product_definition_formation drawing_revision drawing_sheet_revision"/>
+      </type>
+      <type name="draughting_presented_item_select">
+         <select selectitems="product_definition_formation"/>
+      </type>
+      <type name="specified_item">
+         <select selectitems="drawing_revision"/>
+      </type>
+      <entity name="draughting_approval_assignment" supertypes="approval_assignment">
+         <explicit name="approved_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="approved_item"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (item &lt;* approved_items |&#10;       'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_REVISION'&#10;       IN TYPEOF (item)))&lt;=1" label="WR1"/>
+      </entity>
+      <entity name="draughting_contract_assignment" supertypes="contract_assignment">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="contracted_item"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_drawing_revision" supertypes="drawing_revision">
+         <where expression="(SIZEOF (USEDIN (SELF,&#10;&#10;      'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET')) &gt;= 1)&#10;&#10;       AND &#10;&#10;    (SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;       'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') | &#10;&#10;        NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_SHEET_REVISION'&#10;&#10;        IN TYPEOF (ais.area))&#10;&#10;    )) = 0)" label="WR1"/>
+         <where expression="SIZEOF (QUERY (app_ass &lt;* USEDIN (SELF,&#10;&#10;                         'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                         'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') |&#10;&#10;       NOT (SIZEOF (USEDIN (app_ass.assigned_approval,&#10;&#10;          'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;          'APPROVAL_DATE_TIME.DATED_APPROVAL')) = 1)&#10;&#10;    )) = 0" label="WR2"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;           'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;           NOT (SIZEOF (QUERY (app_ass &lt;* USEDIN (ais.area,&#10;&#10;             'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;             'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') |&#10;&#10;        NOT (SIZEOF (USEDIN (app_ass.assigned_approval,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;            'APPROVAL_DATE_TIME.DATED_APPROVAL')) = 1)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR3"/>
+         <where expression="SIZEOF (QUERY (app_ass &lt;* USEDIN (SELF,&#10;&#10;                         'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                         'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') |&#10;&#10;       NOT (SIZEOF (USEDIN (app_ass.assigned_approval,&#10;&#10;           'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;           'APPROVAL_PERSON_ORGANIZATION.AUTHORIZED_APPROVAL')) &gt;= 1)&#10;&#10;    )) = 0" label="WR4"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;              NOT (SIZEOF (QUERY (app_ass &lt;* USEDIN (ais.area,&#10;&#10;                'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                'DRAUGHTING_APPROVAL_ASSIGNMENT.APPROVED_ITEMS') |&#10;&#10;                NOT (SIZEOF (USEDIN (app_ass.assigned_approval,&#10;&#10;                     'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                     'APPROVAL_PERSON_ORGANIZATION.AUTHORIZED_APPROVAL')) &gt;= 1)&#10;&#10;              )) = 0)&#10;&#10;    )) = 0" label="WR5"/>
+         <where expression="SIZEOF (USEDIN (SELF, 'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                          'DRAUGHTING_TITLE.ITEMS')) &lt;= 1" label="WR6"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |   &#10;&#10;             NOT (SIZEOF (USEDIN (ais.area,&#10;&#10;                          'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                          'DRAUGHTING_TITLE.ITEMS')) &lt;= 1)&#10;&#10;    )) = 0" label="WR7"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |   &#10;&#10;            NOT (SIZEOF (QUERY (item &lt;* ais.area.items |&#10;&#10;            NOT (SIZEOF (TYPEOF(item) *&#10;&#10;              ['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.STYLED_ITEM',&#10;&#10;              'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM',&#10;&#10;              'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT',&#10;&#10;              'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PLANAR_BOX']) = 1)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR8"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;           'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;            NOT (SIZEOF (QUERY (item &lt;* ais.area.items |&#10;&#10;             (SIZEOF (TYPEOF(item) *&#10;&#10;               ['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.STYLED_ITEM',&#10;&#10;                'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM']) = 1)&#10;&#10;      )) &gt; 0)&#10;&#10;    )) = 0" label="WR9"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;              NOT (SIZEOF (QUERY (p_b &lt;* &#10;&#10;                QUERY (item &lt;* ais.area.items |&#10;&#10;                  ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PLANAR_BOX' &#10;&#10;                   IN TYPEOF(item))) |&#10;&#10;                   NOT (SIZEOF (USEDIN (p_b, 'AIC_DRAWING_STRUCTURE_AND_' +&#10;&#10;                        'ADMINISTRATION.PRESENTATION_SIZE.SIZE')  ) = 1)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR10"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;           'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;            NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;           ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;           IN TYPEOF(item))) |&#10;&#10;             NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.PRESENTATION_VIEW'&#10;&#10;               IN TYPEOF(mi.mapping_source.mapped_representation))&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR11"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;              NOT (SIZEOF (QUERY (a2p &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;               ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT'&#10;&#10;              IN TYPEOF(item))) |&#10;&#10;                NOT (SIZEOF (USEDIN (a2p,&#10;&#10;                             'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                             'MAPPED_ITEM.MAPPING_TARGET')) &gt; 0)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR12"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;              NOT (SIZEOF (ais.area.context_of_items.&#10;&#10;                   representations_in_context) = 1)   )) = 0" label="WR13"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;           'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;      NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;             ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;                 IN TYPEOF(item))) |&#10;&#10;        NOT (SIZEOF (USEDIN (mi.mapping_source.mapped_representation,&#10;&#10;                        'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                        'REPRESENTATION_MAP.MAPPED_REPRESENTATION')) = 1)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR14"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;             NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;               ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;               IN TYPEOF(item))) |&#10;&#10;                 NOT (SIZEOF (QUERY (pv_item &lt;* mi.mapping_source.&#10;&#10;                              mapped_representation.items |&#10;&#10;                   NOT (SIZEOF (TYPEOF(pv_item) *&#10;&#10;                     ['AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                      'STYLED_ITEM',&#10;&#10;                      'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.CAMERA_IMAGE',&#10;&#10;                      'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                      'AXIS2_PLACEMENT']) = 1)&#10;&#10;        )) = 0)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR15"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;            NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;                ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;                IN TYPEOF(item))) |&#10;&#10;                NOT (SIZEOF (QUERY (pv_item &lt;* mi.mapping_source.&#10;&#10;                             mapped_representation.items |&#10;&#10;                    ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.CAMERA_IMAGE'&#10;&#10;                    IN TYPEOF(pv_item))&#10;&#10;                )) = 1)&#10;&#10;            )) = 0)&#10;&#10;    )) = 0" label="WR16"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;              NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;                ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;                IN TYPEOF(item))) |&#10;&#10;                NOT (SIZEOF (QUERY (a2p &lt;* QUERY (pv_item &lt;* mi.mapping_source.&#10;&#10;                       mapped_representation.items |&#10;&#10;                    ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AXIS2_PLACEMENT'&#10;&#10;                      IN TYPEOF(pv_item))) |&#10;&#10;                     ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;&#10;                      'REPRESENTATION_MAP.MAPPING_SOURCE' IN ROLESOF (a2p))&#10;&#10;                  )) = 1)&#10;&#10;              )) = 0)&#10;&#10;    )) = 0" label="WR17"/>
+         <where expression="SIZEOF (QUERY (ais &lt;* USEDIN (SELF,&#10;&#10;            'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.AREA_IN_SET.IN_SET') |&#10;&#10;             NOT (SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* ais.area.items |&#10;&#10;                 ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.MAPPED_ITEM'&#10;&#10;                 IN TYPEOF(item))) |&#10;&#10;        NOT (SIZEOF (mi.mapping_source.&#10;&#10;                     mapped_representation.context_of_items.&#10;&#10;                     representations_in_context) = 1)&#10;&#10;      )) = 0)&#10;&#10;    )) = 0" label="WR18"/>
+      </entity>
+      <entity name="draughting_organization_assignment" supertypes="organization_assignment">
+         <explicit name="assigned_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="draughting_organization_item"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_person_and_organization_assignment" supertypes="person_and_organization_assignment">
+         <explicit name="assigned_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="draughting_organization_item"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_person_assignment" supertypes="person_assignment">
+         <explicit name="assigned_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="draughting_organization_item"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_presented_item" supertypes="presented_item">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="draughting_presented_item_select"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (pir &lt;* USEDIN (SELF,&#10;                'AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.' +&#10;                'PRESENTED_ITEM_REPRESENTATION.ITEM') |&#10;          NOT ('AIC_DRAWING_STRUCTURE_AND_ADMINISTRATION.DRAWING_REVISION'&#10;                IN TYPEOF (pir.presentation)) )) = 0" label="WR1"/>
+      </entity>
+      <entity name="draughting_security_classification_assignment" supertypes="security_classification_assignment">
+         <explicit name="assigned_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="classified_item"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_specification_reference" supertypes="document_reference">
+         <explicit name="specified_items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="specified_item"/>
+         </explicit>
+         <where expression="(SELF.assigned_document.kind.product_data_type =&#10;        'draughting specification')" label="WR1"/>
+      </entity>
+   </schema>
 </express>

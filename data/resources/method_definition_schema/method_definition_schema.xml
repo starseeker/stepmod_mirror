@@ -1,248 +1,114 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-49"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/method_definition_schema/method_definition_schema.exp"/>
-
-  <schema name="method_definition_schema">
-    <interface
-      kind="reference"
-      schema="action_schema">
-      <interfaced.item
-        name="action_method"/>
-      <interfaced.item
-        name="action_method_relationship"/>
-      <interfaced.item
-        name="action_relationship"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="document_schema">
-      <interfaced.item
-        name="document"/>
-      <interfaced.item
-        name="document_usage_constraint"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="effectivity_schema">
-      <interfaced.item
-        name="effectivity"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="count_measure"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="process_property_schema">
-      <interfaced.item
-        name="product_definition_process"/>
-      <interfaced.item
-        name="property_process"/>
-    </interface>
-
-    <type name="relationship_with_condition">
-      <select
-        selectitems="action_method_relationship action_relationship context_dependent_action_method_relationship context_dependent_action_relationship">
-      </select>
-
-    </type>
-    <type name="process_or_process_relationship">
-      <select
-        selectitems="product_definition_process property_process relationship_with_condition">
-      </select>
-
-    </type>
-    <entity
-      name="action_method_with_associated_documents"
-      supertypes="action_method">
-      <explicit
-        name="documents">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="document"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="action_method_with_associated_documents_constrained"
-      supertypes="action_method_with_associated_documents">
-      <explicit
-        name="usage_constraints">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="document_usage_constraint"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* usage_constraints |        NOT (item.source        IN SELF\action_method_with_associated_documents.documents))) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="action_method_to_select_from"
-      supertypes="action_method">
-      <explicit
-        name="number_of_elements">
-        <typename
-          name="count_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="number_of_elements &gt;=1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (USEDIN (SELF,        'ACTION_SCHEMA.ACTION_METHOD_RELATIONSHIP.RELATING_METHOD')) &gt;=        number_of_elements">
-      </where>
-    </entity>
-
-    <entity
-      name="process_or_process_relationship_effectivity"
-      supertypes="effectivity">
-      <explicit
-        name="effective_process_or_process_relationship">
-        <typename
-          name="process_or_process_relationship"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="serial_action_method"
-      supertypes="action_method_relationship">
-    </entity>
-
-    <entity
-      name="sequential_method"
-      supertypes="serial_action_method">
-      <explicit
-        name="sequence_position">
-        <typename
-          name="count_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="concurrent_action_method"
-      supertypes="action_method_relationship">
-    </entity>
-
-    <entity
-      name="context_dependent_action_method_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="relating_relationship">
-        <typename
-          name="action_method_relationship"/>
-      </explicit>
-      <explicit
-        name="related_relationship">
-        <typename
-          name="action_method_relationship"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="relating_relationship"/>
-        <unique.attribute
-          attribute="related_relationship"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="relating_relationship.relating_method :=:       related_relationship.relating_method">
-      </where>
-    </entity>
-
-    <entity
-      name="context_dependent_action_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="relating_relationship">
-        <typename
-          name="action_relationship"/>
-      </explicit>
-      <explicit
-        name="related_relationship">
-        <typename
-          name="action_relationship"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="relating_relationship"/>
-        <unique.attribute
-          attribute="related_relationship"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="relating_relationship.relating_action :=:       related_relationship.relating_action">
-      </where>
-    </entity>
-
-    <entity
-      name="relationship_condition">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="applicable_relationships">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="relationship_with_condition"/>
-      </explicit>
-      <explicit
-        name="condition_description">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-  </schema>
-
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-49">
+   <application name="JSDAI" owner="LKSoft" source="method_definition_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="method_definition_schema">
+      <interface kind="reference" schema="action_schema">
+         <interfaced.item name="action_method"/>
+         <interfaced.item name="action_method_relationship"/>
+         <interfaced.item name="action_relationship"/>
+      </interface>
+      <interface kind="reference" schema="document_schema">
+         <interfaced.item name="document"/>
+         <interfaced.item name="document_usage_constraint"/>
+      </interface>
+      <interface kind="reference" schema="effectivity_schema">
+         <interfaced.item name="effectivity"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="count_measure"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="process_property_schema">
+         <interfaced.item name="product_definition_process"/>
+         <interfaced.item name="property_process"/>
+      </interface>
+      <type name="process_or_process_relationship">
+         <select selectitems="product_definition_process property_process relationship_with_condition"/>
+      </type>
+      <type name="relationship_with_condition">
+         <select selectitems="action_method_relationship action_relationship context_dependent_action_method_relationship context_dependent_action_relationship"/>
+      </type>
+      <entity name="action_method_to_select_from" supertypes="action_method">
+         <explicit name="number_of_elements">
+            <typename name="count_measure"/>
+         </explicit>
+         <where expression="number_of_elements &gt;=1" label="WR1"/>
+         <where expression="SIZEOF (USEDIN (SELF, &#10;       'ACTION_SCHEMA.ACTION_METHOD_RELATIONSHIP.RELATING_METHOD')) &gt;= &#10;       number_of_elements" label="WR2"/>
+      </entity>
+      <entity name="action_method_with_associated_documents" supertypes="action_method">
+         <explicit name="documents">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="document"/>
+         </explicit>
+      </entity>
+      <entity name="action_method_with_associated_documents_constrained" supertypes="action_method_with_associated_documents">
+         <explicit name="usage_constraints">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="document_usage_constraint"/>
+         </explicit>
+         <where expression="SIZEOF (QUERY (item &lt;* usage_constraints | &#10;       NOT (item.source &#10;       IN SELF\action_method_with_associated_documents.documents))) = 0" label="WR1"/>
+      </entity>
+      <entity name="concurrent_action_method" supertypes="action_method_relationship"/>
+      <entity name="context_dependent_action_method_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="relating_relationship">
+            <typename name="action_method_relationship"/>
+         </explicit>
+         <explicit name="related_relationship">
+            <typename name="action_method_relationship"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="relating_relationship"/>
+            <unique.attribute attribute="related_relationship"/>
+         </unique>
+         <where expression="relating_relationship.relating_method :=:&#10;       related_relationship.relating_method" label="WR1"/>
+      </entity>
+      <entity name="context_dependent_action_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="relating_relationship">
+            <typename name="action_relationship"/>
+         </explicit>
+         <explicit name="related_relationship">
+            <typename name="action_relationship"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="relating_relationship"/>
+            <unique.attribute attribute="related_relationship"/>
+         </unique>
+         <where expression="relating_relationship.relating_action :=:&#10;       related_relationship.relating_action" label="WR1"/>
+      </entity>
+      <entity name="process_or_process_relationship_effectivity" supertypes="effectivity">
+         <explicit name="effective_process_or_process_relationship">
+            <typename name="process_or_process_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="relationship_condition">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="applicable_relationships">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="relationship_with_condition"/>
+         </explicit>
+         <explicit name="condition_description">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="sequential_method" supertypes="serial_action_method">
+         <explicit name="sequence_position">
+            <typename name="count_measure"/>
+         </explicit>
+      </entity>
+      <entity name="serial_action_method" supertypes="action_method_relationship"/>
+   </schema>
 </express>

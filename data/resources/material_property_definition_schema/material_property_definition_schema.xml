@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-45" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="material_property_definition_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-45">
+   <application name="JSDAI" owner="LKSoft" source="material_property_definition_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="material_property_definition_schema">
       <interface kind="reference" schema="material_property_representation_schema">
          <interfaced.item name="material_property_representation"/>
@@ -37,7 +37,7 @@
             <typename name="label"/>
          </explicit>
          <explicit name="definitions">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="characterized_definition"/>
          </explicit>
       </entity>
@@ -57,17 +57,17 @@
       </entity>
       <entity name="material_property" supertypes="property_definition">
          <unique label="UR1">
-            <unique.attribute entity-ref="property_definition" attribute="name"/>
-            <unique.attribute entity-ref="property_definition" attribute="definition"/>
+            <unique.attribute attribute="SELF\property_definition.name"/>
+            <unique.attribute attribute="SELF\property_definition.definition"/>
          </unique>
-         <where label="WR1" expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT' IN&#10;          TYPEOF(SELF\property_definition.definition)) OR&#10;       (SIZEOF(bag_to_set(USEDIN(SELF ,&#10;                     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) -&#10;              QUERY(temp &lt;* bag_to_set(USEDIN(SELF ,&#10;                       'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |&#10;                       ('MATERIAL_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                      'MATERIAL_PROPERTY_REPRESENTATION' IN&#10;                      TYPEOF(temp)))) = 0)"/>
+         <where expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT' IN&#10;          TYPEOF(SELF\property_definition.definition)) OR&#10;       (SIZEOF(bag_to_set(USEDIN(SELF ,&#10;                     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) -&#10;              QUERY(temp &lt;* bag_to_set(USEDIN(SELF ,&#10;                       'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |&#10;                       ('MATERIAL_PROPERTY_REPRESENTATION_SCHEMA.' +&#10;                      'MATERIAL_PROPERTY_REPRESENTATION' IN&#10;                      TYPEOF(temp)))) = 0)" label="WR1"/>
       </entity>
       <entity name="product_material_composition_relationship" supertypes="product_definition_relationship">
          <explicit name="class">
             <typename name="label"/>
          </explicit>
          <explicit name="constituent_amount">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="characterized_product_composition_value"/>
          </explicit>
          <explicit name="composition_basis">
@@ -96,7 +96,7 @@
             <typename name="property_definition_relationship"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="property_definition"/>
          </parameter>
          <parameter name="specific_relation">
@@ -118,7 +118,7 @@
          specific_relation IN TYPEOF (pd));
   REPEAT I := 1 TO HIINDEX(x);             -- pre-checked loop
     IF NOT acyclic_property_definition_relationship
-      (x[I],
+      (x[i],
        relatives + relation.relating_property_definition,
        specific_relation) THEN
       RETURN(FALSE);

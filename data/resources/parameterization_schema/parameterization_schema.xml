@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-108" rcs.date="$Date: 2008/11/28 13:52:23 $" rcs.revision="$Revision: 1.3 $" description.file="descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="parameterization_schema schema_instance"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-108">
+   <application name="JSDAI" owner="LKSoft" source="parameterization_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="parameterization_schema">
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="identifier"/>
@@ -32,24 +32,24 @@
       </interface>
       <type name="attribute_identifier">
          <typename name="identifier"/>
-         <where label="WR1" expression="validate_attribute_id(SELF)"/>
+         <where expression="validate_attribute_id(SELF)" label="WR1"/>
       </type>
       <entity name="bound_parameter_environment" supertypes="environment">
-         <where label="WR1" expression="('PARAMETERIZATION_SCHEMA.BOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' IN&#10;    TYPEOF(SELF\environment.semantics))"/>
+         <where expression="('PARAMETERIZATION_SCHEMA.BOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' IN&#10;    TYPEOF(SELF\environment.semantics))" label="WR1"/>
       </entity>
       <entity name="bound_variational_parameter" supertypes="variational_parameter">
-         <derived name="parameter_current_value" expression="?">
+         <derived expression="?" name="parameter_current_value">
             <typename name="maths_value"/>
             <redeclaration entity-ref="variational_parameter"/>
          </derived>
-         <where label="WR1" expression="'PARAMETERIZATION_SCHEMA.BOUND_PARAMETER_ENVIRONMENT'&#10;    IN TYPEOF(SELF\generic_variable.interpretation)"/>
+         <where expression="'PARAMETERIZATION_SCHEMA.BOUND_PARAMETER_ENVIRONMENT'&#10;    IN TYPEOF(SELF\generic_variable.interpretation)" label="WR1"/>
       </entity>
       <entity name="fixed_instance_attribute_set" supertypes="variational_representation_item">
          <explicit name="fixed_attributes">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="instance_attribute_reference"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | &#10;    SIZEOF(QUERY(r &lt;* q.items |&#10;    'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' &#10;    IN TYPEOF(r))) &gt; 1)) = 0"/>
+         <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | &#10;    SIZEOF(QUERY(r &lt;* q.items |&#10;    'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' &#10;    IN TYPEOF(r))) &gt; 1)) = 0" label="WR1"/>
       </entity>
       <entity name="generated_finite_numeric_space" supertypes="finite_space">
          <explicit name="start_value">
@@ -61,12 +61,12 @@
          <explicit name="increment_number">
             <typename name="positive_integer"/>
          </explicit>
-         <derived name="members" expression="make_numeric_set(start_value, increment_value, increment_number)">
-            <aggregate type="SET" lower="2" upper="?"/>
+         <derived expression="make_numeric_set(start_value, increment_value, increment_number)" name="members">
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="maths_number"/>
             <redeclaration entity-ref="finite_space"/>
          </derived>
-         <where label="WR1" expression="increment_value &lt;&gt; 0.0"/>
+         <where expression="increment_value &lt;&gt; 0.0" label="WR1"/>
       </entity>
       <entity name="instance_attribute_reference" supertypes="variable_semantics">
          <explicit name="attribute_name">
@@ -77,21 +77,21 @@
          </explicit>
       </entity>
       <entity name="unbound_parameter_environment" supertypes="environment">
-         <where label="WR1" expression="('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER_SEMANTICS' IN&#10;    TYPEOF(SELF\environment.semantics))"/>
+         <where expression="('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER_SEMANTICS' IN&#10;    TYPEOF(SELF\environment.semantics))" label="WR1"/>
       </entity>
       <entity name="unbound_variational_parameter" supertypes="variational_parameter">
-         <where label="WR1" expression="'PARAMETERIZATION_SCHEMA.UNBOUND_PARAMETER_ENVIRONMENT' &#10;    IN TYPEOF(SELF\generic_variable.interpretation)"/>
+         <where expression="'PARAMETERIZATION_SCHEMA.UNBOUND_PARAMETER_ENVIRONMENT' &#10;    IN TYPEOF(SELF\generic_variable.interpretation)" label="WR1"/>
       </entity>
       <entity name="unbound_variational_parameter_semantics" supertypes="variable_semantics"/>
-      <entity name="variational_parameter" abstract.supertype="YES" supertypes="variational_representation_item maths_variable" super.expression="ONEOF (bound_variational_parameter, unbound_variational_parameter)">
+      <entity abstract.supertype="YES" name="variational_parameter" super.expression="ONEOF (bound_variational_parameter, unbound_variational_parameter)" supertypes="variational_representation_item maths_variable">
          <explicit name="parameter_description" optional="YES">
             <typename name="text"/>
          </explicit>
          <explicit name="parameter_current_value">
             <typename name="maths_value"/>
          </explicit>
-         <where label="WR1" expression="member_of(parameter_current_value, &#10;    SELF\maths_variable.values_space)"/>
-         <where label="WR2" expression="SELF\maths_variable.name = SELF\representation_item.name"/>
+         <where expression="member_of(parameter_current_value, &#10;    SELF\maths_variable.values_space)" label="WR1"/>
+         <where expression="SELF\maths_variable.name = SELF\representation_item.name" label="WR2"/>
       </entity>
       <function name="make_numeric_set">
          <parameter name="start">
@@ -103,7 +103,7 @@
          <parameter name="incs">
             <typename name="positive_integer"/>
          </parameter>
-         <aggregate type="SET" lower="2" upper="?"/>
+         <aggregate lower="2" type="SET" upper="?"/>
          <typename name="maths_number"/>
          <algorithm>LOCAL
     i : INTEGER;

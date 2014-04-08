@@ -1,120 +1,48 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-512"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/aic_faceted_brep/aic_faceted_brep.exp"/>
-
-  <schema name="aic_faceted_brep">
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="cartesian_point"/>
-      <interfaced.item
-        name="cartesian_transformation_operator_3d"/>
-      <interfaced.item
-        name="elementary_surface"/>
-      <interfaced.item
-        name="plane"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="geometric_model_schema">
-      <interfaced.item
-        name="brep_with_voids"/>
-      <interfaced.item
-        name="faceted_brep"/>
-      <interfaced.item
-        name="manifold_solid_brep"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="geometric_model_schema">
-      <interfaced.item
-        name="msb_shells"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="topology_schema">
-      <interfaced.item
-        name="closed_shell"/>
-      <interfaced.item
-        name="connected_face_set"/>
-      <interfaced.item
-        name="face_bound"/>
-      <interfaced.item
-        name="face_outer_bound"/>
-      <interfaced.item
-        name="face_surface"/>
-      <interfaced.item
-        name="oriented_closed_shell"/>
-      <interfaced.item
-        name="poly_loop"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_representation_schema">
-      <interfaced.item
-        name="shape_representation"/>
-    </interface>
-
-    <entity
-      name="faceted_brep_shape_representation"
-      supertypes="shape_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (  QUERY ( it &lt;* items| NOT ( SIZEOF ([ 'AIC_FACETED_BREP.FACETED_BREP', 'AIC_FACETED_BREP.MAPPED_ITEM', 'AIC_FACETED_BREP.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (  QUERY ( it &lt;* items| ( SIZEOF ([ 'AIC_FACETED_BREP.FACETED_BREP', 'AIC_FACETED_BREP.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt; 0">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (  QUERY ( fbrep &lt;*  QUERY ( it &lt;* items| ('AIC_FACETED_BREP.FACETED_BREP' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( csh &lt;* msb_shells(fbrep)| NOT ( SIZEOF (  QUERY ( fcs &lt;* csh\connected_face_set.cfs_faces| NOT (('AIC_FACETED_BREP.FACE_SURFACE' IN TYPEOF (fcs)) AND (('AIC_FACETED_BREP.PLANE' IN TYPEOF (fcs\face_surface.face_geometry)) AND ('AIC_FACETED_BREP.CARTESIAN_POINT' IN TYPEOF (fcs\face_surface.face_geometry\elementary_surface.position.location)))) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (  QUERY ( fbrep &lt;*  QUERY ( it &lt;* items| ('AIC_FACETED_BREP.FACETED_BREP' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( csh &lt;* msb_shells(fbrep)| NOT ( SIZEOF (  QUERY ( fcs &lt;* csh\connected_face_set.cfs_faces| NOT ( SIZEOF (  QUERY ( bnds &lt;* fcs.bounds| ('AIC_FACETED_BREP.FACE_OUTER_BOUND' IN TYPEOF (bnds)) )) = 1) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (  QUERY ( msb &lt;*  QUERY ( it &lt;* items| ('AIC_FACETED_BREP.MANIFOLD_SOLID_BREP' IN TYPEOF (it)) )| ('AIC_FACETED_BREP.ORIENTED_CLOSED_SHELL' IN TYPEOF (msb\manifold_solid_brep.outer)) )) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (  QUERY ( brv &lt;*  QUERY ( it &lt;* items| ('AIC_FACETED_BREP.BREP_WITH_VOIDS' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( csh &lt;* brv\brep_with_voids.voids| csh\oriented_closed_shell.orientation )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (  QUERY ( mi &lt;*  QUERY ( it &lt;* items| ('AIC_FACETED_BREP.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_FACETED_BREP.FACETED_BREP_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0">
-      </where>
-    </entity>
-
-  </schema>
-
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-512">
+   <application name="JSDAI" owner="LKSoft" source="aic_faceted_brep schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_faceted_brep">
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="cartesian_transformation_operator_3d"/>
+         <interfaced.item name="elementary_surface"/>
+         <interfaced.item name="plane"/>
+      </interface>
+      <interface kind="use" schema="geometric_model_schema">
+         <interfaced.item name="brep_with_voids"/>
+         <interfaced.item name="faceted_brep"/>
+         <interfaced.item name="manifold_solid_brep"/>
+      </interface>
+      <interface kind="use" schema="topology_schema">
+         <interfaced.item name="closed_shell"/>
+         <interfaced.item name="connected_face_set"/>
+         <interfaced.item name="face_bound"/>
+         <interfaced.item name="face_outer_bound"/>
+         <interfaced.item name="face_surface"/>
+         <interfaced.item name="oriented_closed_shell"/>
+         <interfaced.item name="poly_loop"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+      </interface>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <interface kind="reference" schema="geometric_model_schema">
+         <interfaced.item name="msb_shells"/>
+      </interface>
+      <entity name="faceted_brep_shape_representation" supertypes="shape_representation">
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* items| NOT ( SIZEOF ([ 'AIC_FACETED_BREP.FACETED_BREP', 'AIC_FACETED_BREP.MAPPED_ITEM', 'AIC_FACETED_BREP.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0" label="WR1"/>
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* items| ( SIZEOF ([ 'AIC_FACETED_BREP.FACETED_BREP', 'AIC_FACETED_BREP.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt; 0" label="WR2"/>
+         <where expression="SIZEOF ( &#10;QUERY ( fbrep &lt;* &#10;QUERY ( it &lt;* items| ('AIC_FACETED_BREP.FACETED_BREP' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( csh &lt;* msb_shells(fbrep)| NOT ( SIZEOF ( &#10;QUERY ( fcs &lt;* csh\connected_face_set.cfs_faces| NOT (('AIC_FACETED_BREP.FACE_SURFACE' IN TYPEOF (fcs)) AND (('AIC_FACETED_BREP.PLANE' IN TYPEOF (fcs\face_surface.face_geometry)) AND ('AIC_FACETED_BREP.CARTESIAN_POINT' IN TYPEOF (fcs\face_surface.face_geometry\elementary_surface.position.location)))) )) = 0) )) = 0) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( &#10;QUERY ( fbrep &lt;* &#10;QUERY ( it &lt;* items| ('AIC_FACETED_BREP.FACETED_BREP' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( csh &lt;* msb_shells(fbrep)| NOT ( SIZEOF ( &#10;QUERY ( fcs &lt;* csh\connected_face_set.cfs_faces| NOT ( SIZEOF ( &#10;QUERY ( bnds &lt;* fcs.bounds| ('AIC_FACETED_BREP.FACE_OUTER_BOUND' IN TYPEOF (bnds)) )) = 1) )) = 0) )) = 0) )) = 0" label="WR4"/>
+         <where expression="SIZEOF ( &#10;QUERY ( msb &lt;* &#10;QUERY ( it &lt;* items| ('AIC_FACETED_BREP.MANIFOLD_SOLID_BREP' IN TYPEOF (it)) )| ('AIC_FACETED_BREP.ORIENTED_CLOSED_SHELL' IN TYPEOF (msb\manifold_solid_brep.outer)) )) = 0" label="WR5"/>
+         <where expression="SIZEOF ( &#10;QUERY ( brv &lt;* &#10;QUERY ( it &lt;* items| ('AIC_FACETED_BREP.BREP_WITH_VOIDS' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( csh &lt;* brv\brep_with_voids.voids| csh\oriented_closed_shell.orientation )) = 0) )) = 0" label="WR6"/>
+         <where expression="SIZEOF ( &#10;QUERY ( mi &lt;* &#10;QUERY ( it &lt;* items| ('AIC_FACETED_BREP.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_FACETED_BREP.FACETED_BREP_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0" label="WR7"/>
+      </entity>
+   </schema>
 </express>

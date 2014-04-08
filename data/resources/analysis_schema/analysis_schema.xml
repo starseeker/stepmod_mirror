@@ -1,315 +1,164 @@
-<?xml version="1.0"?>
-<express
-  language_version="2"
-  rcs.date="$Date: 2009/01/06 19:48:08 $"
-  rcs.revision="$Revision: 1.15 $" reference="ISO 10303-53"  description.file="descriptions.xml">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-  <application
-    name="GraphicalEXPRESS"
-    owner="Eurostep" url="www.eurostep.com"
-    version="1.4.0"
-    source="Part_53_DIS.vsd"/>
-
-
-  <schema name="analysis_schema">
-    <interface
-      kind="reference"
-      schema="analysis_product_relationships_schema">
-      <interfaced.item 
-        name="view_relationship"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="mesh_topology_schema">
-      <interfaced.item 
-        name="mesh"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="product_property_definition_schema">
-      <interfaced.item 
-        name="general_property"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="support_resource_schema"/>
-      <entity
-        name="behavioural_decomposition_of_numerical_model">
-
-        <explicit
-          name="parts">
-          <aggregate type="SET"
-            lower="2"
-            upper="?"/>
-
-          <typename name="numerical_model"/>
-        </explicit>
-        <explicit
-          name="whole">
-          <typename name="numerical_model"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="70"
-          ycoord="333"/>
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-53">
+   <application name="JSDAI" owner="LKSoft" source="analysis_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="analysis_schema">
+      <interface kind="reference" schema="analysis_product_relationships_schema">
+         <interfaced.item name="view_relationship"/>
+      </interface>
+      <interface kind="reference" schema="mesh_topology_schema">
+         <interfaced.item name="mesh"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="general_property"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <entity name="behavioural_decomposition_of_numerical_model">
+         <explicit name="parts">
+            <aggregate lower="2" type="SET" upper="?"/>
+            <typename name="numerical_model"/>
+         </explicit>
+         <explicit name="whole">
+            <typename name="numerical_model"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="model_action_domain"
-        supertypes="numerical_model">
-
-        <explicit
-          name="initial">
-          <typename name="model_state_domain"/>
-        </explicit>
-        <explicit
-          name="final">
-          <typename name="model_state_domain"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="276"
-          ycoord="177"/>
+      <entity name="model_action_domain" supertypes="numerical_model">
+         <explicit name="initial">
+            <typename name="model_state_domain"/>
+         </explicit>
+         <explicit name="final">
+            <typename name="model_state_domain"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="model_product_domain"
-        supertypes="numerical_model"        >
-
-        <explicit
-          name="temporal_parts">
-          <aggregate type="LIST"
-            lower="0"
-            upper="?"/>
-
-          <typename name="model_action_domain"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="282"
-          ycoord="284"/>
+      <entity name="model_product_domain" supertypes="numerical_model">
+         <explicit name="temporal_parts">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="model_action_domain"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="model_product_domain_with_mesh"
-        supertypes="model_product_domain"        >
-
-        <explicit
-          name="model_mesh">
-          <typename name="mesh"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="300"
-          ycoord="368"/>
+      <entity name="model_product_domain_with_mesh" supertypes="model_product_domain">
+         <explicit name="model_mesh">
+            <typename name="mesh"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="model_property_distribution">
-
-        <explicit
-          name="creating_software">
-          <typename name="text"/>
-        </explicit>
-        <explicit
-          name="domain">
-          <typename name="numerical_model"/>
-        </explicit>
-        <explicit
-          name="range">
-          <typename name="general_property"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="491"
-          ycoord="595"/>
+      <entity name="model_property_distribution">
+         <explicit name="creating_software">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="domain">
+            <typename name="numerical_model"/>
+         </explicit>
+         <explicit name="range">
+            <typename name="general_property"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="model_state_domain"
-        supertypes="numerical_model"        >
-
-        <graphic.element
-          page="3"
-          xcoord="276"
-          ycoord="77"/>
+      <entity name="model_state_domain" supertypes="numerical_model"/>
+      <entity name="numerical_model">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="creating_software">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="intended_analysis_code">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="text"/>
+         </explicit>
+         <explicit name="analysis_type">
+            <typename name="text"/>
+         </explicit>
+         <where expression="temporal_spatial_domain_for_model(SELF)" label="wr1"/>
       </entity>
-
-      <entity
-        name="numerical_model">
-<explicit name="id">
-          <typename name="identifier"/>
-        </explicit>
-        <explicit
-          name="name">
-          <typename name="label"/>
-        </explicit>
-        
-        <explicit
-          name="description">
-          <typename name="text"/>
-        </explicit>
-        
-        
-        <explicit
-          name="creating_software">
-          <typename name="text"/>
-        </explicit>
-        <explicit
-          name="intended_analysis_code">
-          <aggregate type="SET"
-            lower="1"
-            upper="?"/>
-
-          <typename name="text"/>
-        </explicit>
-        <explicit
-          name="analysis_type">
-          <typename name="text"/>
-        </explicit>
-        <where
-          label="wr1"
-          expression="temporal_spatial_domain_for_model(SELF)">
-        </where>
-        <graphic.element
-          page="3"
-          xcoord="226"
-          ycoord="496"/>
+      <entity name="simulation_run">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="simulated">
+            <typename name="numerical_model"/>
+         </explicit>
+         <explicit name="results">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="model_property_distribution"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="simulation_run">
-
-        
-        <explicit
-          name="id">
-          <typename name="identifier"/>
-        </explicit>
-        <explicit
-          name="name">
-          <typename name="label"/>
-        </explicit>
-        <explicit
-          name="description">
-          <typename name="text"/>
-        </explicit>
-        <explicit
-          name="simulated">
-          <typename name="numerical_model"/>
-        </explicit>
-        <explicit
-          name="results">
-          <aggregate type="SET"
-            lower="0"
-            upper="?"/>
-
-          <typename name="model_property_distribution"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="184"
-          ycoord="751"/>
+      <entity name="spatial_decomposition_of_numerical_model">
+         <explicit name="parts">
+            <aggregate lower="2" type="SET" upper="?"/>
+            <typename name="numerical_model"/>
+         </explicit>
+         <explicit name="whole">
+            <typename name="numerical_model"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="spatial_decomposition_of_numerical_model">
-
-        <explicit
-          name="parts">
-          <aggregate type="SET"
-            lower="2"
-            upper="?"/>
-
-          <typename name="numerical_model"/>
-        </explicit>
-        <explicit
-          name="whole">
-          <typename name="numerical_model"/>
-        </explicit>
-        <graphic.element
-          page="3"
-          xcoord="62"
-          ycoord="226"/>
+      <entity name="temporal_decomposition_of_model_action">
+         <explicit name="parts">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="model_action_domain"/>
+         </explicit>
+         <explicit name="whole">
+            <typename name="model_action_domain"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="temporal_decomposition_of_model_action">
-
-        <explicit
-          name="parts">
-          <aggregate type="LIST"
-            lower="2"
-            upper="?"/>
-
-          <typename name="model_action_domain"/>
-        </explicit>
-        <explicit
-          name="whole">
-          <typename name="model_action_domain"/>
-        </explicit>
-        <graphic.element
-          page="4"
-          xcoord="318"
-          ycoord="524"/>
-      </entity>
-
-      <subtype.constraint
-        name="sc1_numerical_model"
-        entity="numerical_model"
-        abstract.supertype="YES"
-        >
-        <graphic.element
-          page="3"
-          xcoord="340"
-          ycoord="524"/>
-      </subtype.constraint>
-
+      <subtype.constraint abstract.supertype="YES" entity="numerical_model" name="sc1_numerical_model"/>
       <function name="temporal_spatial_domain_for_model">
-        <parameter name="domain">
-          <typename name="numerical_model"/>
-        </parameter>
+         <parameter name="domain">
+            <typename name="numerical_model"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      spatial_set : SET OF spatial_decomposition_of_numerical_model;
+      behavioural_set : SET OF behavioural_decomposition_of_numerical_model;
+      domains : SET OF numerical_model := [];
+      viewing : BAG OF view_relationship;
+      spatial_bag : BAG OF spatial_decomposition_of_numerical_model;
+      behavioural_bag : BAG OF behavioural_decomposition_of_numerical_model;
+    END_LOCAL;
 
-        <builtintype type="BOOLEAN"/>
-        <algorithm>
-          LOCAL
-            spatial_set : SET OF spatial_decomposition_of_numerical_model;
-            behavioural_set : SET OF behavioural_decomposition_of_numerical_model;
-            domains : SET OF numerical_model := [];
-            viewing : BAG OF view_relationship;
-            spatial_bag : BAG OF spatial_decomposition_of_numerical_model;
-            behavioural_bag : BAG OF behavioural_decomposition_of_numerical_model;
-          END_LOCAL;
-
-          viewing := USEDIN(domain, &apos;ANALYSIS_PRODUCT_RELATIONSHIPS_SCHEMA.VIEW_RELATIONSHIP.VIEW&apos;);
-          IF SIZEOF(viewing) &gt; 0 THEN
-            RETURN (TRUE);
-          END_IF;
-          spatial_bag := USEDIN(domain, &apos;ANALYSIS_SCHEMA.SPATIAL_DECOMPOSITION_OF_NUMERICAL_MODEL.PARTS&apos;);
-          IF SIZEOF(spatial_bag) &gt; 0 THEN
-            spatial_set := spatial_bag;
-            REPEAT i := 1 TO HIINDEX(spatial_set);
-              domains := domains + spatial_set[i].whole;
-            END_REPEAT;
-          END_IF;
-          behavioural_bag := USEDIN(domain, &apos;ANALYSIS_SCHEMA.BEHAVIOURAL_DECOMPOSITION_OF_NUMERICAL_MODEL.PARTS&apos;);
-          IF SIZEOF(behavioural_bag) &gt; 0 THEN
-            behavioural_set := bag_to_set(behavioural_bag);
-            REPEAT i := 1 TO HIINDEX(behavioural_set);
-              domains := domains + behavioural_set[i].whole;
-            END_REPEAT;
-          END_IF;
-          IF SIZEOF(domains) &gt; 0 THEN
-            REPEAT i := 1 TO HIINDEX(domains);
-              IF temporal_spatial_domain_for_model(domains[i]) THEN
-                RETURN (TRUE);
-              END_IF;
-            END_REPEAT;
-          END_IF;
-          RETURN (FALSE);
-        </algorithm>
-
+    viewing := USEDIN(domain, 'ANALYSIS_PRODUCT_RELATIONSHIPS_SCHEMA.VIEW_RELATIONSHIP.VIEW');
+    IF SIZEOF(viewing) &gt; 0 THEN
+      RETURN (TRUE);
+    END_IF;
+    spatial_bag := USEDIN(domain, 'ANALYSIS_SCHEMA.SPATIAL_DECOMPOSITION_OF_NUMERICAL_MODEL.PARTS');
+    IF SIZEOF(spatial_bag) &gt; 0 THEN
+      spatial_set := bag_to_set(spatial_bag);
+      REPEAT i := 1 TO HIINDEX(spatial_set);
+        domains := domains + spatial_set[i].whole;
+      END_REPEAT;
+    END_IF;
+    behavioural_bag := USEDIN(domain, 'ANALYSIS_SCHEMA.BEHAVIOURAL_DECOMPOSITION_OF_NUMERICAL_MODEL.PARTS');
+    IF SIZEOF(behavioural_bag) &gt; 0 THEN
+      behavioural_set := bag_to_set(behavioural_bag);
+      REPEAT i := 1 TO HIINDEX(behavioural_set);
+        domains := domains + behavioural_set[i].whole;
+      END_REPEAT;
+    END_IF;
+    IF SIZEOF(domains) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(domains);
+        IF temporal_spatial_domain_for_model(domains[i]) THEN
+          RETURN (TRUE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN (FALSE);</algorithm>
       </function>
-  </schema>
-      
-
+   </schema>
 </express>

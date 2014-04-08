@@ -1,143 +1,62 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-510"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/aic_geometrically_bounded_wireframe/aic_geometrically_bounded_wireframe.exp"/>
-
-  <schema name="aic_geometrically_bounded_wireframe">
-    <interface
-      kind="use"
-      schema="geometric_model_schema">
-      <interfaced.item
-        name="geometric_curve_set"/>
-      <interfaced.item
-        name="geometric_set"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis1_placement"/>
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="b_spline_curve_with_knots"/>
-      <interfaced.item
-        name="bezier_curve"/>
-      <interfaced.item
-        name="cartesian_transformation_operator_3d"/>
-      <interfaced.item
-        name="circle"/>
-      <interfaced.item
-        name="composite_curve"/>
-      <interfaced.item
-        name="conic"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="curve_replica"/>
-      <interfaced.item
-        name="ellipse"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-      <interfaced.item
-        name="hyperbola"/>
-      <interfaced.item
-        name="line"/>
-      <interfaced.item
-        name="offset_curve_3d"/>
-      <interfaced.item
-        name="parabola"/>
-      <interfaced.item
-        name="point"/>
-      <interfaced.item
-        name="point_on_curve"/>
-      <interfaced.item
-        name="point_replica"/>
-      <interfaced.item
-        name="polyline"/>
-      <interfaced.item
-        name="quasi_uniform_curve"/>
-      <interfaced.item
-        name="rational_b_spline_curve"/>
-      <interfaced.item
-        name="reparametrised_composite_curve_segment"/>
-      <interfaced.item
-        name="trimmed_curve"/>
-      <interfaced.item
-        name="uniform_curve"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_representation_schema">
-      <interfaced.item
-        name="shape_representation"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-    </interface>
-
-    <entity
-      name="geometrically_bounded_wireframe_shape_representation"
-      supertypes="shape_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ( TYPEOF (it) * [ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.AXIS2_PLACEMENT_3D', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' ]) = 1) )) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| ( SIZEOF ( TYPEOF (it) * [ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' ]) = 1) )) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (  QUERY ( gcs &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( crv &lt;*  QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CURVE' IN TYPEOF (elem)) )| NOT valid_geometrically_bounded_wf_curve(crv) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (  QUERY ( gcs &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( pnts &lt;*  QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POINT' IN TYPEOF (elem)) )| NOT valid_geometrically_bounded_wf_point(pnts) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (  QUERY ( gcs &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( cnc &lt;*  QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CONIC' IN TYPEOF (elem)) )| NOT ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.AXIS2_PLACEMENT_3D' IN TYPEOF (cnc\conic.position)) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (  QUERY ( gcs &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( pline &lt;*  QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POLYLINE' IN TYPEOF (elem)) )| NOT ( SIZEOF (pline\polyline.points) &gt; 2) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (  QUERY ( mi &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.' + 'GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0">
-      </where>
-    </entity>
-
-    <function
-      name="valid_geometrically_bounded_wf_curve">
-      <parameter
-        name="crv">
-        <typename
-          name="curve"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF SIZEOF ([ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POLYLINE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.B_SPLINE_CURVE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.ELLIPSE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CIRCLE' ] * TYPEOF (crv)) = 1 THEN 
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-510">
+   <application name="JSDAI" owner="LKSoft" source="aic_geometrically_bounded_wireframe schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_geometrically_bounded_wireframe">
+      <interface kind="use" schema="geometric_model_schema">
+         <interfaced.item name="geometric_curve_set"/>
+         <interfaced.item name="geometric_set"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis1_placement"/>
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="b_spline_curve_with_knots"/>
+         <interfaced.item name="bezier_curve"/>
+         <interfaced.item name="cartesian_transformation_operator_3d"/>
+         <interfaced.item name="circle"/>
+         <interfaced.item name="composite_curve"/>
+         <interfaced.item name="conic"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="curve_replica"/>
+         <interfaced.item name="ellipse"/>
+         <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="hyperbola"/>
+         <interfaced.item name="line"/>
+         <interfaced.item name="offset_curve_3d"/>
+         <interfaced.item name="parabola"/>
+         <interfaced.item name="point"/>
+         <interfaced.item name="point_on_curve"/>
+         <interfaced.item name="point_replica"/>
+         <interfaced.item name="polyline"/>
+         <interfaced.item name="quasi_uniform_curve"/>
+         <interfaced.item name="rational_b_spline_curve"/>
+         <interfaced.item name="reparametrised_composite_curve_segment"/>
+         <interfaced.item name="trimmed_curve"/>
+         <interfaced.item name="uniform_curve"/>
+      </interface>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+      </interface>
+      <entity name="geometrically_bounded_wireframe_shape_representation" supertypes="shape_representation">
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ( TYPEOF (it) * [ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.AXIS2_PLACEMENT_3D', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' ]) = 1) )) = 0" label="WR1"/>
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| ( SIZEOF ( TYPEOF (it) * [ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' ]) = 1) )) &gt;= 1" label="WR2"/>
+         <where expression="SIZEOF ( &#10;QUERY ( gcs &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( crv &lt;* &#10;QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CURVE' IN TYPEOF (elem)) )| NOT valid_geometrically_bounded_wf_curve(crv) )) = 0) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( &#10;QUERY ( gcs &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( pnts &lt;* &#10;QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POINT' IN TYPEOF (elem)) )| NOT valid_geometrically_bounded_wf_point(pnts) )) = 0) )) = 0" label="WR4"/>
+         <where expression="SIZEOF ( &#10;QUERY ( gcs &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( cnc &lt;* &#10;QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CONIC' IN TYPEOF (elem)) )| NOT ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.AXIS2_PLACEMENT_3D' IN TYPEOF (cnc\conic.position)) )) = 0) )) = 0" label="WR5"/>
+         <where expression="SIZEOF ( &#10;QUERY ( gcs &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.GEOMETRIC_CURVE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( pline &lt;* &#10;QUERY ( elem &lt;* gcs\geometric_set.elements| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POLYLINE' IN TYPEOF (elem)) )| NOT ( SIZEOF (pline\polyline.points) &gt; 2) )) = 0) )) = 0" label="WR6"/>
+         <where expression="SIZEOF ( &#10;QUERY ( mi &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.' + 'GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0" label="WR7"/>
+      </entity>
+      <function name="valid_geometrically_bounded_wf_curve">
+         <parameter name="crv">
+            <typename name="curve"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF SIZEOF ([ 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POLYLINE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.B_SPLINE_CURVE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.ELLIPSE', 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CIRCLE' ] * TYPEOF (crv)) = 1 THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.TRIMMED_CURVE' IN TYPEOF (crv) THEN 
@@ -161,22 +80,14 @@ QUERY ( ccs &lt;* crv\composite_curve.segments| NOT valid_geometrically_bounded_
  END_IF ;
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="valid_geometrically_bounded_wf_point">
-      <parameter
-        name="pnt">
-        <typename
-          name="point"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
+ RETURN (FALSE);</algorithm>
+      </function>
+      <function name="valid_geometrically_bounded_wf_point">
+         <parameter name="pnt">
+            <typename name="point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_GEOMETRICALLY_BOUNDED_WIREFRAME.POINT_ON_CURVE' IN TYPEOF (pnt) THEN 
@@ -187,11 +98,7 @@ QUERY ( ccs &lt;* crv\composite_curve.segments| NOT valid_geometrically_bounded_
  END_IF ;
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+ RETURN (FALSE);</algorithm>
+      </function>
+   </schema>
 </express>

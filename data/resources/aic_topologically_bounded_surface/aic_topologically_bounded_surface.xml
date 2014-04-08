@@ -1,180 +1,76 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-511"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/aic_topologically_bounded_surface/aic_topologically_bounded_surface.exp"/>
-
-  <schema name="aic_topologically_bounded_surface">
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_2d"/>
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="bezier_curve"/>
-      <interfaced.item
-        name="bezier_surface"/>
-      <interfaced.item
-        name="b_spline_curve_with_knots"/>
-      <interfaced.item
-        name="b_spline_surface_with_knots"/>
-      <interfaced.item
-        name="cartesian_point"/>
-      <interfaced.item
-        name="circle"/>
-      <interfaced.item
-        name="composite_curve_on_surface"/>
-      <interfaced.item
-        name="conical_surface"/>
-      <interfaced.item
-        name="cylindrical_surface"/>
-      <interfaced.item
-        name="degenerate_toroidal_surface"/>
-      <interfaced.item
-        name="direction"/>
-      <interfaced.item
-        name="ellipse"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-      <interfaced.item
-        name="hyperbola"/>
-      <interfaced.item
-        name="line"/>
-      <interfaced.item
-        name="parabola"/>
-      <interfaced.item
-        name="pcurve"/>
-      <interfaced.item
-        name="plane"/>
-      <interfaced.item
-        name="polyline"/>
-      <interfaced.item
-        name="quasi_uniform_curve"/>
-      <interfaced.item
-        name="quasi_uniform_surface"/>
-      <interfaced.item
-        name="rational_b_spline_curve"/>
-      <interfaced.item
-        name="rational_b_spline_surface"/>
-      <interfaced.item
-        name="spherical_surface"/>
-      <interfaced.item
-        name="surface_curve"/>
-      <interfaced.item
-        name="surface_of_linear_extrusion"/>
-      <interfaced.item
-        name="surface_of_revolution"/>
-      <interfaced.item
-        name="swept_surface"/>
-      <interfaced.item
-        name="toroidal_surface"/>
-      <interfaced.item
-        name="uniform_curve"/>
-      <interfaced.item
-        name="uniform_surface"/>
-      <interfaced.item
-        name="vector"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="topology_schema">
-      <interfaced.item
-        name="edge"/>
-      <interfaced.item
-        name="edge_curve"/>
-      <interfaced.item
-        name="edge_loop"/>
-      <interfaced.item
-        name="face_bound"/>
-      <interfaced.item
-        name="face_outer_bound"/>
-      <interfaced.item
-        name="face_surface"/>
-      <interfaced.item
-        name="oriented_edge"/>
-      <interfaced.item
-        name="path"/>
-      <interfaced.item
-        name="vertex_loop"/>
-      <interfaced.item
-        name="vertex_point"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="definitional_representation"/>
-      <interfaced.item
-        name="parametric_representation_context"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="measure_schema">
-      <interfaced.item
-        name="parameter_value"/>
-    </interface>
-
-    <entity
-      name="advanced_face"
-      supertypes="face_surface">
-      <where
-        label="WR1"
-        expression="SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.ELEMENTARY_SURFACE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_SURFACE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' ] * TYPEOF (face_geometry)) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF (  QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_CURVE' IN TYPEOF (oe\oriented_edge.edge_element)) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF (  QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.LINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CONIC', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SURFACE_CURVE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_CURVE' ] * TYPEOF (oe.edge_element\edge_curve.edge_geometry)) = 1) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF (  QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ((('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (oe\edge.edge_start)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (oe\edge.edge_start\vertex_point.vertex_geometry))) AND (('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (oe\edge.edge_end)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (oe\edge.edge_end\vertex_point.vertex_geometry)))) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.ORIENTED_PATH' IN TYPEOF (elp_fbnds.bound)) )) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' IN TYPEOF (face_geometry)) OR ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.LINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CONIC', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_CURVE' ] * TYPEOF (face_geometry\swept_surface.swept_curve)) = 1)">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (  QUERY ( vlp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_LOOP' IN TYPEOF (bnds.bound)) )| NOT (('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (vlp_fbnds\face_bound.bound\vertex_loop.loop_vertex)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (vlp_fbnds\face_bound.bound\vertex_loop.loop_vertex\vertex_point.vertex_geometry))) )) = 0">
-      </where>
-      <where
-        label="WR8"
-        expression="SIZEOF (  QUERY ( bnd &lt;* bounds| NOT ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_LOOP' ] * TYPEOF (bnd.bound)) = 1) )) = 0">
-      </where>
-      <where
-        label="WR9"
-        expression="SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF (  QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SURFACE_CURVE' IN TYPEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry)) AND NOT ( SIZEOF (  QUERY ( sc_ag &lt;* oe.edge_element\edge_curve.edge_geometry\surface_curve.associated_geometry| NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.PCURVE' IN TYPEOF (sc_ag)) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR10"
-        expression="(NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' IN TYPEOF (face_geometry)) OR (NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE' IN TYPEOF (face_geometry\swept_surface.swept_curve)) OR ( SIZEOF (face_geometry\swept_surface.swept_curve\polyline.points) &gt;= 3))) AND ( SIZEOF (  QUERY ( elp_fbnds &lt;*  QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF (  QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE' IN TYPEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry)) AND NOT ( SIZEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry\polyline.points) &gt;= 3) )) = 0) )) = 0)">
-      </where>
-    </entity>
-
-  </schema>
-
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-511">
+   <application name="JSDAI" owner="LKSoft" source="aic_topologically_bounded_surface schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_topologically_bounded_surface">
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_2d"/>
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="bezier_curve"/>
+         <interfaced.item name="bezier_surface"/>
+         <interfaced.item name="b_spline_curve_with_knots"/>
+         <interfaced.item name="b_spline_surface_with_knots"/>
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="circle"/>
+         <interfaced.item name="composite_curve_on_surface"/>
+         <interfaced.item name="conical_surface"/>
+         <interfaced.item name="cylindrical_surface"/>
+         <interfaced.item name="degenerate_toroidal_surface"/>
+         <interfaced.item name="direction"/>
+         <interfaced.item name="ellipse"/>
+         <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="hyperbola"/>
+         <interfaced.item name="line"/>
+         <interfaced.item name="parabola"/>
+         <interfaced.item name="pcurve"/>
+         <interfaced.item name="plane"/>
+         <interfaced.item name="polyline"/>
+         <interfaced.item name="quasi_uniform_curve"/>
+         <interfaced.item name="quasi_uniform_surface"/>
+         <interfaced.item name="rational_b_spline_curve"/>
+         <interfaced.item name="rational_b_spline_surface"/>
+         <interfaced.item name="spherical_surface"/>
+         <interfaced.item name="surface_curve"/>
+         <interfaced.item name="surface_of_linear_extrusion"/>
+         <interfaced.item name="surface_of_revolution"/>
+         <interfaced.item name="swept_surface"/>
+         <interfaced.item name="toroidal_surface"/>
+         <interfaced.item name="uniform_curve"/>
+         <interfaced.item name="uniform_surface"/>
+         <interfaced.item name="vector"/>
+      </interface>
+      <interface kind="use" schema="topology_schema">
+         <interfaced.item name="edge"/>
+         <interfaced.item name="edge_curve"/>
+         <interfaced.item name="edge_loop"/>
+         <interfaced.item name="face_bound"/>
+         <interfaced.item name="face_outer_bound"/>
+         <interfaced.item name="face_surface"/>
+         <interfaced.item name="oriented_edge"/>
+         <interfaced.item name="path"/>
+         <interfaced.item name="vertex_loop"/>
+         <interfaced.item name="vertex_point"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="definitional_representation"/>
+         <interfaced.item name="parametric_representation_context"/>
+      </interface>
+      <interface kind="use" schema="measure_schema">
+         <interfaced.item name="parameter_value"/>
+      </interface>
+      <entity name="advanced_face" supertypes="face_surface">
+         <where expression="SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.ELEMENTARY_SURFACE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_SURFACE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' ] * TYPEOF (face_geometry)) = 1" label="WR1"/>
+         <where expression="SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF ( &#10;QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_CURVE' IN TYPEOF (oe\oriented_edge.edge_element)) )) = 0) )) = 0" label="WR2"/>
+         <where expression="SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF ( &#10;QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.LINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CONIC', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SURFACE_CURVE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_CURVE' ] * TYPEOF (oe.edge_element\edge_curve.edge_geometry)) = 1) )) = 0) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF ( &#10;QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| NOT ((('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (oe\edge.edge_start)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (oe\edge.edge_start\vertex_point.vertex_geometry))) AND (('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (oe\edge.edge_end)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (oe\edge.edge_end\vertex_point.vertex_geometry)))) )) = 0) )) = 0" label="WR4"/>
+         <where expression="SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.ORIENTED_PATH' IN TYPEOF (elp_fbnds.bound)) )) = 0" label="WR5"/>
+         <where expression="NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' IN TYPEOF (face_geometry)) OR ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.LINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CONIC', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.B_SPLINE_CURVE' ] * TYPEOF (face_geometry\swept_surface.swept_curve)) = 1)" label="WR6"/>
+         <where expression="SIZEOF ( &#10;QUERY ( vlp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_LOOP' IN TYPEOF (bnds.bound)) )| NOT (('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_POINT' IN TYPEOF (vlp_fbnds\face_bound.bound\vertex_loop.loop_vertex)) AND ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.CARTESIAN_POINT' IN TYPEOF (vlp_fbnds\face_bound.bound\vertex_loop.loop_vertex\vertex_point.vertex_geometry))) )) = 0" label="WR7"/>
+         <where expression="SIZEOF ( &#10;QUERY ( bnd &lt;* bounds| NOT ( SIZEOF ([ 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP', 'AIC_TOPOLOGICALLY_BOUNDED_SURFACE.VERTEX_LOOP' ] * TYPEOF (bnd.bound)) = 1) )) = 0" label="WR8"/>
+         <where expression="SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF ( &#10;QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SURFACE_CURVE' IN TYPEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry)) AND NOT ( SIZEOF ( &#10;QUERY ( sc_ag &lt;* oe.edge_element\edge_curve.edge_geometry\surface_curve.associated_geometry| NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.PCURVE' IN TYPEOF (sc_ag)) )) = 0) )) = 0) )) = 0" label="WR9"/>
+         <where expression="(NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.SWEPT_SURFACE' IN TYPEOF (face_geometry)) OR (NOT ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE' IN TYPEOF (face_geometry\swept_surface.swept_curve)) OR ( SIZEOF (face_geometry\swept_surface.swept_curve\polyline.points) &gt;= 3))) AND ( SIZEOF ( &#10;QUERY ( elp_fbnds &lt;* &#10;QUERY ( bnds &lt;* bounds| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.EDGE_LOOP' IN TYPEOF (bnds.bound)) )| NOT ( SIZEOF ( &#10;QUERY ( oe &lt;* elp_fbnds.bound\path.edge_list| ('AIC_TOPOLOGICALLY_BOUNDED_SURFACE.POLYLINE' IN TYPEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry)) AND NOT ( SIZEOF (oe\oriented_edge.edge_element\edge_curve.edge_geometry\polyline.points) &gt;= 3) )) = 0) )) = 0)" label="WR10"/>
+      </entity>
+   </schema>
 </express>

@@ -1,174 +1,71 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-502"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/aic_shell_based_wireframe/aic_shell_based_wireframe.exp"/>
-
-  <schema name="aic_shell_based_wireframe">
-    <interface
-      kind="use"
-      schema="geometric_model_schema">
-      <interfaced.item
-        name="shell_based_wireframe_model"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="b_spline_curve_with_knots"/>
-      <interfaced.item
-        name="bezier_curve"/>
-      <interfaced.item
-        name="cartesian_transformation_operator_3d"/>
-      <interfaced.item
-        name="circle"/>
-      <interfaced.item
-        name="conic"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="curve_replica"/>
-      <interfaced.item
-        name="ellipse"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-      <interfaced.item
-        name="hyperbola"/>
-      <interfaced.item
-        name="line"/>
-      <interfaced.item
-        name="offset_curve_3d"/>
-      <interfaced.item
-        name="parabola"/>
-      <interfaced.item
-        name="point"/>
-      <interfaced.item
-        name="point_replica"/>
-      <interfaced.item
-        name="polyline"/>
-      <interfaced.item
-        name="quasi_uniform_curve"/>
-      <interfaced.item
-        name="rational_b_spline_curve"/>
-      <interfaced.item
-        name="uniform_curve"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_representation_schema">
-      <interfaced.item
-        name="shape_representation"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="topology_schema">
-      <interfaced.item
-        name="edge_curve"/>
-      <interfaced.item
-        name="edge_loop"/>
-      <interfaced.item
-        name="path"/>
-      <interfaced.item
-        name="vertex_loop"/>
-      <interfaced.item
-        name="vertex_point"/>
-      <interfaced.item
-        name="vertex_shell"/>
-      <interfaced.item
-        name="wire_shell"/>
-    </interface>
-
-    <entity
-      name="shell_based_wireframe_shape_representation"
-      supertypes="shape_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL', 'AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM', 'AIC_SHELL_BASED_WIREFRAME.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL', 'AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( eloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF (  QUERY ( el &lt;* eloop\path.edge_list| NOT ('AIC_SHELL_BASED_WIREFRAME.EDGE_CURVE' IN TYPEOF (el.edge_element)) )) = 0) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( eloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF (  QUERY ( pline_el &lt;*  QUERY ( el &lt;* eloop\path.edge_list| ('AIC_SHELL_BASED_WIREFRAME.POLYLINE' IN TYPEOF (el.edge_element\edge_curve.edge_geometry)) )| NOT ( SIZEOF (pline_el.edge_element\edge_curve.edge_geometry\polyline.points) &gt; 2) )) = 0) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( eloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF (  QUERY ( el &lt;* eloop\path.edge_list| NOT valid_wireframe_edge_curve(el.edge_element\edge_curve.edge_geometry) )) = 0) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( eloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF (  QUERY ( el &lt;* eloop\path.edge_list| NOT (('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (el.edge_element.edge_start)) AND ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (el.edge_element.edge_end))) )) = 0) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR7"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( eloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF (  QUERY ( el &lt;* eloop\path.edge_list| NOT (valid_wireframe_vertex_point(el.edge_element.edge_start\vertex_point.vertex_geometry) AND valid_wireframe_vertex_point(el.edge_element.edge_end\vertex_point.vertex_geometry)) )) = 0) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR8"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( vloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_LOOP' IN TYPEOF (wsb)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (vloop\vertex_loop.loop_vertex)) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR9"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( ws &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF (  QUERY ( vloop &lt;*  QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_LOOP' IN TYPEOF (wsb)) )| NOT valid_wireframe_vertex_point(vloop\vertex_loop.loop_vertex\vertex_point.vertex_geometry) )) = 0) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR10"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( vs &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_SHELL' IN TYPEOF (sb)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (vs\vertex_shell.vertex_shell_extent.loop_vertex)) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR11"
-        expression="SIZEOF (  QUERY ( sbwm &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( vs &lt;*  QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_SHELL' IN TYPEOF (sb)) )| NOT valid_wireframe_vertex_point(vs\vertex_shell.vertex_shell_extent.loop_vertex\vertex_point.vertex_geometry) )) = 0) )) = 0">
-      </where>
-      <where
-        label="WR12"
-        expression="SIZEOF (  QUERY ( mi &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.' + 'SHELL_BASED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0">
-      </where>
-      <where
-        label="WR13"
-        expression="SELF.context_of_items\geometric_representation_context.coordinate_space_dimension = 3">
-      </where>
-    </entity>
-
-    <function
-      name="valid_wireframe_edge_curve">
-      <parameter
-        name="crv">
-        <typename
-          name="curve"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.LINE', 'AIC_SHELL_BASED_WIREFRAME.CONIC', 'AIC_SHELL_BASED_WIREFRAME.B_SPLINE_CURVE', 'AIC_SHELL_BASED_WIREFRAME.POLYLINE' ] * TYPEOF (crv)) = 1 THEN 
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-502">
+   <application name="JSDAI" owner="LKSoft" source="aic_shell_based_wireframe schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="aic_shell_based_wireframe">
+      <interface kind="use" schema="geometric_model_schema">
+         <interfaced.item name="shell_based_wireframe_model"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="b_spline_curve_with_knots"/>
+         <interfaced.item name="bezier_curve"/>
+         <interfaced.item name="cartesian_transformation_operator_3d"/>
+         <interfaced.item name="circle"/>
+         <interfaced.item name="conic"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="curve_replica"/>
+         <interfaced.item name="ellipse"/>
+         <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="hyperbola"/>
+         <interfaced.item name="line"/>
+         <interfaced.item name="offset_curve_3d"/>
+         <interfaced.item name="parabola"/>
+         <interfaced.item name="point"/>
+         <interfaced.item name="point_replica"/>
+         <interfaced.item name="polyline"/>
+         <interfaced.item name="quasi_uniform_curve"/>
+         <interfaced.item name="rational_b_spline_curve"/>
+         <interfaced.item name="uniform_curve"/>
+      </interface>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+      </interface>
+      <interface kind="use" schema="topology_schema">
+         <interfaced.item name="edge_curve"/>
+         <interfaced.item name="edge_loop"/>
+         <interfaced.item name="path"/>
+         <interfaced.item name="vertex_loop"/>
+         <interfaced.item name="vertex_point"/>
+         <interfaced.item name="vertex_shell"/>
+         <interfaced.item name="wire_shell"/>
+      </interface>
+      <entity name="shell_based_wireframe_shape_representation" supertypes="shape_representation">
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL', 'AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM', 'AIC_SHELL_BASED_WIREFRAME.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0" label="WR1"/>
+         <where expression="SIZEOF ( &#10;QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL', 'AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt;= 1" label="WR2"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( eloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF ( &#10;QUERY ( el &lt;* eloop\path.edge_list| NOT ('AIC_SHELL_BASED_WIREFRAME.EDGE_CURVE' IN TYPEOF (el.edge_element)) )) = 0) )) = 0) )) = 0) )) = 0" label="WR3"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( eloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF ( &#10;QUERY ( pline_el &lt;* &#10;QUERY ( el &lt;* eloop\path.edge_list| ('AIC_SHELL_BASED_WIREFRAME.POLYLINE' IN TYPEOF (el.edge_element\edge_curve.edge_geometry)) )| NOT ( SIZEOF (pline_el.edge_element\edge_curve.edge_geometry\polyline.points) &gt; 2) )) = 0) )) = 0) )) = 0) )) = 0" label="WR4"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( eloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF ( &#10;QUERY ( el &lt;* eloop\path.edge_list| NOT valid_wireframe_edge_curve(el.edge_element\edge_curve.edge_geometry) )) = 0) )) = 0) )) = 0) )) = 0" label="WR5"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( eloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF ( &#10;QUERY ( el &lt;* eloop\path.edge_list| NOT (('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (el.edge_element.edge_start)) AND ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (el.edge_element.edge_end))) )) = 0) )) = 0) )) = 0) )) = 0" label="WR6"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( eloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.EDGE_LOOP' IN TYPEOF (wsb)) )| NOT ( SIZEOF ( &#10;QUERY ( el &lt;* eloop\path.edge_list| NOT (valid_wireframe_vertex_point(el.edge_element.edge_start\vertex_point.vertex_geometry) AND valid_wireframe_vertex_point(el.edge_element.edge_end\vertex_point.vertex_geometry)) )) = 0) )) = 0) )) = 0) )) = 0" label="WR7"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( vloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_LOOP' IN TYPEOF (wsb)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (vloop\vertex_loop.loop_vertex)) )) = 0) )) = 0) )) = 0" label="WR8"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( ws &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.WIRE_SHELL' IN TYPEOF (sb)) )| NOT ( SIZEOF ( &#10;QUERY ( vloop &lt;* &#10;QUERY ( wsb &lt;* ws\wire_shell.wire_shell_extent| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_LOOP' IN TYPEOF (wsb)) )| NOT valid_wireframe_vertex_point(vloop\vertex_loop.loop_vertex\vertex_point.vertex_geometry) )) = 0) )) = 0) )) = 0" label="WR9"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( vs &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_SHELL' IN TYPEOF (sb)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.VERTEX_POINT' IN TYPEOF (vs\vertex_shell.vertex_shell_extent.loop_vertex)) )) = 0) )) = 0" label="WR10"/>
+         <where expression="SIZEOF ( &#10;QUERY ( sbwm &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.SHELL_BASED_WIREFRAME_MODEL' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( vs &lt;* &#10;QUERY ( sb &lt;* sbwm\shell_based_wireframe_model.sbwm_boundary| ('AIC_SHELL_BASED_WIREFRAME.VERTEX_SHELL' IN TYPEOF (sb)) )| NOT valid_wireframe_vertex_point(vs\vertex_shell.vertex_shell_extent.loop_vertex\vertex_point.vertex_geometry) )) = 0) )) = 0" label="WR11"/>
+         <where expression="SIZEOF ( &#10;QUERY ( mi &lt;* &#10;QUERY ( it &lt;* SELF.items| ('AIC_SHELL_BASED_WIREFRAME.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_SHELL_BASED_WIREFRAME.' + 'SHELL_BASED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0" label="WR12"/>
+         <where expression="SELF.context_of_items\geometric_representation_context.coordinate_space_dimension = 3" label="WR13"/>
+      </entity>
+      <function name="valid_wireframe_edge_curve">
+         <parameter name="crv">
+            <typename name="curve"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF SIZEOF ([ 'AIC_SHELL_BASED_WIREFRAME.LINE', 'AIC_SHELL_BASED_WIREFRAME.CONIC', 'AIC_SHELL_BASED_WIREFRAME.B_SPLINE_CURVE', 'AIC_SHELL_BASED_WIREFRAME.POLYLINE' ] * TYPEOF (crv)) = 1 THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_SHELL_BASED_WIREFRAME.CURVE_REPLICA' IN TYPEOF (crv) THEN 
@@ -179,33 +76,21 @@
  END_IF ;
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="valid_wireframe_vertex_point">
-      <parameter
-        name="pnt">
-        <typename
-          name="point"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
- IF 'AIC_SHELL_BASED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
+ RETURN (FALSE);</algorithm>
+      </function>
+      <function name="valid_wireframe_vertex_point">
+         <parameter name="pnt">
+            <typename name="point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF 'AIC_SHELL_BASED_WIREFRAME.CARTESIAN_POINT' IN TYPEOF (pnt) THEN 
  RETURN (TRUE);
  ELSE 
  IF 'AIC_SHELL_BASED_WIREFRAME.POINT_REPLICA' IN TYPEOF (pnt) THEN 
  RETURN (valid_wireframe_vertex_point(pnt\point_replica.parent_pt));
  END_IF ;
  END_IF ;
- RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+ RETURN (FALSE);</algorithm>
+      </function>
+   </schema>
 </express>

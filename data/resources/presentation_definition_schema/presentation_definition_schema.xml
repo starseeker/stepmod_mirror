@@ -100,7 +100,7 @@
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="curve"/>
          </explicit>
-         <where expression="(SELF\geometric_representation_item.dim = 3) OR (SIZEOF (QUERY (curve &lt;* SELF.boundaries |&#10;          NOT (&#10;              ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (curve)) OR &#10;              ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (curve)) OR &#10;              ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (curve)) &#10;                   AND (curve\b_spline_curve.closed_curve = TRUE) ) OR &#10;              ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (curve)) &#10;                   AND (curve\composite_curve.closed_curve = TRUE) ) OR &#10;              ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (curve)) &#10;                   AND (curve\polyline.points[LOINDEX(curve\polyline.points)] = &#10;                        curve\polyline.points[HIINDEX(curve\polyline.points)]) )&#10;              ) )) = 0)" label="WR1"/>
+         <where expression="(SELF\geometric_representation_item.dim = 3) OR (SIZEOF (QUERY (curve &lt;* SELF.boundaries |&#10;          NOT (&#10;              ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (curve)) OR&#10;              ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (curve)) OR&#10;              ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (curve))&#10;                   AND (curve\b_spline_curve.closed_curve = TRUE) ) OR&#10;              ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (curve))&#10;                   AND (curve\composite_curve.closed_curve = TRUE) ) OR&#10;              ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (curve))&#10;                   AND (curve\polyline.points[LOINDEX(curve\polyline.points)] =&#10;                        curve\polyline.points[HIINDEX(curve\polyline.points)]) )&#10;              ) )) = 0)" label="WR1"/>
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="annotation_fill_area_occurrence" supertypes="annotation_occurrence">
@@ -114,7 +114,7 @@
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="annotation_occurrence" super.expression="ONEOF (annotation_point_occurrence, annotation_curve_occurrence, annotation_fill_area_occurrence, annotation_text_occurrence, annotation_symbol_occurrence)" supertypes="styled_item">
          <where expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN&#10;             TYPEOF (SELF)" label="WR1"/>
-         <where expression="SIZEOF (QUERY (reps &lt;* using_representations(SELF) | &#10;        NOT('PRESENTATION_ORGANIZATION_SCHEMA.ANNOTATION_REPRESENTATION_SELECT' IN TYPEOF(reps)))) = 0" label="WR2"/>
+         <where expression="SIZEOF (QUERY (reps &lt;* using_representations(SELF) |&#10;        NOT('PRESENTATION_ORGANIZATION_SCHEMA.ANNOTATION_REPRESENTATION_SELECT' IN TYPEOF(reps)))) = 0" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="annotation_occurrence_relationship">
          <explicit name="name" optional="NO">
@@ -298,25 +298,25 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_record_field_representation" supertypes="symbol_representation">
-         <where expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                     'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0) &#10;                        OR &#10;           (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                                                   'REPRESENTATION_MAP.'+ &#10;                                                   'MAPPED_REPRESENTATION') | &#10;            SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                                 'MAPPED_ITEM.'+&#10;                                                 'MAPPING_SOURCE') |   &#10;            SIZEOF(QUERY( rep &lt;* using_representations (mi) |                              &#10;                                          'PRESENTATION_DEFINITION_SCHEMA.'+&#10;                                          'TABLE_RECORD_REPRESENTATION' IN &#10;                                          TYPEOF (rep))) &gt; 0&#10;            )) &gt; 0))  &#10;               &gt; 0)" label="WR1"/>
+         <where expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+&#10;                     'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0)&#10;                        OR&#10;           (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+&#10;                                                   'REPRESENTATION_MAP.'+&#10;                                                   'MAPPED_REPRESENTATION') |&#10;            SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                                 'MAPPED_ITEM.'+&#10;                                                 'MAPPING_SOURCE') |&#10;            SIZEOF(QUERY( rep &lt;* using_representations (mi) |&#10;                                          'PRESENTATION_DEFINITION_SCHEMA.'+&#10;                                          'TABLE_RECORD_REPRESENTATION' IN&#10;                                          TYPEOF (rep))) &gt; 0&#10;            )) &gt; 0))&#10;               &gt; 0)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_record_field_representation_with_clipping_box" supertypes="table_record_field_representation">
          <explicit name="clipping_box" optional="NO">
             <typename name="planar_box"/>
          </explicit>
-         <where expression="item_in_context (SELF.clipping_box, &#10;                            SELF\representation.context_of_items)" label="WR1"/>
+         <where expression="item_in_context (SELF.clipping_box,&#10;                            SELF\representation.context_of_items)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_record_representation" supertypes="symbol_representation">
-         <where expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                                'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0) &#10;                        OR &#10;           (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                                                   'REPRESENTATION_MAP.'+ &#10;                                                   'MAPPED_REPRESENTATION') | &#10;            SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                                 'MAPPED_ITEM.'+&#10;                                                 'MAPPING_SOURCE') |   &#10;&#9;        SIZEOF(QUERY( rep &lt;* using_representations (mi) |                              &#10;&#9;                             'PRESENTATION_DEFINITION_SCHEMA.'+&#10;&#9;                              'TABLE_REPRESENTATION' IN &#10;&#9;                              TYPEOF (rep))) &gt; 0&#10;&#10;            )) &gt; 0))  &#10;               &gt; 0)" label="WR1"/>
-         <where expression="(SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                'REPRESENTATION_RELATIONSHIP.REP_1') | &#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) &#10;            )) = 0) AND &#10;            (SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                 'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) &#10;            )) = 0)" label="WR2"/>
+         <where expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+&#10;                                'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0)&#10;                        OR&#10;           (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+&#10;                                                   'REPRESENTATION_MAP.'+&#10;                                                   'MAPPED_REPRESENTATION') |&#10;            SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                                 'MAPPED_ITEM.'+&#10;                                                 'MAPPING_SOURCE') |&#10;&#9;        SIZEOF(QUERY( rep &lt;* using_representations (mi) |&#10;&#9;                             'PRESENTATION_DEFINITION_SCHEMA.'+&#10;&#9;                              'TABLE_REPRESENTATION' IN&#10;&#9;                              TYPEOF (rep))) &gt; 0&#10;&#10;            )) &gt; 0))&#10;               &gt; 0)" label="WR1"/>
+         <where expression="(SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))&#10;            )) = 0) AND&#10;            (SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                 'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))&#10;            )) = 0)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_representation" supertypes="symbol_representation">
-         <where expression="(SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                'REPRESENTATION_RELATIONSHIP.REP_1') | &#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) &#10;            )) = 0) AND &#10;            (SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                      'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr)) &#10;            )) = 0)" label="WR1"/>
+         <where expression="(SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                                'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))&#10;            )) = 0) AND&#10;            (SIZEOF (QUERY (trr &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                                      'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;            NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION_RELATIONSHIP' IN TYPEOF (trr))&#10;            )) = 0)" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_representation_relationship" supertypes="symbol_representation_relationship">
-         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;            TYPEOF (SELF\representation_relationship.rep_1))   &#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR1"/>
-         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_1))   &#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR2"/>
-         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_1)) &#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR3"/>
+         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;            TYPEOF (SELF\representation_relationship.rep_1))&#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR1"/>
+         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_1))&#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR2"/>
+         <where expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_1))&#10;           OR&#10;           ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;           TYPEOF (SELF\representation_relationship.rep_2))" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="table_text_relationship" supertypes="annotation_occurrence_relationship">
          <explicit name="field" optional="NO">
@@ -378,7 +378,7 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
          <where expression="SIZEOF (&#10;         QUERY (item &lt;* SELF\representation.items |&#10;           NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *&#10;                 TYPEOF (item)) = 0)&#10;         )) &gt;= 1" label="WR1"/>
-         <where expression="SIZEOF (&#10;         QUERY (a2p &lt;* &#10;           QUERY (item &lt;* SELF\representation.items | &#10;             'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN TYPEOF (item)) |&#10;           NOT ((SIZEOF (&#10;             QUERY (at &lt;* &#10;               QUERY (item &lt;* SELF\representation.items | &#10;                  'PRESENTATION_DEFINITION_SCHEMA.' + &#10;                  'ANNOTATION_TEXT' IN TYPEOF (item)) | &#10;               (at\mapped_item.mapping_target :=: a2p))) &gt;= 1) OR&#10;           (SIZEOF (&#10;             QUERY (atc &lt;* &#10;               QUERY (item &lt;* SELF\representation.items |&#10;                 'PRESENTATION_DEFINITION_SCHEMA.' + &#10;                 'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) | &#10;               (atc\mapped_item.mapping_target :=: a2p))) &gt;= 1)&#10;          ))) = 0" label="WR2"/>
+         <where expression="SIZEOF (&#10;         QUERY (a2p &lt;*&#10;           QUERY (item &lt;* SELF\representation.items |&#10;             'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN TYPEOF (item)) |&#10;           NOT ((SIZEOF (&#10;             QUERY (at &lt;*&#10;               QUERY (item &lt;* SELF\representation.items |&#10;                  'PRESENTATION_DEFINITION_SCHEMA.' +&#10;                  'ANNOTATION_TEXT' IN TYPEOF (item)) |&#10;               (at\mapped_item.mapping_target :=: a2p))) &gt;= 1) OR&#10;           (SIZEOF (&#10;             QUERY (atc &lt;*&#10;               QUERY (item &lt;* SELF\representation.items |&#10;                 'PRESENTATION_DEFINITION_SCHEMA.' +&#10;                 'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) |&#10;               (atc\mapped_item.mapping_target :=: a2p))) &gt;= 1)&#10;          ))) = 0" label="WR2"/>
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="geometric_representation_item" name="pds_geometric_representation_item_subtypes" super.expression="ONEOF (annotation_fill_area, composite_text, curve, defined_character_glyph, defined_symbol, point, symbol_target, text_literal)"/>
       <function name="acyclic_composite_text">
@@ -401,10 +401,10 @@
                           ('PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'
                            IN TYPEOF (child)));
 
-    IF (SIZEOF (local_composite_text) &gt; 0) 
+    IF (SIZEOF (local_composite_text) &gt; 0)
       THEN
         REPEAT i := 1 TO HIINDEX (local_composite_text);
-          IF (start_composite :=: local_composite_text[i]) 
+          IF (start_composite :=: local_composite_text[i])
             THEN
               RETURN (FALSE);
           END_IF;
@@ -454,27 +454,27 @@
       x : SET OF symbol_representation_relationship;
       local_children : SET OF symbol_representation;
     END_LOCAL;
- 
+
     REPEAT i:=1 TO HIINDEX(children);
       IF relation\representation_relationship.rep_1 :=: children[i] THEN
         RETURN(FALSE);
       END_IF;
     END_REPEAT;
- 
+
     x := bag_to_set (USEDIN ( relation\representation_relationship.rep_1,
                   'REPRESENTATION_SCHEMA.'+
                   'REPRESENTATION_RELATIONSHIP.'+ 'REP_2'));
     local_children := children + relation\representation_relationship.rep_1;
- 
+
     IF SIZEOF (x) &gt; 0 THEN
       REPEAT i:=1 TO HIINDEX (x);
-        IF NOT acyclic_symbol_representation_relationship(x[i] , 
+        IF NOT acyclic_symbol_representation_relationship(x[i] ,
                                                   local_children) THEN
           RETURN (FALSE);
         END_IF;
       END_REPEAT;
     END_IF;
- 
+
     RETURN (TRUE);</algorithm>
       </function>
       <function name="control_characters_free">
@@ -508,7 +508,7 @@
       mapped_item_set : SET OF mapped_item;
       table_record_rep_set : SET OF table_record_representation := [];
     END_LOCAL;
- 
+
     table_rep := table\styled_item.item\mapped_item.mapping_source.
       mapped_representation;
     mapped_item_set := QUERY(item &lt;* table_rep.items |
@@ -520,27 +520,27 @@
                            TYPEOF(item\mapped_item.mapping_source.
                                       mapped_representation ))
                        );
- 
+
     REPEAT i := 1 TO HIINDEX(mapped_item_set);
       table_record_rep_set := table_record_rep_set +
              mapped_item_set[i].mapping_source.mapped_representation;
     END_REPEAT;
- 
-    symbol_rep_rel_set := bag_to_set (USEDIN(table_rep, 
+
+    symbol_rep_rel_set := bag_to_set (USEDIN(table_rep,
                                  'REPRESENTATION_SCHEMA.'+
                                  'REPRESENTATION_RELATIONSHIP.REP_1'));
- 
+
     REPEAT i := 1 TO HIINDEX(symbol_rep_rel_set);
        table_record_rep_set := table_record_rep_set +
                 symbol_rep_rel_set[i]\representation_relationship.rep_2;
     END_REPEAT;
- 
+
     IF SIZEOF(QUERY( table_record_rep &lt;* table_record_rep_set |
                 (SIZEOF(QUERY( rep_rel &lt;* USEDIN(table_record_rep,
                               'REPRESENTATION_SCHEMA.'+
                               'REPRESENTATION_RELATIONSHIP.REP_1') |
                          ('PRESENTATION_DEFINITION_SCHEMA.' +
-                         'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(rep_rel)) AND  
+                         'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(rep_rel)) AND
                          (rep_rel.rep_2 :=: field)
                          )) &gt; 0)
                          OR
@@ -554,7 +554,7 @@
                )) = 0 THEN
       RETURN(FALSE);
     END_IF;
- 
+
     RETURN(TRUE);</algorithm>
       </function>
    </schema>

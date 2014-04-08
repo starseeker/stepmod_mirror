@@ -1,381 +1,195 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-49"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/process_property_schema/process_property_schema.exp"/>
-
-  <schema name="process_property_schema">
-    <interface
-      kind="reference"
-      schema="action_schema">
-      <interfaced.item
-        name="action"/>
-      <interfaced.item
-        name="action_method"/>
-      <interfaced.item
-        name="action_method_relationship"/>
-      <interfaced.item
-        name="action_relationship"/>
-      <interfaced.item
-        name="action_resource"/>
-      <interfaced.item
-        name="action_resource_relationship"/>
-      <interfaced.item
-        name="acyclic_action_relationship"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="product_property_definition_schema">
-      <interfaced.item
-        name="characterized_product_definition"/>
-      <interfaced.item
-        name="property_definition"/>
-      <interfaced.item
-        name="shape_definition"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <type name="characterized_action_definition">
-      <select
-        selectitems="action action_method action_method_relationship action_relationship">
-      </select>
-
-    </type>
-    <type name="characterized_resource_definition">
-      <select
-        selectitems="action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship">
-      </select>
-
-    </type>
-    <type name="property_or_shape_select">
-      <select
-        selectitems="property_definition shape_definition">
-      </select>
-
-    </type>
-    <entity
-      name="action_property">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="definition">
-        <typename
-          name="characterized_action_definition"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="product_definition_process"
-      supertypes="action">
-      <explicit
-        name="identification">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <inverse
-        name="product_definitions"
-        entity="process_product_association"
-        attribute="process">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="process_product_association">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="defined_product">
-        <typename
-          name="characterized_product_definition"/>
-      </explicit>
-      <explicit
-        name="process">
-        <typename
-          name="product_definition_process"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="property_process"
-      supertypes="action">
-      <explicit
-        name="identification">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <inverse
-        name="properties"
-        entity="process_property_association"
-        attribute="process">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="process_property_association">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="process">
-        <typename
-          name="property_process"/>
-      </explicit>
-      <explicit
-        name="property_or_shape">
-        <typename
-          name="property_or_shape_select"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="replacement_relationship"
-      supertypes="action_relationship">
-      <where
-        label="WR1"
-        expression="acyclic_action_relationship (SELF,       [SELF\action_relationship.related_action],       'PROCESS_PROPERTY_SCHEMA.REPLACEMENT_RELATIONSHIP')">
-      </where>
-    </entity>
-
-    <entity
-      name="resource_property">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="resource">
-        <typename
-          name="characterized_resource_definition"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="action_resource_requirement">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="kind">
-        <typename
-          name="resource_requirement_type"/>
-      </explicit>
-      <explicit
-        name="operations">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="characterized_action_definition"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="action_property_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_action_property">
-        <typename
-          name="action_property"/>
-      </explicit>
-      <explicit
-        name="related_action_property">
-        <typename
-          name="action_property"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_action_property :&lt;&gt;: related_action_property">
-      </where>
-    </entity>
-
-    <entity
-      name="requirement_for_action_resource"
-      supertypes="action_resource_requirement">
-      <explicit
-        name="resources">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="action_resource"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="resource_property_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_resource_property">
-        <typename
-          name="resource_property"/>
-      </explicit>
-      <explicit
-        name="related_resource_property">
-        <typename
-          name="resource_property"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_resource_property :&lt;&gt;: related_resource_property">
-      </where>
-    </entity>
-
-    <entity
-      name="action_resource_requirement_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_action_resource_requirement">
-        <typename
-          name="action_resource_requirement"/>
-      </explicit>
-      <explicit
-        name="related_action_resource_requirement">
-        <typename
-          name="action_resource_requirement"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_action_resource_requirement :&lt;&gt;:        related_action_resource_requirement">
-      </where>
-    </entity>
-
-    <entity
-      name="resource_requirement_type">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="resource_requirement_type_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_requirement_type">
-        <typename
-          name="resource_requirement_type"/>
-      </explicit>
-      <explicit
-        name="related_requirement_type">
-        <typename
-          name="resource_requirement_type"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_requirement_type :&lt;&gt;: related_requirement_type">
-      </where>
-    </entity>
-
-  </schema>
-
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-49">
+   <application name="JSDAI" owner="LKSoft" source="process_property_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="process_property_schema">
+      <interface kind="reference" schema="action_schema">
+         <interfaced.item name="action"/>
+         <interfaced.item name="action_method"/>
+         <interfaced.item name="action_method_relationship"/>
+         <interfaced.item name="action_relationship"/>
+         <interfaced.item name="action_resource"/>
+         <interfaced.item name="action_resource_relationship"/>
+         <interfaced.item name="acyclic_action_relationship"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_product_definition"/>
+         <interfaced.item name="property_definition"/>
+         <interfaced.item name="shape_definition"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <type name="characterized_action_definition">
+         <select selectitems="action action_method action_method_relationship action_relationship"/>
+      </type>
+      <type name="characterized_resource_definition">
+         <select selectitems="action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship"/>
+      </type>
+      <type name="property_or_shape_select">
+         <select selectitems="property_definition shape_definition"/>
+      </type>
+      <entity name="action_property">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="characterized_action_definition"/>
+         </explicit>
+      </entity>
+      <entity name="action_property_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_action_property">
+            <typename name="action_property"/>
+         </explicit>
+         <explicit name="related_action_property">
+            <typename name="action_property"/>
+         </explicit>
+         <where expression="relating_action_property :&lt;&gt;: related_action_property" label="WR1"/>
+      </entity>
+      <entity name="action_resource_requirement">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="kind">
+            <typename name="resource_requirement_type"/>
+         </explicit>
+         <explicit name="operations">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="characterized_action_definition"/>
+         </explicit>
+      </entity>
+      <entity name="action_resource_requirement_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_action_resource_requirement">
+            <typename name="action_resource_requirement"/>
+         </explicit>
+         <explicit name="related_action_resource_requirement">
+            <typename name="action_resource_requirement"/>
+         </explicit>
+         <where expression="relating_action_resource_requirement :&lt;&gt;: &#10;       related_action_resource_requirement" label="WR1"/>
+      </entity>
+      <entity name="process_product_association">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="defined_product">
+            <typename name="characterized_product_definition"/>
+         </explicit>
+         <explicit name="process">
+            <typename name="product_definition_process"/>
+         </explicit>
+      </entity>
+      <entity name="process_property_association">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="process">
+            <typename name="property_process"/>
+         </explicit>
+         <explicit name="property_or_shape">
+            <typename name="property_or_shape_select"/>
+         </explicit>
+      </entity>
+      <entity name="product_definition_process" supertypes="action">
+         <explicit name="identification">
+            <typename name="identifier"/>
+         </explicit>
+         <inverse attribute="process" entity="process_product_association" name="product_definitions">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="property_process" supertypes="action">
+         <explicit name="identification">
+            <typename name="identifier"/>
+         </explicit>
+         <inverse attribute="process" entity="process_property_association" name="properties">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="replacement_relationship" supertypes="action_relationship">
+         <where expression="acyclic_action_relationship (SELF,&#10;       [SELF\action_relationship.related_action],&#10;       'PROCESS_PROPERTY_SCHEMA.REPLACEMENT_RELATIONSHIP')" label="WR1"/>
+      </entity>
+      <entity name="requirement_for_action_resource" supertypes="action_resource_requirement">
+         <explicit name="resources">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="action_resource"/>
+         </explicit>
+      </entity>
+      <entity name="resource_property">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="resource">
+            <typename name="characterized_resource_definition"/>
+         </explicit>
+      </entity>
+      <entity name="resource_property_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_resource_property">
+            <typename name="resource_property"/>
+         </explicit>
+         <explicit name="related_resource_property">
+            <typename name="resource_property"/>
+         </explicit>
+         <where expression="relating_resource_property :&lt;&gt;: related_resource_property" label="WR1"/>
+      </entity>
+      <entity name="resource_requirement_type">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="resource_requirement_type_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_requirement_type">
+            <typename name="resource_requirement_type"/>
+         </explicit>
+         <explicit name="related_requirement_type">
+            <typename name="resource_requirement_type"/>
+         </explicit>
+         <where expression="relating_requirement_type :&lt;&gt;: related_requirement_type" label="WR1"/>
+      </entity>
+   </schema>
 </express>

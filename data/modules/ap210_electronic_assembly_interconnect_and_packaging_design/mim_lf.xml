@@ -5,6 +5,9 @@
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="ap210_electronic_assembly_interconnect_and_packaging_design_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="ap210_electronic_assembly_interconnect_and_packaging_design_mim_lf">
+      <constant expression="'Mon Mar 24 10:53:49 2014'" name="schema_date_stamp">
+         <builtintype type="STRING"/>
+      </constant>
       <constant expression="representation_item( '' ) &#10;                                                  ||&#10;                                                  geometric_representation_item(  )" name="dummy_gri">
          <typename name="geometric_representation_item"/>
       </constant>
@@ -679,6 +682,9 @@
       </type>
       <type name="luminous_intensity_measure">
          <builtintype type="REAL"/>
+      </type>
+      <type name="machining_feature_definition">
+         <select selectitems="boss compound_feature externally_defined_feature_definition flat_face gear marking outer_round outside_profile pocket protrusion removal_volume replicate_feature revolved_profile rib_top round_hole rounded_end spherical_cap step slot thread turned_knurl"/>
       </type>
       <type name="magnetic_flux_density_measure">
          <builtintype type="REAL"/>
@@ -5121,7 +5127,7 @@
             <typename name="document_identifier_assigned_item"/>
          </explicit>
       </entity>
-      <entity name="document_product_association">
+      <entity abstract.supertype="YES" name="document_product_association">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -5135,7 +5141,7 @@
             <typename name="product_or_formation_or_definition"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="document_product_equivalence" supertypes="document_product_association">
+      <entity name="document_product_equivalence" supertypes="document_product_association">
          <where expression="( SELF\document_product_association.name = 'equivalence' )" label="wr1"/>
          <where expression="( ( NOT ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT' IN TYPEOF( SELF\&#10;               document_product_association.related_product ) ) ) OR ( ( SELF\document_product_association.relating_document.kind.&#10;               product_data_type = 'configuration controlled document' ) AND ( SIZEOF( QUERY ( prpc &lt;* USEDIN( SELF\&#10;               document_product_association.related_product, 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.' &#10;               + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | ( prpc.name = 'document' ) ) ) = 1 ) ) )" label="wr2"/>
          <where expression="( ( NOT ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_DEFINITION_FORMATION' IN &#10;               TYPEOF( SELF.related_product ) ) ) OR ( ( SELF\document_product_association.relating_document.kind.&#10;               product_data_type = 'configuration controlled document version' ) AND ( SIZEOF( QUERY ( prpc &lt;* USEDIN( SELF.&#10;               related_product\product_definition_formation.of_product, &#10;               'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS'  )&#10;               | ( prpc.name = 'document' ) ) ) = 1 ) ) )" label="wr3"/>
@@ -15381,7 +15387,7 @@
          <where expression="( SIZEOF( QUERY ( ac &lt;* application_context | ( SIZEOF( QUERY ( apd &lt;* USEDIN( ac, &#10;             'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION'  )&#10;             | ( apd.application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering' ) ) ) &gt; 0 ) ) ) &gt; 0 )" label="wr1"/>
       </rule>
       <rule appliesto="application_context" name="application_protocol_definition_required">
-         <where expression="( SIZEOF( QUERY ( ac &lt;* application_context | ( SIZEOF( QUERY ( apd &lt;* USEDIN( ac, &#10;             'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION'  )&#10;             | ( apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design' ) ) ) &#10;             &gt; 0 ) ) ) &gt; 0 )" label="wr1"/>
+         <where expression="SIZEOF( QUERY ( ac &lt;* application_context | ( SIZEOF( QUERY ( apd &lt;* USEDIN( ac, &#10;             'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION'  )&#10;             | &#10;            (( apd.application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering' ) OR&#10;             (  apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design'))&#10;             ) ) &#10;             &gt; 0 ) ) ) &gt; 0" label="wr1"/>
       </rule>
       <rule appliesto="area_component" name="area_component_shape_constraint">
          <where expression="( SIZEOF( QUERY ( ac &lt;* area_component | ( NOT ( SIZEOF( QUERY ( pdr &lt;* USEDIN( ac, &#10;             'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'  )&#10;             | ( NOT ( ( NOT ( pdr\property_definition_representation.used_representation\representation.id = 'ac2dsm' ) ) OR ( &#10;             'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SINGLE_AREA_CSG_2D_SHAPE_REPRESENTATION'  IN &#10;             TYPEOF( pdr\property_definition_representation.used_representation ) ) ) ) ) ) = 0 ) ) ) ) = 0 )" label="wr1"/>

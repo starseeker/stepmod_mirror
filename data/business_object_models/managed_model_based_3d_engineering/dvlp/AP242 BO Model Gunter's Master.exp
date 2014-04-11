@@ -1,10 +1,31 @@
 SCHEMA managed_model_based_3d_engineering_bom;
 
--- Release candidate 9 for IS version
+-- Release candidate 10 for SMRLv6
 (*
-Changes against RC8:
-- TYPE Language = STRING; => TYPE Language = LIST[1:2] OF STRING;
-- merge Material and MaterialAssignment to MaterialIdentification (as before RC8)
+Changes against RC9:
+- Bugzilla #5000: TYPE TransformationSelect = SELECT (
+  GeometricRepresentationRelationshipWithPlacementTransformation,
+  CartesianTransformation
+); ==>
+TYPE TransformationSelect = SELECT (
+  GeometricRepresentationRelationship
+  CartesianTransformation
+);
+- Bugzilla #5001: in ExternalGeometricModel, ComposedGeometricModel:
+  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement; ==> SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
+- Bugzilla #4957: AlternativeSolution added to EffectivityAssignmentSelect
+- Bugzilla #4956: ENTITY Effectivity SUPERTYPE OF(ONEOF(DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
+   ==>            ENTITY Effectivity SUPERTYPE OF(ONEOF(ConditionalEffectivity, DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
+- Bugzilla #4956: ENTITY KinematicLinkToOccurrenceAssociation;
+  associatedLink : KinematicLink;
+  associatedTo : AssemblyOccurrenceRelationship;	
+END_ENTITY;
+==>
+ENTITY KinematicLinkToOccurrenceAssociation;
+  associatedLink : KinematicLink;
+  associatedTo : Occurrence;	
+END_ENTITY;
+
 *)
 
 
@@ -757,7 +778,7 @@ END_ENTITY;
 -- harmonized with PLCS
 
 TYPE TransformationSelect = SELECT (
-  GeometricRepresentationRelationshipWithPlacementTransformation,
+  GeometricRepresentationRelationship,
   CartesianTransformation
 );
 END_TYPE;
@@ -1276,7 +1297,7 @@ END_ENTITY;
 -- harmonized with PLCS
 
 ENTITY Effectivity
- SUPERTYPE OF(ONEOF(DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
+ SUPERTYPE OF(ONEOF(ConditionalEffectivity, DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   versionId : OPTIONAL IdentifierSelect;
@@ -1316,6 +1337,7 @@ TYPE EffectivityAssignmentSelect = SELECT (
   ActivityMethodRelationship,
   ActivityRelationship,
   AddressAssignment,
+  AlternativeSolution,
   AlternativeSolutionRelationship,
   ApprovalAssignment,
   ApprovalRelationship,
@@ -2167,7 +2189,7 @@ END_ENTITY;
 
 ENTITY KinematicLinkToOccurrenceAssociation;
   associatedLink : KinematicLink;
-  associatedTo : AssemblyOccurrenceRelationship;	
+  associatedTo : Occurrence;	
 END_ENTITY;
 
 ENTITY KinematicMechanismAssociation;
@@ -5055,7 +5077,7 @@ ENTITY ExternalGeometricModel
  SUPERTYPE OF(ONEOF(ExternalAdvancedBrepShapeRepresentation, ExternalCsgShapeRepresentation, ExternalCurveSweptSolidShapeRepresentation, ExternalEdgeBasedWireframeShapeRepresentation, ExternalElementaryBrepShapeRepresentation, ExternalFacetedBrepShapeRepresentation, ExternalGeometricallyBoundedSurfaceShapeRepresentation, ExternalGeometricallyBoundedWireframeShapeRepresentation, ExternalManifoldSurfaceShapeRepresentation, ExternalShellBasedWireframeShapeRepresentation, ExternalTessellatedShapeRepresentation))
  SUBTYPE OF(GeometricModel);
   externalFile : DigitalFile;
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement;
+  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
   parameterValues : OPTIONAL SET[1:?] OF PropertyValue;
 END_ENTITY;
 
@@ -5560,7 +5582,7 @@ END_ENTITY;
 
 ENTITY ComposedGeometricModel
  SUBTYPE OF (GeometricModel);
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement;
+  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
 END_ENTITY;
 
 ENTITY TransformedGeometricModel

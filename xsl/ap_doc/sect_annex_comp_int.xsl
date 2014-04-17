@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
+$Id: sect_annex_comp_int.xsl,v 1.7 2005/03/02 10:47:35 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -18,6 +18,9 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
 
 <!-- Annex G -->
 <xsl:template match="application_protocol" mode="annexg">
+
+ <xsl:variable name="bom_name" select="@business_object_model"/>
+
   <xsl:variable name="annex_list">
     <xsl:apply-templates select="." mode="annex_list"/>
   </xsl:variable>
@@ -58,6 +61,7 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
   <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
   <xsl:apply-templates select="$module_xml/module" mode="annexe">
     <xsl:with-param name="annex_no" select="$annex_letter"/>
+    <xsl:with-param name="bom_name" select="@business_object_model"/>
   </xsl:apply-templates>
 </xsl:template>
 
@@ -65,6 +69,7 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
 
 <xsl:template match="module" mode="annexe">
   <xsl:param name="annex_no" select="'E'"/>
+  <xsl:param name="bom_name"/>
 
   <xsl:variable name="arm">
     <xsl:choose>
@@ -94,7 +99,14 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
     select="'abcdefghijklmnopqrstuvwxyz'"/>
   <xsl:variable name="mim_schema"
     select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
-    
+   
+<!-- BOM -->
+<!--   <xsl:variable name="bom_name" select="@business_object_model"/>  -->
+<xsl:variable name="bom_exp" select="concat('../../../business_object_models/',$bom_name,'/bom.exp')"/>
+<xsl:variable name="bom_xsd" select="concat('../../../business_object_models/',$bom_name,'/bom.xsd')"/>
+<xsl:variable name="bom_xml" select="concat('../../../business_object_models/',$bom_name,'/bom', $FILE_EXT)"/>
+<xsl:variable name="bom_xsd_file" select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd', $FILE_EXT)"/>
+
   <!--
        It has been decided to point to the index instead
   <xsl:variable name="names_url"
@@ -235,6 +247,20 @@ $Id: sect_annex_comp_int.xsl,v 1.6 2003/08/11 16:48:03 robbod Exp $
       </tr>
       <xsl:apply-templates select="mim_lf" mode="annexe"/>
 
+    <tr>
+      <td>BO EXPRESS</td>
+      <td><a href="{$bom_xml}" target="info">HTML</a></td>
+      <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
+      <td>ISO TC184/SC4/WG12 N8327</td>
+    </tr>
+    <tr>
+      <td>BO XML schema</td>
+      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
+      <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
+      <td>ISO TC184/SC4/WG12 N8326</td>
+    </tr>
+<!--   
+-->
     </table>
   </div>
   <p>

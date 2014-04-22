@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
+$Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -13,7 +13,6 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
 
   <xsl:output method="html"/>
 	
-
 
 
   <xsl:template match="business_object_model">
@@ -33,6 +32,8 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
+
+    <xsl:variable name="armref" select="concat('../../../modules/',@ap_name,'/sys/4_info_reqs',$FILE_EXT)" />
 
     <!--<xsl:call-template name="clause_header">
       <xsl:with-param name="heading" select="'5 Business object model mapping'"/>
@@ -57,7 +58,10 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
     </p>
     <!--<a name="mappings"/>-->
 
-    <xsl:call-template name="bom_mapping_syntax"/>
+    <xsl:call-template name="bom_mapping_syntax">
+	    <xsl:with-param name="armref" select="$armref" />
+    </xsl:call-template>
+
 
 
     <!--
@@ -110,7 +114,7 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
 		  </xsl:variable>
 
 		  <xsl:variable name="be_map_aname">
-			  <xsl:apply-templates select="." mode="map_attr_aname"/>  
+			  <xsl:apply-templates select="$be_node" mode="map_attr_aname"/>  
 		  </xsl:variable>
 
 		  <h2>
@@ -146,14 +150,14 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
 
 		  <h2>
 		    <a name="{$attr_link}">
-		      <xsl:value-of select="concat('5.1.',$sect_no,'.',$attr_no)"/>
+		      <xsl:value-of select="concat('5.1.',$sect_no,'.',$attr_no,' ')"/>
 		    </a>
 		    <a href="{$attr_xref}">
 		      <xsl:value-of select="concat($entity,'.',$bom_attr)"/>
 		    </a>
 		  </h2>
 
-	            <xsl:choose>
+		  <xsl:choose>
         	      <xsl:when test="not($ba_nodes[@attribute=$bom_attr])">
                 	<xsl:call-template name="error_message">
 	                  <xsl:with-param name="message" 
@@ -182,8 +186,17 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
 	                </xsl:if>
         	      </xsl:otherwise>
 	            </xsl:choose>
-      
-			<xsl:apply-templates select="$ba_nodes[@attribute=$bom_attr]" mode="output_mapping" /> 
+
+		    <!-- NSW: missing specification layer of templates - see stepmod/xsl/sect_5_mapping.xsl line 678 and onwards -->
+
+		    <xsl:apply-templates select="$ba_nodes[@attribute=$bom_attr]" mode="specification" >
+			    <xsl:with-param name="schema" select="../../@name" />
+			    <xsl:with-param name="entity" select="$entity" />
+			    <xsl:with-param name="sect" select="concat('5.1.',$sect_no,'.',$attr_no)" />
+			    <xsl:with-param name="e_xref" select="$be_xref" />
+		    </xsl:apply-templates>
+
+		    <!--			<xsl:apply-templates select="$ba_nodes[@attribute=$bom_attr]" mode="output_mapping" /> -->
 	           </xsl:for-each>
 	   </xsl:otherwise>
 	</xsl:choose>
@@ -194,6 +207,50 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
 
 
   </xsl:template>
+
+
+  <xsl:template match="ba" mode="specification">
+	  <xsl:param name="schema"/>
+	  <xsl:param name="entity"/>
+	  <xsl:param name="sect"/>
+	  <xsl:param name="e_xref"/>
+
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
+    
+    <xsl:variable name="attr_xref" select="concat($e_xref,'.',translate(@attribute,$UPPER,$lower))" />
+	  
+	<xsl:variable name="assert_no">
+	    <xsl:number value="position()" />
+	</xsl:variable>
+
+	<xsl:if test="@assertion_to" >
+
+		  <xsl:variable name="assert_xref">
+			  <xsl:value-of select="concat('./4_info_reqs',$FILE_EXT,'#',translate(concat($schema,'.',@assertion_to),$UPPER,$lower))"/>        
+		  </xsl:variable>
+
+		  <h2>
+			  <!--		    <a name="{$assert_link}"> -->
+		      <xsl:value-of select="concat($sect,'.',$assert_no,' ')"/>
+		      <!-- </a> --> 
+		    <a href="{$e_xref}">
+			    <xsl:value-of select="$entity"/>
+		    </a>
+		    to 
+		    <a href="{$assert_xref}" >
+			    <xsl:value-of select="@assertion_to"/>
+		    </a>
+		    ( as <a href="{$attr_xref}">
+			    <xsl:value-of select="@attribute"/><xsl:value-of select="@position"/>
+		    </a> )
+		  </h2>
+	  </xsl:if>
+	
+	  	  <xsl:apply-templates select="." mode="output_mapping" /> 
+
+  </xsl:template>
+  
 
 
   <xsl:template name="ap_module_directory">
@@ -217,6 +274,7 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
   </xsl:template>
 
 <xsl:template name="bom_mapping_syntax">
+  <xsl:param name="armref" />	
   <xsl:variable name="sect4" 
     select="concat('4_info_reqs',$FILE_EXT)"/>
 
@@ -225,9 +283,9 @@ $Id: sect_5_main.xsl,v 1.3 2013/10/04 16:30:39 thomasrthurman Exp $
     In the following, &quot;Business element&quot; designates any entity data
     type defined in Clause <a href="{$sect4}">4</a>, any of its 
     explicit attributes and any subtype constraint. 
-    &quot;ARM element&quot; designates any entity data type defined in the Application Reference Model
+    &quot;ARM element&quot; designates any entity data type defined in the 
     <!-- Clause <a href="{$sect52}">5.2</a> -->
-    <a href="./tbd">REFEREFENCE TO AP ARM here</a>.
+    <a href="{$armref}">Application Reference Model</a> specified in ISO 10303-<xsl:value-of select="@ap.module.number"/>.
     <!--    or imported with a USE FROM
     statement, from another EXPRESS schema, any of its 
     attributes and any subtype constraint defined in Clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
@@ -567,8 +625,5 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     </tr>
   </xsl:if>
 </xsl:template>
-
-
-
 
 </xsl:stylesheet>

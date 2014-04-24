@@ -1,4 +1,4 @@
--- Generated on 03/01/2014 17:12:00 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
+-- Generated on 11/04/2014 by ExpressPrettyPrint version: 4.0.0.76, PDTec AG
 -- From: AP242 BO Model Gunter's Master.exp
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -871,6 +871,7 @@ TYPE EffectivityAssignmentSelect = SELECT(
   ActivityMethodRelationship,
   ActivityRelationship,
   AddressAssignment,
+  AlternativeSolution,
   AlternativeSolutionRelationship,
   ApprovalAssignment,
   ApprovalRelationship,
@@ -1951,7 +1952,7 @@ END_TYPE;
 
 TYPE TransformationSelect = SELECT(
   CartesianTransformation,
-  GeometricRepresentationRelationshipWithPlacementTransformation
+  GeometricRepresentationRelationship
 );
 END_TYPE;
 
@@ -2603,7 +2604,7 @@ END_ENTITY;
 
 ENTITY ComposedGeometricModel
   SUBTYPE OF(GeometricModel);
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement;
+  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
 END_ENTITY;
 
 ENTITY CompositeAssembly
@@ -2645,8 +2646,6 @@ ENTITY ConditionalConfiguration
   SUBTYPE OF(ConditionalEffectivity);
   configurationType : ClassSelect;
   inheritanceType : ClassSelect;
-  configuredElement : ConfiguredItemSelect;
-  resolvedConfiguration : ConfiguredSpecificationSelect;
 END_ENTITY;
 
 ENTITY ConditionalEffectivity
@@ -2980,7 +2979,7 @@ ENTITY EdgeZoneShape
 END_ENTITY;
 
 ENTITY Effectivity
-  SUPERTYPE OF(ONEOF(DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
+  SUPERTYPE OF(ONEOF(ConditionalEffectivity, DataValidityEffectivity, LotEffectivity, SerialEffectivity, TimeIntervalEffectivity));
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   versionId : OPTIONAL IdentifierSelect;
@@ -3142,7 +3141,7 @@ ENTITY ExternalGeometricModel
   SUPERTYPE OF(ONEOF(ExternalAdvancedBrepShapeRepresentation, ExternalCsgShapeRepresentation, ExternalCurveSweptSolidShapeRepresentation, ExternalEdgeBasedWireframeShapeRepresentation, ExternalElementaryBrepShapeRepresentation, ExternalFacetedBrepShapeRepresentation, ExternalGeometricallyBoundedSurfaceShapeRepresentation, ExternalGeometricallyBoundedWireframeShapeRepresentation, ExternalManifoldSurfaceShapeRepresentation, ExternalShellBasedWireframeShapeRepresentation, ExternalTessellatedShapeRepresentation))
   SUBTYPE OF(GeometricModel);
   externalFile : DigitalFile;
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement;
+  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
   parameterValues : OPTIONAL SET[1:?] OF PropertyValue;
 END_ENTITY;
 
@@ -3557,7 +3556,7 @@ END_ENTITY;
 
 ENTITY KinematicLinkToOccurrenceAssociation;
   associatedLink : KinematicLink;
-  associatedTo : AssemblyOccurrenceRelationship;
+  associatedTo : Occurrence;
 END_ENTITY;
 
 ENTITY KinematicMechanismAssociation;

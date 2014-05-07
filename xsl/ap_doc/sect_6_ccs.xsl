@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.26 2008/11/14 13:47:50 darla Exp $
+$Id: sect_6_ccs.xsl,v 1.27 2008/12/16 14:01:13 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -605,7 +605,7 @@ $Id: sect_6_ccs.xsl,v 1.26 2008/11/14 13:47:50 darla Exp $
             select="document(concat($module_dir,'/module.xml'))/module"/>
           
             <xsl:choose>
-              <xsl:when test="@completness='complete'">
+              <xsl:when test="@completeness='complete'">
                 <li>
                   <xsl:choose>
                     <xsl:when test="$count_of_modules != position()">
@@ -627,7 +627,7 @@ $Id: sect_6_ccs.xsl,v 1.26 2008/11/14 13:47:50 darla Exp $
                   </xsl:choose>
                 </li> 
               </xsl:when>
-              <xsl:when test="@completness = 'selective'">
+              <xsl:when test="@completeness = 'selective'">
                 <xsl:variable name="arm_entity_count" select="count(arm_entity)"/>
                 <xsl:choose>
                   <xsl:when test="$arm_entity_count > 0">

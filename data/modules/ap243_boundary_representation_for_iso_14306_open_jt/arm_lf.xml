@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2014/01/30 12:41:23 $" rcs.revision="$Revision: 1.2 $">
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="ap243_boundary_representation_for_iso_14306_open_jt_arm_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ap243_boundary_representation_for_iso_14306_open_jt_arm_LF">
       <type name="advanced_brep_shape_representation_item">
@@ -35,12 +33,6 @@
       <type name="chained_geometric_model_link">
          <select selectitems="Geometric_placement_operation Geometric_coordinate_space Geometric_model_relationship"/>
       </type>
-      <type name="clipping_element">
-         <select selectitems="Plane Clipping_operator"/>
-      </type>
-      <type name="clipping_mode">
-         <enumeration items="union intersection"/>
-      </type>
       <type name="context_dependent_appearance_assignment_set">
          <aggregate lower="2" type="SET" upper="?"/>
          <typename name="Context_dependent_appearance_assignment"/>
@@ -70,8 +62,11 @@
          <select selectitems="Geometric_model"/>
       </type>
       <type name="groupable_item">
-         <select selectitems="Detailed_geometric_model_element Detailed_topological_model_element Geometric_model_relationship_with_transformation Geometric_placement_operation Shape_element Styled_element"/>
+         <select selectitems="Detailed_geometric_model_element Detailed_topological_model_element Geometric_placement_operation Shape_element Styled_element"/>
          <where expression="NOT ('AP243_BOUNDARY_REPRESENTATION_FOR_ISO_14306_OPEN_JT_ARM_LF.GROUP' IN TYPEOF(SELF))" label="WR1"/>
+      </type>
+      <type name="identification_item">
+         <select selectitems="Digital_file Geometric_model Group Group_relationship Hardcopy Independent_property Product Product_version Shape_element_relationship"/>
       </type>
       <type name="identifier">
          <builtintype type="STRING"/>
@@ -85,9 +80,6 @@
       <type name="length_measure">
          <builtintype type="REAL"/>
       </type>
-      <type name="light_type">
-         <enumeration items="ambient directional spot positional"/>
-      </type>
       <type name="measure_value">
          <select selectitems="any_number_value any_string_value area_measure count_measure length_measure plane_angle_measure ratio_measure volume_measure"/>
       </type>
@@ -99,12 +91,6 @@
       </type>
       <type name="plane_angle_measure">
          <builtintype type="REAL"/>
-      </type>
-      <type name="presentation_association_select">
-         <select selectitems="Product_version Product_view_definition"/>
-      </type>
-      <type name="presented_model_select">
-         <select selectitems="Styled_model"/>
       </type>
       <type name="product_view_definition_or_reference">
          <select selectitems="Product_view_definition Generic_product_view_definition_reference"/>
@@ -141,24 +127,6 @@
       </type>
       <type name="text">
          <builtintype type="STRING"/>
-      </type>
-      <type name="view_area_element_select">
-         <select selectitems="Axis_placement_2d Styled_element View_area_replication"/>
-      </type>
-      <type name="view_area_relation_type">
-         <enumeration items="copy derivation hierarchy substitution unspecified"/>
-      </type>
-      <type name="view_area_replication_model">
-         <select selectitems="View_area View"/>
-      </type>
-      <type name="view_element_select">
-         <select selectitems="Axis_placement_2d Model_image_3d Styled_element"/>
-      </type>
-      <type name="view_projection_type">
-         <enumeration items="central parallel"/>
-      </type>
-      <type name="view_relation_type">
-         <enumeration items="dependency unspecified"/>
       </type>
       <type name="volume_measure">
          <builtintype type="REAL"/>
@@ -227,7 +195,6 @@
             <redeclaration entity-ref="Assigned_property"/>
          </explicit>
       </entity>
-      <entity name="Associated_contextual_item_shape" supertypes="Associated_item_shape Contextual_item_shape"/>
       <entity name="Associated_item_shape" supertypes="Item_shape">
          <derived expression="association\Property_definition_representation.used_representation" name="associated_model">
             <typename name="shape_model"/>
@@ -247,24 +214,29 @@
          <where expression="association\Geometric_item_specific_usage.used_model\Geometric_model.context_of_items = &#10;  SELF\Shape_element.containing_shape\Associated_item_shape.association\Property_definition_representation.used_representation\Geometric_model.context_of_items" label="WR2"/>
       </entity>
       <entity name="Axis_placement" super.expression="ONEOF (Axis_placement_2d, Axis_placement_3d)" supertypes="Detailed_geometric_model_element">
-         <explicit name="origin">
+         <explicit name="location">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="x_axis">
+         <explicit name="axis" optional="YES">
             <typename name="Direction"/>
          </explicit>
-         <explicit name="y_axis">
+         <explicit name="ref_direction" optional="YES">
             <typename name="Direction"/>
          </explicit>
-         <derived expression="SIZEOF(origin.coordinates)" name="dim">
+         <derived expression="SIZEOF(location\Cartesian_point.coordinates)" name="dim">
             <builtintype type="INTEGER"/>
          </derived>
          <where expression="dim &gt;1" label="WR1"/>
-         <where expression="dim = SIZEOF(x_axis.direction_ratios)" label="WR2"/>
-         <where expression="dim = SIZEOF(y_axis.direction_ratios)" label="WR3"/>
+         <where expression="dim = SIZEOF(axis\Direction.direction_ratios)" label="WR2"/>
+         <where expression="dim = SIZEOF(ref_direction\Direction.direction_ratios)" label="WR3"/>
       </entity>
-      <entity name="Axis_placement_2d" supertypes="Axis_placement"/>
-      <entity name="Axis_placement_3d" supertypes="Axis_placement"/>
+      <entity name="Axis_placement_2d" supertypes="Axis_placement">
+         <where expression="NOT EXISTS(axis)" label="WR1"/>
+         <where expression="SELF\Axis_placement.dim = 2" label="WR2"/>
+      </entity>
+      <entity name="Axis_placement_3d" supertypes="Axis_placement">
+         <where expression="SELF\Axis_placement.dim = 3" label="WR1"/>
+      </entity>
       <entity name="Axis_placement_mapping">
          <explicit name="source">
             <typename name="Axis_placement"/>
@@ -310,28 +282,6 @@
       <entity name="Boundary_curve_appearance" supertypes="Surface_related_curve_appearance"/>
       <entity abstract.supertype="YES" name="Bounded_curve" super.expression="ONEOF (Composite_curve, Trimmed_curve)" supertypes="Curve"/>
       <entity abstract.supertype="YES" name="Bounded_surface" supertypes="Surface"/>
-      <entity name="Camera_model_d3" supertypes="Detailed_geometric_model_element">
-         <explicit name="clipping" optional="YES">
-            <typename name="Clipping_operator"/>
-         </explicit>
-         <explicit name="hidden_element_appearance" optional="YES">
-            <typename name="Appearance_assignment"/>
-         </explicit>
-         <explicit name="hidden_line_removal" optional="YES">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <explicit name="sources" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Light_source"/>
-         </explicit>
-         <explicit name="view_projection">
-            <typename name="view_projection_type"/>
-         </explicit>
-         <explicit name="view_window">
-            <typename name="Planar_box"/>
-         </explicit>
-         <where expression="NOT EXISTS(hidden_element_appearance) OR EXISTS(hidden_line_removal)" label="WR1"/>
-      </entity>
       <entity name="Capacitance_data_element" supertypes="Value_with_unit"/>
       <entity name="Cartesian_point" supertypes="Point">
          <explicit name="coordinates">
@@ -380,15 +330,6 @@
             <typename name="length_measure"/>
          </explicit>
          <where expression="radius &gt; 0.0" label="WR1"/>
-      </entity>
-      <entity name="Clipping_operator" supertypes="Detailed_geometric_model_element">
-         <explicit name="elements">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="clipping_element"/>
-         </explicit>
-         <explicit name="operator">
-            <typename name="clipping_mode"/>
-         </explicit>
       </entity>
       <entity name="Closed_composite_curve" supertypes="Composite_curve"/>
       <entity name="Closed_shell" supertypes="Connected_face_set"/>
@@ -492,20 +433,6 @@
             <typename name="Product_view_definition"/>
          </derived>
       </entity>
-      <entity name="Contextual_shape_representation">
-         <explicit name="contextual_shape">
-            <typename name="Contextual_item_shape"/>
-         </explicit>
-         <explicit name="representing_relationship">
-            <typename name="Geometric_model_relationship"/>
-         </explicit>
-         <derived expression="representing_relationship.rep_2" name="context_representation">
-            <typename name="geometric_representation_select"/>
-         </derived>
-         <derived expression="representing_relationship.rep_1" name="positioned_representation">
-            <typename name="geometric_representation_select"/>
-         </derived>
-      </entity>
       <entity name="Control_grid_appearance" supertypes="Surface_related_curve_appearance"/>
       <entity name="Conversion_based_unit" supertypes="Unit">
          <explicit name="conversion_factor">
@@ -580,7 +507,7 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Detailed_geometric_model_element" super.expression="ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Geometric_placement_operation) ANDOR ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Surface) ANDOR ONEOF (Clipping_operator, Model_image_3d, Light_source, Camera_model_d3) ANDOR ONEOF (Hatch_style, Tile_style) ANDOR ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Surface, Vector)" supertypes="Representation_item"/>
+      <entity abstract.supertype="YES" name="Detailed_geometric_model_element" super.expression="ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Geometric_placement_operation) ANDOR ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Surface) ANDOR ONEOF (Hatch_style, Tile_style) ANDOR ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Surface, Vector)" supertypes="Representation_item"/>
       <entity name="Detailed_geometric_model_element_relationship">
          <explicit name="item_1">
             <typename name="Detailed_geometric_model_element"/>
@@ -747,8 +674,6 @@
             <typename name="External_source_identification"/>
          </explicit>
       </entity>
-      <entity name="Geometric_composition_with_operator_transformation" supertypes="Geometric_relationship_with_operator_transformation Definitional_representation_relationship"/>
-      <entity name="Geometric_composition_with_placement_transformation" supertypes="Geometric_relationship_with_placement_transformation Definitional_representation_relationship"/>
       <entity name="Geometric_coordinate_space" supertypes="Numerical_representation_context">
          <explicit name="dimension_count">
             <builtintype type="INTEGER"/>
@@ -801,9 +726,6 @@
          </explicit>
          <where expression="rep_1 &lt;&gt; rep_2" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="Geometric_model_relationship_with_transformation" super.expression="ONEOF (Geometric_relationship_with_placement_transformation, Geometric_relationship_with_operator_transformation)" supertypes="Geometric_model_relationship">
-         <where expression="rep_1.context_of_items :&lt;&gt;: rep_2.context_of_items" label="WR1"/>
-      </entity>
       <entity name="Geometric_operator_transformation" supertypes="Geometric_placement_operation">
          <explicit name="target">
             <typename name="cartesian_transformation"/>
@@ -814,13 +736,6 @@
             <typename name="Axis_placement"/>
          </explicit>
       </entity>
-      <entity name="Geometric_placement_model" supertypes="Geometric_model">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Geometric_placement_operation"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-      </entity>
       <entity abstract.supertype="YES" name="Geometric_placement_operation" super.expression="ONEOF (Geometric_placement, Geometric_operator_transformation)" supertypes="Detailed_geometric_model_element">
          <explicit name="source">
             <typename name="Axis_placement"/>
@@ -828,18 +743,6 @@
          <explicit name="template_definition">
             <typename name="template_definition_select"/>
          </explicit>
-      </entity>
-      <entity name="Geometric_relationship_with_operator_transformation" supertypes="Geometric_model_relationship_with_transformation">
-         <explicit name="transformation">
-            <typename name="cartesian_transformation"/>
-         </explicit>
-         <where expression="rep_1.context_of_items\Geometric_coordinate_space.dimension_count :=:&#10;        rep_2.context_of_items\Geometric_coordinate_space.dimension_count" label="WR1"/>
-      </entity>
-      <entity name="Geometric_relationship_with_placement_transformation" supertypes="Geometric_model_relationship_with_transformation">
-         <explicit name="transformation">
-            <typename name="Axis_placement_mapping"/>
-         </explicit>
-         <where expression="rep_1.context_of_items\Geometric_coordinate_space.dimension_count :=:&#10;        rep_2.context_of_items\Geometric_coordinate_space.dimension_count" label="WR1"/>
       </entity>
       <entity name="Group">
          <explicit name="id" optional="YES">
@@ -958,14 +861,6 @@
          <where expression="'AP243_BOUNDARY_REPRESENTATION_FOR_ISO_14306_OPEN_JT_ARM_LF.LENGTH_UNIT' IN TYPEOF(SELF\Value_with_unit.Unit)" label="WR2"/>
       </entity>
       <entity name="Length_unit" supertypes="Unit"/>
-      <entity name="Light_source" supertypes="Detailed_geometric_model_element">
-         <explicit name="colour" optional="YES">
-            <typename name="Colour"/>
-         </explicit>
-         <explicit name="light_type">
-            <typename name="light_type"/>
-         </explicit>
-      </entity>
       <entity name="Line" supertypes="Curve">
          <explicit name="point">
             <typename name="Cartesian_point"/>
@@ -998,32 +893,11 @@
          <where expression="'AP243_BOUNDARY_REPRESENTATION_FOR_ISO_14306_OPEN_JT_ARM_LF.MASS_UNIT' IN TYPEOF(SELF\Value_with_unit.Unit)" label="WR1"/>
       </entity>
       <entity name="Mass_unit" supertypes="Unit"/>
-      <entity name="Mechanical_design_view_area" supertypes="View_area"/>
-      <entity name="Mechanical_representation_styled_model" supertypes="Styled_model"/>
-      <entity name="Model_image_3d" supertypes="Detailed_geometric_model_element">
-         <explicit name="is_displaying">
-            <typename name="presented_model_select"/>
-         </explicit>
-         <explicit name="source">
-            <typename name="Camera_model_d3"/>
-         </explicit>
-         <explicit name="target">
-            <typename name="Planar_box"/>
-         </explicit>
-      </entity>
       <entity name="Multi_level_reference_designator" supertypes="Assembly_component_relationship">
          <explicit name="location">
             <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="Next_assembly_usage"/>
          </explicit>
-         <derived expression="location[1]\Product_occurrence_definition_relationship.relating_view" name="relating_view">
-            <typename name="Product_view_definition"/>
-            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
-         </derived>
-         <derived expression="location[HIINDEX(location)]\Product_occurrence_definition_relationship.related_view" name="related_view">
-            <typename name="product_view_definition_or_reference"/>
-            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
-         </derived>
          <derived expression="SELF\Product_occurrence_definition_relationship.related_view" name="leaf_node">
             <typename name="product_view_definition_or_reference"/>
          </derived>
@@ -1151,20 +1025,6 @@
       </entity>
       <entity name="Predefined_marker" supertypes="Marker"/>
       <entity name="Predefined_terminator" supertypes="Terminator"/>
-      <entity name="Presentation_set">
-         <explicit name="areas">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="View_area"/>
-         </explicit>
-      </entity>
-      <entity name="Presentation_set_assignment">
-         <explicit name="associated_presentation">
-            <typename name="Presentation_set"/>
-         </explicit>
-         <explicit name="is_describing">
-            <typename name="presentation_association_select"/>
-         </explicit>
-      </entity>
       <entity name="Pressure_data_element" supertypes="Value_with_unit"/>
       <entity name="Product">
          <explicit name="id">
@@ -1250,10 +1110,6 @@
          </explicit>
       </entity>
       <entity name="Property_representation" supertypes="Property_definition_representation">
-         <explicit name="definition">
-            <typename name="Assigned_property"/>
-            <redeclaration entity-ref="Property_definition_representation"/>
-         </explicit>
          <derived expression="SELF\Property_definition_representation.definition" name="property">
             <typename name="Assigned_property"/>
          </derived>
@@ -1393,16 +1249,6 @@
          </explicit>
          <where expression="EXISTS(relation_type) OR (TYPEOF(SELF\Shape_element_relationship) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
       </entity>
-      <entity name="Shape_placement_association" supertypes="Shape_description_association">
-         <explicit name="used_representation">
-            <typename name="Geometric_placement_model"/>
-            <redeclaration entity-ref="Shape_description_association"/>
-         </explicit>
-         <explicit name="definition">
-            <typename name="Associated_contextual_item_shape"/>
-            <redeclaration entity-ref="Shape_description_association"/>
-         </explicit>
-      </entity>
       <entity name="Silhouette_curve_appearance" supertypes="Surface_related_curve_appearance"/>
       <entity name="Solid_angle_data_element" supertypes="Value_with_unit">
          <where expression="'AP243_BOUNDARY_REPRESENTATION_FOR_ISO_14306_OPEN_JT_ARM_LF.SOLID_ANGLE_UNIT' IN TYPEOF(SELF\Value_with_unit.Unit)" label="WR1"/>
@@ -1450,7 +1296,7 @@
             <builtintype type="BOOLEAN"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Styled_model" super.expression="ONEOF (View, View_area)" supertypes="Representation">
+      <entity abstract.supertype="YES" name="Styled_model" supertypes="Representation">
          <explicit name="version_id" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -1677,53 +1523,6 @@
             <typename name="Cartesian_point"/>
          </explicit>
       </entity>
-      <entity name="View" supertypes="Styled_model">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="view_element_select"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-         <where expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2" label="WR1"/>
-      </entity>
-      <entity name="View_area" supertypes="Styled_model">
-         <explicit name="size">
-            <typename name="Planar_box"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="view_area_element_select"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-         <where expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2" label="WR1"/>
-      </entity>
-      <entity name="View_area_assignment">
-         <explicit name="associated_view_area">
-            <typename name="View_area"/>
-         </explicit>
-         <explicit name="is_describing">
-            <typename name="presentation_association_select"/>
-         </explicit>
-      </entity>
-      <entity name="View_area_relationship">
-         <explicit name="relation_type">
-            <typename name="view_area_relation_type"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="relating">
-            <typename name="View_area"/>
-         </explicit>
-         <explicit name="related">
-            <typename name="View_area"/>
-         </explicit>
-      </entity>
-      <entity name="View_area_replication" supertypes="Styled_model_replication">
-         <explicit name="replicated_model">
-            <typename name="view_area_replication_model"/>
-            <redeclaration entity-ref="Styled_model_replication"/>
-         </explicit>
-      </entity>
       <entity name="View_definition_context">
          <explicit name="application_domain">
             <builtintype type="STRING"/>
@@ -1754,27 +1553,13 @@
          </explicit>
       </entity>
       <entity name="View_definition_usage" supertypes="View_definition_relationship"/>
-      <entity name="View_relationship">
-         <explicit name="relation_type">
-            <typename name="view_relation_type"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="relating">
-            <typename name="View"/>
-         </explicit>
-         <explicit name="related">
-            <typename name="View"/>
-         </explicit>
-      </entity>
       <entity name="Volume_data_element" supertypes="Value_with_unit"/>
       <entity name="Volume_unit" supertypes="Derived_unit"/>
       <rule appliesto="Assembly_component_relationship" name="total_over_assembly_component_relationship_constraint">
-         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['ap243_boundary_representation_for_iso_14306_open_jt_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0" label="wr1"/>
-         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['ap243_boundary_representation_for_iso_14306_open_jt_arm.MULTI_LEVEL_REFERENCE_DESIGNATOR'] * TYPEOF(p) ) = 0)) = 0" label="wr2"/>
-         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['ap243_boundary_representation_for_iso_14306_open_jt_arm.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0" label="wr3"/>
-         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['ap243_boundary_representation_for_iso_14306_open_jt_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0" label="wr4"/>
+         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap243_boundary_representation_for_iso_14306_open_jt_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0" label="wr1"/>
+         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap243_boundary_representation_for_iso_14306_open_jt_arm.MULTI_LEVEL_REFERENCE_DESIGNATOR'] * TYPEOF(p) ) = 0)) = 0" label="wr2"/>
+         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap243_boundary_representation_for_iso_14306_open_jt_arm.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0" label="wr3"/>
+         <where expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap243_boundary_representation_for_iso_14306_open_jt_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0" label="wr4"/>
       </rule>
       <function name="acyclic_representation_relationship">
          <parameter name="relation">

@@ -5638,27 +5638,19 @@ Purpose: To build the initial ANT publication file.
 
 		<xsl:variable name="resource_docs">
 			<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
-				<xsl:message>
-				"hi"	
-				</xsl:message>
 				<xsl:variable name="selected_res" select="@name"/>
-				<xsl:message>
-					<xsl:value-of select="$selected_res"/>
-				</xsl:message>
-				<!--<xsl:variable name="res_file"
-					select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>-->
-				<!--<xsl:variable name="res_node" select="document($res_file)"/>-->
-				<!--<xsl:for-each select="$res_node/resource/schema">
+				<xsl:variable name="res_file"
+					select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>
+				<xsl:variable name="res_node" select="document($res_file)"/>
+				<xsl:for-each select="$res_node/resource/schema">
 					<xsl:value-of select="concat(' ',@name,' ')"/>
-				</xsl:for-each>-->
+				</xsl:for-each>
 			</xsl:for-each>
 		</xsl:variable>
 
 		<xsl:variable name="todo_schema_list"
 			select="concat(string($aps),string($modules),string($resource_docs))"/>
-		<xsl:message>
-			<xsl:value-of select="todo_schema_list"/>
-		</xsl:message>
+
 		<xsl:variable name="mim_schemas">
 			<xsl:call-template name="depends-on-recurse-mim-x">
 				<xsl:with-param name="todo" select="$todo_schema_list"/>
@@ -5754,7 +5746,7 @@ Purpose: To build the initial ANT publication file.
 			select="substring-before(concat(normalize-space($todo),' '),' ')"/>
 
 		<xsl:if test="$this-schema">
-
+			
 			<!-- open up the relevant schema  - which can be a resource or a mim schema -->
 			<xsl:variable name="file_name">
 				<xsl:choose>

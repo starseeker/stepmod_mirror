@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
+$Id: sect_5_main.xsl,v 1.5 2014/04/22 11:24:32 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -145,17 +145,20 @@ $Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
 			  <xsl:variable name="attr_no">
 			    <xsl:number/>
 			  </xsl:variable>
+			  <!--
 			  <xsl:variable name="attr_link" select="concat($be_map_aname,'.',translate($bom_attr,$UPPER,$lower))" />
 			  <xsl:variable name="attr_xref" select="concat($be_xref,'.',translate($bom_attr,$UPPER,$lower))" />
-
+		<xsl:if test="not($ba_nodes[@assertion_to])" >	
 		  <h2>
 		    <a name="{$attr_link}">
-		      <xsl:value-of select="concat('5.1.',$sect_no,'.',$attr_no,' ')"/>
+		      <xsl:value-of select="concat('5.1.',$sect_no,'.',position(),' ')"/>
 		    </a>
 		    <a href="{$attr_xref}">
 		      <xsl:value-of select="concat($entity,'.',$bom_attr)"/>
 		    </a>
-		  </h2>
+	    	  </h2>
+	        </xsl:if>
+		-->
 
 		  <xsl:choose>
         	      <xsl:when test="not($ba_nodes[@attribute=$bom_attr])">
@@ -187,21 +190,22 @@ $Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
         	      </xsl:otherwise>
 	            </xsl:choose>
 
+	           </xsl:for-each>
 		    <!-- NSW: missing specification layer of templates - see stepmod/xsl/sect_5_mapping.xsl line 678 and onwards -->
 
-		    <xsl:apply-templates select="$ba_nodes[@attribute=$bom_attr]" mode="specification" >
+		    <xsl:apply-templates select="$ba_nodes" mode="specification" >
+			    <xsl:sort select="concat(@attribute,'   ',@assertion_to)" />
 			    <xsl:with-param name="schema" select="../../@name" />
 			    <xsl:with-param name="entity" select="$entity" />
-			    <xsl:with-param name="sect" select="concat('5.1.',$sect_no,'.',$attr_no)" />
+			    <!--<xsl:with-param name="sect" select="concat('5.1.',$sect_no,'.',$attr_no)" /> -->
+			    <xsl:with-param name="sect" select="concat('5.1.',$sect_no)" />
 			    <xsl:with-param name="e_xref" select="$be_xref" />
+			    <xsl:with-param name="attr_link" select="concat($be_map_aname,'.',translate(@attribute,$UPPER,$lower))" />
 		    </xsl:apply-templates>
 
 		    <!--			<xsl:apply-templates select="$ba_nodes[@attribute=$bom_attr]" mode="output_mapping" /> -->
-	           </xsl:for-each>
 	   </xsl:otherwise>
 	</xsl:choose>
-
-
 
 	  </xsl:for-each>
 
@@ -214,6 +218,7 @@ $Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
 	  <xsl:param name="entity"/>
 	  <xsl:param name="sect"/>
 	  <xsl:param name="e_xref"/>
+	  <xsl:param name="attr_link"/>
 
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -224,7 +229,8 @@ $Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
 	    <xsl:number value="position()" />
 	</xsl:variable>
 
-	<xsl:if test="@assertion_to" >
+	<xsl:choose>
+		<xsl:when test="@assertion_to" >
 
 		  <xsl:variable name="assert_xref">
 			  <xsl:value-of select="concat('./4_info_reqs',$FILE_EXT,'#',translate(concat($schema,'.',@assertion_to),$UPPER,$lower))"/>        
@@ -245,8 +251,19 @@ $Id: sect_5_main.xsl,v 1.4 2014/01/24 21:52:43 nigelshaw Exp $
 			    <xsl:value-of select="@attribute"/><xsl:value-of select="@position"/>
 		    </a> )
 		  </h2>
-	  </xsl:if>
-	
+		</xsl:when>
+		<xsl:otherwise>	
+		  <h2>
+		    <a name="{$attr_link}">
+		      <xsl:value-of select="concat($sect,'.',position(),' ')"/>
+		    </a>
+		    <a href="{$attr_xref}">
+		      <xsl:value-of select="concat($entity,'.',@attribute)"/>
+		    </a>
+	    	  </h2>
+	        </xsl:otherwise>
+	</xsl:choose>
+
 	  	  <xsl:apply-templates select="." mode="output_mapping" /> 
 
   </xsl:template>

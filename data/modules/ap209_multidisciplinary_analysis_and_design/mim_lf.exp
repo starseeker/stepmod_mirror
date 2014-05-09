@@ -1,5 +1,5 @@
 (*
-$Id: mim_lf.exp,v 1.40 2014/04/24 15:28:40 kahunten Exp $
+$Id: mim_lf.exp,v 1.41 2014/04/28 19:19:48 kahunten Exp $
 WG12N8334 - ISO/TS 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM LF
 *)
 
@@ -15,7 +15,7 @@ part of STEPcode (formerly NIST's SCL). exppp version:
 git commit id: v0.7-353-g0a46b86, build timestamp 26 Feb 2014 19:15
 *)
 
-(* patch 4665, 4779, 4979, 4988, 4992, 5004 
+(* patches 4665, 4779, 4979, 4988, 4992, 5004, 5018, 5019, 5023, 5048
 *)
 
 
@@ -1583,8 +1583,22 @@ SCHEMA ap209_multidisciplinary_analysis_and_design_mim_lf;
 
   TYPE defined_data_name = SELECT
     ( coordinate_data_name,
+  (* The following line is added as patch for BZ#5048 *)
+     property_3d_data_name,
      fd_defined_data_name );
   END_TYPE;
+  
+  (* The following enumeration is added as patch for BZ#5048 *)
+  TYPE property_3d_data_name = ENUMERATION OF
+    ( acceleration,
+      displacement,
+      force,
+      momentum,
+      position,
+      skin_friction,
+      velocity,
+      vorticity );
+  END_TYPE;  
 
   TYPE defined_glyph_select = SELECT
     ( pre_defined_character_glyph,
@@ -4598,6 +4612,8 @@ END_TYPE;
 
   TYPE tuple_space = SELECT
     ( product_space,
+(* next line added as patch for BZ#5023 *)
+      mesh_derived_maths_space,
      extended_tuple_space );
   END_TYPE;
 
@@ -35533,10 +35549,18 @@ END_ENTITY;
   FUNCTION is_coordinate_property(
                arg : specified_general_property
            ) : BOOLEAN;
+(* this line 
     IF 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN TYPEOF( arg ) THEN
+   is replaced by the following two lines as patch for BZ#5019 *)
+    IF ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN
+        TYPEOF(arg\specified_general_property.name_specifier) ) THEN  
       RETURN( TRUE );
     END_IF;
+(* this line 
     RETURN( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN TYPEOF( arg ) );
+   is replaced by the following two lines as patch for BZ#5019 *)
+    RETURN ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+    TYPEOF(arg\specified_general_property.name_specifier));
 
   END_FUNCTION;
 
@@ -39445,7 +39469,10 @@ END_ENTITY;
       n      : INTEGER := LENGTH( schema_prefix );
     END_LOCAL;
     REPEAT i := 1 TO SIZEOF( types ) BY 1;
+(* this line 
       IF types[i][1 : n] = schema_prefix THEN
+   replaced by the following one as patch for BZ#5018 *)
+      IF ((LENGTH(types[i]) > n) AND (types[i][1:n] = schema_prefix)) THEN
         stypes := stypes + types[i][n + 1 : LENGTH( types[i] )];
       ELSE
         stypes := stypes + types[i];

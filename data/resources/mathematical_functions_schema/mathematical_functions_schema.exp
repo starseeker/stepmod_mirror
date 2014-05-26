@@ -1,5 +1,5 @@
 (*
-$Id: mathematical_functions_schema.exp,v 1.21 2013/04/25 21:45:05 Exp $
+$Id: mathematical_functions_schema.exp,v 1.22 2014/03/04 00:30:38 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N8315
 
 EXPRESS Source:
@@ -339,8 +339,8 @@ TYPE product_space = SELECT
   (uniform_product_space,
    listed_product_space);
 END_TYPE;
-TYPE tuple_space = SELECT
-  (product_space,
+TYPE tuple_space = EXTENSIBLE GENERIC_ENTITY SELECT
+   (product_space,
    extended_tuple_space);
 END_TYPE;
 TYPE maths_space_or_function = SELECT
@@ -385,8 +385,8 @@ END_ENTITY;
 
 ENTITY complex_number_literal_polar
   SUBTYPE OF (complex_number_literal);
-  modulus  : REAL;  -- was radius
-  argument : REAL; -- was angle 
+    modulus : REAL;  
+    argument : REAL; 
 DERIVE
   SELF\complex_number_literal.real_part : REAL := modulus * cos(argument);
   SELF\complex_number_literal.imag_part : REAL := modulus * sin(argument);
@@ -572,8 +572,8 @@ WHERE
   WR3: NOT (the_empty_space IN factors);
 END_ENTITY;
 ENTITY extended_tuple_space
-  SUBTYPE OF (maths_space, generic_literal);
-  base     : product_space;
+   SUBTYPE OF (maths_space, generic_literal);
+   base : tuple_space;
   extender : maths_space;
 WHERE
   WR1: expression_is_constant(base) AND
@@ -4271,7 +4271,7 @@ FUNCTION make_expression_denoted_function(expression : generic_expression)
       || generic_expression()
     || unary_generic_expression (expression) );
 END_FUNCTION;  -- make_expression_denoted_function
-FUNCTION make_extended_tuple_space(base     : product_space;
+ FUNCTION make_extended_tuple_space(base : tuple_space;
                                    extender : maths_space) : extended_tuple_space;
   RETURN (extended_tuple_space (base, extender)
     || maths_space ()

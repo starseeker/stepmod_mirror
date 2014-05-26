@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="ap209_multidisciplinary_analysis_and_design_mim_lf schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="ap209_multidisciplinary_analysis_and_design_mim_lf">
@@ -469,7 +467,7 @@
          <select selectitems="mapped_item axis2_placement_2d csg_solid_2d"/>
       </type>
       <type name="csg_primitive">
-         <select selectitems="block bounded_primitive_2d right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
+         <select selectitems="block bounded_primitive_2d cyclide_segment_solid eccentric_cone ellipsoid faceted_primitive rectangular_pyramid right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
       </type>
       <type name="csg_select">
          <select selectitems="boolean_result csg_primitive"/>
@@ -602,7 +600,7 @@
          <enumeration items="application_defined dimensional dimensionless_constant dimensionless_parameter normalise_by_unknown_dimensional normalised_by_dimensional unspecified"/>
       </type>
       <type name="defined_data_name">
-         <select selectitems="coordinate_data_name fd_defined_data_name"/>
+         <select selectitems="coordinate_data_name property_3d_data_name fd_defined_data_name"/>
       </type>
       <type name="defined_glyph_select">
          <select selectitems="pre_defined_character_glyph externally_defined_character_glyph"/>
@@ -1304,6 +1302,9 @@
       <type name="project_item">
          <select selectitems="assembly_component_usage configuration_item executed_action product product_concept product_definition product_definition_formation"/>
       </type>
+      <type name="property_3d_data_name">
+         <enumeration items="acceleration displacement force momentum position skin_friction velocity vorticity"/>
+      </type>
       <type name="property_distribution_select">
          <select selectitems="action_property general_property_relationship model_property_distribution property_definition resource_property"/>
       </type>
@@ -1671,7 +1672,7 @@
          <select selectitems="cartesian_point parameter_value"/>
       </type>
       <type name="tuple_space">
-         <select selectitems="product_space extended_tuple_space"/>
+         <select selectitems="product_space mesh_derived_maths_space extended_tuple_space"/>
       </type>
       <type name="turbulence_closure_data_name">
          <enumeration items="eddy_viscosity prandtl_turbulent"/>
@@ -4865,6 +4866,21 @@
          </explicit>
          <where expression="( SELF\named_unit.dimensions = derive_dimensional_exponents( conversion_factor\measure_with_unit.unit_component ) )" label="wr1"/>
       </entity>
+      <entity name="convex_hexahedron" supertypes="faceted_primitive">
+         <where expression="SIZEOF(points) = 8" label="WR1"/>
+         <where expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0" label="WR2"/>
+         <where expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0" label="WR3"/>
+         <where expression="above_plane(points[1], points[4], points[8], points[5]) = 0.0" label="WR4"/>
+         <where expression="above_plane(points[4], points[3], points[7], points[8]) = 0.0" label="WR5"/>
+         <where expression="above_plane(points[3], points[2], points[6], points[7]) = 0.0" label="WR6"/>
+         <where expression="above_plane(points[1], points[5], points[6], points[2]) = 0.0" label="WR7"/>
+         <where expression="same_side([points[1], points[2], points[3]], [points[5], points[6], points[7], points[8]])" label="WR8"/>
+         <where expression="same_side([points[1], points[4], points[8]], [points[3], points[7], points[6], points[2]])" label="WR9"/>
+         <where expression="same_side([points[1], points[2], points[5]], [points[3], points[7], points[8], points[4]])" label="WR10"/>
+         <where expression="same_side([points[5], points[6], points[7]], [points[1], points[2], points[3], points[4]])" label="WR11"/>
+         <where expression="same_side([points[3], points[7], points[6]], [points[1], points[4], points[8], points[5]])" label="WR12"/>
+         <where expression="same_side([points[3], points[7], points[8]], [points[1], points[5], points[6], points[2]])" label="WR13"/>
+      </entity>
       <entity name="coordinated_universal_time_offset">
          <explicit name="hour_offset">
             <builtintype type="INTEGER"/>
@@ -5732,6 +5748,26 @@
          <where expression="validate_inspected_elements_type( SELF, [ 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CURVE'] )" label="wr3"/>
          <where expression="validate_locations_of_extreme_value_type( SELF, [ 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POINT_ON_CURVE'] )" label="wr4"/>
          <where expression="validate_accuracy_types( SELF, [ 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE'] )" label="wr5"/>
+      </entity>
+      <entity name="cyclide_segment_solid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="radius1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="radius2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="cone_angle1">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="cone_angle2">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="turn_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
       </entity>
       <entity name="cylindrical_pair" supertypes="low_order_kinematic_pair">
          <derived expression="FALSE" name="t_x">
@@ -6814,6 +6850,30 @@
          <where expression="( ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAWING_SHEET_REVISION' IN TYPEOF( SELF\area_in_set.area ) ) &#10;               AND ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.DRAWING_REVISION' IN TYPEOF( SELF\area_in_set.in_set ) ) )" label="wr1"/>
       </entity>
       <entity name="dummy_node" supertypes="node_representation"/>
+      <entity name="eccentric_cone" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="semi_axis_1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="height">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="x_offset">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="y_offset">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="ratio">
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="ratio &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="edge" super.expression="ONEOF (edge_curve, oriented_edge, subedge)" supertypes="topological_representation_item">
          <explicit name="edge_start">
             <typename name="vertex"/>
@@ -7103,6 +7163,20 @@
             <typename name="positive_length_measure"/>
          </explicit>
          <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="ellipsoid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="semi_axis_1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_3">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
@@ -7440,7 +7514,7 @@
       </entity>
       <entity name="extended_tuple_space" supertypes="maths_space generic_literal">
          <explicit name="base">
-            <typename name="product_space"/>
+            <typename name="tuple_space"/>
          </explicit>
          <explicit name="extender">
             <typename name="maths_space"/>
@@ -7795,6 +7869,13 @@
          <where expression="( SIZEOF( QUERY ( msb &lt;* QUERY ( it &lt;* items | ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'&#10;               + 'MANIFOLD_SOLID_BREP'  IN TYPEOF( it ) ) ) | ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.'&#10;               + 'ORIENTED_CLOSED_SHELL'  IN TYPEOF( msb\manifold_solid_brep.outer ) ) ) ) = 0 )" label="wr5"/>
          <where expression="( SIZEOF( QUERY ( brv &lt;* QUERY ( it &lt;* items | ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.BREP_WITH_VOIDS' &#10;               IN TYPEOF( it ) ) ) | ( NOT ( SIZEOF( QUERY ( csh &lt;* brv\brep_with_voids.voids | csh\oriented_closed_shell.&#10;               orientation ) ) = 0 ) ) ) ) = 0 )" label="wr6"/>
          <where expression="( SIZEOF( QUERY ( mi &lt;* QUERY ( it &lt;* items | ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM' IN &#10;               TYPEOF( it ) ) ) | ( NOT ( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.FACETED_BREP_SHAPE_REPRESENTATION' &#10;               IN TYPEOF( mi\mapped_item.mapping_source.mapped_representation ) ) ) ) ) = 0 )" label="wr7"/>
+      </entity>
+      <entity name="faceted_primitive" super.expression="ONEOF (tetrahedron, convex_hexahedron)" supertypes="geometric_representation_item">
+         <explicit name="points">
+            <aggregate lower="4" type="LIST" unique="YES" upper="?"/>
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="points[1].dim = 3" label="WR1"/>
       </entity>
       <entity name="fact_type" supertypes="property_definition"/>
       <entity name="fd_bc" supertypes="mbna_bc">
@@ -10229,7 +10310,6 @@
             <typename name="link_motion_transformation"/>
             <redeclaration entity-ref="representation_relationship_with_transformation"/>
          </explicit>
-         <where expression="( transformation_operator\item_defined_transformation.transform_item_1 IN rep_1.items )" label="wr1"/>
          <where expression="( transformation_operator\item_defined_transformation.transform_item_2 IN rep_2.items )" label="wr2"/>
       </entity>
       <entity name="link_motion_representation_along_path" super.expression="ONEOF (prescribed_path, resulting_path)" supertypes="representation">
@@ -13295,7 +13375,11 @@
          <where expression="( SELF\geometric_representation_item.dim = 2 )" label="wr1"/>
       </entity>
       <entity name="primitive_2d_with_inner_boundary" supertypes="complex_area compound_representation_item">
-         <derived expression="SELF\compound_representation_item.item_element" name="inner_boundary">
+         <explicit name="item_element">
+            <typename name="compound_inner_area_boundary"/>
+            <redeclaration entity-ref="compound_representation_item"/>
+         </explicit>
+         <derived expression="item_element" name="inner_boundary">
             <typename name="compound_inner_area_boundary"/>
          </derived>
          <where expression="( SIZEOF( [ 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.CIRCULAR_AREA', &#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.ELLIPTIC_AREA' , &#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.RECTANGULAR_AREA' , &#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.POLYGONAL_AREA' , &#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.AREA_WITH_OUTER_BOUNDARY' , &#10;               'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PATH_AREA_WITH_PARAMETERS' ] * TYPEOF( SELF ) ) &gt; 0 )" label="wr1"/>
@@ -14199,6 +14283,20 @@
          <where expression="( SIZEOF( QUERY ( pd &lt;* USEDIN( SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION.'&#10;                + 'DEFINITION'  ) | ( NOT ( SIZEOF( QUERY ( impl_rep &lt;* QUERY ( pdr &lt;* USEDIN( pd, &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'  ) | ( &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS'  IN TYPEOF( pdr.&#10;                used_representation ) ) ) | ( NOT ( SIZEOF( QUERY ( it &lt;* impl_rep.used_representation.items | ( ( SIZEOF( [&#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MEASURE_REPRESENTATION_ITEM' , &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE_WITH_UNIT' ] * TYPEOF( it ) ) = 2 ) AND ( it.&#10;                name = 'row spacing' ) ) ) ) = 1 ) ) ) ) = 0 ) ) ) ) = 0 )" label="wr8"/>
          <where expression="( SIZEOF( QUERY ( pd &lt;* USEDIN( SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION.'&#10;                + 'DEFINITION'  ) | ( NOT ( SIZEOF( QUERY ( impl_rep &lt;* QUERY ( pdr &lt;* USEDIN( pd, &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'  ) | ( &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS'  IN TYPEOF( pdr.&#10;                used_representation ) ) ) | ( NOT ( SIZEOF( QUERY ( it &lt;* impl_rep.used_representation.items | ( ( SIZEOF( [&#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MEASURE_REPRESENTATION_ITEM' , &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.LENGTH_MEASURE_WITH_UNIT' ] * TYPEOF( it ) ) = 2 ) AND ( it.&#10;                name = 'column spacing' ) ) ) ) = 1 ) ) ) ) = 0 ) ) ) ) = 0 )" label="wr9"/>
          <where expression="( SIZEOF( QUERY ( pd &lt;* USEDIN( SELF, 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION.'&#10;                + 'DEFINITION'  ) | ( NOT ( SIZEOF( QUERY ( impl_rep &lt;* QUERY ( pdr &lt;* USEDIN( pd, &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'  ) | ( &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS'  IN TYPEOF( pdr.&#10;                used_representation ) ) ) | ( NOT ( SIZEOF( QUERY ( it &lt;* impl_rep.used_representation.items | ( ( &#10;                'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.PLACEMENT'  IN TYPEOF( it ) ) AND ( it.name = 'orientation' ) ) ) ) &#10;                = 1 ) ) ) ) = 0 ) ) ) ) = 0 )" label="wr10"/>
+      </entity>
+      <entity name="rectangular_pyramid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="xlength">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="ylength">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="height">
+            <typename name="positive_length_measure"/>
+         </explicit>
       </entity>
       <entity name="rectangular_trimmed_surface" supertypes="bounded_surface">
          <explicit name="basis_surface">
@@ -18203,6 +18301,10 @@
             <typename name="path_or_composite_curve"/>
          </explicit>
       </entity>
+      <entity name="tetrahedron" supertypes="faceted_primitive">
+         <where expression="SIZEOF(points) = 4" label="WR1"/>
+         <where expression="above_plane(points[1], points[2], points[3], points[4]) &lt;&gt; 0.0" label="WR2"/>
+      </entity>
       <entity name="text_font">
          <explicit name="id">
             <typename name="identifier"/>
@@ -20367,6 +20469,39 @@
     END_REPEAT;</algorithm>
          <where expression="dependently_instantiated( all_instances, set_of_input_types, previous_in_chain )" label="wr1"/>
       </rule>
+      <function name="above_plane">
+         <parameter name="p1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p3">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p4">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="REAL"/>
+         <algorithm>LOCAL
+      dir2, dir3, dir4 : direction :=
+                  dummy_gri || direction([1.0, 0.0, 0.0]);
+      val, mag         : REAL;
+    END_LOCAL;
+
+    IF (p1.dim &lt;&gt; 3) THEN
+      RETURN(?);
+    END_IF;
+    REPEAT i := 1 TO 3;
+      dir2.direction_ratios[i] := p2.coordinates[i] - p1.coordinates[i];
+      dir3.direction_ratios[i] := p3.coordinates[i] - p1.coordinates[i];
+      dir4.direction_ratios[i] := p4.coordinates[i] - p1.coordinates[i];
+      mag := dir4.direction_ratios[i]*dir4.direction_ratios[i];
+    END_REPEAT;
+      mag := sqrt(mag);
+      val := mag*dot_product(dir4, cross_product(dir2, dir3).orientation);
+    RETURN(val);</algorithm>
+      </function>
       <function name="acyclic">
          <parameter name="arg1">
             <typename name="generic_expression"/>
@@ -27174,10 +27309,23 @@
             <typename name="specified_general_property"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>IF 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN TYPEOF( arg ) THEN
+         <algorithm>IF ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN
+        TYPEOF(arg\specified_general_property.name_specifier) ) THEN  
       RETURN( TRUE );
     END_IF;
-    RETURN( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN TYPEOF( arg ) );</algorithm>
+(* this line 
+    RETURN( 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN TYPEOF( arg ) );
+   is replaced by the following section as patch for BZ#5019 and BZ#5054
+    RETURN ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+    TYPEOF(arg\specified_general_property.name_specifier)); *)
+    IF (arg\specified_general_property.name_specifier = PROPERTY_3D_DATA_NAME.POSITION)
+        OR
+       ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+        TYPEOF(arg\specified_general_property.name_specifier)) THEN 
+       RETURN ( TRUE );
+    ELSE
+       RETURN( FALSE );
+    END_IF;</algorithm>
       </function>
       <function name="is_int_expr">
          <parameter name="arg">
@@ -27597,7 +27745,7 @@
       </function>
       <function name="make_extended_tuple_space">
          <parameter name="base">
-            <typename name="product_space"/>
+            <typename name="tuple_space"/>
          </parameter>
          <parameter name="extender">
             <typename name="maths_space"/>
@@ -29130,6 +29278,36 @@
     END_IF;
     RETURN( ( SIZEOF( node_list ) = ( vertex_nodes + edge_nodes ) ) OR ( SIZEOF( node_list ) = ( vertex_nodes + 
         edge_face_body_nodes ) ) );</algorithm>
+      </function>
+      <function name="same_side">
+         <parameter name="plane_pts">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="test_points">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      val1, val2 : REAL;
+      n          : INTEGER;
+    END_LOCAL;
+
+    IF (plane_pts[1].dim = 2) OR (test_points[1].dim = 2) THEN
+      RETURN(?);
+    END_IF;
+    n := SIZEOF(test_points);
+    val1 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                        test_points[1] );
+    REPEAT i := 2 TO n;
+      val2 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                        test_points[i] );
+      IF (val1*val2 &lt;= 0.0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN(TRUE);</algorithm>
       </function>
       <function name="scalar_times_vector">
          <parameter name="scalar">
@@ -31193,7 +31371,10 @@
       n      : INTEGER := LENGTH( schema_prefix );
     END_LOCAL;
     REPEAT i := 1 TO SIZEOF( types ) BY 1;
+(* this line 
       IF types[i][1 : n] = schema_prefix THEN
+   replaced by the following one as patch for BZ#5018 *)
+      IF ((LENGTH(types[i]) &gt; n) AND (types[i][1:n] = schema_prefix)) THEN
         stypes := stypes + types[i][n + 1 : LENGTH( types[i] )];
       ELSE
         stypes := stypes + types[i];

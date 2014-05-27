@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.7 2005/03/02 10:47:35 robbod Exp $
+$Id: sect_annex_comp_int.xsl,v 1.8 2014/04/17 10:14:54 ungerer Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -247,18 +247,20 @@ $Id: sect_annex_comp_int.xsl,v 1.7 2005/03/02 10:47:35 robbod Exp $
       </tr>
       <xsl:apply-templates select="mim_lf" mode="annexe"/>
 
-    <tr>
-      <td>BO EXPRESS</td>
-      <td><a href="{$bom_xml}" target="info">HTML</a></td>
-      <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
-      <td>ISO TC184/SC4/WG12 N8327</td>
-    </tr>
-    <tr>
-      <td>BO XML schema</td>
-      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
-      <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
-      <td>ISO TC184/SC4/WG12 N8326</td>
-    </tr>
+      <xsl:if test="$bom_name" >
+	    <tr>
+	      <td>BO EXPRESS</td>
+	      <td><a href="{$bom_xml}" target="info">HTML</a></td>
+	      <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
+	      <td>ISO TC184/SC4/WG12 N8327</td>
+	    </tr>
+	    <tr>
+	      <td>BO XML schema</td>
+	      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
+	      <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
+	      <td>ISO TC184/SC4/WG12 N8326</td>
+	    </tr>
+    </xsl:if>
 <!--   
 -->
     </table>

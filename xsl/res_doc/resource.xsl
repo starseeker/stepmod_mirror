@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.88 2012/11/20 12:55:53 mikeward Exp $
+$Id: resource.xsl,v 1.89 2013/02/15 21:29:43 lothartklein Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1059,10 +1059,10 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 
 
     <xsl:variable name="names_url"
-		  select="'http://www.tc184-sc4.org/Short_Names/'"/>
-
+    		  select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
+  
     <xsl:variable name="parts_url"
-		  select="'http://www.tc184-sc4.org/EXPRESS/'"/>
+		  select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
 
     <p>
       This annex references a listing of the EXPRESS entity names and

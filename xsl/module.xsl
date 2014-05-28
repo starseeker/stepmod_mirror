@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.228 2011/11/05 11:07:04 lothartklein Exp $
+$Id: module.xsl,v 1.229 2013/02/08 20:15:58 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1375,10 +1375,11 @@ TT remove since locke is no longer available.
   select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
   -->
   <xsl:variable name="names_url"
-    select="'http://www.tc184-sc4.org/Short_Names/'"/>
+    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
   
   <xsl:variable name="parts_url"
-    select="'http://www.tc184-sc4.org/EXPRESS/'"/>
+    select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
+
   <!-- it has been decided that for WG3 modules, a place for additional rules will be
 provided  that links throught SC4ONLINE to a new repository --> 
 

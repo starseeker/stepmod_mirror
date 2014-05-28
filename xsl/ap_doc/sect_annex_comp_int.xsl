@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.8 2014/04/17 10:14:54 ungerer Exp $
+$Id: sect_annex_comp_int.xsl,v 1.9 2014/05/27 14:03:53 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -100,13 +100,6 @@ $Id: sect_annex_comp_int.xsl,v 1.8 2014/04/17 10:14:54 ungerer Exp $
   <xsl:variable name="mim_schema"
     select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
    
-<!-- BOM -->
-<!--   <xsl:variable name="bom_name" select="@business_object_model"/>  -->
-<xsl:variable name="bom_exp" select="concat('../../../business_object_models/',$bom_name,'/bom.exp')"/>
-<xsl:variable name="bom_xsd" select="concat('../../../business_object_models/',$bom_name,'/bom.xsd')"/>
-<xsl:variable name="bom_xml" select="concat('../../../business_object_models/',$bom_name,'/bom', $FILE_EXT)"/>
-<xsl:variable name="bom_xsd_file" select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd', $FILE_EXT)"/>
-
   <!--
        It has been decided to point to the index instead
   <xsl:variable name="names_url"
@@ -117,10 +110,10 @@ $Id: sect_annex_comp_int.xsl,v 1.8 2014/04/17 10:14:54 ungerer Exp $
   select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
   -->
   <xsl:variable name="names_url"
-    select="'http://www.tc184-sc4.org/Short_Names/'"/>
+    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
   
   <xsl:variable name="parts_url"
-    select="'http://www.tc184-sc4.org/EXPRESS/'"/>
+    select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
 
   <p>
     This annex provides a listing of the complete EXPRESS schema referenced
@@ -248,17 +241,33 @@ $Id: sect_annex_comp_int.xsl,v 1.8 2014/04/17 10:14:54 ungerer Exp $
       <xsl:apply-templates select="mim_lf" mode="annexe"/>
 
       <xsl:if test="$bom_name" >
+<!-- BOM -->
+	<xsl:variable name="bom_exp" select="concat('../../../business_object_models/',$bom_name,'/bom.exp')"/>
+	<xsl:variable name="bom_xsd" select="concat('../../../business_object_models/',$bom_name,'/bom.xsd')"/>
+	<xsl:variable name="bom_xml" select="concat('../../../business_object_models/',$bom_name,'/bom', $FILE_EXT)"/>
+	<xsl:variable name="bom_xsd_file" select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd', $FILE_EXT)"/>
+	<xsl:variable name="bom_xsd_conf_file" select="concat('../../../business_object_models/',$bom_name,'/sys/config_xsd', $FILE_EXT)"/>
+	<xsl:variable name="bom_xsd_conf" select="concat('../../../business_object_models/',$bom_name,'/p28_config.xml')"/>
+	<xsl:variable name="bom_exp" select="concat('../../../business_object_models/',$bom_name,')" />    
+	<xsl:variable name="bom_element" select="document(concat($business_object_model_dir,'/business_object_model.xml'))/business_object_model" />
+
 	    <tr>
 	      <td>BO EXPRESS</td>
 	      <td><a href="{$bom_xml}" target="info">HTML</a></td>
 	      <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
-	      <td>ISO TC184/SC4/WG12 N8327</td>
+	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.exp"/></td>
 	    </tr>
 	    <tr>
 	      <td>BO XML schema</td>
 	      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
 	      <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
-	      <td>ISO TC184/SC4/WG12 N8326</td>
+	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.xsd"/></td>
+	    </tr>
+	    <tr>
+	      <td>BO XML configuration specification</td>
+	      <td><a href="{$bom_xsd_conf_file}" target="info">HTML</a></td>
+	      <td><a href="{$bom_xsd_conf}" target="_blank">XSD</a></td>
+	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.confspec"/></td>
 	    </tr>
     </xsl:if>
 <!--   

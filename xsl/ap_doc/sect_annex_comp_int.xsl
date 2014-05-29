@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
+$Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 08:04:45 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -113,7 +113,7 @@ $Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
     select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
   
   <xsl:variable name="parts_url"
-    select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
+    select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>
 
   <p>
     This annex provides a listing of the complete EXPRESS schema referenced
@@ -254,19 +254,19 @@ $Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
 	      <td>BO EXPRESS</td>
 	      <td><a href="{$bom_xml}" target="info">HTML</a></td>
 	      <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
-	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.exp"/></td>
+	      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="$bom_element/@wg.number.bom.exp"/></td>
 	    </tr>
 	    <tr>
 	      <td>BO XML schema</td>
 	      <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
 	      <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
-	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.xsd"/></td>
+	      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="$bom_element/@wg.number.bom.xsd"/></td>
 	    </tr>
 	    <tr>
 	      <td>BO XML configuration specification</td>
 	      <td><a href="{$bom_xsd_conf_file}" target="info">HTML</a></td>
 	      <td><a href="{$bom_xsd_conf}" target="_blank">XSD</a></td>
-	      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="$bom_element/@wg.number.bom.confspec"/></td>
+	      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="$bom_element/@wg.number.bom.confspec"/></td>
 	    </tr>
     </xsl:if>
 <!--   
@@ -275,8 +275,7 @@ $Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
   </div>
   <p>
     If there is difficulty accessing these sites, contact ISO Central
-    Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
-    <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.
+    Secretariat.
   </p>
   <p class="note">
     <small>
@@ -329,7 +328,7 @@ $Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
         <xsl:variable name="wg_group">
           <xsl:call-template name="get_module_wg_group"/>
         </xsl:variable>
-        <xsl:value-of select="concat('ISO TC184/SC4/WG',$wg_group,' N',$wgnumber)"/>
+	<xsl:value-of select="concat('ISO/TC 184/SC 4/WG ',$wg_group,' N',$wgnumber)"/>
       </xsl:otherwise>
     </xsl:choose>    
   </td>

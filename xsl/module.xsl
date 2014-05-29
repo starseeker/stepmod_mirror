@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.229 2013/02/08 20:15:58 darla Exp $
+$Id: module.xsl,v 1.230 2014/05/28 19:53:13 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -121,7 +121,7 @@ $Id: module.xsl,v 1.229 2013/02/08 20:15:58 darla Exp $
   </xsl:call-template>
 
   <xsl:variable name="n_number"
-    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+	  select="concat('ISO/TC&#160;184/SC&#160;4/WG&#160;',$wg_group,'&#160;N',./@wg.number)"/>
   <xsl:variable name="date">
     <xsl:choose>
       <xsl:when test="string-length($coverpage_date)>0 and $output_background='NO'">
@@ -171,7 +171,7 @@ $Id: module.xsl,v 1.229 2013/02/08 20:15:58 darla Exp $
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of 
-                  select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.supersedes)"/>
+			select="concat('ISO/TC&#160;184/SC&#160;4/WG&#160;',$wg_group,'&#160;N',@wg.number.supersedes)"/>
               </xsl:otherwise>
             </xsl:choose>
           </h3>
@@ -1378,7 +1378,7 @@ TT remove since locke is no longer available.
     select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
   
   <xsl:variable name="parts_url"
-    select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
+    select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>
 
   <!-- it has been decided that for WG3 modules, a place for additional rules will be
 provided  that links throught SC4ONLINE to a new repository --> 
@@ -1524,8 +1524,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   </div>
   <p>
     If there is difficulty accessing these sites, contact ISO Central
-    Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
-    <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.
+    Secretariat.
   </p>
   <p class="note">
     <small>
@@ -1579,7 +1578,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
         <xsl:variable name="wg_group">
           <xsl:call-template name="get_module_wg_group"/>
         </xsl:variable>
-        <xsl:value-of select="concat('ISO TC184/SC4/WG',$wg_group,' N',$wgnumber)"/>
+        <xsl:value-of select="concat('ISO/TC 184/SC 4/WG ',$wg_group,' N',$wgnumber)"/>
       </xsl:otherwise>
     </xsl:choose>    
   </td>

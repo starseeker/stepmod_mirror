@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
+$Id: common.xsl,v 1.33 2008/05/21 20:50:25 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -207,7 +207,7 @@ $Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
 
   <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
   <xsl:variable name="editor_contact"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
+	  select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
   <xsl:variable name="dc.contributor">
     <xsl:value-of select="normalize-space(concat($editor_contact/lastname,', ',$editor_contact/firstname))"/>
   </xsl:variable>
@@ -244,7 +244,7 @@ $Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
     <xsl:call-template name="get_resdoc_wg_group"/>
   </xsl:variable>  
   <xsl:variable name="id"
-    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+    select="concat('ISO/TC 184/SC 4/WG ',$wg_group,'&#160;N',./@wg.number)"/>
   <xsl:variable name="clause_of">
     <xsl:if test="$clause">
       <xsl:value-of select="concat('Clause of ',$clause)"/>
@@ -256,7 +256,7 @@ $Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
   </xsl:call-template>
 
   <xsl:variable name="supersedes"
-    select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@wg.number.supersedes)"/>
+    select="concat('ISO/TC 184/SC 4/WG ',$wg_group,' N',./@wg.number.supersedes)"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Replaces'"/>
     <xsl:with-param name="content" select="$supersedes"/>
@@ -267,19 +267,19 @@ $Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
     <xsl:with-param name="content" select="./@version"/>
   </xsl:call-template>
 
-  <xsl:variable name="checklist.internal_review" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.internal_review)"/>
+  <xsl:variable name="checklist.internal_review" select="concat('ISO/TC 184/SC4/WG',$wg_group,' N',./@checklist.internal_review)"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'SC4.checklist.internal_review'"/>
     <xsl:with-param name="content" select="$checklist.internal_review"/>
   </xsl:call-template>
 
-  <xsl:variable name="checklist.project_leader" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.project_leader)"/>
+  <xsl:variable name="checklist.project_leader" select="concat('ISO/TC 184/SC 4/WG ',$wg_group,' N',./@checklist.project_leader)"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'SC4.checklist.project_leader'"/>
     <xsl:with-param name="content" select="$checklist.project_leader"/>
   </xsl:call-template>
 
-  <xsl:variable name="checklist.convener" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.convener)"/>
+  <xsl:variable name="checklist.convener" select="concat('ISO/TC 184/SC 4/WG ',$wg_group,' N',./@checklist.convener)"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'SC4.checklist.convener'"/>
     <xsl:with-param name="content" select="$checklist.convener"/>

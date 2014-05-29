@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.90 2014/05/28 19:55:06 nigelshaw Exp $
+$Id: resource.xsl,v 1.91 2014/05/29 16:06:16 nigelshaw Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -995,8 +995,8 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     </p>
     <div align="center">
       <blockquote>
-	<A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm"   target="_blank">
-	  http://www.tc184-sc4.org/titles/STEP_Titles.htm
+	<A HREF="http://standards.iso.org/iso/10303/tech/step_titles.htm"   target="_blank">
+	  http://standards.iso.org/iso/10303/tech/step_titles.htm
 	</A>
       </blockquote>
     </div>

@@ -4,7 +4,7 @@
 
 <!--
 
-$Id: sect_cover.xsl,v 1.15 2008/06/26 14:36:30 abf Exp $
+$Id: sect_cover.xsl,v 1.16 2012/10/29 16:38:09 mikeward Exp $
 
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
 
@@ -72,7 +72,7 @@ $Id: sect_cover.xsl,v 1.15 2008/06/26 14:36:30 abf Exp $
 
   <xsl:variable name="n_number"
 
-    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+    select="concat('ISO/TC 184/SC 4/WG ',$wg_group,'&#160;N',./@wg.number)"/>
 
   <xsl:variable name="date">
 
@@ -173,7 +173,7 @@ $Id: sect_cover.xsl,v 1.15 2008/06/26 14:36:30 abf Exp $
 
                 <xsl:value-of 
 
-                  select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.supersedes)"/>
+			select="concat('ISO/TC&#160;184/SC&#160;4/WG&#160;',$wg_group,'&#160;N',@wg.number.supersedes)"/>
 
               </xsl:otherwise>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.21 2005/03/02 10:45:42 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.22 2005/03/02 12:44:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -127,7 +127,7 @@ $Id: sect_a_short_names.xsl,v 1.21 2005/03/02 10:45:42 robbod Exp $
     </p>
     <p align="center">
       <xsl:variable name="names_url"
-        select="'http://www.tc184-sc4.org/Short_Names/'"/> 
+    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
       <small>
         <a href="{$names_url}"  target="_blank">
           <xsl:value-of select="$names_url"/>

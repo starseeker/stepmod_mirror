@@ -77,7 +77,7 @@
          <p class="line">Part <xsl:value-of select="concat(@part,' (',@name,')')"/>  </p>  
          <p class="line">Edition  <xsl:value-of select="@version"/>  </p> 
          <p class="line">Stage  6 (TS) </p>  
-         <p class="line">N-number: ISO TC184/SC4/WG12 N <xsl:value-of select="@wg.number"/></p> 
+         <p class="line">N-number: ISO/TC 184/SC 4/WG 12 N <xsl:value-of select="@wg.number"/></p> 
        </td>
      </tr>
    </table>

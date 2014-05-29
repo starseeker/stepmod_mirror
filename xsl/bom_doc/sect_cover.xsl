@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_cover.xsl,v 1.15 2008/06/26 14:36:30 mikeward   Exp $
+  $Id: sect_cover.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the cover page for a BOM.     
@@ -38,7 +38,7 @@
   </xsl:apply-templates>-->
 
   <xsl:variable name="wg_group" select="3"/>
-  <xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+  <xsl:variable name="n_number" select="concat('ISO/TC 184/SC 4/WG ',$wg_group,'&#160;N',./@wg.number)"/>
   <xsl:variable name="date">
     <xsl:choose>
       <xsl:when test="string-length($coverpage_date)>0 and $output_background='NO'">
@@ -81,7 +81,7 @@
                 <xsl:value-of select="@wg.number.supersedes"/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:value-of select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.supersedes)"/>
+		      <xsl:value-of select="concat('ISO/TC&#160;184/SC&#160;4/WG&#160;',$wg_group,'&#160;N',@wg.number.supersedes)"/>
               </xsl:otherwise>
             </xsl:choose>
           </h3>

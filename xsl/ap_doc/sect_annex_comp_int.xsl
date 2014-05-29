@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.10 2014/05/28 17:27:56 nigelshaw Exp $
+$Id: sect_annex_comp_int.xsl,v 1.11 2014/05/29 07:58:32 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -248,7 +248,7 @@ $Id: sect_annex_comp_int.xsl,v 1.10 2014/05/28 17:27:56 nigelshaw Exp $
 	<xsl:variable name="bom_xsd_file" select="concat('../../../business_object_models/',$bom_name,'/sys/bom_xsd', $FILE_EXT)"/>
 	<xsl:variable name="bom_xsd_conf_file" select="concat('../../../business_object_models/',$bom_name,'/sys/config_xsd', $FILE_EXT)"/>
 	<xsl:variable name="bom_xsd_conf" select="concat('../../../business_object_models/',$bom_name,'/p28_config.xml')"/>
-	<xsl:variable name="bom_element" select="document(concat('../../../business_object_models/',$bom_name,'/business_object_model.xml'))/business_object_model" />
+	<xsl:variable name="bom_element" select="document(concat('../../data/business_object_models/',$bom_name,'/business_object_model.xml'))/business_object_model" />
 
 	    <tr>
 	      <td>BO EXPRESS</td>

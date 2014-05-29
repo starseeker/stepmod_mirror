@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.11 2014/05/28 12:48:22 nigelshaw Exp $
+$Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 12:56:20 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -50,7 +50,7 @@ $Id: sect_annex_comp_int.xsl,v 1.11 2014/05/28 12:48:22 nigelshaw Exp $
     These listings are available in computer-interpretable form in Table D.1 and can be found at the following URLs:
   </p> 
   <p>
-    EXPRESS:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/express.zip</a>
+    EXPRESS:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip</a>
     <br></br>
     XSD:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/xsd.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/xsd.zip</a>
     <br></br>

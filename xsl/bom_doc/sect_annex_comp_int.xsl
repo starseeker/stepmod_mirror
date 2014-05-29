@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 12:56:20 nigelshaw Exp $
+$Id: sect_annex_comp_int.xsl,v 1.13 2014/05/29 13:02:56 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display Annex E for a BOM document.  
@@ -50,11 +50,11 @@ $Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 12:56:20 nigelshaw Exp $
     These listings are available in computer-interpretable form in Table D.1 and can be found at the following URLs:
   </p> 
   <p>
-    EXPRESS:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip</a>
+    EXPRESS:	<a href="http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip">http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip</a>
     <br></br>
-    XSD:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/xsd.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/xsd.zip</a>
+    XSD:	<a href="http://standards.iso.org/iso/10303/smrl/v6/tech/xsd.zip">http://standards.iso.org/iso/10303/smrl/v6/tech/xsd.zip</a>
     <br></br>
-    XML:	<a href="http://standards.iso.org/iso/10303/smrl/v5/tech/xml.zip">http://standards.iso.org/iso/10303/smrl/v5/tech/xml.zip</a>
+    XML:	<a href="http://standards.iso.org/iso/10303/smrl/v6/tech/xml.zip">http://standards.iso.org/iso/10303/smrl/v6/tech/xml.zip</a>
   </p>
     <div align="center">
     <a name="table_e1">
@@ -77,19 +77,19 @@ $Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 12:56:20 nigelshaw Exp $
       <td>BO EXPRESS</td>
       <td><a href="{$bom_xml}" target="info">HTML</a></td>
       <td><a href="{$bom_exp}" target="_blank">EXPRESS</a></td>
-      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="@wg.number.bom.exp"/></td>
+      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="@wg.number.bom.exp"/></td>
     </tr>
     <tr>
       <td>BO XML schema</td>
       <td><a href="{$bom_xsd_file}" target="info">HTML</a></td>
       <td><a href="{$bom_xsd}" target="_blank">XSD</a></td>
-      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="@wg.number.bom.xsd"/></td>
+      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="@wg.number.bom.xsd"/></td>
     </tr>
     <tr>
       <td>BO XML configuration specification</td>
       <td><a href="{$config_xml_file}" target="info">HTML</a></td>
       <td><a href="{$bom_p28}" target="_blank">XML</a></td>
-      <td>ISO TC184/SC4/WG12 N<xsl:value-of select="@wg.number.bom.confspec"/></td>
+      <td>ISO/TC 184/SC 4/WG 12 N<xsl:value-of select="@wg.number.bom.confspec"/></td>
     </tr>
   </table>
   </div>

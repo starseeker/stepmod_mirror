@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.89 2013/02/15 21:29:43 lothartklein Exp $
+$Id: resource.xsl,v 1.90 2014/05/28 19:55:06 nigelshaw Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -114,7 +114,7 @@ Purpose:
     </xsl:apply-templates>
 
     <xsl:variable name="n_number"
-		  select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
+	    select="concat('ISO/TC 184/SC 4/WG 12&#160;N',./@wg.number)"/>
     <xsl:variable name="date"
 		  select="translate(
 			  substring-before(substring-after(@rcs.date,'$Date: '),' '),
@@ -158,7 +158,7 @@ Purpose:
 		</xsl:when>
 		<xsl:otherwise>
 		  <xsl:value-of 
-		      select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
+			  select="concat('ISO/TC&#160;184/SC&#160;4/WG&#160;12&#160;N',@wg.number.supersedes)"/>
 		</xsl:otherwise>
 	      </xsl:choose>
 	    </h3>
@@ -277,7 +277,7 @@ Purpose:
 	      <p>
 		Requests for permission to reproduce this document for 
 		the purposes of selling it should be addressed as shown 
-		below (via the ISO TC 184/SC4 Secretariat's member body) 
+		below (via the ISO/TC 184/SC4 Secretariat's member body) 
 		or to ISO's member body in the country of the requester.
 	      </p>
 	      <div align="center">
@@ -409,7 +409,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	      <p>
 		Requests for permission to reproduce this document for the
 		purposes of selling it should be addressed as shown below
-		(via the ISO TC 184/SC4 Secretariat's member body) or to the
+		(via the ISO/TC&#160;184/SC&#160;4 Secretariat's member body) or to the
 		ISO's member body in the country of the requestor 
 	      </p>
 	      <div align="center">
@@ -1062,7 +1062,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     		  select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
   
     <xsl:variable name="parts_url"
-		  select="'http://standards.iso.org/iso/10303/smrl/v5/tech/smrlv5.zip'"/>
+		  select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>
 
     <p>
       This annex references a listing of the EXPRESS entity names and
@@ -1161,12 +1161,12 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 		</xsl:variable>
 		<xsl:choose>
 		  <xsl:when test="contains($test_wg_number,'Error')">
-		    <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+		    <xsl:value-of select="concat('ISO/TC 184/SC 4/WG 12 N',$wgnumber)"/>
 		  </xsl:when>
 		  <xsl:otherwise>
 
 		    <a href="../wg12n{$wgnumber}.exp">
-		      <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+			    <xsl:value-of select="concat('ISO/TC 184/SC 4/WG 12 N',$wgnumber)"/>
 		    </a>
 		  </xsl:otherwise>
 		</xsl:choose>
@@ -1177,9 +1177,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       </table>
     </div>
     <p>
-      If there is difficulty accessing these sites, contact ISO Central
-      Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
-      <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.
+      If there is difficulty accessing these sites, contact ISO Central Secretariat.
     </p>
     <p class="note">
       <small>
@@ -1219,7 +1217,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	  <xsl:value-of select="$wgnumber"/>
 	</xsl:when>
 	<xsl:otherwise>
-	  <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+		<xsl:value-of select="concat('ISO/TC 184/SC 4/WG 12 N',$wgnumber)"/>
 	</xsl:otherwise>
       </xsl:choose>    
     </td>

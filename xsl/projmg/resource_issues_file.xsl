@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.8 2004/02/11 00:25:27 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.9 2005/02/17 23:55:39 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -437,6 +437,7 @@
       <xsl:value-of select="concat('Resolution: ',$resolution, '.  Status: ',@status)"/>
     </i>
     <br/>
+<!-- commented out as tc184-sc4.rg no longer operational
     <xsl:if test="@seds='yes'">
       <i>
         Registered in the 
@@ -448,6 +449,7 @@
       </i>
       <br/>
     </xsl:if>
+-->
     <xsl:if test="@ballot_comment='yes'">
       <i>
         Registered as a ballot comment by: 

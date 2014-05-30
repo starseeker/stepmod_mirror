@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.16 2004/09/24 07:28:47 robbod Exp $
+     $Id: issues.xsl,v 1.17 2005/01/14 19:29:54 thendrix Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -201,6 +201,7 @@
         </a>
       </b> 
       <br/>
+<!-- commented out as tc184-sc4.rg no longer operational      
       <xsl:if test="@seds='yes'">
         <i>
           Registered in the 
@@ -212,7 +213,7 @@
         </i>
         <br/>
       </xsl:if>
-
+-->
       <xsl:if test="@ballot_comment='yes'">
         <i>
           Registered as a Ballot comment by:

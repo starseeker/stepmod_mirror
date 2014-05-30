@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues.xsl,v 1.3 2003/10/24 08:41:27 robbod Exp $
+     $Id: resource_issues.xsl,v 1.4 2005/01/14 19:29:54 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -230,7 +230,7 @@
         </a>
       </b>
       <br/>
-
+<!-- commented out as tc184-sc4.rg no longer operational
       <xsl:if test="@seds='yes'">
         <i>
           Registered in the 
@@ -242,7 +242,7 @@
         </i>
         <br/>
       </xsl:if>
-
+-->
       <xsl:if test="@ballot_comment='yes'">
         <i>
           Registered as a Ballot comment by:

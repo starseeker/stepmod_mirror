@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: apdoc_issues_file.xsl,v 1.1 2003/06/02 12:36:48 mikeward Exp $
+$Id: bomdoc_issues_file.xsl,v 1.1 2012/10/29 22:43:07 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the issues raised against an BOM document.     
@@ -349,6 +349,7 @@ $Id: apdoc_issues_file.xsl,v 1.1 2003/06/02 12:36:48 mikeward Exp $
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
+<!-- commented out as tc184-sc4.rg no longer operational
     <i>
       <xsl:if test="@seds='yes'">
         Registered in the 
@@ -360,6 +361,7 @@ $Id: apdoc_issues_file.xsl,v 1.1 2003/06/02 12:36:48 mikeward Exp $
       </xsl:if>
     </i>
     <br/>
+    -->
     </p>
     <xsl:apply-templates />
   </xsl:template>

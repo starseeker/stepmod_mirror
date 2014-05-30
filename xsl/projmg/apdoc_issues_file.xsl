@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
+$Id: apdoc_issues_file.xsl,v 1.1 2003/06/02 12:36:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the issues raised against an AP document.     
@@ -348,6 +348,7 @@ $Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
+<!-- commented out as tc184-sc4.rg no longer operational
     <i>
       <xsl:if test="@seds='yes'">
         Registered in the 
@@ -357,8 +358,9 @@ $Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
         as SEDS: 
         <xsl:value-of select="@id"/>
       </xsl:if>
-    </i>
+    </i> 
     <br/>
+-->
     </p>
     <xsl:apply-templates />
   </xsl:template>

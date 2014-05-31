@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.4 2012/12/13 22:21:21 mikeward Exp $
+     $Id: sect_4_express.xsl,v 1.5 2013/11/12 16:57:38 thomasrthurman Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1418,15 +1418,15 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
         </a>
    
     <xsl:apply-templates select="." mode="expressg_icon"/>
-    <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
+    <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_bom'">
 
       <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
       <xsl:variable name="ae_map_aname"
-        select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
+        select="translate(concat('beentity',@name),$UPPER,$LOWER)"/>
 
       <xsl:variable name="maphref" 
-        select="concat('./5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>
+        select="concat('./5_main',$FILE_EXT,'#',$ae_map_aname)"/>
       <a href="{$maphref}">
         <img align="middle" border="0" 
           alt="Mapping table" src="../../../../images/mapping.gif"/>

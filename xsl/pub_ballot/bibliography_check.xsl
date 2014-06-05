@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: bibliography_check.xsl,v 1.4 2010/02/12 09:25:28 robbod Exp $
+$Id: bibliography_check.xsl,v 1.5 2011/08/25 12:59:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -72,6 +72,14 @@ $Id: bibliography_check.xsl,v 1.4 2010/02/12 09:25:28 robbod Exp $
         <xsl:apply-templates select="$publication_index_xml//modules/module" mode="bibilio">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
+        <!-- MWD START -->
+        <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="bibilio_index">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="bibilio">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        <!-- MWD END -->
       </body>
     </html>
   </xsl:template>
@@ -93,6 +101,26 @@ $Id: bibliography_check.xsl,v 1.4 2010/02/12 09:25:28 robbod Exp $
       <xsl:otherwise><xsl:value-of select="@name"/> (default bibliography)<br/></xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <!-- MWD START -->
+  <xsl:template match="resource_doc" mode="bibilio_index">    
+    <xsl:variable name="resource_name" select="@name"/>
+    <xsl:variable name="resource_doc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="$resource_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+   
+    <xsl:variable name="resource_doc_xml" select="document(concat($resource_doc_dir, '/resource.xml'))"/>
+    <xsl:choose>
+      <xsl:when test="$resource_doc_xml//resource/bibliography">
+        <a name="index_{@name}"></a>
+        <a href="#{@name}"><xsl:value-of select="@name"/></a><br/>        
+      </xsl:when>
+      <xsl:otherwise><xsl:value-of select="@name"/> (default bibliography) <xsl:value-of select="$resource_doc_dir"/><br/></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  <!-- MWD END -->
   
   <xsl:template match="module" mode="bibilio">
     <xsl:variable name="module_name" select="@name"/>
@@ -116,5 +144,30 @@ $Id: bibliography_check.xsl,v 1.4 2010/02/12 09:25:28 robbod Exp $
       <!--<xsl:otherwise> <p>Default bibliography so not output</p> </xsl:otherwise>-->
     </xsl:choose>
   </xsl:template>
-
+  
+  <!-- MWD START -->
+  <xsl:template match="resource_doc" mode="bibilio">
+    <xsl:variable name="resource_doc_name" select="@name"/>
+    <xsl:variable name="resource_doc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="resource_doc_xml" select="document(concat($resource_doc_dir, '/resource.xml'))"/>
+    <xsl:choose>
+      <xsl:when test="$resource_doc_xml/resource/bibliography">
+        <hr/>
+        <h1>
+          <a name="{$resource_doc_name}">
+            <xsl:value-of select="@name"/>
+          </a>
+        </h1>
+        <a href="#index_{resource_doc_name}">index</a>
+        <xsl:apply-templates select="$resource_doc_xml//resource" mode="bibiliog"/>
+      </xsl:when>
+      <!--<xsl:otherwise> <p>Default bibliography so not output</p> </xsl:otherwise>-->
+    </xsl:choose>
+  </xsl:template>
+  <!-- MWD END -->
+  
 </xsl:stylesheet>

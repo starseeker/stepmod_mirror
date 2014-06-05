@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
+$Id: normref_check.xsl,v 1.9 2011/08/25 12:59:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -16,7 +16,9 @@ $Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
 
 
   <xsl:import href="../sect_2_refs.xsl"/>
-
+  <!-- MWD START -->
+  <xsl:import href="../res_doc/sect_2_refs.xsl"/>
+  <!-- MWD END -->
   <xsl:output 
     method="html"
     doctype-system="http://www.w3.org/TR/html4/loose.dtd"
@@ -80,7 +82,14 @@ $Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
         <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_output">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        
+        <!-- MWD START -->
+        <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="normref_index">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="normref_output">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        <!-- MWD END -->
       </body>
     </HTML>
   </xsl:template>
@@ -101,6 +110,24 @@ $Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
     <br/>
   </xsl:template>
   
+  <!-- MWD START -->
+  <xsl:template match="resource_doc" mode="normref_index">
+    <xsl:variable name="resource_doc_name" select="@name"/>
+    <!--<xsl:variable name="resource_doc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="$resource_doc_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="resource_doc_xml" select="document(concat($resource_doc_dir, '/resource.xml'))"/>-->
+    <a name="index_{$resource_doc_name}"/>
+    <a href="#{$resource_doc_name}">
+      <xsl:value-of select="$resource_doc_name"/>
+    </a>
+    <br/>
+  </xsl:template>
+  <!-- MWD END -->
+  
   <xsl:template match="module" mode="normref_output">
     <xsl:variable name="module_name" select="@name"/>
     <xsl:variable name="module_dir">
@@ -119,6 +146,25 @@ $Id: normref_check.xsl,v 1.8 2010/02/22 22:35:57 robbod Exp $
     <xsl:apply-templates select="$module_xml//module"/>
   </xsl:template>
   
+  <!-- MWD START -->
+  <xsl:template match="resource_doc" mode="normref_output">
+    <xsl:variable name="resource_doc_name" select="@name"/>
+    <xsl:variable name="resource_doc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="$resource_doc_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="resource_doc_xml" select="document(concat($resource_doc_dir, '/resource.xml'))"/>
+    <hr/>
+    <h1>
+      <a name="{$resource_doc_name}">
+        <xsl:value-of select="$resource_doc_name"/>
+      </a>
+    </h1>
+    <a href="#index_{$resource_doc_name}">index</a>
+    <xsl:apply-templates select="$resource_doc_xml//resource"/>
+  </xsl:template>
+  <!-- MWD END -->
   
 
 

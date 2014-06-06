@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.19 2014/05/08 10:49:52 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.1 2014/06/05 21:46:23 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -2024,54 +2024,28 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- generate the target "init" -->
 	<xsl:template match="part1000.publication_index" mode="target_init">
-		<xsl:if test="./modules/module">
-			<target xsl:extension-element-prefixes="exslt" name="init"
-				depends="checkcvstag, modules_check, variables">
-				<xsl:element name="mkdir">
-					<xsl:attribute name="dir">
-						<xsl:value-of select="'${P1000DIR}'"/>
-					</xsl:attribute>
-				</xsl:element>
-				<!--<xsl:element name="copy">
-					<xsl:attribute name="todir">
-						<xsl:value-of select="'${P1000DIR}/images'"/>
-					</xsl:attribute>
-					<fileset dir="images"/>
-				</xsl:element>-->
-			</target>
-		</xsl:if>
-		<xsl:if test="./resource_docs/resource_doc">
-			<target xsl:extension-element-prefixes="exslt" name="init"
-				depends="checkcvstag, variables">
-				<xsl:element name="mkdir">
-					<xsl:attribute name="dir">
-						<xsl:value-of select="'${P1000DIR}'"/>
-					</xsl:attribute>
-				</xsl:element>
-				<!--<xsl:element name="copy">
-					<xsl:attribute name="todir">
-						<xsl:value-of select="'${P1000DIR}/images'"/>
-					</xsl:attribute>
-					<fileset dir="images"/>
-				</xsl:element>-->
-			</target>
-		</xsl:if>
-		<xsl:if test="./business_object_models/bom_doc">
-			<target xsl:extension-element-prefixes="exslt" name="init"
-				depends="checkcvstag, variables">
-				<xsl:element name="mkdir">
-					<xsl:attribute name="dir">
-						<xsl:value-of select="'${P1000DIR}'"/>
-					</xsl:attribute>
-				</xsl:element>
-				<!--<xsl:element name="copy">
-					<xsl:attribute name="todir">
-						<xsl:value-of select="'${P1000DIR}/images'"/>
-					</xsl:attribute>
-					<fileset dir="images"/>
-				</xsl:element>-->
-			</target>
-		</xsl:if>
+		<xsl:choose>
+			<xsl:when test="./modules/module">
+				<target xsl:extension-element-prefixes="exslt" name="init"
+					depends="checkcvstag, modules_check, variables">
+					<xsl:element name="mkdir">
+						<xsl:attribute name="dir">
+							<xsl:value-of select="'${P1000DIR}'"/>
+						</xsl:attribute>
+					</xsl:element>
+				</target>
+			</xsl:when>
+			<xsl:otherwise>
+				<target xsl:extension-element-prefixes="exslt" name="init"
+					depends="checkcvstag, variables">
+					<xsl:element name="mkdir">
+						<xsl:attribute name="dir">
+							<xsl:value-of select="'${P1000DIR}'"/>
+						</xsl:attribute>
+					</xsl:element>
+				</target>
+			</xsl:otherwise>
+		</xsl:choose>
 		<xsl:text>
 	</xsl:text>
 	</xsl:template>

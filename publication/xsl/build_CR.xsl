@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.1 2014/06/05 21:46:23 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.2 2014/06/06 14:28:39 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -101,7 +101,10 @@ Purpose: To build the initial ANT publication file.
 						<xsl:apply-templates select="." mode="target_publish_isobomdocs"/>
 					</xsl:if>
 					<!-- MWD END -->
-
+					
+					
+					
+					
 					<xsl:apply-templates select="." mode="target_all"/>
 				</project>
 			</xsl:otherwise>
@@ -167,6 +170,13 @@ Purpose: To build the initial ANT publication file.
 				<xsl:attribute name="name">P1000DIR</xsl:attribute>
 				<xsl:attribute name="value">
 					<xsl:value-of select="concat('publication/isopub/',@name,'/part1000')"/>
+				</xsl:attribute>
+			</xsl:element>
+			<!-- IMAGES -->
+			<xsl:element name="property">
+				<xsl:attribute name="name">IMAGES</xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:value-of select="'images/*.*'"/>
 				</xsl:attribute>
 			</xsl:element>
 
@@ -2033,6 +2043,21 @@ Purpose: To build the initial ANT publication file.
 							<xsl:value-of select="'${P1000DIR}'"/>
 						</xsl:attribute>
 					</xsl:element>
+					<!-- IMAGES -->
+					<xsl:element name="copy">						
+						<xsl:attribute name="todir">							
+							<xsl:value-of select="'${P1000DIR}'"/>							
+						</xsl:attribute>						
+						<xsl:element name="fileset">							
+							<xsl:attribute name="dir">								
+								<xsl:value-of select="'.'"/>								
+							</xsl:attribute>
+							<xsl:attribute name="includes">
+								<xsl:value-of select="'${IMAGES}'"/>
+							</xsl:attribute>
+						</xsl:element>						
+					</xsl:element>
+					
 				</target>
 			</xsl:when>
 			<xsl:otherwise>
@@ -2043,11 +2068,28 @@ Purpose: To build the initial ANT publication file.
 							<xsl:value-of select="'${P1000DIR}'"/>
 						</xsl:attribute>
 					</xsl:element>
+					
+					<xsl:element name="copy">						
+						<xsl:attribute name="todir">							
+							<xsl:value-of select="'${P1000DIR}'"/>							
+						</xsl:attribute>						
+						<xsl:element name="fileset">							
+							<xsl:attribute name="dir">								
+								<xsl:value-of select="'.'"/>								
+							</xsl:attribute>
+							<xsl:attribute name="includes">
+								<xsl:value-of select="'${IMAGES}'"/>
+							</xsl:attribute>
+						</xsl:element>						
+					</xsl:element>
+					
 				</target>
 			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:text>
-	</xsl:text>
+		</xsl:text>
+		
+		
 	</xsl:template>
 
 
@@ -6271,7 +6313,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${P1000DIR}/images'"/>
 				</xsl:attribute>
 			</xsl:element>
-			</xsl:element> ISO10303 -->
+			</xsl:element> -->
 
 
 

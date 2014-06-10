@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
+$Id: sect_foreword.xsl,v 1.32 2013/02/21 21:43:25 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -25,6 +25,8 @@ $Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
         <xsl:with-param name="application_protocol" select="."/>
       </xsl:call-template>
     </xsl:variable>
+    
+    
     
     <h2>
       <a name="foreword">
@@ -186,8 +188,9 @@ $Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
     </xsl:choose>
     <xsl:apply-templates select="./changes" mode="foreword"/>
       </p>
-   </xsl:if>
-
+    </xsl:if>
+    
+   
   <p>
     This International Standard is organized as a series of parts, each
     published separately. The structure of this International Standard is
@@ -315,6 +318,10 @@ $Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
 	<xsl:with-param name="application_protocol" select="."/>
       </xsl:call-template>
     </xsl:variable>
+    <!-- MWD -->
+    <xsl:variable name="this_edition">
+      <xsl:apply-templates select="." mode="this_edition"/>
+    </xsl:variable>
     
     <h2>
       <a name="foreword">
@@ -409,9 +416,9 @@ $Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
     <xsl:choose>
       <xsl:when test="not(./foreword)">
 	<xsl:if test="@version!='1'">
-	  <xsl:variable name="this_edition">
+	  <!--<xsl:variable name="this_edition">
 	    <xsl:apply-templates select="." mode="this_edition"/>
-	  </xsl:variable>
+	  </xsl:variable>-->
 
 	  <xsl:variable name="prev_edition">
 	    <xsl:apply-templates select="." mode="previous_edition"/>
@@ -481,7 +488,28 @@ $Id: sect_foreword.xsl,v 1.31 2013/02/21 16:04:55 darla Exp $
 	<xsl:value-of select="./foreword"/>
       </xsl:otherwise>
     </xsl:choose>
-
+    <!-- MWD -->
+    <xsl:if test="./@SMRL.version">
+      
+    <xsl:variable name="first_or_other_ed">
+      <xsl:choose>
+        <xsl:when test="string-length($this_edition) > 1">
+          <xsl:value-of select="$this_edition"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'first'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>   
+    <xsl:variable name="SMRL_version" select="./@SMRL.version"/>
+    <xsl:variable name="SMRL_date" select="./@SMRL.pub.year.month"/>
+    <p>
+      This <xsl:value-of select="$first_or_other_ed"/> edition of 
+      <xsl:value-of select="$part_no"/> is based upon version <xsl:value-of select="$SMRL_version"/> of the STEP Module and Resource Library (SMRLv<xsl:value-of select="$SMRL_version"/>:<xsl:value-of select="$SMRL_date"/>).
+    </p>
+    </xsl:if>
+    
+    
   <p>
     ISO 10303 is organized as a series of parts, each published
     separately. The structure of ISO 10303 is described in ISO 10303-1.

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
+$Id: CR_publication_summary.xsl,v 1.1 2014/06/05 21:46:23 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -554,6 +554,8 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         </resource_docs>
         
       </xsl:variable>
+      <!--<xsl:for-each select="resource_doc"><h1><xsl:value-of select="'ResDoc'"/></h1>
+        </xsl:for-each>-->
       <p/>
       <h3>      
         <a name="resource_doc_names">Resources sorted by name</a>
@@ -624,6 +626,38 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
           </xsl:apply-templates>
         </xsl:when>
       </xsl:choose>
+    </table>
+  </xsl:template>
+    
+  <!-- MWD -->
+  <xsl:template match="deleted.resource_docs" mode="table">
+    <h3>
+      <a name="del_resource_doc_names">Deleted Resources sorted by name</a>
+    </h3>
+    <p>
+      <a href="#index">Index</a>
+    </p>
+    <table border="1">
+      <tr>
+        <td>
+          <b>Resource</b>
+        </td>
+        <!--<td>
+          <b>Team</b>
+        </td>-->
+      </tr>
+      <xsl:for-each select="resource_doc">
+        <xsl:sort select="@name"/>
+        <tr>
+          <!-- resource_doc -->
+          <td>
+            <xsl:value-of select="@name"/>
+          </td>
+          <!--<td>
+            <xsl:value-of select="@team"/>
+          </td>-->
+        </tr>
+      </xsl:for-each>
     </table>
   </xsl:template>
     
@@ -1147,6 +1181,38 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         </tr>      
         </xsl:otherwise>-->
     </xsl:choose>
+  </xsl:template>
+
+  <!-- MWD -->
+  <xsl:template match="deleted.business_object_models" mode="table">
+    <h3>
+      <a name="del_bom_doc_names">Deleted BO Models sorted by name</a>
+    </h3>
+    <p>
+      <a href="#index">Index</a>
+    </p>
+    <table border="1">
+      <tr>
+        <td>
+          <b>BO Model</b>
+        </td>
+        <!--<td>
+          <b>Team</b>
+          </td>-->
+      </tr>
+      <xsl:for-each select="bom_doc">
+        <xsl:sort select="@name"/>
+        <tr>
+          <!-- resource_doc -->
+          <td>
+            <xsl:value-of select="@name"/>
+          </td>
+          <!--<td>
+            <xsl:value-of select="@team"/>
+            </td>-->
+        </tr>
+      </xsl:for-each>
+    </table>
   </xsl:template>
 
   <!-- MWD END -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.39 2011/04/14 13:16:28 lothartklein Exp $
+$Id: sect_contents.xsl,v 1.40 2013/11/01 18:36:41 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -424,6 +424,7 @@ $Id: sect_contents.xsl,v 1.39 2011/04/14 13:16:28 lothartklein Exp $
 
 </xsl:template>
 
+  
 
  <xsl:template match="table|figure" mode="toc">
    <xsl:param name="clause_no" />

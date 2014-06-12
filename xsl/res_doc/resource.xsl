@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.91 2014/05/29 16:06:16 nigelshaw Exp $
+$Id: resource.xsl,v 1.92 2014/05/29 20:31:13 nigelshaw Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -3386,6 +3386,70 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     </xsl:apply-templates>
     <xsl:apply-templates/>
   </xsl:template>
+	
+	<!-- MWD -->
+	<xsl:template match="annex_clause">
+		<xsl:variable name="title" select="@title"/>
+		<xsl:variable name="sect_no">
+			<xsl:apply-templates select="." mode="number"/>
+		</xsl:variable>
+		<xsl:variable name="annex">
+			<xsl:choose>
+				<xsl:when test="ancestor::*[name()='tech_discussion']">tech_discussion</xsl:when>
+				<xsl:otherwise>ERROR</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<xsl:if test="$annex='ERROR'">
+			<xsl:call-template name="error_message">
+				<xsl:with-param
+					name="message"
+					select="'ERROR annex_clause: You can only use annex_clause in tech_disc and usage_guide and change_detail'"/>
+			</xsl:call-template>      
+		</xsl:if>
+		
+		<xsl:variable name="annex_list">
+			<xsl:apply-templates select="//application_protocol" mode="annex_list"/>
+		</xsl:variable>
+		
+		<xsl:variable name="annex_letter" select="'E'"/>
+					
+		<h2>
+			<a name="{$title}">
+				<xsl:value-of select="concat($annex_letter,'.',$sect_no,' ',$title)"/>
+			</a>
+		</h2>
+		<xsl:apply-templates/>
+	</xsl:template>
+	
+	
+	<xsl:template match="annex_clause" mode="number">
+		<xsl:param name="sect_no" select="''"/>
+		
+		<xsl:variable name="current_sect_no">
+			<xsl:number/>
+		</xsl:variable>
+		<xsl:variable name="sect_no_string">
+			<xsl:choose>
+				<xsl:when test="$sect_no=''">
+					<xsl:value-of select="$current_sect_no"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat($current_sect_no,'.',$sect_no)"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:choose>
+			<xsl:when test="parent::*[name()='annex_clause']">
+				<xsl:apply-templates select="parent::*[name()='annex_clause']" mode="number">
+					<xsl:with-param name="sect_no" select="$sect_no_string"/>
+				</xsl:apply-templates>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$sect_no_string"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 
   <xsl:template match="examples">
     <!-- output any issues -->

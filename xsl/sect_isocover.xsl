@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.23 2013/02/07 10:42:11 mikeward Exp $
+$Id: sect_isocover.xsl,v 1.24 2014/06/05 08:36:26 nigelshaw Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -770,7 +770,7 @@ $Id: sect_isocover.xsl,v 1.23 2013/02/07 10:42:11 mikeward Exp $
         <xsl:with-param name="part_xml" select="."/>
       </xsl:call-template>
     </xsl:variable>    
-    <a href="../home{$FILE_EXT}" target="_self">
+    <a href="../home{$FILE_EXT}" target="_top">
       <xsl:value-of select="$stdnumber"/>
     </a>
   </xsl:template>
@@ -781,7 +781,7 @@ $Id: sect_isocover.xsl,v 1.23 2013/02/07 10:42:11 mikeward Exp $
         <xsl:with-param name="part_xml" select="."/>
       </xsl:call-template>
     </xsl:variable>
-    <a href="../home{$FILE_EXT}" target="_self">
+    <a href="../home{$FILE_EXT}" target="_top">
       <xsl:value-of select="$stdnumber"/>
     </a>
   </xsl:template>

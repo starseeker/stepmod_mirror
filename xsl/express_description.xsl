@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.48 2004/10/25 23:45:24 thendrix Exp $
+$Id: express_description.xsl,v 1.49 2005/01/18 09:42:35 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -652,6 +652,10 @@ $Id: express_description.xsl,v 1.48 2004/10/25 23:45:24 thendrix Exp $
        Optional parameter -->
   <xsl:param name="type" select="''"/>
   
+  <!-- if a type, the name of the type 
+       Optional parameter -->
+  <xsl:param name="constant" select="''"/>
+  
   <!-- if an entity, the name of an attribute 
        Optional exclusive parameter -->
   <xsl:param name="attribute" select="''"/>
@@ -675,6 +679,9 @@ $Id: express_description.xsl,v 1.48 2004/10/25 23:45:24 thendrix Exp $
             <xsl:choose>
               <xsl:when test="$entity">
                 <xsl:value-of select="concat($schema,'.',$entity)"/>
+              </xsl:when>
+              <xsl:when test="$constant">
+                <xsl:value-of select="concat($schema,'.',$constant)"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$schema"/>

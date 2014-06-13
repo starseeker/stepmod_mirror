@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
+$Id: expressg_icon.xsl,v 1.12 2013/01/14 21:12:52 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -46,10 +46,19 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
   <!-- BOM -->
   <xsl:template name="make_bom_expressg_node_set">
     
+	  <!-- this may be called from an AP (when constructing indexes) or BOM file (for clause 4) -->
     
     <expg_nodes>
-      <xsl:variable name="model_dir">
-        <xsl:value-of select="//business_object_model_clause/@directory"/>
+	    <xsl:variable name="model_dir">
+		<xsl:choose>
+			<xsl:when test="/business_object_model_clause" >
+				<xsl:value-of select="//business_object_model_clause/@directory"/>
+			</xsl:when>
+			<xsl:when test="/application_protocol">
+				<xsl:value-of select="document(concat('../data/application_protocols/',
+					/application_protocol/@directory,'/application_protocol.xml'))/application_protocol/@business_object_model"/>
+			</xsl:when>
+		</xsl:choose>
         <!--<xsl:call-template name="bom_directory">
           <xsl:with-param name="module" select="/business_object_model_clause/@directory"/>
           </xsl:call-template>-->
@@ -208,7 +217,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
   <!-- build the node set of expressg objects for a BOM -->
   <xsl:template match="imgfile" mode="mk_bom_node">
     <xsl:variable name="img_file"
-      select="concat('../data/business_object_models/',//business_object_model/@name,'/',./@file)"/>
+      select="concat('../data/business_object_models/',/business_object_model/@name,'/',./@file)"/>
    
     <xsl:variable name="img_file_xml" select="document(string($img_file))"/>
     <xsl:variable name="schema" select="concat(//business_object_model/@name,'_bom')"/>
@@ -274,7 +283,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
             <xsl:value-of select="$object"/>
           </xsl:attribute>
           <xsl:attribute name="href">
-            <xsl:value-of select="concat('../../',$model,'/',$file)"/>
+		  <xsl:value-of select="concat('../../../business_object_models/',$model,'/',$file)"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:if>
@@ -331,14 +340,16 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
 
   </xsl:template>
   
-  <xsl:variable name="bom_expressg">
+  <!--  <xsl:variable name="bom_expressg">
     <xsl:call-template name="make_bom_expressg_node_set"/>
   </xsl:variable>
+  -->
   
   <xsl:template name="expressg_icon">
     <xsl:param name="schema"/>
     <xsl:param name="entity"/>
     <xsl:param name="module_root" select="'..'"/>
+    <xsl:param name="target" select="'_self'"/>
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$schema"/>
@@ -371,7 +382,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
                 </xsl:call-template>    
               </xsl:when>
               <xsl:otherwise>
-                &#160;&#160;<a href="{$href_expg}">
+                &#160;&#160;<a href="{$href_expg}"  target="{$target}">
                 <img align="middle" border="0" 
                   alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
               </a>
@@ -392,7 +403,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
             <xsl:choose>
               <xsl:when test="string-length($href_expg)=0">
                 <xsl:variable name="error_msg"
-                  select="concat('Error EG1-BOM: There is no EXPRESS-G reference for:',$lentity,' - check bom expg files ')"/>
+			select="concat('Error EG1-BOM: There is no EXPRESS-G reference for:',$lentity,' - check bom expg files GGG',count($bom_expressg/*),'GGG')"/>
                 <xsl:call-template name="error_message">
                   <xsl:with-param name="inline" select="'yes'"/>
                   <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -401,7 +412,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
               </xsl:when>
               <xsl:otherwise>
             
-                &#160;&#160;<a href="{$href_expg}">
+                &#160;&#160;<a href="{$href_expg}"  target="{$target}">
                   <img align="middle" border="0" 
                     alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
                 </a>
@@ -447,7 +458,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
           </xsl:when>
         </xsl:choose>        
       </xsl:variable>
-      &#160;&#160;<a href="{$href_expg}">
+      &#160;&#160;<a href="{$href_expg}"  target="{$target}">
       <img align="middle" border="0" 
         alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
        </a>
@@ -463,6 +474,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
          This only happens in the mapping tables when and ARM object is
          being remapped from another module. -->
     <xsl:param name="original_schema"/>
+    <xsl:param name="target"/>
     <xsl:param name="module_root" select="'..'"/>
     
     <xsl:variable name="schema">
@@ -483,6 +495,7 @@ $Id: expressg_icon.xsl,v 1.11 2012/12/19 10:22:54 robbod Exp $
     <xsl:call-template name="expressg_icon">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="entity" select="$entity"/>
+      <xsl:with-param name="target" select="$target"/>
       <xsl:with-param name="module_root" select="$module_root"/>
     </xsl:call-template>
 

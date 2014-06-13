@@ -228,7 +228,7 @@
                     select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)"/>
                   <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
                   &#160;&#160;&#160;
-                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}" TARGET="info">
+		  <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}" TARGET="info">
                     <xsl:value-of select="@name"/>
                   </a>
                   <br/>
@@ -244,7 +244,7 @@
                     select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)"/>
                   <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
                   &#160;&#160;&#160;
-                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}" TARGET="info">
+		  <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}" TARGET="info">
                     <xsl:value-of select="@name"/>
                   </a>
                   <br/>
@@ -260,7 +260,7 @@
                     select="translate(substring-before(../../@name,'_bom'),$UPPER,$LOWER)"/>
                   <xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)"/>
                   &#160;&#160;&#160;
-                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}.{@name}" TARGET="info">
+                  <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}.{@name}" TARGET="info">
                     <xsl:value-of select="concat(../@name,'.',@name)"/>
                   </a>
                   <br/>
@@ -275,7 +275,7 @@
                     select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)"/>
                   <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
                   &#160;&#160;&#160;
-                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}"  TARGET="info">
+                  <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}"  TARGET="info">
                     <xsl:value-of select="@name"/>
                   </a>
                   <br/>
@@ -346,10 +346,10 @@
                 <xsl:sort select="../@name"/>
                 <xsl:sort select="@name"/>
                 <xsl:variable name="ref-mod" 
-                  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>
+                  select="translate(substring-before(../../@name,'_bom'),$UPPER,$LOWER)"/>
                 <xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)"/>
                 &#160;&#160;&#160;
-                <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="info">
+                <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}.{@name}"  TARGET="info">
                   <xsl:value-of select="concat(../@name,'.',@name)"/>
                 </a>
                 <br/>
@@ -362,10 +362,10 @@
               <xsl:for-each select="$used-in-select">
                 <xsl:sort select="@name"/>
                 <xsl:variable name="ref-mod" 
-                  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+                  select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)"/>
                 <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
                 &#160;&#160;&#160;
-                <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
+                <a HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_bom.{$lc-ref}"  TARGET="info">
                   <xsl:value-of select="@name"/>
                 </a>
                 <br/>
@@ -382,7 +382,7 @@
 <xsl:template match="subtype.constraint" mode="module-index" >
         <xsl:param name="expressg"/>
 	<xsl:param name="called-schemas" />
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
@@ -400,7 +400,7 @@
 
 <xsl:template match="rule" mode="module-index" >
 	<xsl:param name="called-schemas" />
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
@@ -417,7 +417,7 @@
 <xsl:template match="function" mode="module-index" >
 	<xsl:param name="called-schemas" />
 
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
@@ -432,7 +432,7 @@
 <xsl:template match="procedure" mode="module-index" >
 	<xsl:param name="called-schemas" />
 
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_bom'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />

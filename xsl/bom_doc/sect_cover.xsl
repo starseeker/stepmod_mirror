@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_cover.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+  $Id: sect_cover.xsl,v 1.2 2014/05/29 20:31:14 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the cover page for a BOM.     
@@ -17,8 +17,10 @@
   
   <xsl:output method="html"/>
   
-  <xsl:template match="business_object_model">
-    <xsl:apply-templates select="." mode="coverpage"/>
+  <xsl:template match="business_object_model_clause">
+	  <xsl:variable name="bom_file" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory, '/business_object_model.xml'))" />
+
+	  <xsl:apply-templates select="$bom_file/business_object_model" mode="coverpage"/>
   </xsl:template>
 
   <xsl:template match="business_object_model" mode="coverpage">
@@ -114,7 +116,7 @@
   </table>
   <xsl:variable name="module_name">
     <xsl:call-template name="protocol_display_name">
-      <xsl:with-param name="business_object_model" select="@title"/>
+      <xsl:with-param name="application_protocol" select="@title"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="stdnumber">

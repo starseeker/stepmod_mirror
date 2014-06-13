@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.10 2013/03/07 23:06:46 mikeward Exp $
+$Id: sect_contents.xsl,v 1.11 2014/01/24 17:46:32 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -16,7 +16,8 @@ $Id: sect_contents.xsl,v 1.10 2013/03/07 23:06:46 mikeward Exp $
   <xsl:import href="business_object_model_clause.xsl"/>
   <xsl:output method="html"/>
   
- 
+  <xsl:variable name="bom_xml" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory , '/bom.xml'))"/>
+
 	
   <xsl:template match="business_object_model">
     <xsl:apply-templates select="." mode="linear"/>
@@ -91,12 +92,28 @@ $Id: sect_contents.xsl,v 1.10 2013/03/07 23:06:46 mikeward Exp $
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#fundamentals" target="{$target}">4.3 Fundamental concepts and assumptions</a>
             <br/>
+	    <xsl:choose>
+		    <xsl:when test="$bom_xml//constant" >
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
+	    <a href="./4_info_reqs{$FILE_EXT}#constants" target="{$target}">4.4 Business object model constant 
+		    definition<xsl:if test="count($bom_xml//constant)>1">s</xsl:if></a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.5 Business object model type definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.6 Business object model entity definitions</a>
+	    <br/>
+	    	</xsl:when>
+		<xsl:otherwise>
+            &#160;&#160;&#160;&#160;&#160;
+	    <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
             <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
             <br/>
+		</xsl:otherwise>
+	     </xsl:choose>
             <a href="./5_main{$FILE_EXT}#mappings" target="{$target}">5 Business object model mapping</a>
           </td>
           <td valign="top">
@@ -163,11 +180,36 @@ $Id: sect_contents.xsl,v 1.10 2013/03/07 23:06:46 mikeward Exp $
             <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 BOM type definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#general" target="{$target}">4.1 General</a>
             <br/>
             &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 BOM entity definitions</a>
+            <a href="./4_info_reqs{$FILE_EXT}#capabilities" target="{$target}">4.2 Business object model capabilities</a>
             <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#fundamentals" target="{$target}">4.3 Fundamental concepts and assumptions</a>
+            <br/>
+	    <xsl:choose>
+		    <xsl:when test="$bom_xml//constant" >
+            &#160;&#160;&#160;&#160;&#160;
+	    <a href="./4_info_reqs{$FILE_EXT}#constants" target="{$target}">4.4 Business object model constant 
+		    definition<xsl:if test="count($bom_xml//constant)>1">s</xsl:if></a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.5 Business object model type definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.6 Business object model entity definitions</a>
+	    <br/>
+	    	</xsl:when>
+		<xsl:otherwise>
+            &#160;&#160;&#160;&#160;&#160;
+	    <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
+            <br/>
+            &#160;&#160;&#160;&#160;&#160;
+            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
+            <br/>
+		</xsl:otherwise>
+	     </xsl:choose>
             <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
             <br/>
             <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>

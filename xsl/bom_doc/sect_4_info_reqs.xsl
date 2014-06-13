@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.11 2013/01/17 11:32:39 ungerer Exp $
+$Id: sect_4_info_reqs.xsl,v 1.12 2013/02/06 07:58:37 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -195,7 +195,7 @@ $Id: sect_4_info_reqs.xsl,v 1.11 2013/01/17 11:32:39 ungerer Exp $
 
      <h3>4.3.2&#160;Multi-language support</h3>
 <p>This clause describes the concept concerning the definition and application of languages used for multilingual support of string valued attributes in this part of ISO 10303. This standard includes the definition of a language, the association of a value in a language to a string valued attribute, and the association of a set of values in different languages. </p>
-<p>The specification of a value in a particular language for a string valued attribute is done by the object LocalizedString with associated language and text string. The language is defined by a  a language code according to ISO 639-2 and a country code according to ISO 3166-1. Multiple translations are specified by a set of LocalizedString.</p>
+<p>The specification of a value in a particular language for a string valued attribute is done by the object LocalizedString with associated language and text string. The language is defined by a language code according to ISO 639-2 and a country code according to ISO 3166-1. Multiple translations are specified by a set of LocalizedString.</p>
     
 
      <xsl:if test="/business_object_model/terminology_map">

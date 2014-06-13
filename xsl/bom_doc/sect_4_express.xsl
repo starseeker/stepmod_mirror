@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.5 2013/11/12 16:57:38 thomasrthurman Exp $
+     $Id: sect_4_express.xsl,v 1.6 2014/05/31 08:26:44 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -711,7 +711,17 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
-      <xsl:choose>
+    <xsl:choose>
+        <xsl:when test="contains($schema_name,'_bom')">
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              <xsl:value-of select="concat($clause_number, ' Business object model constant definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' Business object model constant definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
         <xsl:when test="contains($schema_name,'_arm')">
           <xsl:choose>
             <xsl:when test="count(../constant)>1">
@@ -737,6 +747,20 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
     <xsl:variable name="clause_intro">
       <xsl:choose>
+        <xsl:when test="contains($schema_name,'_bom')">
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              This subclause specifies the BOM constants for 
+              this Business Object Model. The BOM constants and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM constant for 
+              this Business Object Model. The BOM constant and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
         <xsl:when test="contains($schema_name,'_arm')">
           <xsl:choose>
             <xsl:when test="count(../constant)>1">
@@ -777,7 +801,16 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   </xsl:if>
 
   <xsl:if test="position()=1">
-    <p><u>EXPRESS specification:</u></p>
+    <p>
+      <u>EXPRESS specification:</u><br/>
+      <code>
+      (*<br/>
+      SCHEMA <xsl:value-of select="$schema_name"/>;<br/>
+      *)
+      </code>
+    </p>
+
+    <!--    <p><u>EXPRESS specification:</u></p> -->
     <p>
     <!-- <blockquote> -->
       <code>
@@ -830,7 +863,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
         <xsl:variable name="external_description">
           <xsl:call-template name="check_external_description">
             <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="./@name"/>
+            <xsl:with-param name="constant" select="./@name"/>
           </xsl:call-template>        
         </xsl:variable>
         <xsl:if test="$external_description='false'">
@@ -883,7 +916,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </p>
     
     <xsl:if test="position()=last()">
-      <br/>
+	    <!-- <br/>-->
       <p>
       <!-- <blockquote> -->
         <code>
@@ -936,9 +969,9 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:call-template>
   </xsl:variable>
 
-  <!--<xsl:variable name="clause_header">
-    <xsl:value-of select="concat($clause_number, ' BOM type definitions')"/>   
-  </xsl:variable>-->
+  <xsl:variable name="clause_header">
+    <xsl:value-of select="concat($clause_number, ' Business object model type definitions')"/>   
+  </xsl:variable>
   
   <!--<h2><xsl:value-of select="$clause_header"/></h2>-->
   
@@ -959,11 +992,11 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
    
   <xsl:if test="position()=1">
     <!-- first entity so output the intro -->
-   <!-- <h2>
+    <h2>
       <a name="types">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h2>-->
+    </h2>
     <p>
       <xsl:value-of select="$clause_intro"/>
     </p>
@@ -972,6 +1005,14 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           <xsl:with-param name="schema_node" select=".."/>
         </xsl:call-template>
       </xsl:if>
+      <xsl:if test="not(..//constant)" >
+	    <p>
+	      <u>EXPRESS specification:</u><br/>
+	      (*<br/>
+	      SCHEMA <xsl:value-of select="$schema_name"/>;<br/>
+	      *)
+	    </p>
+	</xsl:if>
   </xsl:if>
 
 <xsl:variable name="aname">
@@ -3654,7 +3695,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause +
-															$subtype_constraint_clause + 
+		       	      $subtype_constraint_clause + 
                               $function_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_function'">
@@ -3662,7 +3703,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
-															$subtype_constraint_clause + 
+			      $subtype_constraint_clause + 
                               $function_clause + $imported_function_clause"/>
       </xsl:when>
 
@@ -3671,7 +3712,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
-															$subtype_constraint_clause + 
+		              $subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause"/>
       </xsl:when>
@@ -3680,7 +3721,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
-															$subtype_constraint_clause + 
+			      $subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause"/>
       </xsl:when>
@@ -3690,7 +3731,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause + $imported_entity_clause + 
-															$subtype_constraint_clause + 
+			      $subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause +
                               $procedure_clause"/>
@@ -3700,7 +3741,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
-															$subtype_constraint_clause + 
+			      $subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause +
                               $procedure_clause + $imported_procedure_clause"/>
@@ -3709,7 +3750,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:choose>    
   </xsl:variable>
 
-  <xsl:variable name="augmented_clause_number" select="number($clause_number+2)"/>
+  <xsl:variable name="augmented_clause_number" select="number($clause_number+3)"/>
   <xsl:variable name="main_clause">
     <xsl:value-of select="concat('4.',$augmented_clause_number)"/>      
   </xsl:variable>

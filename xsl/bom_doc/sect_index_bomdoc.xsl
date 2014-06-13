@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_bomdoc.xsl,v 1.1 2013/02/06 07:56:59 nigelshaw Exp $
+	$Id: sect_index_bomdoc.xsl,v 1.2 2013/02/06 08:53:29 nigelshaw Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -12,6 +12,9 @@
   <!--
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/> -->
+
+  <!-- get the BOM xml to use for indexing -->
+  <xsl:variable name="model_xml" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory, '/bom.xml'))"/>
 
   
   <xsl:output method="html"/>
@@ -179,8 +182,14 @@
       <xsl:attribute name="object_href">
 	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',@name)"/>
       </xsl:attribute>
+      <xsl:variable name="clause">
+	      <xsl:choose>
+		      <xsl:when test="$model_xml//constant">4.6.</xsl:when>
+		      <xsl:otherwise>4.5.</xsl:otherwise>
+	      </xsl:choose>
+      </xsl:variable>
       <xsl:attribute name="clause_no">
-        <xsl:value-of select="concat('4.4.',position())"/>
+        <xsl:value-of select="concat($clause,position())"/>
       </xsl:attribute>      
     </xsl:element>
   </xsl:template>
@@ -194,8 +203,14 @@
       <xsl:attribute name="object_href">
 	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',$this_ent)"/>
       </xsl:attribute>
+      <xsl:variable name="clause">
+	      <xsl:choose>
+		      <xsl:when test="$model_xml//constant">4.6.</xsl:when>
+		      <xsl:otherwise>4.5.</xsl:otherwise>
+	      </xsl:choose>
+      </xsl:variable>
       <xsl:attribute name="clause_no">
-        <xsl:value-of select="concat('4.5.',position())"/>
+        <xsl:value-of select="concat($clause,position())"/>
       </xsl:attribute>
     </xsl:element>
   </xsl:template>

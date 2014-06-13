@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.4 2012/12/13 22:19:53 mikeward Exp $
+$Id: business_object_model.xsl,v 1.5 2013/02/08 00:05:31 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -506,25 +506,42 @@ is case sensitive.')"/>
 </xsl:template>
  
   <xsl:template match="bom">
-    <h2><a name="types">4.4&#160;Business object model type definitions</a></h2>
+
     <xsl:variable name="model" select="../../@name"/>
     <xsl:variable name="model_dir" select="$model"/>
     <xsl:variable name="bom_xml" select="concat('../../data/business_object_models/', $model_dir,'/bom.xml')"/>
     <xsl:variable name="bom_node" select="document($bom_xml)"/>
+
+  <xsl:variable name="type_clause_number">
+    <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="clause" select="'type'"/>
+      <xsl:with-param name="schema_name" select="$bom_node/express/schema/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="entity_clause_number">
+    <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="clause" select="'entity'"/>
+      <xsl:with-param name="schema_name" select="$bom_node/express/schema/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+	 
+  <!--  <h2><a name="types"><xsl:value-of select="$type_clause_number"/>&#160;Business object model type definitions</a></h2>
     <p>
       <u>EXPRESS specification:</u><br/>
       (*<br/>
       SCHEMA <xsl:value-of select="concat($model, '_bom')"/>;<br/>
       *)
-    </p>
-    <!--<xsl:apply-templates select="$bom_node/express/schema/interface"/>
-    <xsl:apply-templates select="$bom_node/express/schema/constant"/>-->
+    </p> -->
+    <!--<xsl:apply-templates select="$bom_node/express/schema/interface"/> -->
+    <xsl:apply-templates select="$bom_node/express/schema/constant"/>
     <!-- display the EXPRESS for the types in the schema. -->
     <xsl:apply-templates select="$bom_node/express/schema/type"/>
     
-    <h2><a name="entities">4.5&#160;Business object model entity definitions</a></h2>
+    <h2><a name="entities"><xsl:value-of select="$entity_clause_number"/>&#160;Business object model entity definitions</a></h2>
     
-    <!-- display the EXPRESS for the entities in the ARM.
+    <!-- display the EXPRESS for the entities in the BOM.
     The template is in sect4_express.xsl -->
     <xsl:apply-templates select="$bom_node/express/schema/entity"/>
     

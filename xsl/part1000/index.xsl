@@ -176,6 +176,7 @@
   </xsl:template>
   <xsl:template name="get_directory">
     <xsl:variable name="cdr" select="element()[2]"/>
+  	<!--<xsl:message select="$cdr"></xsl:message>-->
     <xsl:choose>
       <xsl:when test="$cdr/@directory">
 	<xsl:value-of select="$cdr/@directory"/>
@@ -190,13 +191,13 @@
     <xsl:param name="series"/>
     <xsl:choose>
       <xsl:when test="$sort eq 'name'">
-	<xsl:apply-templates select="document('../docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
+	<xsl:apply-templates select="document('../../library/docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
 	  <xsl:with-param name="sort" select="$sort"/>
 	  <xsl:sort select="@name"/>
 	</xsl:apply-templates>
       </xsl:when>
       <xsl:when test="$sort eq 'number'">
-	<xsl:apply-templates select="document('../docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
+	<xsl:apply-templates select="document('../../library/docs.xml',.)/docs/doc[(string-length($series) eq 0) or (@series eq $series)]" mode="index">
 	  <xsl:with-param name="sort" select="$sort"/>
 	  <xsl:sort select="@part" data-type="number"/>
 	</xsl:apply-templates>
@@ -300,13 +301,13 @@
     <xsl:variable name="xmlfile">
       <xsl:choose>
 	<xsl:when test="$model eq 'arm'">
-	  <xsl:text>../arm_index.xml</xsl:text>
+	  <xsl:text>../../library/arm_index.xml</xsl:text>
 	</xsl:when>
 	<xsl:when test="$model eq 'mim'">
-	  <xsl:text>../mim_ir_index.xml</xsl:text>
+	  <xsl:text>../../library/mim_ir_index.xml</xsl:text>
 	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:text>../docs.xml</xsl:text>
+	<xsl:otherwise>	  
+		<xsl:text>../../library/docs.xml</xsl:text>
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -576,11 +577,11 @@
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <!-- <xsl:message>filename = <xsl:value-of select="$filename"/></xsl:message> -->
+     <!--<xsl:message>filename = <xsl:value-of select="$filename"/></xsl:message>--> 
     <xsl:variable name="directory">
       <xsl:call-template name="get_directory"/>
     </xsl:variable>
-    <!-- <xsl:message>directory = <xsl:value-of select="$directory"/></xsl:message> -->
+     <!--<xsl:message>directory = <xsl:value-of select="$directory"/></xsl:message>--> 
     <xsl:variable name="suffix">
       <xsl:choose>
 	<xsl:when test="$pound eq 'true'">
@@ -591,7 +592,7 @@
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <!-- <xsl:message>suffix = <xsl:value-of select="$suffix"/></xsl:message> -->
+     <!--<xsl:message>suffix = <xsl:value-of select="$suffix"/></xsl:message>--> 
     <xsl:choose>
       <xsl:when test="$type eq 'resource'">
 	<xsl:value-of select="concat('../../resources/',$directory,'/',$filename)"/>

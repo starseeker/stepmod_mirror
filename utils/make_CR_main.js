@@ -1,7 +1,7 @@
-//$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $
+//$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $
 //  Author: Mike Ward, Eurostep Limited
-//  Owner:  Developed by Eurostep 
-//  Purpose:  JScript to generate a Part 1000 publication package
+//  Owner:  Developed by Eurostep
+//  Purpose:  JScript to generate a change request
 
 
 
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+    ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
     ts.WriteLine("  Author:  Mike Ward, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -79,7 +79,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE part1000.publication_index SYSTEM \"../../dtd/p1000_publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
 	ts.WriteLine("  Author:  Mike Ward, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A listing of modules and/or resource documents and/or business object models to be published as a Part 1000 change request");
@@ -103,6 +103,8 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("               The date the set of parts were submitted to ISO");
 	ts.WriteLine("           date.iso_publication");
 	ts.WriteLine("               The date the set of parts were published by ISO           ");
+        ts.WriteLine("           sc4.working_group
+        ts.WriteLine("               The WG number for the SC4 working_group
 	ts.WriteLine("-->");
 
 	ts.WriteLine("<part1000.publication_index");
@@ -110,6 +112,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  wg.number.publication_set=\"\"");
 	ts.WriteLine("  wg.number.publication_set_comments=\"\"");
 	ts.WriteLine("  date.iso_submission=\"\"");
+	ts.WriteLine("  sc4.working_group=\"\"");
 
 	dt = new Date();   //Gets today's date right now (to the millisecond).
 	iso_publication = dt.getFullYear()+'-99-'+publication.substring(publication.length-2, publication.length);
@@ -129,8 +132,8 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("    <editor ref=\"xx\"/>");
 	ts.WriteLine("  </contacts>");
 	ts.WriteLine("");
-	ts.WriteLine("  <!-- The list of modules, resources, or bo models to be published as individual ISO parts and include in part1000 -->");
-	ts.WriteLine("  <!-- Only add the module once -->");
+	ts.WriteLine("  <!-- The list of modules, resources, or bo models to be included in a change request -->");
+	ts.WriteLine("  <!-- Only add each item once -->");
 	ts.WriteLine("  <modules>");
   	ts.WriteLine("    <!-- START: AP203 modules -->");
   	ts.WriteLine("    <!-- <module name=\"\" team=\"ap203\" version=\"\" arm.change=\"n\" mim.change=\"n\"/> -->");
@@ -170,7 +173,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
 	ts.WriteLine("  Author:  Mike Ward, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules, resources, or boms");
@@ -189,7 +192,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
   	ts.WriteLine("Author:  Mike Ward, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("Purpose: Display summary of normative references");
@@ -207,10 +210,10 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/bibliography_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
   	ts.WriteLine("Author:  Mike Ward, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
-	ts.WriteLine("Purpose: Display summary of normative references");
+	ts.WriteLine("Purpose: Display summary of bibliography");
 	ts.WriteLine("-->");
 	ts.WriteLine("<publication directory=\""+publication+"\"/>");
 	ts.Close();
@@ -225,10 +228,10 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/modules_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
   	ts.WriteLine("Author:  Mike Ward, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
-	ts.WriteLine("Purpose: Display summary of normative references");
+	ts.WriteLine("Purpose: Display summary of modules");
 	ts.WriteLine("-->");
 	ts.WriteLine("<publication directory=\""+publication+"\"/>");
 	ts.Close();
@@ -242,10 +245,10 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/wgn_summary.xsl\" ?>");
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
   	ts.WriteLine("Author:  Mike Ward, Eurostep Limited");
   	ts.WriteLine("Owner:   Developed by Eurostep Limited http://www.eurostep.com");
-	ts.WriteLine("Purpose: Display summary of normative references");
+	ts.WriteLine("Purpose: Display wg summary");
 	ts.WriteLine("-->");
 	ts.WriteLine("<publication directory=\""+publication+"\"/>");
 	ts.Close();
@@ -260,7 +263,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: make_CR_main.js,v 1.8 2014/05/16 16:13:59 mikeward Exp $");
+	ts.WriteLine("$Id: make_CR_main.js,v 1.1 2014/06/05 21:17:38 mikeward Exp $");
 	ts.WriteLine("  Author:  Mike Ward, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.2 2014/06/06 14:28:39 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.3 2014/06/07 17:40:11 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -127,7 +127,7 @@ Purpose: To build the initial ANT publication file.
 			</condition>
 			<xsl:variable name="fail_msg">-
 				------------------------------------------------------------ You need to tag the
-				repository before publishing the modules and/or recources and/or bo models. Use:
+				repository before publishing the modules and/or resources and/or bo models. Use:
 					<xsl:value-of select="$CVS_tag"/>
 				------------------------------------------------------------ </xsl:variable>
 			<fail if="do.abort">
@@ -1697,7 +1697,7 @@ Purpose: To build the initial ANT publication file.
 			</xsl:attribute>
 		</xsl:element>
 
-		<!--<xsl:element name="property">
+		<xsl:element name="property">
 			<xsl:attribute name="name">BOMINDEXBOMEXPRESSXML</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
@@ -1737,6 +1737,17 @@ Purpose: To build the initial ANT publication file.
 			</xsl:attribute>
 		</xsl:element>
 		
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMEXPRESSNAVTOPXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_express_nav_top.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMINDEXBOMEXPRESSTOPXML</xsl:attribute>
 			<xsl:attribute name="value">
@@ -1745,10 +1756,77 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="suffix" select="'/sys/index_bom_express_top.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
-		</xsl:element>-->
-
-<!-- MORE?? -->
-
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMAPPINGS</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_mappings.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMAPPINGSINNER</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_mappings_inner.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMAPPINGSTOP</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_mappings_top.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMODULES</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_modules.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMODULESINNER</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_modules_inner.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMODULESINNERPART</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_modules_inner_part.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXBOMMODULESTOP</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_modules_top.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
 
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMINDEXBOMDOCXML</xsl:attribute>
@@ -1756,6 +1834,46 @@ Purpose: To build the initial ANT publication file.
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
 					<xsl:with-param name="suffix" select="'/sys/index_bom_doc.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXRESOURCESXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_resources.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXRESOURCESINNERXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_resources_inner.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXRESOURCESINNERPARTXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_resources_inner_part.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>
+		</xsl:element>
+		
+		<xsl:element name="property">
+			<xsl:attribute name="name">BOMINDEXRESOURCESTOPXML</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
+					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_resources_top.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
@@ -1849,15 +1967,7 @@ Purpose: To build the initial ANT publication file.
 			</xsl:attribute>
 		</xsl:element>
 		
-		<xsl:element name="property">
-			<xsl:attribute name="name">BOMDEFSXML</xsl:attribute>
-			<xsl:attribute name="value">
-				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
-					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-					<xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
-				</xsl:apply-templates>
-			</xsl:attribute>
-		</xsl:element>
+		
 		
 		<!-\- HTML -\->
 		<xsl:element name="property">
@@ -5417,7 +5527,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${BOMFRAMEBOMTITLEXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/frame_bomtitle.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/frame_title.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>-->
@@ -5452,12 +5562,12 @@ Purpose: To build the initial ANT publication file.
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 				</xsl:element>
 			
-			<!--<xsl:element name="xslt">
+			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${BOMINDEXBOMEXPRESSXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_express.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
@@ -5467,7 +5577,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${BOMINDEXBOMEXPRESSINNERXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_express_inner.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_inner.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
@@ -5477,7 +5587,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${BOMINDEXBOMEXPRESSNAVXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_express_nav.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
@@ -5487,7 +5597,17 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${BOMINDEXBOMEXPRESSNAVINNERXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_express_nav_inner.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMEXPRESSNAVTOPXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav_top.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
@@ -5497,10 +5617,81 @@ Purpose: To build the initial ANT publication file.
 					<xsl:value-of select="'${BOMINDEXBOMEXPRESSTOPXML}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_express_top.xsl'"/>
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_top.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
-			</xsl:element>-->
+			</xsl:element>
+			
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMAPPINGS}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMAPPINGSINNER}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMAPPINGSTOP}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings_top.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMODULES}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_modules.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMODULESINNER}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_modules_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMODULESINNERPART}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_modules_inner_part.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXBOMMODULESTOP}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_arm_modules_top.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
 			
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
@@ -5508,6 +5699,46 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_index_bomdoc.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXRESOURCESXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_resources.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXRESOURCESINNERXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_resources_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXRESOURCESINNERPARTXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_resources_inner_part.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${BOMINDEXRESOURCESTOPXML}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/ap_doc/index_resources_top.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
@@ -5575,8 +5806,6 @@ Purpose: To build the initial ANT publication file.
 				<mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
 			</xsl:element>
 
-
-
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${BOMSCHEMADIAGXML}'"/>
@@ -5587,16 +5816,6 @@ Purpose: To build the initial ANT publication file.
 				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
 			</xsl:element>
 			
-			<!--<xsl:element name="xslt">
-				<xsl:attribute name="includes">
-					<xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
-				</xsl:attribute>
-				<xsl:attribute name="style">
-					<xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
-				</xsl:attribute>
-				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
-			</xsl:element>-->
-
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
 					<xsl:value-of select="'${P1000DIR}'"/>
@@ -6816,8 +7035,8 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="present" select="normalize-space($present1)"/>
 		<xsl:choose>
 			<xsl:when test="string-length($present)>1">
-				<xsl:message> ************************************************************ WARNING
-					Should only process application protocols or modules or resources Not a mixture
+				<xsl:message> ************************************************************ NOTE
+					Should process business object models or modules or resources or any mixture thereof
 					************************************************************ </xsl:message>
 				<xsl:value-of select="'false'"/>
 			</xsl:when>

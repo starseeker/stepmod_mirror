@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.188 2013/01/17 18:05:48 mikeward Exp $
+$Id: common.xsl,v 1.189 2014/05/29 20:31:14 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4857,7 +4857,7 @@ is case sensitive.')"/>
   <xsl:choose>
 	<xsl:when test="name(.)='application_protocol'">ap</xsl:when>
 	<xsl:when test="name(.)='module'">am</xsl:when>
-	<xsl:when test="name(.)='resource' and @part > 499">aic</xsl:when>
+	<xsl:when test="name(.)='resource' and @part > 499 and ./schema[starts-with(@name,'aic_')] ">aic</xsl:when>
 	<xsl:when test="name(.)='resource' and @part >  99">iar</xsl:when>
 	<xsl:when test="name(.)='resource' and @part &lt;  99">igr</xsl:when>
 	<xsl:otherwise>

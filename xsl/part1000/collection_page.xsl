@@ -21,10 +21,10 @@
 	  </xsl:choose>
 	</xsl:variable>
 	<xsl:variable name="bibliography_path">../../../basic/bibliography.xml</xsl:variable>
-	<xsl:variable name="desig" select="document('../part.xml',.)/part/designator"/>
-	<xsl:variable name="pub_year_mo" select="document('../part.xml',.)/part/@publication.year"/>
+	<xsl:variable name="desig" select="document('../../data/library/part.xml',.)/part/designator"/>
+	<xsl:variable name="pub_year_mo" select="document('../../data/library/part.xml',.)/part/@publication.year"/>
 	<xsl:variable name="pub_year" select="fn:substring-before($pub_year_mo,'-')"/>
-	<xsl:variable name="version_number" select="document('../part.xml',.)/part/@version.number"/>
+	<xsl:variable name="version_number" select="document('../../data/library/part.xml',.)/part/@version.number"/>
 	<xsl:template match="space" priority="2.0">
 	  <xsl:text> </xsl:text>
 	</xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
+$Id: res_toc.xsl,v 1.31 2011/03/08 10:19:58 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -51,7 +51,6 @@ $Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
       <xsl:apply-templates select="./ancestor::resource" mode="doctype"/>
     </xsl:variable>
 
-   <xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
    <xsl:variable name="express_xml_ir" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))"/>
 
   <xsl:variable name="schema_name" select="@name"/>
@@ -100,6 +99,7 @@ $Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
 			        <xsl:value-of select="count($express_xml_ir/express/schema/constant)"/>
 	              </xsl:when>
 	              <xsl:otherwise>
+   			<xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
 	                <xsl:value-of select="count($express_xml_aic/express/schema/constant)"/>
 	              </xsl:otherwise>
 	            </xsl:choose> 
@@ -152,6 +152,7 @@ $Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
 			        <xsl:value-of select="count($express_xml_ir/express/schema/type)"/>
 	              </xsl:when>
 	              <xsl:otherwise>
+   			<xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
 	                <xsl:value-of select="count($express_xml_aic/express/schema/constant)"/>
 	              </xsl:otherwise>
 	            </xsl:choose> 
@@ -205,6 +206,7 @@ $Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
 			        <xsl:value-of select="count($express_xml_ir/express/schema/entity)"/>
 	              </xsl:when>
 	              <xsl:otherwise>
+   			<xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
 	                <xsl:value-of select="count($express_xml_aic/express/schema/entity)"/>
 	              </xsl:otherwise>
 	            </xsl:choose> 
@@ -264,8 +266,9 @@ $Id: res_toc.xsl,v 1.30 2011/02/20 10:50:51 lothartklein Exp $
 			      <xsl:when test="not($doctype='aic')">
 			        <xsl:value-of select="count($express_xml_ir/express/schema/subtype.constraint)"/>
 	              </xsl:when>
-	              <xsl:otherwise>
-	                <xsl:value-of select="count($express_xml_aic/express/schema/subtype.constraint)"/>
+		      <xsl:otherwise>
+   			<xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
+		        <xsl:value-of select="count($express_xml_aic/express/schema/subtype.constraint)"/>
 	              </xsl:otherwise>
 	            </xsl:choose> 
             </xsl:variable> 

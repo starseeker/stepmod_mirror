@@ -1,4 +1,4 @@
-Rem $Id: smrl_build_setup.bat,v 1.7 2013/08/06 23:51:13 thomasrthurman Exp $
+Rem $Id: smrl_build_setup.bat,v 1.8 2014/06/12 18:12:26 thomasrthurman Exp $
 Rem file stepmod/utils/part1000/smrl_build_setup.bat
 Rem Copy to data/library/dvlp in local repo for execution ease
 REm Java/<version>/lib/tools.jar is required. get it from jdk
@@ -12,5 +12,5 @@ echo
 set PATH=%WINDOZE_PATH%;C:\strawberry\c\bin;C:\strawberry\perl\bin;%ANT_HOME%\bin;%JAVA_HOME%\bin;%SAXON_HOME%
 echo %PATH%
 set TERM=dumb
-set SMRL_ROOT=U:\Documents\2013\SMRLv5\SMRL_v5_rc5
+set SMRL_ROOT=U:\Documents\2014\SMRLv6\SMRL_v6_rc1
 set WORK=U:\Downloads\tmp

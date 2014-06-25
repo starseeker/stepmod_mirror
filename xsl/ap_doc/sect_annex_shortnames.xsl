@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.16 2005/03/02 10:47:35 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.17 2014/05/29 20:31:14 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -288,7 +288,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
         <p align="center">
           <small>
 	    <xsl:variable name="names_url"
-		    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
+		    select="'http://standards.iso.org/iso/10303/tech/short_names/short-names.txt'"/>
             <a href="{$names_url}" target="_blank">
               <xsl:value-of select="$names_url"/>
             </a>

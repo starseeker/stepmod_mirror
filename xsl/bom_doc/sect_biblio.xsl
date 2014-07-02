@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.26 2011/03/02 05:41:50 mikeward Exp $
+	$Id: sect_biblio.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
 	Author:  Mike Ward, Eurostep Limited
 	Owner:   Developed by Eurostep.
 	Purpose: Display bibliography for a BOM document.     
@@ -9,7 +9,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:exslt="http://exslt.org/common" exclude-result-prefixes="msxsl exslt" version="1.0">
 	<xsl:import href="../elt_list.xsl"/>
 	<xsl:import href="business_object_model.xsl"/>
-	<xsl:import href="business_object_model_clause.xsl"/>
+	<xsl:import href="business_object_model_clause_nofooter.xsl"/> 
 	<xsl:include href="../common/biblio.xsl"/>
 	<xsl:output method="html"/>
 	<xsl:template match="module"/>

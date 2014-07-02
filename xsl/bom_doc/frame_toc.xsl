@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_toc.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: frame_toc.xsl,v 1.2 2014/06/13 12:57:13 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the table of contents frame for a BOM.     
@@ -25,23 +25,17 @@ $Id: frame_toc.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
       <head>
         <xsl:apply-templates select="$business_object_model_xml_file/business_object_model" mode="meta_data"/>
         <title>
-          <xsl:apply-templates select="$business_object_model_xml_file/application_protocol" mode="title"/>
+          <xsl:apply-templates select="$business_object_model_xml_file/business_object_model" mode="title"/>
         </title>
       </head>
       <body>
          <xsl:apply-templates select="$business_object_model_xml_file/business_object_model" mode="contents">  
          <xsl:with-param name="target" select="'info'"/>
-             <xsl:with-param name="complete" select="'yes'"/>
+          <xsl:with-param name="complete" select="'yes'"/>
           </xsl:apply-templates>
         
         
-        <!--<xsl:apply-templates 
-          select="$application_protocol_xml_file/application_protocol" 
-          mode="contents_tables_figures">
-          <xsl:with-param name="target" select="'info'"/>
-          <xsl:with-param name="complete" select="'yes'"/>
-          <xsl:with-param name="short" select="'no'"/>
-        </xsl:apply-templates>-->
+        
         
     </body>
     </html>

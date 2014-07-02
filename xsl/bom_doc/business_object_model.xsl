@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model.xsl,v 1.5 2013/02/08 00:05:31 nigelshaw Exp $
+$Id: business_object_model.xsl,v 1.6 2014/06/13 12:57:13 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -11,7 +11,7 @@ $Id: business_object_model.xsl,v 1.5 2013/02/08 00:05:31 nigelshaw Exp $
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <!-- <xsl:import href="../module.xsl"/> -->
-  <!--<xsl:import href="business_object_model_toc.xsl"/>-->
+  <xsl:import href="business_object_model_toc.xsl"/>
   <xsl:import href="../express_code.xsl"/>
   <xsl:import href="common.xsl"/>
   <xsl:import href="sect_4_express.xsl"/>
@@ -69,14 +69,22 @@ $Id: business_object_model.xsl,v 1.5 2013/02/08 00:05:31 nigelshaw Exp $
     <HTML>
       <HEAD>
         <TITLE>
-          <!--<xsl:apply-templates select="./business_object_model" mode="title"/>-->
+          <xsl:apply-templates select="./business_object_model" mode="title"/>
         </TITLE>
       </HEAD>
       <BODY>
-        <!--<xsl:apply-templates select="./business_object_model" mode="TOCsinglePage"/>-->
+        <xsl:apply-templates select="./business_object_model" mode="TOCsinglePage"/>
         <xsl:apply-templates select="./business_object_model"/>
       </BODY>
     </HTML>
+  </xsl:template>
+  
+  <xsl:template match="business_object_model" mode="title">
+    
+    <xsl:variable name="wg_group" select="./@wg"/>
+    <xsl:variable name="wg_number" select="./@wg.number"/>
+    <xsl:variable name="stdnumber" select="concat('ISO/TC 184/SC 4/WG ',$wg_group,'&#160;N',./@wg.number)"/>
+    <xsl:value-of select="$stdnumber"/>                
   </xsl:template>
  
 

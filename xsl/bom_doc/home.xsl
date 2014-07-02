@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: home.xsl,v 1.2 2013/03/05 15:55:50 mikeward Exp $
+  $Id: home.xsl,v 1.3 2014/06/05 22:05:17 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM.     
@@ -29,30 +29,30 @@
     <html>
       <head>
         <title>
-          <!--<xsl:apply-templates select="document($business_object_model_xml_file)/business_object_model" mode="title"/>-->
+          <xsl:apply-templates select="document($business_object_model_xml_file)/business_object_model" mode="title"/>
         </title>
       </head>
       
-    <frameset rows="60,*">
-      <frame name="menu" 
-        src="./sys/frame_title{$FILE_EXT}"
-        frameborder="0"
-        marginwidth="2" marginheight="0" scrolling="no"/>
-      <frameset rows="30%,70%">
-      
-        <frame name="index" 
-          src="./sys/frame_toc{$FILE_EXT}" 
+      <frameset rows="60,*">
+        <frame name="menu" 
+          src="./sys/frame_title{$FILE_EXT}"
           frameborder="0"
-          marginwidth="2" marginheight="0" scrolling="auto"/>
-        <frame name="info"
-            src="./sys/contents{$FILE_EXT}" 
+          marginwidth="2" marginheight="0" scrolling="no"/>
+        <frameset cols="20%,80%">
+          <frame name="index" 
+            src="./sys/frame_toc{$FILE_EXT}" 
+            frameborder="0"
+            marginwidth="2" marginheight="0" scrolling="auto"/>
+          <frame name="info"
+            src="./sys/cover{$FILE_EXT}" 
             frameborder="0"
             scrolling="auto"/>
+        </frameset>
+        
+        <noframes>
+          <p>This page uses frames, but your browser doesn't support them.</p>
+        </noframes>
       </frameset>
-      <noframes>
-        <p>This page uses frames, but your browser doesn't support them.</p>
-      </noframes>
-    </frameset>
     </html>
   </xsl:template>
 

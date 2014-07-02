@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_clause.xsl,v 1.16 2004/02/05 17:51:07 robbod Exp $
+$Id: business_object_model_clause.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:     
@@ -37,8 +37,8 @@ $Id: application_protocol_clause.xsl,v 1.16 2004/02/05 17:51:07 robbod Exp $
             <xsl:value-of select="'fixed'"/>
           </xsl:attribute> -\->
         </xsl:if>-->
-
-        <!--<xsl:apply-templates select="$business_object_model_xml/business_object_model" mode="TOCmultiplePage"/>-->
+       
+        <xsl:apply-templates select="$business_object_model_xml/business_object_model_clause" mode="TOCmultiplePage"/>
         <xsl:apply-templates select="$business_object_model_xml/business_object_model"/>
         <br/><br/>
         <p>&#169; ISO <xsl:value-of select="$business_object_model_xml/business_object_model/@publication.year"/> &#8212; All rights reserved</p>

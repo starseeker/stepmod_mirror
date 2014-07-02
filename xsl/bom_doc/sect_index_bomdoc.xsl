@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_bomdoc.xsl,v 1.2 2013/02/06 08:53:29 nigelshaw Exp $
+	$Id: sect_index_bomdoc.xsl,v 1.3 2014/06/13 12:57:13 nigelshaw Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -12,7 +12,7 @@
   <!--
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/> -->
-
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/> 
   <!-- get the BOM xml to use for indexing -->
   <xsl:variable name="model_xml" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory, '/bom.xml'))"/>
 

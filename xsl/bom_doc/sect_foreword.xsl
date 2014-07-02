@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.2 2013/01/17 13:53:15 ungerer Exp $
+$Id: sect_foreword.xsl,v 1.3 2013/02/08 20:21:10 darla Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the foreword for a BOM document.     
@@ -12,7 +12,8 @@ $Id: sect_foreword.xsl,v 1.2 2013/01/17 13:53:15 ungerer Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+ <!-- <xsl:import href="business_object_model_clause.xsl"/>-->
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/>
   <xsl:output method="html"/>
   
   <xsl:template match="business_object_model">

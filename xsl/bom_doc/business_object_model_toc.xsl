@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: business_object_model_toc.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+  $Id: business_object_model_toc.xsl,v 1.2 2013/03/21 20:41:54 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for an BOM document.     
@@ -10,7 +10,7 @@
 <!-- BOM -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-
+ 
   
 	
   <xsl:template match="business_object_model" mode="TOCmultiplePage">
@@ -23,9 +23,9 @@
    </xsl:variable>
    
 
-    <xsl:apply-templates select="." mode="TOCbannertitle">
+    <!--<xsl:apply-templates select="." mode="TOCbannertitle">
       <xsl:with-param name="module_root" select="$business_object_model_root"/>
-    </xsl:apply-templates> 
+    </xsl:apply-templates> -->
 
     <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
     <xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
@@ -64,110 +64,63 @@
           </td>
           <td valign="TOP">
             <p class="toc">
-              <a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}">4 Information requirements</a>
+              <a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}">4 Business object model requirements</a>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#41">4.1 Business concepts and terminology</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#41">4.1 General</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#42">4.2 Information requirements model</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#42">4.2 Business object model capabilities</a>
+              </small>
+              <br/>
+              <small>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#43">4.3 Fundamental concepts and assumptions</a>
+              </small>
+              <br/>
+              <small>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#44">4.4 Business object model constant definition</a>
+              </small>
+              <br/>
+              <small>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#45">4.5 Business object model type definitions</a>
+              </small>
+              <br/>
+              <small>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#46">4.6 Business object model entity definitions</a>
               </small>
               <br/>
 						
-              <a href="{$business_object_model_root}/sys/5_main{$FILE_EXT}">5 Module interpreted model</a>
+              <a href="{$business_object_model_root}/sys/5_main{$FILE_EXT}">5 Business object model mapping</a>
               <br/>
-              <a href="{$business_object_model_root}/sys/6_ccs{$FILE_EXT}">6 Conformance requirements</a>
-              <br/>
+             
             </p>
           </td>
 		
           <td valign="TOP">
             <p class="toc">
-              <a href="{$business_object_model_root}/sys/annex_exp_lf{$FILE_EXT}">
-                A Listings
-              </a>
-              <br/>
-              <a href="{$business_object_model_root}/sys/annex_shortnames{$FILE_EXT}">
-                B MIM short names
-              </a>
-              <br/>
-              <a href="{$business_object_model_root}/sys/annex_imp_meth{$FILE_EXT}">
-                C Implementation method specific requirements
-              </a>
-              <br/>
-              <a href="{$business_object_model_root}/sys/annex_pics{$FILE_EXT}">
-                D Protocol Implementation Conformance Statement (PICS) proforma
-              </a>
-              <br/>
               <a href="{$business_object_model_root}/sys/annex_obj_reg{$FILE_EXT}">
-                E Information object registration
+                A Information object registration
               </a>
               <br/>
-              <a href="{$business_object_model_root}/sys/annex_aam{$FILE_EXT}">
-                F Application activity model
+              <a href="{$business_object_model_root}/sys/annex_xsd_der{$FILE_EXT}">
+                B Derivation of XML schema
               </a>
-              
-
-              
-
-              
-
-              <xsl:variable name="al_com_int">
-                <xsl:call-template name="annex_letter" >
-                  <xsl:with-param name="annex_name" select="'computerinterpretablelisting'"/>
-                  <xsl:with-param name="annex_list" select="$annex_list"/>
-                </xsl:call-template>
-              </xsl:variable>
+              <br/>
+              <a href="{$business_object_model_root}/sys/annex_bom_expg{$FILE_EXT}">
+                C BO model EXPRESS-G
+              </a>
+              <br/>
               <a href="{$business_object_model_root}/sys/annex_comp_int{$FILE_EXT}">
-                <xsl:value-of select="$al_com_int"/> Computer interpretable listing
+                D Computer interpretable listings
               </a>
               <br/>
-
-              <xsl:if test="./usage_guide">
-                <xsl:variable name="al_uguide">
-                  <xsl:call-template name="annex_letter" >
-                    <xsl:with-param name="annex_name" select="'usageguide'"/>
-                    <xsl:with-param name="annex_list" select="$annex_list"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <a href="{$business_object_model_root}/sys/annex_guide{$FILE_EXT}">
-                  <xsl:value-of select="$al_uguide"/> Business object model implementation and usage guide
-                </a>
-                <br/>
-              </xsl:if>
-
-              <xsl:if test="./tech_disc">
-                <xsl:variable name="al_tech_disc">
-                  <xsl:call-template name="annex_letter" >
-                    <xsl:with-param name="annex_name" select="'techdisc'"/>
-                    <xsl:with-param name="annex_list" select="$annex_list"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <a href="{$business_object_model_root}/sys/annex_tech_disc{$FILE_EXT}">
-                  <xsl:value-of select="$al_tech_disc"/> Technical discussions
-                </a>
-                <br/>
-              </xsl:if>
-
-              <xsl:if test="./changes/change_detail">
-                <xsl:variable name="al_changes">
-                  <xsl:call-template name="annex_letter" >
-                    <xsl:with-param name="annex_name" select="'changedetail'"/>
-                    <xsl:with-param name="annex_list" select="$annex_list"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <a href="{$business_object_model_root}/sys/annex_changes{$FILE_EXT}">
-                  <xsl:value-of select="$al_changes"/> Detailed changes
-                </a>
-                <br/>
-              </xsl:if>
-
+             
               <a href="{$business_object_model_root}/sys/biblio{$FILE_EXT}#biblio">
                 Bibliography
               </a>
               <br/>
-              <a href="{$business_object_model_root}/sys/index_bomdoc{$FILE_EXT}#index">
+              <a href="{$business_object_model_root}/sys/index_bomdoc{$FILE_EXT}">
                 Index
               </a>
             </p>
@@ -181,7 +134,7 @@
      Output the Table of contents banner for a module where all clauses are 
      displayed on a single page
 -->
-<xsl:template match="business_object_model" mode="TOCsinglePage">
+<!--<xsl:template match="business_object_model" mode="TOCsinglePage">
   <xsl:param name="business_object_model_root" select="'..'"/>
   <xsl:apply-templates select="." mode="TOCbannertitle">
     <xsl:with-param name="module_root" select="$business_object_model_root"/>
@@ -210,14 +163,14 @@
 		<a href="{$business_object_model_root}/sys/business_object_model{$FILE_EXT}#annexf">F Application reference model</a><br/>
 	<a href="{$business_object_model_root}/sys/business_object_model{$FILE_EXT}#annexg">G Computer interpretable listing</a><br/>
 	<xsl:if test="./usage_guide">
-		<!-- use #annexh to link direct -->
+		<!-\- use #annexh to link direct -\->
 		<a href="{$business_object_model_root}/sys/business_object_model{$FILE_EXT}#annexh">
 		  H Business Object Model implementation and usage guide
 		</a>
 		<br/>
 	</xsl:if>
 	<xsl:if test="./tech_disc">
-		<!-- use #annexj to link direct -->
+		<!-\- use #annexj to link direct -\->
 		<a href="{$business_object_model_root}/sys/business_object_model{$FILE_EXT}#annexj">
 			J Technical discussions
 		</a>
@@ -227,7 +180,7 @@
 		K Application object index
 	</a>
 	<br/>
-	<!-- use #biblio to link direct -->
+	<!-\- use #biblio to link direct -\->
 	<a href="{$business_object_model_root}/sys/business_object_model{$FILE_EXT}">Bibliography</a>
       </td>
     </tr>
@@ -273,6 +226,6 @@
 				,&#x20;
 			</xsl:otherwise>
 		</xsl:choose>
-	</xsl:template>
+	</xsl:template>-->
 	
 </xsl:stylesheet>

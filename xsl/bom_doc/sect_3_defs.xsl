@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_3_defs.xsl,v 1.2 2013/02/06 07:57:42 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display definitions for a BOM.     
@@ -14,7 +14,7 @@ $Id: sect_3_defs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
     version="1.0"
 >
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/> 
   <xsl:output method="html"/>
 	
   <xsl:template match="business_object_model">

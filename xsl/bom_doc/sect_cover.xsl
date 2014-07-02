@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_cover.xsl,v 1.2 2014/05/29 20:31:14 nigelshaw Exp $
+  $Id: sect_cover.xsl,v 1.3 2014/06/13 12:57:13 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the cover page for a BOM.     
@@ -17,12 +17,17 @@
   
   <xsl:output method="html"/>
   
-  <xsl:template match="business_object_model_clause">
+  <!--<xsl:template match="business_object_model_clause">
 	  <xsl:variable name="bom_file" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory, '/business_object_model.xml'))" />
 
 	  <xsl:apply-templates select="$bom_file/business_object_model" mode="coverpage"/>
-  </xsl:template>
+  </xsl:template>-->
 
+  <xsl:template match="business_object_model">
+    
+    <xsl:apply-templates select="." mode="coverpage"/>
+  </xsl:template>
+      
   <xsl:template match="business_object_model" mode="coverpage">
   
   <!-- output any issues -->
@@ -39,7 +44,7 @@
     <xsl:with-param name="clause" select="'contacts'"/>
   </xsl:apply-templates>-->
 
-  <xsl:variable name="wg_group" select="3"/>
+  <xsl:variable name="wg_group" select="./@wg"/>
   <xsl:variable name="n_number" select="concat('ISO/TC 184/SC 4/WG ',$wg_group,'&#160;N',./@wg.number)"/>
   <xsl:variable name="date">
     <xsl:choose>
@@ -362,7 +367,8 @@
       <xsl:apply-templates select="./contacts/editor"/>
     </td>
   </tr>
- </table>
+  </table>
+   
 </xsl:template>
 
 <xsl:template match="projlead">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: sect_2_refs.xsl,v 1.2 2012/11/01 19:04:31 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display normative references clause for a BOM.
@@ -17,7 +17,7 @@ $Id: sect_2_refs.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
 
   <!--  <xsl:import href="../sect_2_refs.xsl"/> -->
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/>
   <xsl:output method="html"/>
 	
   

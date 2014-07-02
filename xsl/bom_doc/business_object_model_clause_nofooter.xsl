@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model_clause_nofooter.xsl,v 1.2 2004/02/05 17:51:07 robbod Exp $
+$Id: business_object_model_clause_nofooter.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -38,9 +38,9 @@ $Id: business_object_model_clause_nofooter.xsl,v 1.2 2004/02/05 17:51:07 robbod 
           </xsl:attribute>
         </xsl:if>-->
         
-        <!--<xsl:apply-templates 
+        <xsl:apply-templates 
           select="$business_object_model_xml/business_object_model" 
-          mode="TOCmultiplePage"/>-->
+          mode="TOCmultiplePage"/>
         <xsl:apply-templates
           select="$business_object_model_xml/business_object_model"/>
       </xsl:element>

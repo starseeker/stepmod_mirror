@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: sect_introduction.xsl,v 1.2 2013/01/17 13:53:15 ungerer Exp $
+  $Id: sect_introduction.xsl,v 1.3 2013/02/19 17:52:07 ungerer Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the introduction for a BOM document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/>
   <xsl:output method="html"/>
 
   <xsl:template match="business_object_model">

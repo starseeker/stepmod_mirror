@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_obj_reg.xsl,v 1.7 2009/08/24 10:01:42 mikeward Exp $
+$Id: sect_annex_obj_reg.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display BOM Annex A
@@ -10,7 +10,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.7 2009/08/24 10:01:42 mikeward Exp $
 
   <!--<xsl:import href="../sect_a_obj_reg.xsl"/>-->
   <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/> 
   <xsl:output method="html"/>
   
   <!--<xsl:template match="module"/>-->

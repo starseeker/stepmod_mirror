@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.12 2013/02/06 07:58:37 nigelshaw Exp $
+$Id: sect_4_info_reqs.xsl,v 1.13 2014/06/13 12:57:13 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display clause 4 for a BOM     
@@ -10,7 +10,7 @@ $Id: sect_4_info_reqs.xsl,v 1.12 2013/02/06 07:58:37 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:import href="sect_4_express.xsl"/>  
 <xsl:import href="business_object_model.xsl"/>
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/>
   <xsl:import href="../expressg_icon.xsl"/>
   
   <xsl:output method="html"/>

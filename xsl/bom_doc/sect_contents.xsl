@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.11 2014/01/24 17:46:32 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.12 2014/06/13 12:57:13 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -12,15 +12,15 @@ $Id: sect_contents.xsl,v 1.11 2014/01/24 17:46:32 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <!--<xsl:import href="../sect_contents.xsl"/>-->
   <xsl:import href="business_object_model.xsl"/>
-  <!-- <xsl:import href="business_object_model_clause_nofooter.xsl"/> -->
-  <xsl:import href="business_object_model_clause.xsl"/>
+  <xsl:import href="business_object_model_clause_nofooter.xsl"/> 
+  <!--<xsl:import href="business_object_model_clause.xsl"/>-->
   <xsl:output method="html"/>
   
   <xsl:variable name="bom_xml" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory , '/bom.xml'))"/>
 
 	
   <xsl:template match="business_object_model">
-    <xsl:apply-templates select="." mode="linear"/>
+    <xsl:apply-templates select="." mode="contents"/>
     <xsl:apply-templates select="." mode="contents_tables_figures"/>
     <!--
     <xsl:apply-templates select="../business_object_model" mode="contents_tables_figures"/>
@@ -36,7 +36,8 @@ $Id: sect_contents.xsl,v 1.11 2014/01/24 17:46:32 nigelshaw Exp $
   <xsl:template match="business_object_model" mode="contents">
     <xsl:param name="target" select="'_self'"/>
    <!-- if complete is yes then display the introduction foreword etc -->
-    <xsl:param name="complete" select="'yes'"/>
+    <xsl:param name="complete" select="'no'"/>
+    
    
    <!-- <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -51,87 +52,95 @@ $Id: sect_contents.xsl,v 1.11 2014/01/24 17:46:32 nigelshaw Exp $
       </xsl:call-template>
     </xsl:variable>
    		
-    <xsl:variable name="ccs_xml" select="document(concat($business_object_model_dir, '/ccs.xml'))"/>-->
+   		<xsl:variable name="ccs_xml" select="document(concat($business_object_model_dir, '/ccs.xml'))"/>-->
+    <h2><a name="contents"></a>Contents</h2>
     <small>
+        <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
+        <br/>
+        <a href="./contents{$FILE_EXT}" target="{$target}">Table of contents</a>
+        <br/>
+        <a href="./cover{$FILE_EXT}#copyright" target="{$target}">Copyright</a>
+        <br/>
+        <a href="./foreword{$FILE_EXT}" target="{$target}">Foreword</a>
+        <br/>
+        <a href="./introduction{$FILE_EXT}" target="{$target}">Introduction</a>
+        <br/>
+        <a href="./1_scope{$FILE_EXT}" target="{$target}">1 Scope</a>
+        <br/>
+        <a href="./2_refs{$FILE_EXT}" target="{$target}">2 Normative references</a>
+        <br/> 
+        <a href="./3_defs{$FILE_EXT}" target="{$target}">3 Terms, definitions and abbreviated terms</a>  
+        <br/>
+         &#160;&#160;&#160;&#160;&#160;
+        <a href="./3_defs{$FILE_EXT}#termsdefns" target="{$target}">3.1 Terms and definitions</a>
+        <br/>&#160;&#160;&#160;&#160;&#160;
+        <a href="./3_defs{$FILE_EXT}#abbrvterms" target="{$target}">3.2 Abbreviated terms</a>
+        <br/>
+        <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
+        <br/>
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./4_info_reqs{$FILE_EXT}#general" target="{$target}">4.1 General</a>
+        <br/>
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./4_info_reqs{$FILE_EXT}#capabilities" target="{$target}">4.2 Business object model capabilities</a>
+        <br/>
+        &#160;&#160;&#160;&#160;&#160;
+        <a href="./4_info_reqs{$FILE_EXT}#fundamentals" target="{$target}">4.3 Fundamental concepts and assumptions</a>
+        <br/>
+        <xsl:choose>
+          <xsl:when test="$bom_xml//constant" >
+             &#160;&#160;&#160;&#160;&#160;
+  	          <a href="./4_info_reqs{$FILE_EXT}#constants" target="{$target}">4.4 Business object model constant definition<xsl:if test="count($bom_xml//constant)>1">s</xsl:if></a>
+             <br/>
+             &#160;&#160;&#160;&#160;&#160;
+             <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.5 Business object model type definitions</a>
+             <br/>
+             &#160;&#160;&#160;&#160;&#160;
+             <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.6 Business object model entity definitions</a>
+  	         <br/>
+	    	  </xsl:when>
+		      <xsl:otherwise>
+             &#160;&#160;&#160;&#160;&#160;
+	           <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
+             <br/>
+             &#160;&#160;&#160;&#160;&#160;
+             <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
+             <br/>
+		      </xsl:otherwise>
+	      </xsl:choose>
+          <a href="./5_main{$FILE_EXT}" target="{$target}">5 Business object model mapping</a>
+          <br/>
+          <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
+          <br/>
+          <a href="./annex_xsd_der{$FILE_EXT}" target="{$target}">Annex B Derivation of XML schema</a>
+          <br/>
+          <a href="./annex_bom_expg{$FILE_EXT}" target="{$target}">Annex C BO model EXPRESS-G</a>
+          <!--&#160;&#160;<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>-->
+          <br/>
+          <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex D Computer interpretable listings</a>
+          <br/>
+          <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
+          <br/>
+          <a href="./index_bomdoc{$FILE_EXT}" target="{$target}">Index</a>
+    </small>
+    <!--<small>
       <table width="100%" border="1">
         <tr>
           <td valign="top">
             <xsl:if test="$complete='yes'">
-              <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
-              <br/>
-              <a href="./contents{$FILE_EXT}" target="{$target}">Table of contents</a>
-              <br/>
-              <a href="./cover{$FILE_EXT}#copyright" target="{$target}">Copyright</a>
-              <br/>
-              <a href="./foreword{$FILE_EXT}" target="{$target}">Foreword</a>
-              <br/>
-              <a href="./introduction{$FILE_EXT}" target="{$target}">Introduction</a>
-              <br/>
-              <a href="./1_scope{$FILE_EXT}" target="{$target}">1 Scope</a>
-              <br/>
-              <a href="./2_refs{$FILE_EXT}" target="{$target}">2 Normative references</a>
-              <br/> 
-              <a href="./3_defs{$FILE_EXT}" target="{$target}">3 Terms, definitions and abbreviated terms</a>  
-              <br/>
-               &#160;&#160;&#160;&#160;&#160;
-              <a href="./3_defs{$FILE_EXT}#termsdefns" target="{$target}">3.1 Terms and definitions</a>
-              <br/>
-              &#160;&#160;&#160;&#160;&#160;
-              <a href="./3_defs{$FILE_EXT}#abbrvterms" target="{$target}">3.2 Abbreviated terms</a>
+              
+              
+              
             </xsl:if>
           </td>
           <td valign="top">
-            <a href="./4_info_reqs{$FILE_EXT}" target="{$target}">4 Business object model requirements</a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#general" target="{$target}">4.1 General</a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#capabilities" target="{$target}">4.2 Business object model capabilities</a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#fundamentals" target="{$target}">4.3 Fundamental concepts and assumptions</a>
-            <br/>
-	    <xsl:choose>
-		    <xsl:when test="$bom_xml//constant" >
-            &#160;&#160;&#160;&#160;&#160;
-	    <a href="./4_info_reqs{$FILE_EXT}#constants" target="{$target}">4.4 Business object model constant 
-		    definition<xsl:if test="count($bom_xml//constant)>1">s</xsl:if></a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.5 Business object model type definitions</a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.6 Business object model entity definitions</a>
-	    <br/>
-	    	</xsl:when>
-		<xsl:otherwise>
-            &#160;&#160;&#160;&#160;&#160;
-	    <a href="./4_info_reqs{$FILE_EXT}#types" target="{$target}">4.4 Business object model type definitions</a>
-            <br/>
-            &#160;&#160;&#160;&#160;&#160;
-            <a href="./4_info_reqs{$FILE_EXT}#entities" target="{$target}">4.5 Business object model entity definitions</a>
-            <br/>
-		</xsl:otherwise>
-	     </xsl:choose>
-            <a href="./5_main{$FILE_EXT}#mappings" target="{$target}">5 Business object model mapping</a>
-          </td>
-          <td valign="top">
-            <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">Annex A Information object registration</a>
-            <br/>
-            <a href="./annex_xsd_der{$FILE_EXT}" target="{$target}">Annex B Derivation of XML schema</a>
-            <br/>
-            <a href="./annex_bom_expg{$FILE_EXT}" target="{$target}">Annex C BO model EXPRESS-G</a>&#160;&#160;<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
-            <br/>
-            <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">Annex D Computer interpretable listings</a>
-            <br/>
-            <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
-            <br/>
-            <a href="./index_bomdoc{$FILE_EXT}#index" target="{$target}">Index</a>
+           </td>
+          <td valign="top">  
+	    
           </td>
         </tr>
       </table>
-</small>
+</small>-->
   </xsl:template>
 
   <xsl:template match="business_object_model" mode="linear">

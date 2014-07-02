@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.11 2004/12/29 14:29:23 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.12 2012/10/29 14:42:09 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -43,8 +43,8 @@ $Id: frame_aptitle.xsl,v 1.11 2004/12/29 14:29:23 robbod Exp $
               <small>
 		      <xsl:if test="$application_protocol_xml_file/application_protocol/@business_object_model" >
 			      <a 
-	      href="../../../business_object_models/{$application_protocol_xml_file/application_protocol/@business_object_model}/home{$FILE_EXT}" 
-				      target="_blank">Business Object Model</a>
+	      href="../../../business_object_models/{$application_protocol_xml_file/application_protocol/@business_object_model}/sys/cover{$FILE_EXT}" 
+				      target="info">Business Object Model</a>
                 		&#160;|&#160;
 		      </xsl:if>
                 <a href="1_scope{$FILE_EXT}" target="info">AP scope</a>

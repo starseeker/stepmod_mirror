@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: business_object_model_toc.xsl,v 1.2 2013/03/21 20:41:54 mikeward Exp $
+  $Id: business_object_model_toc.xsl,v 1.3 2014/07/02 15:27:14 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for an BOM document.     
@@ -67,27 +67,27 @@
               <a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}">4 Business object model requirements</a>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#41">4.1 General</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#general">4.1 General</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#42">4.2 Business object model capabilities</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#capabilities">4.2 Business object model capabilities</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#43">4.3 Fundamental concepts and assumptions</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#fundamentals">4.3 Fundamental concepts and assumptions</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#44">4.4 Business object model constant definition</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#constants">4.4 Business object model constant definition</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#45">4.5 Business object model type definitions</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#types">4.5 Business object model type definitions</a>
               </small>
               <br/>
               <small>
-                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#46">4.6 Business object model entity definitions</a>
+                &#160;&#160;<a href="{$business_object_model_root}/sys/4_info_reqs{$FILE_EXT}#entities">4.6 Business object model entity definitions</a>
               </small>
               <br/>
 						

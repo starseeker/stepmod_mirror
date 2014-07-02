@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_bomdoc.xsl,v 1.3 2014/06/13 12:57:13 nigelshaw Exp $
+	$Id: sect_index_bomdoc.xsl,v 1.4 2014/07/02 15:27:14 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -184,8 +184,8 @@
       </xsl:attribute>
       <xsl:variable name="clause">
 	      <xsl:choose>
-		      <xsl:when test="$model_xml//constant">4.6.</xsl:when>
-		      <xsl:otherwise>4.5.</xsl:otherwise>
+		      <xsl:when test="$model_xml//constant">4.5.</xsl:when>
+		      <xsl:otherwise>4.4.</xsl:otherwise>
 	      </xsl:choose>
       </xsl:variable>
       <xsl:attribute name="clause_no">

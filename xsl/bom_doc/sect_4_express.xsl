@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.6 2014/05/31 08:26:44 nigelshaw Exp $
+     $Id: sect_4_express.xsl,v 1.7 2014/06/13 12:57:13 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -852,6 +852,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
+    <xsl:with-param name="constant" select="./@name"></xsl:with-param>
   </xsl:call-template> 
   <!-- output description from express -->
   <p>

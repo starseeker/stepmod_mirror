@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.49 2005/01/18 09:42:35 robbod Exp $
+$Id: express_description.xsl,v 1.50 2014/06/13 12:58:58 nigelshaw Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -461,13 +461,15 @@ $Id: express_description.xsl,v 1.49 2005/01/18 09:42:35 robbod Exp $
 
       <!-- if -->
       <!--      <xsl:if test="not(contains('is',substring-before(normalize-space($description/text()[position()=2]),' ')))"> -->
-<xsl:if test="string-length($rule)=0 and not(contains('is',substring-before(substring-after(substring-after(normalize-space($description),' '),' '),' ')))">
+      <!-- MWD  added "and string-length($constant)=0" to prevent spurious error messages for constants -->
+  <xsl:if test="string-length($rule)=0 and not(contains('is',substring-before(substring-after(substring-after(normalize-space($description),' '),' '),' '))) and string-length($constant)=0">
+      
       <xsl:call-template name="error_message">
           <xsl:with-param  name="message"  >
             <xsl:value-of select="concat('Warning Ent3: ', $description/@linkend, '. Check that the description starts with' )"/>
           &quot;    <xsl:value-of select="concat(' A or an ',$entity,' is ')" />
           &quot;  </xsl:with-param>
-        </xsl:call-template>        
+        </xsl:call-template>
       </xsl:if>
 
       <xsl:if test="not(contains($description/@linkend,$description/b/text())) and not(contains($description/@linkend,$description/express_ref/@linkend))">

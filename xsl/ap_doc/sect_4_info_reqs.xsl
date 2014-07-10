@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.26 2012/10/29 16:56:14 mikeward Exp $
+$Id: sect_4_info_reqs.xsl,v 1.27 2013/01/17 09:38:29 ungerer Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -146,32 +146,34 @@ $Id: sect_4_info_reqs.xsl,v 1.26 2012/10/29 16:56:14 mikeward Exp $
      <xsl:apply-templates select="inforeqt/reqtover"/>
      <xsl:choose>
         <xsl:when test="$BOM_number>0" >
-          <xsl:variable name="BOM_ref" select="concat('../../../business_object_models/',@business_object_model, '/home', $FILE_EXT)"/>
+		<xsl:variable name="BOM_ref1" select="concat('../../../business_object_models/',@business_object_model, '/sys/4_info_reqs', $FILE_EXT,'#capabilities')"/>
+		<xsl:variable name="BOM_ref2" select="concat('../../../business_object_models/',@business_object_model, '/sys/annex_comp_int', $FILE_EXT)"/>
+		<xsl:variable name="BOM_ref3" select="concat('../../../business_object_models/',@business_object_model, '/sys/4_info_reqs', $FILE_EXT)"/>
         <h2><a name="43">4.3&#160;Business object model</a></h2>
 		<p>The Business Object Model (in the following just Business Object Model or BO 
 			Model) is an information model which is on a high level of granularity and thus is suited for the 
 			communication with and understandability by domains experts. 
-			It consists of Business Objects (BO) representing major concepts and information requirements of Model 
-			Based 3D Engineering and uses the vocabulary of the STEP modules where this vocabulary 
+			It consists of Business Objects (BO) representing major concepts and information requirements of 
+			<xsl:value-of select="@title"/> and uses the vocabulary of the STEP modules where this vocabulary 
 			reflects the terminology of the domain experts. For example, in the Business Object Model you find the 
 			BO Activity with explicit attributes actualStartDate, actualEndDate, or ConcernedOrganizations. A domain expert directly understands that he can define a start and an end for an activity, or specify the organizations involved in the activity. 
-			The STEP modules provide this capability, too. However, it is not obvious when looking on the application object Activity in module ISO 10303-1047. This object does not have explicit attributes for dates and organizations. The functionality described above has to be realized by generic assignments of dates with role names "actual start" and 			"actual end", or by generic assignments of organizations with role name "concerned organization".</p>
+			The STEP modules provide this capability, too. However, it is not obvious when looking on the application object Activity in module ISO 10303-1047. This object does not have explicit attributes for dates and organizations. The functionality described above has to be realized by generic assignments of dates with role names "actual start" and "actual end", or by generic assignments of organizations with role name "concerned organization".</p>
 <p>			The relationship between
 the Business Object model and the ARM of this part of ISO 10303 is
-explained in the Business Object model  <a href="{$BOM_ref}" target="_blank">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>.
+explained in the Business Object Model  <a href="{$BOM_ref1}" target="info">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>.
 </p>
 <p>The Business Object Model is complemented by a Business Object XML Schema for SOA applications. 
 This XML schema is derived from the Business Object Model EXPRESS by an XML configuration specification 
-according to ISO 10303‐28 that dives the generation of the Business Object XML Schema. There is 
+according to ISO 10303-28 that drives the generation of the Business Object XML Schema. There is 
 exactly one configuration specification defined in business object model  
-          (<a href="{$BOM_ref}" target="_blank">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>) to avoid different variations of the 
+          (<a href="{$BOM_ref2}" target="info">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>) to avoid different variations of the 
 Business Object XML Schema. </p>
 
 <p>A technical discussion of the business object model is contained in
 Annex H of this part of ISO 10303.
 </p>
         <p>The business objects for this application protocol are defined in the business object model  
-          (<a href="{$BOM_ref}" target="_blank">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>).
+          (<a href="{$BOM_ref3}" target="info">ISO/TS 10303-<xsl:value-of select="$BOM_number"/></a>).
         </p>
        </xsl:when>
        <xsl:when test="$BOM_number = 0" >

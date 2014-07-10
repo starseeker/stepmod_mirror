@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: business_object_model_clause_nofooter.xsl,v 1.1 2012/10/24 06:29:18 mikeward Exp $
+$Id: business_object_model_clause_nofooter.xsl,v 1.2 2014/07/02 15:27:14 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -44,6 +44,9 @@ $Id: business_object_model_clause_nofooter.xsl,v 1.1 2012/10/24 06:29:18 mikewar
         <xsl:apply-templates
           select="$business_object_model_xml/business_object_model"/>
       </xsl:element>
+        <br/><br/>
+        <p>&#169; ISO <xsl:value-of select="$business_object_model_xml/business_object_model/@publication.year"/> &#8212; All rights reserved</p>
+
     </html>
   </xsl:template>
 

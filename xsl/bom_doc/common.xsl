@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.6 2012/12/19 10:30:56 robbod Exp $
+$Id: common.xsl,v 1.7 2014/05/29 20:31:14 nigelshaw Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for a BOM document.     
@@ -304,9 +304,9 @@ $Id: common.xsl,v 1.6 2012/12/19 10:30:56 robbod Exp $
   <xsl:template match="business_object_model" mode="TOCbannertitle">
 		<xsl:param name="selected"/>
     <xsl:param name="business_object_model_root" select="'..'"/>
-		<xsl:apply-templates select="." mode="rcs_output_ap">
+    <!--		<xsl:apply-templates select="." mode="rcs_output_ap">
 		  <xsl:with-param name="bomdoc_root" select="$business_object_model_root"/>
-                </xsl:apply-templates>
+	  </xsl:apply-templates> -->
 
     <xsl:variable name="bom_module" select="@business_object_model_name"/>
 
@@ -321,21 +321,18 @@ $Id: common.xsl,v 1.6 2012/12/19 10:30:56 robbod Exp $
 			</tr>
 			<tr>
 				<td valign="MIDDLE">
-					<B>Business object model:
-					  <!--<xsl:call-template name="business_object_model_display_name">
+					<B>Business object model: <xsl:value-of select="@title" />
+						<!--	  <xsl:call-template name="business_object_model_display_name">
 						  <xsl:with-param name="business_object_model" select="@title"/>
-						</xsl:call-template>-->
+					  </xsl:call-template> -->
 					</B>
 				</td>
 				<td valign="MIDDLE" align="RIGHT">
-					<xsl:variable name="stdnumber">
-						<!--<xsl:call-template name="get_model_pageheader">
-						  <xsl:with-param name="business_object_model" select="."/>
-						</xsl:call-template>-->
+					<xsl:variable name="status" select="string(@status)"/>
+					<xsl:variable name="stdnumber">ISO 10303-<xsl:value-of select="@part"/>
 					</xsl:variable>
 					<b>
-						<xsl:value-of select="$stdnumber"/>
-						<xsl:variable name="status" select="string(@status)"/>
+						ISO <xsl:value-of select="$status"/> 10303-<xsl:value-of select="@part"/>:<xsl:value-of select="@publication.year"/>
 						<xsl:if test="$status='TS' or $status='DIS' or $status='IS'">
 							<br/>
 							&#169; ISO

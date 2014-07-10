@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-  $Id: business_object_model_toc.xsl,v 1.3 2014/07/02 15:27:14 mikeward Exp $
+  $Id: business_object_model_toc.xsl,v 1.4 2014/07/02 17:11:42 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep Limited.
   Purpose: Display the main set of frames for an BOM document.     
@@ -23,9 +23,9 @@
    </xsl:variable>
    
 
-    <!--<xsl:apply-templates select="." mode="TOCbannertitle">
+    <xsl:apply-templates select="." mode="TOCbannertitle">
       <xsl:with-param name="module_root" select="$business_object_model_root"/>
-    </xsl:apply-templates> -->
+    </xsl:apply-templates>
 
     <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
     <xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>

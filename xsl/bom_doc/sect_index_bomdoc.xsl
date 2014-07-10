@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_bomdoc.xsl,v 1.4 2014/07/02 15:27:14 mikeward Exp $
+	$Id: sect_index_bomdoc.xsl,v 1.5 2014/07/02 21:49:26 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -15,6 +15,8 @@
   <xsl:import href="business_object_model_clause_nofooter.xsl"/> 
   <!-- get the BOM xml to use for indexing -->
   <xsl:variable name="model_xml" select="document(concat('../../data/business_object_models/',/business_object_model_clause/@directory, '/bom.xml'))"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 
   
   <xsl:output method="html"/>
@@ -60,13 +62,15 @@
       </xsl:apply-templates>
 
       <xsl:apply-templates select="//reqtover" mode="get_modref_object">
-        <xsl:with-param name="section" select="'4.2'"/>
+	      <xsl:with-param name="section" select="'4.2'"/>
       </xsl:apply-templates>
       -->
       <xsl:apply-templates select="//capability" mode="get_cap_defn_object">
       </xsl:apply-templates>
 
       
+      <xsl:apply-templates select="$model_xml//constant" mode="get_bom_defn_object">
+      </xsl:apply-templates>
       <xsl:apply-templates select="$model_xml//type" mode="get_bom_defn_object">
       </xsl:apply-templates>
       <xsl:apply-templates select="$model_xml//entity" mode="get_bom_defn_object">
@@ -180,7 +184,7 @@
 	      <xsl:value-of select="@name"/>
       </xsl:attribute>
       <xsl:attribute name="object_href">
-	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',@name)"/>
+	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',translate(@name,$UPPER,$LOWER))"/>
       </xsl:attribute>
       <xsl:variable name="clause">
 	      <xsl:choose>
@@ -194,6 +198,22 @@
     </xsl:element>
   </xsl:template>
 
+  <xsl:template match="constant" mode="get_bom_defn_object">
+    <xsl:element name="{@name}">
+      <xsl:attribute name="name">
+	      <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="object_href">
+	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',translate(@name,$UPPER,$LOWER))"/>
+      </xsl:attribute>
+      <xsl:variable name="clause" select="'4.4.'"/>
+      <xsl:attribute name="clause_no">
+        <xsl:value-of select="concat($clause,position())"/>
+      </xsl:attribute>      
+    </xsl:element>
+  </xsl:template>
+
+
   <xsl:template match="entity" mode="get_bom_defn_object">
 	  <xsl:variable name="this_ent" select="@name" />
     <xsl:element name="{$this_ent}">
@@ -201,7 +221,7 @@
 	      <xsl:value-of select="$this_ent"/>
       </xsl:attribute>
       <xsl:attribute name="object_href">
-	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',$this_ent)"/>
+	      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',../@name,'.',translate($this_ent,$UPPER,$LOWER))"/>
       </xsl:attribute>
       <xsl:variable name="clause">
 	      <xsl:choose>

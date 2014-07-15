@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.48 2013/03/26 22:40:05 thomasrthurman Exp $
+<!--  $Id: build.xsl,v 1.49 2013/10/26 16:30:00 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -8088,7 +8088,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:with-param name="done" select="' '"/>
 			</xsl:call-template>
 		</xsl:variable>
-
+		
 		<xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
 
 		<!--
@@ -8183,17 +8183,17 @@ Purpose: To build the initial ANT publication file.
 				<xsl:choose>
 					<xsl:when test="substring-before($this-schema,'_mim')">
 						<xsl:value-of
-							select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"
+							select="translate(concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml'),$UPPER,$LOWER)"
 						/>
 					</xsl:when>
 					<xsl:when test="substring-before($this-schema,'_schema')">
 						<xsl:value-of
-							select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"
+							select="translate(concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml'), $UPPER,$LOWER)"
 						/>
 					</xsl:when>
 					<xsl:when test="starts-with($this-schema,'aic_')">
 						<xsl:value-of
-							select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"
+							select="translate(concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml'), $UPPER,$LOWER)"
 						/>
 					</xsl:when>
 					<xsl:when test="substring-before($this-schema,'_arm')"> BAD SCHEMA name !!!
@@ -8203,7 +8203,7 @@ Purpose: To build the initial ANT publication file.
 						<xsl:message> Found <xsl:value-of select="$this-schema"/> assumed a
 							resource. </xsl:message>
 						<xsl:value-of
-							select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"
+							select="translate(concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml'), $UPPER,$LOWER)"
 						/>
 					</xsl:otherwise>
 				</xsl:choose>
@@ -8212,8 +8212,7 @@ Purpose: To build the initial ANT publication file.
 			<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
 				<x>
 					<xsl:value-of
-						select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-      'abcdefghijklmnopqrstuvwxyz')"
+						select="translate($file_name,$UPPER,$LOWER)"
 					/>
 				</x>
 			</xsl:if>
@@ -8232,7 +8231,7 @@ Purpose: To build the initial ANT publication file.
 					<!-- only process mims and search for express_refs-->
 					<xsl:if test="substring-before($this-schema,'_mim')">
 						<xsl:variable name="module_dir"
-							select="concat('../../data/modules/',translate(substring-before($this-schema,'_mim'),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'/')"/>
+							select="concat('../../data/modules/',translate(substring-before($this-schema,'_mim'),$UPPER,$LOWER),'/')"/>
 
 						<!-- get the express refs from the mim -->
 						<xsl:apply-templates select="$mim-node//express_ref|$mim-node//module_ref"

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
+$Id: index_resources_inner_part.xsl,v 1.2 2009/06/09 10:40:10 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -64,7 +64,7 @@ $Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
 			<br/>
 			<br/>
 			<xsl:variable name="top_module_file"
-				select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
+				select="translate(concat('../../data/modules/',$ap_top_module,'/mim.xml'), $UPPER, $LOWER)"/>
 
 			<xsl:variable name="top_module_node" select="document($top_module_file)/express"/>
 
@@ -205,7 +205,7 @@ $Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
 						<xsl:choose>
 							<xsl:when test="$prefix='mim'">
 								<xsl:value-of
-									select="concat('../../../modules/',$module,'/mim.xml')"/>
+									select="translate(concat('../../../modules/',$module,'/mim.xml'), $UPPER, $LOWER)"/>
 							</xsl:when>
 							<xsl:when test="$prefix='schema'">
 								<xsl:value-of
@@ -226,7 +226,7 @@ $Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
 						<xsl:choose>
 							<xsl:when test="$prefix='mim'">
 								<xsl:value-of
-									select="concat('../../data/modules/',$module,'/mim.xml')"/>
+									select="translate(concat('../../data/modules/',$module,'/mim.xml'),$UPPER, $LOWER)"/>
 							</xsl:when>
 							<xsl:when test="$prefix='schema'">
 								<xsl:value-of
@@ -249,8 +249,7 @@ $Id: index_resources_inner_part.xsl,v 1.1 2009/05/20 16:48:09 robbod Exp $
 			<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
 				<x>
 					<xsl:value-of
-						select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-				'abcdefghijklmnopqrstuvwxyz')"
+						select="translate($file_name,$UPPER, $LOWER)"
 					/>
 				</x>
 			</xsl:if>

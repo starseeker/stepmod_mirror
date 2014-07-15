@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.15 2004/12/03 18:14:54 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.16 2004/12/29 14:29:24 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -330,7 +330,7 @@ $Id: index_mim_express_inner.xsl,v 1.15 2004/12/03 18:14:54 robbod Exp $
               <xsl:when test="function-available('msxsl:node-set')" >
                 <xsl:choose>
                   <xsl:when test="$prefix='mim'" >
-                    <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')"/>
+                  	<xsl:value-of select="translate(concat('../../../modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
                   </xsl:when>
                   <xsl:when test="$prefix='schema'" >
                     <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -346,7 +346,7 @@ $Id: index_mim_express_inner.xsl,v 1.15 2004/12/03 18:14:54 robbod Exp $
               <xsl:when test="function-available('exslt:node-set')" >
                 <xsl:choose>
                   <xsl:when test="$prefix='mim'" >
-                    <xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')"/>
+                  	<xsl:value-of select="translate(concat('../../data/modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
                   </xsl:when>
                   <xsl:when test="$prefix='schema'">
                     <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -363,14 +363,13 @@ $Id: index_mim_express_inner.xsl,v 1.15 2004/12/03 18:14:54 robbod Exp $
           </xsl:variable>
 
 			<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
-				<x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-				'abcdefghijklmnopqrstuvwxyz')" /></x>
+				<x><xsl:value-of select="translate($file_name,$UPPER,$LOWER)" /></x>
 			</xsl:if>
 
 
 
 			<xsl:variable name="mim-node"
-			    select="document($file_name)/express"/>
+				select="document(translate($file_name,$UPPER,$LOWER))/express"/>
 
 
 <!-- get the list of schemas for this level that have not already been done -->

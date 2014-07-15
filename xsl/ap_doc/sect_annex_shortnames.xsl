@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.17 2014/05/29 20:31:14 nigelshaw Exp $
+$Id: sect_annex_shortnames.xsl,v 1.18 2014/06/25 20:50:34 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -19,7 +19,9 @@ $Id: sect_annex_shortnames.xsl,v 1.17 2014/05/29 20:31:14 nigelshaw Exp $
   
   <xsl:output method="html"/>
 
-
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  
   <xsl:variable name="selected_ap" select="/application_protocol_clause/@directory"/>
 
   <xsl:variable name="ap_file" 
@@ -42,7 +44,7 @@ $Id: sect_annex_shortnames.xsl,v 1.17 2014/05/29 20:31:14 nigelshaw Exp $
     </xsl:call-template>
     
     <xsl:variable name="top_module_file" 
-      select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
+      select="translate(concat('../../data/modules/',$ap_top_module,'/mim.xml'),$UPPER,$LOWER)"/>
     
     <xsl:variable name="top_module_node"
       select="document($top_module_file)/express"/>
@@ -59,7 +61,7 @@ $Id: sect_annex_shortnames.xsl,v 1.17 2014/05/29 20:31:14 nigelshaw Exp $
         <xsl:element name="entity">
           <xsl:attribute name="name">
             <xsl:value-of 
-              select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+              select="translate(@name,$UPPER,$LOWER)"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:for-each>
@@ -363,7 +365,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
           <xsl:when test="function-available('msxsl:node-set')">
             <xsl:choose>
               <xsl:when test="$prefix='mim'">
-                <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')"/>
+                <xsl:value-of select="translate(concat('../../../modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
               </xsl:when>
               <xsl:when test="$prefix='schema'">
                 <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -379,7 +381,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
         <xsl:when test="function-available('exslt:node-set')" >
           <xsl:choose>
             <xsl:when test="$prefix='mim'">
-              <xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')"/>
+              <xsl:value-of select="translate(concat('../../data/modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
             </xsl:when>
             <xsl:when test="$prefix='schema'">
               <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -396,8 +398,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
   </xsl:variable>
   
   <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
-    <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    'abcdefghijklmnopqrstuvwxyz')" /></x>
+    <x><xsl:value-of select="translate($file_name,$UPPER,$LOWER)" /></x>
   </xsl:if>
   
   <xsl:variable name="mim-node" select="document($file_name)/express"/>
@@ -454,7 +455,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
       select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
     <xsl:variable name="resource_shortname" 
-      select="$resource_shortnames/shortname[translate(@entity,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$resource_entity]"/>
+      select="$resource_shortnames/shortname[translate(@entity,$UPPER,$LOWER)=$resource_entity]"/>
       <xsl:if test="$mim_entity_nodes/entity[@name=$resource_entity]">
         <!-- the resource entity is used in the mim lf -->
         <xsl:if test="$resource_shortname">

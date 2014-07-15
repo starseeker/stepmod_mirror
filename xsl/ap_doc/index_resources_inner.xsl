@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
+$Id: index_resources_inner.xsl,v 1.11 2009/05/19 00:16:42 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -66,7 +66,7 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 <xsl:template match="/" mode="mim-resources" >
     <small>
 	<xsl:variable name="top_module_file" 
-	    select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
+		select="translate(concat('../../data/modules/',$ap_top_module,'/mim.xml'), $UPPER, $LOWER)"/>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -192,7 +192,7 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 			<xsl:when test="function-available('msxsl:node-set')" >
 			<xsl:choose>
 				<xsl:when test="$prefix='mim'">
-                                  <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')" />
+					<xsl:value-of select="translate(concat('../../../modules/',$module,'/mim.xml'), $UPPER, $LOWER)" />
 				</xsl:when>
 				<xsl:when test="$prefix='schema'">
                                   <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')" />
@@ -208,7 +208,7 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 			<xsl:when test="function-available('exslt:node-set')" >
 			<xsl:choose>
 				<xsl:when test="$prefix='mim'" >
-			    		<xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')" />
+					<xsl:value-of select="translate(concat('../../data/modules/',$module,'/mim.xml'),$UPPER,$LOWER)" />
 				</xsl:when>
 				<xsl:when test="$prefix='schema'">
 			    <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')" />
@@ -225,8 +225,7 @@ $Id: index_resources_inner.xsl,v 1.10 2004/12/29 14:29:24 robbod Exp $
 			</xsl:variable>
 
 			<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
-				<x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-				'abcdefghijklmnopqrstuvwxyz')" /></x>
+				<x><xsl:value-of select="translate($file_name,$UPPER,$LOWER)" /></x>
 			</xsl:if>
 
 

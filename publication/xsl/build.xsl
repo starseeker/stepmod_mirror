@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.50 2014/07/15 18:26:02 thomasrthurman Exp $
+<!--  $Id: build.xsl,v 1.51 2014/07/16 15:13:13 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -1777,7 +1777,7 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-					<xsl:with-param name="suffix" select="'/sys/index_bom_mapping_inner.xml'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_mappings_inner.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
@@ -1788,7 +1788,7 @@ Purpose: To build the initial ANT publication file.
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
-					<xsl:with-param name="suffix" select="'/sys/index_bom_mapping_top.xml'"/>
+					<xsl:with-param name="suffix" select="'/sys/index_bom_mappings_top.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
 		</xsl:element>
@@ -1806,7 +1806,7 @@ Purpose: To build the initial ANT publication file.
 
 		<!-- MIKE: file not built in stepmod/utils/build.xml boms -->
 		<xsl:element name="property">
-			<xsl:attribute name="name">INDEXBOMMMAPPRINGS</xsl:attribute>
+			<xsl:attribute name="name">INDEXBOMMMAPPINGS</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="business_object_models/bom_doc" mode="list">
 					<xsl:with-param name="prefix" select="'data/business_object_models/'"/>
@@ -3415,7 +3415,7 @@ Purpose: To build the initial ANT publication file.
 			
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
-					<xsl:value-of select="'${INDEXBOMMMAPPRINGS}'"/>
+					<xsl:value-of select="'${INDEXBOMMMAPPINGS}'"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings.xsl'"/>

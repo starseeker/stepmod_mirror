@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.49 2013/10/26 16:30:00 thomasrthurman Exp $
+<!--  $Id: build.xsl,v 1.50 2014/07/15 18:26:02 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -3351,6 +3351,102 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>
 			</xsl:element>
 
+<!-- extras added by NSW - 2014-07-15 -->
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESS}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSINNER}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSTOP}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_top.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSNAV}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSNAVINNER}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSNAVTOP}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_express_nav_top.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMMMAPPRINGS}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMMAPPINGINNER}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings_inner.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+			
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${INDEXBOMEXPRESSTOP}'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/index_bom_mappings_top.xsl'"/>
+				</xsl:attribute>
+				<xsl:apply-templates select="." mode="bomdoc_target_style_attributes"/>
+			</xsl:element>
+
+
+<!-- end extras added by NSW - 2014-07-15 -->
+
+
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
 					<xsl:value-of select="'${TMPDIR}'"/>
@@ -3731,7 +3827,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/bom_doc/sect_abstract.xsl'"/>
 				</xsl:attribute>
-				<xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+				<xsl:apply-templates select="." mode="bomdocs_target_style_attributes">
 					<xsl:with-param name="menu" select="$menu"/>
 				</xsl:apply-templates>
 			</xsl:element>
@@ -8088,7 +8184,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:with-param name="done" select="' '"/>
 			</xsl:call-template>
 		</xsl:variable>
-		
+
 		<xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
 
 		<!--

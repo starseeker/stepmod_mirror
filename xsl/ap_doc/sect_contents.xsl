@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.55 2012/10/29 16:44:00 mikeward Exp $
+$Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -308,6 +308,8 @@ $Id: sect_contents.xsl,v 1.55 2012/10/29 16:44:00 mikeward Exp $
         <xsl:with-param name="short" select="$short"/>
         <xsl:with-param name="annex_file"  select="'annex_tech_disc'"/>
         <xsl:with-param name="annex_letter"  select="$al_tech_disc"/>
+      <xsl:with-param name="max-depth" select="2"/>
+      <xsl:with-param name="current-depth" select="0"/>
       </xsl:apply-templates>
     </xsl:if>
     
@@ -794,7 +796,7 @@ $Id: sect_contents.xsl,v 1.55 2012/10/29 16:44:00 mikeward Exp $
   </xsl:variable>
 
   <xsl:variable name="aam_href">
-    <xsl:call-template name="set_file_ext">
+	  <xsl:call-template name="set_file_ext">
       <xsl:with-param name="filename" select="concat('../',./@file)"/>
     </xsl:call-template>
   </xsl:variable>

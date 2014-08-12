@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 08:04:45 nigelshaw Exp $
+$Id: sect_annex_comp_int.xsl,v 1.13 2014/05/29 16:21:54 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -110,7 +110,7 @@ $Id: sect_annex_comp_int.xsl,v 1.12 2014/05/29 08:04:45 nigelshaw Exp $
   select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
   -->
   <xsl:variable name="names_url"
-    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
+    select="'http://standards.iso.org/iso/10303/tech/short_names/short-names.txt'"/>
   
   <xsl:variable name="parts_url"
     select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>

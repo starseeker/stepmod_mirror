@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.15 2012/10/11 05:49:04 liutkuviene Exp $
+   $Id: arm.exp,v 1.16 2014/08/20 22:36:59 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7915 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7352
 *)
@@ -460,8 +460,8 @@ END_ENTITY;
 ENTITY Knurl
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_knurl, Turned_knurl))
   SUBTYPE OF (Machining_feature);
-  partial_profile : OPTIONAL Partial_area_definition;
-  applied_shape : Definitional_shape_element;
+  INVERSE
+  application_area : SET [1:?] OF Partial_area_definition FOR knurl_specification;
 END_ENTITY; 
 
 ENTITY Linear_path_feature_component
@@ -593,10 +593,15 @@ ENTITY Outer_round
   SUBTYPE OF (Machining_feature);
 END_ENTITY;
 
-ENTITY Partial_area_definition;
+ENTITY Partial_area_definition
+  SUBTYPE OF (Definitional_shape_element);
   maximum_length : OPTIONAL Numerical_item_with_unit;
   effective_length : Numerical_item_with_unit;
   placement : Axis_placement;
+  thread_specification : OPTIONAL Thread;
+  knurl_specification : OPTIONAL Knurl;
+  WHERE
+  WR1: EXISTS (thread_specification) XOR EXISTS (knurl_specification);
 END_ENTITY; 
 
 ENTITY Partial_circular_path_feature_component
@@ -930,7 +935,6 @@ END_ENTITY;
 ENTITY Thread
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_thread, Defined_thread)) 
   SUBTYPE OF (Machining_feature);
-  partial_profile : Partial_area_definition;
   runout : OPTIONAL Thread_runout;
   fit_class : text;
   form : text;
@@ -939,8 +943,9 @@ ENTITY Thread
   inner_or_outer_thread : BOOLEAN;
   qualifier : text;
   nominal_size : OPTIONAL Numerical_item_with_unit;
-  applied_shape : Definitional_shape_element;
   fit_class_2 : OPTIONAL text;
+  INVERSE
+  application_area : SET [1:?] OF Partial_area_definition FOR thread_specification;
 END_ENTITY;  
 
 ENTITY Thread_runout;

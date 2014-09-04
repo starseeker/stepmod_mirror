@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.32 2013/02/21 21:43:25 darla Exp $
+$Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -505,7 +505,7 @@ $Id: sect_foreword.xsl,v 1.32 2013/02/21 21:43:25 darla Exp $
     <xsl:variable name="SMRL_date" select="./@SMRL.pub.year.month"/>
     <p>
       This <xsl:value-of select="$first_or_other_ed"/> edition of 
-      <xsl:value-of select="$part_no"/> is based upon version <xsl:value-of select="$SMRL_version"/> of the STEP Module and Resource Library (SMRLv<xsl:value-of select="$SMRL_version"/>:<xsl:value-of select="$SMRL_date"/>).
+      <xsl:value-of select="$part_no"/> is based upon version <xsl:value-of select="$SMRL_version"/> of the STEP Module and Resource Library (SMRLv<xsl:value-of select="$SMRL_version"/>).
     </p>
     </xsl:if>
     

@@ -19,9 +19,7 @@ $Id: sect_annex_shortnames.xsl,v 1.18 2014/06/25 20:50:34 darla Exp $
   
   <xsl:output method="html"/>
 
-  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
-  
+
   <xsl:variable name="selected_ap" select="/application_protocol_clause/@directory"/>
 
   <xsl:variable name="ap_file" 
@@ -44,7 +42,7 @@ $Id: sect_annex_shortnames.xsl,v 1.18 2014/06/25 20:50:34 darla Exp $
     </xsl:call-template>
     
     <xsl:variable name="top_module_file" 
-      select="translate(concat('../../data/modules/',$ap_top_module,'/mim.xml'),$UPPER,$LOWER)"/>
+      select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
     
     <xsl:variable name="top_module_node"
       select="document($top_module_file)/express"/>
@@ -61,7 +59,7 @@ $Id: sect_annex_shortnames.xsl,v 1.18 2014/06/25 20:50:34 darla Exp $
         <xsl:element name="entity">
           <xsl:attribute name="name">
             <xsl:value-of 
-              select="translate(@name,$UPPER,$LOWER)"/>
+              select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:for-each>
@@ -257,7 +255,7 @@ $Id: sect_annex_shortnames.xsl,v 1.18 2014/06/25 20:50:34 darla Exp $
 href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
       <xsl:value-of select="@name"/>
     </td>
-    <td align="left"><xsl:value-of select="@module_part_no"/></td>
+    <!--    <td align="left"><xsl:value-of select="@module_part_no"/></td> -->
   </tr>
 </xsl:template>
 
@@ -314,9 +312,9 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
               <td>
                 <b>Short name</b>
               </td>
-              <td>
+	      <!--              <td>
                 <b>Module/Resource</b>
-              </td>
+	</td> -->
             </tr>
             <xsl:apply-templates select="$short-names//mod/shortname"
               mode="output_shortnames">
@@ -365,7 +363,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
           <xsl:when test="function-available('msxsl:node-set')">
             <xsl:choose>
               <xsl:when test="$prefix='mim'">
-                <xsl:value-of select="translate(concat('../../../modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
+                <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')"/>
               </xsl:when>
               <xsl:when test="$prefix='schema'">
                 <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -381,7 +379,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
         <xsl:when test="function-available('exslt:node-set')" >
           <xsl:choose>
             <xsl:when test="$prefix='mim'">
-              <xsl:value-of select="translate(concat('../../data/modules/',$module,'/mim.xml'),$UPPER,$LOWER)"/>
+              <xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')"/>
             </xsl:when>
             <xsl:when test="$prefix='schema'">
               <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
@@ -398,7 +396,8 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
   </xsl:variable>
   
   <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
-    <x><xsl:value-of select="translate($file_name,$UPPER,$LOWER)" /></x>
+    <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'abcdefghijklmnopqrstuvwxyz')" /></x>
   </xsl:if>
   
   <xsl:variable name="mim-node" select="document($file_name)/express"/>
@@ -455,7 +454,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
       select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
     <xsl:variable name="resource_shortname" 
-      select="$resource_shortnames/shortname[translate(@entity,$UPPER,$LOWER)=$resource_entity]"/>
+      select="$resource_shortnames/shortname[translate(@entity,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$resource_entity]"/>
       <xsl:if test="$mim_entity_nodes/entity[@name=$resource_entity]">
         <!-- the resource entity is used in the mim lf -->
         <xsl:if test="$resource_shortname">

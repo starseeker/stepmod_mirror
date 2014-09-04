@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
+$Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -163,14 +163,15 @@ $Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
         <xsl:value-of select="$part_no"/> cancels and replaces the
         <xsl:value-of select="@previous.revision.year"/> edition
           (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
-        <xsl:choose>
-          <!-- only changed a section of the document -->
+        which has been technically revised.        
+        <!--<xsl:choose>
+          <!-\- only changed a section of the document -\->
           <xsl:when test="@revision.complete='NO'">
             of which 
             <xsl:value-of select="@revision.scope"/>
             <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
+            <!-\- will be Clauses/Figures/ etc so if contains 'es' 
+                 then must be plural-\->
               <xsl:when test="contains(@revision.scope,'es')">
                 have
               </xsl:when>
@@ -183,7 +184,7 @@ $Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
           <xsl:otherwise>
             of which it constitutes a technical revision.
           </xsl:otherwise>
-        </xsl:choose>
+        </xsl:choose>-->
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates select="./changes" mode="foreword"/>
@@ -431,7 +432,7 @@ $Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
 	      cancels and replaces the
 	      <xsl:value-of select="$prev_edition"/> edition  
           (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
-	      of which it constitutes a technical revision. 
+	      which has been technically revised.	      
 <!--       <xsl:choose>
 		<xsl:when test="@revision.complete='NO'">
 		  <xsl:value-of select="@revision.scope"/>
@@ -458,14 +459,15 @@ $Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
 	      <xsl:value-of select="$part_no"/> cancels and replaces the
           <xsl:value-of select="$prev_edition"/> edition
           (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
-	      <xsl:choose>
-		<!-- only changed a section of the document -->
+	      which has been technically revised.	      
+	      <!--<xsl:choose>
+		<!-\- only changed a section of the document -\->
 		<xsl:when test="@revision.complete='NO'">
 		  of which 
 		  <xsl:value-of select="@revision.scope"/>
 		  <xsl:choose>
-		    <!-- will be Clauses/Figures/ etc so if contains 'es' 
-			 then must be plural-->
+		    <!-\- will be Clauses/Figures/ etc so if contains 'es' 
+			 then must be plural-\->
 		    <xsl:when test="contains(@revision.scope,'es')">
 		      have
 		    </xsl:when>
@@ -478,7 +480,7 @@ $Id: sect_foreword.xsl,v 1.33 2014/06/10 15:34:09 mikeward Exp $
 		<xsl:otherwise>
 		  of which it constitutes a technical revision.
 		</xsl:otherwise>
-	      </xsl:choose>
+	      </xsl:choose>-->
 	    </xsl:otherwise>
 	  </xsl:choose>
 	  <xsl:apply-templates select="./changes" mode="foreword"/>

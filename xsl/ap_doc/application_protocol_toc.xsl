@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
+$Id: application_protocol_toc.xsl,v 1.33 2013/03/21 20:37:27 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -110,27 +110,27 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
           <td valign="TOP">
             <p class="toc">
               <a href="{$application_protocol_root}/sys/annex_exp_lf{$FILE_EXT}">
-                A Listings
+                A Listings (normative)
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_shortnames{$FILE_EXT}">
-                B MIM short names
+                B MIM short names  (normative)
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_imp_meth{$FILE_EXT}">
-                C Implementation method specific requirements
+                C Implementation method specific requirements  (normative)
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_pics{$FILE_EXT}">
-                D Protocol Implementation Conformance Statement (PICS) proforma
+                D Protocol Implementation Conformance Statement (PICS) proforma (normative)
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_obj_reg{$FILE_EXT}">
-                E Information object registration
+                E Information object registration  (normative)
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_aam{$FILE_EXT}">
-                F Application activity model
+                F Application activity model (informative)
               </a>
               <xsl:call-template name="idef0_icon">
                 <xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
@@ -146,7 +146,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                   </xsl:call-template>
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_arm_expg{$FILE_EXT}">
-                  <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+                  <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams  (informative)
                 </a>
                 <br/>
               </xsl:if>
@@ -159,7 +159,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                   </xsl:call-template>
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_mim_expg{$FILE_EXT}">
-                  <xsl:value-of select="$al_mimexpressg"/> MIM EXPRESS-G diagrams
+                  <xsl:value-of select="$al_mimexpressg"/> MIM EXPRESS-G diagrams  (informative)
                 </a>
                 <br/>
               </xsl:if>
@@ -171,7 +171,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                 </xsl:call-template>
               </xsl:variable>
               <a href="{$application_protocol_root}/sys/annex_comp_int{$FILE_EXT}">
-                <xsl:value-of select="$al_com_int"/> Computer interpretable listing
+                <xsl:value-of select="$al_com_int"/> Computer interpretable listing  (informative)
               </a>
               <br/>
 
@@ -183,7 +183,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                   </xsl:call-template>
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_guide{$FILE_EXT}">
-                  <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
+                  <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide  (informative)
                 </a>
                 <br/>
               </xsl:if>
@@ -196,7 +196,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                   </xsl:call-template>
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_tech_disc{$FILE_EXT}">
-                  <xsl:value-of select="$al_tech_disc"/> Technical discussions
+                  <xsl:value-of select="$al_tech_disc"/> Technical discussions  (informative)
                 </a>
                 <br/>
               </xsl:if>
@@ -209,7 +209,7 @@ $Id: application_protocol_toc.xsl,v 1.32 2012/10/29 14:01:22 mikeward Exp $
                   </xsl:call-template>
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_changes{$FILE_EXT}">
-                  <xsl:value-of select="$al_changes"/> Detailed changes
+                  <xsl:value-of select="$al_changes"/> Detailed changes  (informative)
                 </a>
                 <br/>
               </xsl:if>

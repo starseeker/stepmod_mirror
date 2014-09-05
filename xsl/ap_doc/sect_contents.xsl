@@ -128,7 +128,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
     <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="toc">
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
-    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A Listings</a>
+    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A Listings (normative)</a>
     <br/>
     &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_exp_lf{$FILE_EXT}#annexa1" target="{$target}">A.1 ARM EXPRESS expanded listing</a><br/>
@@ -150,11 +150,11 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
 
 
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
-      Annex B MIM short names
+      Annex B MIM short names (normative)
     </a>
     <br/>
     <a href="./annex_imp_meth{$FILE_EXT}" target="{$target}">
-      Annex C Implementation method specific requirements
+      Annex C Implementation method specific requirements  (normative)
     </a>
     <br/>
     <xsl:for-each select="imp_meths/imp_meth">
@@ -184,7 +184,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
     </xsl:for-each>
 
     <a href="./annex_pics{$FILE_EXT}" target="{$target}">
-      Annex D Protocol Implementation Conformance Statement (PICS) proforma
+      Annex D Protocol Implementation Conformance Statement (PICS) proforma  (normative)
     </a>
     <br/>
     &#160;&#160;&#160;&#160;&#160;
@@ -201,7 +201,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
     </a><br/>
 
     <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">
-      Annex E Information object registration
+      Annex E Information object registration (normative)
     </a><br/>
 <!--
     &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e1" target="{$target}">E.1 Document identification</A><br/>
@@ -226,7 +226,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
     </xsl:if>
 -->
     <a href="./annex_aam{$FILE_EXT}" target="{$target}">
-      Annex F Application activity model
+      Annex F Application activity model  (informative)
     </a>
     <br/>
     <xsl:apply-templates select="$aam_xml/idef0" mode="toc">
@@ -257,7 +257,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
+        Annex <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams  (informative)
       </a>
       <br/>
     </xsl:if>
@@ -269,7 +269,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
       </xsl:call-template>
     </xsl:variable>
     <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">
-      Annex <xsl:value-of select="$al_com_int"/> Computer interpretable listing
+      Annex <xsl:value-of select="$al_com_int"/> Computer interpretable listing  (informative)
     </a>
     <br/>
 
@@ -281,7 +281,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_guide{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
+        Annex <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide  (informative)
       </a>
       <br/>
       <xsl:apply-templates select="./usage_guide/annex_clause" mode="toc">
@@ -300,7 +300,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_tech_disc{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_tech_disc"/> Technical discussions
+        Annex <xsl:value-of select="$al_tech_disc"/> Technical discussions  (informative)
       </a>
       <br/>
       <xsl:apply-templates select="./tech_disc/annex_clause" mode="toc">
@@ -308,8 +308,6 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
         <xsl:with-param name="short" select="$short"/>
         <xsl:with-param name="annex_file"  select="'annex_tech_disc'"/>
         <xsl:with-param name="annex_letter"  select="$al_tech_disc"/>
-      <xsl:with-param name="max-depth" select="2"/>
-      <xsl:with-param name="current-depth" select="0"/>
       </xsl:apply-templates>
     </xsl:if>
     
@@ -321,7 +319,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_changes{$FILE_EXT}" target="{$target}">
-        Annex <xsl:value-of select="$al_changes"/> Detailed changes
+        Annex <xsl:value-of select="$al_changes"/> Detailed changes  (informative)
       </a>
       <br/>
       <xsl:apply-templates select="./changes/change_detail/annex_clause" mode="toc">
@@ -796,7 +794,7 @@ $Id: sect_contents.xsl,v 1.56 2013/03/21 20:39:24 mikeward Exp $
   </xsl:variable>
 
   <xsl:variable name="aam_href">
-	  <xsl:call-template name="set_file_ext">
+    <xsl:call-template name="set_file_ext">
       <xsl:with-param name="filename" select="concat('../',./@file)"/>
     </xsl:call-template>
   </xsl:variable>

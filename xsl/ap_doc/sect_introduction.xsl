@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.28 2010/03/19 13:10:33 abf Exp $
+     $Id: sect_introduction.xsl,v 1.29 2010/10/20 07:44:26 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -74,7 +74,7 @@
     </p>
     
     <p>
-      This application protocol defines the context and scope for 
+      This part of ISO 10303 defines the context and scope for 
       <xsl:value-of select="$purpose"/>,
       and references the AP module 
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)

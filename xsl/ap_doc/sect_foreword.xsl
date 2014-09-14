@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
+$Id: sect_foreword.xsl,v 1.35 2014/09/04 23:42:11 thomasrthurman Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -385,11 +385,6 @@ $Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
       </p>
     </xsl:if>
     <p>
-      Attention is drawn to the possibility that some of the elements of this
-      document may be the subject of patent rights. ISO shall not be
-      held responsible for identifying any or all such patent rights.
-    </p>
-    <p>
       <xsl:choose>
 	<xsl:when test="string-length(@part)>0">
 	  <xsl:choose>
@@ -510,7 +505,17 @@ $Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
       <xsl:value-of select="$part_no"/> is based upon version <xsl:value-of select="$SMRL_version"/> of the STEP Module and Resource Library (SMRLv<xsl:value-of select="$SMRL_version"/>).
     </p>
     </xsl:if>
-    
+
+    <xsl:if test="./patent.inc" >
+	    <xsl:variable name="patents" select="document('../data/basic/patents.xml')/patent.list" />
+	  <xsl:apply-templates select="./patent.inc" mode="foreword" />
+	    <p>
+	  Attention is drawn to the possibility that some of the elements of this document may be the 
+	  subject of patent rights other than those identified above. ISO 
+	  shall not be held responsible for identifying any or all such patent rights.
+  </p>
+	
+   </xsl:if>
     
   <p>
     ISO 10303 is organized as a series of parts, each published
@@ -645,7 +650,7 @@ $Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
   </xsl:template>
 
 
-  <xsl:template match="changes" mode="foreword">
+ <xsl:template match="changes" mode="foreword">
    <xsl:variable name="annex_list">
      <xsl:apply-templates select="/application_protocol" mode="annex_list"/>
    </xsl:variable>
@@ -679,4 +684,27 @@ $Id: sect_foreword.xsl,v 1.34 2014/09/04 23:17:06 thomasrthurman Exp $
     </xsl:choose>
   </xsl:template>
 
+
+ <xsl:template match="patent.inc" mode="foreword">
+	 <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
+	 <xsl:variable name="thispat" select="@ref" />
+	 <xsl:apply-templates select="$patents/patent[@id=$thispat]" mode="foreword" />
+ </xsl:template>
+
+ <xsl:template match="patent" mode="foreword">
+  <p>
+	The International Organization for Standardization (ISO) [and/or] International
+	Electrotechnical Commission (IEC) draws attention to the fact that it is claimed that compliance with this document may involve 
+	the use of a patent concerning <xsl:value-of select="./subject"/> given in <xsl:value-of select="./clause" />.
+  </p>
+  <p>
+	ISO take no position concerning the evidence, validity and scope of this patent right.
+	The holder of this patent right has assured the ISO that he/she is willing to negotiate licences under reasonable 
+	and non-discriminatory terms and conditions with applicants throughout the world. 
+	In this respect, the statement of the holder of this patent right is registered with ISO. 
+	Information may be obtained from:<br/>
+	<xsl:value-of select="./patentref/holder" /> <br/>
+	<xsl:value-of select="./patentref/address" />
+  </p>
+ </xsl:template>
 </xsl:stylesheet>

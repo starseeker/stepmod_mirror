@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: error_params.xsl,v 1.2 2003/10/31 08:01:32 robbod Exp $
+     $Id: error_params.xsl,v 1.3 2004/11/15 14:30:00 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep.
@@ -34,7 +34,7 @@
 
 
   <!-- If YES, will apply checks to ISO cover page -->
-  <xsl:param name="ERROR_CHECK_ISOCOVER" select="'YES'"/>
+  <xsl:param name="ERROR_CHECK_ISOCOVER" select="'NO'"/>
 
 
 

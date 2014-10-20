@@ -1,47 +1,59 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2014/10/17 21:09:42 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+(* rev 1.2
+replaced Groove_weld_definition with Butt_weld_definition to avoid
+mixing ISO and ASME names.
+moved elementary_weld_type from ENUMERATION to individual ENTITY types.
+Added inclined_butt_weld_joint --maybe obsolete?
+Added Length and Angle tolerance in preparation for using following
+initial team review.
+todo: what properties to allow tolerance on.
+how to relate this to block definition diagram?
+What about conformance specification?
+*)
 SCHEMA Weld_arm;
+
+USE FROM Assembly_technology_arm;
+
+USE FROM Characteristic_arm
+     (Length_tolerance_characteristic,
+      Maximum_tolerance_characteristic,
+      Minimum_tolerance_characteristic,
+      Nominal_tolerance_characteristic,
+      Plus_minus_tolerance_characteristic,
+      Qualified_tolerance_characteristic,
+      Statistical_tolerance_characteristic,
+      Symmetrical_tolerance_characteristic,
+      Tolerance_characteristic,
+      Typical_tolerance_characteristic);
+
 USE FROM Characterizable_object_arm;
 
-USE FROM Assembly_technology_arm
- (Assembled_with_bonding,
-  Assembly_bond_definition);
-USE FROM Specification_document_arm
-  (Process_specification);
-USE FROM Machining_features_arm
-  (Face_shape_element,
-   Path_element);
-   USE FROM Value_with_unit_arm;
-USE FROM Value_with_unit_extension_arm
-   (Angle_data_element,
-    Length_data_element);
+USE FROM Elemental_geometric_shape_arm;
 
-USE FROM Shape_property_assignment_arm
-  (Associated_shape_element);
+USE FROM Extended_measure_representation_arm;
+
+USE FROM Foundation_representation_arm;
 
 USE FROM Generic_material_aspects_arm
   (Material_identification);
 
- TYPE elementary_weld_type = EXTENSIBLE ENUMERATION OF
-    (SQUARE_BUTT,
-     SINGLE_V_BUTT,
-     SINGLE_V_BUTT_WITH_BROAD_ROOT_FACE,
-     SINGLE_BEVEL_BUTT,
-     SINGLE_BEVEL_BUTT_WITH_BROAD_ROOT_FACE,
-     SINGLE_U_BUTT,
-     SINGLE_J_BUTT,
-     FLARE_V,
-     FLARE_BEVEL,
-     STEEP_FLANKED_SINGLE_V_BUTT,
-     FLANGED_BUTT_OR_CORNER,
-     STAKE,
-     DOUBLE_V_BUTT,
-     DOUBLE_BEVEL_BUTT,
-     DOUBLE_U_BUTT,
-     DOUBLE_BEVEL_BUTT_WITH_BROAD_ROOT_FACE_AND_FILLET_WELDS);
-  END_TYPE;
+USE FROM Machining_features_arm
+  (Face_shape_element,
+   Path_element);
+
+USE FROM Shape_property_assignment_arm
+  (Associated_shape_element);
+
+USE FROM Specification_document_arm
+  (Process_specification);
+USE FROM Value_with_unit_arm;
+
+USE FROM Value_with_unit_extension_arm
+   (Angle_data_element,
+    Length_data_element);
 
   TYPE resistance_or_fusion_weld = ENUMERATION OF
     (RESISTANCE_WELD,
@@ -70,71 +82,58 @@ USE FROM Generic_material_aspects_arm
       unspecified_backing);
   END_TYPE;
 
- ENTITY Butt_joint
+  ENTITY Angle_tolerance_characteristic
+    SUBTYPE OF(Tolerance_characteristic);
+    WHERE
+      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+            ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+            ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(it))
+         )) = 0);
+      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(it))
+           )) = 1);
+      WR3 : NOT('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(it))
+           )) = 1);
+      WR4 : NOT EXISTS(SELF\Representation.description);
+      WR5 : NOT('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+          NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND
+             ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))
+         )) = 0);
+  END_ENTITY;
+
+  ENTITY Butt_joint
+    SUPERTYPE OF (ONEOF (Flanged_Butt_joint, Inclined_Butt_joint))
     SUBTYPE OF(Welded_joint);
-      SELF\assembled_with_bonding.default_bond_definition RENAMED default_welding_definition : Butt_joint_welding_definition;
+      SELF\assembled_with_bonding.default_bond_definition : Butt_joint_welding_definition;
   END_ENTITY;
 
   ENTITY Butt_joint_welding_definition
     SUBTYPE OF(Welding_definition);
-      SELF\Welding_definition.welds : set [1:?] OF Groove_weld_definition;
+      SELF\Welding_definition.welds : set [1:?] OF Butt_weld_definition;
     INVERSE
-    welded_joints : SET [1:?] OF Butt_joint FOR default_welding_definition;
+    welded_joints : SET [1:?] OF Butt_joint FOR default_bond_definition;
   END_ENTITY;
 
-  ENTITY Corner_joint
-    SUBTYPE OF(Welded_joint);
-      SELF\assembled_with_bonding.default_bond_definition RENAMED default_welding_definition : Corner_joint_welding_definition;
-  END_ENTITY;
-
-  ENTITY Corner_joint_welding_definition
-    SUBTYPE OF(Welding_definition);
-    INVERSE
-    welded_joints : SET [1:?] OF Corner_joint FOR default_welding_definition;
-  END_ENTITY;
-
-  ENTITY Edge_joint
-    SUBTYPE OF(Welded_joint);
-      SELF\assembled_with_bonding.default_bond_definition RENAMED default_welding_definition : Edge_joint_welding_definition;
-  END_ENTITY;
-
-  ENTITY Edge_joint_welding_definition SUBTYPE OF(Welding_definition);
-    INVERSE
-    welded_joints : SET [1:?] OF Edge_joint FOR default_welding_definition;
-  END_ENTITY;
-
-  ENTITY Edge_weld_definition
-    SUBTYPE OF(Weld_definition);
-      weld_metal_thickness : Length_data_element;
-  END_ENTITY;
-
-  ENTITY Fillet_weld_definition
-    SUBTYPE OF(Weld_definition);
-      leg_length                        : OPTIONAL Length_data_element;
-      nominal_throat_thickness          : OPTIONAL Length_data_element;
-      deep_penetration_throat_thickness : OPTIONAL Length_data_element;
-      unequal_legs                      : OPTIONAL LIST [2:2] OF Leg_based_on_surface;
-      intermittent_data                 : OPTIONAL Weld_intermittent_position_data;
-      chain_intermittent_data           : OPTIONAL Weld_intermittent_position_data;
-      staggered_intermittent_data       : OPTIONAL Weld_intermittent_position_data;
-  END_ENTITY;
-
-  ENTITY Flanged_Butt_joint
-    SUBTYPE OF(Butt_joint);
-  END_ENTITY;
-
-  ENTITY Flanged_Corner_joint
-    SUBTYPE OF(Corner_joint);
-  END_ENTITY;
-
-  ENTITY Groove_weld_definition
+  ENTITY Butt_weld_definition
+    SUPERTYPE OF (ONEOF(
+     Square_butt_weld_definition,
+     Single_v_butt_weld_definition,
+     Single_bevel_butt_weld_definition,
+     Single_u_butt_weld_definition,
+     Single_j_butt_weld_definition,
+     Flare_v_weld_definition,
+     Flare_bevel_weld_definition))
     SUBTYPE OF(Weld_definition);
       partial_penetration_depth   : OPTIONAL Length_data_element;
       intermittent_data           : OPTIONAL Weld_intermittent_position_data;
       chain_intermittent_data     : OPTIONAL Weld_intermittent_position_data;
       staggered_intermittent_data : OPTIONAL Weld_intermittent_position_data;
-      flare_v                     : OPTIONAL Length_data_element;
-      flare_bevel                 : OPTIONAL Length_data_element;
       full_penetration            : BOOLEAN;
       joint_preparation_depth     : OPTIONAL Length_data_element;
       root_gap                    : OPTIONAL Length_data_element;
@@ -164,15 +163,131 @@ No more than one of intermittent_data, chain_intermittent_data,
 staggered_intermittent_data shall be provided.
 *)
 
+
+  ENTITY Corner_joint
+    SUBTYPE OF(Welded_joint);
+      SELF\assembled_with_bonding.default_bond_definition : Corner_joint_welding_definition;
+  END_ENTITY;
+
+  ENTITY Corner_joint_welding_definition
+    SUBTYPE OF(Welding_definition);
+    INVERSE
+    welded_joints : SET [1:?] OF Corner_joint FOR default_bond_definition;
+  END_ENTITY;
+
+  ENTITY Double_bevel_butt_weld_definition
+       SUBTYPE OF (Pre_defined_combined_weld_definition);
+        arrow_side : Single_bevel_butt_weld_definition;
+        other_side : OPTIONAL Single_bevel_butt_weld_definition;
+    WHERE
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+  END_ENTITY;
+
+  ENTITY Double_bevel_butt_with_broad_root_face_and_fillet_welds_weld_definition
+       SUBTYPE OF (Double_bevel_butt_weld_definition);
+        arrow_side_fillet : fillet_weld_definition;
+        other_side_fillet : OPTIONAL fillet_weld_definition;
+    WHERE
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side_fillet);
+  END_ENTITY;
+
+  ENTITY Double_u_butt_weld_definition
+       SUBTYPE OF (Pre_defined_combined_weld_definition);
+        arrow_side : Single_u_butt_weld_definition;
+        other_side : OPTIONAL Single_u_butt_weld_definition;
+    WHERE
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+  END_ENTITY;
+
+  ENTITY Double_v_butt_weld_definition
+       SUBTYPE OF (Pre_defined_combined_weld_definition);
+        arrow_side : Single_v_butt_weld_definition;
+        other_side : OPTIONAL Single_v_butt_weld_definition;
+    WHERE
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+  END_ENTITY;
+
+  ENTITY Edge_joint
+    SUBTYPE OF(Welded_joint);
+      SELF\assembled_with_bonding.default_bond_definition : Edge_joint_welding_definition;
+  END_ENTITY;
+
+  ENTITY Edge_joint_welding_definition SUBTYPE OF(Welding_definition);
+    INVERSE
+    welded_joints : SET [1:?] OF Edge_joint FOR default_bond_definition;
+  END_ENTITY;
+
+  ENTITY Edge_weld_definition
+    SUBTYPE OF(Weld_definition);
+      weld_metal_thickness : Length_data_element;
+  END_ENTITY;
+
+  ENTITY Fillet_weld_definition
+    SUBTYPE OF(Weld_definition);
+      leg_length                        : OPTIONAL Length_data_element;
+      nominal_throat_thickness          : OPTIONAL Length_data_element;
+      deep_penetration_throat_thickness : OPTIONAL Length_data_element;
+      unequal_legs                      : OPTIONAL LIST [2:2] OF Leg_based_on_surface;
+      intermittent_data                 : OPTIONAL Weld_intermittent_position_data;
+      chain_intermittent_data           : OPTIONAL Weld_intermittent_position_data;
+      staggered_intermittent_data       : OPTIONAL Weld_intermittent_position_data;
+  END_ENTITY;
+
+  ENTITY Flanged_Butt_joint
+    SUBTYPE OF(Butt_joint);
+  END_ENTITY;
+
+  ENTITY Flanged_butt_or_corner_weld_definition
+       SUBTYPE OF (Weld_definition);
+  END_ENTITY;
+
+  ENTITY Flanged_Corner_joint
+    SUBTYPE OF(Corner_joint);
+  END_ENTITY;
+
+  ENTITY Flare_bevel_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+      flare_bevel                 : Length_data_element;
+  END_ENTITY;
+
+  ENTITY Flare_v_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+      flare_v                     : Length_data_element;
+  END_ENTITY;
+
+  ENTITY Inclined_Butt_joint
+    SUBTYPE OF(Butt_joint);
+  END_ENTITY;
+
+  ENTITY Single_bevel_butt_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+  END_ENTITY;
+
+  ENTITY Single_bevel_butt_with_broad_root_face_weld_definition
+    SUBTYPE OF (Single_bevel_butt_weld_definition);
+  END_ENTITY;
+
+  ENTITY Single_u_butt_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+  END_ENTITY;
+
+  ENTITY Single_v_butt_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+  END_ENTITY;
+
+  ENTITY Single_v_butt_with_broad_root_face_weld_definition
+    SUBTYPE OF (Single_v_butt_weld_definition);
+  END_ENTITY;
+
   ENTITY Lap_joint
     SUBTYPE OF(Welded_joint);
-      SELF\assembled_with_bonding.default_bond_definition RENAMED default_welding_definition : Lap_joint_welding_definition;
+      SELF\assembled_with_bonding.default_bond_definition : Lap_joint_welding_definition;
   END_ENTITY;
 
   ENTITY Lap_joint_welding_definition
     SUBTYPE OF(Welding_definition);
     INVERSE
-     welded_joints : SET [1:?] OF Lap_joint FOR default_welding_definition;
+     welded_joints : SET [1:?] OF Lap_joint FOR default_bond_definition;
  END_ENTITY;
 
   ENTITY Leg_based_on_surface;
@@ -212,11 +327,24 @@ staggered_intermittent_data shall be provided.
       countersink_angle  : OPTIONAL Angle_data_element;
   END_ENTITY;
 
+  ENTITY Pre_defined_combined_weld_definition
+     SUPERTYPE OF (ONEOF(
+       Double_v_butt_weld_definition,
+       Double_bevel_butt_weld_definition,
+       Double_u_butt_weld_definition))
+     SUBTYPE OF (Weld_definition);
+       symmetrical : BOOLEAN;
+  END_ENTITY;
+
   ENTITY Seam_weld_definition
     SUBTYPE OF(Weld_definition);
       weld_type         : resistance_or_fusion_weld;
       intermittent_data : OPTIONAL Weld_intermittent_position_data;
       weld_width        : Length_data_element;
+  END_ENTITY;
+
+  ENTITY Single_j_butt_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
   END_ENTITY;
 
   ENTITY Spot_weld_definition
@@ -234,6 +362,18 @@ staggered_intermittent_data shall be provided.
 Either both distance_between_welds and number_of_welds shall be provided or neither shall be provided.
 *)
 
+  ENTITY Square_butt_weld_definition
+    SUBTYPE OF (Butt_weld_definition);
+  END_ENTITY;
+
+  ENTITY Stake_weld_definition
+       SUBTYPE OF (Weld_definition);
+  END_ENTITY;
+
+  ENTITY Steep_flanked_single_v_butt_weld_definition
+    SUBTYPE OF (Single_v_butt_weld_definition);
+  END_ENTITY;
+
   ENTITY Stud_weld_definition
     SUBTYPE OF(Weld_definition);
       distance_between_studs : Length_data_element;
@@ -248,13 +388,13 @@ centre to centre
 
   ENTITY T_joint
     SUBTYPE OF(Welded_joint);
-      SELF\assembled_with_bonding.default_bond_definition RENAMED default_welding_definition : T_joint_welding_definition;
+      SELF\assembled_with_bonding.default_bond_definition : T_joint_welding_definition;
   END_ENTITY;
 
   ENTITY T_joint_welding_definition
     SUBTYPE OF(Welding_definition);
     INVERSE
-    welded_joints : SET [1:?] OF T_joint FOR default_welding_definition;
+    welded_joints : SET [1:?] OF T_joint FOR default_bond_definition;
   END_ENTITY;
 
   ENTITY Weld_auxiliary_material
@@ -267,16 +407,18 @@ centre to centre
   ENTITY Weld_definition
     SUPERTYPE OF (ONEOF(
         Fillet_weld_definition,
-        Groove_weld_definition,
+        Butt_weld_definition,
+        Flanged_butt_or_corner_weld_definition,
         Plug_weld_in_circular_holes_definition,
         Plug_weld_in_slot_definition,
         Spot_weld_definition,
         Seam_weld_definition,
         Edge_weld_definition,
         Overlay_weld_definition,
-        Stud_weld_definition))
+        Stake_weld_definition,
+        Stud_weld_definition,
+        Pre_defined_combined_weld_definition))
     SUBTYPE OF (Characterizable_object);
-    auxiliary_classification : elementary_weld_type;
   END_ENTITY;
 
   ENTITY Weld_intermittent_position_data;
@@ -292,11 +434,11 @@ centre to centre
                                  Lap_joint,
                                  Edge_joint))
     SUBTYPE OF(Assembled_with_bonding);
-    SELF\Assembled_with_bonding.default_bond_definition RENAMED welding_definition : Welding_definition;
+    SELF\Assembled_with_bonding.default_bond_definition : Welding_definition;
   END_ENTITY;
 
   ENTITY Welding_definition
-    SUPERTYPE OF (ONEOF(
+    ABSTRACT SUPERTYPE OF (ONEOF(
            Butt_joint_welding_definition,
            Corner_joint_welding_definition,
            T_joint_welding_definition,
@@ -311,7 +453,7 @@ centre to centre
       other_side               : OPTIONAL Associated_shape_element;
 --used Associated_shape_element to get easy access to geometric point.
     INVERSE
-      welded_joint : SET [1:?] OF Welded_joint FOR welding_definition;
+      welded_joint : SET [1:?] OF Welded_joint FOR default_bond_definition;
       auxiliary_material       : SET [0:?] OF Weld_auxiliary_material FOR items;
   WHERE
    WR1 : arrow_side :<>: other_side;

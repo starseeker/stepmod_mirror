@@ -1,21 +1,35 @@
 (*
-   $Id: arm.exp,v 1.1 2014/10/17 21:09:42 thomasrthurman Exp $
+   $Id: arm.exp,v 1.2 2014/10/20 20:05:07 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
-(* rev 1.2
+(* rev 1.3
+replace Length_data_element with Length_tolerance_characteristic except where
+nominal values were specified.
+replace Angle_data_element with Angle_tolerance_characteristic except where
+nominal values were specified.
+Added USE FROM Geometric_tolerance because there are some flatness tolerances specified in e.g.,
+Added USE FROM Surface_conditions because surface texture (ISO 1302) may be specified.
+Added USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm to allow us to establish
+weld context for binding to block definition diagram.
+Added explicit USE FROM reference to Weld_context for clarity.
+Added corrections on Assembly_bond_definition to permit Welding_definition to point to more than one joint.
+associated bugzilla bugs 5144, 5145, 5147, 5148
+rev 1.2
 replaced Groove_weld_definition with Butt_weld_definition to avoid
 mixing ISO and ASME names.
 moved elementary_weld_type from ENUMERATION to individual ENTITY types.
 Added inclined_butt_weld_joint --maybe obsolete?
 Added Length and Angle tolerance in preparation for using following
 initial team review.
-todo: what properties to allow tolerance on.
 how to relate this to block definition diagram?
-What about conformance specification?
-*)
+For conformance specification, specify the AO we require in the USE FROM.*)
+
+
 SCHEMA Weld_arm;
 
-USE FROM Assembly_technology_arm;
+USE FROM Assembly_technology_arm
+  (Assembled_with_bonding,
+   Assembly_bond_definition);
 
 USE FROM Characteristic_arm
      (Length_tolerance_characteristic,
@@ -29,27 +43,42 @@ USE FROM Characteristic_arm
       Tolerance_characteristic,
       Typical_tolerance_characteristic);
 
-USE FROM Characterizable_object_arm;
+USE FROM Characterizable_object_arm
+   (Characterizable_object);
 
-USE FROM Elemental_geometric_shape_arm;
+USE FROM Extended_measure_representation_arm
+   (Value_with_tolerances);
 
-USE FROM Extended_measure_representation_arm;
-
-USE FROM Foundation_representation_arm;
+USE FROM Foundation_representation_arm
+  (Representation);
 
 USE FROM Generic_material_aspects_arm
   (Material_identification);
 
+USE FROM Geometric_tolerance_arm
+   (Axis_placement_shape_element,
+    Flatness_tolerance);
+
 USE FROM Machining_features_arm
   (Face_shape_element,
    Path_element);
+
+USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
+
+USE FROM Product_and_manufacturing_information_view_context_arm
+  (Weld_context);
 
 USE FROM Shape_property_assignment_arm
   (Associated_shape_element);
 
 USE FROM Specification_document_arm
   (Process_specification);
-USE FROM Value_with_unit_arm;
+
+USE FROM Value_with_unit_arm
+  (count_measure);
+
+USE FROM Surface_conditions_arm
+   (Surface_texture);
 
 USE FROM Value_with_unit_extension_arm
    (Angle_data_element,
@@ -130,14 +159,14 @@ USE FROM Value_with_unit_extension_arm
      Flare_v_weld_definition,
      Flare_bevel_weld_definition))
     SUBTYPE OF(Weld_definition);
-      partial_penetration_depth   : OPTIONAL Length_data_element;
+      partial_penetration_depth   : OPTIONAL Length_tolerance_characteristic;
       intermittent_data           : OPTIONAL Weld_intermittent_position_data;
       chain_intermittent_data     : OPTIONAL Weld_intermittent_position_data;
       staggered_intermittent_data : OPTIONAL Weld_intermittent_position_data;
       full_penetration            : BOOLEAN;
-      joint_preparation_depth     : OPTIONAL Length_data_element;
-      root_gap                    : OPTIONAL Length_data_element;
-      included_angle              : OPTIONAL Angle_data_element;
+      joint_preparation_depth     : OPTIONAL Length_tolerance_characteristic;
+      root_gap                    : OPTIONAL Length_tolerance_characteristic;
+      included_angle              : OPTIONAL Angle_tolerance_characteristic;
       joint_preparation_defined   : BOOLEAN;
     WHERE
       WR1 : full_penetration XOR EXISTS(partial_penetration_depth);
@@ -180,7 +209,7 @@ staggered_intermittent_data shall be provided.
         arrow_side : Single_bevel_butt_weld_definition;
         other_side : OPTIONAL Single_bevel_butt_weld_definition;
     WHERE
-     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical XOR EXISTS(other_side);
   END_ENTITY;
 
   ENTITY Double_bevel_butt_with_broad_root_face_and_fillet_welds_weld_definition
@@ -188,7 +217,7 @@ staggered_intermittent_data shall be provided.
         arrow_side_fillet : fillet_weld_definition;
         other_side_fillet : OPTIONAL fillet_weld_definition;
     WHERE
-     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side_fillet);
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical XOR EXISTS(other_side_fillet);
   END_ENTITY;
 
   ENTITY Double_u_butt_weld_definition
@@ -196,7 +225,7 @@ staggered_intermittent_data shall be provided.
         arrow_side : Single_u_butt_weld_definition;
         other_side : OPTIONAL Single_u_butt_weld_definition;
     WHERE
-     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical XOR EXISTS(other_side);
   END_ENTITY;
 
   ENTITY Double_v_butt_weld_definition
@@ -204,7 +233,7 @@ staggered_intermittent_data shall be provided.
         arrow_side : Single_v_butt_weld_definition;
         other_side : OPTIONAL Single_v_butt_weld_definition;
     WHERE
-     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical OR EXISTS(other_side);
+     WR1 : SELF\Pre_defined_combined_weld_definition.symmetrical XOR EXISTS(other_side);
   END_ENTITY;
 
   ENTITY Edge_joint
@@ -219,12 +248,12 @@ staggered_intermittent_data shall be provided.
 
   ENTITY Edge_weld_definition
     SUBTYPE OF(Weld_definition);
-      weld_metal_thickness : Length_data_element;
+      weld_metal_thickness : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Fillet_weld_definition
     SUBTYPE OF(Weld_definition);
-      leg_length                        : OPTIONAL Length_data_element;
+      leg_length                        : OPTIONAL Length_tolerance_characteristic;
       nominal_throat_thickness          : OPTIONAL Length_data_element;
       deep_penetration_throat_thickness : OPTIONAL Length_data_element;
       unequal_legs                      : OPTIONAL LIST [2:2] OF Leg_based_on_surface;
@@ -247,12 +276,12 @@ staggered_intermittent_data shall be provided.
 
   ENTITY Flare_bevel_weld_definition
     SUBTYPE OF (Butt_weld_definition);
-      flare_bevel                 : Length_data_element;
+      flare_bevel                 : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Flare_v_weld_definition
     SUBTYPE OF (Butt_weld_definition);
-      flare_v                     : Length_data_element;
+      flare_v                     : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Inclined_Butt_joint
@@ -291,19 +320,19 @@ staggered_intermittent_data shall be provided.
  END_ENTITY;
 
   ENTITY Leg_based_on_surface;
-      leg_length         : Length_data_element;
+      leg_length         : Length_tolerance_characteristic;
       leg_reference_face : OPTIONAL Face_shape_element;
   END_ENTITY;
 
   ENTITY Overlay_weld_definition
     SUBTYPE OF(Weld_definition);
-      overlay_thickness : Length_data_element;
+      overlay_thickness : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Path_element_with_ends
    SUBTYPE OF(Path_element);
-    start_point	:	Associated_shape_element;
-    end_point	:	Associated_shape_element;
+    start_point	:	Axis_placement_shape_element;
+    end_point	:	Axis_placement_shape_element;
   WHERE
    WR1 : start_point :<>: end_point;
    WR2 : (NOT EXISTS(start_point) AND NOT EXISTS(end_point)) OR
@@ -313,18 +342,18 @@ staggered_intermittent_data shall be provided.
   ENTITY Plug_weld_in_circular_holes_definition
     SUBTYPE OF(Weld_definition);
       full_penetration                                : BOOLEAN;
-      plug_diameter                                   : Length_data_element;
-      partial_fill_deth                               : OPTIONAL Length_data_element;
-      centre_to_centre_distance_between_weld_elements : OPTIONAL Length_data_element;
+      plug_diameter                                   : Length_tolerance_characteristic;
+      partial_fill_depth                               : OPTIONAL Length_tolerance_characteristic;
+      centre_to_centre_distance_between_weld_elements : OPTIONAL Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Plug_weld_in_slot_definition
     SUBTYPE OF(Weld_definition);
       full_penetration   : BOOLEAN;
-      slot_width         : OPTIONAL Length_data_element;
-      partial_fill_depth : OPTIONAL Length_data_element;
-      intermittend_data  : OPTIONAL Weld_intermittent_position_data;
-      countersink_angle  : OPTIONAL Angle_data_element;
+      slot_width         : OPTIONAL Length_tolerance_characteristic;
+      partial_fill_depth : OPTIONAL Length_tolerance_characteristic;
+      intermittent_data  : OPTIONAL Weld_intermittent_position_data;
+      countersink_angle  : OPTIONAL Angle_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Pre_defined_combined_weld_definition
@@ -340,7 +369,7 @@ staggered_intermittent_data shall be provided.
     SUBTYPE OF(Weld_definition);
       weld_type         : resistance_or_fusion_weld;
       intermittent_data : OPTIONAL Weld_intermittent_position_data;
-      weld_width        : Length_data_element;
+      weld_width        : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Single_j_butt_weld_definition
@@ -349,8 +378,8 @@ staggered_intermittent_data shall be provided.
 
   ENTITY Spot_weld_definition
     SUBTYPE OF(Weld_definition);
-      weld_diameter          : Length_data_element;
-      distance_between_welds : OPTIONAL Length_data_element;
+      weld_diameter          : Length_tolerance_characteristic;
+      distance_between_welds : OPTIONAL Length_tolerance_characteristic;
       number_of_welds        : OPTIONAL count_measure;
       weld_type              : resistance_or_fusion_weld;
     WHERE
@@ -376,8 +405,8 @@ Either both distance_between_welds and number_of_welds shall be provided or neit
 
   ENTITY Stud_weld_definition
     SUBTYPE OF(Weld_definition);
-      distance_between_studs : Length_data_element;
-      stud_diameter          : Length_data_element;
+      distance_between_studs : Length_tolerance_characteristic;
+      stud_diameter          : Length_tolerance_characteristic;
       number_of_studs        : count_measure;
   END_ENTITY;
 (*
@@ -446,17 +475,22 @@ centre to centre
            Edge_joint_welding_definition))
     SUBTYPE OF(Assembly_bond_definition);
       supplemental_information : SET [0:?] OF supplemental_information;
+      surface_texture          : OPTIONAL Surface_texture;
       welds                    : SET [1:?] OF Weld_definition;
-      process_specification    : Process_specification;
+      process_specification    : SET [0:?] OF Process_specification;
       path                     : OPTIONAL Path_element_with_ends;
-      arrow_side               : Associated_shape_element;
-      other_side               : OPTIONAL Associated_shape_element;
---used Associated_shape_element to get easy access to geometric point.
-    INVERSE
+      arrow_side : Associated_shape_element;
+      other_side : OPTIONAL Associated_shape_element;
+--used Associated_shape_element to get easy access to geometric face but use generic rather than specific for more flexibility.
+   DERIVE
+      bond_feature_a : Physical_component_feature := SELF\Assembly_bond_definition.bonded_feature_1
+      bond_feature_b : Physical_component_feature := SELF\Assembly_bond_definition.bonded_feature_2
+   INVERSE
       welded_joint : SET [1:?] OF Welded_joint FOR default_bond_definition;
       auxiliary_material       : SET [0:?] OF Weld_auxiliary_material FOR items;
   WHERE
    WR1 : arrow_side :<>: other_side;
+   WR2 : NOT EXISTS(bond_feature_a) AND NOT EXISTS(bond_feature_b);
   END_ENTITY;
 
   ENTITY Welding_definition_sequence_relationship;

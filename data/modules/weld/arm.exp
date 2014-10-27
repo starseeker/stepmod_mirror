@@ -1,7 +1,17 @@
 (*
-   $Id: arm.exp,v 1.3 2014/10/25 18:18:39 thomasrthurman Exp $
+   $Id: arm.exp,v 1.4 2014/10/26 03:42:36 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+(* rev 1.4
+bugs detected during longform creation:
+5149--
+move Weld_context to this AM.
+added
+USE FROM Product_and_manufacturing_information_view_context_arm
+   (Gdt_representation_view_context,
+    Material_specification_view_context,
+    Surface_finish_view_context);
+*)
 (* rev 1.3
 replace Length_data_element with Length_tolerance_characteristic except where
 nominal values were specified.
@@ -63,13 +73,22 @@ USE FROM Machining_features_arm
   (Face_shape_element,
    Path_element);
 
-USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
+--USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
+--why do we need that?
 
 	USE FROM Physical_component_feature_arm
 		      (Physical_component_feature);
 
 USE FROM Product_and_manufacturing_information_view_context_arm
-  (Weld_context);
+   (Gdt_representation_view_context,
+    Material_specification_view_context,
+    Model_based_view_context,
+    Surface_finish_view_context);
+
+USE FROM Part_view_definition_arm
+   (Part_view_definition_context);
+
+USE FROM Product_view_definition_arm;
 
 USE FROM Shape_property_assignment_arm
   (Associated_shape_element);
@@ -436,6 +455,15 @@ centre to centre
      SELF\Material_identification.items : SET [1:1] OF Welding_definition;
   END_ENTITY;
 
+  ENTITY Weld_context
+    SUBTYPE OF (Part_view_definition_context);
+  DERIVE
+    SELF\View_definition_context.application_domain : STRING := 'weld';
+    SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+  WHERE
+    WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
+  END_ENTITY;
+
   ENTITY Weld_definition
     SUPERTYPE OF (ONEOF(
         Fillet_weld_definition,
@@ -482,18 +510,15 @@ centre to centre
       welds                    : SET [1:?] OF Weld_definition;
       process_specification    : SET [0:?] OF Process_specification;
       path                     : OPTIONAL Path_element_with_ends;
-      arrow_side : Associated_shape_element;
-      other_side : OPTIONAL Associated_shape_element;
+      arrow_side               : Associated_shape_element;
+      other_side               : OPTIONAL Associated_shape_element;
 --used Associated_shape_element to get easy access to geometric face but use generic rather than specific for more flexibility.
-   DERIVE
-      bond_feature_a : Physical_component_feature := SELF\Assembly_bond_definition.bonded_feature_1
-      bond_feature_b : Physical_component_feature := SELF\Assembly_bond_definition.bonded_feature_2
    INVERSE
-      welded_joint : SET [1:?] OF Welded_joint FOR default_bond_definition;
+      welded_joint             : SET [1:?] OF Welded_joint FOR default_bond_definition;
       auxiliary_material       : SET [0:?] OF Weld_auxiliary_material FOR items;
   WHERE
    WR1 : arrow_side :<>: other_side;
-   WR2 : NOT EXISTS(bond_feature_a) AND NOT EXISTS(bond_feature_b);
+   WR2 : NOT EXISTS(SELF\Assembly_bond_definition.bonded_feature_1) AND NOT EXISTS(SELF\Assembly_bond_definition.bonded_feature_2);
   END_ENTITY;
 
   ENTITY Welding_definition_sequence_relationship;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2014/10/26 03:42:36 thomasrthurman Exp $
+   $Id: arm.exp,v 1.5 2014/10/27 19:21:43 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (* rev 1.4
@@ -36,6 +36,7 @@ For conformance specification, specify the AO we require in the USE FROM.*)
 
 
 SCHEMA Weld_arm;
+USE FROM Advanced_boundary_representation_arm; -- ISO/TS 10303-1514
 
 USE FROM Assembly_technology_arm
   (Assembled_with_bonding,
@@ -56,6 +57,13 @@ USE FROM Characteristic_arm
 USE FROM Characterizable_object_arm
    (Characterizable_object);
 
+USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
+
+USE FROM Dimension_tolerance_arm
+  (Thickness_size,
+   Linear_distance);
+--need to verify that the above are sufficient to support AO Flatness_tolerance
+   
 USE FROM Extended_measure_representation_arm
    (Value_with_tolerances);
 
@@ -67,17 +75,29 @@ USE FROM Generic_material_aspects_arm
 
 USE FROM Geometric_tolerance_arm
    (Axis_placement_shape_element,
+    Dimensional_location_with_datum_feature,
     Flatness_tolerance);
 
 USE FROM Machining_features_arm
   (Face_shape_element,
    Path_element);
 
---USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
---why do we need that?
+USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
 
-	USE FROM Physical_component_feature_arm
-		      (Physical_component_feature);
+USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
+
+USE FROM Conductivity_material_aspects_arm
+  (Material_identification_with_conductivity_classification);
+
+USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm
+  (Nominal_3d_feature,
+   Nominal_3d_integral_feature);
+
+USE FROM Person_organization_assignment_arm;
+--needed for Specification_definition
+  
+USE FROM Physical_component_feature_arm
+   (Physical_component_feature);
 
 USE FROM Product_and_manufacturing_information_view_context_arm
    (Gdt_representation_view_context,
@@ -102,9 +122,39 @@ USE FROM Value_with_unit_arm
 USE FROM Surface_conditions_arm
    (Surface_texture);
 
+USE FROM Topologically_bounded_surface_arm;
+
 USE FROM Value_with_unit_extension_arm
    (Angle_data_element,
     Length_data_element);
+
+
+(*
+REFERENCE FROM Assembly_technology_arm
+  (at_external_identification_item);
+*)
+  
+REFERENCE FROM Dimension_tolerance_arm
+  (dimension_target);
+
+REFERENCE FROM Layered_interconnect_module_design_arm
+  (Footprint_occurrence,
+   Padstack_occurrence,
+   Structured_layout_component_sub_assembly_relationship);
+
+REFERENCE FROM Layered_interconnect_simple_template_arm
+  (Connection_zone_in_layout_template,
+   Default_attachment_size_based_land_physical_template);
+
+REFERENCE FROM Physical_unit_design_view_arm
+  (Assembly_component);
+
+REFERENCE FROM Physical_unit_usage_view_arm
+  (Part_feature,
+   Connection_zone_in_usage_view);
+
+REFERENCE FROM Shape_property_assignment_arm
+  (shapeable_item);
 
   TYPE resistance_or_fusion_weld = ENUMERATION OF
     (RESISTANCE_WELD,
@@ -131,6 +181,14 @@ USE FROM Value_with_unit_extension_arm
       removable_backing,
       spacer,
       unspecified_backing);
+  END_TYPE;
+
+TYPE weld_dimension_target = SELECT BASED_ON dimension_target WITH (
+  Nominal_3d_feature);
+END_TYPE;
+
+  TYPE weld_shapeable_item = SELECT BASED_ON shapeable_item WITH 
+    (Characterizable_object);
   END_TYPE;
 
   ENTITY Angle_tolerance_characteristic

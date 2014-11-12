@@ -29,6 +29,7 @@
          <interfaced.item name="face_surface"/>
          <interfaced.item name="poly_loop"/>
          <interfaced.item name="vertex_point"/>
+         <interfaced.item name="volume_with_faces"/>  
       </interface>
       <interface kind="reference" schema="geometric_model_schema">
          <interfaced.item name="block"/>
@@ -77,12 +78,23 @@
       </type>
       <type name="knot_type">
          <enumeration items="uniform_knots quasi_uniform_knots piecewise_bezier_knots unspecified"/>
-      </type>
+      </type>  
+      <type name="linearly_independent_enum">
+               <enumeration items="independent not_independent not_tested"/>
+      </type> 
+      <type name="locally_refined_spline_type_enum">
+         <enumeration items="analysis_suitable_t_spline hierarchical_b_spline lr_b_spline semi_standard_t_spline standard_t_spline"/>
+      </type>  
       <type name="pcurve_or_surface">
          <select selectitems="pcurve surface"/>
       </type>
       <type name="preferred_surface_curve_representation">
          <enumeration items="curve_3d pcurve_s1 pcurve_s2"/>
+      </type>
+      <type name="spline_knot_values">
+               <aggregate lower="2" type="LIST" upper="?"/>
+                        <builtintype type="REAL"/>
+               <where expression="increasing_values_in_list(SELF)" label="WR1"/>
       </type>
       <type name="surface_boundary">
          <select selectitems="boundary_curve degenerate_pcurve"/>
@@ -105,7 +117,7 @@
                           <typename name="dimension_count"/>
                        </explicit>
               </entity>
-                  <entity name="geometric_representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set, tessellated_item)" supertypes="representation_item">
+                  <entity name="geometric_representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set, tessellated_item, volume_with_faces)" supertypes="representation_item">
                        <derived expression="dimension_of(SELF)" name="dim">
                           <typename name="dimension_count"/>
                        </derived>
@@ -411,7 +423,7 @@
                  </explicit>
               </entity>
               
-       <entity name="bounded_curve" super.expression="ONEOF (polyline, b_spline_curve, trimmed_curve, bounded_pcurve, bounded_surface_curve, composite_curve)" supertypes="curve">
+       <entity name="bounded_curve" super.expression="ONEOF (polyline, b_spline_curve, trimmed_curve, bounded_pcurve, bounded_surface_curve, composite_curve locally_refined_spline_curve)" supertypes="curve">
                         <where  label="IP1"/>
       	          <where  label="IP2"/>
           </entity>
@@ -487,7 +499,68 @@
                  <where expression="SIZEOF(weights_data) = SIZEOF(SELF\b_spline_curve.&#10;                                           control_points_list)" label="WR1"/>
                  <where expression="curve_weights_positive(SELF)" label="WR2"/>
               </entity>
-           
+     
+    <entity name="local_b_spline" supertypes="representation_item">
+                     <explicit name="degree">
+                         <builtintype type="REAL"/>
+                     </explicit>
+                     <explicit name="knots">
+                    <aggregate lower="2" type="LIST" upper="?"/>
+                    <builtintype type="INTEGER"/>
+                 </explicit>
+                      <explicit name="multiplicities">
+                    <aggregate lower="2" type="LIST" upper="?"/>
+                    <builtintype type="INTEGER"/>
+                 </explicit> 
+                      <where expression="degree &gt; 0" label="WR1"/>
+                     <where expression="SIZEOF(knots) = SIZEOF(multiplicities)" label="WR2"/>
+                     <where expression="constraints_param_local_b_spline(degree, knots, multiplicities)" label="WR3"/>
+                  </entity>
+   
+   <entity name="locally_refined_spline_curve" supertypes="bounded_curve">
+                       <explicit name="b_splines">
+		                         <aggregate lower="2" type="LIST" upper="?"/>
+		                        <typename name="local_b_spline"/>
+		     </explicit>                    
+                    <explicit name="knot_values">
+                         <typename name="spline_knot_values"/>
+                 </explicit>
+                 <explicit name="control_points_list">
+		                     <aggregate lower="2" type="LIST" upper="?"/>
+		                     <typename name="cartesian_point"/>
+		      </explicit>
+		      <explicit name="scaling_factors">
+		                     <aggregate lower="2" type="LIST" upper="?"/>
+		                     <builtintype type="REAL"/>
+		                  </explicit>            
+		                   <explicit name="closed_curve">
+		                     <builtintype type="LOGICAL"/>
+		                  </explicit>
+		                  <explicit name="locally_refined_spline_type">
+		                     <typename name="locally_refined_spline_type_enum"/>
+		                  </explicit>
+		                  <explicit name="self_intersect">
+		                     <builtintype type="LOGICAL"/>
+                 </explicit>
+                 <explicit name="domain">
+		 		                     <aggregate lower="2" type="LIST" upper="?"/>
+		 		                     <builtintype type="REAL"/>
+		                  </explicit>    
+                      <where expression="SIZEOF(b_splines) = SIZEOF(control_points)" label="WR1"/>
+                     <where expression="SIZEOF(scaling_factors) = SIZEOF(control_points)" label="WR2"/>
+                   </entity>  
+   
+     <entity name="rational_locally_refined_spline_curve" supertypes="locally_refined_spline_curve">
+                            <explicit name="weights_data">
+     		                         <aggregate lower="2" type="LIST" upper="?"/>
+     		                         <builtintype type="REAL"/>
+                        </explicit>
+     		       
+                           <where expression="SIZEOF(weights_data) = SIZEOF(SELF\locally_refined_spline_curve.
+       control_points_list)" label="WR1"/>
+                          <where expression="weights_positive(SELF.weights_data_list)" label="WR2"/>
+                   </entity>  
+  
         <entity name="trimmed_curve" supertypes="bounded_curve">
                  <explicit name="basis_curve">
                     <typename name="curve"/>
@@ -772,7 +845,7 @@
                  <where  label="IP2"/>
              </entity>
               
-      <entity name="bounded_surface" super.expression="ONEOF (b_spline_surface, rectangular_trimmed_surface, curve_bounded_surface, rectangular_composite_surface)" supertypes="surface">
+      <entity name="bounded_surface" super.expression="ONEOF (b_spline_surface, rectangular_trimmed_surface, curve_bounded_surface, rectangular_composite_surface locally_refined_spline_surface)" supertypes="surface">
                   <where  label="IP1"/>
                  <where  label="IP2"/>
              </entity>
@@ -868,6 +941,68 @@
                  <where expression="surface_weights_positive(SELF)" label="WR2"/>
               </entity>
               
+       <entity name="locally_refined_spline_surface" supertypes="bounded_surface">
+                             <explicit name="u_b_splines">
+      		                         <aggregate lower="4" type="LIST" upper="?"/>
+      		                        <typename name="local_b_spline"/>
+      		      </explicit>                   
+                               <explicit name="v_b_splines">
+      		                         <aggregate lower="4" type="LIST" upper="?"/>
+      		                        <typename name="local_b_spline"/>
+      		      </explicit>    
+                        <explicit name="u_knots">
+                               <typename name="spline_knot_values"/>
+                       </explicit>
+                       <explicit name="v_knots">
+		                                      <typename name="spline_knot_values"/>
+                       </explicit>
+                       <explicit name="control_points_list">
+      		                     <aggregate lower="4" type="LIST" upper="?"/>
+      		                     <typename name="cartesian_point"/>
+      		      </explicit>
+      		      <explicit name="scaling_factors">
+      		                     <aggregate lower="4" type="LIST" upper="?"/>
+      		                     <builtintype type="REAL"/>
+      		                  </explicit>            
+      		         <explicit name="linearly_independent">
+			      		                     <typename name="linearly_independent_enum"/>
+      		                  </explicit>
+      		        <explicit name="locally_refined_spline_type">
+      		                     <typename name="locally_refined_spline_type_enum"/>
+      		                  </explicit>
+      		                             <explicit name="self_intersect">
+				      	                     <builtintype type="LOGICAL"/>
+                                 </explicit>
+                                 <explicit name="u_closed">
+      		                    <builtintype type="LOGICAL"/>
+      		                  </explicit>
+      		                  <explicit name="v_closed">
+				        		                     <builtintype type="LOGICAL"/>
+				        		                  </explicit>
+      		        
+                       <explicit name="domain">
+      		 		                     <aggregate lower="2" type="LIST" upper="2"/>
+                    <aggregate lower="2" type="LIST" upper="2"/>
+      		 		                     <builtintype type="REAL"/>
+      		                  </explicit>    
+                            <where expression="SIZEOF(u_b_splines) = SIZEOF(control_points_list)" label="WR1"/>
+                            <where expression="SIZEOF(v_b_splines) = SIZEOF(control_points_list)" label="WR2"/>
+                            <where expression="SIZEOF(scaling_factors) = SIZEOF(control_points_list)" label="WR3"/>
+                           <where expression="constraints_scaling(scaling_factors)" label="WR4"/>
+                     </entity>  
+                   
+           <entity name="rational_locally_refined_spline_surface" supertypes="locally_refined_spline_surface">
+                                  <explicit name="weights_data">
+           		                         <aggregate lower="4" type="LIST" upper="?"/>
+           		                         <builtintype type="REAL"/>
+                              </explicit>
+           		      
+                                 <where expression="SIZEOF(weights_data) = SIZEOF(SELF\locally_refined_spline_surface.
+	 control_points)" label="WR1"/>
+                                <where expression="weights_positive(SELF.weights_data)" label="WR2"/>
+                   </entity>  
+      
+      
       <entity name="rectangular_trimmed_surface" supertypes="bounded_surface">
                  <explicit name="basis_surface">
                     <typename name="surface"/>
@@ -991,7 +1126,7 @@
                  <where expression="acyclic_surface_replica(SELF, parent_surface)" label="WR1"/>
               </entity>
               
-      <entity name="volume" super.expression="ONEOF (block_volume, wedge_volume, spherical_volume, cylindrical_volume, eccentric_conical_volume, toroidal_volume, pyramid_volume, b_spline_volume, ellipsoid_volume, tetrahedron_volume, hexahedron_volume)" supertypes="geometric_representation_item">
+      <entity name="volume" super.expression="ONEOF (block_volume, wedge_volume, spherical_volume, cylindrical_volume, eccentric_conical_volume, toroidal_volume, pyramid_volume, b_spline_volume, ellipsoid_volume, tetrahedron_volume, hexahedron_volume locally_refined_spline_volume)" supertypes="geometric_representation_item">
                  <where expression="SELF\geometric_representation_item.dim = 3" label="WR1"/>
               </entity>
               
@@ -1253,6 +1388,67 @@
                  <where expression="(SIZEOF(weights_data) =&#10;                         SIZEOF(SELF\b_spline_volume.control_points_list))&#10;           AND (SIZEOF(weights_data[1]) =&#10;                     SIZEOF(SELF\b_spline_volume.control_points_list[1]))&#10;            AND (SIZEOF(weights_data[1][1]) =&#10;                 SIZEOF(SELF\b_spline_volume.control_points_list[1][1]))" label="WR1"/>
                  <where expression="volume_weights_positive(SELF)" label="WR2"/>
               </entity>
+      
+      <entity name="locally_refined_spline_volume" supertypes="volume">
+                                   <explicit name="u_b_splines">
+            		                         <aggregate lower="8" type="LIST" upper="?"/>
+            		                      <typename name="local_b_spline"/>
+                                    </explicit> 
+                                     <explicit name="v_b_splines">
+            		                         <aggregate lower="8" type="LIST" upper="?"/>
+            		         <typename name="local_b_spline"/>
+            		      </explicit>    
+                              <explicit name="w_b_splines">
+			                        <aggregate lower="8" type="LIST" upper="?"/>
+            		          <typename name="local_b_spline"/> 
+            		     </explicit>  
+                              <explicit name="u_knots">
+                                     <typename name="spline_knot_values"/>
+                             </explicit>
+                             <explicit name="v_knots">
+      		                                      <typename name="spline_knot_values"/>
+                             </explicit>
+                             <explicit name="v_knots">
+			                      <typename name="spline_knot_values"/>
+                             </explicit>
+                             <explicit name="control_points_list">
+            		                     <aggregate lower="8" type="LIST" upper="?"/>
+            		                     <typename name="cartesian_point"/>
+            		      </explicit>
+            		      <explicit name="scaling_factors">
+            		                     <aggregate lower="8" type="LIST" upper="?"/>
+            		                     <builtintype type="REAL"/>
+            		                  </explicit>            
+            		         <explicit name="linearly_independent">
+      			      		                     <typename name="linearly_independent_enum"/>
+            		                  </explicit>
+            		        <explicit name="locally_refined_spline_type">
+            		                     <typename name="locally_refined_spline_type_enum"/>
+            		               </explicit> 
+                             <explicit name="domain">
+            		 		                     <aggregate lower="3" type="LIST" upper="3"/>
+                          <aggregate lower="2" type="LIST" upper="2"/>
+            		 		                     <builtintype type="REAL"/>
+            		                  </explicit>    
+                                  <where expression="SIZEOF(u_b_splines) = SIZEOF(control_points_list)" label="WR1"/>
+                                  <where expression="SIZEOF(v_b_splines) = SIZEOF(control_points_list)" label="WR2"/>
+                                  <where expression="SIZEOF(w_b_splines) = SIZEOF(control_points_list)" label="WR3"/>
+                                  <where expression="SIZEOF(scaling_factors) = SIZEOF(control_points_list)" label="WR4"/>
+                                 <where expression="constraints_scaling(SELF.scaling_factors)" label="WR5"/>
+                           </entity>  
+                            
+                 <entity name="rational_locally_refined_spline_volume" supertypes="locally_refined_spline_volume">
+                                        <explicit name="weights_data">
+                 		                         <aggregate lower="8" type="LIST" upper="?"/>
+                 		                         <builtintype type="REAL"/>
+                                    </explicit>
+                 		      
+                                       <where expression="SIZEOF(weights_data) = SIZEOF(SELF\locally_refined_spline_surface.
+      	 control_points_list)" label="WR1"/>
+                                      <where expression="weights_positive(SELF.weights_data)" label="WR2"/>
+                   </entity>  
+      
+      
       <rule appliesto="cartesian_point direction representation_context geometric_representation_context" name="compatible_dimension">
          <where expression="SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0" label="WR1"/>
          <where expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))&#10;       &gt; 0 )) = 0" label="WR2"/>
@@ -1531,6 +1727,67 @@
    END_REPEAT;
    RETURN(result);</algorithm>
       </function>
+      
+
+<function name="constraints_param_local_b_spline">
+         <parameter name="degree">
+            <builtintype type="INTEGER"/>
+         </parameter>
+             <parameter name="knot_mult">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </parameter>
+         <parameter name="knots">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+ <algorithm>  
+LOCAL
+  result : BOOLEAN := TRUE;
+  k, up_knots, sum : INTEGER;
+END_LOCAL;
+(* Find sum of knot multiplicities. *)
+  up_knots := SIZEOF(knots);
+  sum := knot_mult[1];
+REPEAT i := 2 TO up_knots;
+  sum := sum + knot_mult[i];
+END_REPEAT;
+(* Check limits holding for all B-spline parametrisations *)
+IF (degree &lt; 1) OR (up_knots &lt; 2) OR 
+(sum &lt; &gt; (degree + 2)) THEN
+  result := FALSE;
+RETURN(result);
+END_IF;
+k := knot_mult[1];
+IF (k &lt; 1) OR (k &gt; degree + 1) THEN
+  result := FALSE;
+  RETURN(result);
+END_IF;
+(* first pointer shall be 1 or more *)
+IF (knots[1] &lt; 1) THEN
+ result :=  FALSE;
+END_IF;
+REPEAT i := 2 TO up_knots;
+ IF (knot_mult[i] &lt; 1) OR (knots[i] &lt;= knots[i-1]) THEN
+ result := FALSE;
+ RETURN(result);
+END_IF;
+k := knot_mult[i];
+IF (i &lt; up_knots) AND (k &gt; degree) THEN
+ result := FALSE;
+ RETURN(result);
+END_IF;
+IF (i = up_knots) AND (k &gt; degree + 1) THEN
+ result := FALSE;
+ RETURN(result);
+END_IF;
+END_REPEAT;
+RETURN(result);
+</algorithm>
+      </function>  
+      
+      
       <function name="constraints_rectangular_composite_surface">
          <parameter name="s">
             <typename name="rectangular_composite_surface"/>
@@ -1602,6 +1859,28 @@
     END;
   END_IF;</algorithm>
       </function>
+      
+      <function name="constraints_scaling">
+                     <parameter name="factors">
+                        <aggregate  type="LIST" />
+      		              <builtintype type="REAL"/>
+               </parameter>
+                     <builtintype type="BOOLEAN"/>
+                     <algorithm>
+                  LOCAL
+                     result : BOOLEAN := TRUE;
+                 END_LOCAL;
+                 REPEAT i := 1 TO SIZEOF(factors);
+                  IF IF NOT({0.0 &lt; factors[i] &lt;= 1.0}) THEN
+                    result := FALSE;
+                    RETURN(result);
+                  END_IF;
+                END_REPEAT;
+            RETURN(result);
+            </algorithm>
+            </function>
+      
+      
       <function name="curve_weights_positive">
          <parameter name="b">
             <typename name="rational_b_spline_curve"/>
@@ -1867,7 +2146,31 @@
 
   END_IF;
   RETURN(surfs);</algorithm>
-      </function>
+   </function>
+      
+    
+   <function name="increasing_values_in_list">
+         <parameter name="values">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <builtintype type="REAL"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>   
+      LOCAL
+      result : BOOLEAN := TRUE;
+      limit : INTEGER := SIZEOF(values);
+      END_LOCAL;
+      REPEAT i := 2 TO limit;
+       IF values[i] &lt;= values[i-1] THEN
+         result := FALSE;
+       END_IF;
+      END_REPEAT;
+    RETURN(result);
+     </algorithm>
+   </function> 
+      
+      
+      
       <function name="list_to_array">
          <parameter name="lis">
             <aggregate lower="0" type="LIST" upper="?"/>
@@ -2300,5 +2603,26 @@
      END_REPEAT;
      RETURN(result);</algorithm>
       </function>
+      
+      <function name="weights_positive">
+               <parameter name="weights">
+                  <aggregate  type="LIST" />
+		              <builtintype type="REAL"/>
+         </parameter>
+               <builtintype type="BOOLEAN"/>
+               <algorithm>
+            LOCAL
+               result : BOOLEAN := TRUE;
+           END_LOCAL;
+           REPEAT i := 1 TO SIZEOF(weights);
+            IF weights[i] &lt;= 0.0 THEN
+              result := FALSE;
+              RETURN(result);
+            END_IF;
+          END_REPEAT;
+      RETURN(result);
+      </algorithm>
+      </function>
+        
    </schema>
 </express>

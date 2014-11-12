@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <!-- re-ordered entities logically + added IPS February 2012 RJG  -->
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2011/12/24 12:09:41 $" rcs.revision="$Revision: 1.9 $" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2012/03/14 11:32:45 $" rcs.revision="$Revision: 1.10 $" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="topology_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="topology_schema">
       <interface kind="reference" schema="geometry_schema"/>
@@ -31,7 +31,9 @@
       </type>
       <entity
             name="topological_representation_item"
-            super.expression="ONEOF(vertex, edge, face_bound, face, vertex_shell, wire_shell, connected_edge_set, connected_face_set, (loop ANDOR path))"
+            super.expression="ONEOF(vertex, edge, face_bound, face, vertex_shell, wire_shell, connected_edge_set, connected_face_set,
+            
+                   connected_volume_set, volume_with_faces, (loop ANDOR path))"
             supertypes="representation_item">
           <where  label="IP1"/>
           </entity>
@@ -580,7 +582,68 @@
             <where  label="IP1"/>
             <where  label="IP2"/>
     </entity>
-      <function name="boolean_choose">
+    
+        
+        <entity
+                name="volume_with_faces"
+                supertypes="topological_representation_item geometric_representation_item" abstract.supertype="YES" 
+                super.expression="ONEOF(volume_with_parametric_boundary, volume_with_shell)">
+                <explicit
+                  name="volume_geometry">
+                   <typename
+                    name="volume"/>
+                </explicit>
+                  </entity>
+    
+          <entity
+                    name="volume_with_parametric_boundary"
+                    supertypes="volume_with_faces">
+                    <explicit
+                      name="outer_bound">
+                       <aggregate
+		               type="LIST"
+		               lower="6"
+		               upper="6"/>
+		            <typename name="face"/>
+                    </explicit>
+                  </entity>
+    
+            <entity
+                    name="volume_with_shell"
+                    supertypes="volume_with_faces">
+                    <explicit
+                      name="outer_bound">
+                              <typename name="closed_shell"/>
+                    </explicit>
+                  </entity> 
+    
+    <entity
+                        name="connected_volume_set"
+                        supertypes="topological_representation_item">
+                        <explicit
+                          name="cvs_volumes">
+                           <aggregate
+    		               type="SET"
+    		               lower="1"
+    		               upper="?"/>
+    		            <typename name="volume_with_faces"/>
+                        </explicit>
+                       <where  label="IP1"/>
+                       <where  label="IP2"/>
+                      <where  label="IP3"/>
+                      </entity>
+        
+                <entity
+                        name="connected_volume_sub_set"
+                        supertypes="connected_volume_set">
+                        <explicit
+                          name="parent_volume_set">
+                                  <typename name="connected_volume_set"/>
+                        </explicit>
+                        <where  label="IP1"/>
+                  </entity> 
+      
+    <function name="boolean_choose">
          <parameter name="b">
             <builtintype type="BOOLEAN"/>
          </parameter>

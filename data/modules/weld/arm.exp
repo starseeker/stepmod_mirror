@@ -1,11 +1,24 @@
 (*
-   $Id: arm.exp,v 1.5 2014/10/27 19:21:43 thomasrthurman Exp $
+   $Id: arm.exp,v 1.6 2014/10/28 23:38:36 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
-(* rev 1.4
+(*rev 1.7
+added Weld_element, migrated options for intermittent data classes to 
+Weld_intermittent_position_data,
+enforced relations between Weld_intermittent_position_data and
+Weld_element to ensure consistency.
+Migrated roles of intermittent data to Weld_intermittent_position_data,
+added constraints on Plug_weld_in_slot_definition and on Seam_weld_definition to
+limit intermittent data possibilities to just 'intermittent'.
+added fixes for integration with STEPmod.
+assembly_technology.bond_feature - General_part_feature default.
+assign a type to feature_or_non_feature_usage of General_part_feature.
+(don't seem to need, comment out for now.)
+
+rev 1.4
 bugs detected during longform creation:
 5149--
-move Weld_context to this AM.
+keep Weld_context to this AM instead of adding it to the Product_and_manufacturing_information_view_context_arm
 added
 USE FROM Product_and_manufacturing_information_view_context_arm
    (Gdt_representation_view_context,
@@ -86,8 +99,10 @@ USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
 
 USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
 
+(*
 USE FROM Conductivity_material_aspects_arm
   (Material_identification_with_conductivity_classification);
+*)
 
 USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm
   (Nominal_3d_feature,
@@ -107,6 +122,9 @@ USE FROM Product_and_manufacturing_information_view_context_arm
 
 USE FROM Part_view_definition_arm
    (Part_view_definition_context);
+
+USE FROM Part_shape_arm
+  (General_part_feature);
 
 USE FROM Product_view_definition_arm;
 
@@ -128,7 +146,6 @@ USE FROM Value_with_unit_extension_arm
    (Angle_data_element,
     Length_data_element);
 
-
 (*
 REFERENCE FROM Assembly_technology_arm
   (at_external_identification_item);
@@ -137,6 +154,7 @@ REFERENCE FROM Assembly_technology_arm
 REFERENCE FROM Dimension_tolerance_arm
   (dimension_target);
 
+(*
 REFERENCE FROM Layered_interconnect_module_design_arm
   (Footprint_occurrence,
    Padstack_occurrence,
@@ -145,34 +163,51 @@ REFERENCE FROM Layered_interconnect_module_design_arm
 REFERENCE FROM Layered_interconnect_simple_template_arm
   (Connection_zone_in_layout_template,
    Default_attachment_size_based_land_physical_template);
+*)
 
+REFERENCE FROM Part_feature_location_arm
+  (feature_or_non_feature_usage);
+  
 REFERENCE FROM Physical_unit_design_view_arm
   (Assembly_component);
 
+(*
 REFERENCE FROM Physical_unit_usage_view_arm
   (Part_feature,
    Connection_zone_in_usage_view);
+*)
 
 REFERENCE FROM Shape_property_assignment_arm
   (shapeable_item);
 
   TYPE resistance_or_fusion_weld = ENUMERATION OF
-    (RESISTANCE_WELD,
-     FUSION_WELD);
+    (resistance_weld,
+     fusion_weld);
   END_TYPE;
 
+  TYPE arrow_or_other = ENUMERATION OF
+    (arrow_side,
+     other_side);
+  END_TYPE;
+  
+  TYPE intermittent_or_chain_intermittent_or_staggered_intermittent = ENUMERATION OF
+    (intermittent,
+     chain_intermittent,
+     staggered_intermittent);
+  END_TYPE;
+  
   TYPE supplemental_information = EXTENSIBLE ENUMERATION OF
-    (FLAT_FINISHED_FLUSH,
-     CONVEX,
-     CONCAVE,
-     TOES_BLENDED_SMOOTHLY,
-     BACK_RUN,
-     BACKING_WELD,
-     SPECIFIED_ROOT_REINFORCEMENT,
-     WELD_ALL_AROUND,
-     WELD_BETWEEN_TWO_POINTS,
-     FIELD_WELD,
-     STAGGERED_INTERMITTENT_WELD);
+    (flat_finished_flush,
+     convex,
+     concave,
+     toes_blended_smoothly,
+     back_run,
+     backing_weld,
+     specified_root_reinforcement,
+     weld_all_around,
+     weld_between_two_points,
+     field_weld,
+     staggered_intermittent_weld);
   END_TYPE;
 
   TYPE weld_auxiliary_material_role = ENUMERATION OF
@@ -191,6 +226,12 @@ END_TYPE;
     (Characterizable_object);
   END_TYPE;
 
+(*
+  TYPE weld_feature_or_non_feature_usage = SELECT BASED_ON feature_or_non_feature_usage WITH (
+    General_part_feature);
+  END_TYPE;
+*)
+  
   ENTITY Angle_tolerance_characteristic
     SUBTYPE OF(Tolerance_characteristic);
     WHERE
@@ -241,8 +282,6 @@ END_TYPE;
     SUBTYPE OF(Weld_definition);
       partial_penetration_depth   : OPTIONAL Length_tolerance_characteristic;
       intermittent_data           : OPTIONAL Weld_intermittent_position_data;
-      chain_intermittent_data     : OPTIONAL Weld_intermittent_position_data;
-      staggered_intermittent_data : OPTIONAL Weld_intermittent_position_data;
       full_penetration            : BOOLEAN;
       joint_preparation_depth     : OPTIONAL Length_tolerance_characteristic;
       root_gap                    : OPTIONAL Length_tolerance_characteristic;
@@ -250,9 +289,6 @@ END_TYPE;
       joint_preparation_defined   : BOOLEAN;
     WHERE
       WR1 : full_penetration XOR EXISTS(partial_penetration_depth);
-      WR2 : (NOT EXISTS(intermittent_data)AND NOT EXISTS(chain_intermittent_data)) OR
-            (NOT EXISTS(chain_intermittent_data) AND NOT EXISTS(staggered_intermittent_data)) OR
-            (NOT EXISTS(intermittent_data) AND NOT EXISTS(staggered_intermittent_data));
   END_ENTITY;
 (*
 *Attribute definitions*
@@ -267,9 +303,6 @@ quality purposes.
 The penetration provided shall be indicated as full or a value shall be
 provided for partial penetration, but both full indication and partial
 penetration data shall not be simultaneously provided.
-[[WR2]]
-No more than one of intermittent_data, chain_intermittent_data,
-staggered_intermittent_data shall be provided.
 *)
 
 
@@ -338,8 +371,6 @@ staggered_intermittent_data shall be provided.
       deep_penetration_throat_thickness : OPTIONAL Length_data_element;
       unequal_legs                      : OPTIONAL LIST [2:2] OF Leg_based_on_surface;
       intermittent_data                 : OPTIONAL Weld_intermittent_position_data;
-      chain_intermittent_data           : OPTIONAL Weld_intermittent_position_data;
-      staggered_intermittent_data       : OPTIONAL Weld_intermittent_position_data;
   END_ENTITY;
 
   ENTITY Flanged_Butt_joint
@@ -434,6 +465,8 @@ staggered_intermittent_data shall be provided.
       partial_fill_depth : OPTIONAL Length_tolerance_characteristic;
       intermittent_data  : OPTIONAL Weld_intermittent_position_data;
       countersink_angle  : OPTIONAL Angle_tolerance_characteristic;
+    WHERE
+     WR1 : intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent;
   END_ENTITY;
 
   ENTITY Pre_defined_combined_weld_definition
@@ -450,6 +483,8 @@ staggered_intermittent_data shall be provided.
       weld_type         : resistance_or_fusion_weld;
       intermittent_data : OPTIONAL Weld_intermittent_position_data;
       weld_width        : Length_tolerance_characteristic;
+    WHERE
+     WR1 : intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent;
   END_ENTITY;
 
   ENTITY Single_j_butt_weld_definition
@@ -539,10 +574,39 @@ centre to centre
     SUBTYPE OF (Characterizable_object);
   END_ENTITY;
 
-  ENTITY Weld_intermittent_position_data;
+  ENTITY Weld_element
+    SUBTYPE OF (Characterizable_object);
+     precedent_element : OPTIONAL Weld_element;
+     identifier : count_measure;
+     side : arrow_or_other;
+     derived_from : Weld_intermittent_position_data;
+    INVERSE
+     subsequent_element : SET [0:1] OF Weld_element for precedent_element;
+    UNIQUE
+     UR1 : identifier, derived_from;
+    WHERE
+     WR1 : identifier > 0;
+     WR2 : identifier <= derived_from\Weld_intermittent_position_data.number_of_weld_elements;
+     WR3 :  NOT EXISTS(precedent_element) OR
+            (NOT (SIZEOF(subsequent_element) = 1) OR
+            (acyclic_weld_element_precedence_relationship(SELF,
+             [subsequent_element[1]],
+             'WELD_ARM_LF.WELD_ELEMENT')));
+  END_ENTITY;
+  
+  ENTITY Weld_intermittent_position_data
+    SUBTYPE OF (Characterizable_object);
+      intermittent_type : intermittent_or_chain_intermittent_or_staggered_intermittent;
       number_of_weld_elements                : count_measure;
       nominal_length_of_weld_element         : Length_data_element;
       nominal_distance_between_weld_elements : Length_data_element;
+    INVERSE
+     weld_elements : SET [0:?] OF Weld_element FOR derived_from;
+    WHERE
+     WR1 : number_of_weld_elements > 1;
+     WR2 : NOT (SIZEOF(weld_elements) > 0) OR (SIZEOF(weld_elements) = number_of_weld_elements);
+     WR3 : NOT (SIZEOF(weld_elements) > 0) OR 
+               (SIZEOF(QUERY(we <* weld_elements | EXISTS(we\Weld_element.precedent_element))) = (number_of_weld_elements -1));
   END_ENTITY;
 
   ENTITY Welded_joint
@@ -589,5 +653,28 @@ centre to centre
 FUNCTION w_acyclic_sequence ( input1 : Welding_definition; input2 : Welding_definition) : BOOLEAN;
 RETURN (TRUE);
 END_FUNCTION;
+
+  FUNCTION acyclic_weld_element_precedence_relationship
+      (relation : Weld_element; relatives : SET[1:?] OF
+      Weld_element; specific_relation : STRING) : BOOLEAN; 
+    LOCAL
+      x : SET OF Weld_element;
+    END_LOCAL;
+
+    IF relation.precedent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_element,
+        'WELD_ARM.' + 'WELD_ELEMENT.' +
+        'SUBSEQUENT_ELEMENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_weld_element_precedence_relationship(x[i], relatives +
+        relation.precedent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+
 
 END_SCHEMA;

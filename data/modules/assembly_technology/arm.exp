@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.62 2012/10/11 05:49:04 liutkuviene Exp $
+   $Id: arm.exp,v 1.63 2012/10/28 17:41:23 lothartklein Exp $
    ISO TC184/SC4/WG12 N7942 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7379
 *)
@@ -7,39 +7,40 @@
 
 SCHEMA Assembly_technology_arm;
 --	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
-	USE FROM Component_feature_arm;
+--	USE FROM Component_feature_arm;
 	USE FROM Requirement_assignment_arm;
 	USE FROM Physical_component_feature_arm;
-	
-	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+    USE FROM Generic_material_aspects_arm;
+--	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 	USE FROM Product_view_definition_reference_arm;	-- ISO/TS 10303-1738
 
- 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+ 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
 		(Assembly_bond_definition);
 	END_TYPE;
+
 
 	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Assembly_bond_definition);
 	END_TYPE;
 
-  TYPE at_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
+  TYPE at_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
     (Assembly_bond_definition);
-  END_TYPE; 
+  END_TYPE;
 
-	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH
 	    (Assembly_joint);
-	END_TYPE; 
+	END_TYPE;
 
-  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Physical_component_feature); -- added anew
-    -- Connection_zone_in_layout_template,
+  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT
+     (General_part_feature);--added highest level part feature as default 
+    -- Physical_component_feature -- Connection_zone_in_layout_template,
     -- Connection_zone_in_usage_view,
     -- Default_attachment_size_based_land_physical_template,
     -- Feature_definition_with_connection_area,
     -- Part_feature);
-  END_TYPE;     
+  END_TYPE;
 
-	
+
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
      y,
@@ -49,10 +50,10 @@ SCHEMA Assembly_technology_arm;
      w);
   END_TYPE;
 (*
-	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
+	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;
 		(ONEOF (Assembly_technology_specification,
 		Fabrication_technology_specification));
-	END_SUBTYPE_CONSTRAINT; 
+	END_SUBTYPE_CONSTRAINT;
 *)
   ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
@@ -68,35 +69,37 @@ SCHEMA Assembly_technology_arm;
   END_ENTITY;
 
   ENTITY Assembly_bond_definition;
-      name                                    : STRING;   
+      name                                    : STRING;
 --      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
       associated_definition                   : Product_view_definition_reference_with_local_representation;
-      bonded_feature_1                        : bond_feature;
-      bonded_feature_2                        : bond_feature;
+      bonded_feature_1                        : OPTIONAL bond_feature;
+      bonded_feature_2                        : OPTIONAL bond_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
 	  bond_category	: External_source_identification FOR item;
-	  bond_material : material_identification FOR items;      
+	  bond_material : material_identification FOR items;
     UNIQUE
       UR1 : name;
       UR2 : associated_definition;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
+(*
       WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
       WR3 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR
         ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)));
-      WR4 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR 
+      WR4 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR
         ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)));
       WR5 : NOT((('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN
         TYPEOF (bonded_feature_1)) OR
         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
         (bonded_feature_1)) OR
         ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))
-        XOR 
+        XOR
         (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR
         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
         (bonded_feature_1)) OR
-        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));      
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));
+*)
   END_ENTITY;
 
   ENTITY Assembly_joint
@@ -111,13 +114,13 @@ SCHEMA Assembly_technology_arm;
         associated_assembly;
     WHERE
       WR1 : assembly_feature_1 :<>: assembly_feature_2;
-      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
-             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND 
-             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <> 
+      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND
+             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <>
              associated_assembly\Item_shape.described_element)) = 0));
-      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
-             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
-             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <> 
+      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND
+             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <>
              associated_assembly\Item_shape.described_element)) = 0));
   END_ENTITY;
 (*
@@ -126,7 +129,7 @@ SCHEMA Assembly_technology_arm;
   END_ENTITY;
 *)
   ENTITY Component_mating_constraint_condition;
-      name                          : STRING;  
+      name                          : STRING;
       constraining_joint            : SET[1:3] OF Assembly_joint;
       constrained_degree_of_freedom : SET[1:6] OF degree_of_freedom;
       of_context                    : Part_view_definition; -- Part_design_view;
@@ -148,7 +151,7 @@ SCHEMA Assembly_technology_arm;
       shape_characterized_definition : Assembly_bond_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Representation.description);
-      WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION'))=0;      
+      WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION'))=0;
   END_ENTITY;
 
 END_SCHEMA;

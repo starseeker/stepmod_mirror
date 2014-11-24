@@ -1,7 +1,10 @@
 (*
-   $Id: arm.exp,v 1.6 2014/10/28 23:38:36 thomasrthurman Exp $
+   $Id: arm.exp,v 1.7 2014/11/17 23:29:59 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+(*
+added Butt_weld_definition.quality_specification and Butt_weld_definition.WR2.
+*)
 (*rev 1.7
 added Weld_element, migrated options for intermittent data classes to 
 Weld_intermittent_position_data,
@@ -287,8 +290,12 @@ END_TYPE;
       root_gap                    : OPTIONAL Length_tolerance_characteristic;
       included_angle              : OPTIONAL Angle_tolerance_characteristic;
       joint_preparation_defined   : BOOLEAN;
+    INVERSE
+     quality_specification : SET [0:1] OF Document_assignment FOR is_assigned_to;
+—Specifies the document that controls the weld quality when joint_preparation is undefined.
     WHERE
       WR1 : full_penetration XOR EXISTS(partial_penetration_depth);
+      WR2 : joint_preparation_defined OR (SIZEOF(quality_specification) = 1);
   END_ENTITY;
 (*
 *Attribute definitions*
@@ -303,6 +310,8 @@ quality purposes.
 The penetration provided shall be indicated as full or a value shall be
 provided for partial penetration, but both full indication and partial
 penetration data shall not be simultaneously provided.
+[[WR2]]
+Either joint preparation shall be defined or a quality specification shall be provided.
 *)
 
 

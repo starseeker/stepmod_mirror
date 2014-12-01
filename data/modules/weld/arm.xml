@@ -28,6 +28,9 @@
          <interfaced.item name="Thickness_size"/>
          <interfaced.item name="Linear_distance"/>
       </interface>
+      <interface kind="use" schema="Document_assignment_arm">
+         <interfaced.item name="Document_assignment"/>
+      </interface>
       <interface kind="use" schema="Extended_measure_representation_arm">
          <interfaced.item name="Value_with_tolerances"/>
       </interface>
@@ -48,9 +51,6 @@
       </interface>
       <interface kind="use" schema="Manifold_surface_arm"/>
       <interface kind="use" schema="Manifold_subsurface_arm"/>
-      <interface kind="use" schema="Conductivity_material_aspects_arm">
-         <interfaced.item name="Material_identification_with_conductivity_classification"/>
-      </interface>
       <interface kind="use" schema="Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm">
          <interfaced.item name="Nominal_3d_feature"/>
          <interfaced.item name="Nominal_3d_integral_feature"/>
@@ -67,6 +67,9 @@
       </interface>
       <interface kind="use" schema="Part_view_definition_arm">
          <interfaced.item name="Part_view_definition_context"/>
+      </interface>
+      <interface kind="use" schema="Part_shape_arm">
+         <interfaced.item name="General_part_feature"/>
       </interface>
       <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm">
@@ -86,36 +89,35 @@
          <interfaced.item name="Angle_data_element"/>
          <interfaced.item name="Length_data_element"/>
       </interface>
-      <interface kind="reference" schema="Assembly_technology_arm">
-         <interfaced.item name="at_external_identification_item"/>
-      </interface>
       <interface kind="reference" schema="Dimension_tolerance_arm">
          <interfaced.item name="dimension_target"/>
       </interface>
-      <interface kind="reference" schema="Layered_interconnect_module_design_arm">
-         <interfaced.item name="Footprint_occurrence"/>
-         <interfaced.item name="Padstack_occurrence"/>
-         <interfaced.item name="Structured_layout_component_sub_assembly_relationship"/>
-      </interface>
-      <interface kind="reference" schema="Layered_interconnect_simple_template_arm">
-         <interfaced.item name="Connection_zone_in_layout_template"/>
-         <interfaced.item name="Default_attachment_size_based_land_physical_template"/>
+      <interface kind="reference" schema="Part_feature_location_arm">
+         <interfaced.item name="feature_or_non_feature_usage"/>
       </interface>
       <interface kind="reference" schema="Physical_unit_design_view_arm">
          <interfaced.item name="Assembly_component"/>
       </interface>
-      <interface kind="reference" schema="Physical_unit_usage_view_arm">
-         <interfaced.item name="Part_feature"/>
-         <interfaced.item name="Connection_zone_in_usage_view"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
       </interface>
       <interface kind="reference" schema="Shape_property_assignment_arm">
          <interfaced.item name="shapeable_item"/>
       </interface>
+      <type name="arrow_or_other">
+         <enumeration items="arrow_side other_side"/>
+      </type>
+      <type name="centre_to_centre_or_edge_to_edge">
+         <enumeration items="centre_to_centre edge_to_edge"/>
+      </type>
+      <type name="intermittent_or_chain_intermittent_or_staggered_intermittent">
+         <enumeration items="intermittent chain_intermittent staggered_intermittent"/>
+      </type>
       <type name="resistance_or_fusion_weld">
-         <enumeration items="RESISTANCE_WELD FUSION_WELD"/>
+         <enumeration items="resistance_weld fusion_weld"/>
       </type>
       <type name="supplemental_information">
-         <enumeration extensible="YES" items="FLAT_FINISHED_FLUSH CONVEX CONCAVE TOES_BLENDED_SMOOTHLY BACK_RUN BACKING_WELD SPECIFIED_ROOT_REINFORCEMENT WELD_ALL_AROUND WELD_BETWEEN_TWO_POINTS FIELD_WELD STAGGERED_INTERMITTENT_WELD"/>
+         <enumeration extensible="YES" items="flat_finished_flush convex concave toes_blended_smoothly back_run backing_weld specified_root_reinforcement weld_all_around weld_between_two_points field_weld staggered_intermittent_weld"/>
       </type>
       <type name="weld_auxiliary_material_role">
          <enumeration items="consumable_insert permanent_backing removable_backing spacer unspecified_backing"/>
@@ -156,12 +158,6 @@
          <explicit name="intermittent_data" optional="YES">
             <typename name="Weld_intermittent_position_data"/>
          </explicit>
-         <explicit name="chain_intermittent_data" optional="YES">
-            <typename name="Weld_intermittent_position_data"/>
-         </explicit>
-         <explicit name="staggered_intermittent_data" optional="YES">
-            <typename name="Weld_intermittent_position_data"/>
-         </explicit>
          <explicit name="full_penetration">
             <builtintype type="BOOLEAN"/>
          </explicit>
@@ -177,8 +173,12 @@
          <explicit name="joint_preparation_defined">
             <builtintype type="BOOLEAN"/>
          </explicit>
+         <inverse attribute="is_assigned_to" entity="Document_assignment" name="quality_specification">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
          <where expression="full_penetration XOR EXISTS(partial_penetration_depth)" label="WR1"/>
-         <where expression="(NOT EXISTS(intermittent_data)AND NOT EXISTS(chain_intermittent_data)) OR&#10;            (NOT EXISTS(chain_intermittent_data) AND NOT EXISTS(staggered_intermittent_data)) OR&#10;            (NOT EXISTS(intermittent_data) AND NOT EXISTS(staggered_intermittent_data))" label="WR2"/>
+         <where expression="joint_preparation_defined OR (SIZEOF(quality_specification) = 1)" label="WR2"/>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge" label="WR3"/>
       </entity>
       <entity name="Corner_joint" supertypes="Welded_joint">
          <explicit name="default_bond_definition">
@@ -260,12 +260,7 @@
          <explicit name="intermittent_data" optional="YES">
             <typename name="Weld_intermittent_position_data"/>
          </explicit>
-         <explicit name="chain_intermittent_data" optional="YES">
-            <typename name="Weld_intermittent_position_data"/>
-         </explicit>
-         <explicit name="staggered_intermittent_data" optional="YES">
-            <typename name="Weld_intermittent_position_data"/>
-         </explicit>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge" label="WR1"/>
       </entity>
       <entity name="Flanged_Butt_joint" supertypes="Butt_joint"/>
       <entity name="Flanged_Corner_joint" supertypes="Corner_joint"/>
@@ -313,11 +308,13 @@
             <typename name="Axis_placement_shape_element"/>
          </explicit>
          <where expression="start_point :&lt;&gt;: end_point" label="WR1"/>
-         <where expression="(NOT EXISTS(start_point) AND NOT EXISTS(end_point)) OR&#10;         (EXISTS(start_point) AND EXISTS(end_point))" label="WR2"/>
       </entity>
       <entity name="Plug_weld_in_circular_holes_definition" supertypes="Weld_definition">
          <explicit name="full_penetration">
             <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="intermittent_data" optional="YES">
+            <typename name="Weld_intermittent_position_data"/>
          </explicit>
          <explicit name="plug_diameter">
             <typename name="Length_tolerance_characteristic"/>
@@ -328,6 +325,9 @@
          <explicit name="centre_to_centre_distance_between_weld_elements" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
+         <where expression="intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent" label="WR1"/>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre" label="WR2"/>
+         <where expression="full_penetration XOR EXISTS(partial_fill_depth)" label="WR3"/>
       </entity>
       <entity name="Plug_weld_in_slot_definition" supertypes="Weld_definition">
          <explicit name="full_penetration">
@@ -345,6 +345,9 @@
          <explicit name="countersink_angle" optional="YES">
             <typename name="Angle_tolerance_characteristic"/>
          </explicit>
+         <where expression="intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent" label="WR1"/>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge" label="WR2"/>
+         <where expression="full_penetration XOR EXISTS(partial_fill_depth)" label="WR3"/>
       </entity>
       <entity name="Pre_defined_combined_weld_definition" super.expression="ONEOF (Double_v_butt_weld_definition, Double_bevel_butt_weld_definition, Double_u_butt_weld_definition)" supertypes="Weld_definition">
          <explicit name="symmetrical">
@@ -361,6 +364,8 @@
          <explicit name="weld_width">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
+         <where expression="intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent" label="WR1"/>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge" label="WR2"/>
       </entity>
       <entity name="Single_bevel_butt_weld_definition" supertypes="Butt_weld_definition"/>
       <entity name="Single_bevel_butt_with_broad_root_face_weld_definition" supertypes="Single_bevel_butt_weld_definition"/>
@@ -369,33 +374,28 @@
       <entity name="Single_v_butt_weld_definition" supertypes="Butt_weld_definition"/>
       <entity name="Single_v_butt_with_broad_root_face_weld_definition" supertypes="Single_v_butt_weld_definition"/>
       <entity name="Spot_weld_definition" supertypes="Weld_definition">
+         <explicit name="intermittent_data" optional="YES">
+            <typename name="Weld_intermittent_position_data"/>
+         </explicit>
          <explicit name="weld_diameter">
             <typename name="Length_tolerance_characteristic"/>
-         </explicit>
-         <explicit name="distance_between_welds" optional="YES">
-            <typename name="Length_tolerance_characteristic"/>
-         </explicit>
-         <explicit name="number_of_welds" optional="YES">
-            <typename name="count_measure"/>
          </explicit>
          <explicit name="weld_type">
             <typename name="resistance_or_fusion_weld"/>
          </explicit>
-         <where expression="(NOT EXISTS(distance_between_welds) AND NOT EXISTS(number_of_welds)) OR&#10;            (EXISTS(distance_between_welds) AND EXISTS(number_of_welds))" label="WR1"/>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre" label="WR1"/>
       </entity>
       <entity name="Square_butt_weld_definition" supertypes="Butt_weld_definition"/>
       <entity name="Stake_weld_definition" supertypes="Weld_definition"/>
       <entity name="Steep_flanked_single_v_butt_weld_definition" supertypes="Single_v_butt_weld_definition"/>
       <entity name="Stud_weld_definition" supertypes="Weld_definition">
-         <explicit name="distance_between_studs">
-            <typename name="Length_tolerance_characteristic"/>
+         <explicit name="intermittent_data" optional="YES">
+            <typename name="Weld_intermittent_position_data"/>
          </explicit>
          <explicit name="stud_diameter">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <explicit name="number_of_studs">
-            <typename name="count_measure"/>
-         </explicit>
+         <where expression="intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre" label="WR1"/>
       </entity>
       <entity name="T_joint" supertypes="Welded_joint">
          <explicit name="default_bond_definition">
@@ -433,16 +433,52 @@
          <where expression="SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0" label="WR1"/>
       </entity>
       <entity name="Weld_definition" super.expression="ONEOF (Fillet_weld_definition, Butt_weld_definition, Flanged_butt_or_corner_weld_definition, Plug_weld_in_circular_holes_definition, Plug_weld_in_slot_definition, Spot_weld_definition, Seam_weld_definition, Edge_weld_definition, Overlay_weld_definition, Stake_weld_definition, Stud_weld_definition, Pre_defined_combined_weld_definition)" supertypes="Characterizable_object"/>
-      <entity name="Weld_intermittent_position_data">
+      <entity name="Weld_element" supertypes="Characterizable_object">
+         <explicit name="precedent_element" optional="YES">
+            <typename name="Weld_element"/>
+         </explicit>
+         <explicit name="identifier">
+            <typename name="count_measure"/>
+         </explicit>
+         <explicit name="side">
+            <typename name="arrow_or_other"/>
+         </explicit>
+         <explicit name="derived_from">
+            <typename name="Weld_intermittent_position_data"/>
+         </explicit>
+         <inverse attribute="precedent_element" entity="Weld_element" name="subsequent_element">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <unique label="UR1">
+            <unique.attribute attribute="identifier"/>
+            <unique.attribute attribute="derived_from"/>
+         </unique>
+         <where expression="identifier &gt; 0" label="WR1"/>
+         <where expression="identifier &lt;= derived_from\Weld_intermittent_position_data.number_of_weld_elements" label="WR2"/>
+         <where expression="NOT EXISTS(precedent_element) OR&#10;            (NOT (SIZEOF(subsequent_element) = 1) OR&#10;            (acyclic_weld_element_precedence_relationship(SELF,&#10;             [subsequent_element[1]],&#10;             'WELD_ARM_LF.WELD_ELEMENT')))" label="WR3"/>
+      </entity>
+      <entity name="Weld_intermittent_position_data" supertypes="Characterizable_object">
+         <explicit name="intermittent_type">
+            <typename name="intermittent_or_chain_intermittent_or_staggered_intermittent"/>
+         </explicit>
          <explicit name="number_of_weld_elements">
             <typename name="count_measure"/>
          </explicit>
          <explicit name="nominal_length_of_weld_element">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="nominal_distance_between_weld_elements">
-            <typename name="Length_data_element"/>
+         <explicit name="distance_between_weld_elements">
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
+         <explicit name="distance_type">
+            <typename name="centre_to_centre_or_edge_to_edge"/>
+         </explicit>
+         <inverse attribute="derived_from" entity="Weld_element" name="weld_elements">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
+         <where expression="number_of_weld_elements &gt; 1" label="WR1"/>
+         <where expression="NOT (SIZEOF(weld_elements) &gt; 0) OR (SIZEOF(weld_elements) = number_of_weld_elements)" label="WR2"/>
+         <where expression="NOT (SIZEOF(weld_elements) &gt; 0) OR &#10;               (SIZEOF(QUERY(we &lt;* weld_elements | EXISTS(we\Weld_element.precedent_element))) = (number_of_weld_elements -1))" label="WR3"/>
       </entity>
       <entity abstract.supertype="YES" name="Welded_joint" super.expression="ONEOF (Butt_joint, Corner_joint, T_joint, Lap_joint, Edge_joint)" supertypes="Assembled_with_bonding">
          <explicit name="default_bond_definition">
@@ -493,6 +529,20 @@
          </explicit>
          <where expression="w_acyclic_sequence (precedent_welding_definition, subsequent_welding_definition)" label="WR1"/>
       </entity>
+      <function name="acyclic_weld_element_precedence_relationship">
+         <parameter name="relation">
+            <typename name="Weld_element"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Weld_element"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>RETURN (TRUE);</algorithm>
+      </function>
       <function name="w_acyclic_sequence">
          <parameter name="input1">
             <typename name="Welding_definition"/>

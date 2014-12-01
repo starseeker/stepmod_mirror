@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2014/11/26 00:31:27 thomasrthurman Exp $
+   $Id: arm.exp,v 1.11 2014/12/01 14:04:48 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -88,6 +88,9 @@ USE FROM Dimension_tolerance_arm
    Linear_distance);
 --need to verify that the above are sufficient to support AO Flatness_tolerance
    
+USE FROM Document_assignment_arm
+  (Document_assignment);
+  
 USE FROM Extended_measure_representation_arm
    (Value_with_tolerances);
 
@@ -308,7 +311,7 @@ END_TYPE;
       joint_preparation_defined   : BOOLEAN;
     INVERSE
      quality_specification : SET [0:1] OF Document_assignment FOR is_assigned_to;
-—Specifies the document that controls the weld quality when joint_preparation is undefined.
+--Specifies the document that controls the weld quality when joint_preparation is undefined.
     WHERE
       WR1 : full_penetration XOR EXISTS(partial_penetration_depth);
       WR2 : joint_preparation_defined OR (SIZEOF(quality_specification) = 1);
@@ -637,7 +640,7 @@ centre to centre
      WR2 : NOT (SIZEOF(weld_elements) > 0) OR (SIZEOF(weld_elements) = number_of_weld_elements);
      WR3 : NOT (SIZEOF(weld_elements) > 0) OR 
                (SIZEOF(QUERY(we <* weld_elements | EXISTS(we\Weld_element.precedent_element))) = (number_of_weld_elements -1));
-     WR4 : EXISTS(precedent_element) XOR (identifier = 1);
+--     WR4 : EXISTS(precedent_element) XOR (identifier = 1);
   END_ENTITY;
 
   ENTITY Welded_joint
@@ -688,6 +691,7 @@ END_FUNCTION;
   FUNCTION acyclic_weld_element_precedence_relationship
       (relation : Weld_element; relatives : SET[1:?] OF
       Weld_element; specific_relation : STRING) : BOOLEAN; 
+(*
     LOCAL
       x : SET OF Weld_element;
     END_LOCAL;
@@ -704,6 +708,7 @@ END_FUNCTION;
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
+*)
     RETURN (TRUE);
   END_FUNCTION; 
 

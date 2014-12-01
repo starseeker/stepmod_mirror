@@ -8551,9 +8551,20 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2014/11/17 23:29:59 thomasrthurman Exp $
+   $Id: arm.exp,v 1.12 2014/12/01 15:20:50 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- weld - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+(*
+rev 1.10 removed path_element_with_ends.wr2 --redundant.
+updated Plug_weld_in_circular_holes_definition
+harmonized intermittent distance between element data.
+harmonized full penetration vs partial.
+
+rev 1.9
+added Butt_weld_definition.quality_specification and Butt_weld_definition.WR2.
+added Weld_intermittent_position_data.WR4.
+harmonized centre to centre distance with edge distance in intermittent data.
+*)
 (*rev 1.7
 added Weld_element, migrated options for intermittent data classes to 
 Weld_intermittent_position_data,
@@ -8629,6 +8640,9 @@ USE FROM Dimension_tolerance_arm
    Linear_distance);
 --need to verify that the above are sufficient to support AO Flatness_tolerance
    
+USE FROM Document_assignment_arm
+  (Document_assignment);
+  
 USE FROM Extended_measure_representation_arm
    (Value_with_tolerances);
 
@@ -8729,6 +8743,9 @@ REFERENCE FROM Physical_unit_usage_view_arm
    Connection_zone_in_usage_view);
 *)
 
+REFERENCE FROM Support_resource_arm
+  (bag_to_set);
+  
 REFERENCE FROM Shape_property_assignment_arm
   (shapeable_item);
 
@@ -8741,7 +8758,12 @@ REFERENCE FROM Shape_property_assignment_arm
     (arrow_side,
      other_side);
   END_TYPE;
-  
+
+  TYPE centre_to_centre_or_edge_to_edge = ENUMERATION OF
+    (centre_to_centre,
+     edge_to_edge);
+  END_TYPE;
+
   TYPE intermittent_or_chain_intermittent_or_staggered_intermittent = ENUMERATION OF
     (intermittent,
      chain_intermittent,
@@ -8839,8 +8861,13 @@ END_TYPE;
       root_gap                    : OPTIONAL Length_tolerance_characteristic;
       included_angle              : OPTIONAL Angle_tolerance_characteristic;
       joint_preparation_defined   : BOOLEAN;
+    INVERSE
+     quality_specification : SET [0:1] OF Document_assignment FOR is_assigned_to;
+--Specifies the document that controls the weld quality when joint_preparation is undefined.
     WHERE
       WR1 : full_penetration XOR EXISTS(partial_penetration_depth);
+      WR2 : joint_preparation_defined OR (SIZEOF(quality_specification) = 1);
+      WR3 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge;
   END_ENTITY;
 (*
 *Attribute definitions*
@@ -8855,6 +8882,8 @@ quality purposes.
 The penetration provided shall be indicated as full or a value shall be
 provided for partial penetration, but both full indication and partial
 penetration data shall not be simultaneously provided.
+[[WR2]]
+Either joint preparation shall be defined or a quality specification shall be provided.
 *)
 
 
@@ -8923,6 +8952,8 @@ penetration data shall not be simultaneously provided.
       deep_penetration_throat_thickness : OPTIONAL Length_data_element;
       unequal_legs                      : OPTIONAL LIST [2:2] OF Leg_based_on_surface;
       intermittent_data                 : OPTIONAL Weld_intermittent_position_data;
+   WHERE
+      WR1 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge;
   END_ENTITY;
 
   ENTITY Flanged_Butt_joint
@@ -8998,16 +9029,19 @@ penetration data shall not be simultaneously provided.
     end_point	:	Axis_placement_shape_element;
   WHERE
    WR1 : start_point :<>: end_point;
-   WR2 : (NOT EXISTS(start_point) AND NOT EXISTS(end_point)) OR
-         (EXISTS(start_point) AND EXISTS(end_point));
   END_ENTITY;
 
   ENTITY Plug_weld_in_circular_holes_definition
     SUBTYPE OF(Weld_definition);
       full_penetration                                : BOOLEAN;
+      intermittent_data                               : OPTIONAL Weld_intermittent_position_data;
       plug_diameter                                   : Length_tolerance_characteristic;
-      partial_fill_depth                               : OPTIONAL Length_tolerance_characteristic;
+      partial_fill_depth                              : OPTIONAL Length_tolerance_characteristic;
       centre_to_centre_distance_between_weld_elements : OPTIONAL Length_tolerance_characteristic;
+    WHERE
+     WR1 : intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent;
+     WR2 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre;
+     WR3 : full_penetration XOR EXISTS(partial_fill_depth);
   END_ENTITY;
 
   ENTITY Plug_weld_in_slot_definition
@@ -9019,6 +9053,8 @@ penetration data shall not be simultaneously provided.
       countersink_angle  : OPTIONAL Angle_tolerance_characteristic;
     WHERE
      WR1 : intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent;
+     WR2 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge;
+     WR3 : full_penetration XOR EXISTS(partial_fill_depth);
   END_ENTITY;
 
   ENTITY Pre_defined_combined_weld_definition
@@ -9037,6 +9073,7 @@ penetration data shall not be simultaneously provided.
       weld_width        : Length_tolerance_characteristic;
     WHERE
      WR1 : intermittent_data\Weld_intermittent_position_data.intermittent_type = intermittent_or_chain_intermittent_or_staggered_intermittent.intermittent;
+     WR2 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.edge_to_edge;
   END_ENTITY;
 
   ENTITY Single_j_butt_weld_definition
@@ -9045,18 +9082,12 @@ penetration data shall not be simultaneously provided.
 
   ENTITY Spot_weld_definition
     SUBTYPE OF(Weld_definition);
+      intermittent_data : OPTIONAL Weld_intermittent_position_data;
       weld_diameter          : Length_tolerance_characteristic;
-      distance_between_welds : OPTIONAL Length_tolerance_characteristic;
-      number_of_welds        : OPTIONAL count_measure;
       weld_type              : resistance_or_fusion_weld;
     WHERE
-      WR1 : (NOT EXISTS(distance_between_welds) AND NOT EXISTS(number_of_welds)) OR
-            (EXISTS(distance_between_welds) AND EXISTS(number_of_welds));
+     WR1 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre;
   END_ENTITY;
-(*
-[[WR1]]
-Either both distance_between_welds and number_of_welds shall be provided or neither shall be provided.
-*)
 
   ENTITY Square_butt_weld_definition
     SUBTYPE OF (Butt_weld_definition);
@@ -9072,9 +9103,10 @@ Either both distance_between_welds and number_of_welds shall be provided or neit
 
   ENTITY Stud_weld_definition
     SUBTYPE OF(Weld_definition);
-      distance_between_studs : Length_tolerance_characteristic;
+      intermittent_data : OPTIONAL Weld_intermittent_position_data;
       stud_diameter          : Length_tolerance_characteristic;
-      number_of_studs        : count_measure;
+   WHERE
+     WR1 : intermittent_data\Weld_intermittent_position_data.distance_type = centre_to_centre_or_edge_to_edge.centre_to_centre;
   END_ENTITY;
 (*
 *Attribute definitions*
@@ -9151,7 +9183,8 @@ centre to centre
       intermittent_type : intermittent_or_chain_intermittent_or_staggered_intermittent;
       number_of_weld_elements                : count_measure;
       nominal_length_of_weld_element         : Length_data_element;
-      nominal_distance_between_weld_elements : Length_data_element;
+      distance_between_weld_elements         : Length_tolerance_characteristic;
+      distance_type                          : centre_to_centre_or_edge_to_edge;
     INVERSE
      weld_elements : SET [0:?] OF Weld_element FOR derived_from;
     WHERE
@@ -9159,6 +9192,7 @@ centre to centre
      WR2 : NOT (SIZEOF(weld_elements) > 0) OR (SIZEOF(weld_elements) = number_of_weld_elements);
      WR3 : NOT (SIZEOF(weld_elements) > 0) OR 
                (SIZEOF(QUERY(we <* weld_elements | EXISTS(we\Weld_element.precedent_element))) = (number_of_weld_elements -1));
+--     WR4 : EXISTS(precedent_element) XOR (identifier = 1);
   END_ENTITY;
 
   ENTITY Welded_joint
@@ -9209,6 +9243,7 @@ END_FUNCTION;
   FUNCTION acyclic_weld_element_precedence_relationship
       (relation : Weld_element; relatives : SET[1:?] OF
       Weld_element; specific_relation : STRING) : BOOLEAN; 
+(*
     LOCAL
       x : SET OF Weld_element;
     END_LOCAL;
@@ -9225,6 +9260,7 @@ END_FUNCTION;
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
+*)
     RETURN (TRUE);
   END_FUNCTION; 
 

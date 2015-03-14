@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.335 2012/09/10 04:22:20 thomasrthurman Exp $
+   $Id: arm.exp,v 1.336 2012/10/11 05:49:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8170 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7565
 *)
@@ -683,9 +683,6 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Instanced_feature);
       applied_stack                       : SET [1:?] OF Local_linear_stack;
       SELF\Shape_element.containing_shape : Layered_interconnect_module_design_view;
-    WHERE
-      WR1: SIZEOF(SELF\Shape_feature_definition.feature_model) = 1;
-      WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.feature_model[1]);
   END_ENTITY;
 
   ENTITY Generic_laminate_text_component
@@ -959,8 +956,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     INVERSE
       network : Routed_physical_network FOR probe;
     WHERE
-      WR1 :       SELF\Shape_element.id = SELF\Item_shape.id;
-      WR2 : NOT (EXISTS(stratum_feature_material_stackup) AND 
+      WR1 : NOT (EXISTS(stratum_feature_material_stackup) AND 
                  NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERNAL_PROBE_ACCESS_AREA' IN TYPEOF(SELF)))
              OR
             (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(probed_layout_item))
@@ -1011,13 +1007,12 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Stratum
     SUPERTYPE OF (ONEOF (Documentation_layer_stratum, Design_layer_stratum))
-    SUBTYPE OF (Part_shape, Part_view_definition);
+    SUBTYPE OF (Part_view_definition);
       SELF\Product_view_definition.id : STRING;
       definition                      : Stratum_technology_occurrence;
     DERIVE
       of_average_surface 	: SET[0:1] OF stratum_average_surface := 
         QUERY(tmp <* of_surface | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp));
-      SELF\Item_shape.described_element : Stratum := SELF;
       base_component : SET [0:?] OF Area_component := get_base_component(SELF);                     
       of_product_version : SET [1:?] OF product_version := 
           bag_to_set(QUERY(pv <* USEDIN(assembly[1].assembly.defined_version.of_product, 'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT') | 

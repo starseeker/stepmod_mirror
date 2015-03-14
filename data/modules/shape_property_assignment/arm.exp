@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.50 2012/07/18 11:42:32 lothartklein Exp $
+	$Id: arm.exp,v 1.51 2012/10/11 05:49:03 liutkuviene Exp $
 	ISO TC184/SC4/WG12 N8050 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7466
 *)
@@ -16,7 +16,7 @@ USE FROM Geometric_model_relationship_arm; -- ISO/TS 10303-1403
 USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
 TYPE spa_property_assignment_select = SELECT BASED_ON property_assignment_select WITH ( 
-  Item_shape,
+  shapeable_item,
   Shape_element, 
   Shape_element_relationship);
 END_TYPE; 
@@ -43,13 +43,13 @@ TYPE geometric_item_specific_usage_select = SELECT (
 END_TYPE; 
 
 TYPE spa_represented_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON represented_definition WITH (
-    Item_shape,
+    shapeable_item,
     Shape_element,
     Shape_element_relationship);
 END_TYPE;
 
 TYPE assigned_shape_property_select = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Item_shape,
+    shapeable_item,
     Shape_element,
     Shape_element_relationship);
 END_TYPE;
@@ -65,32 +65,18 @@ TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
    View_definition_relationship);
 END_TYPE; 
 
-ENTITY Associated_item_shape
-  SUBTYPE OF (Item_shape);
-DERIVE
-  associated_model : shape_model := association\Property_definition_representation.used_representation;
-INVERSE  
-  association : Shape_description_association FOR definition;
-END_ENTITY;  
-
 ENTITY Associated_shape_element 
   SUBTYPE OF (Shape_element);
-  SELF\Shape_element.containing_shape : Associated_item_shape;
 DERIVE
   associated_item : geometric_model_item := association\Geometric_item_specific_usage.identified_item;
 INVERSE 
   association : Geometric_item_specific_usage FOR definition;
 WHERE
   WR1: EXISTS(associated_item);
+(*
   WR2: association\Geometric_item_specific_usage.used_model\Geometric_model.context_of_items = 
   SELF\Shape_element.containing_shape\Associated_item_shape.association\Property_definition_representation.used_representation\Geometric_model.context_of_items;
-END_ENTITY;
-
-ENTITY Contextual_item_shape
-  SUBTYPE OF (Item_shape);
-    SELF\Item_shape.described_element : described_element_select;
-  DERIVE
-    shaped_product : Product_view_definition := spa_get_definition(SELF);
+*)
 END_ENTITY;
 
 ENTITY Geometric_item_specific_usage;
@@ -107,14 +93,6 @@ ENTITY Chain_based_geometric_item_specific_usage
     undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
 END_ENTITY;
 
-ENTITY Item_shape;
-  id                : OPTIONAL STRING;
-  description       : OPTIONAL STRING;
-  described_element : shapeable_item;
-UNIQUE
-  UR1: described_element;
-END_ENTITY;
-
 ENTITY Assigned_shape_property
   SUBTYPE OF (Assigned_property);
   SELF\Assigned_property.described_element : assigned_shape_property_select;
@@ -127,7 +105,7 @@ END_ENTITY;
 
 ENTITY Shape_description_association -- maps to shape_def_rep
   SUBTYPE OF (Property_definition_representation);
-  SELF\Property_definition_representation.definition : Associated_item_shape;
+  SELF\Property_definition_representation.definition : shapeable_item;
   SELF\Property_definition_representation.used_representation : shape_model;
 END_ENTITY;
 
@@ -141,7 +119,7 @@ ENTITY Shape_element;
     id               : OPTIONAL STRING;
     element_name     : STRING;
     description      : OPTIONAL STRING;
-    containing_shape : Item_shape;
+    containing_shape : shapeable_item;
 UNIQUE
     UR1: id, containing_shape;    
 WHERE
@@ -161,6 +139,7 @@ SUBTYPE_CONSTRAINT property_definition_representation_subtype FOR Property_defin
   ONEOF (Shape_description_association, Shape_dependent_property_representation, Shape_element_description_association);
 END_SUBTYPE_CONSTRAINT;
 
+(* TBD Bug 5298 - Remove Item_shape and subtypes
 FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_definition;
   IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'
     IN TYPEOF(input\Item_shape.described_element))
@@ -174,5 +153,6 @@ FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_defi
   END_IF;    
   RETURN(?);
 END_FUNCTION;
+*)
 
 END_SCHEMA;  

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.13 2012/09/22 21:41:56 thomasrthurman Exp $
+ $Id: arm.exp,v 1.14 2012/09/22 22:35:47 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N2939 - ISO/TS 10303-1041 Product view definition relationship - EXPRESS ARM
 *)
 
@@ -8,18 +8,28 @@ SCHEMA Product_view_definition_relationship_arm;
 
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 USE FROM Product_view_definition_reference_arm; -- ISO/TS 10303-1738
+USE FROM Shape_property_assignment_arm;
 
 TYPE as_product_view_definition_or_reference = SELECT (
     Product_view_definition, 
     Generic_product_view_definition_reference);
 END_TYPE;
 
+TYPE contextual_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
+  unspecified_contextual_shape_type ); 
+END_TYPE;
+                
 ENTITY View_definition_relationship;
   id : OPTIONAL STRING;
   relation_type : OPTIONAL STRING;
   description : OPTIONAL STRING;
   relating_view : as_product_view_definition_or_reference;
   related_view : as_product_view_definition_or_reference;
+  shape_type : OPTIONAL contextual_shape_type_enumeration; 
+  shape_id : OPTIONAL STRING;
+  shape_description : OPTIONAL STRING;
+INVERSE
+  association : SET[0:?] OF Shape_description_association FOR definition;
 END_ENTITY;
 
 ENTITY View_definition_usage

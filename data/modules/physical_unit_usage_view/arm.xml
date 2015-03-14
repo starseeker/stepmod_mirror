@@ -110,10 +110,6 @@
          <explicit name="id" optional="NO">
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
-         <derived expression="bag_to_set(USEDIN(SELF\Shape_feature_definition.of_shape,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION.DESCRIBED_ELEMENT'))" name="surface_conditions">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="Surface_condition"/>
-         </derived>
          <unique label="UR1">
             <unique.attribute attribute="id"/>
          </unique>
@@ -123,12 +119,7 @@
          <where expression="NOT EXISTS(SELF\Representation.description)" label="WR2"/>
          <where expression="((SIZEOF(USEDIN(SELF,&#10;       'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'))=0) OR&#10;       (SIZEOF(QUERY(sda &lt;* USEDIN(SELF,&#10;       'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | &#10;       NOT (('SHAPE_PROPERTY_ASSIGNMENT_ARM.' +'ITEM_SHAPE' IN&#10;       TYPEOF(sda.definition)) AND &#10;       ('PHYSICAL_UNIT_USAGE_VIEW_ARM.' +'PART_FEATURE_TEMPLATE_DEFINITION' IN&#10;       TYPEOF(sda.definition.described_element)))&#10;       )) = 0))" label="WR3"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Part_usage_view" supertypes="Part_view_definition Part_shape">
-         <derived expression="SELF" name="described_element">
-            <typename name="Part_usage_view"/>
-            <redeclaration entity-ref="Item_shape"/>
-         </derived>
-      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Part_usage_view" supertypes="Part_view_definition"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Usage_view_connection_zone_terminal_shape_relationship">
          <explicit name="associating_terminal_shape" optional="NO">
             <typename name="Part_feature_template_shape_model"/>
@@ -191,14 +182,7 @@
          </parameter>
          <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
          <typename name="Derived_shape_element"/>
-         <algorithm>LOCAL
-      is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
-      se : SET OF Shape_element := [];
-    END_LOCAL; 
-    REPEAT i := 1 to SIZEOF(is) by 1;
-      se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
-    END_REPEAT;  
-    RETURN(QUERY(dse &lt;* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));</algorithm>
+         <algorithm>RETURN (?);</algorithm>
       </function>
    </schema>
 </express>

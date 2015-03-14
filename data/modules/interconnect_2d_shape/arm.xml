@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1682">
    <application name="JSDAI" owner="LKSoft" source="interconnect_2d_shape_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Interconnect_2d_shape_arm">
       <interface kind="use" schema="Fabrication_joint_arm"/>
@@ -29,10 +30,10 @@
          <where expression="NOT EXISTS(SELF\Representation_relationship.description)" label="WR3"/>
       </entity>
       <rule appliesto="Area_component" name="component_in_assembly_2d_context">
-         <where expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#xA;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR &#xA;        (in_2d_assembly_context(ac)))&#xA;          )) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#10;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR &#10;        (in_2d_assembly_context(ac)))&#10;          )) = 0" label="WR1"/>
       </rule>
       <rule appliesto="Area_component" name="no_component_assembly_2d_location_for_area_component">
-         <where expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#xA;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR&#xA;       (no_2d_location_for_component(ac))) &#xA;  )) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#10;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR&#10;       (no_2d_location_for_component(ac))) &#10;  )) = 0" label="WR1"/>
       </rule>
       <function name="in_2d_assembly_context">
          <parameter name="comp">
@@ -73,23 +74,7 @@
             <typename name="Assembly_component"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-    i, j : INTEGER;
-    cis : SET OF Contextual_item_shape;
-    loc : SET OF Component_2d_location;
-  END_LOCAL;
-  
-  REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
-    cis := bag_to_set(USEDIN(comp.occurrence_contexts[i],'SHAPE_PROPERTY_ASSIGNMENT_ARM.CONTEXTUAL_ITEM_SHAPE.DESCRIBED_ELEMENT'));
-    REPEAT j := 1 TO SIZEOF(cis);
-      loc := bag_to_set(USEDIN(cis[j],'CONTEXTUAL_SHAPE_POSITIONING_ARM.CONTEXTUAL_SHAPE_REPRESENTATION.CONTEXTUAL_SHAPE'));
-      IF (SIZEOF(loc) &gt; 0) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-
-  RETURN (TRUE);</algorithm>
+         <algorithm>RETURN (TRUE);</algorithm>
       </function>
    </schema>
 </express>

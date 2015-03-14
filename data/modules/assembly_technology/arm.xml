@@ -5,10 +5,9 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1649">
    <application name="JSDAI" owner="LKSoft" source="assembly_technology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_technology_arm">
-      <interface kind="use" schema="Component_feature_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
       <interface kind="use" schema="Physical_component_feature_arm"/>
-      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Generic_material_aspects_arm"/>
       <interface kind="use" schema="Product_view_definition_reference_arm"/>
       <type name="at_external_identification_item">
          <select basedon="external_identification_item" extensible="YES" genericentity="YES" selectitems="Assembly_bond_definition"/>
@@ -23,7 +22,7 @@
          <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Assembly_joint"/>
       </type>
       <type name="bond_feature">
-         <select extensible="YES" genericentity="YES" selectitems="Physical_component_feature"/>
+         <select extensible="YES" genericentity="YES" selectitems="General_part_feature"/>
       </type>
       <type name="degree_of_freedom">
          <enumeration items="x y z u v w"/>
@@ -43,10 +42,10 @@
          <explicit name="associated_definition">
             <typename name="Product_view_definition_reference_with_local_representation"/>
          </explicit>
-         <explicit name="bonded_feature_1">
+         <explicit name="bonded_feature_1" optional="YES">
             <typename name="bond_feature"/>
          </explicit>
-         <explicit name="bonded_feature_2">
+         <explicit name="bonded_feature_2" optional="YES">
             <typename name="bond_feature"/>
          </explicit>
          <inverse attribute="shape_characterized_definition" entity="Default_assembly_bond_shape_model" name="default_shape">
@@ -61,10 +60,6 @@
             <unique.attribute attribute="associated_definition"/>
          </unique>
          <where expression="bonded_feature_1 &lt;&gt; bonded_feature_2" label="WR1"/>
-         <where expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material)" label="WR2"/>
-         <where expression="NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR&#10;        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)))" label="WR3"/>
-         <where expression="NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR &#10;        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)))" label="WR4"/>
-         <where expression="NOT((('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN&#10;        TYPEOF (bonded_feature_1)) OR&#10;        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF&#10;        (bonded_feature_1)) OR&#10;        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))&#10;        XOR &#10;        (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR&#10;        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF&#10;        (bonded_feature_1)) OR&#10;        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))))" label="WR5"/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding" supertypes="Component_feature_joint">
          <explicit name="assembly_feature_1">
@@ -76,7 +71,7 @@
             <redeclaration entity-ref="Component_feature_joint" old_name="feature_2"/>
          </explicit>
          <explicit name="associated_assembly">
-            <typename name="Assembly_shape"/>
+            <typename name="Assembly_definition"/>
             <redeclaration entity-ref="Component_feature_joint" old_name="associated_definition"/>
          </explicit>
          <unique label="UR1">
@@ -84,8 +79,6 @@
             <unique.attribute attribute="associated_assembly"/>
          </unique>
          <where expression="assembly_feature_1 :&lt;&gt;: assembly_feature_2" label="WR1"/>
-         <where expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR &#10;             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND &#10;             (SIZEOF(QUERY(ay &lt;* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view &lt;&gt; &#10;             associated_assembly\Item_shape.described_element)) = 0))" label="WR2"/>
-         <where expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR &#10;             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND &#10;             (SIZEOF(QUERY(ay &lt;* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view &lt;&gt; &#10;             associated_assembly\Item_shape.described_element)) = 0))" label="WR3"/>
       </entity>
       <entity name="Component_mating_constraint_condition">
          <explicit name="name">

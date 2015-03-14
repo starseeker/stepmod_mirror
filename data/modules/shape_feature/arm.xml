@@ -24,35 +24,7 @@
             <typename name="Shape_feature_definition"/>
          </explicit>
       </entity>
-      <entity name="Shape_feature_definition" supertypes="Characterizable_object">
-         <derived expression="get_geometric_model(of_shape)" name="feature_model">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Geometric_model"/>
-         </derived>
-         <inverse attribute="described_element" entity="Item_shape" name="of_shape"/>
-         <where expression="EXISTS(feature_model)" label="WR1"/>
-      </entity>
+      <entity name="Shape_feature_definition" supertypes="Characterizable_object"/>
       <subtype.constraint entity="Shape_element" name="sf_shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature)"/>
-      <function name="get_geometric_model">
-         <parameter name="input">
-            <typename name="Item_shape"/>
-         </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
-         <typename name="Geometric_model"/>
-         <algorithm>LOCAL
-    sda : SET OF Shape_description_association := [];
-    gm : SET OF Geometric_model := [];
-  END_LOCAL;
- 
-  sda := bag_to_set(USEDIN(input,
-	 	'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
- 
-  REPEAT i := 1 to SIZEOF(sda) BY 1;
-    IF 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF (sda[i]) THEN
-      gm := gm + sda[i]\Property_definition_representation.used_representation;
-    END_IF;
-  END_REPEAT;
-  RETURN(gm);</algorithm>
-      </function>
    </schema>
 </express>

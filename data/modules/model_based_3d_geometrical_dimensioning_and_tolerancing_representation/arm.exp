@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2012/09/04 18:24:46 lothartklein Exp $
+   $Id: arm.exp,v 1.11 2012/10/11 05:49:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7921 - ISO/CD-TS - 10303-1816 Model based 3d geometrical dimensioning and tolerancing representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7358
 *)
@@ -37,12 +37,12 @@ TYPE mb3gdtsr_edge_of_undefined_shape_size_element = SELECT
   Nominal_3D_edge);  
 END_TYPE;
 
-ENTITY Gdt_representation_shape
-  SUBTYPE OF (Nominal_3d_model_shape, Part_shape);
-WHERE
-  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
-END_ENTITY;  
-  
+(*
+TYPE mb3gdtr_shape_type_enum = EXTENSIBLE ENUMERATION BASED_ON product_shape_type_enum WITH ( 
+  gdt_representation_shape ); 
+END_TYPE;
+*)
+
 ENTITY Nominal_3d_edge
   SUBTYPE OF (Nominal_3d_integral_feature);
 DERIVE
@@ -55,7 +55,7 @@ END_ENTITY;
 ENTITY Nominal_3d_feature 
   ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
   SUBTYPE OF (Associated_shape_element, Part_shape_element);
-  SELF\Shape_element.containing_shape : Gdt_representation_shape;
+  SELF\Shape_element.containing_shape : Part_view_definition;
 END_ENTITY;
 
 ENTITY Nominal_3d_integral_feature

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.79 2012/08/27 13:04:33 lothartklein Exp $
+   $Id: arm.exp,v 1.80 2012/10/11 05:49:12 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8215 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7610
 *)
@@ -106,9 +106,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
   ENTITY Part_feature_template_definition
     SUBTYPE OF (Feature_definition_with_connection_area);
       id : STRING;
-    DERIVE
-      surface_conditions : SET OF Surface_condition := 
-	       bag_to_set(USEDIN(SELF\Shape_feature_definition.of_shape,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION.DESCRIBED_ELEMENT'));	  
     UNIQUE
       UR1 : id; 
   END_ENTITY;
@@ -135,9 +132,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
   END_ENTITY;
 
   ENTITY Part_usage_view
-    SUBTYPE OF (Part_view_definition, Part_shape);
-    DERIVE
-      SELF\Item_shape.described_element : Part_usage_view := SELF;
+    SUBTYPE OF (Part_view_definition);
   END_ENTITY;
 
   ENTITY Usage_view_connection_zone_terminal_shape_relationship;
@@ -185,6 +180,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
   END_FUNCTION; 
 
   FUNCTION get_derived_shape_element( input : Part_view_definition) : SET OF Derived_shape_element;
+(*  
     LOCAL
       is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
       se : SET OF Shape_element := [];
@@ -193,6 +189,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
     END_REPEAT;  
     RETURN(QUERY(dse <* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));
+*) RETURN (?);  
   END_FUNCTION;
 
 END_SCHEMA;

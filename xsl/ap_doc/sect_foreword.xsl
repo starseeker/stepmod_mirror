@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.35 2014/09/04 23:42:11 thomasrthurman Exp $
+$Id: sect_foreword.xsl,v 1.36 2014/09/14 10:43:26 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -159,8 +159,7 @@ $Id: sect_foreword.xsl,v 1.35 2014/09/04 23:42:11 thomasrthurman Exp $
 
       <xsl:otherwise>
         <!-- cancelled -->
-        This <xsl:value-of select="$this_edition"/> edition of 
-        <xsl:value-of select="$part_no"/> cancels and replaces the
+        This <xsl:value-of select="$this_edition"/> edition cancels and replaces the
         <xsl:value-of select="@previous.revision.year"/> edition
           (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
         which has been technically revised.        
@@ -450,8 +449,7 @@ $Id: sect_foreword.xsl,v 1.35 2014/09/04 23:42:11 thomasrthurman Exp $
 
 	    <xsl:otherwise>
 	      <!-- cancelled -->
-	      This <xsl:value-of select="$this_edition"/> edition of
-	      <xsl:value-of select="$part_no"/> cancels and replaces the
+	      This <xsl:value-of select="$this_edition"/> edition cancels and replaces the
           <xsl:value-of select="$prev_edition"/> edition
           (<xsl:value-of select="$part_no"/>:<xsl:value-of select="@previous.revision.year"/>),
 	      which has been technically revised.	      
@@ -695,7 +693,7 @@ $Id: sect_foreword.xsl,v 1.35 2014/09/04 23:42:11 thomasrthurman Exp $
   <p>
 	The International Organization for Standardization (ISO) [and/or] International
 	Electrotechnical Commission (IEC) draws attention to the fact that it is claimed that compliance with this document may involve 
-	the use of a patent concerning <xsl:value-of select="./subject"/> given in <xsl:value-of select="./clause" />.
+	the use of patents.
   </p>
   <p>
 	ISO take no position concerning the evidence, validity and scope of this patent right.

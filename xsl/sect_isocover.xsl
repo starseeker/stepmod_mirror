@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.25 2014/06/13 13:00:00 nigelshaw Exp $
+$Id: sect_isocover.xsl,v 1.26 2014/09/05 08:20:56 nigelshaw Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -612,7 +612,7 @@ $Id: sect_isocover.xsl,v 1.25 2014/06/13 13:00:00 nigelshaw Exp $
   <xsl:template match="business_object_model" mode="display_name_french">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space(@name.french))=0">
-        Modèle métier:
+        Modèle d'objet d'affaire:
         <xsl:choose>
           <xsl:when test="$ERROR_CHECK_ISOCOVER='YES'">
             <xsl:call-template name="error_message">
@@ -629,7 +629,7 @@ $Id: sect_isocover.xsl,v 1.25 2014/06/13 13:00:00 nigelshaw Exp $
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        Modèle métier: 
+        Modèle d'objet d'affaire: 
         <xsl:call-template name="business_object_model_display_name">
           <xsl:with-param name="model" select="@name.french"/>
           </xsl:call-template>        

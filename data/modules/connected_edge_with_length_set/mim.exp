@@ -1,0 +1,40 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- connected_edge_with_length_set - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Connected_edge_with_length_set_mim;
+
+USE FROM elemental_topology_mim;
+USE FROM product_property_representation_schema(shape_representation);
+
+
+ENTITY edge_with_length
+  SUBTYPE OF (edge);
+  edge_length : positive_length_measure ;
+END_ENTITY;
+
+ENTITY vertex_on_edge
+  SUBTYPE OF (vertex);
+  parent_edge : edge_with_length;
+  distance_from_start: positive_length_measure ;
+  WHERE
+    WR1: distance_from_start < parent_edge.edge_length;
+END_ENTITY;
+
+(* A connected_edge_with_length_set_representation is a type of shape_representation that contains one connected_edge_set whose edges are all of type edge_with_length, and paths along these edges. In addition vertex_on_edges can be defined on the edges of the connected_edge_set that can be used by subedges and used for the paths. *)
+ENTITY connected_edge_with_length_set_representation
+  SUBTYPE OF (shape_representation);
+WHERE
+  -- WR1: The items in a connected_edge_with_length_set_representation shall be connected_edge_set, a path or a vertex_on_edge.
+  WR1: SIZEOF ( QUERY ( it <* SELF.items| NOT ( SIZEOF ([ 'CONNECTED_EDGE_WITH_LENGTH_SET.CONNECTED_EDGE_SET', 'CONNECTED_EDGE_WITH_LENGTH_SET.PATH', 'CONNECTED_EDGE_WITH_LENGTH_SET.VERTEX_ON_EDGE'] * TYPEOF (it)) = 1) )) = 0;
+  -- WR2: A connected_edge_with_length_set_representation shall contain exactly one connected_edge_set.
+  WR2: SIZEOF ( QUERY ( it <* SELF.items| ( SIZEOF ([ 'CONNECTED_EDGE_WITH_LENGTH_SET.CONNECTED_EDGE_SET'] * TYPEOF (it)) = 1) )) = 1;
+  -- WR3: Every edge in the connected_edge_set shall be an edge_with_length.
+  -- WR3: SIZEOF ( QUERY ( ebwm <* QUERY ( it <* SELF.items| ('CONNECTED_EDGE_WITH_LENGTH_SET.CONNECTED_EDGE_SET' IN TYPEOF (it)) )| NOT ( SIZEOF ( SIZEOF ( QUERY ( edges <* eb.ces_edges| NOT ('CONNECTED_EDGE_WITH_LENGTH_SET.EDGE_WITH_LENGTH' IN TYPEOF (edges)) )) = 0) )) = 0;
+  -- WR4: All edges used by the paths of a connected_edge_with_length_set_representation shall be of type oriented_edge, subedge or shall be part of the connected_edge_set.
+  -- WR4: TBD;
+  -- The connected_edge_with_length_set_representation shall not have geometric_representation_context
+  WR5: NOT ('CONNECTED_EDGE_WITH_LENGTH_SET.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.context_of_items));
+END_ENTITY;
+
+END_SCHEMA;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="connected_edge_with_length_set_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Connected_edge_with_length_set_mim">
+      <interface kind="use" schema="Elemental_topology_mim"/>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation"/>
+      </interface>
+      <entity name="connected_edge_with_length_set_representation" supertypes="shape_representation">
+         <where expression="SIZEOF ( QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'CONNECTED_EDGE_WITH_LENGTH_SET.CONNECTED_EDGE_SET', 'CONNECTED_EDGE_WITH_LENGTH_SET.PATH', 'CONNECTED_EDGE_WITH_LENGTH_SET.VERTEX_ON_EDGE'] * TYPEOF (it)) = 1) )) = 0" label="WR1"/>
+         <where expression="SIZEOF ( QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'CONNECTED_EDGE_WITH_LENGTH_SET.CONNECTED_EDGE_SET'] * TYPEOF (it)) = 1) )) = 1" label="WR2"/>
+         <where expression="NOT ('CONNECTED_EDGE_WITH_LENGTH_SET.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.context_of_items))" label="WR5"/>
+      </entity>
+      <entity name="edge_with_length" supertypes="edge">
+         <explicit name="edge_length">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="vertex_on_edge" supertypes="vertex">
+         <explicit name="parent_edge">
+            <typename name="edge_with_length"/>
+         </explicit>
+         <explicit name="distance_from_start">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <where expression="distance_from_start &lt; parent_edge.edge_length" label="WR1"/>
+      </entity>
+   </schema>
+</express>

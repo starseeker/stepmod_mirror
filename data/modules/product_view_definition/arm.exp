@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.8 2006/03/24 19:03:52 thendrix Exp $
+ $Id: arm.exp,v 1.9 2015/03/14 14:34:52 lothartklein Exp $
  ISO TC184/SC4/WG12 N4351 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1532
 *)
@@ -10,7 +10,7 @@ USE FROM Product_version_arm;
 USE FROM Shape_property_assignment_arm;
 
 TYPE product_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
-  unspecified ); 
+  unspecified, nominal_shape ); 
 END_TYPE;
                 
 ENTITY Product_view_definition;
@@ -21,11 +21,12 @@ ENTITY Product_view_definition;
   additional_contexts   : SET [0:?] OF View_definition_context;
   defined_version  	: Product_version;
   shape_type : OPTIONAL product_shape_type_enumeration;
-  shape_id : OPTIONAL STRING;
-  shape_description : OPTIONAL STRING;
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
 WHERE
   WR1: NOT (initial_context IN additional_contexts);
   WR2: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+  WR3: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
    
 ENTITY View_definition_context;

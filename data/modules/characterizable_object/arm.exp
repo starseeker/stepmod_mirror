@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.8 2009/12/21 15:19:48 liutkuviene Exp $
+   $Id: arm.exp,v 1.9 2015/03/14 14:34:44 lothartklein Exp $
    ISO TC184/SC4/WG12 N6884 - ISO/TS 10303-1765 Characterizable object - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4296
 *)
 
 SCHEMA Characterizable_object_arm;
 
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Support_resource_arm;
 
 TYPE characterizable_object_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
@@ -16,8 +17,10 @@ ENTITY Characterizable_object;
   name : label;
   description : OPTIONAL text;
   shape_type : OPTIONAL characterizable_object_shape_type_enumeration;
-  shape_id : OPTIONAL STRING;
-  shape_description : OPTIONAL STRING; 
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
+WHERE
+  WR1: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
 
 END_SCHEMA;

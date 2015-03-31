@@ -1,5 +1,5 @@
-(*
-   $Id: arm.exp,v 1.4 2012/07/26 11:38:15 lothartklein Exp $
+(* Updated March 2015 with curved triangle additions
+   $Id: arm.exp,v 1.5 2012/10/06 20:09:56 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7666 - ISO/CD-TS 10303-1819 Tessellated geometry - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7641
 *)
@@ -122,12 +122,14 @@ END_ENTITY;
 
  
  ENTITY Tessellated_edge
+    SUPERTYPE OF (ONEOF (Tessellated_connecting_edge,     
+                       Cubic_bezier_tessellated_edge))
     SUBTYPE OF (Tessellated_structured_item);
     coordinates: coordinates_list;
     geometric_link: OPTIONAL edge_or_curve;
     line_strip : LIST [2:?] OF INTEGER;
  END_ENTITY;
- 
+  
  ENTITY Tessellated_connecting_edge
     SUBTYPE OF (Tessellated_edge);
     smooth: LOGICAL;
@@ -140,6 +142,19 @@ END_ENTITY;
    WR2:  SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip);
  END_ENTITY;
  
+  ENTITY Cubic_bezier_tessellated_edge
+    SUBTYPE OF (Tessellated_edge);
+     SELF\Tessellated_edge.line_strip: LIST[4:?] OF INTEGER;
+ END_ENTITY;
+  
+  
+  ENTITY Cubic_tessellated_connecting_edge
+    SUBTYPE OF (Cubic_bezier_tessellated_edge);
+    smooth : LOGICAL;
+    face1 : Cubic_bezier_triangulated_face;
+    face2 : Cubic_bezier_triangulated_face;
+ END_ENTITY;
+
  ENTITY Tessellated_point_set
     SUBTYPE OF (Tessellated_item);
     coordinates: coordinates_list;
@@ -187,7 +202,7 @@ END_ENTITY;
  
  
  ENTITY Tessellated_face
-   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_face, Complex_triangulated_face)) 
+   ABSTRACT SUPERTYPE OF (ONEOF(Triangulated_face, Complex_triangulated_face, Cubic_bezier_triangulated_face)) 
    SUBTYPE OF (Tessellated_structured_item);
     coordinates : coordinates_list;
     pnmax : INTEGER;
@@ -216,6 +231,13 @@ END_ENTITY;
      WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\Tessellated_face.pnmax <> coordinates.npoints));
      WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
  END_ENTITY; 
+
+ ENTITY Cubic_bezier_triangulated_face
+   SUBTYPE OF (Tessellated_face);
+     ctriangles : LIST[1: ?] OF LIST [10: 10] OF INTEGER;
+   WHERE
+        WR1: SIZEOF( SELF\Tessellated_face.normals) = 0;
+END_ENTITY;
  
  
  ENTITY Coordinates_list

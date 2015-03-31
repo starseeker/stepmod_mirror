@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2012/07/26 11:38:15 $" rcs.revision="$Revision: 1.2 $" reference="">
    <application name="JSDAI" owner="LKSoft" source="tessellated_geometry_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Tessellated_geometry_arm">
       <interface kind="use" schema="Advanced_boundary_representation_arm"/>
@@ -80,7 +80,33 @@
          <where expression="npoints = SIZEOF(position_coords)" label="WR1"/>
          <where expression="SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0" label="WR2"/>
       </entity>
-      <entity name="Repositioned_tessellated_item" supertypes="Tessellated_item">
+       <entity name="Cubic_bezier_triangulated_face" supertypes="Tessellated_face">
+                          <explicit name="ctriangles">
+                         <aggregate lower="1" type="LIST" upper="?"/>
+                         <aggregate lower="10" type="LIST" upper="10"/>
+                         <builtintype type="INTEGER"/>
+                      </explicit>
+                      <where expression="SIZEOF( SELF\Tessellated_face.normals) = 0" label="WR1"/>
+                    </entity> 
+         <entity name="Cubic_bezier_tessellated_edge" supertypes="Tessellated_edge">
+                     <explicit name="line_strip">
+      				  <aggregate lower="4" type="LIST" upper="?" />
+      		                  <builtintype type="INTEGER"/>
+      		      <redeclaration entity-ref="Tessellated_edge" />
+                      </explicit> 
+             </entity>  
+     <entity name="Cubic_tessellated_connecting_edge" supertypes="Tessellated_edge">
+                             <explicit name="smooth">
+                                <builtintype type="LOGICAL"/>
+                             </explicit>
+                             <explicit name="face1">
+                                <typename name="Cubic_bezier_tessellated_face"/>
+                             </explicit>
+                             <explicit name="face2">
+                                <typename name="Cubic_bezier_tessellated_face"/>
+                             </explicit>
+         </entity>
+         <entity name="Repositioned_tessellated_item" supertypes="Tessellated_item">
          <explicit name="location">
             <typename name="Axis_placement_3d"/>
          </explicit>
@@ -92,27 +118,29 @@
             <redeclaration entity-ref="Styled_element"/>
          </explicit>
       </entity>
-      <entity name="Tessellated_connecting_edge" supertypes="Tessellated_edge">
-         <explicit name="smooth">
-            <builtintype type="LOGICAL"/>
-         </explicit>
-         <explicit name="face1">
-            <typename name="Tessellated_face"/>
-         </explicit>
-         <explicit name="face2">
-            <typename name="Tessellated_face"/>
-         </explicit>
-         <explicit name="line_strip_face1">
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
-         </explicit>
-         <explicit name="line_strip_face2">
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
-         </explicit>
-         <where expression="SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2)" label="WR1"/>
-         <where expression="SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip)" label="WR2"/>
-      </entity>
+ <entity name="Tessellated_connecting_edge" supertypes="Tessellated_edge">
+                <explicit name="smooth">
+                   <builtintype type="LOGICAL"/>
+                </explicit>
+                <explicit name="face1">
+                   <typename name="Tessellated_face"/>
+                </explicit>
+                <explicit name="face2">
+                   <typename name="Tessellated_face"/>
+                </explicit>
+                <explicit name="line_strip_face1">
+                   <aggregate lower="2" type="LIST" upper="?"/>
+                   <builtintype type="INTEGER"/>
+                </explicit>
+                <explicit name="line_strip_face2">
+                   <aggregate lower="2" type="LIST" upper="?"/>
+                   <builtintype type="INTEGER"/>
+                </explicit>
+                <where expression="SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2)" label="WR1"/>
+                <where expression="SIZEOF(line_strip_face1) = SIZEOF(SELF\Tessellated_edge.line_strip)" label="WR2"/>
+                <where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face1))" label="WR3"/>
+	 	<where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face2))" label="WR4"/>
+        </entity>
       <entity name="Tessellated_curve_set" supertypes="Tessellated_item">
          <explicit name="coordinates">
             <typename name="Coordinates_list"/>
@@ -123,7 +151,8 @@
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
-      <entity name="Tessellated_edge" supertypes="Tessellated_structured_item">
+     <entity name="Tessellated_edge" super.expression="ONEOF (Cubic_bezier_tessellated_edge, Tessellated_connecting_edge)"
+      supertypes="Tessellated_structured_item">
          <explicit name="coordinates">
             <typename name="Coordinates_list"/>
          </explicit>
@@ -135,7 +164,8 @@
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Tessellated_face" super.expression="ONEOF (Triangulated_face, Complex_triangulated_face)" supertypes="Tessellated_structured_item">
+      <entity abstract.supertype="YES" name="Tessellated_face" super.expression="ONEOF (Triangulated_face, Complex_triangulated_face, Cubic_bezier_triangulated_face)" 
+      supertypes="Tessellated_structured_item">
          <explicit name="coordinates">
             <typename name="Coordinates_list"/>
          </explicit>

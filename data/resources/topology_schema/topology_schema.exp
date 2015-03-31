@@ -1,5 +1,5 @@
 (*
-   $Id: topology_schema.exp,v 1.10 2014/11/12 18:05:33 thomasrthurman Exp $
+   $Id: topology_schema.exp,v 1.11 2014/11/12 18:26:16 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N8381
 
 EXPRESS Source:
@@ -31,6 +31,7 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topology_schema(2)}';
    REFERENCE FROM geometry_schema;
    REFERENCE FROM representation_schema(representation_item);
+   REFERENCE FROM measure_schema(positive_length_measure);
 
  CONSTANT
     dummy_tri : topological_representation_item := representation_item('')||
@@ -99,10 +100,15 @@ SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topol
 
  
  ENTITY edge
-   SUPERTYPE OF(ONEOF(edge_curve, oriented_edge, subedge))
+   SUPERTYPE OF(ONEOF(edge_curve, edge_with_length, oriented_edge, subedge))
    SUBTYPE OF (topological_representation_item);
    edge_start : vertex;
    edge_end   : vertex;
+ END_ENTITY;
+
+ ENTITY edge_with_length
+   SUBTYPE OF (edge);
+   edge_length : positive_length_measure;
  END_ENTITY;
 
  ENTITY edge_curve
@@ -277,7 +283,16 @@ SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topol
 
 
  ENTITY vertex
+   SUPERTYPE OF (ONEOF(vertex_point, vertex_on_edge))
    SUBTYPE OF (topological_representation_item);
+ END_ENTITY;
+
+ ENTITY vertex_on_edge
+   SUBTYPE OF (vertex);
+   parent_edge : edge_with_length;
+   distance_from_start: positive_length_measure ;
+   WHERE
+     WR1: distance_from_start < parent_edge.edge_length;
  END_ENTITY;
 
  ENTITY vertex_point

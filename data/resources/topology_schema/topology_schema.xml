@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <!-- re-ordered entities logically + added IPS February 2012 RJG  -->
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2012/03/14 11:32:45 $" rcs.revision="$Revision: 1.10 $" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2014/11/12 18:05:33 $" rcs.revision="$Revision: 1.11 $" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="topology_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="topology_schema">
       <interface kind="reference" schema="geometry_schema"/>
@@ -46,6 +46,25 @@
           </entity>
           
         <entity
+            name="vertex_on_edge"
+            supertypes="vertex">
+            <explicit
+              name="parent_edge">
+              <typename
+                name="edge_with_length"/>
+            </explicit>
+            <explicit
+	                  name="distance_from_start">
+	                  <typename
+	                    name="positive_length_measure"/>
+            </explicit>
+            
+            <where  label="WR1"
+            expression="distance_from_start &lt; parent_edge.edge_length">
+             </where>
+          </entity>
+  
+        <entity
             name="vertex_point"
             supertypes="vertex geometric_representation_item">
             <explicit
@@ -56,24 +75,35 @@
             <where  label="IP1"/>
           </entity>
       
-       <entity
-            name="edge"
-            super.expression="ONEOF(edge_curve, oriented_edge, subedge)"
-            supertypes="topological_representation_item">
+        <entity
+                   name="edge"
+                   super.expression="ONEOF(edge_curve, edge_with_length, oriented_edge, subedge)"
+                   supertypes="topological_representation_item">
+                   <explicit
+                     name="edge_start">
+                     <typename
+                       name="vertex"/>
+                   </explicit>
+                   <explicit
+                     name="edge_end">
+                     <typename
+                       name="vertex"/>
+                   </explicit>
+                   <where  label="IP1"/>
+                   <where  label="IP2"/>
+          </entity> 
+        
+        <entity
+            name="edge_with_length"
+            supertypes="edge">
             <explicit
-              name="edge_start">
+              name="edge_length">
               <typename
-                name="vertex"/>
-            </explicit>
-            <explicit
-              name="edge_end">
-              <typename
-                name="vertex"/>
+                name="positive_length_measure"/>
             </explicit>
             <where  label="IP1"/>
-            <where  label="IP2"/>
-          </entity>   
-          
+        </entity>  
+       
        <entity
              name="edge_curve"
              supertypes="edge geometric_representation_item">

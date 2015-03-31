@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.36 2014/09/14 10:43:26 nigelshaw Exp $
+$Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -505,7 +505,7 @@ $Id: sect_foreword.xsl,v 1.36 2014/09/14 10:43:26 nigelshaw Exp $
     </xsl:if>
 
     <xsl:if test="./patent.inc" >
-	    <xsl:variable name="patents" select="document('../data/basic/patents.xml')/patent.list" />
+	    <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
 	  <xsl:apply-templates select="./patent.inc" mode="foreword" />
 	    <p>
 	  Attention is drawn to the possibility that some of the elements of this document may be the 
@@ -684,6 +684,7 @@ $Id: sect_foreword.xsl,v 1.36 2014/09/14 10:43:26 nigelshaw Exp $
 
 
  <xsl:template match="patent.inc" mode="foreword">
+   
 	 <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
 	 <xsl:variable name="thispat" select="@ref" />
 	 <xsl:apply-templates select="$patents/patent[@id=$thispat]" mode="foreword" />

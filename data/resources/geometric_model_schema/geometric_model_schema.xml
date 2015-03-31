@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2012/07/31 13:12:45 $" rcs.revision="$Revision: 1.10 $" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2012/09/08 11:59:57 $" rcs.revision="$Revision: 1.12 $" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="geometric_model_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="geometric_model_schema">
       <interface kind="reference" schema="geometry_schema"/>
@@ -663,7 +663,8 @@
                    <builtintype type="INTEGER"/>
                 </explicit>
              </entity>      
-       <entity name="tessellated_edge" supertypes="tessellated_structured_item">
+       <entity name="tessellated_edge" super.expression="ONEOF (cubic_bezier_tessellated_edge, tessellated_connecting_edge)" 
+       supertypes="tessellated_structured_item">
                 <explicit name="coordinates">
                    <typename name="coordinates_list"/>
                 </explicit>
@@ -675,7 +676,7 @@
                    <builtintype type="INTEGER"/>
                 </explicit>
              </entity>
-        <entity name="tessellated_connecting_edge" supertypes="tessellated_edge">
+       <entity name="tessellated_connecting_edge" supertypes="tessellated_edge">
                 <explicit name="smooth">
                    <builtintype type="LOGICAL"/>
                 </explicit>
@@ -695,23 +696,44 @@
                 </explicit>
                 <where expression="SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2)" label="WR1"/>
                 <where expression="SIZEOF(line_strip_face1) = SIZEOF(SELF\tessellated_edge.line_strip)" label="WR2"/>
-             </entity>
-       <entity abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face)" supertypes="tessellated_structured_item">
-                <explicit name="coordinates">
-                   <typename name="coordinates_list"/>
-                </explicit>
-                <explicit name="pnmax">
-                   <builtintype type="INTEGER"/>
-                </explicit>
-                <explicit name="normals">
-                   <aggregate lower="0" type="LIST" upper="?"/>
-                   <aggregate lower="3" type="LIST" upper="3"/>
-                   <builtintype type="REAL"/>
-                </explicit>
-                <explicit name="geometric_link" optional="YES">
-                   <typename name="face_or_surface"/>
-                </explicit>
-                <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
+                <where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face1))" label="WR3"/>
+	 	<where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face2))" label="WR4"/>
+        </entity>
+        <entity name="cubic_bezier_tessellated_edge" supertypes="tessellated_edge">
+               <explicit name="line_strip">
+				  <aggregate lower="4" type="LIST" upper="?" />
+		                  <builtintype type="INTEGER"/>
+		      <redeclaration entity-ref="tessellated_edge" />
+                </explicit> 
+       </entity>
+         <entity name="cubic_tessellated_connecting_edge" supertypes="cubic_bezier_tessellated_edge">
+                       <explicit name="smooth">
+                          <builtintype type="LOGICAL"/>
+                       </explicit>
+                       <explicit name="face1">
+                          <typename name="cubic_bezier_tessellated_face"/>
+                       </explicit>
+                       <explicit name="face2">
+                          <typename name="cubic_bezier_tessellated_face"/>
+                       </explicit>
+         </entity>
+      <entity abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face, cubic_bezier_triangulated_face)" 
+                 supertypes="tessellated_structured_item">
+                    <explicit name="coordinates">
+                       <typename name="coordinates_list"/>
+                    </explicit>
+                    <explicit name="pnmax">
+                       <builtintype type="INTEGER"/>
+                    </explicit>
+                    <explicit name="normals">
+                       <aggregate lower="0" type="LIST" upper="?"/>
+                       <aggregate lower="3" type="LIST" upper="3"/>
+                       <builtintype type="REAL"/>
+                    </explicit>
+                    <explicit name="geometric_link" optional="YES">
+                       <typename name="face_or_surface"/>
+                    </explicit>
+                    <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
              </entity>
        <entity name="triangulated_face" supertypes="tessellated_face">
                 <explicit name="pnindex">
@@ -745,7 +767,15 @@
                 <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
                 <where expression="NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0))" label="WR3"/>
              </entity>      
-       <entity name="tessellated_solid" supertypes="tessellated_item">
+          <entity name="cubic_bezier_triangulated_face" supertypes="tessellated_face">
+                    <explicit name="ctriangles">
+                   <aggregate lower="1" type="LIST" upper="?"/>
+                   <aggregate lower="10" type="LIST" upper="10"/>
+                   <builtintype type="INTEGER"/>
+                </explicit>
+                <where expression="SIZEOF( SELF\tessellated_face.normals) = 0" label="WR1"/>
+              </entity> 
+        <entity name="tessellated_solid" supertypes="tessellated_item">
                 <explicit name="items">
                    <aggregate lower="1" type="SET" upper="?"/>
                    <typename name="tessellated_structured_item"/>

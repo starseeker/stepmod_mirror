@@ -1,5 +1,5 @@
-(*
-$Id: geometric_model_schema.exp,v 1.11 2012/07/31 13:12:45 Exp $
+(* Updated March 2015 with curved triangle additions to tesselated geometry
+$Id: geometric_model_schema.exp,v 1.12 2014/03/04 00:30:37 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N7627
 
 EXPRESS Source:
@@ -606,11 +606,14 @@ ENTITY tessellated_vertex
 END_ENTITY;
 
 ENTITY tessellated_edge
+  SUPERTYPE OF (ONEOF (tessellated_connecting_edge,     
+                       cubic_bezier_tessellated_edge))
   SUBTYPE OF (tessellated_structured_item);
   coordinates : coordinates_list;
   geometric_link : OPTIONAL edge_or_curve;
   line_strip : LIST[2:?] OF INTEGER;
 END_ENTITY;
+
 
 ENTITY tessellated_connecting_edge
   SUBTYPE OF (tessellated_edge);
@@ -622,11 +625,26 @@ ENTITY tessellated_connecting_edge
 WHERE
   WR1: SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2);
   WR2: SIZEOF(line_strip_face1) = SIZEOF(SELF\tessellated_edge.line_strip);
+  WR3: NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face1));
+  WR4: NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face2));
+END_ENTITY;
+
+ENTITY cubic_bezier_tessellated_edge
+  SUBTYPE OF (tessellated_edge);
+   SELF\tessellated_edge.line_strip: LIST[4:?] OF INTEGER;
+END_ENTITY;
+
+ENTITY cubic_tessellated_connecting_edge
+  SUBTYPE OF (cubic_bezier_tessellated_edge);
+  smooth : LOGICAL;
+  face1 : cubic_bezier_triangulated_face;
+  face2 : cubic_bezier_triangulated_face;
 END_ENTITY;
 
 ENTITY tessellated_face
   ABSTRACT SUPERTYPE OF (ONEOF (triangulated_face,
-                                complex_triangulated_face))
+                                complex_triangulated_face,
+                                cubic_bezier_triangulated_face))
   SUBTYPE OF (tessellated_structured_item);
   coordinates : coordinates_list;
   pnmax : INTEGER;
@@ -654,6 +672,13 @@ WHERE
   WR1: ((SIZEOF(pnindex) = 0) OR (SIZEOF(pnindex) = SELF\tessellated_face.pnmax));
   WR2: NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax <> coordinates.npoints));
   WR3: NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0));
+END_ENTITY;
+
+ENTITY cubic_bezier_triangulated_face
+  SUBTYPE OF (tessellated_face);
+    ctriangles : LIST[1: ?] OF LIST [10: 10] OF INTEGER;
+  WHERE
+       WR1: SIZEOF( SELF\tessellated_face.normals) = 0;
 END_ENTITY;
 
 ENTITY tessellated_solid

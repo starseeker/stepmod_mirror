@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.29 2010/10/20 07:44:26 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.30 2014/09/05 00:15:37 thomasrthurman Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
   <xsl:import href="common.xsl"/>
   <xsl:output method="html"/>
-
-  <xsl:template match="module"/>
+  <xsl:strip-space elements="*"/>
+ 
 		
   <xsl:template match="application_protocol">
     <xsl:apply-templates select="purpose"/>
@@ -247,12 +247,80 @@
       </xsl:call-template>    
     </xsl:if>
     
+   
+    
     <!-- display content of purpose element-->
     <xsl:apply-templates/>
+    
+    
+    <!-- Added 2015-03-31 MWD -->
+    <xsl:if test="../patent.inc" >
+      <!-- Added 2015-03-31 MWD -->
+      <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
+      <!-- Added 2015-03-31 MWD -->
+      <p>The International Organization for Standardization (ISO) draws attention to the fact that it is claimed that compliance with this document may involve the use of patents. </p>
+      <!-- Added 2015-03-31 MWD -->
+      <xsl:apply-templates select="../patent.inc" mode="introduction" />
+      <!-- deleted  2015-03-31 MWD
+        <p>
+        Attention is drawn to the possibility that some of the elements of this document may be the 
+        subject of patent rights other than those identified above. ISO 
+        shall not be held responsible for identifying any or all such patent rights.
+        </p>-->
+      <!-- Added 2015-03-31 MWD -->
+    </xsl:if>
 
     <!-- display the change summary -->
     <xsl:apply-templates select="/application_protocol/changes/change_summary" mode="introduction"/>
-</xsl:template>
+  </xsl:template>
+  
+  <!-- Added 2015-03-31 MWD -->
+  <xsl:template match="patent.inc" mode="introduction">
+    <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
+    <xsl:variable name="thispat" select="@ref" />
+    <xsl:apply-templates select="$patents/patent[@id=$thispat]" mode="introduction" />
+  </xsl:template>
+  
+  <!-- Added 2015-03-31 MWD -->
+  <xsl:template match="patent" mode="introduction">
+    <!-- deleted  2015-03-31 MWD
+      <p>
+      The International Organization for Standardization (ISO) [and/or] International
+      Electrotechnical Commission (IEC) draws attention to the fact that it is claimed that compliance with this document may involve 
+      the use of patents.
+      </p>
+      <p>
+      ISO take no position concerning the evidence, validity and scope of this patent right.
+      The holder of this patent right has assured the ISO that he/she is willing to negotiate licences under reasonable 
+      and non-discriminatory terms and conditions with applicants throughout the world. 
+      In this respect, the statement of the holder of this patent right is registered with ISO. 
+      Information may be obtained from:<br/>
+      <xsl:value-of select="./patentref/holder" /> <br/>
+      <xsl:value-of select="./patentref/address" />
+      </p>-->
+    <!-- Added 2015-03-31 MWD -->
+    <blockquote>
+      ISO takes no position concerning the evidence, validity and scope of these patent rights.<br/>
+      The holder of these patent rights has assured the ISO that he/she is willing to negotiate licences either free of charge or under reasonable 
+      and non-discriminatory terms and conditions with applicants throughout the world.
+      In this respect, the statement of the holder of these patent rights is registered with ISO. Information may be obtained from:<br/>
+      <xsl:value-of select="./patentref/holder" /><br/>
+      <!--<xsl:value-of select="./patentref/address"/>-->
+      <xsl:apply-templates select="./patentref/address" mode="introduction" />
+    </blockquote>
+  </xsl:template>
+  
+  <!-- Added 2015-03-31 MWD -->
+  <xsl:template match="address" mode="introduction">
+    <xsl:apply-templates select="./address.line" mode="introduction"/>
+  </xsl:template>
+  
+  <!-- Added 2015-03-31 MWD -->
+  <xsl:template match="address.line" mode="introduction">
+    <xsl:value-of select="."/><br/>
+  </xsl:template>
+  
+ 
 
 
   <xsl:template match="imgfile" mode="data_plan_figures">

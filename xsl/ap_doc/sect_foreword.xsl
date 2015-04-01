@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
+$Id: sect_foreword.xsl,v 1.38 2015/03/31 17:57:27 mikeward Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -503,8 +503,9 @@ $Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
       <xsl:value-of select="$part_no"/> is based upon version <xsl:value-of select="$SMRL_version"/> of the STEP Module and Resource Library (SMRLv<xsl:value-of select="$SMRL_version"/>).
     </p>
     </xsl:if>
-
-    <xsl:if test="./patent.inc" >
+    
+    <!-- removed 2015-03-32 MWD -->
+    <!--<xsl:if test="./patent.inc" >
 	    <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
 	  <xsl:apply-templates select="./patent.inc" mode="foreword" />
 	    <p>
@@ -512,8 +513,7 @@ $Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
 	  subject of patent rights other than those identified above. ISO 
 	  shall not be held responsible for identifying any or all such patent rights.
   </p>
-	
-   </xsl:if>
+   </xsl:if>-->
     
   <p>
     ISO 10303 is organized as a series of parts, each published
@@ -682,9 +682,8 @@ $Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
     </xsl:choose>
   </xsl:template>
 
-
- <xsl:template match="patent.inc" mode="foreword">
-   
+  <!-- removed 2015-04-01 MWD -->
+ <!--<xsl:template match="patent.inc" mode="foreword">
 	 <xsl:variable name="patents" select="document('../../data/basic/patents.xml')/patent.list" />
 	 <xsl:variable name="thispat" select="@ref" />
 	 <xsl:apply-templates select="$patents/patent[@id=$thispat]" mode="foreword" />
@@ -705,5 +704,5 @@ $Id: sect_foreword.xsl,v 1.37 2015/03/23 21:28:16 thomasrthurman Exp $
 	<xsl:value-of select="./patentref/holder" /> <br/>
 	<xsl:value-of select="./patentref/address" />
   </p>
- </xsl:template>
+ </xsl:template>-->
 </xsl:stylesheet>

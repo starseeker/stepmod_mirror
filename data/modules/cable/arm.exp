@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2012/10/11 05:49:12 liutkuviene Exp $
+   $Id: arm.exp,v 1.30 2015/03/27 12:27:27 lothartklein Exp $
    ISO TC184/SC4/WG12 N8119 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7523
 *)
@@ -31,13 +31,13 @@ END_ENTITY;
 
 ENTITY Cable_component_terminal
   SUBTYPE OF (Derived_component_terminal);
-  SELF\Component_feature.location_group : Cable_component_terminal_location_group; 
+  SELF\Component_feature.location_group : Component_feature_location_group_identification; 
   SELF\Derived_component_terminal.derived_from : Wire_identification;
 DERIVE
   SELF\Component_feature.associated_component : Cable_component := SELF\Component_feature.location_group.associated_component;
 END_ENTITY;
 
-ENTITY Cable_component_terminal_location_group
+ENTITY Component_feature_location_group_identification
   SUBTYPE OF (Component_feature_location_group);
   SELF\Component_feature.associated_component : Cable_component;
 INVERSE
@@ -47,11 +47,11 @@ END_ENTITY;
 ENTITY Cable_component
 	SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
 DERIVE 
-  ends_a : SET[1:1] OF Cable_component_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
-  ends_b : SET[1:1] OF Cable_component_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
-  intermediates : SET[0:?] OF Cable_component_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate ');
+  ends_a : SET[1:1] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
+  ends_b : SET[1:1] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
+  intermediates : SET[0:?] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate ');
 INVERSE
-  terminal_location_groups : SET OF Cable_component_terminal_location_group FOR associated_component;
+  terminal_location_groups : SET OF Component_feature_location_group_identification FOR associated_component;
 --  terminals : SET[1:?] OF Cable_component_terminal FOR associated_component;
 WHERE
   WR1: EXISTS(ends_a); -- derived attribute ends_a shall exisits

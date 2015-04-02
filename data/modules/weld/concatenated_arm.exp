@@ -612,7 +612,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Assembly_structure_arm
 (*
-   $Id: arm.exp,v 1.64 2014/11/17 23:24:19 thomasrthurman Exp $
+   $Id: arm.exp,v 1.63 2012/10/28 17:41:23 lothartklein Exp $
    ISO TC184/SC4/WG12 N7942 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7379
 *)
@@ -620,17 +620,16 @@ END_SCHEMA;  -- Assembly_structure_arm
 
 SCHEMA Assembly_technology_arm;
 --	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
---	USE FROM Component_feature_arm;
+	USE FROM Component_feature_arm;
 	USE FROM Requirement_assignment_arm;
 	USE FROM Physical_component_feature_arm;
-    USE FROM Generic_material_aspects_arm;
---	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 	USE FROM Product_view_definition_reference_arm;	-- ISO/TS 10303-1738
 
  	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
 		(Assembly_bond_definition);
 	END_TYPE;
-
 
 	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Assembly_bond_definition);
@@ -644,9 +643,9 @@ SCHEMA Assembly_technology_arm;
 	    (Assembly_joint);
 	END_TYPE;
 
-  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT
-     (General_part_feature);--added highest level part feature as default 
-    -- Physical_component_feature -- Connection_zone_in_layout_template,
+  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Physical_component_feature); -- added anew
+    -- Connection_zone_in_layout_template,
     -- Connection_zone_in_usage_view,
     -- Default_attachment_size_based_land_physical_template,
     -- Feature_definition_with_connection_area,
@@ -671,9 +670,11 @@ SCHEMA Assembly_technology_arm;
   ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
       default_bond_definition : Assembly_bond_definition;
+(*
     WHERE
       WR1 : SELF\Assembly_joint.assembly_feature_1.definition :=: default_bond_definition.bonded_feature_1;
       WR2 : SELF\Assembly_joint.assembly_feature_2.definition :=: default_bond_definition.bonded_feature_2;
+*)
   END_ENTITY;
 
   ENTITY Assembled_with_fasteners
@@ -696,7 +697,6 @@ SCHEMA Assembly_technology_arm;
       UR2 : associated_definition;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
-(*
       WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
       WR3 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR
         ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)));
@@ -712,7 +712,6 @@ SCHEMA Assembly_technology_arm;
         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
         (bonded_feature_1)) OR
         ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));
-*)
   END_ENTITY;
 
   ENTITY Assembly_joint
@@ -2699,7 +2698,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (* 
-	$Id: arm.exp,v 1.31 2014/11/18 00:02:07 thomasrthurman Exp $
+	$Id: arm.exp,v 1.30 2013/11/24 15:22:30 thomasrthurman Exp $
 	ISO TC184/SC4/WG12 N8005 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7089
 *)
@@ -4361,12 +4360,10 @@ SCHEMA Interface_component_arm;
 
 	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
 
-(*
 	SUBTYPE_CONSTRAINT physical_component_feature_subtypes FOR Physical_component_feature;
 		(ONEOF (Physical_component_terminal,
 	 	Physical_component_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
-*)
 
   ENTITY Physical_component_interface_terminal
     ABSTRACT SUPERTYPE 
@@ -5596,8 +5593,7 @@ END_TYPE;
 ENTITY Gdt_representation_shape
   SUBTYPE OF (Nominal_3d_model_shape, Part_shape);
 WHERE
-  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts);
---  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(SELF\Item_shape.described_element\Product_view_definition.additional_contexts);
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(SELF\Item_shape.described_element\Product_view_definition.additional_contexts);
 END_ENTITY;
 
 ENTITY Nominal_3d_edge
@@ -6059,13 +6055,11 @@ SCHEMA Physical_component_feature_arm;
     SUBTYPE OF (Component_feature);
   END_ENTITY;
 
-(*
   ENTITY Physical_component_terminal
     SUBTYPE OF (Component_terminal,
  			Physical_component_feature);
       SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
   END_ENTITY;
-*)
 
 END_SCHEMA;
 (*
@@ -6617,8 +6611,7 @@ ENTITY Nominal_3d_model_shape
 DERIVE
    SELF\Associated_item_shape.associated_model : advanced_face_model := SELF\Associated_item_shape.association\Property_definition_representation.used_representation;
 WHERE
-  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.initial_context);
---  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(SELF\Item_shape.described_element\Product_view_definition.initial_context);
+  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(SELF\Item_shape.described_element\Product_view_definition.initial_context);
   WR2: EXISTS(associated_model);
 END_ENTITY;
 
@@ -7751,7 +7744,7 @@ END_ENTITY;
   
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.43 2014/11/17 23:51:21 thomasrthurman Exp $
+   $Id: arm.exp,v 1.42 2009/12/23 13:29:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N6935 - ISO/TS 10303-1747 Specification document - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5503
 *)

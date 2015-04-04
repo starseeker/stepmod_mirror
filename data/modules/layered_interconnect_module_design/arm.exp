@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.336 2012/10/11 05:49:05 liutkuviene Exp $
+   $Id: arm.exp,v 1.337 2015/03/14 14:34:15 lothartklein Exp $
    ISO TC184/SC4/WG12 N8170 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7565
 *)
@@ -260,8 +260,8 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
   ENTITY Conductive_interconnect_element_terminal
     SUBTYPE OF (Laminate_component_feature);
       SELF\Component_feature.associated_component : Conductive_interconnect_element;
-      SELF\Definitional_shape_element.connection_area          : OPTIONAL SET[1:1] OF Connection_zone_in_design_view;
-      location                                    : Layer_connection_point;
+      connection_area : OPTIONAL SET[1:1] OF Connection_zone_in_design_view; 
+      location : Layer_connection_point;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, SELF\Component_feature.associated_component;
     WHERE
@@ -945,14 +945,15 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Probe_access_area
     SUPERTYPE OF (Internal_probe_access_area)
-    SUBTYPE OF (Laminate_component, Definitional_shape_element);
+    SUBTYPE OF (Laminate_component, Shape_element);
     	SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
         probed_layout_item                                    : stratum_feature_or_stratum;
-        SELF\Definitional_shape_element.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
+        connection_area                                       : SET[1:1] OF Connection_zone_in_design_view;
     	stratum_feature_material_stackup                      : OPTIONAL Stratum_feature_based_derived_pattern;
     DERIVE
       SELF\Shape_element.containing_shape : Probe_access_area := SELF;
       SELF\Shape_element.element_name : STRING := '';      
+      SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
     INVERSE
       network : Routed_physical_network FOR probe;
     WHERE

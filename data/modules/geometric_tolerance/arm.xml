@@ -83,12 +83,14 @@
       <entity name="Between_shape_element" supertypes="Continuous_shape_element">
          <explicit name="start_features">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <explicit name="end_features">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
+         <where expression="SIZEOF(QUERY(s &lt;* start_features | NOT (s.product_definitional = TRUE))) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(s &lt;* end_features | NOT (s.product_definitional = TRUE))) = 0" label="WR2"/>
       </entity>
       <entity name="Circular_runout_tolerance" supertypes="Geometric_tolerance">
          <explicit name="angle" optional="YES">
@@ -108,7 +110,12 @@
             <typename name="Datum_system"/>
          </explicit>
       </entity>
-      <entity name="Contacting_feature" supertypes="Non_definitional_shape_element"/>
+      <entity name="Contacting_feature" supertypes="Shape_element">
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
       <entity name="Continuous_shape_element" super.expression="ONEOF (Between_shape_element, All_around_shape_element)" supertypes="Composite_shape_element"/>
       <entity name="Cylindricity_tolerance" supertypes="Geometric_tolerance"/>
       <entity name="Datum" supertypes="Shape_element">
@@ -116,10 +123,14 @@
             <typename name="identifier"/>
          </explicit>
       </entity>
-      <entity name="Datum_feature" super.expression="ONEOF (Dimensional_location_with_datum_feature, Dimensional_size_with_datum_feature)" supertypes="Definitional_shape_element">
+      <entity name="Datum_feature" super.expression="ONEOF (Dimensional_location_with_datum_feature, Dimensional_size_with_datum_feature)" supertypes="Shape_element">
          <explicit name="of_datum">
             <typename name="Datum"/>
          </explicit>
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute attribute="of_datum"/>
          </unique>
@@ -151,11 +162,15 @@
             <typename name="Length_data_element"/>
          </explicit>
       </entity>
-      <entity name="Datum_system" supertypes="Non_definitional_shape_element">
+      <entity name="Datum_system" supertypes="Shape_element">
          <explicit name="constituents">
             <aggregate lower="1" type="LIST" unique="YES" upper="3"/>
             <typename name="Datum_reference_compartment"/>
          </explicit>
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
       </entity>
       <entity name="Datum_system_with_associated_model_coordinate_system" supertypes="Axis_placement_shape_element Datum_system"/>
       <entity abstract.supertype="YES" name="Datum_target" super.expression="ONEOF (Placed_target, Target_area, Target_curve)" supertypes="Shape_element">
@@ -191,7 +206,7 @@
          </explicit>
       </entity>
       <entity name="Flatness_tolerance" supertypes="Geometric_tolerance"/>
-      <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Non_definitional_shape_element">
+      <entity abstract.supertype="YES" name="General_datum_reference" super.expression="ONEOF (Datum_reference_compartment, Datum_reference_element)" supertypes="Shape_element">
          <explicit name="base">
             <typename name="datum_or_common_datum"/>
          </explicit>
@@ -199,6 +214,10 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="datum_reference_modifier"/>
          </explicit>
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
       </entity>
       <entity abstract.supertype="YES" name="Geometric_tolerance" super.expression="ONEOF (Angularity_tolerance, Circular_runout_tolerance, Coaxiality_tolerance, Concentricity_tolerance, Cylindricity_tolerance, Flatness_tolerance, Line_profile_tolerance, Parallelism_tolerance, Perpendicularity_tolerance, Position_tolerance, Roundness_tolerance, Straightness_tolerance, Surface_profile_tolerance, Symmetry_tolerance, Total_runout_tolerance)">
          <explicit name="id" optional="YES">
@@ -414,8 +433,7 @@
       </entity>
       <subtype.constraint entity="Composite_shape_element" name="composite_shape_element_subtypes" super.expression="ONEOF (Continuous_shape_element, Composite_group_shape_element)"/>
       <subtype.constraint entity="Associated_shape_element" name="gl_associated_shape_element_subtypes" super.expression="ONEOF (Axis_placement_shape_element, Plane_shape_element, Point_shape_element)"/>
-      <subtype.constraint entity="Non_definitional_shape_element" name="gl_non_definitional_shape_element_subtypes" super.expression="ONEOF (Contacting_feature, Datum_system, General_datum_reference)"/>
-      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_target, Tolerance_zone)"/>
+      <subtype.constraint entity="Shape_element" name="gl_shape_element_subtypes" super.expression="ONEOF (Datum, Datum_feature, Datum_target, Tolerance_zone, Contacting_feature, Datum_system, General_datum_reference)"/>
       <function name="sts_get_general_datum_reference">
          <parameter name="input">
             <typename name="Datum_reference_element"/>

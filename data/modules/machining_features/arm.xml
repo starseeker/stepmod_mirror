@@ -37,6 +37,12 @@
       <type name="taper_select">
          <select selectitems="Angle_taper Diameter_taper Directed_taper"/>
       </type>
+      <type name="thread_hand">
+         <enumeration items="left right"/>
+      </type>
+      <type name="thread_side">
+         <enumeration items="internal external"/>
+      </type>
       <type name="volume_select">
          <select selectitems="Protrusion Boss"/>
       </type>
@@ -321,7 +327,7 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
       </entity>
-      <entity name="Direction_element" supertypes="Definitional_shape_element"/>
+      <entity name="Direction_element" supertypes="Shape_element"/>
       <entity name="Edge_round" supertypes="Transition_feature">
          <explicit name="edge_round_face">
             <typename name="Face_shape_element"/>
@@ -333,7 +339,12 @@
             <typename name="Face_shape_element"/>
          </explicit>
       </entity>
-      <entity name="Face_shape_element" supertypes="Definitional_shape_element"/>
+      <entity name="Face_shape_element" supertypes="Shape_element">
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
       <entity name="Face_shape_element_relationship" supertypes="Shape_element_relationship">
          <explicit name="relating">
             <typename name="Face_shape_element"/>
@@ -408,7 +419,7 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
          <explicit name="applied_shape">
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <explicit name="internal_or_external_gear">
             <builtintype type="BOOLEAN"/>
@@ -419,6 +430,7 @@
          <explicit name="root_fillet_radius" optional="YES">
             <typename name="Numerical_item_with_unit"/>
          </explicit>
+         <where expression="applied_shape.product_definitional = TRUE" label="WR1"/>
       </entity>
       <entity name="General_boss" supertypes="Boss">
          <explicit name="enclosed_boundary">
@@ -484,7 +496,7 @@
       <entity name="General_removal_volume" supertypes="Multi_axis_feature">
          <explicit name="removal_volume">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
       </entity>
       <entity name="General_revolution" supertypes="Revolved_feature">
@@ -540,8 +552,9 @@
             <typename name="Partial_area_definition"/>
          </explicit>
          <explicit name="applied_shape">
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
+         <where expression="applied_shape.product_definitional = TRUE" label="WR1"/>
       </entity>
       <entity name="Linear_path_feature_component" supertypes="Path_feature_component">
          <explicit name="distance">
@@ -556,7 +569,7 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
       </entity>
-      <entity name="Location_element" supertypes="Definitional_shape_element"/>
+      <entity name="Location_element" supertypes="Shape_element"/>
       <entity name="Loop_slot_end_type"/>
       <entity abstract.supertype="YES" name="Machining_feature" super.expression="ONEOF (Compound_feature, Gear, Knurl, Marking_feature, Multi_axis_feature, Outer_round, Revolved_feature, Spherical_cap, Thread)" supertypes="Manufacturing_feature">
          <explicit name="placement">
@@ -670,13 +683,13 @@
             <typename name="Partial_circular_profile"/>
          </explicit>
       </entity>
-      <entity name="Path_element" supertypes="Definitional_shape_element"/>
+      <entity name="Path_element" supertypes="Shape_element"/>
       <entity abstract.supertype="YES" name="Path_feature_component" super.expression="ONEOF (Circular_path_feature_component, General_path_feature_component, Linear_path_feature_component)" supertypes="Shape_element">
          <explicit name="placement">
             <typename name="Axis_placement"/>
          </explicit>
       </entity>
-      <entity name="Planar_element" supertypes="Definitional_shape_element">
+      <entity name="Planar_element" supertypes="Shape_element">
          <explicit name="normal">
             <typename name="Direction_element"/>
          </explicit>
@@ -774,8 +787,9 @@
       <entity name="Protrusion" supertypes="Multi_axis_feature">
          <explicit name="shape_volume">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
+         <where expression="SIZEOF(QUERY(sv &lt;* shape_volume | NOT (sv.product_definitional = TRUE))) = 0" label="WR1"/>
       </entity>
       <entity name="Radiused_slot_end_type" supertypes="Slot_end_type"/>
       <entity name="Recess" supertypes="Pocket">
@@ -1081,11 +1095,11 @@
          <explicit name="number_of_threads" optional="YES">
             <typename name="Numerical_item_with_unit"/>
          </explicit>
-         <explicit name="thread_hand">
-            <typename name="text"/>
+         <explicit name="hand">
+            <typename name="thread_hand"/>
          </explicit>
-         <explicit name="inner_or_outer_thread">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="side">
+            <typename name="thread_side"/>
          </explicit>
          <explicit name="qualifier">
             <typename name="text"/>
@@ -1094,11 +1108,12 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
          <explicit name="applied_shape">
-            <typename name="Definitional_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <explicit name="fit_class_2" optional="YES">
             <typename name="text"/>
          </explicit>
+         <where expression="applied_shape.product_definitional = TRUE" label="WR1"/>
       </entity>
       <entity name="Thread_runout">
          <explicit name="length_of_runout">
@@ -1157,6 +1172,6 @@
             <typename name="Numerical_item_with_unit"/>
          </explicit>
       </entity>
-      <subtype.constraint entity="Definitional_shape_element" name="mf_shape_element_subtypes" super.expression="ONEOF (Path_element, Planar_element, Direction_element, Location_element, Face_shape_element)"/>
+      <subtype.constraint entity="Shape_element" name="mf_shape_element_subtypes" super.expression="ONEOF (Path_element, Planar_element, Direction_element, Location_element, Face_shape_element)"/>
    </schema>
 </express>

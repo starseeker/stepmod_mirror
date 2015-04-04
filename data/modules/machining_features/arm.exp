@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2014/08/25 23:18:14 thomasrthurman Exp $
+   $Id: arm.exp,v 1.19 2014/10/04 17:08:27 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7915 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7352
 *)
@@ -285,7 +285,7 @@ ENTITY Diamond_knurl
 END_ENTITY;
 
 ENTITY Direction_element
-  SUBTYPE OF (Definitional_shape_element);
+  SUBTYPE OF (Shape_element);
 END_ENTITY;
 
 ENTITY Directed_taper;
@@ -301,7 +301,9 @@ ENTITY Edge_round
 END_ENTITY;
 
 ENTITY Face_shape_element
-  SUBTYPE OF (Definitional_shape_element);
+  SUBTYPE OF (Shape_element);
+DERIVE
+  SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
 END_ENTITY;
 
 ENTITY Face_shape_element_relationship
@@ -353,10 +355,12 @@ ENTITY Gear
   face_width : Numerical_item_with_unit;
   tip_diameter : Numerical_item_with_unit;
   normal_attribute : Numerical_item_with_unit;
-  applied_shape : Definitional_shape_element;
+  applied_shape : Shape_element;
   internal_or_external_gear : BOOLEAN;
   module_or_diametrical_pitch : BOOLEAN;
   root_fillet_radius : OPTIONAL Numerical_item_with_unit;
+WHERE
+  WR1: applied_shape.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY General_boss
@@ -414,7 +418,7 @@ END_ENTITY;
 
 ENTITY General_removal_volume
   SUBTYPE OF (Multi_axis_feature);
-  removal_volume : SET[1:?] OF Definitional_shape_element;
+  removal_volume : SET[1:?] OF Shape_element;
 END_ENTITY;
 
 ENTITY General_revolution
@@ -466,7 +470,9 @@ ENTITY Knurl
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_knurl, Turned_knurl))
   SUBTYPE OF (Machining_feature);
   partial_profile : OPTIONAL Partial_area_definition;
-  applied_shape : Definitional_shape_element;
+  applied_shape : Shape_element;
+WHERE
+  WR1: applied_shape.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY Linear_path_feature_component
@@ -481,7 +487,7 @@ ENTITY Linear_profile
 END_ENTITY;
 
 ENTITY Location_element
-  SUBTYPE OF (Definitional_shape_element);
+  SUBTYPE OF (Shape_element);
 END_ENTITY;
 
 ENTITY Loop_slot_end_type;
@@ -621,11 +627,11 @@ ENTITY Partial_circular_shape_profile
 END_ENTITY;
 
 ENTITY Path_element
-  SUBTYPE OF (Definitional_shape_element);
+  SUBTYPE OF (Shape_element);
 END_ENTITY;
 
 ENTITY Planar_element
-  SUBTYPE OF (Definitional_shape_element);
+  SUBTYPE OF (Shape_element);
   normal : Direction_element;
   location : Location_element;
 END_ENTITY;
@@ -701,7 +707,9 @@ END_ENTITY;
 
 ENTITY Protrusion
   SUBTYPE OF (Multi_axis_feature);
-  shape_volume : SET[1:?] OF Definitional_shape_element;
+  shape_volume : SET[1:?] OF Shape_element;
+WHERE
+   WR1 : SIZEOF(QUERY(sv <* shape_volume | NOT (sv.product_definitional = TRUE))) = 0;
 END_ENTITY;
 
 ENTITY Radiused_slot_end_type
@@ -944,8 +952,10 @@ ENTITY Thread
   side : thread_side;
   qualifier : text;
   nominal_size : OPTIONAL Numerical_item_with_unit;
-  applied_shape : Definitional_shape_element;
+  applied_shape : Shape_element;
   fit_class_2 : OPTIONAL text;
+WHERE
+  WR1: applied_shape.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY Thread_runout;
@@ -996,7 +1006,7 @@ ENTITY Woodruff_slot_end_type
   radius : Numerical_item_with_unit;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT mf_shape_element_subtypes FOR Definitional_shape_element;
+SUBTYPE_CONSTRAINT mf_shape_element_subtypes FOR Shape_element;
   ONEOF (Path_element, Planar_element, Direction_element, Location_element, Face_shape_element);
 END_SUBTYPE_CONSTRAINT;
 

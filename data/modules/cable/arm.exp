@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2015/03/27 12:27:27 lothartklein Exp $
+   $Id: arm.exp,v 1.31 2015/04/01 08:33:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N8119 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7523
 *)
@@ -31,14 +31,14 @@ END_ENTITY;
 
 ENTITY Cable_component_terminal
   SUBTYPE OF (Derived_component_terminal);
-  SELF\Component_feature.location_group : Component_feature_location_group_identification; 
+  SELF\Component_feature.location_group : Cable_component_terminal_location_group_identification; 
   SELF\Derived_component_terminal.derived_from : Wire_identification;
 DERIVE
   SELF\Component_feature.associated_component : Cable_component := SELF\Component_feature.location_group.associated_component;
 END_ENTITY;
 
-ENTITY Component_feature_location_group_identification
-  SUBTYPE OF (Component_feature_location_group);
+ENTITY Cable_component_terminal_location_group_identification
+  SUBTYPE OF (Component_feature_location_group_identification);
   SELF\Component_feature.associated_component : Cable_component;
 INVERSE
   terminals : SET[2:?] OF Cable_component_terminal FOR location_group;
@@ -47,17 +47,17 @@ END_ENTITY;
 ENTITY Cable_component
 	SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
 DERIVE 
-  ends_a : SET[1:1] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
-  ends_b : SET[1:1] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
-  intermediates : SET[0:?] OF Component_feature_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate ');
+  ends_a : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
+  ends_b : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
+  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate ');
 INVERSE
   terminal_location_groups : SET OF Component_feature_location_group_identification FOR associated_component;
 --  terminals : SET[1:?] OF Cable_component_terminal FOR associated_component;
 WHERE
   WR1: EXISTS(ends_a); -- derived attribute ends_a shall exisits
   WR2: EXISTS(ends_b); -- derived attribute ends_b shall exisits
-  WR3: SIZEOF(ends_a[1].terminals) >= 1; -- end_a shall contain at least one terminal
-  WR4: SIZEOF(ends_a[1].terminals) = SIZEOF(ends_b[1].terminals); -- the number of terminals on both ends are the same
+  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) >= 1; -- end_a shall contain at least one terminal
+  WR4: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals); -- the number of terminals on both ends are the same
   WR5: TRUE; -- the terminal names on both ends must match
   WR6: TRUE; -- the sum of all terminals is end_a and end_b and all the middles must be the sizeof(all_terminals)
   WR7: TRUE; -- all terminals must be of type Cable_component_terminal

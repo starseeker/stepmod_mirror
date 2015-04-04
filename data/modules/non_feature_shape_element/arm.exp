@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.75 2012/10/11 05:49:25 liutkuviene Exp $
+   $Id: arm.exp,v 1.76 2015/03/14 14:34:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N8179 - ISO/TS 10303-1706 Non feature shape element - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7574
 *)
@@ -21,8 +21,10 @@ SCHEMA Non_feature_shape_element_arm;
   END_TYPE;
   
 ENTITY Edge_segment_vertex
-   SUBTYPE OF (Definitional_shape_element);
- END_ENTITY;  
+   SUBTYPE OF (Shape_element);
+DERIVE
+  SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
+END_ENTITY;  
   
   ENTITY Interface_plane
     SUBTYPE OF (Non_feature_shape_element);
@@ -42,8 +44,10 @@ ENTITY Edge_segment_vertex
   END_ENTITY;
 
 ENTITY Non_feature_shape_element 	 
-  SUBTYPE OF (Non_definitional_shape_element); 	 
+  SUBTYPE OF (Shape_element); 	 
   SELF\Shape_element.containing_shape RENAMED scope : Part_view_definition; 	 
+DERIVE
+  SELF\Shape_element.product_definitional : BOOLEAN := FALSE;
 INVERSE 	 
   element_shape            : SET[0:?] OF non_feature_shape_model FOR associated_element; 	 
   associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage; 	 
@@ -90,6 +94,10 @@ END_ENTITY;
       (SELF\Non_feature_shape_element.element_shape));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
+
+SUBTYPE_CONSTRAINT nfse_shape_element_subtypes FOR Shape_element;
+  ONEOF (Edge_segment_vertex, Non_feature_shape_element);
+END_SUBTYPE_CONSTRAINT;
   
   FUNCTION valid_es(input1 : STRING;
                   input2 : SET OF NON_FEATURE_SHAPE_MODEL) : BOOLEAN;

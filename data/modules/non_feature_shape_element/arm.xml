@@ -15,15 +15,24 @@
       <type name="view_shape_select">
          <select extensible="YES" genericentity="YES" selectitems="Physical_unit_shape_model"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Edge_segment_vertex" supertypes="Definitional_shape_element"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Edge_segment_vertex" supertypes="Shape_element">
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype fixed="NO" type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Interface_plane" supertypes="Non_feature_shape_element">
          <where expression="(SELF\Shape_element.element_name = 'interface plane')" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Non_feature_shape_element" supertypes="Non_definitional_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Non_feature_shape_element" supertypes="Shape_element">
          <explicit name="scope" optional="NO">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype fixed="NO" type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
          <inverse attribute="associated_element" entity="Non_feature_shape_model" name="element_shape">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
@@ -82,6 +91,7 @@
          <where expression="NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape) &gt; 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_MODEL',&#10;      (SELF\Non_feature_shape_element.element_shape))" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR2"/>
       </entity>
+      <subtype.constraint abstract.supertype="NO" entity="Shape_element" name="nfse_shape_element_subtypes" super.expression="ONEOF (Edge_segment_vertex, Non_feature_shape_element)"/>
       <function name="valid_es">
          <parameter name="input1">
             <builtintype fixed="NO" type="STRING"/>

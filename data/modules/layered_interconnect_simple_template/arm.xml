@@ -88,7 +88,6 @@
          <explicit name="connection_area" optional="YES">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Connection_zone_in_layout_template"/>
-            <redeclaration entity-ref="Definitional_shape_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
@@ -125,13 +124,17 @@
             <typename name="Blind_passage_template"/>
          </explicit>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Default_attachment_size_based_land_physical_template" supertypes="Land_physical_template Definitional_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Default_attachment_size_based_land_physical_template" supertypes="Land_physical_template Shape_element">
          <derived expression="SELF" name="containing_shape">
             <typename name="Default_attachment_size_based_land_physical_template"/>
             <redeclaration entity-ref="Shape_element"/>
          </derived>
          <derived expression="''" name="element_name">
             <builtintype fixed="NO" type="STRING"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype fixed="NO" type="BOOLEAN"/>
             <redeclaration entity-ref="Shape_element"/>
          </derived>
          <inverse attribute="containing_shape" entity="Land_template_interface_terminal" name="interface_access_mechanisms">
@@ -141,8 +144,7 @@
          <where expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 1) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1)" label="WR2"/>
          <where expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 2) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2)" label="WR3"/>
          <where expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 3) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3)" label="WR4"/>
-         <where expression="NOT EXISTS(SELF\Definitional_shape_element.connection_area)" label="WR5"/>
-         <where expression="SIZEOF(interface_access_mechanisms) = 1" label="WR6"/>
+         <where expression="SIZEOF(interface_access_mechanisms) = 1" label="WR5"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Default_passage_based_land_physical_template" super.expression="ONEOF (Default_plated_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)" supertypes="Land_physical_template">
          <explicit name="of_passage_technology" optional="NO">
@@ -254,7 +256,6 @@
          <explicit name="connection_area" optional="YES">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Connection_zone_in_layout_template"/>
-            <redeclaration entity-ref="Definitional_shape_element"/>
          </explicit>
          <explicit name="terminal_category" optional="YES">
             <typename name="land_template_terminal_class"/>
@@ -263,7 +264,7 @@
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="containing_shape"/>
          </unique>
-         <where expression="NOT (EXISTS(SELF\Definitional_shape_element.connection_area)) OR NOT EXISTS(terminal_category)" label="WR1"/>
+         <where expression="NOT (EXISTS(connection_area)) OR NOT EXISTS(terminal_category)" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR2"/>
          <where expression="SIZEOF(QUERY(ca &lt;* connection_area |&#10;            NOT(containing_shape = ca\Shape_element.containing_shape)&#10;            )) = 0" label="WR3"/>
       <where label="IP1"/>
@@ -408,7 +409,6 @@
          <explicit name="connection_area" optional="YES">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Connection_zone_in_layout_template"/>
-            <redeclaration entity-ref="Definitional_shape_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
@@ -418,6 +418,7 @@
       </entity>
       <subtype.constraint abstract.supertype="NO" entity="Template_definition" name="list_template_definition_subtypes" super.expression="ONEOF (Geometric_template, Parametric_template, Part_string_template, Part_text_template, Single_stratum_template, Stratum_stack_model)"/>
       <subtype.constraint abstract.supertype="NO" entity="General_part_feature" name="list_shape_feature_subtypes" super.expression="ONEOF (Via_template_terminal, Component_termination_passage_template_terminal, Land_template_terminal)"/>
+      <subtype.constraint abstract.supertype="NO" entity="Shape_element" name="lisp_shape_element_subtypes" super.expression="ONEOF (Non_feature_shape_element, Edge_segment_vertex)"/>
       <rule appliesto="Land_physical_template" name="unique_land_physical_template">
          <algorithm>LOCAL
       esi : BAG OF External_source_identification := [];

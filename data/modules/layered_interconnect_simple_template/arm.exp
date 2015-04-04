@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2012/10/11 05:49:05 liutkuviene Exp $
+   $Id: arm.exp,v 1.31 2015/03/14 14:33:52 lothartklein Exp $
    ISO TC184/SC4/WG12 N8176 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7571
 *)
@@ -130,7 +130,7 @@ SCHEMA Layered_interconnect_simple_template_arm;
       Component_termination_passage_template_join_terminal))
     SUBTYPE OF (General_part_feature);
       SELF\Shape_element.containing_shape : Component_termination_passage_template;
-      SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
+      connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template; 
     UNIQUE
       UR1 : SELF\Shape_element.element_name, containing_shape;
     WHERE
@@ -138,10 +138,11 @@ SCHEMA Layered_interconnect_simple_template_arm;
   END_ENTITY;
 
   ENTITY Default_attachment_size_based_land_physical_template
-    SUBTYPE OF (Land_physical_template, Definitional_shape_element);
+    SUBTYPE OF (Land_physical_template, Shape_element);
     DERIVE
       SELF\Shape_element.containing_shape : Default_attachment_size_based_land_physical_template := SELF;
       SELF\Shape_element.element_name : STRING := '';      
+      SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
     INVERSE
       interface_access_mechanisms : SET[1:?] OF Land_template_interface_terminal FOR containing_shape;
     WHERE
@@ -157,8 +158,7 @@ SCHEMA Layered_interconnect_simple_template_arm;
       WR4 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 3) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
                   list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3);
-      WR5 : NOT EXISTS(SELF\Definitional_shape_element.connection_area);
-      WR6 : SIZEOF(interface_access_mechanisms) = 1;   
+      WR5 : SIZEOF(interface_access_mechanisms) = 1;   
   END_ENTITY;
  
   ENTITY Default_passage_based_land_physical_template
@@ -277,12 +277,12 @@ SCHEMA Layered_interconnect_simple_template_arm;
     ABSTRACT SUPERTYPE OF (ONEOF (Land_template_join_terminal, Land_template_interface_terminal))
     SUBTYPE OF (General_part_feature);
       SELF\Shape_element.containing_shape : Land_physical_template;
-      SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
+      connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
       terminal_category                  : OPTIONAL land_template_terminal_class;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, containing_shape;
     WHERE
-      WR1 : NOT (EXISTS(SELF\Definitional_shape_element.connection_area)) OR NOT EXISTS(terminal_category);
+      WR1 : NOT (EXISTS(connection_area)) OR NOT EXISTS(terminal_category);
       WR2 : NOT EXISTS(SELF\Shape_element.description);
       WR3 : SIZEOF(QUERY(ca <* connection_area |
             NOT(containing_shape = ca\Shape_element.containing_shape)
@@ -452,8 +452,8 @@ SCHEMA Layered_interconnect_simple_template_arm;
   ENTITY Via_template_terminal
     SUBTYPE OF (General_part_feature);
       SELF\Shape_element.containing_shape : Via_template;
-      disallowed_inter_stratum_extent                                   : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
-      SELF\Definitional_shape_element.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
+      disallowed_inter_stratum_extent : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
+      connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, containing_shape;
     WHERE
@@ -464,6 +464,11 @@ SCHEMA Layered_interconnect_simple_template_arm;
     (ONEOF (Via_template_terminal,
             Component_termination_passage_template_terminal,
             Land_template_terminal));
+  END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT lisp_shape_element_subtypes FOR Shape_element; 
+    (ONEOF (Non_feature_shape_element,
+            Edge_segment_vertex));
   END_SUBTYPE_CONSTRAINT;
 
   FUNCTION list_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;

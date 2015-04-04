@@ -10,7 +10,7 @@
       <type name="cf_groupable_item">
          <select basedon="groupable_item" extensible="NO" genericentity="NO" selectitems="Component_feature"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature" supertypes="Definitional_shape_element">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature" super.expression="ONEOF (Component_feature_location_group_identification, Component_terminal)" supertypes="Shape_element">
          <explicit name="definition" optional="YES">
             <typename name="General_part_feature"/>
          </explicit>
@@ -18,6 +18,13 @@
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
+         <explicit name="location_group" optional="YES">
+            <typename name="Component_feature_location_group_identification"/>
+         </explicit>
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype fixed="NO" type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute attribute="definition"/>
             <unique.attribute attribute="associated_component"/>
@@ -26,6 +33,7 @@
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="associated_component"/>
          </unique>
+         <where expression="SELF\Shape_element.containing_shape = location_group\Shape_element.containing_shape" label="WR2"/>
       <where label="IP1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature_joint" supertypes="Component_feature_relationship Shape_element">
@@ -45,6 +53,11 @@
          <where expression="'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition)" label="WR2"/>
          <where expression="associated_definition :=: feature_1\Shape_element.containing_shape" label="WR3"/>
          <where expression="associated_definition :=: feature_2\Shape_element.containing_shape" label="WR4"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Component_feature_location_group_identification" supertypes="Component_feature">
+         <inverse attribute="location_group" entity="Component_feature" name="elements">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Component_feature_make_from_relationship" supertypes="Component_feature_relationship">
          <explicit name="reusable_feature" optional="NO">
@@ -77,6 +90,12 @@
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
       <where label="IP1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Derived_component_terminal" supertypes="Component_terminal">
+         <explicit name="derived_from" optional="NO">
+            <typename name="General_part_feature"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Component_feature.definition)" label="wr1"/>
       </entity>
    </schema>
 </express>

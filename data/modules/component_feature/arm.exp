@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.40 2012/10/11 05:49:04 liutkuviene Exp $
+   $Id: arm.exp,v 1.41 2015/03/14 14:34:30 lothartklein Exp $
    ISO TC184/SC4/WG12 N7963 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7400
 *)
@@ -14,13 +14,18 @@ SCHEMA Component_feature_arm;
 	END_TYPE; 
 
   ENTITY Component_feature
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (Definitional_shape_element);
+    ABSTRACT SUPERTYPE  OF ( ONEOF(Component_feature_location_group_identification, Component_terminal))
+    SUBTYPE OF (Shape_element);
       definition           : OPTIONAL General_part_feature;
       SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
+      location_group : OPTIONAL Component_feature_location_group_identification;
+    DERIVE
+      SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
     UNIQUE
       UR1 : definition,associated_component;
       UR2 : SELF\Shape_element.element_name, associated_component;
+    WHERE
+      WR2: SELF\Shape_element.containing_shape = location_group\Shape_element.containing_shape; -- must belong to the same component
   END_ENTITY;
 
   ENTITY Component_feature_joint
@@ -34,6 +39,12 @@ SCHEMA Component_feature_arm;
       WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
       WR3 : associated_definition :=: feature_1\Shape_element.containing_shape;      
       WR4 : associated_definition :=: feature_2\Shape_element.containing_shape;      
+  END_ENTITY;
+
+  ENTITY Component_feature_location_group_identification
+    SUBTYPE OF (Component_feature);
+  INVERSE  
+    elements : SET OF Component_feature FOR location_group;
   END_ENTITY;
 
   ENTITY Component_feature_make_from_relationship
@@ -56,6 +67,13 @@ SCHEMA Component_feature_arm;
       local_swappable  : OPTIONAL BOOLEAN;
       global_swappable : OPTIONAL BOOLEAN;
       swap_code        : OPTIONAL STRING;
+  END_ENTITY;
+  
+  ENTITY Derived_component_terminal
+    SUBTYPE OF (Component_terminal);
+    derived_from : General_part_feature; -- bulk ??
+  WHERE
+    wr1: NOT EXISTS(SELF\Component_feature.definition);
   END_ENTITY;
 
 END_SCHEMA;

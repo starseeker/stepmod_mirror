@@ -7,9 +7,49 @@
    <schema name="Product_view_definition_arm">
       <interface kind="use" schema="Product_version_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <type name="product_shape_type_enumeration">
-         <enumeration extensible="YES" items="unspecified nominal_shape"/>
+      <type name="additional_application_domain_enumeration">
+         <enumeration extensible="YES" items="unspecified"/>
       </type>
+      <type name="additional_application_domain_select">
+         <select extensible="NO" genericentity="NO" selectitems="application_domain_string additional_application_domain_enumeration"/>
+      </type>
+      <type name="application_domain_string">
+         <builtintype fixed="NO" type="STRING"/>
+      </type>
+      <type name="initial_application_domain_enumeration">
+         <enumeration extensible="YES" items="unspecified"/>
+      </type>
+      <type name="initial_application_domain_select">
+         <select extensible="NO" genericentity="NO" selectitems="application_domain_string initial_application_domain_enumeration"/>
+      </type>
+      <type name="life_cycle_stage_enumeration">
+         <enumeration extensible="YES" items="unspecified"/>
+      </type>
+      <type name="life_cycle_stage_select">
+         <select extensible="NO" genericentity="NO" selectitems="life_cycle_stage_string life_cycle_stage_enumeration"/>
+      </type>
+      <type name="life_cycle_stage_string">
+         <builtintype fixed="NO" type="STRING"/>
+      </type>
+      <type name="product_shape_type_enumeration">
+         <enumeration extensible="YES" items="unspecified"/>
+      </type>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Additional_view_definition_context" supertypes="View_definition_context">
+         <explicit name="application_domain" optional="NO">
+            <typename name="additional_application_domain_select"/>
+         </explicit>
+         <inverse attribute="additional_contexts" entity="Product_view_definition" name="views">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Initial_view_definition_context" supertypes="View_definition_context">
+         <explicit name="application_domain" optional="NO">
+            <typename name="initial_application_domain_select"/>
+         </explicit>
+         <inverse attribute="initial_context" entity="Product_view_definition" name="views">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Product_view_definition">
          <explicit name="id" optional="YES">
             <builtintype fixed="NO" type="STRING"/>
@@ -21,11 +61,11 @@
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
          <explicit name="initial_context" optional="NO">
-            <typename name="View_definition_context"/>
+            <typename name="Initial_view_definition_context"/>
          </explicit>
          <explicit name="additional_contexts" optional="NO">
             <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
-            <typename name="View_definition_context"/>
+            <typename name="Additional_view_definition_context"/>
          </explicit>
          <explicit name="defined_version" optional="NO">
             <typename name="Product_version"/>
@@ -40,21 +80,16 @@
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="shape_model"/>
          </explicit>
-         <where expression="NOT (initial_context IN additional_contexts)" label="WR1"/>
-         <where expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))" label="WR2"/>
-         <where expression="NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation)" label="WR3"/>
+         <where expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
+         <where expression="NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation)" label="WR2"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="View_definition_context">
-         <explicit name="application_domain" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
-         </explicit>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="View_definition_context" super.expression="ONEOF (Initial_view_definition_context, Additional_view_definition_context)">
          <explicit name="life_cycle_stage" optional="NO">
-            <builtintype fixed="NO" type="STRING"/>
+            <typename name="life_cycle_stage_select"/>
          </explicit>
          <explicit name="description" optional="YES">
             <builtintype fixed="NO" type="STRING"/>
          </explicit>
-         <where expression="(SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +&#10;    'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')) &gt; 0) OR&#10;    (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +&#10;    'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')) &gt; 0)" label="WR1"/>
       <where label="IP1"/>
       </entity>
    </schema>

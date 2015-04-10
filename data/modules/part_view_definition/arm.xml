@@ -7,24 +7,35 @@
    <schema name="Part_view_definition_arm">
       <interface kind="use" schema="Part_and_version_identification_arm"/>
       <interface kind="use" schema="Product_view_definition_arm"/>
+      <type name="pvd_life_cycle_stage_enumeration">
+         <enumeration basedon="life_cycle_stage_enumeration" items="design"/>
+      </type>
+      <entity name="Additional_part_view_definition_context" supertypes="Additional_view_definition_context">
+         <inverse attribute="additional_contexts" entity="Part_view_definition" name="views">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+            <redeclaration entity-ref="Additional_view_definition_context"/>
+         </inverse>
+      </entity>
+      <entity name="Initial_part_view_definition_context" supertypes="Initial_view_definition_context">
+         <inverse attribute="initial_context" entity="Part_view_definition" name="views">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+            <redeclaration entity-ref="Initial_view_definition_context"/>
+         </inverse>
+      </entity>
       <entity name="Part_view_definition" supertypes="Product_view_definition">
          <explicit name="defined_version">
             <typename name="Part_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
          <explicit name="initial_context">
-            <typename name="Part_view_definition_context"/>
+            <typename name="Initial_part_view_definition_context"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
          <explicit name="additional_contexts">
             <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Part_view_definition_context"/>
+            <typename name="Additional_part_view_definition_context"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
-      </entity>
-      <entity name="Part_view_definition_context" supertypes="View_definition_context">
-         <where expression="SIZEOF ( QUERY ( pvd &lt;* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')&#10;                        |  NOT ( 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) ) =0" label="WR1"/>
-         <where expression="SIZEOF ( QUERY ( pvd &lt;* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')&#10;                        |  NOT ( 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) ) =0" label="WR2"/>
       </entity>
       <rule appliesto="Product_view_definition" name="part_view_definition_constraint">
          <where expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PART_VIEW_DEFINITION_ARM.PART_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0" label="WR1"/>

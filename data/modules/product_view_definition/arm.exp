@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.9 2015/03/14 14:34:52 lothartklein Exp $
+ $Id: arm.exp,v 1.10 2015/03/27 11:36:34 lothartklein Exp $
  ISO TC184/SC4/WG12 N4351 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1532
 *)
@@ -9,36 +9,74 @@ SCHEMA Product_view_definition_arm;
 USE FROM Product_version_arm;
 USE FROM Shape_property_assignment_arm;
 
+TYPE life_cycle_stage_string = STRING;
+END_TYPE;
+
+TYPE life_cycle_stage_select  = SELECT (
+  life_cycle_stage_string,
+  life_cycle_stage_enumeration);
+END_TYPE;
+
+TYPE life_cycle_stage_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
+TYPE application_domain_string = STRING;
+END_TYPE;
+
+TYPE initial_application_domain_select  = SELECT (
+  application_domain_string,
+  initial_application_domain_enumeration);
+END_TYPE;
+
+TYPE initial_application_domain_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
+TYPE additional_application_domain_select  = SELECT (
+  application_domain_string,
+  additional_application_domain_enumeration);
+END_TYPE;
+
+TYPE additional_application_domain_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
 TYPE product_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
-  unspecified, nominal_shape ); 
+  unspecified); 
 END_TYPE;
                 
 ENTITY Product_view_definition;
   id              	: OPTIONAL STRING;
   name  	      	: OPTIONAL STRING;
   additional_characterization	      : OPTIONAL STRING;
-  initial_context 	: View_definition_context;
-  additional_contexts   : SET [0:?] OF View_definition_context;
+  initial_context 	: Initial_view_definition_context;
+  additional_contexts   : SET [0:?] OF Additional_view_definition_context;
   defined_version  	: Product_version;
   shape_type : OPTIONAL product_shape_type_enumeration;
   primary_shape_representation : OPTIONAL shape_model;
   auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
 WHERE
-  WR1: NOT (initial_context IN additional_contexts);
-  WR2: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
-  WR3: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
+  WR1: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+  WR2: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
    
-ENTITY View_definition_context;
-  application_domain	: STRING;
-  life_cycle_stage 	: STRING;
+ENTITY View_definition_context
+  ABSTRACT SUPERTYPE OF (ONEOF (Initial_view_definition_context, Additional_view_definition_context));
+  life_cycle_stage 	: life_cycle_stage_select;
   description	 	: OPTIONAL STRING;
-WHERE
-  WR1: (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
-    'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')) > 0) OR
-    (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
-    'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')) > 0);
 END_ENTITY;
-   
+
+ENTITY Initial_view_definition_context
+  SUBTYPE OF (View_definition_context);
+  application_domain : initial_application_domain_select ;
+INVERSE
+  views : SET[1:?] OF Product_view_definition FOR initial_context;
+END_ENTITY;
+
+ENTITY Additional_view_definition_context
+  SUBTYPE OF (View_definition_context);
+  application_domain :  additional_application_domain_select ;
+INVERSE
+  views : SET[1:?] OF Product_view_definition FOR additional_contexts;
+END_ENTITY;
+
 END_SCHEMA;
 

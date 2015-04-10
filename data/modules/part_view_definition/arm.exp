@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.14 2011/07/21 18:52:03 lothartklein Exp $
+ $Id: arm.exp,v 1.15 2012/10/11 05:49:25 liutkuviene Exp $
  ISO TC184/SC4/WG12 N8038 - ISO/TS 10303-1023 Part view definition - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7454
 *) 
@@ -11,20 +11,27 @@ USE FROM Part_and_version_identification_arm;    -- ISO/TS 10303-1022
 
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 
+TYPE pvd_life_cycle_stage_enumeration = ENUMERATION BASED_ON life_cycle_stage_enumeration WITH (
+  design);
+END_TYPE;
+
 ENTITY Part_view_definition
   SUBTYPE OF (Product_view_definition);
   SELF\Product_view_definition.defined_version : Part_version;
-  SELF\Product_view_definition.initial_context: Part_view_definition_context;
-  SELF\Product_view_definition.additional_contexts: SET [0:?] OF Part_view_definition_context;
+  SELF\Product_view_definition.initial_context: Initial_part_view_definition_context;
+  SELF\Product_view_definition.additional_contexts: SET [0:?] OF Additional_part_view_definition_context;
 END_ENTITY;
 
-ENTITY Part_view_definition_context
-  SUBTYPE OF (View_definition_context);
-WHERE
-  WR1: SIZEOF ( QUERY ( pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')
-                        |  NOT ( 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) ) =0 ;
-  WR2: SIZEOF ( QUERY ( pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')
-                        |  NOT ( 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) ) =0 ;
+ENTITY Initial_part_view_definition_context
+  SUBTYPE OF (Initial_view_definition_context);
+INVERSE
+  SELF\Initial_view_definition_context.views : SET[1:?] OF Part_view_definition FOR initial_context;
+END_ENTITY;
+
+ENTITY Additional_part_view_definition_context
+  SUBTYPE OF (Additional_view_definition_context);
+INVERSE
+  SELF\Additional_view_definition_context.views : SET[1:?] OF Part_view_definition FOR additional_contexts;
 END_ENTITY;
 
 RULE part_view_definition_constraint FOR 

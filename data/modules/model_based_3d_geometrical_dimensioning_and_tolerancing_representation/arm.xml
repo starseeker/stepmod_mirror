@@ -8,8 +8,8 @@
       <interface kind="use" schema="Geometric_tolerance_arm"/>
       <interface kind="use" schema="Part_shape_arm"/>
       <interface kind="use" schema="Product_and_manufacturing_information_with_nominal_3d_models_arm"/>
-      <type name="mb3gdtr_product_shape_type_enumeration">
-         <enumeration basedon="product_shape_type_enumeration" extensible="YES" items="gdt_representation_shape"/>
+      <type name="mb3dgdt_additional_application_domain_enumeration">
+         <enumeration basedon="additional_application_domain_enumeration" items="geometrical_dimensioning_and_tolerancing_representation"/>
       </type>
       <type name="mb3gdtsr_dimension_target">
          <select basedon="dimension_target" selectitems="Nominal_3d_feature Datum_reference_compartment"/>
@@ -50,6 +50,8 @@
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
+         <where expression="SIZEOF ( QUERY ( pa &lt;* SELF\Shape_element.containing_shape\Product_view_definition.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) &gt; 0" label="WR1"/>
+         <where expression="SELF\Shape_element.containing_shape.shape_type = pmiwn3m_product_shape_type_enumeration.nominal_shape" label="WR2"/>
       </entity>
       <entity name="Nominal_3d_integral_feature" supertypes="General_part_feature Nominal_3d_feature">
          <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
@@ -58,5 +60,8 @@
          </derived>
          <where expression="EXISTS(associated_item)" label="WR1"/>
       </entity>
+      <rule appliesto="Part_view_definition" name="gdt_representation_view_context_constraint">
+         <where expression="SIZEOF ( QUERY ( p &lt;* Part_view_definition | &#10;        (SIZEOF ( QUERY ( pa &lt;* p.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) &gt; 0)&#10;           AND ( &#10;                 (p.initial_context.application_domain &lt;&gt; pamivc_initial_application_domain_enumeration.model_based_product_geometry)&#10;                 OR &#10;                 (p.initial_context.life_cycle_stage &lt;&gt; pvd_life_cycle_stage_enumeration.design)&#10;               )&#10;                      ) &#10;               ) = 0" label="WR1"/>
+      </rule>
    </schema>
 </express>

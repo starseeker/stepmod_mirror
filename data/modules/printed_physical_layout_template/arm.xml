@@ -65,8 +65,8 @@
          <unique label="UR1">
             <unique.attribute attribute="join_terminal"/>
          </unique>
-         <where expression="join_terminal\Shape_element.containing_shape :=: connector" label="WR1"/>
-         <where expression="interface_terminal\Printed_part_template_interface_terminal.containing_shape :=: connector" label="WR2"/>
+         <where expression="join_terminal\Shape_element.associated_definition :=: connector" label="WR1"/>
+         <where expression="interface_terminal\Printed_part_template_interface_terminal.associated_definition :=: connector" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Printed_part_cross_section_template" supertypes="Printed_part_template">
          <explicit name="horizontal_material_link" optional="YES">
@@ -94,7 +94,7 @@
          <explicit name="unit_length" optional="NO">
             <typename name="Length_data_element"/>
          </explicit>
-         <inverse attribute="containing_shape" entity="Printed_part_cross_section_template_terminal" name="access_mechanisms">
+         <inverse attribute="associated_definition" entity="Printed_part_cross_section_template_terminal" name="access_mechanisms">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
             <redeclaration entity-ref="Printed_part_template"/>
          </inverse>
@@ -108,7 +108,7 @@
          <where expression="NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(SELF))" label="WR8"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Printed_part_cross_section_template_terminal" supertypes="Printed_part_template_terminal">
-         <explicit name="containing_shape" optional="NO">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Printed_part_cross_section_template"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
@@ -125,7 +125,7 @@
             <typename name="Printed_part_template_material_link"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="containing_shape"/>
+            <unique.attribute attribute="associated_definition"/>
             <unique.attribute attribute="material_to_left_of_terminal"/>
             <unique.attribute attribute="material_to_right_of_terminal"/>
             <unique.attribute attribute="material_to_top_of_terminal"/>
@@ -147,7 +147,7 @@
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <inverse attribute="containing_shape" entity="Printed_part_template_terminal" name="access_mechanisms">
+         <inverse attribute="associated_definition" entity="Printed_part_template_terminal" name="access_mechanisms">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
          <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
@@ -162,7 +162,7 @@
             <aggregate lower="2" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Printed_part_template_terminal"/>
          </explicit>
-         <derived expression="connected_terminals[1].containing_shape" name="scope">
+         <derived expression="connected_terminals[1].associated_definition" name="scope">
             <typename name="Printed_part_template"/>
          </derived>
          <unique label="UR1">
@@ -172,7 +172,7 @@
          <where expression="SIZEOF(QUERY(t &lt;* connected_terminals | t.associated_definition :&lt;&gt;: scope)) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Printed_part_template_interface_terminal" supertypes="Printed_part_template_terminal">
-         <explicit name="containing_shape" optional="NO">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Printed_connector_template"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
@@ -219,7 +219,7 @@
          <where expression="acyclic_printed_part_template_material_link(SELF,&#10;        [subsequent_material], &#10;        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_MATERIAL_LINK')" label="WR6"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Printed_part_template_terminal" super.expression="(ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal) ANDOR Printed_part_cross_section_template_terminal) ANDOR Structured_printed_part_template_terminal" supertypes="General_part_feature">
-         <explicit name="containing_shape" optional="NO">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Printed_part_template"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
@@ -238,7 +238,7 @@
          </inverse>
          <unique label="UR1">
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
-            <unique.attribute attribute="containing_shape"/>
+            <unique.attribute attribute="associated_definition"/>
          </unique>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
@@ -269,19 +269,20 @@
          <where expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates |&#10;            'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRUCTURED_TEMPLATE' IN TYPEOF(t.template))) = 0" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Structured_printed_part_template_terminal" supertypes="Printed_part_template_terminal">
-         <explicit name="containing_shape" optional="NO">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Structured_printed_part_template"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="associated_composition_relationship" optional="NO">
             <typename name="Template_location_in_structured_template"/>
          </explicit>
-         <where expression="associated_composition_relationship\Template_location_in_structured_template.assembly :=: containing_shape" label="WR1"/>
+         <where expression="associated_composition_relationship\Template_location_in_structured_template.assembly :=: associated_definition" label="WR1"/>
          <where expression="TYPEOF(SELF) &lt;&gt; ['PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL',&#10;                             'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_TERMINAL',&#10;                             'FEATURE_AND_CONNECTION_ZONE_ARM.DEFINITIONAL_SHAPE_ELEMENT',&#10;                             'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT']" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Template_material_cross_section_boundary" supertypes="Non_feature_shape_element">
          <explicit name="associated_definition" optional="NO">
             <typename name="Printed_part_template_material"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="associated_definition"/>

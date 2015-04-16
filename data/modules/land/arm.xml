@@ -14,7 +14,7 @@
             <typename name="Default_attachment_size_based_land_physical_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse attribute="associated_component" entity="Land_interface_terminal" name="external_access_mechanism">
+         <inverse attribute="associated_definition" entity="Land_interface_terminal" name="external_access_mechanism">
             <inverse.aggregate lower="1" type="SET" upper="2"/>
          </inverse>
       </entity>
@@ -59,7 +59,7 @@
          <derived expression="(SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',&#10;           'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONNECTED_FILLED_AREA'] *&#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) = 1)" name="functional">
             <builtintype type="BOOLEAN"/>
          </derived>
-         <inverse attribute="associated_component" entity="Land_join_terminal" name="access_mechanism">
+         <inverse attribute="associated_definition" entity="Land_join_terminal" name="access_mechanism">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
          <where expression="NOT(functional) OR (SIZEOF(access_mechanism) &gt; 0)" label="WR1"/>
@@ -69,7 +69,7 @@
             <typename name="Land_template_interface_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component">
+         <explicit name="associated_definition">
             <typename name="Contact_size_dependent_land"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
@@ -80,14 +80,14 @@
             <typename name="Land_template_join_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component">
+         <explicit name="associated_definition">
             <typename name="Land"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Land_with_join_terminal" supertypes="Land Land_join_terminal">
-         <derived expression="SELF" name="associated_component">
+         <derived expression="SELF" name="associated_definition">
             <typename name="Land_with_join_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </derived>
@@ -148,9 +148,9 @@
      resident_sftc := input\Material_removal_laminate_component.design_intent[i];
      CASE TRUE OF
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
-       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum;
+       associated_definition := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition;
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
-       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
+       associated_definition := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
        OTHERWISE :
         RETURN(?);
      END_CASE;
@@ -239,7 +239,7 @@
      resident_sftc := component_mrlc[1]\Material_removal_laminate_component.design_intent[1];
      CASE TRUE OF
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
-       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum;
+       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition;
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
        resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
        OTHERWISE :

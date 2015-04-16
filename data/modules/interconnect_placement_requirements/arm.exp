@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.56 2011/02/13 19:53:56 lothartklein Exp $
+   $Id: arm.exp,v 1.57 2012/10/11 05:49:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8161 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7556
 *)
@@ -173,7 +173,7 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/T
     SUBTYPE OF (Non_feature_shape_element);
       keepout                                          : BOOLEAN;
       non_conformant_interconnect_module_design_object : OPTIONAL SET[1:?] OF interconnect_module_design_object_select;
-      SELF\Shape_element.containing_shape             : Layered_interconnect_module_design_view;
+      SELF\Shape_element.associated_definition             : Layered_interconnect_module_design_view;
       design_specific_purpose                          : STRING; 
       associated_stratum_extent                        : SET[1:?] OF Inter_stratum_extent;
       constrained_design_object_category               : interconnect_module_design_object_category_or_group;
@@ -183,7 +183,7 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/T
     WHERE
       WR1 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.INTERCONNECT_MODULE_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
-      WR3 : valid_non_conformant_design_object_context(non_conformant_interconnect_module_design_object, SELF\Shape_element.containing_shape);
+      WR3 : valid_non_conformant_design_object_context(non_conformant_interconnect_module_design_object, SELF\Shape_element.associated_definition);
   END_ENTITY;
 
   ENTITY Layer_qualified_layout_spacing_requirement
@@ -199,7 +199,7 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/T
   ENTITY Layout_spacing_contextual_area
     SUBTYPE OF (Non_feature_shape_element);
       reference_surface : Interconnect_module_component_surface_feature;
-      SELF\Shape_element.containing_shape : Assembly_module_design_view;
+      SELF\Shape_element.associated_definition : Assembly_module_design_view;
     WHERE
       WR1: (SIZEOF(SELF\Non_feature_shape_element.element_shape) = 0) OR 
       (SIZEOF(QUERY(es <* SELF\Non_feature_shape_element.element_shape | NOT ('CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(es)) )) = 0);
@@ -231,14 +231,14 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/T
       design_specific_purpose                          : STRING;       
       keepout                                          : BOOLEAN;
       non_conformant_stratum                           : OPTIONAL SET[1:?] OF Stratum;
-      SELF\Shape_element.containing_shape             : Layered_interconnect_module_design_view;
+      SELF\Shape_element.associated_definition         : Layered_interconnect_module_design_view;
     INVERSE
       precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
       requirement : SET[1:1] OF requirement_assignment FOR assigned_to;
     WHERE
       WR1 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.STRATUM_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
-      WR3 : valid_non_conformant_stratum_context(non_conformant_stratum, SELF\Shape_element.containing_shape);
+      WR3 : valid_non_conformant_stratum_context(non_conformant_stratum, SELF\Shape_element.associated_definition);
   END_ENTITY;
 
   FUNCTION valid_non_conformant_design_object_context(input1 : SET OF interconnect_module_design_object_select;

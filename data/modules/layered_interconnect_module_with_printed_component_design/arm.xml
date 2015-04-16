@@ -39,7 +39,7 @@
             <typename name="Printed_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse attribute="associated_component" entity="Printed_component_join_terminal" name="access_mechanism">
+         <inverse attribute="associated_definition" entity="Printed_component_join_terminal" name="access_mechanism">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
          <inverse attribute="item" entity="External_source_identification" name="cad_layer">
@@ -52,7 +52,7 @@
             <typename name="Printed_part_template_join_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component">
+         <explicit name="associated_definition">
             <typename name="Printed_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
@@ -60,14 +60,14 @@
             <typename name="Stratum_feature_template_component"/>
          </explicit>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
-         <where expression="associated_component.derived_from :=: definition\Printed_part_template_terminal.containing_shape" label="WR2"/>
+         <where expression="associated_definition.derived_from :=: definition\Printed_part_template_terminal.associated_definition" label="WR2"/>
       </entity>
       <entity name="Printed_connector_component" supertypes="Printed_component">
          <explicit name="derived_from">
             <typename name="Printed_connector_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse attribute="associated_component" entity="Printed_connector_component_interface_terminal" name="interface_access_mechanism">
+         <inverse attribute="associated_definition" entity="Printed_connector_component_interface_terminal" name="interface_access_mechanism">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
@@ -76,7 +76,7 @@
             <typename name="Printed_part_template_interface_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component">
+         <explicit name="associated_definition">
             <typename name="Printed_connector_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
@@ -109,7 +109,7 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Stratum_feature"/>
          </explicit>
-         <where expression="SIZEOF(QUERY(sfi &lt;* stratum_feature_implementation |&#10;         NOT(sfi.resident_stratum = stratum_feature_implementation[1].resident_stratum)&#10;               )) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(sfi &lt;* stratum_feature_implementation |&#10;         NOT(sfi.resident_stratum = stratum_feature_implementation[1].associated_definition)&#10;               )) = 0" label="WR1"/>
       </entity>
       <entity name="Tiebar_printed_component" supertypes="Printed_component Structured_layout_component">
          <explicit name="derived_from">
@@ -282,7 +282,7 @@ END_LOCAL;
     END_LOCAL;
 
 	REPEAT i := 1 to SIZEOF(input) by 1;
-	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.resident_stratum;
+	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.associated_definition;
 	END_REPEAT;
 
 	RETURN(s);</algorithm>

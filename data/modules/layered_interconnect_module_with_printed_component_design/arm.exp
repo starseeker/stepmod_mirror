@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.61 2012/09/04 10:06:43 lothartklein Exp $
+   $Id: arm.exp,v 1.62 2012/10/11 05:49:06 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8173 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7568
 *)
@@ -260,7 +260,7 @@ END_FUNCTION;
       stratum_feature_implementation : SET [1:?] OF Stratum_feature;
    WHERE
     WR1 : SIZEOF(QUERY(sfi <* stratum_feature_implementation |
-         NOT(sfi.resident_stratum = stratum_feature_implementation[1].resident_stratum)
+         NOT(sfi.resident_stratum = stratum_feature_implementation[1].associated_definition)
                )) = 0;
   END_ENTITY;
 
@@ -271,7 +271,7 @@ END_FUNCTION;
     SUBTYPE OF (Assembly_component, Single_instance);
       SELF\Definition_based_product_occurrence.derived_from : printed_part_template;
     INVERSE
-      access_mechanism : SET[1:?] OF printed_component_join_terminal FOR associated_component;
+      access_mechanism : SET[1:?] OF printed_component_join_terminal FOR associated_definition;
       cad_layer	: SET[0:1] OF External_source_identification FOR item;
     WHERE
       WR5 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -280,24 +280,24 @@ END_FUNCTION;
   ENTITY Printed_component_join_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : Printed_part_template_join_terminal;
-      SELF\Component_feature.associated_component : Printed_component;
+      SELF\Component_feature.associated_definition : Printed_component;
       stratum_concept_implementation              : Stratum_feature_template_component;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
-      WR2 : associated_component.derived_from :=: definition\Printed_part_template_terminal.containing_shape;
+      WR2 : associated_definition.derived_from :=: definition\Printed_part_template_terminal.associated_definition;
   END_ENTITY;
 
   ENTITY Printed_connector_component
     SUBTYPE OF (Printed_component);
       SELF\Definition_based_product_occurrence.derived_from : Printed_connector_template;
     INVERSE
-      interface_access_mechanism : SET[1:?] OF Printed_connector_component_interface_terminal FOR associated_component;
+      interface_access_mechanism : SET[1:?] OF Printed_connector_component_interface_terminal FOR associated_definition;
   END_ENTITY;
 
   ENTITY Printed_connector_component_interface_terminal
     SUBTYPE OF (Laminate_component_interface_terminal);
       SELF\Component_feature.definition           : Printed_part_template_interface_terminal;
-      SELF\Component_feature.associated_component : Printed_connector_component;
+      SELF\Component_feature.associated_definition : Printed_connector_component;
       stratum_concept_implementation              : Stratum_feature_template_component;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
@@ -331,7 +331,7 @@ END_FUNCTION;
     END_LOCAL;
 
 	REPEAT i := 1 to SIZEOF(input) by 1;
-	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.resident_stratum;
+	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.associated_definition;
 	END_REPEAT;
 
 	RETURN(s);

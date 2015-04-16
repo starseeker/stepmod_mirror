@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2011/08/09 17:30:17 thomasrthurman Exp $
+   $Id: arm.exp,v 1.26 2012/10/11 05:49:05 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8197 - ISO/TS 10303-1723 Physical node requirement to implementing component allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7592
 *)
@@ -46,7 +46,7 @@ SCHEMA Physical_node_requirement_to_implementing_component_allocation_arm;
             (('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND 
              ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,implementation_joint_set)))) OR 
             ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component));
-      WR3 : SIZEOF(QUERY(pct <* physical_node_requirement.associated_terminals | pct\Component_feature.associated_component = implementation_component)) = 0;
+      WR3 : SIZEOF(QUERY(pct <* physical_node_requirement.associated_terminals | pct\Component_feature.associated_definition = implementation_component)) = 0;
   END_ENTITY;
 
   FUNCTION get_cit(
@@ -61,8 +61,8 @@ SCHEMA Physical_node_requirement_to_implementing_component_allocation_arm;
     END_LOCAL;
 
     REPEAT i := 1 TO 2 BY 1;
-      IF ac :=: cf[i].associated_component THEN
-        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_component)) THEN
+      IF ac :=: cf[i].associated_definition THEN
+        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_definition)) THEN
           RETURN(cf[i]);
         ELSE
           RETURN(?);
@@ -86,7 +86,7 @@ SCHEMA Physical_node_requirement_to_implementing_component_allocation_arm;
     END_LOCAL;
 
     REPEAT i := 1 TO 2 BY 1;
-      IF ac :=: cf[i].associated_component THEN
+      IF ac :=: cf[i].associated_definition THEN
         IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PART_TERMINAL' IN TYPEOF(cf[i]\Component_feature.definition)) THEN
           pctd := cf[i]\Component_feature.definition\Part_terminal.connection_requirement;
           RETURN(pctd);
@@ -111,7 +111,7 @@ SCHEMA Physical_node_requirement_to_implementing_component_allocation_arm;
     END_LOCAL;
 
     cf := imjb[1]\Interface_mounted_join.connection_to_interconnect_module_component;
-    IF ac :=: cf\Component_feature.associated_component THEN
+    IF ac :=: cf\Component_feature.associated_definition THEN
       IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf\Component_feature.definition)) THEN
         pctr := cf\Component_feature.definition\Packaged_part_interface_terminal.external_connector_function;
         RETURN(pctr);

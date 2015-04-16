@@ -77,7 +77,7 @@
          </derived>
          <where expression="EXISTS(implementation_interface_joint_set) XOR EXISTS(implementation_joint_set)" label="WR1"/>
          <where expression="(SIZEOF(implementation_connection_definition_1) + SIZEOF(implementation_connection_definition_2) = 1) OR &#10;            (('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND &#10;             ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,implementation_joint_set)))) OR &#10;            ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component))" label="WR2"/>
-         <where expression="SIZEOF(QUERY(pct &lt;* physical_node_requirement.associated_terminals | pct\Component_feature.associated_component = implementation_component)) = 0" label="WR3"/>
+         <where expression="SIZEOF(QUERY(pct &lt;* physical_node_requirement.associated_terminals | pct\Component_feature.associated_definition = implementation_component)) = 0" label="WR3"/>
       </entity>
       <function name="get_cit">
          <parameter name="ac">
@@ -95,8 +95,8 @@
     END_LOCAL;
 
     REPEAT i := 1 TO 2 BY 1;
-      IF ac :=: cf[i].associated_component THEN
-        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_component)) THEN
+      IF ac :=: cf[i].associated_definition THEN
+        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_definition)) THEN
           RETURN(cf[i]);
         ELSE
           RETURN(?);
@@ -124,7 +124,7 @@
     END_LOCAL;
 
     REPEAT i := 1 TO 2 BY 1;
-      IF ac :=: cf[i].associated_component THEN
+      IF ac :=: cf[i].associated_definition THEN
         IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PART_TERMINAL' IN TYPEOF(cf[i]\Component_feature.definition)) THEN
           pctd := cf[i]\Component_feature.definition\Part_terminal.connection_requirement;
           RETURN(pctd);
@@ -153,7 +153,7 @@
     END_LOCAL;
 
     cf := imjb[1]\Interface_mounted_join.connection_to_interconnect_module_component;
-    IF ac :=: cf\Component_feature.associated_component THEN
+    IF ac :=: cf\Component_feature.associated_definition THEN
       IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf\Component_feature.definition)) THEN
         pctr := cf\Component_feature.definition\Packaged_part_interface_terminal.external_connector_function;
         RETURN(pctr);

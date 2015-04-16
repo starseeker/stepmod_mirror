@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.337 2015/03/14 14:34:15 lothartklein Exp $
+   $Id: arm.exp,v 1.338 2015/04/04 10:53:18 lothartklein Exp $
    ISO TC184/SC4/WG12 N8170 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7565
 *)
@@ -214,14 +214,14 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Plated_passage);
       SELF\Definition_based_product_occurrence.derived_from : Component_termination_passage_template;
     INVERSE
-      access_mechanism           : SET[1:?] OF component_termination_passage_join_terminal FOR containing_shape;
-      interface_access_mechanism : component_termination_passage_interface_terminal FOR associated_component;
+      access_mechanism           : SET[1:?] OF component_termination_passage_join_terminal FOR associated_definition;
+      interface_access_mechanism : component_termination_passage_interface_terminal FOR associated_definition;
   END_ENTITY;
 
   ENTITY Component_termination_passage_interface_terminal
     SUBTYPE OF (Laminate_component_interface_terminal);
       SELF\Component_feature.definition           : Component_termination_passage_template_interface_terminal;
-      SELF\Component_feature.associated_component : Component_termination_passage;
+      SELF\Component_feature.associated_definition : Component_termination_passage;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -229,7 +229,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
   ENTITY Component_termination_passage_join_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : Component_termination_passage_template_join_terminal;
-      SELF\Component_feature.associated_component : Component_termination_passage;
+      SELF\Component_feature.associated_definition : Component_termination_passage;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -245,7 +245,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     ABSTRACT SUPERTYPE OF (ONEOF (Unrouted_conductive_interconnect_element, Conductive_interconnect_element_with_pre_defined_transitions))
     SUBTYPE OF (Stratum_feature_template_component);
     INVERSE
-      access_mechanisms : SET [2:?] OF Conductive_interconnect_element_terminal FOR associated_component;
+      access_mechanisms : SET [2:?] OF Conductive_interconnect_element_terminal FOR associated_definition;
       connected_points : SET [1:?] OF Conductive_interconnect_element_terminal_link FOR associated_element;
     WHERE
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
@@ -259,11 +259,11 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Conductive_interconnect_element_terminal
     SUBTYPE OF (Laminate_component_feature);
-      SELF\Component_feature.associated_component : Conductive_interconnect_element;
+      SELF\Component_feature.associated_definition : Conductive_interconnect_element;
       connection_area : OPTIONAL SET[1:1] OF Connection_zone_in_design_view; 
       location : Layer_connection_point;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name, SELF\Component_feature.associated_component;
+      UR1 : SELF\Shape_element.element_name, SELF\Component_feature.associated_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -276,8 +276,8 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       UR1 : precedent_point, subsequent_point;
     WHERE
       WR1 : precedent_point <> subsequent_point;
-      WR2 : precedent_point.associated_component = associated_element;
-      WR3 : subsequent_point.associated_component = associated_element;
+      WR2 : precedent_point.associated_definition = associated_element;
+      WR3 : subsequent_point.associated_definition = associated_element;
       WR4 : acyclic_conductive_interconnect_element_terminal_link(SELF,
         [subsequent_point], 
         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
@@ -296,13 +296,13 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       WR3: centreline_shape.parameters = derived_from.trace_style;            
       WR4 : SIZEOF(QUERY(ciet <* SELF\Conductive_interconnect_element.access_mechanisms |
              NOT(ciet.location.resident_design_layer_stratum = 
-            SELF\Stratum_feature_template_component.implementation_or_resident_stratum.resident_stratum)
+            SELF\Stratum_feature_template_component.implementation_or_resident_stratum.associated_definition)
                   )) = 0;
   END_ENTITY;
 
   ENTITY Conductor
     SUBTYPE OF (Stratum_feature);
-      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
+      SELF\Stratum_feature.associated_definition : Design_layer_stratum;
       implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
     INVERSE
       join_component : SET [0:?] OF Single_stratum_printed_component FOR stratum_feature_implementation;
@@ -323,7 +323,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Connected_filled_area
     SUBTYPE OF (Conductive_filled_area);
-      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
+      SELF\Stratum_feature.associated_definition : Design_layer_stratum;
       implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
     INVERSE
       join_component : SET [0:?] OF Single_stratum_printed_component FOR stratum_feature_implementation;
@@ -408,7 +408,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
   ENTITY Embedded_physical_component_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : bare_die_terminal_or_packaged_part_terminal;
-      SELF\Component_feature.associated_component : bare_die_component_or_packaged_component;
+      SELF\Component_feature.associated_definition : bare_die_component_or_packaged_component;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -682,7 +682,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
   ENTITY Layer_stack_region
     SUBTYPE OF (Instanced_feature);
       applied_stack                       : SET [1:?] OF Local_linear_stack;
-      SELF\Shape_element.containing_shape : Layered_interconnect_module_design_view;
+      SELF\Shape_element.associated_definition : Layered_interconnect_module_design_view;
   END_ENTITY;
 
   ENTITY Generic_laminate_text_component
@@ -713,7 +713,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Shape_element);
       location_2d                   : OPTIONAL Cartesian_point;
       location_3d                   : OPTIONAL Cartesian_point;
-      SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
+      SELF\Shape_element.associated_definition RENAMED resident_design_layer_stratum : Design_layer_stratum;
     DERIVE
       reference_network    : Generic_physical_network := 
           limd_get_generic_network(
@@ -791,8 +791,8 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Stratum_feature_template_component);
       derived_layer_geometry : Stratum_feature_based_derived_pattern;
     WHERE
-      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum
-        :=: derived_layer_geometry.reference_stratum_feature.resident_stratum;
+      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition
+        :=: derived_layer_geometry.reference_stratum_feature.associated_definition;
   END_ENTITY;
 
   ENTITY Material_removal_laminate_text_component
@@ -936,7 +936,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Generic_laminate_text_component);
       stratum_feature_implementation : SET [1:?] OF Stratum_feature;
     WHERE
-      WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.resident_stratum :<>: stratum_feature_implementation[1].resident_stratum)) = 0;
+      WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.associated_definition :<>: stratum_feature_implementation[1].associated_definition)) = 0;
   END_ENTITY;
 
   ENTITY Primary_stratum_indicator_symbol
@@ -951,7 +951,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
         connection_area                                       : SET[1:1] OF Connection_zone_in_design_view;
     	stratum_feature_material_stackup                      : OPTIONAL Stratum_feature_based_derived_pattern;
     DERIVE
-      SELF\Shape_element.containing_shape : Probe_access_area := SELF;
+      SELF\Shape_element.associated_definition : Probe_access_area := SELF;
       SELF\Shape_element.element_name : STRING := '';      
       SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
     INVERSE
@@ -991,7 +991,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     WHERE
       WR1 : SIZEOF(QUERY(cre <* SELF\Generic_physical_network.connectivity_requirement_element | NOT 
       (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR 
-           (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * 
+           (SIZEOF(TYPEOF(cre\Component_feature.associated_definition) * 
             ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0;
       WR2: NOT EXISTS(SELF\Generic_physical_network.reference_connected_terminals) OR
                      (SELF\Generic_physical_network.reference_connected_terminals.associated_definition = 
@@ -1057,7 +1057,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       terminal_to_be_connected : SET[1:?] OF Embedded_physical_component_terminal;
       point_to_be_connected    : SET[1:?] OF Layer_connection_point;
     DERIVE
-      associated_component : Assembly_component := terminal_to_be_connected[1]\Component_feature.associated_component;
+      associated_component : Assembly_component := terminal_to_be_connected[1]\Component_feature.associated_definition;
     WHERE
       WR1 : SIZEOF(QUERY(t <* terminal_to_be_connected | t.associated_component <> associated_component)) = 0;
   END_ENTITY;
@@ -1066,17 +1066,17 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUPERTYPE OF (ONEOF (Conductor,
       Conductive_filled_area) ANDOR (Fiducial_stratum_feature))    
     SUBTYPE OF (Shape_element); 			
-      SELF\Shape_element.containing_shape RENAMED resident_stratum  : design_or_documentation_stratum;
+      SELF\Shape_element.associated_definition : design_or_documentation_stratum;
       feature_of_size                                               : BOOLEAN;
     INVERSE
       shape	: SET[0:?] OF Stratum_feature_usage FOR definition;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name, resident_stratum;
+      UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
       WR1 : SIZEOF(query ( ac <* USEDIN(SELF,'') |
                   ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))
                    AND
-                  (get_assemblies(ac) <> get_ims(resident_stratum))
+                  (get_assemblies(ac) <> get_ims(associated_definition))
                   ))
                   = 0;
   END_ENTITY;
@@ -1097,9 +1097,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     INVERSE
       layer_usage	: SET[0:1] OF External_source_identification FOR item;
     WHERE
-      WR1: reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum;
+      WR1: reference_stratum_feature\Stratum_feature.associated_definition IN extent\Inter_stratum_extent.included_stratum;
       WR2: SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1;
+                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.associated_definition)) = 1;
       WR3: SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
              NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
                  )) = 1;
@@ -1252,7 +1252,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
   ENTITY Via_terminal
     SUBTYPE OF (Laminate_component_feature);
       SELF\Component_feature.definition           : Via_template_terminal;
-      SELF\Component_feature.associated_component : Via;
+      SELF\Component_feature.associated_definition : Via;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;

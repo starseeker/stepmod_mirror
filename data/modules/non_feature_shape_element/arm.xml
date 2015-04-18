@@ -7,30 +7,30 @@
    <schema name="Non_feature_shape_element_arm">
       <interface kind="use" schema="Physical_unit_shape_with_parameters_arm"/>
       <type name="nfse_feature_or_non_feature_usage">
-         <select basedon="feature_or_non_feature_usage" extensible="NO" genericentity="NO" selectitems="Usage_view_level_non_feature_shape_model"/>
+         <select basedon="feature_or_non_feature_usage" selectitems="Usage_view_level_non_feature_shape_model"/>
       </type>
       <type name="nfse_usage_concept">
-         <select basedon="usage_concept" extensible="NO" genericentity="NO" selectitems="Non_feature_shape_element"/>
+         <select basedon="usage_concept" selectitems="Non_feature_shape_element"/>
       </type>
       <type name="view_shape_select">
          <select extensible="YES" genericentity="YES" selectitems="Physical_unit_shape_model"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Edge_segment_vertex" supertypes="Shape_element">
+      <entity name="Edge_segment_vertex" supertypes="Shape_element">
          <derived expression="TRUE" name="product_definitional">
-            <builtintype fixed="NO" type="BOOLEAN"/>
+            <builtintype type="BOOLEAN"/>
             <redeclaration entity-ref="Shape_element"/>
          </derived>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Interface_plane" supertypes="Non_feature_shape_element">
+      <entity name="Interface_plane" supertypes="Non_feature_shape_element">
          <where expression="(SELF\Shape_element.element_name = 'interface plane')" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Non_feature_shape_element" supertypes="Shape_element">
-         <explicit name="associated_definition" optional="NO">
+      <entity name="Non_feature_shape_element" supertypes="Shape_element">
+         <explicit name="associated_definition">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <derived expression="FALSE" name="product_definitional">
-            <builtintype fixed="NO" type="BOOLEAN"/>
+            <builtintype type="BOOLEAN"/>
             <redeclaration entity-ref="Shape_element"/>
          </derived>
          <inverse attribute="associated_element" entity="Non_feature_shape_model" name="element_shape">
@@ -44,15 +44,13 @@
             <unique.attribute attribute="associated_definition"/>
          </unique>
          <where expression="NOT ((SIZEOF(associated_usage_concept) &gt; 0) OR (SIZEOF(element_shape) &gt; 0))" label="WR1"/>
-         <where expression="'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(associated_definition)" label="WR2"/>
-      <where label="IP1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Non_feature_shape_element_relationship" supertypes="Shape_element_relationship">
-         <explicit name="relating" optional="NO">
+      <entity name="Non_feature_shape_element_relationship" supertypes="Shape_element_relationship">
+         <explicit name="relating">
             <typename name="Non_feature_shape_element"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
-         <explicit name="related" optional="NO">
+         <explicit name="related">
             <typename name="Non_feature_shape_element"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
@@ -61,8 +59,8 @@
             <unique.attribute attribute="relating"/>
          </unique>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Non_feature_shape_model" supertypes="Geometric_model">
-         <explicit name="associated_element" optional="NO">
+      <entity name="Non_feature_shape_model" supertypes="Geometric_model">
+         <explicit name="associated_element">
             <typename name="Non_feature_shape_element"/>
          </explicit>
          <explicit name="model_shape" optional="YES">
@@ -72,35 +70,35 @@
          <where expression="NOT EXISTS(SELF\Representation.id)" label="WR2"/>
          <where expression="SIZEOF(QUERY( x &lt;* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION')&#10;                           | 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF(x)))=0" label="WR3"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Reference_graphic_registration_mark" supertypes="Non_feature_shape_element"/>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Seating_plane" supertypes="Non_feature_shape_element">
+      <entity name="Reference_graphic_registration_mark" supertypes="Non_feature_shape_element"/>
+      <entity name="Seating_plane" supertypes="Non_feature_shape_element">
          <where expression="(SELF\Shape_element.element_name = 'seating plane')" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Usage_view_level_non_feature_shape_model" supertypes="Non_feature_shape_model">
-         <explicit name="associated_element" optional="NO">
+      <entity abstract.supertype="YES" name="Usage_view_level_non_feature_shape_model" supertypes="Non_feature_shape_model">
+         <explicit name="associated_element">
             <typename name="View_level_non_feature_shape_element"/>
             <redeclaration entity-ref="Non_feature_shape_model"/>
          </explicit>
-         <explicit name="model_shape" optional="NO">
+         <explicit name="model_shape">
             <typename name="view_shape_select"/>
             <redeclaration entity-ref="Non_feature_shape_model"/>
          </explicit>
          <where expression="SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_model.model_shape\Geometric_model.context_of_items" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="View_level_non_feature_shape_element" supertypes="Non_feature_shape_element">
+      <entity name="View_level_non_feature_shape_element" supertypes="Non_feature_shape_element">
          <where expression="NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape) &gt; 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_MODEL',&#10;      (SELF\Non_feature_shape_element.element_shape))" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR2"/>
       </entity>
-      <subtype.constraint abstract.supertype="NO" entity="Shape_element" name="nfse_shape_element_subtypes" super.expression="ONEOF (Edge_segment_vertex, Non_feature_shape_element)"/>
+      <subtype.constraint entity="Shape_element" name="nfse_shape_element_subtypes" super.expression="ONEOF (Edge_segment_vertex, Non_feature_shape_element)"/>
       <function name="valid_es">
          <parameter name="input1">
-            <builtintype fixed="NO" type="STRING"/>
+            <builtintype type="STRING"/>
          </parameter>
          <parameter name="input2">
-            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Non_feature_shape_model"/>
          </parameter>
-         <builtintype fixed="NO" type="BOOLEAN"/>
+         <builtintype type="BOOLEAN"/>
          <algorithm>REPEAT i := 1 to HIINDEX(input2);
     IF NOT (input1 IN TYPEOF(input2[i])) THEN RETURN(FALSE);
     END_IF;

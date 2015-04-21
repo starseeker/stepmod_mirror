@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-57">
+   <application name="JSDAI" owner="LKSoft" source="topology_based_identification_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="topology_based_identification_schema">
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="direction"/>
+      </interface>
+      <interface kind="reference" schema="topology_schema">
+         <interfaced.item name="edge_curve"/>
+         <interfaced.item name="face"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation_item"/>
+      </interface>
+      <interface kind="reference" schema="sketch_schema">
+         <interfaced.item name="positioned_sketch"/>
+      </interface>
+      <interface kind="reference" schema="solid_shape_element_schema">
+         <interfaced.item name="modified_solid"/>
+      </interface>
+      <type name="feature_type">
+         <enumeration items="extrude sweep revolve chamfer round rectangular_pattern circular_pattern"/>
+      </type>
+      <type name="topology_entity_type_to_be_selected">
+         <enumeration items="face_type edge_type vertex_type"/>
+      </type>
+      <entity abstract.supertype="YES" name="ambiguity_resolution" super.expression="ONEOF (split_face_information, merged_face_information)"/>
+      <entity abstract.supertype="YES" name="basic_face_identification" super.expression="ONEOF (imported_face_identification, profile_based_feature_identification, transition_feature_identification, pattern_feature_identification)">
+         <explicit name="source_of_face">
+            <typename name="modified_solid"/>
+         </explicit>
+         <explicit name="feature_creation_type">
+            <typename name="feature_type"/>
+         </explicit>
+      </entity>
+      <entity name="circular_pattern_feature_identification" supertypes="pattern_feature_identification">
+         <explicit name="radial_inst_num">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="angular_inst_num">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="imported_face_identification" supertypes="basic_face_identification">
+         <explicit name="original_face">
+            <typename name="face"/>
+         </explicit>
+      </entity>
+      <entity name="merged_face_information" supertypes="ambiguity_resolution">
+         <explicit name="merged_faces_number">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="merged_faces">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="basic_face_identification"/>
+         </explicit>
+      </entity>
+      <entity name="pattern_feature_identification" super.expression="ONEOF (rectangular_pattern_feature_identification, circular_pattern_feature_identification)" supertypes="basic_face_identification">
+         <explicit name="reference_feature">
+            <typename name="modified_solid"/>
+         </explicit>
+         <explicit name="face_identification">
+            <typename name="basic_face_identification"/>
+         </explicit>
+      </entity>
+      <entity name="profile_based_feature_identification" supertypes="basic_face_identification">
+         <explicit name="sketch_instance">
+            <typename name="positioned_sketch"/>
+         </explicit>
+         <explicit name="sketch_segment">
+            <typename name="edge_curve"/>
+         </explicit>
+         <explicit name="path_instance">
+            <typename name="positioned_sketch"/>
+         </explicit>
+         <explicit name="path_segment">
+            <typename name="edge_curve"/>
+         </explicit>
+         <explicit name="rotational_axis">
+            <typename name="direction"/>
+         </explicit>
+      </entity>
+      <entity name="rectangular_pattern_feature_identification" supertypes="pattern_feature_identification">
+         <explicit name="row_inst_num">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="col_inst_num">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="split_face_information" supertypes="ambiguity_resolution">
+         <explicit name="object_order">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="split_object_number">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="topology_based_edge_identification" supertypes="topology_based_identification">
+         <explicit name="left_adjacent_face">
+            <typename name="topology_based_face_identification"/>
+         </explicit>
+         <explicit name="right_adjacent_face">
+            <typename name="topology_based_face_identification"/>
+         </explicit>
+         <explicit name="edge_SFI">
+            <typename name="split_face_information"/>
+         </explicit>
+      </entity>
+      <entity name="topology_based_face_identification" supertypes="topology_based_identification">
+         <explicit name="face_basic_identification">
+            <typename name="basic_face_identification"/>
+         </explicit>
+         <explicit name="face_SFI" optional="YES">
+            <typename name="split_face_information"/>
+         </explicit>
+         <explicit name="face_MFI" optional="YES">
+            <typename name="merged_face_information"/>
+         </explicit>
+      </entity>
+      <entity name="topology_based_identification" super.expression="ONEOF (topology_based_face_identification, topology_based_edge_identification, topology_based_vertex_identification)"/>
+      <entity name="topology_based_vertex_identification" supertypes="topology_based_identification">
+         <explicit name="adjacent_faces">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="topology_based_face_identification"/>
+         </explicit>
+         <explicit name="vertex_SFI">
+            <typename name="split_face_information"/>
+         </explicit>
+      </entity>
+      <entity name="transition_feature_identification" supertypes="basic_face_identification">
+         <explicit name="adjacent_faces">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="basic_face_identification"/>
+         </explicit>
+      </entity>
+      <entity name="user_selected_topology_element" supertypes="representation_item">
+         <explicit name="querying_topology_identification">
+            <typename name="topology_based_identification"/>
+         </explicit>
+         <explicit name="selected_topology_type">
+            <typename name="topology_entity_type_to_be_selected"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

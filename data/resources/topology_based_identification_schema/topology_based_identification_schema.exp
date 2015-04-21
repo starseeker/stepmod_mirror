@@ -1,0 +1,139 @@
+(* topology_based_identification_schema -- an extension of ISO 10303-55*)
+
+SCHEMA topology_based_identification_schema;
+
+	REFERENCE FROM geometry_schema
+		(cartesian_point, direction);
+
+	REFERENCE FROM topology_schema
+		(edge_curve, face);
+
+	REFERENCE FROM representation_schema
+		(representation_item);
+
+	REFERENCE FROM sketch_schema
+		(positioned_sketch);
+
+	REFERENCE FROM solid_shape_element_schema
+		(modified_solid);
+
+
+	TYPE topology_entity_type_to_be_selected = ENUMERATION OF 
+		(face_type, edge_type, vertex_type);
+	END_TYPE;
+
+	TYPE feature_type = ENUMERATION OF 
+		(extrude,
+		sweep,
+		revolve,
+		chamfer,
+		round,
+		rectangular_pattern,
+		circular_pattern);
+	END_TYPE;
+	
+	ENTITY basic_face_identification
+		ABSTRACT SUPERTYPE OF(
+			ONEOF(imported_face_identification,
+			profile_based_feature_identification, 
+			transition_feature_identification, 
+			pattern_feature_identification)
+			);
+		source_of_face : modified_solid;
+		feature_creation_type : feature_type;
+	END_ENTITY;
+
+	ENTITY imported_face_identification
+		SUBTYPE OF (basic_face_identification);
+		original_face : face;	
+	END_ENTITY; 
+
+	ENTITY profile_based_feature_identification
+		SUBTYPE OF (basic_face_identification);
+		sketch_instance : positioned_sketch;
+		sketch_segment : edge_curve;
+		path_instance : positioned_sketch;
+		path_segment : edge_curve;
+		rotational_axis : direction;	
+	END_ENTITY; 
+
+	ENTITY transition_feature_identification
+		SUBTYPE OF (basic_face_identification);
+		adjacent_faces: LIST[2:?] OF basic_face_identification;
+	END_ENTITY;
+
+	ENTITY pattern_feature_identification
+		SUPERTYPE OF(
+       			ONEOF(rectangular_pattern_feature_identification, 
+			circular_pattern_feature_identification))
+		SUBTYPE OF (basic_face_identification);
+		reference_feature : modified_solid;
+		face_identification : basic_face_identification;
+	END_ENTITY;
+
+	ENTITY rectangular_pattern_feature_identification			
+		SUBTYPE OF (pattern_feature_identification);
+		row_inst_num : INTEGER;
+		col_inst_num : INTEGER;
+	END_ENTITY;
+	
+	ENTITY circular_pattern_feature_identification				
+		SUBTYPE OF (pattern_feature_identification);
+		radial_inst_num : INTEGER;
+		angular_inst_num : INTEGER;
+	END_ENTITY;
+
+	ENTITY ambiguity_resolution
+		ABSTRACT SUPERTYPE OF(
+			ONEOF(split_face_information, merged_face_information)
+		);
+	END_ENTITY;
+
+	ENTITY split_face_information
+		SUBTYPE OF (ambiguity_resolution);
+		object_order : INTEGER;
+		split_object_number : INTEGER;
+	END_ENTITY;
+	
+	ENTITY merged_face_information
+		SUBTYPE OF (ambiguity_resolution);
+		merged_faces_number : INTEGER;
+		merged_faces : LIST[1:?] OF basic_face_identification;
+	END_ENTITY;
+
+	ENTITY topology_based_identification
+		SUPERTYPE OF(
+			ONEOF(topology_based_face_identification, 
+			topology_based_edge_identification, 
+			topology_based_vertex_identification)
+			);
+	END_ENTITY;
+
+	ENTITY topology_based_face_identification
+		SUBTYPE OF (topology_based_identification);
+		face_basic_identification : basic_face_identification;
+		face_SFI : OPTIONAL split_face_information; 
+		face_MFI : OPTIONAL merged_face_information;
+	END_ENTITY;
+
+	ENTITY topology_based_edge_identification
+		SUBTYPE OF (topology_based_identification);
+		left_adjacent_face : topology_based_face_identification;
+		right_adjacent_face : topology_based_face_identification;
+		edge_SFI : split_face_information;
+	END_ENTITY;
+
+	ENTITY topology_based_vertex_identification
+		SUBTYPE OF (topology_based_identification);
+		adjacent_faces : LIST[1:?] OF topology_based_face_identification;
+	    	vertex_SFI : split_face_information;
+	END_ENTITY;
+
+
+	ENTITY user_selected_topology_element
+		SUBTYPE OF (representation_item);
+		querying_topology_identification : topology_based_identification;
+		selected_topology_type : topology_entity_type_to_be_selected;	
+	END_ENTITY;
+
+END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-$Id: material_property_representation_schema.exp,v 1.3 2013/11/05 14:13:42 Exp $
+$Id: material_property_representation_schema.exp,v 1.4 2014/03/04 00:30:38 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N6751
 
 EXPRESS Source:
@@ -32,15 +32,29 @@ SCHEMA material_property_representation_schema '{iso standard 10303 part(45) ver
 
 REFERENCE FROM product_property_representation_schema
      (property_definition_representation);
+     
+REFERENCE FROM shape_dimension_schema
+     (dimensional_characteristic_representation);
+
+REFERENCE FROM process_property_representation_schema
+     (action_property_representation,
+      resource_property_representation);
 
 REFERENCE FROM support_resource_schema
      (label,
       text);
 
+TYPE characterized_property_representation = SELECT (
+	action_property_representation,
+	dimensional_characteristic_representation,
+	property_definition_representation,
+	resource_property_representation);
+END_TYPE;
+
 ENTITY data_environment;
   name       		: label;
   description 	: text;
-  elements    	: SET [1:?] OF property_definition_representation;
+  elements    	: SET [1:?] OF characterized_property_representation;
 END_ENTITY;
 
 ENTITY data_environment_relationship;
@@ -54,4 +68,10 @@ ENTITY material_property_representation
   SUBTYPE OF (property_definition_representation);
   dependent_environment : data_environment;
 END_ENTITY;
+
+ENTITY material_dimensional_characteristic_representation
+  SUBTYPE OF (dimensional_characteristic_representation);
+  dependent_environment : data_environment;
+END_ENTITY;
+
 END_SCHEMA;		-- material_property_representation_schema

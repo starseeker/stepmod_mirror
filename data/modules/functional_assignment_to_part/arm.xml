@@ -37,28 +37,18 @@
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="associated_definition">
-            <typename name="Part_usage_view"/>
+            <typename name="Part_view_definition"/>
          </explicit>
          <explicit name="connected_terminals">
             <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Part_terminal"/>
          </explicit>
-         <inverse attribute="associated_definition" entity="Part_connected_terminals_definition_domain" name="domain">
-            <inverse.aggregate lower="0" type="SET" upper="1"/>
-         </inverse>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
          <where expression="SIZEOF(QUERY(ct &lt;* connected_terminals | NOT (associated_definition = ct\Shape_element.associated_definition))) = 0" label="WR1"/>
-      </entity>
-      <entity name="Part_connected_terminals_definition_domain">
-         <explicit name="domain_type">
-            <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
-         </explicit>
-         <explicit name="associated_definition">
-            <typename name="Part_connected_terminals_definition"/>
-         </explicit>
+         <where expression="SIZEOF(QUERY(ct &lt;* connected_terminals | NOT (connected_terminals[1].domain_type = ct.domain_type))) = 0" label="WR2"/>
       </entity>
       <entity name="Part_connected_terminals_element">
          <explicit name="name">
@@ -71,7 +61,7 @@
             <typename name="fatp_termination_or_junction"/>
          </explicit>
          <explicit name="connectivity_context">
-            <typename name="Part_connected_terminals_definition"/>
+            <typename name="Part_connected_terminals_structure_definition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
@@ -123,6 +113,9 @@
          <explicit name="terminal_type" optional="YES">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Shape_element" old_name="description"/>
+         </explicit>
+         <explicit name="domain_type" optional="YES">
+            <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
          </explicit>
          <inverse attribute="connected_terminals" entity="Part_connected_terminals_definition" name="connection_requirement">
             <inverse.aggregate lower="0" type="SET" upper="1"/>

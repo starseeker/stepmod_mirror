@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2009/04/23 11:07:06 liutkuviene Exp $
+   $Id: arm.exp,v 1.19 2015/04/16 12:59:38 lothartklein Exp $
    ISO TC184/SC4/WG12 N6381 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5653
 *)
@@ -40,21 +40,23 @@ SCHEMA Functional_assignment_to_part_arm;
 
   ENTITY Part_connected_terminals_definition;
       name                  : STRING;   
-      associated_definition : Part_usage_view;
+      associated_definition : Part_view_definition;
       connected_terminals   : SET[2:?] OF Part_terminal;
-    INVERSE
-      domain : SET [0:1] OF Part_connected_terminals_definition_domain for associated_definition;
+--    INVERSE
+--      domain : SET [0:1] OF Part_connected_terminals_definition_domain for associated_definition;
     UNIQUE
       UR1 : name, associated_definition;
     WHERE
       WR1 : SIZEOF(QUERY(ct <* connected_terminals | NOT (associated_definition = ct\Shape_element.associated_definition))) = 0;
+      WR2 : SIZEOF(QUERY(ct <* connected_terminals | NOT (connected_terminals[1].domain_type = ct.domain_type))) = 0;
   END_ENTITY;
 
+(*
   ENTITY Part_connected_terminals_definition_domain;
       domain_type : fatp_part_connected_terminals_definition_domain_enumeration;
       associated_definition : Part_connected_terminals_definition;
   END_ENTITY;
-  
+*)
 
   ENTITY Part_connected_terminals_layout_topology_requirement_assignment
     SUBTYPE OF(Requirement_assignment);
@@ -66,7 +68,7 @@ SCHEMA Functional_assignment_to_part_arm;
     name                 : STRING; 
     start_terminus       : fatp_termination_or_junction;
     end_terminus         : fatp_termination_or_junction;
-    connectivity_context : Part_connected_terminals_definition;
+    connectivity_context : Part_connected_terminals_structure_definition;
   UNIQUE
     UR1 : name, connectivity_context;
   WHERE
@@ -99,6 +101,7 @@ END_ENTITY;
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Part_feature);
       SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
+      domain_type : OPTIONAL fatp_part_connected_terminals_definition_domain_enumeration;
     INVERSE
       connection_requirement         : SET[0:1] OF Part_connected_terminals_definition FOR connected_terminals;
       functional_usage_view_terminal : SET[0:1] OF Functional_usage_view_to_part_terminal_assignment FOR physical_usage_view_terminal;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.66 2012/09/03 08:23:19 lothartklein Exp $
+   $Id: arm.exp,v 1.67 2012/10/11 05:49:06 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7957 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7394
 *)
@@ -105,6 +105,13 @@ SCHEMA Characteristic_arm;
       SELF\Independent_property_relationship.related : Characteristic_data_column_header;
     DERIVE
       SELF\Independent_property_relationship.relation_type : STRING := 'decomposition';
+  END_ENTITY;
+
+  ENTITY Correlated_property
+    SUBTYPE OF (Assigned_property);
+      correlated_properties : SET [1:?] OF Assigned_property;
+  WHERE
+    WR1 : SIZEOF(QUERY(cp <* correlated_properties | cp\Assigned_property.described_element <> SELF\Assigned_property.described_element)) = 0;
   END_ENTITY;
 
   ENTITY Externally_defined_type_qualifier

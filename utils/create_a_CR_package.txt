@@ -1,11 +1,91 @@
-$Id: create_a_CR_package.txt,v 1.3 2015/05/07 21:23:58 thomasrthurman Exp $
+$Id: create_a_CR_package.txt,v 1.4 2015/05/07 21:29:44 thomasrthurman Exp $
 provides detailed step by step instructions to build a CR and evaluate it.
 [[!!do not commit any directory with "isopub" in the path!!]]
 T. Thurman
-Create a CR publication package
--get all meta-data numbers from convener
--update stepmod/repository_index.xml for new modules
+--note that this process does NOT product pretty-printed EXPRESS because there is no AP publication involved.
+--For the CR that is intended to product long forms that are pretty-printed additional steps are involved.
 
+Step one:
+Create a CR publication package
+-ensure all your mods are committed to stepmod and you have tagged your mods with the right CR tag!
+-update stepmod/repository_index.xml for new modules (tag with CR #)
+-Add 409, 410, 442 to CR
+-get all meta-data numbers from convener (including 409, 410, 442)
+-initialize local stepmod repo with "switch to another version" with latest published SMRL tag
+-update each module or resource doc or resource directory that is included in the CR so as to include the changes proposed.
+-(that is switch those specific directories to be updated with the CR with "switch to another version" with "your" CR tag!
+<example: only one schema in part 42 is being updated so only one schema directory would be switched,
+in addition to the part42 resource doc directory.>
+
+-update bug #3347 Maintaina recod CVS tags used
+====================================
+
+Step two:
+Create ARM/MIM EXPRESS and XML longforms for 409, 410, 442
+--note that this process does NOT product pretty-printed EXPRESS because there is no AP publication involved.
+--For the CR that is intended to product long forms that are pretty-printed additional steps are involved.
+-use longform.jar, longform_arm.prop, longform_mim.prop, longform_edms.bat, longform.EDMscript (tailored to local environment and particular 4xx module).
+-update concatenated_arm.exp, concatenated_mim.exp for 409, 410, 442
+--409 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap209.../dvlp
+--410 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap210_el*/dvlp/pmi
+--442 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap242_m*/dvlp/express/pmi
+-execute shtolo using usual longform.EDMscript
+-note that the diagnostic file in the example is the diagnostic for the concatenated file!!!! so the endings are not the same for the diagnostic and for the output .exp file
+<example>:
+Schemata>MakeLongForm(
+"n:\concatenated_arm.exp",
+"n:\electronic_assembly_interconnect_and_packaging_design_arm_sf.exp.dia",
+Ap210_electronic_assembly_interconnect_and_packaging_design_arm,
+"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
+"REPLACE_SCHEMA_NAMES,REPLACE_SCHEMA_NAMES_REPORT,DIAGNOSTICS_FOR_ROOT_ONLY,DIAGNOSTICS_FOR_INTERFACED_ONLY,EXPRESS_EDITION_2,TC2,EDITION_1_LONGFORM")
+'n:' is the location of the concatenated files.
+</example>
+-evaluate concatenated_arm.exp, concatenated_mim.exp for errors using the EDMS diagnostic report
+-execute patches for bugs 
+#4619, 
+#4662 (content in #4661), 
+#4665, 
+#4667, 
+#4668, 
+#4820, 
+#4904 comment #0, 
+#4904 comment #2, 
+#4978, 
+#4988, 
+#4992, 
+#4994, 
+#5004, 
+#5018, 
+#5019, 
+#5023, 
+#5048, 
+#5051, 
+#5052,  (is this still required? If not CR team should get Keith to mark the bug VERIFIED.)
+#5053, (is this fix published? If so Keith shall mark the bug VERIFIED.)
+#5054,
+#5056,
+#5057.
+-Commit concatenated_arm.exp, concatenated_mim.exp for 409, 410, 442
+-Commit the six diagnostic files "n:\<schema_name>_sf.exp.dia": 
+-execute longform EXPRESS evaluation using longform.EDMscript 'DefineSchema' command.
+<example>:
+Schemata>DefineSchema(
+"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
+"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp.dia",
+Ap210_electronic_assembly_interconnect_and_packaging_design_arm, "STORING_SOURCE,DELETING_EXISTING_SCHEMAS,TC2")
+'n:' is the location of the concatenated files.
+</end_example>
+
+-evaluate error report from longform.EDMscript
+-Commit the six diagnostic files "n:\<schema_name>_lf.exp.dia": 
+-copy and rename e.g., "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp" to stepmod/data/modules/ap210_el*/arm_lf.exp"
+-do same for five other longform files.
+-Commit arm_lf.exp, mim_lf.exp for 409, 410, 442.
+-Create arm_lf.xml for 409, 410, 442.
+-Create mim_lf.xml for 409, 410, 442.
+====================================
+
+Step three:
 –Requires ANT and Java and Saxon 6.5.5
 –Run: stepmod\utils\mkpart1000CR.wsf
 fill in: "CR00NNN" to create a directory
@@ -35,9 +115,11 @@ stepmod/data/modules/<module>/nav/mapping_view_with_test.xml
 
 retrieve last SMRL and put it somewhere.
 copy the stepmod\publication\isopub\<CR00NNN> over the top of previous SMRL
+====================================
 
 
---for each design ap build an ap publication package.
+Step four:
+<for> each design ap build an ap publication package.
 Run:stepmod\utils\mkpublication.wsf
 fill in: "APNNN" to create a directory
 –Edit: stepmod\publication\<APNNN>\publication_index.xml
@@ -56,4 +138,12 @@ merge the stepmod\publication\isopub\<APNNN> into the previous SMRL
 run linkcheck against the APNNN/index.htm
 (I think it is ok to merge multiple APs for testing into one SMRL as they have isolated names)
 verify the missing links are only ones related to old link for sc4 directory.
-endfor.
+</for>.
+====================================
+
+Step five:
+upload the modified multiple AP / SMRL directory as a zip file to WG12 drop-in box. Check with Convener for zip file name to use.
+====================================
+
+Step six:
+Mark all related bugs as RESOLVED/FIXED and assign to Keith.

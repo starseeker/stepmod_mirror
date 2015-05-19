@@ -1,22 +1,18 @@
 (*
-   $Id: arm.exp,v 1.25 2012/10/06 20:09:56 liutkuviene Exp $
+   $Id: arm.exp,v 1.26 2015/03/14 14:34:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N7717 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6971
 *)
 
 SCHEMA Functional_usage_view_arm;
 
- USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
- 
- USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
+USE FROM Classification_assignment_arm; -- ISO/TS 10303-1114
+USE FROM Information_product_arm; -- ISO/TS 10303-1761
+USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
  
 REFERENCE FROM Support_resource_arm(bag_to_set); 
 
   
-  TYPE fuuv_am_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_port_assignment_select WITH  
-	(Functional_unit_usage_view_terminal_definition);
-  END_TYPE;
-
   TYPE fuuv_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
      (Functional_unit_usage_view_terminal_definition);
   END_TYPE;
@@ -67,9 +63,10 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 
   ENTITY Functional_unit_usage_view
     SUBTYPE OF (Functional_unit_definition);
-     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
+--     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
      INVERSE
       access_mechanism : SET[0:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
+(*
      WHERE
       WR1: SIZEOF(analytical_model_application_reference) <= 1;
       WR2: NOT(SIZEOF(analytical_model_application_reference) = 1) OR
@@ -79,6 +76,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
                  NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) 
                  )) = 0))
         )) = 0);
+*)
   END_ENTITY;
 
   ENTITY Functional_unit_usage_view_terminal_definition
@@ -200,6 +198,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
    RETURN (TRUE);
   END_FUNCTION;
 
+(*
   FUNCTION get_ama(
 	input : analytical_model_port_assignment_select) : SET OF Analytical_model_application;
    LOCAL
@@ -214,5 +213,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 
 	RETURN(ama);
   END_FUNCTION;
+*)
 
 END_SCHEMA;

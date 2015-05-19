@@ -5,14 +5,12 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1705">
    <application name="JSDAI" owner="LKSoft" source="functional_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Functional_usage_view_arm">
-      <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Classification_assignment_arm"/>
+      <interface kind="use" schema="Information_product_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <type name="fuuv_am_port_assignment_select">
-         <select basedon="analytical_model_port_assignment_select" extensible="YES" genericentity="YES" selectitems="Functional_unit_usage_view_terminal_definition"/>
-      </type>
       <type name="fuuv_classification_item">
          <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="Functional_unit_usage_view_terminal_definition"/>
       </type>
@@ -79,15 +77,9 @@
          <where expression="acyclic_functional_unit_make_from_relationship (SELF, [related_view], &#10;            'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP')" label="WR1"/>
       </entity>
       <entity name="Functional_unit_usage_view" supertypes="Functional_unit_definition">
-         <derived expression="get_ama(access_mechanism[1])" name="analytical_model_application_reference">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Analytical_model_application"/>
-         </derived>
          <inverse attribute="associated_functional_unit_definition" entity="Functional_unit_usage_view_terminal_definition" name="access_mechanism">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <where expression="SIZEOF(analytical_model_application_reference) &lt;= 1" label="WR1"/>
-         <where expression="NOT(SIZEOF(analytical_model_application_reference) = 1) OR&#10;        (SIZEOF(QUERY( am &lt;* access_mechanism |&#10;           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR&#10;              (SIZEOF(QUERY( ampa &lt;* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |&#10;                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) &#10;                 )) = 0))&#10;        )) = 0)" label="WR2"/>
       </entity>
       <entity name="Functional_unit_usage_view_terminal_definition" super.expression="Scalar_terminal_definition">
          <explicit name="associated_functional_unit_definition">
@@ -233,24 +225,6 @@
       END_IF;
     END_REPEAT;
    RETURN (TRUE);</algorithm>
-      </function>
-      <function name="get_ama">
-         <parameter name="input">
-            <typename name="analytical_model_port_assignment_select"/>
-         </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
-         <typename name="Analytical_model_application"/>
-         <algorithm>LOCAL
-	ama : SET[0:?] OF Analytical_model_application := [];  --this gives us access to the information base
-	ampa : SET[0:?] OF Analytical_model_port_assignment :=[];
-   END_LOCAL;
-	ampa := bag_to_set(USEDIN (input, 'ANALYTICAL_MODEL_ARM.'+'ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'));
-	-- iterate over ampa
-	REPEAT i := 1 to SIZEOF(ampa) by 1;
-		ama := ama + ampa[i].associated_analytical_model_application;
-	END_REPEAT;
-
-	RETURN(ama);</algorithm>
       </function>
    </schema>
 </express>

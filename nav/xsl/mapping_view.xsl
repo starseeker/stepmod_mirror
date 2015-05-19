@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
+$Id: mapping_view.xsl,v 1.22 2013/10/25 15:46:45 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -30,9 +30,10 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
   <xsl:variable name="NUMBERS" select="'0123456789'"/>
-
-
-
+  <!-- MWD "module_file" and "module_node" variables made global -->
+  <xsl:variable name="module_file" 
+                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
+  <xsl:variable name="module_node" select="document($module_file)/module"/>
   <xsl:variable name="mappings-result">
               <xsl:call-template name="mapping-full-parse"/>
   </xsl:variable>
@@ -139,8 +140,6 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 
 		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
 
-
-
 		<xsl:apply-templates select="exslt:node-set($mappings-result)/module/mapping" mode="output-list">
 			<xsl:with-param name="schemas" select="$dep-schemas" />
 			<xsl:sort select="@entity" />
@@ -150,7 +149,6 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 		<xsl:call-template name="mim-schema-list" >
 			<xsl:with-param name="schemas" select="$dep-schemas" />			
 		</xsl:call-template>
-
 
 
 	  </xsl:when>
@@ -169,27 +167,17 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 </HTML>
 </xsl:template>
 
+
 <xsl:template name="mapping-full-parse">
-	  <xsl:variable name="module_file" 
-                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
-
-  <xsl:variable name="module_node" select="document($module_file)/module"/>
-
-
+   <!-- MWD "module_file" and "module_node" variable removed (made global) -->
 	<module>
 	<xsl:attribute name="name">
 		<xsl:value-of select="/stylesheet_application/@directory" />
 	</xsl:attribute>
-
 		<xsl:apply-templates select="$module_node//ae" />
-
 		<xsl:apply-templates select="$module_node//aa" />
-
 	</module>
-
-
 </xsl:template>
-
 
 <!--
 <xsl:template match="module" mode="output-list" >
@@ -233,8 +221,12 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 
 		<xsl:if test="@assertion_to" >
 		<xsl:choose>
+			<xsl:when test="@assertion_to = '*'" >
+				<!-- Do nothing -->
+			</xsl:when>
+
 			<xsl:when test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
-				<xsl:value-of select="@assertion_to" /> as reference by "Assertion to" must be an ARM SELECT type
+				<xsl:value-of select="@assertion_to" /> as referenced by "Assertion to" must be an ARM SELECT type
 				<br/>
 
 				<xsl:variable name="this_sel" select="@assertion_to" />
@@ -361,8 +353,8 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		  <xsl:with-param 
 		       	    name="message" 
-		            select="concat('Error Map25: ',aimelt,' not found in relevant schemas')"/>
-		</xsl:call-template>    
+		            select="concat('Error Map25A: ',aimelt,' not found in relevant schemas')"/><!-- MWD "Map25" renamed "Map25A"
+-->		</xsl:call-template>    
 
 
 								</xsl:otherwise>
@@ -747,6 +739,10 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 	<xsl:text> /SUPERTYPE </xsl:text>
 </xsl:template>
 
+<xsl:template match="mapping-of" ><!-- MWD this template added -->
+	<xsl:text> /MAPPING_OF </xsl:text>
+</xsl:template>
+
 <xsl:template match="quote" >
 	<xsl:choose>
 		<xsl:when test="@match='GOOD'" >
@@ -997,7 +993,7 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 		<xsl:with-param name="schemas" select="$schemas" />
 	</xsl:apply-templates>
 
-	<xsl:apply-templates select="is-extension-from | is-extension-of" mode="test" >
+	<xsl:apply-templates select="is-extended-by | extends" mode="test" ><!-- MWD name changed from "is-extension-from | is-extension-of" to "is-extended-by | extends" -->
 		<xsl:with-param name="schemas" select="$schemas" />
 	</xsl:apply-templates>
 	
@@ -1072,8 +1068,8 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 				          <xsl:with-param 
 				            name="message" 
-				            select="concat('Error Map31: TYPE ',$first,
-					    ' does not include ',$second,' as select item')"/>
+				            select="concat('Error Map36: TYPE ',$first,
+					    ' does not include ',$second,' as select item')"/><!-- MWD name changed from "Map31" to "Map36" -->
 					</xsl:call-template>    
 				</xsl:when>
 				<xsl:otherwise>
@@ -1090,7 +1086,7 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 	
 </xsl:template>
 
-<xsl:template match="is-extension-from" mode="test">
+	<xsl:template match="is-extended-by" mode="test"><!-- MWD name changed from "is-extension-from" to "is-extended-by" -->
 	<xsl:param name="schemas" />	
 	<!-- test that types are properly related -->
 
@@ -1127,7 +1123,7 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 	
 </xsl:template>
 
-<xsl:template match="is-extension-of" mode="test">
+<xsl:template match="extends" mode="test"><!-- MWD name changed from "is-extension-of" to "extends" -->
 	<xsl:param name="schemas" />	
 	<!-- test that types are properly related -->
 
@@ -1171,7 +1167,8 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 
 	<xsl:if test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
 		not(name(preceding-sibling::*[2]) ='subtype-template' or  
-		name(preceding-sibling::*[2]) ='supertype-template') ">
+		name(preceding-sibling::*[2]) ='supertype-template' or
+		name(preceding-sibling::*[2]) ='mapping-of') "><!-- MWD: mapping-of line added -->
 		!! UPPERCASE Not expected: <xsl:value-of select="." /> !!<br/>
 	</xsl:if>
 	
@@ -1181,6 +1178,12 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 		name(preceding-sibling::*[2]) ='supertype-template') " >
 			<!-- is a subtype or supertype template so ignore -->
 			<!-- could check it is found in ARMs ??? -->
+		</xsl:when>
+
+    <!-- MWD: this when clause added -->
+		<xsl:when test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
+		( name(preceding-sibling::*[2]) ='mapping-of' ) " >
+			<!-- is a MAPPING_OF so ignore -->
 		</xsl:when>
 
 		<xsl:when test="string-length(.) = 1 and not (contains($NUMBERS,.))" >
@@ -1284,7 +1287,7 @@ $Id: mapping_view.xsl,v 1.21 2009/03/25 11:55:00 robbod Exp $
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		  <xsl:with-param 
 		       	    name="message" 
-		            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
+		            select="concat('Error Map25B: ',.,' not found in relevant schemas')"/><!-- MWD Map25 changed to Map25B -->
 		</xsl:call-template>    
 
 

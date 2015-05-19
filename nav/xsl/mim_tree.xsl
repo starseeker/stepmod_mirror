@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mim_tree.xsl,v 1.1 2002/11/25 17:07:57 nigelshaw Exp $
+$Id: mim_tree.xsl,v 1.2 2003/02/14 10:45:21 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -21,9 +21,11 @@ $Id: mim_tree.xsl,v 1.1 2002/11/25 17:07:57 nigelshaw Exp $
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+	
+	<xsl:variable name="mod_dir_from_5mvxml" select="//module_clause/@directory"/><!-- MWD added -->
 
   <xsl:variable name="mod_file" 
-	    select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
+  	select="concat('../../data/modules/', $mod_dir_from_5mvxml,'/module.xml')"/><!-- MWD modified -->
 	    
   <xsl:variable name="module_node"
 	    select="document($mod_file)"/>

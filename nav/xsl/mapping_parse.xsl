@@ -362,6 +362,10 @@
 				<xsl:when test="substring($path,2,2)='SU'">
 					<xsl:text>/</xsl:text>
 				</xsl:when>
+				<xsl:when test="substring($path,2,7)='MAPPING'"><!-- MWD MAPPING test added -->
+					<xsl:text>/</xsl:text>
+				</xsl:when>
+
 				<xsl:otherwise>
 					<xsl:text> / </xsl:text>
 				</xsl:otherwise>
@@ -463,23 +467,26 @@
 			<xsl:when test="$word='=&gt;'">
 				<xsl:element name="is-supertype-of" />
 			</xsl:when>
+			<xsl:when test="$word='*&gt;'">
+				<xsl:element name="is-extended-by"/><!-- MWD renamed from "is-extension-from" to "is-extended-by" -->
+			</xsl:when>
+			<xsl:when test="$word='&lt;*'">
+				<xsl:element name="extends"/><!-- MWD renamed from "is-extension-of" to "extends" -->
+			</xsl:when>
 			<xsl:when test="$word='*'">
 				<xsl:element name="repeat" />
 			</xsl:when>
 			<xsl:when test="$word='='">
 				<xsl:element name="equals" />
 			</xsl:when>
-			<xsl:when test="$word='&lt;*'">
-				<xsl:element name="is-extension-of" />
-			</xsl:when>
-			<xsl:when test="$word='*&gt;'">
-				<xsl:element name="is-extension-from" />
-			</xsl:when>
 			<xsl:when test="$word='/SUBTYPE'">
 				<xsl:element name="subtype-template" />
 			</xsl:when>
 			<xsl:when test="$word='/SUPERTYPE'">
 				<xsl:element name="supertype-template" />
+			</xsl:when>
+			<xsl:when test="$word='/MAPPING_OF'"><!-- MWD MAPPING test added -->
+				<xsl:element name="mapping-of" />
 			</xsl:when>
 
 

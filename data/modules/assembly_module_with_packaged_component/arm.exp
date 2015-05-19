@@ -1,0 +1,29 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- assembly_module_with_packaged_component - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Assembly_module_with_packaged_component_arm;
+
+USE FROM Packaged_connector_model_arm;	-- ISO/TS 10303-1708
+-- Note: This USE FROM is TBConfirmed
+
+USE FROM Altered_package_arm;	-- ISO/TS 10303-1601
+USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+	
+ENTITY Packaged_component
+  SUBTYPE OF (Physical_component, Single_instance);
+  SELF\Definition_based_product_occurrence.derived_from : Packaged_part;
+  selected_package_alternate               : OPTIONAL Altered_package;
+INVERSE
+  access_mechanism : SET[0:?] OF packaged_component_join_terminal FOR associated_definition;
+END_ENTITY;
+
+ENTITY Packaged_component_join_terminal
+  SUBTYPE OF (Physical_component_terminal);
+  SELF\Component_feature.definition           : Packaged_part_join_terminal;
+  SELF\Component_feature.associated_definition : Packaged_component;
+WHERE
+  WR1 : NOT EXISTS(SELF\Shape_element.description);
+END_ENTITY;
+
+END_SCHEMA;

@@ -1,0 +1,40 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- edge_based_topological_representation_with_length - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Edge_based_topological_representation_with_length_arm;
+
+USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
+
+TYPE positive_length_measure = length_measure;
+WHERE
+  WR1: SELF > 0.0;
+END_TYPE;
+
+TYPE connected_edge_with_length_set_items = SELECT (
+  Connected_edge_set,
+  Path,
+  Vertex_on_edge);
+END_TYPE;
+
+ENTITY Edge_with_length
+  SUBTYPE OF (Edge);
+  edge_length : positive_length_measure ;
+END_ENTITY;
+
+ENTITY Vertex_on_edge
+  SUBTYPE OF (Vertex);
+  parent_edge : Edge_with_length;
+  distance_from_start: positive_length_measure ;
+WHERE
+    WR1: distance_from_start < parent_edge.edge_length;
+END_ENTITY;
+
+ENTITY Connected_edge_with_length_set_representation
+  SUBTYPE OF (Representation);
+  SELF\Representation.items : SET [1:?] OF connected_edge_with_length_set_items;
+WHERE
+  WR1: SIZEOF(QUERY ( it <* SELF.items | 'ADVANCED_BOUNDARY_REPRESENTATION_ARM.Connected_edge_set' IN  TYPEOF(it)) ) = 1; 
+END_ENTITY;
+  
+END_SCHEMA;

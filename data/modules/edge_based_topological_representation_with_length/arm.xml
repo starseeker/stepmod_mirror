@@ -1,12 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
-  <schema name="Edge_based_topological_representation_with_length_arm">
-  </schema>
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="edge_based_topological_representation_with_length_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Edge_based_topological_representation_with_length_arm">
+      <interface kind="use" schema="Elemental_topology_arm"/>
+      <type name="connected_edge_with_length_set_items">
+         <select selectitems="Connected_edge_set Path Vertex_on_edge"/>
+      </type>
+      <type name="positive_length_measure">
+         <typename name="length_measure"/>
+         <where expression="SELF &gt; 0.0" label="WR1"/>
+      </type>
+      <entity name="Connected_edge_with_length_set_representation" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="connected_edge_with_length_set_items"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY ( it &lt;* SELF.items | 'ADVANCED_BOUNDARY_REPRESENTATION_ARM.Connected_edge_set' IN  TYPEOF(it)) ) = 1" label="WR1"/>
+      </entity>
+      <entity name="Edge_with_length" supertypes="Edge">
+         <explicit name="edge_length">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Vertex_on_edge" supertypes="Vertex">
+         <explicit name="parent_edge">
+            <typename name="Edge_with_length"/>
+         </explicit>
+         <explicit name="distance_from_start">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <where expression="distance_from_start &lt; parent_edge.edge_length" label="WR1"/>
+      </entity>
+   </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.43 2012/10/11 05:49:27 liutkuviene Exp $
+   $Id: arm.exp,v 1.44 2015/04/16 14:04:11 lothartklein Exp $
    ISO TC184/SC4/WG12 N8194 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7589
 *)
@@ -8,6 +8,7 @@ SCHEMA Physical_connectivity_definition_arm;
 
 	USE FROM Part_external_reference_arm;	-- ISO/TS 10303-1711
 	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721#
+	USE FROM Physical_connectivity_layout_topology_requirement_arm;
 	USE FROM Physical_unit_design_view_arm;
 	USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
 
@@ -77,38 +78,10 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       WR1 : start_terminus <> end_terminus;
   END_ENTITY;
 
-  ENTITY Physical_connectivity_layout_topology_link
-    SUBTYPE OF(Group_relationship);
-      SELF\Group_relationship.related_group RENAMED subsequent_node : Physical_connectivity_layout_topology_node;
-      SELF\Group_relationship.relating_group RENAMED precedent_node  : Physical_connectivity_layout_topology_node;
-    DERIVE
-      SELF\Group_relationship.relation_type : STRING := '';
-    WHERE  
-      WR1 : acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], 
-        'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK');
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_layout_topology_node
-    SUBTYPE OF(Group);
-      SELF\Group.name RENAMED terminal_type : STRING;
-    WHERE
-      WR1 : (SIZEOF(SELF\Group.elements) = 0);
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_layout_topology_requirement
-    SUBTYPE OF(Predefined_requirement_view_definition, Group);
-      SELF\Group.elements : SET [1:?] OF Physical_connectivity_layout_topology_link;
-    DERIVE
-      nodes : SET [1:?] OF Physical_connectivity_layout_topology_node := pcd_get_pcltn(elements);
-      tree_structure : LOGICAL := (SIZEOF(nodes) = (SIZEOF(elements) + 1));
-    WHERE
-      WR1 : (tree_structure = TRUE);
-  END_ENTITY;
-
   ENTITY Physical_connectivity_layout_topology_requirement_assignment
     SUBTYPE OF(Requirement_assignment);
-      SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
-      SELF\Requirement_assignment.assigned_to          : Physical_connectivity_definition;
+    SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
+    SELF\Requirement_assignment.assigned_to          : Physical_connectivity_definition;
   END_ENTITY;
 
   ENTITY Physical_connectivity_make_from_relationship;
@@ -153,29 +126,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     UNIQUE
       UR1 : name, scope;
   END_ENTITY; 
-
-  FUNCTION acyclic_physical_connectivity_layout_topology_link
-    (relation : Physical_connectivity_layout_topology_link; 
-    relatives : SET[1:?] OF Physical_connectivity_layout_topology_node; 
-    specific_relation : STRING) : BOOLEAN; 
-    LOCAL
-      x : SET OF Physical_connectivity_layout_topology_link := [];
-    END_LOCAL;
-    IF relation.precedent_node IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_node,
-      'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' +
-      'PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK.' +
-      'SUBSEQUENT_NODE')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_physical_connectivity_layout_topology_link(x[i], relatives +
-        relation.precedent_node, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION;    
 
   FUNCTION pcd_get_assemblies(input : SET OF Component_terminal) : SET OF Product_view_definition;
     LOCAL
@@ -235,15 +185,4 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
   RETURN(tj);
   END_FUNCTION;
 
-  FUNCTION pcd_get_pcltn(input : SET OF Physical_connectivity_layout_topology_link) : SET OF Physical_connectivity_layout_topology_node;
-  LOCAL
-   pcltn : SET OF Physical_connectivity_layout_topology_node := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   pcltn := pcltn + input[i].precedent_node + input[i].subsequent_node;
-  END_REPEAT;
-  RETURN(pcltn);
-  END_FUNCTION;
-  
 END_SCHEMA;

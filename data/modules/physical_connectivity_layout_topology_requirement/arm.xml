@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="physical_connectivity_layout_topology_requirement_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Physical_connectivity_layout_topology_requirement_arm">
+      <interface kind="use" schema="Functional_assignment_to_part_arm"/>
+      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <entity name="Part_connected_terminals_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
+         <explicit name="assigned_requirement">
+            <typename name="Physical_connectivity_layout_topology_requirement"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+         <explicit name="assigned_to">
+            <typename name="Part_connected_terminals_definition"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_link" supertypes="Group_relationship">
+         <explicit name="subsequent_node">
+            <typename name="Physical_connectivity_layout_topology_node"/>
+            <redeclaration entity-ref="Group_relationship" old_name="related_group"/>
+         </explicit>
+         <explicit name="precedent_node">
+            <typename name="Physical_connectivity_layout_topology_node"/>
+            <redeclaration entity-ref="Group_relationship" old_name="relating_group"/>
+         </explicit>
+         <derived expression="''" name="relation_type">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Group_relationship"/>
+         </derived>
+         <where expression="acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], &#10;       'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK')" label="WR1"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_node" supertypes="Group">
+         <explicit name="terminal_type">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Group" old_name="name"/>
+         </explicit>
+         <where expression="(SIZEOF(SELF\Group.elements) = 0)" label="WR1"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_requirement" supertypes="Predefined_requirement_view_definition Group">
+         <explicit name="elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_link"/>
+            <redeclaration entity-ref="Group"/>
+         </explicit>
+         <derived expression="pcd_get_pcltn(elements)" name="nodes">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_node"/>
+         </derived>
+         <derived expression="(SIZEOF(nodes) = (SIZEOF(elements) + 1))" name="tree_structure">
+            <builtintype type="LOGICAL"/>
+         </derived>
+         <where expression="(tree_structure = TRUE)" label="WR1"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
+         <explicit name="assigned_requirement">
+            <typename name="Physical_connectivity_layout_topology_requirement"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+         <explicit name="assigned_to">
+            <typename name="Physical_connectivity_definition"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+      </entity>
+      <function name="acyclic_physical_connectivity_layout_topology_link">
+         <parameter name="relation">
+            <typename name="Physical_connectivity_layout_topology_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_node"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Physical_connectivity_layout_topology_link := [];
+  END_LOCAL;
+  IF relation.precedent_node IN relatives THEN
+      RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_node,
+      'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' +
+      'PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK.' +
+      'SUBSEQUENT_NODE')) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_physical_connectivity_layout_topology_link(x[i], relatives +
+      relation.precedent_node, specific_relation) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);</algorithm>
+      </function>
+      <function name="pcd_get_pcltn">
+         <parameter name="input">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_link"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Physical_connectivity_layout_topology_node"/>
+         <algorithm>LOCAL
+   pcltn : SET OF Physical_connectivity_layout_topology_node := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   pcltn := pcltn + input[i].precedent_node + input[i].subsequent_node;
+  END_REPEAT;
+  RETURN(pcltn);</algorithm>
+      </function>
+   </schema>
+</express>

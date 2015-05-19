@@ -1,0 +1,85 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- physical_connectivity_layout_topology_requirement - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Physical_connectivity_layout_topology_requirement_arm;
+
+USE FROM Functional_assignment_to_part_arm; -- ISO/TS 10303-1674
+USE FROM Physical_connectivity_definition_arm; -- ISO/TS 10303-1755
+REFERENCE FROM Support_resource_arm(bag_to_set);
+
+ENTITY Part_connected_terminals_layout_topology_requirement_assignment
+  SUBTYPE OF(Requirement_assignment);
+  SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
+  SELF\Requirement_assignment.assigned_to          : Part_connected_terminals_definition;
+END_ENTITY;
+
+ENTITY Physical_connectivity_layout_topology_link
+  SUBTYPE OF(Group_relationship);
+  SELF\Group_relationship.related_group RENAMED subsequent_node : Physical_connectivity_layout_topology_node;
+  SELF\Group_relationship.relating_group RENAMED precedent_node  : Physical_connectivity_layout_topology_node;
+DERIVE
+  SELF\Group_relationship.relation_type : STRING := '';
+WHERE  
+  WR1 : acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK');
+END_ENTITY;
+
+ENTITY Physical_connectivity_layout_topology_node
+  SUBTYPE OF(Group);
+  SELF\Group.name RENAMED terminal_type : STRING;
+WHERE
+  WR1 : (SIZEOF(SELF\Group.elements) = 0);
+END_ENTITY;
+
+ENTITY Physical_connectivity_layout_topology_requirement
+  SUBTYPE OF(Predefined_requirement_view_definition, Group);
+  SELF\Group.elements : SET [1:?] OF Physical_connectivity_layout_topology_link;
+DERIVE
+  nodes : SET [1:?] OF Physical_connectivity_layout_topology_node := pcd_get_pcltn(elements);
+  tree_structure : LOGICAL := (SIZEOF(nodes) = (SIZEOF(elements) + 1));
+WHERE
+   WR1 : (tree_structure = TRUE);
+END_ENTITY;
+
+ENTITY Physical_connectivity_layout_topology_requirement_assignment
+  SUBTYPE OF(Requirement_assignment);
+  SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
+  SELF\Requirement_assignment.assigned_to          : Physical_connectivity_definition;
+END_ENTITY;
+
+FUNCTION pcd_get_pcltn(input : SET OF Physical_connectivity_layout_topology_link) : SET OF Physical_connectivity_layout_topology_node;
+  LOCAL
+   pcltn : SET OF Physical_connectivity_layout_topology_node := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   pcltn := pcltn + input[i].precedent_node + input[i].subsequent_node;
+  END_REPEAT;
+  RETURN(pcltn);
+END_FUNCTION;
+  
+FUNCTION acyclic_physical_connectivity_layout_topology_link
+    (relation : Physical_connectivity_layout_topology_link; 
+    relatives : SET[1:?] OF Physical_connectivity_layout_topology_node; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+      x : SET OF Physical_connectivity_layout_topology_link := [];
+  END_LOCAL;
+  IF relation.precedent_node IN relatives THEN
+      RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_node,
+      'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' +
+      'PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK.' +
+      'SUBSEQUENT_NODE')) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_physical_connectivity_layout_topology_link(x[i], relatives +
+      relation.precedent_node, specific_relation) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION;    
+
+END_SCHEMA;

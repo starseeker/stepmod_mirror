@@ -1,15 +1,31 @@
 (*
-   $Id: arm.exp,v 1.4 2015/03/14 14:34:03 lothartklein Exp $
+   $Id: arm.exp,v 1.5 2015/03/14 19:05:24 lothartklein Exp $
    ISO TC184/SC4/WG12 N7930 - ISO/CD-TS - 10303-1812 Product and manufacturing annotation presentation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7367
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Product_and_manufacturing_annotation_presentation_arm;
 
 USE FROM Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
-TYPE pmap_product_shape_type_enumeration = EXTENSIBLE ENUMERATION BASED_ON product_shape_type_enumeration WITH ( 
-  pmi_annotation_presentation_shape ); 
+TYPE pamap_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
+  model_based_3D_annotation_presentation);
 END_TYPE;
+
+RULE model_based_3d_annotation_presentation_view_context_constraint FOR (Part_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( p <* Part_view_definition | 
+        (SIZEOF ( QUERY ( pa <* p.additional_contexts | pa.application_domain = pamap_additional_application_domain_enumeration.model_based_3D_annotation_presentation) ) > 0)
+           AND ( 
+                 (p.initial_context.application_domain <> pamap_initial_application_domain_enumeration.model_based_product_geometry)
+                 OR 
+                 (p.initial_context.life_cycle_stage <> pvd_life_cycle_stage_enumeration.design)
+               )
+                      ) 
+               ) = 0 ;
+END_RULE; 
+-- WR1: If there is an additional context of .model_based_3D_annotation_presentation, then the initial context shall be model_based_product_geometry 
+--   for the application_domain and design for the life_cycle_stage
+
 
 END_SCHEMA;

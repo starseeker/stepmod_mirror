@@ -1,69 +1,24 @@
 (*
-   $Id: arm.exp,v 1.62 2014/02/06 17:48:57 thomasrthurman Exp $
+   $Id: arm.exp,v 1.63 2015/04/16 10:11:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N8420 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8086
 *)
 
 SCHEMA Assembly_module_design_arm;
 
-	USE FROM Altered_package_arm;	-- ISO/TS 10303-1601
-	USE FROM Assembly_module_usage_view_arm;	-- ISO/TS 10303-1642
-	USE FROM Bare_die_arm;	-- ISO/TS 10303-1650
-	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
-	USE FROM Layered_interconnect_simple_template_arm;	-- ISO/TS 10303-1718
+USE FROM Assembly_module_usage_view_arm;	-- ISO/TS 10303-1642
+USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
+USE FROM Physical_unit_design_view_arm; -- ISO/TS 10303-1728
+USE FROM Physical_connectivity_layout_topology_requirement_arm; 
 
-	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;
-	    ONEOF (Bare_die_component,
-		Packaged_component,
-		Routed_interconnect_component,
-		Routed_physical_component);
-	END_SUBTYPE_CONSTRAINT;
-
-	SUBTYPE_CONSTRAINT amd_physical_component_terminal_subtypes FOR Physical_component_terminal;
-	    ONEOF (Bare_die_component_terminal,
-		Minimally_defined_component_terminal,
-		Packaged_component_join_terminal);
-	END_SUBTYPE_CONSTRAINT;
-
- 	TYPE assembled_feature_select = EXTENSIBLE GENERIC_ENTITY SELECT
- 		(Bare_die_component_terminal,
-     	Component_mounting_feature,
- 		Packaged_component_join_terminal);
-	END_TYPE;
-
-	TYPE assembly_module_or_assembly_group_component =
-		EXTENSIBLE GENERIC_ENTITY SELECT
-		(Assembly_module_design_view);
-	END_TYPE;
-
-  ENTITY Assembly_connection_zone_position_relationship;
-      associating_design_view_shape               : Geometric_model;
-      associated_usage                            : Connection_zone_in_design_view;
-      associated_connection_zone_shape_definition : Geometric_model;
-      associated_usage_placement                  : Axis_placement;
-      associating_design_view                     : Assembly_module_design_view;
-  END_ENTITY;
+  TYPE assembly_module_or_assembly_group_component = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Assembly_module_design_view);
+  END_TYPE;
 
   ENTITY Assembly_module_design_view
-    SUPERTYPE OF (ONEOF (Layered_assembly_panel_design_view, Layered_assembly_module_design_view))
     SUBTYPE OF (Assembly_definition, Part_design_view);
   WHERE
     WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
-  END_ENTITY;
-
-  ENTITY Bare_die_component
-    SUBTYPE OF (Physical_component, Single_instance);
-      SELF\Definition_based_product_occurrence.derived_from : Bare_die;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-  END_ENTITY;
-
-  ENTITY Bare_die_component_terminal
-    SUBTYPE OF (Physical_component_terminal);
-      SELF\Component_feature.definition           : Bare_die_terminal;
-      SELF\Component_feature.associated_definition : Bare_die_component;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Component_external_reference;
@@ -92,62 +47,11 @@ SCHEMA Assembly_module_design_arm;
       SELF\Component_feature.definition : Part_mounting_feature;
   END_ENTITY;
 
-  ENTITY Component_overlap_relationship;
-      previously_placed_component : Next_assembly_usage;
-      current_component           : Next_assembly_usage;
-      added_clearance             : Length_tolerance_characteristic;
-  END_ENTITY;
-
-  ENTITY Layered_assembly_panel_design_view
-    SUBTYPE OF (Assembly_module_design_view);
-  END_ENTITY;
-
   ENTITY Minimally_defined_component_terminal
     SUBTYPE OF (Physical_component_terminal);
       SELF\Component_feature.definition : Part_terminal_external_reference;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Movable_packaged_component_join_terminal
-    SUBTYPE OF (Packaged_component_join_terminal);
-      wire_terminal_length      : OPTIONAL Length_tolerance_characteristic;
-    WHERE
-      WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package |
-            NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0;
-  END_ENTITY;
-
-  ENTITY Packaged_component
-    SUBTYPE OF (Physical_component, Single_instance);
-      SELF\Definition_based_product_occurrence.derived_from : Packaged_part;
-      selected_package_alternate               : OPTIONAL Altered_package;
-    INVERSE
-      access_mechanism : SET[0:?] OF packaged_component_join_terminal FOR associated_definition;
-  END_ENTITY;
-
-  ENTITY Packaged_component_join_terminal
-    SUBTYPE OF (Physical_component_terminal);
-      SELF\Component_feature.definition           : Packaged_part_join_terminal;
-      SELF\Component_feature.associated_definition : Packaged_component;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Layered_assembly_module_design_view
-    SUBTYPE OF (Assembly_module_design_view);
-      SELF\Part_design_view.usage_view : Layered_assembly_module_usage_view;
-  END_ENTITY;
-
-  ENTITY Routed_interconnect_component
-    SUBTYPE OF (Physical_component);
-      routed_centreline_shape : Path_area_with_parameters;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-  END_ENTITY;
-
-  ENTITY Routed_physical_component
-    SUBTYPE OF (Physical_component);
-      routed_centreline_shape : Path_area_with_parameters;
   END_ENTITY;
 
 END_SCHEMA;

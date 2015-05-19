@@ -7,7 +7,6 @@
    <schema name="Functional_assignment_to_part_arm">
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
-      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
       <type name="fatp_groupable_item">
          <select basedon="groupable_item" selectitems="Part_connected_terminals_definition"/>
       </type>
@@ -19,6 +18,9 @@
       </type>
       <type name="fatp_termination_or_junction">
          <select extensible="YES" genericentity="YES" selectitems="Part_terminal Part_connected_terminals_topological_junction"/>
+      </type>
+      <type name="interface_or_join_terminal_enumeration">
+         <enumeration items="join_terminal interface_terminal"/>
       </type>
       <entity name="Functional_usage_view_to_part_terminal_assignment">
          <explicit name="physical_usage_view_terminal">
@@ -69,16 +71,6 @@
          </unique>
          <where expression="start_terminus &lt;&gt; end_terminus" label="WR1"/>
       </entity>
-      <entity name="Part_connected_terminals_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
-         <explicit name="assigned_requirement">
-            <typename name="Physical_connectivity_layout_topology_requirement"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
-         </explicit>
-         <explicit name="assigned_to">
-            <typename name="Part_connected_terminals_definition"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
-         </explicit>
-      </entity>
       <entity name="Part_connected_terminals_structure_definition" supertypes="Part_connected_terminals_definition">
          <derived expression="fatp_get_pt(structural_element)" name="structural_terminal_nodes">
             <aggregate lower="0" type="SET" upper="?"/>
@@ -109,13 +101,12 @@
             <unique.attribute attribute="scope"/>
          </unique>
       </entity>
-      <entity abstract.supertype="YES" name="Part_terminal" supertypes="Part_feature">
-         <explicit name="terminal_type" optional="YES">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Shape_element" old_name="description"/>
-         </explicit>
+      <entity name="Part_terminal" supertypes="Part_feature">
          <explicit name="domain_type" optional="YES">
             <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
+         </explicit>
+         <explicit name="interface_or_join_terminal">
+            <typename name="interface_or_join_terminal_enumeration"/>
          </explicit>
          <inverse attribute="connected_terminals" entity="Part_connected_terminals_definition" name="connection_requirement">
             <inverse.aggregate lower="0" type="SET" upper="1"/>

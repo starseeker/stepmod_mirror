@@ -5,15 +5,60 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1643">
    <application name="JSDAI" owner="LKSoft" source="assembly_module_with_interconnect_component_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_module_with_interconnect_component_arm">
-      <interface kind="use" schema="Assembly_module_design_arm"/>
+      <interface kind="use" schema="Assembly_module_with_packaged_component_arm"/>
+      <interface kind="use" schema="Bare_die_arm"/>
       <interface kind="use" schema="Interconnect_module_usage_view_arm"/>
       <interface kind="use" schema="Interface_component_arm"/>
-      <type name="amwic_assembled_feature_select">
-         <select basedon="assembled_feature_select" extensible="YES" genericentity="YES" selectitems="Interconnect_component_join_terminal Interconnect_component_interface_terminal Interconnect_module_component_surface_feature Interconnect_module_component_terminal"/>
-      </type>
+      <interface kind="use" schema="Layered_interconnect_simple_template_arm"/>
       <type name="conductive_interconnect_terminal_or_interconnect_component_join_terminal">
          <select selectitems="Interconnect_component_interface_terminal Interconnect_component_join_terminal Movable_packaged_component_join_terminal"/>
       </type>
+      <entity name="Assembly_connection_zone_position_relationship">
+         <explicit name="associating_design_view_shape">
+            <typename name="Geometric_model"/>
+         </explicit>
+         <explicit name="associated_usage">
+            <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <explicit name="associated_connection_zone_shape_definition">
+            <typename name="Geometric_model"/>
+         </explicit>
+         <explicit name="associated_usage_placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="associating_design_view">
+            <typename name="Assembly_module_design_view"/>
+         </explicit>
+      </entity>
+      <entity name="Bare_die_component" supertypes="Physical_component Single_instance">
+         <explicit name="derived_from">
+            <typename name="Bare_die"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
+      </entity>
+      <entity name="Bare_die_component_terminal" supertypes="Physical_component_terminal">
+         <explicit name="definition">
+            <typename name="Bare_die_terminal"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Bare_die_component"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
+      </entity>
+      <entity name="Component_overlap_relationship">
+         <explicit name="previously_placed_component">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <explicit name="current_component">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <explicit name="added_clearance">
+            <typename name="Length_tolerance_characteristic"/>
+         </explicit>
+      </entity>
       <entity name="Design_view_terminal_component_shape_relationship">
          <explicit name="associating_component_shape">
             <typename name="Geometric_model"/>
@@ -74,5 +119,46 @@
          </explicit>
          <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
+      <entity name="Layered_assembly_module_design_view" supertypes="Assembly_module_design_view">
+         <explicit name="usage_view">
+            <typename name="Layered_assembly_module_usage_view"/>
+            <redeclaration entity-ref="Part_design_view"/>
+         </explicit>
+      </entity>
+      <entity name="Layered_assembly_module_terminal" supertypes="Assembly_module_terminal">
+         <explicit name="associated_definition">
+            <typename name="Layered_assembly_module_usage_view"/>
+            <redeclaration entity-ref="Part_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Layered_assembly_module_usage_view" supertypes="Assembly_module_usage_view">
+         <explicit name="maximum_negative_component_height" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_positive_component_height" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
+      <entity name="Layered_assembly_panel_design_view" supertypes="Assembly_module_design_view"/>
+      <entity name="Movable_packaged_component_join_terminal" supertypes="Packaged_component_join_terminal">
+         <explicit name="wire_terminal_length" optional="YES">
+            <typename name="Length_tolerance_characteristic"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(pt &lt;* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package |&#10;            NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Routed_interconnect_component" supertypes="Physical_component">
+         <explicit name="routed_centreline_shape">
+            <typename name="Path_area_with_parameters"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
+      </entity>
+      <entity name="Routed_physical_component" supertypes="Physical_component">
+         <explicit name="routed_centreline_shape">
+            <typename name="Path_area_with_parameters"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Assembly_module_design_view" name="assembly_module_design_view_subtypes" super.expression="ONEOF (Layered_assembly_panel_design_view, Layered_assembly_module_design_view)"/>
+      <subtype.constraint entity="Physical_component" name="physical_component_subtypes" super.expression="ONEOF (Bare_die_component, Packaged_component, Routed_interconnect_component, Routed_physical_component)"/>
+      <subtype.constraint entity="Physical_component_terminal" name="amd_physical_component_terminal_subtypes" super.expression="ONEOF (Bare_die_component_terminal, Minimally_defined_component_terminal, Packaged_component_join_terminal)"/>
    </schema>
 </express>

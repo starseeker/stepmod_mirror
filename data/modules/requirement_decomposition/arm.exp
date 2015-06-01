@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.72 2009/11/15 23:36:59 lothartklein Exp $
+   $Id: arm.exp,v 1.73 2009/12/23 13:28:43 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7037 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6543
 *)
@@ -9,6 +9,7 @@ SCHEMA Requirement_decomposition_arm;
 	USE FROM Conductivity_material_aspects_arm;	-- ISO/TS 10303-1756
 	USE FROM Elemental_geometric_shape_arm;	-- ISO/TS 10303-1004
 	USE FROM Functional_specification_arm;	-- ISO/TS 10303-1679
+	USE FROM Group_arm; -- ISO/TS 10303-1113
 	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
 	USE FROM Requirement_view_definition_relationship_arm;  -- ISO/TS 10303-1142
 
@@ -27,6 +28,10 @@ SCHEMA Requirement_decomposition_arm;
       non_conductive);
     END_TYPE;
 
+  TYPE requirement_basis_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+    characteristic_select);
+  END_TYPE;  
+  
 	TYPE characteristic_select = SELECT
       (characteristic,
        Boolean_representation_item,
@@ -95,9 +100,10 @@ SCHEMA Requirement_decomposition_arm;
 	SUPERTYPE OF(ONEOF(Constraint_occurrence,
 		 Design_characteristic_occurrence))
     SUBTYPE OF(Requirement_view_definition);
-      required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
-      required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
+--      required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
+--      required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
       required_characteristic             : OPTIONAL characteristic_select;
+      requirement_basis : SET[1:?] OF requirement_basis_select;
     DERIVE
 		requirement_specification: SET[1:?] OF Document_definition :=
   			get_document_definition(SELF, 'requirement specification', 

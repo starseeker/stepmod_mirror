@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.121 2015/04/03 23:38:22 lothartklein Exp $
+   $Id: arm.exp,v 1.122 2015/05/19 11:27:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N8338 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N7789
 *)
@@ -43,6 +43,11 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 	USE FROM Interconnect_physical_requirement_allocation_arm; -- ISO/TS 10303-1689
 
 	REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
+
+TYPE ap210_requirement_basis_select = SELECT BASED_ON requirement_basis_select WITH (
+    Analytical_model_application,
+    Functional_specification);
+END_TYPE;  
 
 TYPE ap210_analytical_model_port_assignment_select = SELECT BASED_ON analytical_model_port_assignment_select WITH (
 	Connection_zone,
@@ -268,6 +273,28 @@ TYPE ap210_presentation_association_select = SELECT BASED_ON presentation_associ
           Product_version,
           View_definition_relationship);
 END_TYPE;
+
+(*
+ENTITY Bind_analytical_model_to_functional_unit_usage_view
+  analytical_usage : Analytical_model_application;
+  port_bindings : SET[2:?] OF Analytical_model_port_assignment;
+  bound_functional_unit : Functional_unit_usage_view;
+WHERE
+  WR1: SIZEOF(QUERY ( pb <* port_bindings | pb.
+                ('ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP' IN  TYPEOF(it)) ) |
+               ( NOT (SIZEOF(QUERY ( csh <* collect_shells(msb) |
+                                (NOT (SIZEOF(QUERY ( fcs <* csh\
+                connected_face_set.connected_faces | (NOT (
+                'ADVANCED_BOUNDARY_REPRESENTATION_ARM.ADVANCED_FACE' IN TYPEOF(fcs))) )) = 0)) ))
+              = 0)) )) = 0;
+  WR1: 
+  
+  all the Analytical_model_port_assignment(s).
+       
+Functional_unit_usage_view_terminal_definition.associated_functional_unit_definition
+must point to the same Functional_unit_usage_view;
+END_ENTITY;
+*)
 
   SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_product_subtypes FOR Product;
     ABSTRACT SUPERTYPE;

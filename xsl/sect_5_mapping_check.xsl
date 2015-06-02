@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.16 2004/12/03 13:50:50 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -330,7 +330,7 @@ $Id: sect_5_mapping_check.xsl,v 1.16 2004/12/03 13:50:50 robbod Exp $
   </xsl:apply-templates><!-- MWD added -->
   
   <xsl:apply-templates select="exslt:node-set($refpath)//is-subtype-of | exslt:node-set($refpath)//is-supertype-of" mode="test" ><!-- MWD added -->
-    <xsl:with-param name="schemas" select="$schemas" /><!-- MWD added -->
+    <xsl:with-param name="schemas" select="$dep-schemas" /><!-- MWD added -->
   </xsl:apply-templates><!-- MWD added -->
   
 </xsl:template>
@@ -817,7 +817,7 @@ $Id: sect_5_mapping_check.xsl,v 1.16 2004/12/03 13:50:50 robbod Exp $
               <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
               <xsl:with-param 
                 name="message" 
-                select="concat('Error Map35: ERROR in subtyping in PATH: ', $first,
+                select="concat('HOPE Error Map35: ERROR in subtyping in PATH: ', $first,
                 ' is not a subtype of ',$second)"/>
             </xsl:call-template>    				
           </xsl:when>

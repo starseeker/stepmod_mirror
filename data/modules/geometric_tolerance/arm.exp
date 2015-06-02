@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.54 2012/10/11 05:49:26 liutkuviene Exp $
+$Id: arm.exp,v 1.55 2015/04/04 09:28:10 lothartklein Exp $
 ISO TC184/SC4/WG12 N8026 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7448
 *) 
@@ -163,9 +163,8 @@ ENTITY Angularity_tolerance
 END_ENTITY;
 
 ENTITY Axis_placement_shape_element
-   SUBTYPE OF (Associated_shape_element);
-DERIVE
-   SELF\Associated_shape_element.associated_item : Axis_placement := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+   SUBTYPE OF (Shape_element);
+   SELF\Shape_element.identified_item : SET[1:1] OF Axis_placement;
 END_ENTITY;
 
 ENTITY Between_shape_element
@@ -377,15 +376,13 @@ ENTITY Placed_target
 END_ENTITY;
 
 ENTITY Plane_shape_element
-   SUBTYPE OF (Associated_shape_element);
-DERIVE
-   SELF\Associated_shape_element.associated_item : Plane := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+   SUBTYPE OF (Shape_element);
+   SELF\Shape_element.identified_item : SET[1:1] OF Plane;
 END_ENTITY;
 
 ENTITY Point_shape_element
-   SUBTYPE OF (Associated_shape_element);
-DERIVE
-   SELF\Associated_shape_element.associated_item : Point := SELF\Associated_shape_element.association\Geometric_item_specific_usage.identified_item;
+   SUBTYPE OF (Shape_element);
+   SELF\Shape_element.identified_item : SET[1:1] OF Point;
 END_ENTITY;
 
 ENTITY Position_tolerance
@@ -509,12 +506,6 @@ SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element;
          Composite_group_shape_element);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT gl_associated_shape_element_subtypes FOR Associated_shape_element;
-   ONEOF (Axis_placement_shape_element,
-         Plane_shape_element,
-         Point_shape_element);
-END_SUBTYPE_CONSTRAINT;
-
 SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
    ONEOF (Datum,
          Datum_feature,
@@ -522,7 +513,10 @@ SUBTYPE_CONSTRAINT gl_shape_element_subtypes FOR Shape_element;
          Tolerance_zone,
          Contacting_feature,
          Datum_system,
-         General_datum_reference);
+         General_datum_reference,
+         Axis_placement_shape_element,
+         Plane_shape_element,
+         Point_shape_element);
 END_SUBTYPE_CONSTRAINT;
 
 FUNCTION sts_get_general_datum_reference

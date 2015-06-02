@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1816">
    <application name="JSDAI" owner="LKSoft" source="model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -32,20 +32,20 @@
             <typename name="Nominal_3d_feature"/>
             <redeclaration entity-ref="Derived_shape_element"/>
          </explicit>
-         <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
+         <explicit name="identified_item">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="nominal_3d_derived_feature_geometry"/>
-            <redeclaration entity-ref="Associated_shape_element"/>
-         </derived>
-         <where expression="EXISTS(associated_item)" label="WR1"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
       </entity>
       <entity name="Nominal_3d_edge" supertypes="Nominal_3d_integral_feature">
-         <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
+         <explicit name="identified_item">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Edge_curve"/>
-            <redeclaration entity-ref="Associated_shape_element"/>
-         </derived>
-         <where expression="'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN&#10;     TYPEOF(SELF\Associated_shape_element.associated_item)" label="WR1"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature)" supertypes="Associated_shape_element Part_shape_element">
+      <entity abstract.supertype="YES" name="Nominal_3d_feature" super.expression="ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature)" supertypes="Part_shape_element">
          <explicit name="associated_definition">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="Shape_element"/>
@@ -54,11 +54,11 @@
          <where expression="SELF\Shape_element.associated_definition.shape_type = pmiwn3m_product_shape_type_enumeration.nominal_shape" label="WR2"/>
       </entity>
       <entity name="Nominal_3d_integral_feature" supertypes="General_part_feature Nominal_3d_feature">
-         <derived expression="association\Geometric_item_specific_usage.identified_item" name="associated_item">
+         <explicit name="identified_item">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="nominal_3d_integral_feature_geometry"/>
-            <redeclaration entity-ref="Associated_shape_element"/>
-         </derived>
-         <where expression="EXISTS(associated_item)" label="WR1"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
       </entity>
       <rule appliesto="Part_view_definition" name="gdt_representation_view_context_constraint">
          <where expression="SIZEOF ( QUERY ( p &lt;* Part_view_definition | &#10;        (SIZEOF ( QUERY ( pa &lt;* p.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) &gt; 0)&#10;           AND ( &#10;                 (p.initial_context.application_domain &lt;&gt; pamap_initial_application_domain_enumeration.model_based_product_geometry)&#10;                 OR &#10;                 (p.initial_context.life_cycle_stage &lt;&gt; pvd_life_cycle_stage_enumeration.design)&#10;               )&#10;                      ) &#10;               ) = 0" label="WR1"/>

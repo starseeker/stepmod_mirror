@@ -1,17 +1,18 @@
 (*
-   $Id: arm.exp,v 1.6 2015/03/14 14:34:50 lothartklein Exp $
+   $Id: arm.exp,v 1.7 2015/03/14 19:05:40 lothartklein Exp $
    ISO TC184/SC4/WG12 N7936 - ISO/CD-TS - 10303-1811 Product and manufacturing information with nominal 3d models - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7373
 *)
 
 SCHEMA Product_and_manufacturing_information_with_nominal_3d_models_arm;
 
-USE FROM Product_and_manufacturing_information_view_context_arm;
-USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Advanced_boundary_representation_arm; -- ISO/TS 10303-1514
-USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
-USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
 USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
+USE FROM Document_assignment_arm; -- ISO/TS 10303-1122
+USE FROM Manifold_subsurface_arm; -- ISO/TS 10303-1702
+USE FROM Manifold_surface_arm; -- ISO/TS 10303-1509
+USE FROM Part_view_definition_arm; -- ISO/TS 10303-1023
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
 TYPE advanced_face_model = SELECT (
   Advanced_brep_shape_representation, 
@@ -19,8 +20,40 @@ TYPE advanced_face_model = SELECT (
   Manifold_subsurface_model);
 END_TYPE;
 
-TYPE pmiwn3m_product_shape_type_enumeration = EXTENSIBLE ENUMERATION BASED_ON product_shape_type_enumeration WITH ( 
-  nominal_3d_model_shape ); 
+TYPE pmiwn3dm_documented_element_select = SELECT BASED_ON documented_element_select WITH 
+    (View_definition_context);
+END_TYPE; 
+
+TYPE pmiwn3m_product_shape_type_enumeration = ENUMERATION BASED_ON product_shape_type_enumeration WITH ( 
+  nominal_shape ); 
 END_TYPE;
+
+TYPE pamap_initial_application_domain_enumeration = ENUMERATION BASED_ON initial_application_domain_enumeration WITH (
+  model_based_product_geometry);
+END_TYPE;
+
+RULE nominal_3d_model_shape_constraint FOR (Part_view_definition);
+WHERE
+ -- WR1: If nominal_shape then the Product_view_definition associated with the nominal model shall have an initial context that is a Model_based_view_context. 
+  WR1: SIZEOF ( QUERY ( p <* Part_view_definition | 
+        (p\Product_view_definition.shape_type = pmiwn3m_product_shape_type_enumeration.nominal_shape)
+           AND ( 
+                 (p.initial_context.application_domain <> pamap_initial_application_domain_enumeration.model_based_product_geometry)
+                 OR 
+                 (p.initial_context.life_cycle_stage <> pvd_life_cycle_stage_enumeration.design)
+               )
+                      ) 
+               ) = 0 ;
+  -- WR2: --  If nominal_shape then a there shall be an associated model (with no name) of type advanced_face_model
+  WR2: SIZEOF ( QUERY ( p <* Part_view_definition | 
+                          SIZEOF( [ 'ADVANCED_BOUNDARY_REPRESENTATION_ARM.ADVANCED_BREP_SHAPE_REPRESENTATION',
+                                    'MANIFOLD_SURFACE_ARM.MANIFOLD_SURFACE_SHAPE_REPRESENTATION',
+                                    'MANIFOLD_SUBSURFACE_ARM.MANIFOLD_SUBSURFACE_MODEL'
+                                  ] * TYPEOF(p.primary_shape_representation) ) > 0
+                      ) 
+              ) = 0;
+END_RULE; 
+
+-- IP1: Any definitional shape associated with a Product_view_definition that is a "nominal_shape" shall be treated as nominal shape and any associated geometry shall represent nominal geometry. 
 
 END_SCHEMA;

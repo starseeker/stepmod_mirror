@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1710">
    <application name="JSDAI" owner="LKSoft" source="packaged_part_black_box_model_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Packaged_part_black_box_model_arm">
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
@@ -12,25 +13,25 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="package_or_package_external_reference">
-         <select selectitems="Package Package_external_reference"/>
+         <select extensible="NO" genericentity="NO" selectitems="Package Package_external_reference"/>
       </type>
       <type name="ppbbm_material_item_select">
          <select basedon="material_item_select" extensible="YES" genericentity="YES" selectitems="Packaged_part"/>
       </type>
-      <entity name="Packaged_part" supertypes="Part_usage_view">
-         <explicit name="used_package">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Packaged_part" supertypes="Part_usage_view">
+         <explicit name="used_package" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="package_or_package_external_reference"/>
          </explicit>
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <derived expression="bag_to_set(QUERY( temp &lt;* USEDIN(SELF,&#xA;&#x9;&#x9;     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | &#xA;&#x9;&#x9;     (SIZEOF( QUERY( cla &lt;* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + &#xA;&#x9;&#x9; &#x9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'potting compound')) = 1)))" name="potting_compound">
-            <aggregate lower="0" type="SET" upper="1"/>
+         <derived expression="bag_to_set(QUERY( temp &lt;* USEDIN(SELF,&#10;&#9;&#9;     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | &#10;&#9;&#9;     (SIZEOF( QUERY( cla &lt;* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'potting compound')) = 1)))" name="potting_compound">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="1"/>
             <typename name="Material_identification"/>
          </derived>
-         <derived expression="QUERY(up &lt;* used_package | &#xA;&#x9;&#x9;                                       (SIZEOF(['ALTERED_PACKAGE_ARM.ALTERED_PACKAGE',&#xA;&#x9;&#x9;                                          'PART_EXTERNAL_REFERENCE_ARM.PACKAGE_EXTERNAL_REFERENCE'] * TYPEOF(up)) = 0)&#xA;&#x9;&#x9;                                          )" name="base_package">
-            <aggregate lower="1" type="SET" upper="?"/>
+         <derived expression="QUERY(up &lt;* used_package | &#10;&#9;&#9;                                       (SIZEOF(['ALTERED_PACKAGE_ARM.ALTERED_PACKAGE',&#10;&#9;&#9;                                          'PART_EXTERNAL_REFERENCE_ARM.PACKAGE_EXTERNAL_REFERENCE'] * TYPEOF(up)) = 0)&#10;&#9;&#9;                                          )" name="base_package">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Package"/>
          </derived>
          <inverse attribute="associated_definition" entity="Packaged_part_terminal" name="access_mechanisms">
@@ -39,14 +40,21 @@
          <where expression="NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) &gt; 0))" label="WR1"/>
          <where expression="SIZEOF(base_package) = 1" label="WR2"/>
          <where expression="single_package_product(base_package, used_package)" label="WR3"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="Packaged_part_join_terminal" supertypes="Packaged_part_terminal"/>
-      <entity abstract.supertype="YES" name="Packaged_part_terminal" supertypes="Part_terminal">
-         <explicit name="terminal_of_package">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Packaged_part_join_terminal" supertypes="Packaged_part_terminal">
+         <derived expression="join_terminal" name="interface_or_join_terminal">
+            <typename name="interface_or_join_terminal_enumeration"/>
+            <redeclaration entity-ref="Part_terminal"/>
+         </derived>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Packaged_part_terminal" supertypes="Part_terminal">
+         <explicit name="terminal_of_package" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Package_terminal"/>
          </explicit>
-         <explicit name="associated_definition">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Packaged_part"/>
             <redeclaration entity-ref="Part_feature"/>
          </explicit>
@@ -55,10 +63,10 @@
       </entity>
       <function name="disjoint_package_terminals">
          <parameter name="input">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Package_terminal"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
    pk : SET OF Package := []; -- get access to information base
   END_LOCAL;
@@ -71,14 +79,14 @@
       </function>
       <function name="single_package_product">
          <parameter name="input1">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="Package"/>
          </parameter>
          <parameter name="input2">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="package_or_package_external_reference"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>

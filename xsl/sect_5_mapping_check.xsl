@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
+$Id: sect_5_mapping_check.xsl,v 1.18 2015/06/02 13:48:24 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -335,40 +335,75 @@ $Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
   
 </xsl:template>
 
+  <xsl:template name="parse-refpath">
+    <xsl:param name="path"/>
+    
+    <xsl:variable name="firstWord" select="substring-before($path,' ')"/>
+    <xsl:variable name="restOfPath" select="substring-after($path,' ')"/>      
+    <xsl:choose>
+      <xsl:when test="contains($path,' ')">
+        <!-- get first word and process -->
+        <xsl:choose>
+          <xsl:when test="(starts-with($firstWord,$apos)) and (substring($firstWord,string-length($firstWord))!=$apos)">
+            <!--<xsl:variable name="spaceFreeRestOfPath" select="translate($restOfPath, ' ', '')"/>-->
+            <!--<xsl:variable name="restOfPathTextEntry" select="substring-before($spaceFreeRestOfPath, $apos)"/>-->
+            
+            
+            <xsl:variable name="restOfTextEntry" select="substring-before($restOfPath, $apos)"/>
+            <xsl:variable name="restOfPathAfterTextEntry" select="substring-after($restOfPath, $apos)"/>
+            <xsl:variable name="textEntry" select="concat($firstWord, ' ', $restOfTextEntry, $apos)"/>
+            <xsl:call-template name="process-word">
+              <xsl:with-param name="word" select="$textEntry"/>
+              </xsl:call-template>
+            
+            <xsl:call-template name="parse-refpath">
+              <xsl:with-param name="path" select="$restOfPathAfterTextEntry"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="process-word">
+              <xsl:with-param name="word" select="$firstWord"/>
+            </xsl:call-template>
+            <!-- recurse using remainder of string -->
+           
+            <xsl:call-template name="parse-refpath">
+              <xsl:with-param name="path" select="$restOfPath"/>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="process-word">
+          <xsl:with-param name="word" select="$path"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
-<xsl:template name="parse-refpath">
+<!--<xsl:template name="parse-refpath">
   <xsl:param name="path"/>
   <xsl:param name="previous"/>
-  
   <xsl:choose>
     <xsl:when test="contains($path,' ')">
-      <!-- get first word and process -->
-      
+      <!-\- get first word and process -\->
       <xsl:call-template name="process-word">
         <xsl:with-param name="word" select="substring-before($path,' ')"/>
         <xsl:with-param name="previous" select="$previous"/>
       </xsl:call-template>
-      
-      
-      <!-- recurse using remainder of string -->
-      
+      <!-\- recurse using remainder of string -\->
       <xsl:call-template name="parse-refpath">
         <xsl:with-param name="path" select="substring-after($path,' ')"/>
         <xsl:with-param name="previous" select="substring-before($path,' ')"/>
       </xsl:call-template>
-      
     </xsl:when>
     <xsl:otherwise>
-      
       <xsl:call-template name="process-word">
         <xsl:with-param name="word" select="$path"/>
         <xsl:with-param name="previous" select="$previous"/>
       </xsl:call-template>
-      
     </xsl:otherwise>
   </xsl:choose>
-  
-</xsl:template>
+</xsl:template> MWD redone to cope with text entries in paths -->
 
 <xsl:template name="space-out-path">
   <xsl:param name="path"/>
@@ -462,7 +497,7 @@ $Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
 
 <xsl:template name="process-word">
   <xsl:param name="word"/>
-  <xsl:param name="previous"/>
+  <!--<xsl:param name="previous"/> MWD not used in this template -->
   <xsl:if test="string-length($word)>0">
     <xsl:choose>
       <xsl:when test="$word='\n'">
@@ -685,7 +720,8 @@ $Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <xsl:when test="(substring(., 1, 1) = $apos) and (substring(., string-length()) = $apos)">
+          <!--<xsl:when test="(substring(., 1, 1) = $apos) and (substring(., string-length()) = $apos)">-->
+          <xsl:when test="substring(., 1, 1) = $apos">
             <!-- it's a string so don't look for it in the MIMs -->
           </xsl:when>
           <xsl:otherwise>
@@ -699,6 +735,7 @@ $Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
             </xsl:call-template>    
             </xsl:otherwise>  
         </xsl:choose>
+        
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -817,7 +854,7 @@ $Id: sect_5_mapping_check.xsl,v 1.17 2015/05/19 14:39:53 mikeward Exp $
               <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
               <xsl:with-param 
                 name="message" 
-                select="concat('HOPE Error Map35: ERROR in subtyping in PATH: ', $first,
+                select="concat('Error Map35: ERROR in subtyping in PATH: ', $first,
                 ' is not a subtype of ',$second)"/>
             </xsl:call-template>    				
           </xsl:when>

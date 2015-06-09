@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.18 2015/06/02 13:48:24 mikeward Exp $
+$Id: sect_5_mapping_check.xsl,v 1.19 2015/06/06 08:47:12 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -806,6 +806,7 @@ $Id: sect_5_mapping_check.xsl,v 1.18 2015/06/02 13:48:24 mikeward Exp $
   <xsl:template match="is-supertype-of | is-subtype-of" mode="test"><!-- MWD new template added -->
     <xsl:param name="schemas" />	
     <xsl:variable name="first" select="string(preceding-sibling::word[1])" />
+    <xsl:variable name="map" select="name(following-sibling::*[3])"/>
     <xsl:variable name="second">
       <xsl:choose>
         <xsl:when test="name(following-sibling::*[not(name() ='new-line')][1])='start-constraint'" >
@@ -817,7 +818,11 @@ $Id: sect_5_mapping_check.xsl,v 1.18 2015/06/02 13:48:24 mikeward Exp $
       </xsl:choose>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$map = 'mapping-of'">
+        <!-- don't generate error message -->
+      </xsl:when>
       <xsl:when test="name()='is-supertype-of'">
+        
         <xsl:choose>
           <xsl:when test="name(following-sibling::*[not(name() ='new-line')][1])='subtype-template'">
             <!-- could check to see if valid arm entity 

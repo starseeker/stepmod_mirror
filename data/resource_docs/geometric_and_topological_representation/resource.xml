@@ -12,8 +12,8 @@
    version="5"
    object.reg.version="10"
    sc4.working_group="12"
-   wg.number="8380"
-   wg.number.express="8381"
+   wg.number="8544"
+   wg.number.express="8545"
    checklist.internal_review="7629"
    checklist.project_leader="7630"
    checklist.convener="7631"
@@ -266,7 +266,7 @@
 	</change_edition>
       <change_edition version="5">
       			<description>
-            This fifth edition adds entities to enable isiogeometric analysis and curved triangles as tessellated geometry. Additions to the topology schema enable an edge with defined length but no geometry to support flexible strucure topology.
+            This fifth edition adds entities to enable isiogeometric analysis and curved triangles as tessellated geometry. Additions to the topology schema enable an edge with defined length but no geometry to support flexible strucure topology. A new schema is added to enable shape models defined by 3D scanned data.
       			</description>
       					
       		<schema.changes schema_name="geometry_schema"> 
@@ -275,6 +275,7 @@
       				<modified.object type="ENTITY" name="bounded_curve"/>
       				<modified.object type="ENTITY" name="bounded_surface"/>
       				<modified.object type="ENTITY" name="volume"/>
+      			        <modified.object type="RULE" name="compatible_dimension"/>
       			</schema.modifications>
       			<schema.additions>
       			    <modified.object type="TYPE" name="locally_refined_spline_type_enum"/>
@@ -290,7 +291,9 @@
       			    <modified.object type="FUNCTION" name="increasing"/>
       			    <modified.object type="FUNCTION" name="constraints_param_local_b_spline"/>
       			    <modified.object type="FUNCTION" name="weights_positive"/>
-      		        </schema.additions>
+      			    <modified.object type="FUNCTION" name="check_geometric_dimension"/>
+      			    <modified.object type="FUNCTION" name="geometric_dimensionalities_in_contexts"/>
+      		         </schema.additions>
       		</schema.changes>
       
       		<schema.changes schema_name="topology_schema"> 
@@ -313,14 +316,30 @@
 				      		<modified.object type="ENTITY" name="tessellated_face"/>
 				      		<modified.object type="ENTITY" name="tessellated_connecting_edge"/>
 				      		<modified.object type="ENTITY" name="tessellated_edge"/>
+				      		<modified.object type="ENTITY" name="tessellated_shape_representation"/>
 				</schema.modifications>
 	      			<schema.additions>
 	      				<modified.object type="ENTITY" name="cubic_bezier_tessellated_edge"/>
 	      				<modified.object type="ENTITY" name="cubic_bezier_triangulated_face"/>
 	      				<modified.object type="ENTITY" name="cubic_tessellated_connecting_edge"/>
 	      			</schema.additions>
+      		 </schema.changes>
+	             	        <schema.changes schema_name="scan_data_3d_shape_model_schema"> 
+	       	      			<schema.additions>
+	       	      				<modified.object type="TYPE" name="point_cloud_set_or_superset"/>
+	       	      				<modified.object type="ENTITY" name="point_cloud_dataset"/>
+	       	                                <modified.object type="ENTITY" name="point_cloud_superdataset"/>
+	       	      				<modified.object type="ENTITY" name="point_cloud_dataset_with_colours"/>
+	       	      				<modified.object type="ENTITY" name="point_cloud_dataset_with_intensities"/>
+	       	      				<modified.object type="ENTITY" name="point_cloud_dataset_with_normals"/>
+	       	      				<modified.object type="ENTITY" name="scan_3d_model"/>
+	       	      				<modified.object type="ENTITY" name="scan_data_shape_representation"/>
+	       	      				<modified.object type="ENTITY" name="scanned_data_item"/>
+	       	      				<modified.object type="ENTITY" name="scanner_basic_properties"/>
+	       	      				<modified.object type="ENTITY" name="scanner_property"/>
+	       	      				<modified.object type="ENTITY" name="triangulated_point_cloud_dataset"/>
+	       	      			</schema.additions>
       		</schema.changes>
-      	
       	</change_edition>
       
 </changes>
@@ -1464,6 +1483,22 @@ point is associated with a list <i>(u,v,w)</i> of parameter values
    </express-g>
 </schema>
 
+<schema name="scan_data_3d_shape_model_schema">
+<!-- Note schema EXPRESS are in ..\resources\resource_name name_of_schema.xml -->
+    <introduction>
+   <p>  The subject of the <b>scan_data_3d_shape_model</b> schema is the set of
+    basic resources necessary for the communication of data describing the
+    representation of a shape as a cloud of points produced by a scanning process. </p>
+   
+     </introduction>
+
+<!-- EXPRESS-G -->
+  <express-g>
+          <imgfile file="scan_data_3d_shape_model_schemaexpg1.xml"/>
+          
+   </express-g> 
+</schema>
+
  <!-- shortnames  -->
   <shortnames>
        <shortname name="AWOB" entity="area_with_outer_boundary"/>                               
@@ -1584,10 +1619,15 @@ point is associated with a list <i>(u,v,w)</i> of parameter values
        <shortname name="OTBNCR" entity="outer_boundary_curve"/>
        <shortname name="PRBL"   entity="parabola"/>
        <shortname name="PATH"   entity="path"/>
+       <shortname name="PCDWC" entity="point_cloud_dataset_with_colours"/>
+       <shortname name="PCDWI" entity="point_cloud_dataset_with_intensities"/>
+       <shortname name="PCDWN" entity="point_cloud_dataset_with_normals"/>
        <shortname name="PCURVE" entity="pcurve"/>
        <shortname name="PLCMNT" entity="placement"/>
        <shortname name="PLANE"  entity="plane"/>
        <shortname name="POINT"  entity="point"/>
+       <shortname name="PNCLDT" entity="point_cloud_dataset"/>
+       <shortname name="PNCLSP" entity="point_cloud_superdataset"/>
        <shortname name="PNINVL" entity="point_in_volume"/>
        <shortname name="PNONCR" entity="point_on_curve"/>
        <shortname name="PNONSR" entity="point_on_surface"/>
@@ -1620,6 +1660,11 @@ point is associated with a list <i>(u,v,w)</i> of parameter values
        <shortname name="RLRSC" entity="rational_locally_refined_spline_curve"/>
        <shortname name="RLRSS" entity="rational_locally_refined_spline_surface"/>
        <shortname name="RLRSV" entity="rational_locally_refined_spline_volume"/>
+       <shortname name="SC3DMD" entity="scan_3d_model"/>
+       <shortname name="SCBSPR" entity="scanner_basic_properties"/>
+       <shortname name="SCDTIT" entity="scanned_data_item"/>
+       <shortname name="SCNPRP" entity="scanner_property"/>
+       <shortname name="SDSR" entity="scan_data_shape_representation"/>
        <shortname name="SMCRV"  entity="seam_curve"/>
        <shortname name="SMEDG"  entity="seam_edge"/>
        <shortname name="SCTSPN" entity="sectioned_spine"/>
@@ -1647,6 +1692,7 @@ point is associated with a list <i>(u,v,w)</i> of parameter values
        <shortname name="SWFCSL" entity="swept_face_solid"/>
        <shortname name="SWPSRF" entity="swept_surface"/>
        <shortname name="TSCNED" entity="tessellated_connecting_edge"/>
+       <shortname name="TPCD" entity="triangulated_point_cloud_dataset"/>
        <shortname name="TSCRST" entity="tessellated_curve_set"/>
        <shortname name="TSSEDG" entity="tessellated_edge"/>
        <shortname name="TSSFC " entity="tessellated_face"/> 

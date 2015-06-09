@@ -54,7 +54,10 @@
          <interfaced.item name="tessellated_item"/>
          <interfaced.item name="torus"/>
       </interface>
-      <constant expression="representation_item('')||&#10;                                   geometric_representation_item()" name="dummy_gri">
+         <interface kind="reference" schema="scan_data_3d_shape_model_schema">
+         <interfaced.item name="scanned_data_item"/>
+      </interface>
+     <constant expression="representation_item('')||&#10;                                   geometric_representation_item()" name="dummy_gri">
          <typename name="geometric_representation_item"/>
       </constant>
       <type name="axis2_placement">
@@ -117,7 +120,7 @@
                           <typename name="dimension_count"/>
                        </explicit>
               </entity>
-                  <entity name="geometric_representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set, tessellated_item, volume_with_faces)" supertypes="representation_item">
+                  <entity name="geometric_representation_item" super.expression="ONEOF (point, direction, vector, placement, cartesian_transformation_operator, curve, surface, edge_curve, face_surface, poly_loop, vertex_point, solid_model, boolean_result, sphere, right_circular_cone, right_circular_cylinder, torus, block, primitive_2d, right_angular_wedge, ellipsoid, faceted_primitive, rectangular_pyramid, cyclide_segment_solid, volume, half_space_solid, shell_based_surface_model, face_based_surface_model, shell_based_wireframe_model, edge_based_wireframe_model, geometric_set, tessellated_item, volume_with_faces, scanned_data_item)" supertypes="representation_item">
                        <derived expression="dimension_of(SELF)" name="dim">
                           <typename name="dimension_count"/>
                        </derived>
@@ -1449,11 +1452,17 @@
                    </entity>  
       
       
-      <rule appliesto="cartesian_point direction representation_context geometric_representation_context" name="compatible_dimension">
-         <where expression="SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0" label="WR1"/>
-         <where expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY&#10;       (y &lt;* geometric_representation_context | item_in_context(x,y) AND&#10;       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))&#10;       &gt; 0 )) = 0" label="WR2"/>
+      <rule appliesto="cartesian_point direction geometric_representation_context" name="compatible_dimension">
+         <where expression="check_geometric_dimension(cartesian_point, direction, geometric_representation_context);" label="WR1"/>
       </rule>
-      <function name="above_plane">
+      
+     
+      
+   
+      
+     
+   
+   <function name="above_plane">
          <parameter name="p1">
             <typename name="cartesian_point"/>
          </parameter>
@@ -1641,7 +1650,100 @@
     d2 := first_proj_axis(d1, ref_direction);
     RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);</algorithm>
       </function>
-      <function name="constraints_composite_curve_on_surface">
+    
+             <function name="check_geometric_dimension">
+                  <parameter name="capt">
+                    <aggregate lower="0" type="SET" upper="?"/> 
+                     <typename name="cartesian_point"/>
+                  </parameter>
+                  <parameter name="dir">
+                    <aggregate lower="0" type="SET" upper="?"/> 
+                     <typename name="direction"/>
+                  </parameter>
+                  <parameter name="grc">
+                    <aggregate lower="0" type="SET" upper="?"/> 
+                     <typename name="geometric_representation_context"/>
+                   </parameter> 
+                    <builtintype type="BOOLEAN"/>
+              
+             <algorithm>
+         (* Determine whether there are mixed dimensions in the contexts.
+            If not, only one check of dimensionality is needed per instance of CAPT/DIR
+            against this dimension value, not checks against each representation that it
+            is referenced by.
+            Find for all CAPT and DIR all representations that they are referenced by.
+            Return FALSE for the first CAPT or DIR that is not referenced (founded).
+            Ensure that the dimensions of all representations are identical to the CAPT/DIR
+            dimension. Return FALSE at the first mismatch.
+          *)
+         LOCAL
+           globaldim    : INTEGER := 0; (* means mixed dimensionality *)
+           reps         : SET [0:?] OF representation := [];
+           result       : BOOLEAN := TRUE; (* means no error *)
+         END_LOCAL;
+         
+         IF (SIZEOF(grc) = 0) THEN
+           RETURN(FALSE);
+         END_IF;
+         
+         globaldim:= geometric_dimensionalities_in_contexts(grc);
+         
+         IF (globaldim &gt; 0) then
+         (* Same dimension for all contexts; only one check needed. *)
+           IF (SIZEOF(capt) &gt; 0) THEN
+             REPEAT i := 1 TO HIINDEX(capt);
+               IF (HIINDEX(capt[i].coordinates) &lt; &gt; globaldim) THEN
+                 RETURN(FALSE);
+               END_IF;
+             END_REPEAT;
+           END_IF;
+           IF (SIZEOF(dir) &gt; 0) THEN
+             REPEAT i := 1 TO HIINDEX(dir);
+               IF  (HIINDEX(dir[i].direction_ratios) &lt; &gt; globaldim) THEN
+                 RETURN(FALSE);
+               END_IF;
+             END_REPEAT;
+           END_IF;
+           RETURN(result);
+         ELSE
+         (*  globaldim=0, mixed dimensions for contexts; check needed for context of each representation in which gri is used. *)
+           IF (SIZEOF(capt) &gt; 0) THEN
+             REPEAT i := 1 TO HIINDEX(capt);
+               reps := using_representations(capt[i]);
+               IF (SIZEOF(reps) &gt; 0) THEN
+                 REPEAT j := 1 TO HIINDEX(reps);
+                   IF (HIINDEX(capt[i].coordinates) &lt; &gt; reps[j].context_of_items.coordinate_space_dimension) THEN
+                     RETURN(FALSE);
+                   END_IF;
+                 END_REPEAT;
+               ELSE (* zero reps *)
+                 RETURN(FALSE);
+               END_IF;
+             END_REPEAT;
+           END_IF;
+           IF (SIZEOF(dir) &gt; 0) THEN
+             REPEAT i := 1 TO HIINDEX(dir);
+             (*  globaldim=0, Mixed dimensions for  contexts, check needed for context of each representation in which gri is used *)
+               reps := using_representations(dir[i]);
+               IF (SIZEOF(reps) &gt; 0) THEN
+                 REPEAT j := 1 TO HIINDEX(reps);
+                   IF (HIINDEX(dir[i].direction_ratios) &lt; &gt; reps[j].context_of_items.coordinate_space_dimension) THEN
+                     RETURN(FALSE);
+                   END_IF;
+                 END_REPEAT;
+               ELSE (* zero reps *)
+                 RETURN(FALSE);
+               END_IF;
+             END_REPEAT;
+           END_IF;
+         END_IF;
+         
+    RETURN(result);
+    </algorithm>
+      </function> 
+    
+    
+    <function name="constraints_composite_curve_on_surface">
          <parameter name="c">
             <typename name="composite_curve_on_surface"/>
          </parameter>
@@ -1662,7 +1764,10 @@
    END_REPEAT;
    RETURN(TRUE);</algorithm>
       </function>
-      <function name="constraints_param_b_spline">
+     
+   
+     
+     <function name="constraints_param_b_spline">
          <parameter name="degree">
             <builtintype type="INTEGER"/>
          </parameter>
@@ -2147,7 +2252,59 @@ RETURN(result);
   END_IF;
   RETURN(surfs);</algorithm>
    </function>
-      
+  
+   <function name="geometric_dimensionalities_in_contexts">
+                <parameter name="grcs">
+                  <aggregate lower="1" type="SET" upper="?"/> 
+                   <typename name="geometric_representation_context"/>
+                 </parameter>
+                 <builtintype type="INTEGER"/>
+    <algorithm>            
+    (* There may be three types of geometric dimensionality: 1d, 2d or 3d.
+     This function determines how many of those are in the input set.
+     If there is one type only, the number 1, 2 or 3 is returned depending on the type of dimensionality.
+     Otherwise, the number 0 is returned.
+   *)
+  LOCAL
+    grcs_1d : INTEGER := 0;
+    grcs_2d : INTEGER := 0;
+    grcs_3d : INTEGER := 0;
+  END_LOCAL;
+  
+  IF (SIZEOF(grcs) = 1) THEN
+    (* only one geometric_context, will be one type of dimension anyway *)
+    RETURN(grcs[1]\geometric_representation_context.coordinate_space_dimension);
+  ELSE
+    REPEAT i := 1 TO HIINDEX(grcs);
+      IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 1) THEN
+        grcs_1d := grcs_1d + 1;
+      ELSE
+        IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 2) THEN
+          grcs_2d := grcs_2d + 1;
+        ELSE
+          IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 3) THEN
+            grcs_3d := grcs_3d + 1;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  
+  IF (grcs_1d + grcs_2d = 0) THEN
+    RETURN(3);
+  ELSE
+    IF (grcs_1d + grcs_3d = 0) THEN
+      RETURN(2);
+    ELSE
+      IF (grcs_2d + grcs_3d = 0) THEN
+        RETURN(1);
+      ELSE
+        RETURN(0); (* multiple dimensions *)
+      END_IF;
+    END_IF;
+  END_IF;
+  </algorithm>
+      </function>     
     
    <function name="increasing_values_in_list">
          <parameter name="values">

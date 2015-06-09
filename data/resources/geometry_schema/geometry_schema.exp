@@ -1,34 +1,8 @@
 (*
-   $Id: geometry_schema.exp,v 1.16 2014/11/12 18:22:27 thomasrthurman Exp $ 
-ISO 10303 TC184/SC4/WG12 N7627
-
-EXPRESS Source:
-ISO 10303-42 ed4 Geometric and topological representation - Geometry schema
-
-The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
-and derivations of the Schema:
-
-Copyright ISO 2015  All rights reserved
-Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
-to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
-implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
-subject to the following conditions:
-
-THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
-USE OR OTHER DEALINGS IN THE SCHEMA.
-
-In addition, any modified copy of the Schema shall include the following notice:
-
-THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
-ISO 10303-42 ed5 Geometric and topological representation - Geometry schema
-AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
-*)
-
-SCHEMA geometry_schema '{iso standard 10303 part(42) version(10) object(1) geometry_schema(1)}';
+   $Id: geometry_schema.exp,v 1.11 2012/07/31 13:43:35 lothartklein Exp $ *)
+(* Geometry schema from STEPMOD with proposed isogeometry additions and changes - these are annotated with isogeometry comment
+Part of Part 42 Edition 5 EXPRESS WG12 N8381 *)
+SCHEMA geometry_schema;
 
 REFERENCE FROM representation_schema   -- ISO 10303-43
   (definitional_representation,
@@ -50,6 +24,7 @@ REFERENCE FROM measure_schema   -- ISO 10303-41
    positive_plane_angle_measure); 
 
 (* for isogeometry added volume_with_faces *)
+
 REFERENCE FROM topology_schema   -- ISO 10303-42
   (edge_curve,
    face_surface,
@@ -80,6 +55,8 @@ REFERENCE FROM geometric_model_schema   -- ISO 10303-42
    tessellated_item,
    torus); 
 
+REFERENCE FROM scan_data_3d_shape_model_schema    -- ISO 10303-42 
+  (scanned_data_item);
 
 CONSTANT
   dummy_gri : geometric_representation_item := representation_item('')|| geometric_representation_item(); 
@@ -239,7 +216,8 @@ ENTITY geometric_representation_item
                        edge_based_wireframe_model,
                        geometric_set,
                        tessellated_item,
-                       volume_with_faces))
+                       volume_with_faces,
+                       scanned_data_item))
   SUBTYPE OF (representation_item);
 DERIVE
   dim : dimension_count := dimension_of(SELF);
@@ -1218,10 +1196,10 @@ SUBTYPE OF(volume);
  locally_refined_spline_type	:	locally_refined_spline_type_enum;
  domain	:LIST [3:3] OF LIST[2:2] OF  REAL;
 WHERE
- WR1 :	SIZEOF(u_b_splines) = SIZEOF(control_points_list);
- WR2 :	SIZEOF(v_b_splines) = SIZEOF(control_points_list);
- WR3 : SIZEOF(w_b_splines) = SIZEOF(control_points_list);
- WR4 : SIZEOF(scaling_factors) = SIZEOF(control_points_list);
+ WR1 :	SIZEOF(u_b_splines) = SIZEOF(control_points_list));
+ WR2 :	SIZEOF(v_b_splines) = SIZEOF(control_points_list));
+ WR3 : SIZEOF(w_b_splines) = SIZEOF(control_points_list));
+ WR4 : SIZEOF(scaling_factors) = SIZEOF(control_points_list));
   WR5	: constraints_scaling(SELF.scaling_factors);  
 END_ENTITY;
 
@@ -1235,14 +1213,142 @@ WHERE
 END_ENTITY;
 
 
+(* changed rule June 2015 *)
+RULE compatible_dimension FOR (cartesian_point,
+                               direction,
+                               geometric_representation_context);
+  WHERE
+   WR1 : check_geometric_dimension
+           (cartesian_point, direction, geometric_representation_context);
+END_RULE;
 
-RULE compatible_dimension FOR 
-(cartesian_point,direction,representation_context,geometric_representation_context);
-WHERE
-  WR1: SIZEOF(QUERY(x <* cartesian_point| SIZEOF(QUERY (y <* geometric_representation_context | item_in_context(x,y) AND (HIINDEX(x.coordinates) <> y.coordinate_space_dimension))) > 0 )) =0;
-  WR2: SIZEOF(QUERY(x <* direction | SIZEOF( QUERY (y <* geometric_representation_context | item_in_context(x,y) AND (HIINDEX(x.direction_ratios) <> y.coordinate_space_dimension))) > 0 )) = 0;
-END_RULE; 
+(* 2 new functions neede for revised rule *)
 
+FUNCTION check_geometric_dimension (
+           capt: SET [0:?] OF cartesian_point;
+           dir : SET [0:?] OF direction;
+           grc : SET [0:?] OF geometric_representation_context) : BOOLEAN;
+(* Determine whether there are mixed dimensions in the contexts.
+   If not, only one check of dimensionality is needed per instance of CAPT/DIR
+   against this dimension value, not checks against each representation that it
+   is referenced by.
+   Find for all CAPT and DIR all representations that they are referenced by.
+   Return FALSE for the first CAPT or DIR that is not referenced (founded).
+   Ensure that the dimensions of all representations are identical to the CAPT/DIR
+   dimension. Return FALSE at the first mismatch.
+ *)
+LOCAL
+  globaldim    : INTEGER := 0; (* means mixed dimensionality *)
+  reps         : SET [0:?] OF representation := [];
+  result       : BOOLEAN := TRUE; (* means no error *)
+END_LOCAL;
+
+IF (SIZEOF(grc) = 0) THEN
+  RETURN(FALSE);
+END_IF;
+
+globaldim:= geometric_dimensionalities_in_contexts(grc);
+
+IF (globaldim > 0) then
+(* Same dimension for all contexts; only one check needed. *)
+  IF (SIZEOF(capt) > 0) THEN
+    REPEAT i := 1 TO HIINDEX(capt);
+      IF (HIINDEX(capt[i].coordinates) <> globaldim) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  IF (SIZEOF(dir) > 0) THEN
+    REPEAT i := 1 TO HIINDEX(dir);
+      IF  (HIINDEX(dir[i].direction_ratios) <> globaldim) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  RETURN(result);
+ELSE
+(*  globaldim=0, mixed dimensions for contexts; check needed for context of each representation in which gri is used. *)
+  IF (SIZEOF(capt) > 0) THEN
+    REPEAT i := 1 TO HIINDEX(capt);
+      reps := using_representations(capt[i]);
+      IF (SIZEOF(reps) > 0) THEN
+        REPEAT j := 1 TO HIINDEX(reps);
+          IF (HIINDEX(capt[i].coordinates) <> reps[j].context_of_items.coordinate_space_dimension) THEN
+            RETURN(FALSE);
+          END_IF;
+        END_REPEAT;
+      ELSE (* zero reps *)
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  IF (SIZEOF(dir) > 0) THEN
+    REPEAT i := 1 TO HIINDEX(dir);
+    (*  globaldim=0, Mixed dimensions for  contexts, check needed for context of each representation in which gri is used *)
+      reps := using_representations(dir[i]);
+      IF (SIZEOF(reps) > 0) THEN
+        REPEAT j := 1 TO HIINDEX(reps);
+          IF (HIINDEX(dir[i].direction_ratios) <> reps[j].context_of_items.coordinate_space_dimension) THEN
+            RETURN(FALSE);
+          END_IF;
+        END_REPEAT;
+      ELSE (* zero reps *)
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+END_IF;
+
+RETURN(result);
+
+END_FUNCTION;
+
+FUNCTION geometric_dimensionalities_in_contexts(grcs: SET [1:?] OF geometric_representation_context) : INTEGER;
+(* There may be three types of geometric dimensionality: 1d, 2d or 3d.
+   This function determines how many of those are in the input set.
+   If there is one type only, the number 1, 2 or 3 is returned depending on the type of dimensionality.
+   Otherwise, the number 0 is returned.
+ *)
+LOCAL
+  grcs_1d : INTEGER := 0;
+  grcs_2d : INTEGER := 0;
+  grcs_3d : INTEGER := 0;
+END_LOCAL;
+
+IF (SIZEOF(grcs) = 1) THEN
+  (* only one geometric_context, will be one type of dimension anyway *)
+  RETURN(grcs[1]\geometric_representation_context.coordinate_space_dimension);
+ELSE
+  REPEAT i := 1 TO HIINDEX(grcs);
+    IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 1) THEN
+      grcs_1d := grcs_1d + 1;
+    ELSE
+      IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 2) THEN
+        grcs_2d := grcs_2d + 1;
+      ELSE
+        IF (grcs[i]\geometric_representation_context.coordinate_space_dimension = 3) THEN
+          grcs_3d := grcs_3d + 1;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_IF;
+
+IF (grcs_1d + grcs_2d = 0) THEN
+  RETURN(3);
+ELSE
+  IF (grcs_1d + grcs_3d = 0) THEN
+    RETURN(2);
+  ELSE
+    IF (grcs_2d + grcs_3d = 0) THEN
+      RETURN(1);
+    ELSE
+      RETURN(0); (* multiple dimensions *)
+    END_IF;
+  END_IF;
+END_IF;
+
+END_FUNCTION;
 
 
 FUNCTION above_plane
@@ -1264,7 +1370,8 @@ LOCAL
   END_REPEAT;
   mag := sqrt(mag);
   val := mag*dot_product(dir4, cross_product(dir2, dir3).orientation);
-  RETURN(val);END_FUNCTION; 
+  RETURN(val);
+END_FUNCTION; 
 
 FUNCTION acyclic_curve_replica
  (rep : curve_replica; parent : curve) : BOOLEAN; 
@@ -1279,7 +1386,8 @@ IF NOT (('GEOMETRY_SCHEMA.CURVE_REPLICA') IN TYPEOF(parent)) THEN
     ELSE
     RETURN(acyclic_curve_replica(rep,
                parent\curve_replica.parent_curve));
-    END_IF;END_FUNCTION; 
+    END_IF;
+  END_FUNCTION; 
 
 FUNCTION acyclic_point_replica
  (rep : point_replica; parent : point) : BOOLEAN; 
@@ -1292,7 +1400,8 @@ IF NOT (('GEOMETRY_SCHEMA.POINT_REPLICA') IN TYPEOF(parent)) THEN
   (* Return FALSE if the parent is the same point_replica, otherwise,
    call function again with the parents own parent_pt.     *)
     ELSE RETURN(acyclic_point_replica(rep, parent\point_replica.parent_pt));
-    END_IF;END_FUNCTION; 
+    END_IF;
+  END_FUNCTION; 
 
 FUNCTION acyclic_surface_replica
  (rep : surface_replica; parent : surface) : BOOLEAN; 
@@ -1306,7 +1415,8 @@ IF NOT (('GEOMETRY_SCHEMA.SURFACE_REPLICA') IN TYPEOF(parent)) THEN
    call function again with the parents own parent_surface.     *)
     ELSE RETURN(acyclic_surface_replica(rep,
                    parent\surface_replica.parent_surface));
-    END_IF;END_FUNCTION; 
+    END_IF;
+  END_FUNCTION; 
 
 FUNCTION associated_surface
  (arg : pcurve_or_surface) : surface; 
@@ -1319,7 +1429,8 @@ LOCAL
    ELSE
      surf := arg;
    END_IF;
-   RETURN(surf);END_FUNCTION; 
+   RETURN(surf);
+ END_FUNCTION; 
 
 FUNCTION base_axis
  (dim : INTEGER; axis1 : direction; axis2 : direction; axis3 : direction) : LIST[2:3] OF direction; 
@@ -1356,7 +1467,8 @@ LOCAL
       END_IF;
     END_IF;
   END_IF;
-  RETURN(u);END_FUNCTION; 
+  RETURN(u);
+END_FUNCTION; 
 
 FUNCTION build_2axes
  (ref_direction : direction) : LIST[2:2] OF direction; 
@@ -1374,7 +1486,9 @@ LOCAL
      END_LOCAL;
     d1 := NVL(normalise(axis), dummy_gri || direction([0.0,0.0,1.0]));
     d2 := first_proj_axis(d1, ref_direction);
-    RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);END_FUNCTION; 
+    RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);
+  END_FUNCTION; 
+
 
 FUNCTION constraints_composite_curve_on_surface
  (c : composite_curve_on_surface) : BOOLEAN; 
@@ -1392,7 +1506,8 @@ LOCAL
        RETURN (FALSE);
      END_IF;
    END_REPEAT;
-   RETURN(TRUE);END_FUNCTION; 
+   RETURN(TRUE);
+ END_FUNCTION; 
 
 FUNCTION constraints_param_b_spline
  (degree : INTEGER; up_knots : INTEGER; up_cp : INTEGER; knot_mult : LIST[0:?] OF INTEGER; knots : LIST[0:?] OF parameter_value) : BOOLEAN; 
@@ -1440,7 +1555,8 @@ LOCAL
        RETURN(result);
      END_IF;
    END_REPEAT;
-   RETURN(result);END_FUNCTION; 
+   RETURN(result);
+ END_FUNCTION; 
 
 FUNCTION constraints_rectangular_composite_surface
  (s : rectangular_composite_surface) : BOOLEAN; 
@@ -1471,7 +1587,8 @@ REPEAT i := 1 TO s.n_u;
        END_IF;
      END_REPEAT;
    END_REPEAT;
-   RETURN(TRUE);END_FUNCTION; 
+   RETURN(TRUE);
+ END_FUNCTION; 
 
 FUNCTION cross_product
  (arg1 : direction; arg2 : direction) : vector; 
@@ -1502,7 +1619,8 @@ LOCAL
       END_IF;
       RETURN(result);
     END;
-  END_IF;END_FUNCTION; 
+  END_IF;
+ END_FUNCTION; 
 
 FUNCTION curve_weights_positive
  (b : rational_b_spline_curve) : BOOLEAN; 
@@ -1545,7 +1663,8 @@ LOCAL
        END_IF;
      END_IF;
    END_IF;
-   RETURN(knot_mult);END_FUNCTION; 
+   RETURN(knot_mult);
+ END_FUNCTION; 
 
 FUNCTION default_b_spline_knots
  (degree : INTEGER; up_knots : INTEGER; uniform : knot_type) : LIST[2:?] OF parameter_value; 
@@ -1565,7 +1684,8 @@ LOCAL
       knots[i] := i - ishift;
     END_REPEAT;
   END_IF;
-  RETURN(knots);END_FUNCTION; 
+  RETURN(knots);
+END_FUNCTION; 
 
 FUNCTION default_b_spline_surface_weights
  (u_upper : INTEGER; v_upper : INTEGER) : ARRAY[0:u_upper] OF ARRAY[0:v_upper] OF REAL; 
@@ -1612,7 +1732,8 @@ LOCAL
     ELSE
       RETURN(?);
     -- mark error by returning indeterminate result
-   END_IF;END_FUNCTION; 
+   END_IF;
+ END_FUNCTION; 
 
 FUNCTION dot_product
  (arg1 : direction; arg2 : direction) : REAL; 
@@ -1680,7 +1801,8 @@ LOCAL
     x_axis := vector_difference(v, x_vec).orientation;
     x_axis := normalise(x_axis);
   END_IF;
-  RETURN(x_axis);END_FUNCTION; 
+  RETURN(x_axis);
+END_FUNCTION; 
 
 FUNCTION get_basis_surface
  (c : curve_on_surface) : SET[0:2] OF surface; 
@@ -1714,7 +1836,8 @@ LOCAL
      END_IF;
 
   END_IF;
-  RETURN(surfs);END_FUNCTION; 
+  RETURN(surfs);
+END_FUNCTION; 
 
 FUNCTION list_to_array
  (lis : LIST[0:?] OF GENERIC : T; low : INTEGER; u : INTEGER) : ARRAY[low:u] OF GENERIC : T; 
@@ -1732,7 +1855,8 @@ LOCAL
        res[low+i-1] := lis[i];
      END_REPEAT;
      RETURN(res);
-   END_IF;END_FUNCTION; 
+   END_IF;
+ END_FUNCTION; 
 
 FUNCTION make_array_of_array
  (lis : LIST[1:?] OF LIST[1:?] OF GENERIC : T; low1 : INTEGER; u1 : INTEGER; low2 : INTEGER; u2 : INTEGER) : ARRAY[low1:u1] OF ARRAY[low2:u2] OF GENERIC : T; 
@@ -1756,7 +1880,8 @@ LOCAL
      res[low1+i-1] := list_to_array(lis[i], low2, u2);
    END_REPEAT; 
    
-   RETURN (res);END_FUNCTION; 
+   RETURN (res);
+ END_FUNCTION; 
 
 FUNCTION make_array_of_array_of_array
  (lis : LIST[1:?] OF LIST[1:?] OF LIST[1:?] OF GENERIC : T; low1 : INTEGER; u1 : INTEGER; low2 : INTEGER; u2 : INTEGER; low3 : INTEGER; u3 : INTEGER) : ARRAY[low1:u1] OF ARRAY[low2:u2] OF ARRAY[low3:u3] OF GENERIC : T; 
@@ -1780,7 +1905,8 @@ LOCAL
      END_IF;  
      res[low1+i-1] := make_array_of_array(lis[i], low2, u2, low3, u3);
    END_REPEAT; 
-   RETURN (res);END_FUNCTION; 
+   RETURN (res);
+ END_FUNCTION; 
 
 FUNCTION normalise
  (arg : vector_or_direction) : vector_or_direction; 
@@ -1828,7 +1954,8 @@ LOCAL
         RETURN(?);
       END_IF;
     END_IF;
-    RETURN (result);END_FUNCTION; 
+    RETURN (result);
+  END_FUNCTION; 
 
 FUNCTION orthogonal_complement
  (vec : direction) : direction; 
@@ -1864,7 +1991,8 @@ LOCAL
        RETURN(FALSE);
      END_IF;
    END_REPEAT;
-   RETURN(TRUE);END_FUNCTION; 
+   RETURN(TRUE);
+ END_FUNCTION; 
 
 FUNCTION scalar_times_vector
  (scalar : REAL; vec : vector_or_direction) : vector; 
@@ -1892,7 +2020,8 @@ LOCAL
       END_IF;
       result := dummy_gri || vector(normalise(v), mag);
     END_IF;
-    RETURN (result);END_FUNCTION; 
+    RETURN (result);
+  END_FUNCTION; 
 
 FUNCTION second_proj_axis
  (z_axis : direction; x_axis : direction; arg : direction) : direction; 
@@ -1913,7 +2042,8 @@ LOCAL
    temp   := scalar_times_vector(dot_product(v, x_axis), x_axis);
    y_axis := vector_difference(y_axis, temp);
    y_axis := normalise(y_axis);
-   RETURN(y_axis.orientation);END_FUNCTION; 
+   RETURN(y_axis.orientation);
+ END_FUNCTION; 
 
 FUNCTION surface_weights_positive
  (b : rational_b_spline_surface) : BOOLEAN; 
@@ -1929,7 +2059,8 @@ LOCAL
        END_IF;
      END_REPEAT;
    END_REPEAT;
-   RETURN(result);END_FUNCTION; 
+   RETURN(result);
+ END_FUNCTION; 
 
 FUNCTION vector_difference
  (arg1 : vector_or_direction; arg2 : vector_or_direction) : vector; 
@@ -1976,7 +2107,8 @@ LOCAL
         END_IF;
       END;
     END_IF;
-    RETURN (result);END_FUNCTION; 
+    RETURN (result);
+  END_FUNCTION; 
 
 FUNCTION vector_sum
  (arg1 : vector_or_direction; arg2 : vector_or_direction) : vector; 
@@ -2024,7 +2156,8 @@ LOCAL
        END_IF;
      END;
    END_IF;
-   RETURN (result);END_FUNCTION; 
+   RETURN (result);
+ END_FUNCTION; 
 
 FUNCTION volume_weights_positive
  (b : rational_b_spline_volume) : BOOLEAN; 
@@ -2042,7 +2175,8 @@ LOCAL
          END_REPEAT;
        END_REPEAT;
      END_REPEAT;
-     RETURN(result);END_FUNCTION; 
+     RETURN(result);
+   END_FUNCTION; 
 (* isogeometry function additions *)
 
 FUNCTION increasing_values_in_list(values: LIST[2: ?] OF REAL) : BOOLEAN;

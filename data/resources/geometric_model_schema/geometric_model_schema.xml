@@ -623,13 +623,9 @@
                 <where expression="acyclic_set_replica(SELF, parent_set)" label="WR1"/>
              </entity>
         <entity name="tessellated_shape_representation" supertypes="shape_representation">
-                <explicit name="items">
-                   <aggregate lower="1" type="SET" upper="?"/>
-                   <typename name="tessellated_item"/>
-                   <redeclaration entity-ref="representation"/>
-                </explicit>
-                <where expression="'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN&#10;        TYPEOF(SELF\representation.context_of_items)" label="WR1"/>
-             </entity>
+             <where expression="'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN&#10;        TYPEOF(SELF\representation.context_of_items)" label="WR1"/>
+            <where expression="NOT(SIZEOF(QUERY(it &lt;* SELF.items |&#10;                            'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_ITEM' IN TYPEOF(it))) = 0)" label="WR2"/>
+         </entity>
         <entity abstract.supertype="YES" name="tessellated_item" super.expression="ONEOF (coordinates_list, tessellated_solid, tessellated_shell, tessellated_wire, tessellated_geometric_set, tessellated_curve_set, tessellated_point_set, tessellated_surface_set, tessellated_structured_item)" supertypes="geometric_representation_item">
                 <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) |&#10;          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN&#10;         TYPEOF(using_rep)))) = 0" label="WR1"/>
              </entity>

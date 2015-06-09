@@ -1,9 +1,9 @@
 (* Updated March 2015 with curved triangle additions to tesselated geometry
 $Id: geometric_model_schema.exp,v 1.12 2014/03/04 00:30:37 thomasrthurman Exp $
-ISO 10303 TC184/SC4/WG12 N7627
+ISO 10303 TC184/SC4/WG12 N8545 (3 schemas)
 
 EXPRESS Source:
-ISO 10303-42 ed4 Geometric and topological representation - Geometric model schema
+ISO 10303-42 ed5 Geometric and topological representation - Geometric model schema
 
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
@@ -28,7 +28,7 @@ ISO 10303-42 ed4 Geometric and topological representation - Geometric model sche
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA geometric_model_schema '{iso standard 10303 part(42) version(9) object(1) geometric_model_schema(3)}';
+SCHEMA geometric_model_schema  '{iso standard 10303 part(42) version(9) object(1) geometric_model_schema(3)}';
 
 REFERENCE FROM geometry_schema;    -- ISO 10303-42
 
@@ -555,9 +555,11 @@ END_ENTITY;
 
 ENTITY tessellated_shape_representation
   SUBTYPE OF (shape_representation);
-  SELF\representation.items : SET[1:?] OF tessellated_item;
 WHERE
-  WR1: 'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN TYPEOF(SELF\representation.context_of_items);
+  WR1: 'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN
+         TYPEOF(SELF\representation.context_of_items);
+  WR2: NOT( SIZEOF(QUERY ( it <* SELF.items|   
+       'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_ITEM' IN TYPEOF (it))) = 0 );  
 END_ENTITY;
 
 ENTITY tessellated_item
@@ -637,8 +639,8 @@ END_ENTITY;
 ENTITY cubic_tessellated_connecting_edge
   SUBTYPE OF (cubic_bezier_tessellated_edge);
   smooth : LOGICAL;
-  face1 : cubic_bezier_triangulated_face;
-  face2 : cubic_bezier_triangulated_face;
+  face1 : cubic_bezier_triangulared_face;
+  face2 : cubic_bezier_triangulared_face;
 END_ENTITY;
 
 ENTITY tessellated_face
@@ -759,7 +761,8 @@ IF NOT (('GEOMETRY_SCHEMA.GEOMETRIC_SET_REPLICA') IN TYPEOF(parent))
      otherwise, call function again with the parents own parent_set.  *)
     ELSE RETURN(acyclic_set_replica(rep,
                           parent\geometric_set_replica.parent_set));
-    END_IF;END_FUNCTION; 
+    END_IF;
+  END_FUNCTION; 
 
 FUNCTION acyclic_solid_replica
  (rep : solid_replica; parent : solid_model) : BOOLEAN; 
@@ -773,7 +776,8 @@ IF NOT (('GEOMETRY_SCHEMA.SOLID_REPLICA') IN TYPEOF(parent)) THEN
    call function again with the parents own parent_solid.     *)
     ELSE RETURN(acyclic_solid_replica(rep,
                       parent\solid_replica.parent_solid));
-    END_IF;END_FUNCTION; 
+    END_IF;
+ END_FUNCTION; 
 
 FUNCTION build_transformed_set
  (tr : cartesian_transformation_operator; gset : geometric_set) : SET[0:?] OF geometric_set_select; 
@@ -794,7 +798,8 @@ LOCAL
      END_IF;
     END_IF;
   END_REPEAT;
-  RETURN(trset);END_FUNCTION; 
+  RETURN(trset);
+ END_FUNCTION; 
 
 FUNCTION constraints_geometry_shell_based_surface_model
  (m : shell_based_surface_model) : BOOLEAN; 
@@ -813,7 +818,8 @@ LOCAL
        (* A surface model is composed of OPEN_ and CLOSED_SHELLs. *)
      END_IF;
    END_REPEAT;
-   RETURN(result);END_FUNCTION; 
+   RETURN(result);
+ END_FUNCTION; 
 
 FUNCTION constraints_geometry_shell_based_wireframe_model
  (m : shell_based_wireframe_model) : BOOLEAN; 
@@ -832,7 +838,8 @@ LOCAL
        (* A wireframe model is composed of WIRE_ and VERTEX_SHELLs *)
      END_IF;
    END_REPEAT;
-   RETURN(result);END_FUNCTION; 
+   RETURN(result);
+ END_FUNCTION; 
 
 FUNCTION msb_shells
  (brep : manifold_solid_brep) : SET[1:?] OF closed_shell; 
@@ -845,7 +852,8 @@ LOCAL
           THEN   
        return_set := return_set + brep\brep_with_voids.voids;   
     END_IF;   
-   RETURN(return_set);END_FUNCTION; 
+   RETURN(return_set);
+ END_FUNCTION; 
 
 END_SCHEMA;  -- geometric_model_schema
 

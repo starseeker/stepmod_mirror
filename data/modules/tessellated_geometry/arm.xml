@@ -28,7 +28,7 @@
          <select selectitems="Tessellated_edge Tessellated_vertex"/>
       </type>
       <type name="tg_draughting_callout_content_select">
-         <select basedon="draughting_callout_content_select" selectitems="Tessellated_anotation"/>
+         <select basedon="draughting_callout_content_select" selectitems="Tessellated_annotation"/>
       </type>
       <entity name="Complex_triangulated_face" supertypes="Tessellated_face">
          <explicit name="pnindex">
@@ -112,7 +112,7 @@
          </explicit>
          <where expression="NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL',&#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID',                &#10;                    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0)" label="WR1"/>
       </entity>
-      <entity name="Tessellated_anotation" supertypes="Annotation_element">
+      <entity name="Tessellated_annotation" supertypes="Annotation_element">
          <explicit name="element">
             <typename name="Tessellated_item"/>
             <redeclaration entity-ref="Styled_element"/>
@@ -201,12 +201,9 @@
          </explicit>
       </entity>
       <entity name="Tessellated_shape_representation" supertypes="Geometric_model">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Tessellated_item"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-         <where expression="'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEORMETRIC_COORDINATE_SPACE' IN&#10;        TYPEOF(SELF\Representation.context_of_items)" label="WR1"/>
+          <where expression="'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_COORDINATE_SPACE' IN&#10;        TYPEOF(SELF\Representation.context_of_items)" label="WR1"/>
+       <where expression="NOT(SIZEOF(QUERY(it &lt;* SELF.items |&#10;  
+       'TESSELLATED_GEOMETRY_ARM.TESSELLATED_ITEM' IN TYPEOF(it))) = 0)" label="WR2"/>
       </entity>
       <entity name="Tessellated_shell" supertypes="Tessellated_item">
          <explicit name="items">

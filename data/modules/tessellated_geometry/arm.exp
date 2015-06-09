@@ -36,20 +36,21 @@ TYPE tessellated_edge_or_vertex = SELECT
 END_TYPE;
 
 TYPE tg_draughting_callout_content_select = SELECT BASED_ON draughting_callout_content_select WITH (
-  Tessellated_anotation);
+  Tessellated_annotation);
 END_TYPE;
 
-ENTITY Tessellated_anotation
+ENTITY Tessellated_annotation
    SUBTYPE OF (Annotation_element);
    SELF\Styled_element.element : Tessellated_item;
 END_ENTITY;
 
  ENTITY Tessellated_shape_representation
     SUBTYPE OF (Geometric_model);
-     SELF\Representation.items : SET[1 : ?] OF Tessellated_item;
- WHERE
-   WR1:'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEORMETRIC_COORDINATE_SPACE' IN
+  WHERE
+   WR1:'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_COORDINATE_SPACE' IN
         TYPEOF(SELF\Representation.context_of_items);
+   WR2: NOT( SIZEOF(QUERY ( it <* SELF.items|   
+       'TESSELLATED_GEOMETRY_ARM.TESSELLATED_ITEM' IN TYPEOF (it))) = 0 );  
  END_ENTITY;
 
   ENTITY Tessellated_item
@@ -151,8 +152,8 @@ END_ENTITY;
   ENTITY Cubic_tessellated_connecting_edge
     SUBTYPE OF (Cubic_bezier_tessellated_edge);
     smooth : LOGICAL;
-    face1 : Cubic_bezier_triangulated_face;
-    face2 : Cubic_bezier_triangulated_face;
+    face1 : Cubic_bezier_triangulared_face;
+    face2 : Cubic_bezier_triangulared_face;
  END_ENTITY;
 
  ENTITY Tessellated_point_set

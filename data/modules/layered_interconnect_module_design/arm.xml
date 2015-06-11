@@ -273,7 +273,7 @@
          <where expression="SIZEOF(QUERY(ciet &lt;* SELF\Conductive_interconnect_element.access_mechanisms |&#10;             NOT(ciet.location.resident_design_layer_stratum = &#10;            SELF\Stratum_feature_template_component.implementation_or_resident_stratum.associated_definition)&#10;                  )) = 0" label="WR4"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Conductor" supertypes="Stratum_feature">
-         <explicit name="associated_definition" optional="NO">
+         <explicit name="resident_stratum" optional="NO">
             <typename name="Design_layer_stratum"/>
             <redeclaration entity-ref="Stratum_feature"/>
          </explicit>
@@ -297,7 +297,7 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="Connected_filled_area" supertypes="Conductive_filled_area">
          <explicit name="associated_definition" optional="NO">
             <typename name="Design_layer_stratum"/>
-            <redeclaration entity-ref="Stratum_feature"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="implementation_requirement" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -1029,9 +1029,9 @@
          <where expression="SIZEOF(QUERY(t &lt;* terminal_to_be_connected | t.associated_component &lt;&gt; associated_component)) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Stratum_feature" super.expression="ONEOF (Conductor, Conductive_filled_area) ANDOR Fiducial_stratum_feature" supertypes="Shape_element">
-         <explicit name="associated_definition" optional="NO">
+         <explicit name="resident_stratum" optional="NO">
             <typename name="design_or_documentation_stratum"/>
-            <redeclaration entity-ref="Shape_element"/>
+            <redeclaration entity-ref="Shape_element" old_name="associated_definition"/>
          </explicit>
          <explicit name="feature_of_size" optional="NO">
             <builtintype fixed="NO" type="BOOLEAN"/>
@@ -1041,9 +1041,9 @@
          </inverse>
          <unique label="UR1">
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
-            <unique.attribute attribute="associated_definition"/>
+            <unique.attribute attribute="resident_stratum"/>
          </unique>
-         <where expression="SIZEOF(query ( ac &lt;* USEDIN(SELF,'') |&#10;                  ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))&#10;                   AND&#10;                  (get_assemblies(ac) &lt;&gt; get_ims(associated_definition))&#10;                  ))&#10;                  = 0" label="WR1"/>
+         <where expression="SIZEOF(query ( ac &lt;* USEDIN(SELF,'') |&#10;                  ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))&#10;                   AND&#10;                  (get_assemblies(ac) &lt;&gt; get_ims(resident_stratum))&#10;                  ))&#10;                  = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Stratum_feature_based_derived_pattern">
          <explicit name="extent" optional="NO">

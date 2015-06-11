@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.338 2015/04/04 10:53:18 lothartklein Exp $
+   $Id: arm.exp,v 1.339 2015/04/16 10:07:29 lothartklein Exp $
    ISO TC184/SC4/WG12 N8170 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7565
 *)
@@ -302,7 +302,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Conductor
     SUBTYPE OF (Stratum_feature);
-      SELF\Stratum_feature.associated_definition : Design_layer_stratum;
+      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
       implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
     INVERSE
       join_component : SET [0:?] OF Single_stratum_printed_component FOR stratum_feature_implementation;
@@ -1066,17 +1066,17 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUPERTYPE OF (ONEOF (Conductor,
       Conductive_filled_area) ANDOR (Fiducial_stratum_feature))    
     SUBTYPE OF (Shape_element); 			
-      SELF\Shape_element.associated_definition : design_or_documentation_stratum;
+      SELF\Shape_element.associated_definition RENAMED resident_stratum : design_or_documentation_stratum;
       feature_of_size                                               : BOOLEAN;
     INVERSE
       shape	: SET[0:?] OF Stratum_feature_usage FOR definition;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name, associated_definition;
+      UR1 : SELF\Shape_element.element_name, resident_stratum;
     WHERE
       WR1 : SIZEOF(query ( ac <* USEDIN(SELF,'') |
                   ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))
                    AND
-                  (get_assemblies(ac) <> get_ims(associated_definition))
+                  (get_assemblies(ac) <> get_ims(resident_stratum))
                   ))
                   = 0;
   END_ENTITY;

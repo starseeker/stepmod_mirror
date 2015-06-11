@@ -1,13 +1,193 @@
 (*
-   $Id: arm.exp,v 1.2 2015/06/01 22:07:57 lothartklein Exp $
+   $Id: arm.exp,v 1.3 2015/06/02 16:58:40 lothartklein Exp $
    N - ISO/CD-TS - 10303- harness_assembly_electrical_design - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Harness_assembly_electrical_design_arm;
 
 USE FROM Assembly_module_with_cable_component_arm;
 
+-- === THE CFI 5 star box model ===
+-- A part has a part_number and may have part **CATEGORIES***
+-- in additiona part may have many part_terminals which map to shape_aspects on the MIM, ***TYPE***
+-- An (harness) assembly exisit of part occurrences which we also call component 
+-- A component is defined by a part and has a reference designator in addition
+-- Like a part, also a component can have component_terminals that can be defined by corresponding part_terminals
+--   so a component_terminal is usually an occurence of a part_terminal
+-- With an Assembly_joint we connect two component_terminals or supertype component_features, ***TYPE***
+
+-- new attributes on Wire_component_terminal and Cable_component_feature
+-- ... strip length, thin, ... 
+
+(*
+-- IEV ref 151-12-12 terminal
+-- IEV ref 151-12-16 contact member; contact (2) 
+
+ENTITY Part_terminal
+  ...
+  domain_type : OPTIONAL fatp_part_connected_terminals_definition_domain_enumeration; -- electrical, thermal, optical or magnetic 
+  interface_or_join_terminal : interface_or_join_terminal_enumeration; -- join_terminal or interface_terminal 
+  joint_type : OPTIONAL SET[1:?] OF terminal_joint_type; -- NEW
+END_ENTITY; 
+*)
+
+TYPE terminal_joint_type = ENUMERATION OF (
+  connector_contact_terminal,  -- def: a contact member of a connector
+  socket_terminal,          -- IEV ref 151-12-17 (581-22-06) socket contact; female contact 
+  pin_terminal,             -- IEV ref 151-12-18 (581-22-08) pin contact; male contact
+  crimp_terminal,          -- IEV ref 581-22-05 crimp contact
+
+  solder_terminal,         -- IEV ref 442-06-20 solder terminal 	
+  lug_terminal,            -- IEV ref 442-06-16 lug terminal
+  screw_terminal,          -- 442-06-08 screw terminal
+  mantle_terminal,         -- IEV ref 442-06-14 mantle terminal
+  saddle_terminal,         -- IEV ref 442-06-09 saddle terminal
+  screwless_type_terminal, -- IEV ref 442-06-11 screwless-type terminal
+  screw_type_terminal,     -- IEV ref 442-06-17 screw-type terminal
+  pillar_terminal,         -- IEV ref 442-06-22 pillar terminal
+  stud_terminal,           -- IEV ref 442-06-23 stud terminal
+  earthing_terminal,       --IEV ref 195-02-31 earthing terminal, grounding terminal (US), earth terminal (deprecated) 
+
+  resilient_contact_terminal, -- IEV ref 581-22-09 resilient contact
+  snap_on_contact_terminal, -- IEV ref 581-22-10 snap-on contact
+  tuning_fork_contact_terminal, -- IEV ref 581-22-12 tuning fork contact
+  push_on_contact_terminal  -- IEV ref 581-27-04 push-on contact 
+);
+END_TYPE;
+
+(*
+ENTITY Assembly_joint
+  ...
+  type : OPTIONAL assembly_joint_type; -- NEW
+END_ENTITY;
+*)
+
+TYPE assembly_joint_type = EXTENSIBLE ENUMERATION OF (
+  welded_connection,
+  glued_connection,
+  snap_connection, 
+  push_connection,
+  screwed_connection,   
+  bolted_connection,              -- IEV ref 461-19-05 bolted connection
+  soldered_connection,            -- IEV ref 581-23-04 soldered connection
+  -- 581-23-05 solderless connection
+  -- 581-23-06 welded connection
+  -- 581-23-07 wrapped connection
+  -- 581-23-35 insulation displacement connection
+  insulation_piercing_connection, -- IEV ref 461-19-06 insulation piercing connection
+  crimped_connection              -- IEV ref 461-19-01 crimped connection OR 581-23-02 crimped connection ??
+  -- 461-19-02 circular compressed connection
+  -- 461-19-03 hexagonal compressed connection
+  -- 461-19-04 deep indented connection
+);
+END_TYPE;
+
+-- for Harness_assembly_electrical_design_arm
+TYPE haed_part_category = ENUMERATION BASED_ON part_category WITH (
+ connector_contact,           -- def: a contact that is used inside a connector
+  concentric_contact,          -- IEV ref 581-22-04 concentric contact
+    female_concentric_contact,   -- IEV ref 581-27-31 female concentric contact
+    male_concentric_contact,     -- IEV ref 581-27-32 male concentric contact 
+  triaxial_contact,            -- IEV ref 581-27-33 triaxial contact 
+    female_triaxial_contact,     -- IEV ref 581-27-34 female triaxial contact 
+    male_triaxial_contact,       -- IEV ref 581-27-35 male triaxial contact
+  
+  connector,                   -- IEV ref 151-12-19 connector  
+  plug,                        -- IEV ref 151-12-21 
+  socket,                      -- IEV ref 151-12-20
+  hermaphroditic_connector,    -- IEV ref 581-26-11        
+  concentric_connector,        -- NEW, a "connector" that consist of one "concentric contact"
+  triaxial_connector,          -- NEW, a "connector" that consist of one "triaxial_contact"
+
+  shielded_connector,          -- IEV ref 581-26-19 shielded connector
+  sealed_connector,            -- IEV ref 581-26-18 sealed connector   
+  scoop_proof_connector,       -- IEV ref 581-26-17 scoop proof connector
+
+  connector_housing,           -- IEV ref 581-27-10 connector housing
+  connector_insert,            -- IEV ref 581-27-11 connector insert
+  connector_body,              -- IEV ref 581-27-09 connector body
+  connector_backshell,         -- ???
+  
+  contact_retainer,            -- IEV ref 581-27-63 contact retainer
+  contact_lead_in,             -- IEV ref 581-27-08 contact lead-in
+
+  protection, -- ?
+  sleeve,                      -- ? IEV ref 581-27-23 cable support sleeve
+  -- 461-15-05 joint-sleeve insulation
+  -- 581-27-93 sealing sleeve
+  overbraid, -- ?
+  shield, -- 461-03-04 shield (of a cable)
+
+  terminal_lug, -- ? 461-17-01 (terminal) lug
+  terminal_block, -- ?
+  terminal_end, -- 581-23-18 terminal end
+
+  shield_connector, -- IEV ref    461-17-12 screen connector; shield connector
+  insulation_piercing_connector, -- IEV ref 461-11-08 insulation piercing connector 
+
+  terminal_block, -- IEC 581-26-26 terminal block
+
+  splice,                      -- IEV ref 581-24-19
+  mechanical_fibre_splice,     -- IEV ref    731-05-07  mechanical splice     
+  optical_fibre_splice,        -- IEV ref 731-05-05 optical fibre splice; splice; optical splice
+  fusion_fibre_splice);        -- IEV ref    731-05-06 fusion splice
+END_TYPE;
+
+-- Others to be discussed:
+-- IEV ref 461-06-05 flat (multicore) cable
+-- IEV ref 461-06-12 individually screened cable
+-- IEV ref 461-10-11 taped termination
+-- IEV ref 461-17-04 joint ferrule, through connector (of cables) 
+
+-- IEV ref 461-10-02 sealing end, pothead (deprecated) 
+-- IEV ref 461-20-07 end cap, sealed (cable) end (USA) 
+-- IEV ref 461-05-07 spiral binder tape
+-- IEV ref 461-05-10 braid
+-- IEV ref 151-12-41 sheath, jacket (North America) 
+-- IEV ref 461-05-04, oversheath, outer sheath, protective (overall) jacket (North America) 
+-- IEV ref	461-05-12 corrugated metallic sheath
+
+(* for Wiring_harness_assembly_design_arm
+TYPE whad_part_category = EXTENSIBLE ENUMERATION BASED_ON part_category WITH (
+  grommet,                     -- IEV ref    581-27-19 grommet 
+  fixing,                      -- ?installation, could be already ont eh harness itself
+  marker,
+  marker_tape,
+  sleeve);
+END_TYPE;
+*)
+
 ENTITY Harness_assembly_electrical_design 
   SUBTYPE OF (Assembly_module_design_view);
 END_ENTITY;  
 
 END_SCHEMA;
+
+(*
+-- with additional types + categories
+#100=PART_WITH_ADDITIONAL-CATEGORIES('ABC'..., (.connector.) ...);
+#101=PART_VERSION(...,#100);
+#102=PART_VIEW_DEFINITION(...,#101, ...)
+#111=PART_TERMINAL('a1',#102,.INTERFACE_TERMINAL.,(.connector_contact_terminal.));
+#112=PART_TERMINAL('a2',#102,.INTERFACE_TERMINAL.,(.connector_contact_terminal.));
+#113=PART_TERMINAL('b1',#102,.JOIN_TERMINAL.,(....));
+#114=PART_TERMINAL('b2',#102,.JOIN_TERMINAL.,(....));
+#120=Part_connected_terminals_definition(...,#102,(#111,#113));
+#121=Part_connected_terminals_definition(...,#102,(#112,#114));
+
+
+-- without additional types + categories
+#100=PART('ABC1234'...,  ...);
+#101=PART_VERSION(...,#100);
+#102=PART_VIEW_DEFINITION(...,#101, ...)
+#111=PART_TERMINAL('a1',#102,.INTERFACE_TERMINAL.,());
+#112=PART_TERMINAL('a2',#102,.INTERFACE_TERMINAL.,());
+#113=PART_TERMINAL('b1',#102,.JOIN_TERMINAL.,(....));
+#114=PART_TERMINAL('b2',#102,.JOIN_TERMINAL.,(....));
+#120=Part_connected_terminals_definition(...,#102,(#111,#113));
+#121=Part_connected_terminals_definition(...,#102,(#112,#114));
+
+-- Dan: "Pin information related to the part is missing, packing information"
+
+#105=PART_TERMINAL('a (=1+2)',#100,.INTERFACE_TERMINAL.,(....)); -- NOT POSSIBLE TODAY
+*)
+

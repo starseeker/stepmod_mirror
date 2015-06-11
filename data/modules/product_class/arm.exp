@@ -1,16 +1,16 @@
 (*
- $Id: arm.exp,v 1.19 2011/06/23 00:05:56 thomasrthurman Exp $
+ $Id: arm.exp,v 1.20 2012/10/11 05:49:16 liutkuviene Exp $
  ISO TC184/SC4/WG12 N7792 - ISO/TS 10303-1103 Product class - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6255
 *)
 
 SCHEMA Product_class_arm;
 
-USE FROM Identification_assignment_arm;
-
-USE FROM Product_concept_identification_arm;
-
+USE FROM Classification_assignment_arm; 
 USE FROM Group_arm;
+USE FROM Identification_assignment_arm;
+USE FROM Product_concept_identification_arm;
+USE FROM Property_assignment_arm;
 
 TYPE expression_operator = ENUMERATION OF (or_operator, and_operator, oneof_operator, not_operator);
 END_TYPE;
@@ -19,11 +19,18 @@ TYPE specification_operand_select = SELECT
 		(Specification_expression, Specification);
 END_TYPE;
 
-TYPE id_for_class = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+TYPE id_for_class = SELECT BASED_ON identification_item WITH 
    (product_class);
 END_TYPE; 
 
-TYPE specification_for_category = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
+TYPE pc_classification_item = SELECT BASED_ON classification_item WITH (
+  Specification,
+  Specification_category);
+END_TYPE; 
+
+TYPE pc_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
+  Specification,
+  Specification_category);
 END_TYPE;
 
  ENTITY Class_category_association;

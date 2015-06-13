@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2015/03/14 14:34:52 lothartklein Exp $
+   $Id: arm.exp,v 1.43 2015/04/16 12:54:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N8140 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6968
 *)
@@ -165,28 +165,36 @@ SCHEMA Footprint_definition_arm;
   END_FUNCTION; 
 
   FUNCTION fd_get_amodel (input : Product_view_definition) : SET OF Geometric_model;
-(*  
     LOCAL
       gm : SET OF Geometric_model := [];
-      is : SET OF Item_shape := [];
       sda : SET OF Shape_description_association := [];      
     END_LOCAL;
     
-    is := bag_to_set(USEDIN(input,'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
-
-    IF (SIZEOF(is) >= 0) THEN
-      REPEAT i := 1 TO HIINDEX(is);
-      sda := sda + bag_to_set(USEDIN(input,'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.DEFINITION'));
-      END_REPEAT;
-     IF (SIZEOF(sda) >= 0) THEN
-       REPEAT i := 1 TO HIINDEX(sda);
-       gm := gm + sda[i]\Property_definition_representation.used_representation;
-       END_REPEAT;    
-       RETURN (gm);
-     END_IF;
+    -- process input.primary_shape_representation
+    if 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(input.primary_shape_representation) THEN
+    	pm := gm + input.primary_shape_representation;
     END_IF;
-*)    
-    RETURN(?);  
+
+    -- process input.auxiliary_shape_representations
+    IF (SIZEOF(input.auxiliary_shape_representations ) >= 0) THEN
+      REPEAT i := 1 TO HIINDEX(input.auxiliary_shape_representations);
+        if 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(input.auxiliary_shape_representations[i]) THEN
+    	  pm := gm + input.input.auxiliary_shape_representations[i];
+        END_IF;
+      END_REPEAT;
+    END_IF;
+
+    -- process other SHAPE_DESCRIPTION_ASSOCIATIONs that could still hang around
+    sda := bag_to_set(USEDIN(input,'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.DEFINITION'));
+    IF (SIZEOF(sda) >= 0) THEN
+      REPEAT i := 1 TO HIINDEX(sda);
+        if 'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(input.primary_shape_representation) THEN
+          gm := gm + sda[i]\Property_definition_representation.used_representation;
+        END_IF;
+      END_REPEAT;    
+    END_IF;
+
+    RETURN (gm);
   END_FUNCTION; 
 
   FUNCTION fd_get_rmodels (input : SET[2:2] OF View_definition_relationship) : SET OF Geometric_model;

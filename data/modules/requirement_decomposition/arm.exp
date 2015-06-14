@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.73 2009/12/23 13:28:43 liutkuviene Exp $
+   $Id: arm.exp,v 1.74 2015/06/01 22:24:42 lothartklein Exp $
    ISO TC184/SC4/WG12 N7037 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6543
 *)
@@ -28,8 +28,7 @@ SCHEMA Requirement_decomposition_arm;
       non_conductive);
     END_TYPE;
 
-  TYPE requirement_basis_select = EXTENSIBLE GENERIC_ENTITY SELECT (
-    characteristic_select);
+  TYPE requirement_basis_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;  
   
 	TYPE characteristic_select = SELECT
@@ -100,10 +99,8 @@ SCHEMA Requirement_decomposition_arm;
 	SUPERTYPE OF(ONEOF(Constraint_occurrence,
 		 Design_characteristic_occurrence))
     SUBTYPE OF(Requirement_view_definition);
---      required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
---      required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
-      required_characteristic             : OPTIONAL characteristic_select;
-      requirement_basis : SET[1:?] OF requirement_basis_select;
+      required_characteristic : OPTIONAL characteristic_select;
+      requirement_basis : OPTIONAL SET[1:?] OF requirement_basis_select;
     DERIVE
 		requirement_specification: SET[1:?] OF Document_definition :=
   			get_document_definition(SELF, 'requirement specification', 
@@ -120,6 +117,7 @@ SCHEMA Requirement_decomposition_arm;
           ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical'];
       WR3: SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test'];
       WR4 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR5 : EXISTS(required_characteristic) XOR EXISTS(requirement_basis);
   END_ENTITY;
 
   ENTITY Shape_and_view_based_constraint_occurrence

@@ -10,9 +10,13 @@
       <interface kind="use" schema="Design_product_data_management_arm"/>
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
       <type name="cc_part_category">
-         <enumeration basedon="part_category" extensible="YES" items="wire cable"/>
+         <enumeration basedon="part_category" items="wire cable"/>
       </type>
       <entity name="Cable_component" supertypes="Assembly_component Product_occurrence_with_quantity">
+         <explicit name="derived_from">
+            <typename name="Cable_usage_view"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
          <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name = 'end a')" name="ends_a">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Cable_component_terminal_location_group_identification"/>
@@ -21,23 +25,18 @@
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Cable_component_terminal_location_group_identification"/>
          </derived>
-         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name[1:13] = 'intermediate ')" name="intermediates">
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name[1:13] = 'intermediate')" name="intermediates">
             <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Cable_component_terminal_location_group_identification"/>
          </derived>
-         <inverse attribute="associated_definition" entity="Component_feature_location_group_identification" name="terminal_location_groups">
+         <inverse attribute="associated_definition" entity="Cable_component_terminal_location_group_identification" name="terminal_location_groups">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
          <where expression="EXISTS(ends_a)" label="WR1"/>
          <where expression="EXISTS(ends_b)" label="WR2"/>
-         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) &gt;= 1" label="WR3"/>
-         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals)" label="WR4"/>
-         <where expression="TRUE" label="WR5"/>
-         <where expression="TRUE" label="WR6"/>
-         <where expression="TRUE" label="WR7"/>
-         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR8"/>
-         <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR9"/>
-         <where expression="TRUE" label="WR10"/>
+         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals)" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
       </entity>
       <entity name="Cable_component_terminal" supertypes="Derived_component_terminal">
          <explicit name="location_group">
@@ -59,10 +58,14 @@
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
          <inverse attribute="location_group" entity="Cable_component_terminal" name="terminals">
-            <inverse.aggregate lower="2" type="SET" upper="?"/>
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Cable_usage_view" supertypes="Part_usage_view"/>
+      <entity name="Cable_usage_view" supertypes="Part_usage_view">
+         <inverse attribute="associated_definition" entity="Wire_identification" name="conductors">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
       <entity name="Wire_color_based_identification_code" supertypes="Independent_property"/>
       <entity name="Wire_component" supertypes="Assembly_component Product_occurrence_with_quantity">
          <derived expression="QUERY(t &lt;* terminals | t.name = 'end a')" name="ends_a">
@@ -82,11 +85,9 @@
          </inverse>
          <where expression="SIZEOF(ends_a) = 1" label="WR1"/>
          <where expression="SIZEOF(ends_b) = 1" label="WR2"/>
-         <where expression="TRUE" label="WR7"/>
-         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR8"/>
-         <where expression="wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR9"/>
-         <where expression="TRUE" label="WR10"/>
-         <where expression="SIZEOF(USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_COMPONENT')) = SIZEOF(terminals)" label="WR11"/>
+         <where expression="SIZEOF(QUERY(ct &lt;* USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_DEFINITION') | &#10;             NOT ('COMPONENT_FEATURE_ARM.WIRE_COMPONENT_TERMINAL' IN TYPEOF(ct)) )) = 0" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
       </entity>
       <entity name="Wire_component_terminal" supertypes="Derived_component_terminal">
          <explicit name="associated_definition">

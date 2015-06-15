@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2015/04/16 11:37:47 lothartklein Exp $
+   $Id: arm.exp,v 1.34 2015/06/01 23:17:56 lothartklein Exp $
    ISO TC184/SC4/WG12 N8119 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7523
 *)
@@ -10,22 +10,16 @@ USE FROM Assembly_component_arm;
 USE FROM Component_feature_arm;
 USE FROM Design_product_data_management_arm; -- Only for Part_with_additional_categories
 USE FROM Functional_assignment_to_part_arm; -- only for fatp_part_connected_terminals_definition_domain_enumeration 
-(*
-TYPE fatp_part_connected_terminals_definition_domain_enumeration = EXTENSIBLE ENUMERATION OF (
-          electrical,
-          thermal,
-          optical,
-          magnetic );
-END_TYPE;
-*)
 
-TYPE cc_part_category = EXTENSIBLE ENUMERATION BASED_ON part_category WITH ( 
+TYPE cc_part_category = ENUMERATION BASED_ON part_category WITH ( 
   wire, cable ); 
 END_TYPE;
 
 
 ENTITY Cable_usage_view
   SUBTYPE OF (Part_usage_view);
+INVERSE  
+  conductors : SET[1:?] OF Wire_identification FOR associated_definition;
 END_ENTITY;
 
 ENTITY Cable_component_terminal
@@ -40,29 +34,24 @@ ENTITY Cable_component_terminal_location_group_identification
   SUBTYPE OF (Component_feature_location_group_identification);
   SELF\Component_feature.associated_definition : Cable_component;
 INVERSE
-  terminals : SET[2:?] OF Cable_component_terminal FOR location_group;
+  terminals : SET[1:?] OF Cable_component_terminal FOR location_group;
 END_ENTITY;
 
 ENTITY Cable_component
-	SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
+  SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
+  SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
 DERIVE 
   ends_a : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
   ends_b : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
-  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate ');
+  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate');
 INVERSE
-  terminal_location_groups : SET OF Component_feature_location_group_identification FOR associated_definition;
---  terminals : SET[1:?] OF Cable_component_terminal FOR associated_component;
+  terminal_location_groups : SET OF Cable_component_terminal_location_group_identification FOR associated_definition;
 WHERE
-  WR1: EXISTS(ends_a); -- derived attribute ends_a shall exisits
-  WR2: EXISTS(ends_b); -- derived attribute ends_b shall exisits
-  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) >= 1; -- end_a shall contain at least one terminal
-  WR4: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals); -- the number of terminals on both ends are the same
-  WR5: TRUE; -- the terminal names on both ends must match
-  WR6: TRUE; -- the sum of all terminals is end_a and end_b and all the middles must be the sizeof(all_terminals)
-  WR7: TRUE; -- all terminals must be of type Cable_component_terminal
-  WR8: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-  WR9: cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-  WR10: TRUE;	-- quantity type must be a lenght
+  WR1: EXISTS(ends_a);
+  WR2: EXISTS(ends_b);
+  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals); -- the number of terminals on both ends are the same
+  WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
+  WR5: cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
 END_ENTITY;
 
 ENTITY Wire_color_based_identification_code 
@@ -92,13 +81,12 @@ DERIVE
 INVERSE
   terminals : SET[2:?] OF Wire_component_terminal FOR associated_definition;
 WHERE
-  WR1: SIZEOF(ends_a) = 1; -- derived attribute ends_a shall contain exactly one member
-  WR2: SIZEOF(ends_b) = 1; -- derived attribute ends_b shall contain exactly one member
-  WR7: TRUE; -- all terminals must be of type Cable_component_terminal
-  WR8: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-  WR9: wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-  WR10: TRUE;	-- quantity type must be a lenght
-  WR11: SIZEOF(USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_COMPONENT')) = SIZEOF(terminals); -- all associated Component_terminals shall be Cable_component_terminal
+  WR1: SIZEOF(ends_a) = 1; 
+  WR2: SIZEOF(ends_b) = 1; 
+  WR3: SIZEOF(QUERY(ct <* USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_DEFINITION') | 
+             NOT ('COMPONENT_FEATURE_ARM.WIRE_COMPONENT_TERMINAL' IN TYPEOF(ct)) )) = 0;
+  WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; 
+  WR5: wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories;
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT wacc_assembly_component_subtypes FOR Assembly_component;

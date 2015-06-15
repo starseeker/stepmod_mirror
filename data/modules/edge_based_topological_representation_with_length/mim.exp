@@ -1,9 +1,23 @@
 (*
-   $Id: mim.exp,v 1.1 2015/05/19 11:09:12 lothartklein Exp $
+   $Id: mim.exp,v 1.2 2015/06/04 12:54:43 lothartklein Exp $
    N - ISO/CD-TS - 10303- edge_based_topological_representation_with_length - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Edge_based_topological_representation_with_length_mim;
 
 USE FROM Elemental_topology_mim; -- ISO/TS 10303-1005
+USE FROM topology_schema(edge_with_length, vertex_on_edge); -- ISO 10303-42
+
+TYPE connected_edge_with_length_set_items = SELECT
+    (connected_edge_set, 
+    path, 
+    vertex_on_edge);
+ END_TYPE; 
+ 
+ENTITY connected_edge_with_length_set_representation
+   SUBTYPE OF (representation);
+   SELF\representation.items : SET[1:?] OF connected_edge_with_length_set_items;
+WHERE
+   WR1: SIZEOF(QUERY ( it <* SELF.items | 'TOPOLOGY_SCHEMA.CONNECTED_EDGE_SET' IN TYPEOF(it)) ) = 1;
+ END_ENTITY;
 
 END_SCHEMA;

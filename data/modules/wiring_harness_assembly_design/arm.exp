@@ -1,25 +1,130 @@
 (*
-   $Id: arm.exp,v 1.2 2015/06/01 22:09:50 lothartklein Exp $
+   $Id: arm.exp,v 1.3 2015/06/16 23:08:30 lothartklein Exp $
    N - ISO/CD-TS - 10303- wiring_harness_assembly_design - EXPRESS ARM*)
 
 SCHEMA Wiring_harness_assembly_design_arm;
 
-USE FROM Harness_assembly_electrical_design_arm; -- ISO/TS 10303-1636
-USE FROM Extruded_structure_cross_section_arm; --
-USE FROM Edge_based_topological_representation_with_length_arm; --
+USE FROM Assembly_module_design_arm;
+USE FROM Cable_arm;
+USE FROM Extruded_structure_cross_section_arm; 
+USE FROM Edge_based_topological_representation_with_length_arm; 
 
-TYPE whad_part_category = EXTENSIBLE ENUMERATION BASED_ON part_category WITH (
-  wiring_harness_assembly,
-  wiring_harness_formboard,
-  grommet,                     -- IEV ref    581-27-19 grommet 
-  fixing,                      -- might be added to the harness in the assembly process before installation
-  marker,
-  marker_tape,
-  sleeve);
+TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON 
+ additional_application_domain_enumeration WITH (
+  wire_and_part_list_with_connectivity,
+  wiring_harness_segment_topology,
+  wiring_harness_assembly_design_stick_line,
+  wiring_harness_formboard_drawing, 
+  wiring_harness_assembly_3d_design);
 END_TYPE;
 
+TYPE whad_assembly_joint_type = ENUMERATION BASED_ON assembly_joint_type WITH (
+  welded_connection, -- 581-23-06 welded connection
+  soldered_connection,            -- IEV ref 581-23-04 soldered connection
+  glued_connection,
+  snap_connection, 
+  push_connection,
+  screwed_connection,   
+  bolted_connection,              -- IEV ref 461-19-05 bolted connection
+  wrapped_connection, -- 581-23-07 wrapped connection
+  insulation_displacement_connection, -- 581-23-35 insulation displacement connection
+  insulation_piercing_connection, -- IEV ref 461-19-06 insulation piercing
+  crimped_connection,              -- IEV ref 461-19-01 crimped connection
+  circular_compressed_crimped_connection, -- 461-19-02 circular compressed connection
+  hexagonal_compressed_crimped_connection, -- 461-19-03 hexagonal compressed connection
+  deep_indented_crimped_connection -- 461-19-04 deep indented connection
+);
+END_TYPE;
 
-TYPE whad_terminal_joint_type = EXTENSIBLE ENUMERATION BASED_ON terminal_joint_type WITH ( 
+TYPE whad_part_category = ENUMERATION BASED_ON part_category WITH (
+  wiring_harness, -- !
+
+ connector_kit, -- ! NEW
+ contact_member, -- ! IEV ref		151-12-16
+ connector_contact,   -- ! new def:  SINGEL      
+ -- TBD later - multiple_connector_contact, 
+ --   " multiple_coaxially_connector_contact,
+ --   " female_multiple_concentric_contact,
+ --   " male_multiple_concentric_contact,
+ --     " IEV ref 581-22-04 concentric contact
+ --     " IEV ref 581-27-31 female concentric contact
+ --     " IEV ref 581-27-32 male concentric contact 
+ --     " IEV ref 581-27-33 triaxial contact 
+ --     " IEV ref 581-27-34 female triaxial contact 
+ --     " IEV ref 581-27-35 male triaxial contact
+ --     " hermaphroditic_connector,    -- IEV ref 581-26-11        
+ --     " concentric_connector,        -- NEW, a "connector" that consist of one "concentric contact"
+ --     " triaxial_connector,          -- NEW, a "connector" that consist of one "triaxial_contact"
+  
+  connector,                   -- ! IEV ref 151-12-19 connector  
+  plug,                        -- ! IEV ref 151-12-21 plug
+  socket,                      -- ! IEV ref 151-12-20 socket
+
+  shielded_connector,          -- ! IEV ref 581-26-19 shielded connector
+  -- NO sealed_connector,            -- IEV ref 581-26-18 sealed connector   
+  -- NO scoop_proof_connector,       -- IEV ref 581-26-17 scoop proof connector
+
+  connector_insert, -- IEV ref 581-27-11 connector insert
+  cavity_plug, -- ! see def.
+  seal,  -- ! see def.
+  connector_housing,           -- ! IEV ref 581-27-10 connector housing
+  emi_connector_housing,           -- ! see def.
+  connector_insert,            -- ! IEV ref 581-27-11 connector insert
+  -- NO connector_body,              -- IEV ref 581-27-09 connector body
+  backshell,         -- ! def: a connector element to guide the wires and cables 
+  electrified_backshell,         -- ! see def.
+
+  cable_support_sleeve, -- ! IEV ref		581-27-23	cable support sleeve
+  grommet, -- IEV ref 581-27-19 grommet 
+  strain_relief_accessory,  -- ! see def.
+  -- NO cable_clamp, -- IEV ref 581-27-89 cable clamp ## primarily needed for installation but might be on the harness
+  
+  -- NO contact_retainer,            -- IEV ref 581-27-63 contact retainer
+  -- NO, it is only a feature of a contact - contact_lead_in,             -- IEV ref 581-27-08 contact lead-in
+
+  protective_covering, -- ! IEV ref 461-05-03 sheath
+  overbraid, -- ! see def.
+  conduit, -- ! IEV ref 442-02-03 conduit
+  corrugated_conduit, -- ! IEV ref 442-02-06 corrugated conduit  (gewelltes Elektroinstallationsrohr)
+ 
+
+  -- NO 461-15-05 joint-sleeve insulation
+  -- NO 581-27-93 sealing sleeve
+  shield, -- ! 461-03-04 shield (of a cable)
+
+  terminal_lug, -- ! 461-17-01 (terminal) lug
+  terminal_block, -- ! IEC 581-26-26 terminal block
+  -- NO, use terminal_lug - terminal_end, -- ! 581-23-18 terminal end
+
+  joint_ferrule, -- IEV ref 461-17-04 joint ferrule
+  cable_ferrule, -- IEV ref 581-27-18 ferrule
+  shield_connector, -- IEV ref    461-17-12 screen connector; shield connector
+  insulation_piercing_connector, -- IEV ref 461-11-08 insulation piercing connector 
+
+  splice,                      -- ! IEV ref 581-24-19 splice  + ... 
+
+  fixing_device, -- ! IEV ref 442-02-40 fixing device
+  cable_fixing_device, -- ! def: fixing device for a cable or a segment of a wire harness
+  label, -- ! def: part that is intended to attach written information to other parts
+  tape, -- ! IEV ref 212-15-03 tape
+  -- NO sleeve, see protective_covering
+  end_cap -- ! IEV ref 461-20-07 end cap, sealed (cable) end (USA) 
+  );
+END_TYPE;
+
+-- Others to be discussed:
+-- IEV ref 461-06-12 individually screened cable
+-- NOT A PART IEV ref 461-10-11 taped termination
+-- IEV ref 461-17-04 joint ferrule, through connector (of cables) 
+
+-- IEV ref 461-10-02 sealing end, pothead (deprecated) 
+-- IEV ref 461-05-07 spiral binder tape
+-- IEV ref 461-05-10 braid
+-- IEV ref 461-05-04, oversheath, outer sheath, protective (overall) jacket (North America) 
+-- IEV ref	461-05-12 corrugated metallic sheath
+
+
+TYPE whad_terminal_joint_type = ENUMERATION BASED_ON terminal_joint_type WITH ( 
   socket_terminal,          -- IEV ref 151-12-17 (581-22-06) socket contact, female_contact
   pin_terminal,             -- IEV ref 151-12-18 (581-22-08) pin contact; male contact
   crimp_terminal,          -- IEV ref 581-22-05 crimp contact
@@ -35,34 +140,13 @@ TYPE whad_terminal_joint_type = EXTENSIBLE ENUMERATION BASED_ON terminal_joint_t
   tuning_fork_contact_terminal, -- IEV ref 581-22-12 tuning fork contact
   push_on_contact_terminal,  -- IEV ref 581-27-04 push-on contact 
   insulation_displacement_terminal, -- IEV ref 581-23-39 insulation displacement termination
-  insulation_displacement_terminal, -- IEV ref 581-23-39 insulation displacement termination
-  non_reusable_insulation_displacement_termination -- IEV ref 581-23-41 non-reusable insulation displacement termination
-);
-END_TYPE;
+  non_reusable_insulation_displacement_termination, -- IEV ref 581-23-41 non-reusable insulation displacement termination
 
-TYPE whad_assembly_joint_type = EXTENSIBLE ENUMERATION BASED_ON assembly_joint_type WITH (
-  welded_connection, -- 581-23-06 welded connection
-  glued_connection,
-  snap_connection, 
-  push_connection,
-  screwed_connection,   
-  bolted_connection,              -- IEV ref 461-19-05 bolted connection
-  soldered_connection,            -- IEV ref 581-23-04 soldered connection
-  wrapped_connection, -- 581-23-07 wrapped connection
-  insulation_displacemen_connection, -- 581-23-35 insulation displacement connection
-  insulation_piercing_connection, -- IEV ref 461-19-06 insulation piercing
-  crimped_connection,              -- IEV ref 461-19-01 crimped connection OR 581-23-02 crimped connection ??
-  circular_compressed_crimped_connection, -- 461-19-02 circular compressed connection
-  hexagonal_compressed_crimped_connection, -- 461-19-03 hexagonal compressed connection
-  deep_indented_crimped_connection -- 461-19-04 deep indented connection
+  -- the following are for optical that connects 2 ends of fires, they are not for T connection
+  fusion_fibre_splice,        -- IEV ref    731-05-06 fusion splice
+  mechanical_fibre_splice,     -- IEV ref    731-05-07  mechanical splice     
+  optical_fibre_splice         -- IEV ref 731-05-05 optical fibre splice; splice; optical splice
 );
-END_TYPE;
-
-TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
-  wiring_harness_assembly_design_segement_topology,
-  wiring_harness_assembly_design_stick_line,
-  wiring_harness_assembly_2d_design,
-  wiring_harness_assembly_3d_design);
 END_TYPE;
 
 ENTITY Wiring_harness_assembly_design

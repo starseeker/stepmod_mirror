@@ -2,15 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1812">
    <application name="JSDAI" owner="LKSoft" source="product_and_manufacturing_annotation_presentation_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Product_and_manufacturing_annotation_presentation_arm">
       <interface kind="use" schema="Product_and_manufacturing_information_with_nominal_3d_models_arm"/>
-      <type name="pamap_product_shape_type_enumeration">
-         <enumeration basedon="product_shape_type_enumeration" items="nominal_shape"/>
+      <type name="pamap_additional_application_domain_enumeration">
+         <enumeration basedon="additional_application_domain_enumeration" items="model_based_3D_annotation_presentation"/>
       </type>
-      <rule appliesto="Part_view_definition" name="nominal_part_shape_constraint">
-         <where expression="SIZEOF ( QUERY ( p &lt;* Part_view_definition | &#10;                          SIZEOF( [ 'ADVANCED_BOUNDARY_REPRESENTATION_ARM.ADVANCED_BREP_SHAPE_REPRESENTATION',&#10;                                    'MANIFOLD_SURFACE_ARM.MANIFOLD_SURFACE_SHAPE_REPRESENTATION',&#10;                                    'MANIFOLD_SUBSURFACE_ARM.MANIFOLD_SUBSURFACE_MODEL'&#10;                                  ] * TYPEOF(p.primary_shape_representation) ) &gt; 0&#10;                      ) &#10;              ) = 0" label="WR1"/>
+      <rule appliesto="Part_view_definition" name="model_based_3d_annotation_presentation_view_context_constraint">
+         <where expression="SIZEOF ( QUERY ( p &lt;* Part_view_definition | &#10;        (SIZEOF ( QUERY ( pa &lt;* p.additional_contexts | pa.application_domain = pamap_additional_application_domain_enumeration.model_based_3D_annotation_presentation) ) &gt; 0)&#10;           AND ( &#10;                 (p.initial_context.application_domain &lt;&gt; pamap_initial_application_domain_enumeration.model_based_product_geometry)&#10;                 OR &#10;                 (p.initial_context.life_cycle_stage &lt;&gt; pvd_life_cycle_stage_enumeration.design)&#10;               )&#10;                      ) &#10;               ) = 0" label="WR1"/>
       </rule>
    </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.21 2013/11/04 21:58:32 thomasrthurman Exp $
+   $Id: mim.exp,v 1.22 2013/12/13 21:45:42 thomasrthurman Exp $
    WG12N8333 - ISO/TS - 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM
 *)
 SCHEMA Ap209_multidisciplinary_analysis_and_design_mim;
@@ -127,6 +127,16 @@ END_TYPE;
 --TYPE ap209e2_representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH 
 --   (product_definition_formation);
 --END_TYPE; 
+
+RULE ap209_application_protocol_definition_required FOR
+    (application_context);
+WHERE
+  WR1:  SIZEOF( QUERY( ac <* application_context |
+              (SIZEOF (QUERY (apd <* USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
+                (apd.application_interpreted_model_schema_name = 'ap209_multidisciplinary_analysis_and_design')
+                )) > 0)
+              )) > 0;
+END_RULE;
 
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2012/10/11 05:49:06 liutkuviene Exp $
+   $Id: arm.exp,v 1.19 2015/03/14 14:34:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N7975 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7412
 *) 
@@ -8,6 +8,23 @@ SCHEMA Contextual_shape_positioning_arm;
 
 USE FROM Geometric_model_relationship_arm;
 USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
+
+  TYPE list_placement_transformation_select = LIST[1:?] OF placement_transformation_select;
+  END_TYPE; 
+
+  TYPE placement_transformation_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement_mapping
+  );
+  END_TYPE; 
+
+  TYPE single_or_set_or_list_placement_transformation = SELECT
+    (placement_transformation_select, 
+    set_placement_transformation_select, 
+    list_placement_transformation_select);
+  END_TYPE; 
+
+  TYPE set_placement_transformation_select = SET[1:?] OF placement_transformation_select;
+  END_TYPE; 
 
   TYPE template_instance = SELECT
     (Geometric_placement_operation, 
@@ -55,7 +72,7 @@ USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
   ENTITY Geometric_relationship_with_placement_transformation
     SUBTYPE OF (Geometric_model_relationship_with_transformation);
-      transformation: Axis_placement_mapping;
+      transformation: single_or_set_or_list_placement_transformation;
     WHERE
       WR1:  rep_1.context_of_items\Geometric_coordinate_space.dimension_count :=:
         rep_2.context_of_items\Geometric_coordinate_space.dimension_count;

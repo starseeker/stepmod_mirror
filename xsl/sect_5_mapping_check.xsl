@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.21 2015/07/09 14:28:20 nigelshaw Exp $
+$Id: sect_5_mapping_check.xsl,v 1.22 2015/07/09 15:26:13 nigelshaw Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -432,6 +432,49 @@ $Id: sect_5_mapping_check.xsl,v 1.21 2015/07/09 14:28:20 nigelshaw Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:when>
+    		<xsl:when test="$first-char='-'">
+			<xsl:choose>
+				<xsl:when test="$last='&lt;'">
+					<xsl:text>- </xsl:text>
+				</xsl:when>
+				<xsl:when test="substring($path,2,1)='&gt;'">
+					<xsl:text> -</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<!-- not sure this should ever happen! -->
+					<xsl:text> - </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="$first-char='&lt;'">
+			<xsl:choose>
+				<xsl:when test="substring($path,2,1)='-'">
+					<xsl:text> &lt;</xsl:text>
+				</xsl:when>
+				<xsl:when test="substring($path,2,1)='='">
+					<xsl:text> &lt;</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<!-- not sure this should ever happen! -->
+					<xsl:text> &lt; </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="$first-char='&gt;'">
+			<xsl:choose>
+				<xsl:when test="$last='-'">
+					<xsl:text>&gt; </xsl:text>
+				</xsl:when>
+				<xsl:when test="$last='='">
+					<xsl:text>&gt; </xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<!-- not sure this should ever happen! -->
+					<xsl:text> &gt; </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+
     <xsl:when test="$first-char='('">
       <xsl:text> ( </xsl:text>
     </xsl:when>
@@ -628,7 +671,7 @@ $Id: sect_5_mapping_check.xsl,v 1.21 2015/07/09 14:28:20 nigelshaw Exp $
         </xsl:choose>
       </xsl:when>
       <xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;-',''))" >
-        <xsl:copy-of select="."/>
+	      <!--        <xsl:copy-of select="."/> -->
         <!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
         <xsl:call-template name="error_message">
           <xsl:with-param name="inline" select="'yes'"/>
@@ -647,7 +690,7 @@ $Id: sect_5_mapping_check.xsl,v 1.21 2015/07/09 14:28:20 nigelshaw Exp $
         <xsl:choose>
           <xsl:when test="$found-ent" >
             <!--<xsl:value-of select="." /> found in schema 
-            <xsl:value-of select="$found-ent/ancestor::schema/@name" />
+	    <xsl:value-of select="$found-ent/ancestor::schema/@name" />
             <br/>-->
           </xsl:when>
           <xsl:otherwise>            

@@ -9,6 +9,9 @@
       <interface kind="use" schema="Cable_arm"/>
       <interface kind="use" schema="Extruded_structure_cross_section_arm"/>
       <interface kind="use" schema="Edge_based_topological_representation_with_length_arm"/>
+      <interface kind="reference" schema="Foundation_representation_arm">
+         <interfaced.item name="using_representations"/>
+      </interface>
       <type name="whad_additional_application_domain_enumeration">
          <enumeration basedon="additional_application_domain_enumeration" items="wire_and_part_list_with_connectivity wiring_harness_segment_topology wiring_harness_assembly_design_stick_line wiring_harness_formboard_drawing wiring_harness_assembly_3d_design"/>
       </type>
@@ -18,13 +21,50 @@
       <type name="whad_part_category">
          <enumeration basedon="part_category" items="wiring_harness connector_kit contact_member connector_contact connector plug socket shielded_connector connector_insert cavity_plug seal connector_housing emi_connector_housing connector_insert backshell electrified_backshell cable_support_sleeve grommet strain_relief_accessory protective_covering overbraid conduit corrugated_conduit shield terminal_lug terminal_block joint_ferrule cable_ferrule shield_connector insulation_piercing_connector splice fixing_device cable_fixing_device label tape end_cap"/>
       </type>
+      <type name="whad_placement_transformation_select">
+         <select basedon="placement_transformation_select" selectitems="Vertex Edge Curve"/>
+      </type>
       <type name="whad_terminal_joint_type">
          <enumeration basedon="terminal_joint_type" items="socket_terminal pin_terminal crimp_terminal solder_terminal lug_terminal screw_terminal mantle_terminal saddle_terminal pillar_terminal stud_terminal resilient_contact_terminal snap_on_contact_terminal tuning_fork_contact_terminal push_on_contact_terminal insulation_displacement_terminal non_reusable_insulation_displacement_termination fusion_fibre_splice mechanical_fibre_splice optical_fibre_splice"/>
       </type>
+      <entity name="Harness_node" supertypes="Part_shape_element">
+         <explicit name="associated_definition">
+            <typename name="Wiring_harness_assembly_design"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="identified_item">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Vertex"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="attached_feature" optional="YES">
+            <typename name="Component_feature"/>
+         </explicit>
+         <where expression="associated_definition.topology IN using_representations(identified_item)" label="WR1"/>
+      </entity>
+      <entity name="Harness_segement" supertypes="Part_shape_element">
+         <explicit name="associated_definition">
+            <typename name="Wiring_harness_assembly_design"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="identified_item">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Edge"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="cross_section" optional="YES">
+            <typename name="cross_sectional_constituent_element"/>
+         </explicit>
+         <explicit name="overlength" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <where expression="associated_definition.topology IN using_representations(identified_item)" label="WR1"/>
+      </entity>
       <entity name="Wiring_harness_assembly_design" supertypes="Assembly_module_design_view">
          <explicit name="topology">
             <typename name="Connected_edge_with_length_set_representation"/>
          </explicit>
       </entity>
+      <subtype.constraint entity="Part_shape_element" name="whad_part_shape_element_subtypes" super.expression="ONEOF (Harness_segement, Harness_node)"/>
    </schema>
 </express>

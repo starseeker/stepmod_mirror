@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.19 2015/06/06 08:47:12 mikeward Exp $
+$Id: sect_5_mapping_check.xsl,v 1.20 2015/06/09 22:17:30 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -864,9 +864,11 @@ $Id: sect_5_mapping_check.xsl,v 1.19 2015/06/06 08:47:12 mikeward Exp $
             </xsl:call-template>    				
           </xsl:when>
           <xsl:otherwise>
-            <br/>			
+          <!-- Commented out in response to Comment 8 of bug 5525
+		       <br/>			
             <xsl:value-of select="concat($first,
-              ' is a subtype of ',$second)" />					
+	      ' is a subtype of ',$second)" /> 
+           -->					
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.20 2015/06/09 22:17:30 mikeward Exp $
+$Id: sect_5_mapping_check.xsl,v 1.21 2015/07/09 14:28:20 nigelshaw Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -581,6 +581,7 @@ $Id: sect_5_mapping_check.xsl,v 1.20 2015/06/09 22:17:30 mikeward Exp $
   <xsl:template match="word" mode="test"><!-- MWD new template added -->
     <xsl:param name="schemas" />
     <xsl:if test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
+      not(string(.) ='BOOLEAN' )  and 
       not(name(preceding-sibling::*[2]) ='subtype-template' or  
       name(preceding-sibling::*[2]) ='supertype-template' or
       name(preceding-sibling::*[2]) ='mapping-of') ">
@@ -724,6 +725,10 @@ $Id: sect_5_mapping_check.xsl,v 1.20 2015/06/09 22:17:30 mikeward Exp $
           <xsl:when test="substring(., 1, 1) = $apos">
             <!-- it's a string so don't look for it in the MIMs -->
           </xsl:when>
+	  <xsl:when test="string(.) = 'BOOLEAN'">
+            <!-- Can be mapped to a BOOLEAN -->
+          </xsl:when>
+ 
           <xsl:otherwise>
             <!--			!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
             <xsl:call-template name="error_message">

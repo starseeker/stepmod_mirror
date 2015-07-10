@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.22 2015/07/09 15:26:13 nigelshaw Exp $
+$Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -454,6 +454,10 @@ $Id: sect_5_mapping_check.xsl,v 1.22 2015/07/09 15:26:13 nigelshaw Exp $
 				<xsl:when test="substring($path,2,1)='='">
 					<xsl:text> &lt;</xsl:text>
 				</xsl:when>
+				<xsl:when test="substring($path,2,1)='*'">
+					<xsl:text> &lt;</xsl:text>
+				</xsl:when>
+
 				<xsl:otherwise>
 					<!-- not sure this should ever happen! -->
 					<xsl:text> &lt; </xsl:text>
@@ -466,6 +470,9 @@ $Id: sect_5_mapping_check.xsl,v 1.22 2015/07/09 15:26:13 nigelshaw Exp $
 					<xsl:text>&gt; </xsl:text>
 				</xsl:when>
 				<xsl:when test="$last='='">
+					<xsl:text>&gt; </xsl:text>
+				</xsl:when>
+				<xsl:when test="$last='*'">
 					<xsl:text>&gt; </xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
@@ -665,7 +672,7 @@ $Id: sect_5_mapping_check.xsl,v 1.22 2015/07/09 15:26:13 nigelshaw Exp $
             <xsl:call-template name="error_message">
               <xsl:with-param name="inline" select="'yes'"/>
               <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-              <xsl:with-param name="message" select="concat('Error Map17: Possible syntax ERROR: ',name(preceding-sibling::*[1]),.,name(following-sibling::*[1]))"/>
+	      <xsl:with-param name="message" select="concat('Error Map17: Possible syntax ERROR: ',name(preceding-sibling::*[1]),'xxx',.,'yyy',name(following-sibling::*[1]))"/>
             </xsl:call-template>    
           </xsl:otherwise>
         </xsl:choose>

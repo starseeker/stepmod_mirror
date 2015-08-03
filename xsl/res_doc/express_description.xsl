@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.6 2004/10/11 16:21:13 thendrix Exp $
+$Id: express_description.xsl,v 1.7 2009/11/07 09:50:49 lothartklein Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -228,13 +228,13 @@ and
             not($descriptions/ext_description[@linkend =  $candidate-express-ref])">
 
 
-          <xsl:call-template name="error_message">
+          <!--<xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
                 select="concat('Warning Ent7: bold text &quot;', . , '&quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
-            </xsl:call-template>
-
+                </xsl:call-template> MWD this warning removed as bold is sometimes required in EXPRESS descriptions other than for (mis-)tagging EXPRESS object references -->
             <!--
+              
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 

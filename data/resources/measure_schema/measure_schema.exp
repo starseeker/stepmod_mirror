@@ -1,14 +1,14 @@
 (*
 $Id: measure_schema.exp,v 1.26 2014/03/04 00:30:38 thomasrthurman Exp $
-ISO 10303 TC184/SC4/WG12 N8572
+ISO 10303 TC184/SC4/WG12 N8369
 
 EXPRESS Source:
-ISO 10303-41 ed45 Fundamentals of product description and support - Measure schema
+ISO 10303-41 ed4 Fundamentals of product description and support - Measure schema
 
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
 
-Copyright ISO 2015  All rights reserved
+Copyright ISO 2014  All rights reserved
 Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
 to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
 implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
@@ -24,11 +24,11 @@ USE OR OTHER DEALINGS IN THE SCHEMA.
 In addition, any modified copy of the Schema shall include the following notice:
 
 THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
-ISO 10303-41 ed5 Fundamentals of product description and support - Measure schema
+ISO 10303-41 ed4 Fundamentals of product description and support - Measure schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA measure_schema '{iso standard 10303 part(41) version(8) object(1) measure_schema(15)}';
+SCHEMA measure_schema '{iso standard 10303 part(41) version(7) object(1) measure_schema(15)}';
 
 REFERENCE FROM basic_attribute_schema   -- ISO 10303-41
   (get_name_value,
@@ -245,11 +245,9 @@ END_ENTITY;
 
   ENTITY si_absorbed_dose_unit
      SUBTYPE OF (absorbed_dose_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.gray;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY acceleration_measure_with_unit
@@ -279,11 +277,9 @@ END_ENTITY;
 
   ENTITY si_radioactivity_unit
      SUBTYPE OF (radioactivity_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.becquerel;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY amount_of_substance_measure_with_unit
@@ -294,8 +290,8 @@ END_ENTITY;
 
   ENTITY amount_of_substance_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( mole ) ;
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 1.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY area_measure_with_unit
@@ -328,13 +324,6 @@ END_ENTITY;
      conversion_factor : measure_with_unit;
   WHERE
     WR1: SELF\named_unit.dimensions = derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component);
-  END_ENTITY;
-
-  ENTITY conversion_based_unit_with_offset
-    SUBTYPE OF (conversion_based_unit);
-    offset : REAL;
-  WHERE
-    WR1: offset <> 0.0;
   END_ENTITY;
 
   ENTITY derived_unit
@@ -396,11 +385,9 @@ END_ENTITY;
 
   ENTITY si_capacitance_unit
      SUBTYPE OF (capacitance_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.farad;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
 ENTITY dose_equivalent_measure_with_unit
@@ -417,11 +404,9 @@ END_ENTITY;
 
   ENTITY si_dose_equivalent_unit
      SUBTYPE OF (dose_equivalent_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.sievert;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY electric_charge_unit
@@ -438,11 +423,9 @@ END_ENTITY;
 
   ENTITY si_electric_charge_unit
      SUBTYPE OF (electric_charge_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.coulomb;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
   
   ENTITY electric_current_measure_with_unit
@@ -453,8 +436,8 @@ END_ENTITY;
 
   ENTITY electric_current_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( ampere );
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 1.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
   
    ENTITY conductance_unit
@@ -471,11 +454,9 @@ END_ENTITY;
 
   ENTITY si_conductance_unit
      SUBTYPE OF (conductance_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.siemens;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY electric_potential_unit
@@ -492,11 +473,9 @@ END_ENTITY;
 
   ENTITY si_electric_potential_unit
      SUBTYPE OF (electric_potential_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.volt;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY energy_unit
@@ -513,11 +492,9 @@ END_ENTITY;
 
   ENTITY si_energy_unit
      SUBTYPE OF (energy_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.joule;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY magnetic_flux_density_unit
@@ -534,11 +511,9 @@ END_ENTITY;
 
   ENTITY si_magnetic_flux_density_unit
      SUBTYPE OF (magnetic_flux_density_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.tesla;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY force_unit
@@ -555,11 +530,9 @@ END_ENTITY;
 
   ENTITY si_force_unit
      SUBTYPE OF (force_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.newton;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY frequency_unit
@@ -576,11 +549,9 @@ END_ENTITY;
 
   ENTITY si_frequency_unit
      SUBTYPE OF (frequency_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.hertz;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
  
   ENTITY global_unit_assigned_context
@@ -602,11 +573,9 @@ END_ENTITY;
 
   ENTITY si_illuminance_unit
      SUBTYPE OF (illuminance_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.lux;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY inductance_unit
@@ -623,11 +592,9 @@ END_ENTITY;
 
   ENTITY si_inductance_unit
      SUBTYPE OF (inductance_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.henry;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
  
   ENTITY length_measure_with_unit
@@ -638,14 +605,20 @@ END_ENTITY;
 
   ENTITY length_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( metre );
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 1.0) AND 
+    (SELF\named_unit.dimensions.mass_exponent = 0.0) AND 
+    (SELF\named_unit.dimensions.time_exponent = 0.0) AND 
+    (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND 
+    (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND 
+    (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND 
+    (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY luminous_flux_unit
     SUBTYPE OF(named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( lumen );
+  WHERE
+    WR1: derive_dimensional_exponents(SELF) = dimensions_for_si_unit (si_unit_name.lumen);  
   END_ENTITY;
 
   ENTITY luminous_flux_measure_with_unit
@@ -662,8 +635,8 @@ END_ENTITY;
 
   ENTITY luminous_intensity_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( candela ) ;
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 1.0);
   END_ENTITY;
 
   ENTITY magnetic_flux_unit
@@ -680,11 +653,9 @@ END_ENTITY;
 
   ENTITY si_magnetic_flux_unit
      SUBTYPE OF (magnetic_flux_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.weber;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY mass_measure_with_unit
@@ -695,8 +666,8 @@ END_ENTITY;
 
   ENTITY mass_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( gram ) ;
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 1.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY measure_with_unit
@@ -755,8 +726,8 @@ END_ENTITY;
 
   ENTITY plane_angle_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( radian );
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY power_unit
@@ -773,11 +744,9 @@ END_ENTITY;
 
   ENTITY si_power_unit
      SUBTYPE OF (power_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.watt;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
  
   ENTITY pressure_unit
@@ -794,11 +763,9 @@ END_ENTITY;
 
   ENTITY si_pressure_unit
      SUBTYPE OF (pressure_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.pascal;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
   ENTITY ratio_measure_with_unit
@@ -827,12 +794,11 @@ END_ENTITY;
 
   ENTITY si_resistance_unit
      SUBTYPE OF (resistance_unit,si_unit);
-  DERIVE
-      SELF\derived_unit.elements : SET [1 : ?] OF derived_unit_element := [];
-      SELF\derived_unit.name : label := '';
   WHERE
     WR1: SELF\si_unit.name = si_unit_name.ohm;
+    WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
+
   
   ENTITY si_unit
     SUBTYPE OF (named_unit);
@@ -854,8 +820,8 @@ END_ENTITY;
 
   ENTITY solid_angle_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( steradian );
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY thermodynamic_temperature_measure_with_unit
@@ -866,8 +832,8 @@ END_ENTITY;
 
   ENTITY thermodynamic_temperature_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( kelvin );
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 1.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY time_measure_with_unit
@@ -878,8 +844,8 @@ END_ENTITY;
 
   ENTITY time_unit
     SUBTYPE OF (named_unit);
-    DERIVE
-      SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit( second ) ;
+  WHERE
+    WR1: (SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 1.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0);
   END_ENTITY;
 
   ENTITY velocity_measure_with_unit

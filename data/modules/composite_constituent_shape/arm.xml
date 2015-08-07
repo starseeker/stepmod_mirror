@@ -19,13 +19,19 @@
       <interface kind="use" schema="Tessellated_geometry_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="boundary_class_zone">
-         <select selectitems="Boundary_curve_representation Loop"/>
+         <select selectitems="Boundary_curve_set Loop"/>
       </type>
       <type name="composite_assembly_shape">
          <select selectitems="Advanced_brep_shape_representation Edge_based_wireframe_shape_representation Faceted_brep_shape_representation Geometrically_bounded_surface_shape_representation Geometrically_bounded_wireframe_shape_representation Manifold_surface_shape_representation Shell_based_wireframe_shape_representation Tessellated_shape_representation Three_d_geometry_set"/>
       </type>
       <type name="core_shape">
          <select selectitems="Advanced_brep_shape_representation Beveled_sheet_representation Faceted_brep_shape_representation"/>
+      </type>
+      <type name="curve_or_point">
+         <select selectitems="Curve Point"/>
+      </type>
+      <type name="geometric_set_select">
+         <select selectitems="Curve Point Surface"/>
       </type>
       <type name="ply_laminate_shape">
          <select extensible="YES" genericentity="YES" selectitems="Advanced_brep_shape_representation Composite_sheet_representation Csg_model Curve_swept_solid Elementary_brep_shape_representation Faceted_brep_shape_representation Tessellated_shape_representation Three_d_geometry_set"/>
@@ -47,10 +53,11 @@
             <typename name="Length_data_element"/>
          </explicit>
       </entity>
-      <entity name="Boundary_curve_representation">
+      <entity name="Boundary_curve_set" supertypes="Geometric_curve_set">
          <explicit name="bounds">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Curve"/>
+            <redeclaration entity-ref="Geometric_set" old_name="elements"/>
          </explicit>
       </entity>
       <entity name="Composite_sheet_representation" super.expression="ONEOF (Face_based_sheet_representation, Geometric_sheet_representation)" supertypes="Constituent_shape_representation"/>
@@ -75,16 +82,29 @@
             <typename name="Cartesian_point"/>
          </explicit>
       </entity>
+      <entity name="Geometric_curve_set" supertypes="Geometric_set">
+         <explicit name="elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="curve_or_point"/>
+            <redeclaration entity-ref="Geometric_set"/>
+         </explicit>
+      </entity>
+      <entity name="Geometric_set" supertypes="Detailed_geometric_model_element">
+         <explicit name="elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="geometric_set_select"/>
+         </explicit>
+      </entity>
       <entity name="Geometric_sheet_representation" supertypes="Composite_sheet_representation">
          <explicit name="basis_surface">
             <typename name="Surface"/>
          </explicit>
          <explicit name="cutouts" optional="YES">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Boundary_curve_representation"/>
+            <typename name="Boundary_curve_set"/>
          </explicit>
          <explicit name="outer_edge">
-            <typename name="Boundary_curve_representation"/>
+            <typename name="Boundary_curve_set"/>
          </explicit>
       </entity>
       <entity name="Laid_ply_shape" supertypes="Ply_shape"/>

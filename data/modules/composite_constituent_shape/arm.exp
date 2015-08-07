@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2012/09/19 20:07:16 thomasrthurman Exp $
+   $Id: arm.exp,v 1.19 2012/10/11 05:49:26 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7780 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7406
 *)
@@ -33,7 +33,7 @@ USE FROM Tessellated_geometry_arm; -- ISO/TS 10303-1819
 USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
   TYPE boundary_class_zone = SELECT 
-    (Boundary_curve_representation,
+    (Boundary_curve_set,
      Loop);
   END_TYPE;
 
@@ -82,8 +82,30 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
       vertical_profile_height : Length_data_element;
   END_ENTITY;
 
-  ENTITY Boundary_curve_representation;
-    bounds : SET [1:?] OF Curve;
+  TYPE geometric_set_select = SELECT (
+    Curve,
+    Point,
+    Surface);
+  END_TYPE;
+  
+  TYPE curve_or_point = SELECT (
+    Curve,
+    Point);
+  END_TYPE;
+  
+  ENTITY Geometric_set
+    SUBTYPE OF (Detailed_geometric_model_element);
+    elements : SET [1:?] OF geometric_set_select;
+  END_ENTITY;
+
+  ENTITY Geometric_curve_set
+    SUBTYPE OF (Geometric_set);
+    SELF\Geometric_set.elements : SET [1:?] OF curve_or_point;
+  END_ENTITY;
+
+  ENTITY Boundary_curve_set
+    SUBTYPE OF (Geometric_curve_set);
+    SELF\Geometric_set.elements RENAMED bounds : SET [1:?] OF Curve; 
   END_ENTITY;
 
   ENTITY Composite_sheet_representation
@@ -112,8 +134,8 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
   ENTITY Geometric_sheet_representation
     SUBTYPE OF (Composite_sheet_representation);
       basis_surface : Surface;
-      cutouts       : OPTIONAL SET [1:?] OF Boundary_curve_representation;
-      outer_edge    : Boundary_curve_representation;
+      cutouts       : OPTIONAL SET [1:?] OF Boundary_curve_set;
+      outer_edge    : Boundary_curve_set;
   END_ENTITY;
 
   ENTITY Laid_ply_shape

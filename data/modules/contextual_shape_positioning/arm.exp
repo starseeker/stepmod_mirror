@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2015/03/14 14:34:45 lothartklein Exp $
+   $Id: arm.exp,v 1.20 2015/07/09 08:15:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N7975 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7412
 *) 
@@ -9,27 +9,37 @@ SCHEMA Contextual_shape_positioning_arm;
 USE FROM Geometric_model_relationship_arm;
 USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
-  TYPE list_placement_transformation_select = LIST[1:?] OF placement_transformation_select;
-  END_TYPE; 
-
-  TYPE placement_transformation_select = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Axis_placement_mapping
+  TYPE axis_placement_mapping_source = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
   );
   END_TYPE; 
 
-  TYPE single_or_set_or_list_placement_transformation = SELECT
-    (placement_transformation_select, 
-    set_placement_transformation_select, 
-    list_placement_transformation_select);
+  TYPE axis_placement_mapping_target = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
+  );
   END_TYPE; 
 
-  TYPE set_placement_transformation_select = SET[1:?] OF placement_transformation_select;
+  TYPE list_placement_transformation_select = LIST[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE set_placement_transformation_select = SET[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE single_or_set_or_list_placement_transformation = SELECT
+    (Axis_placement_mapping, 
+    set_placement_transformation_select, 
+    list_placement_transformation_select);
   END_TYPE; 
 
   TYPE template_instance = SELECT
     (Geometric_placement_operation, 
      Geometric_model_relationship_with_transformation);
   END_TYPE; 
+
+  ENTITY Axis_placement_mapping;
+      source : axis_placement_mapping_source;
+      target : axis_placement_mapping_target;
+  END_ENTITY;
 
   ENTITY Contextual_shape_representation;
       contextual_shape          : described_element_select;

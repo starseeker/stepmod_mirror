@@ -19,8 +19,8 @@
       <type name="described_element_select">
          <select selectitems="View_definition_relationship Product_occurrence_definition_relationship"/>
       </type>
-      <type name="geometric_item_specific_usage_select">
-         <select selectitems="Shape_element Shape_element_relationship"/>
+      <type name="item_identified_representation_usage_definition">
+         <select extensible="YES" genericentity="YES" selectitems="Assigned_property Independent_property Shape_element Shape_element_relationship"/>
       </type>
       <type name="shape_element_or_relationship_select">
          <select selectitems="Shape_element Shape_element_relationship"/>
@@ -43,17 +43,13 @@
             <redeclaration entity-ref="Assigned_property"/>
          </explicit>
       </entity>
-      <entity name="Chain_based_geometric_item_specific_usage" supertypes="Geometric_item_specific_usage">
-         <explicit name="nodes">
-            <aggregate lower="2" type="LIST" unique="YES" upper="?"/>
-            <typename name="Geometric_model"/>
-         </explicit>
-         <explicit name="undirected_link">
-            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
-            <typename name="chained_geometric_model_link"/>
+      <entity name="Geometric_item_specific_usage" supertypes="Item_identified_representation_usage">
+         <explicit name="definition">
+            <typename name="shape_element_or_relationship_select"/>
+            <redeclaration entity-ref="Item_identified_representation_usage"/>
          </explicit>
       </entity>
-      <entity name="Geometric_item_specific_usage">
+      <entity name="Item_identified_representation_usage">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -61,7 +57,7 @@
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="definition">
-            <typename name="geometric_item_specific_usage_select"/>
+            <typename name="item_identified_representation_usage_definition"/>
          </explicit>
          <explicit name="identified_item">
             <typename name="geometric_model_item"/>
@@ -69,6 +65,15 @@
          <explicit name="used_model">
             <typename name="shape_model"/>
          </explicit>
+         <explicit name="nodes" optional="YES">
+            <aggregate lower="2" type="LIST" unique="YES" upper="?"/>
+            <typename name="Geometric_model"/>
+         </explicit>
+         <explicit name="undirected_link" optional="YES">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="chained_geometric_model_link"/>
+         </explicit>
+         <where expression="EXISTS(nodes) = EXISTS(undirected_link)" label="WR1"/>
       </entity>
       <entity name="Shape_dependent_property_representation" supertypes="Property_definition_representation">
          <explicit name="definition">
@@ -106,11 +111,20 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="geometric_model_item"/>
          </explicit>
+         <explicit name="nodes" optional="YES">
+            <aggregate lower="2" type="LIST" unique="YES" upper="?"/>
+            <typename name="Geometric_model"/>
+         </explicit>
+         <explicit name="undirected_link" optional="YES">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="chained_geometric_model_link"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute attribute="id"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
          <where expression="EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) &lt;&gt; TYPEOF(SELF))" label="WR1"/>
+         <where expression="EXISTS(nodes) = EXISTS(undirected_link)" label="WR2"/>
       </entity>
       <entity name="Shape_element_description_association" supertypes="Property_definition_representation">
          <explicit name="definition">

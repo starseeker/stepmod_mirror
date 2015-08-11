@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp,v 1.54 2015/04/16 15:12:02 lothartklein Exp $
+	$Id: arm.exp,v 1.55 2015/05/19 13:31:06 lothartklein Exp $
 	ISO TC184/SC4/WG12 N8050 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7466
 *)
@@ -37,7 +37,9 @@ TYPE shape_element_or_relationship_select = SELECT (
   Shape_element_relationship);
 END_TYPE;  
 
-TYPE geometric_item_specific_usage_select = SELECT (
+TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Assigned_property,
+  Independent_property,
   Shape_element, 
   Shape_element_relationship);
 END_TYPE; 
@@ -65,24 +67,27 @@ TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
    View_definition_relationship);
 END_TYPE; 
 
-ENTITY Geometric_item_specific_usage;
-    name            : STRING;
-    description     : OPTIONAL STRING;
-    definition      : geometric_item_specific_usage_select;
-    identified_item : geometric_model_item;
-    used_model      : shape_model;      
-END_ENTITY;
-
-ENTITY Chain_based_geometric_item_specific_usage
-    SUBTYPE OF (Geometric_item_specific_usage);
-    nodes : LIST [2:?] OF UNIQUE Geometric_model;
-    undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
-END_ENTITY;
-
 ENTITY Assigned_shape_property
   SUBTYPE OF (Assigned_property);
   SELF\Assigned_property.described_element : assigned_shape_property_select;
 END_ENTITY; 
+
+ENTITY Item_identified_representation_usage;
+    name            : STRING;
+    description     : OPTIONAL STRING;
+    definition      : item_identified_representation_usage_definition;
+    identified_item : geometric_model_item;
+    used_model      : shape_model;      
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
+WHERE
+	WR1: EXISTS(nodes) = EXISTS(undirected_link);
+END_ENTITY;
+
+ENTITY Geometric_item_specific_usage
+  SUBTYPE OF (Item_identified_representation_usage);
+  SELF\Item_identified_representation_usage.definition : shape_element_or_relationship_select;
+END_ENTITY;
 
 ENTITY Shape_dependent_property_representation -- maps to property_def_rep
   SUBTYPE OF (Property_definition_representation);
@@ -108,10 +113,13 @@ ENTITY Shape_element;
     associated_definition : shapeable_item;
 	product_definitional : OPTIONAL BOOLEAN;
 	identified_item : OPTIONAL SET [1:?] OF geometric_model_item;
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
 UNIQUE
     UR1: id, associated_definition;    
 WHERE
     WR1: EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) <> TYPEOF(SELF));
+	WR2: EXISTS(nodes) = EXISTS(undirected_link);
 END_ENTITY;
 
 ENTITY Shape_element_relationship;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
+$Id: sect_5_mapping_check.xsl,v 1.24 2015/07/10 10:55:49 nigelshaw Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -432,7 +432,7 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:when>
-    		<xsl:when test="$first-char='-'">
+    <xsl:when test="$first-char='-'">
 			<xsl:choose>
 				<xsl:when test="$last='&lt;'">
 					<xsl:text>- </xsl:text>
@@ -445,7 +445,12 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
 					<xsl:text> - </xsl:text>
 				</xsl:otherwise>
 			</xsl:choose>
-		</xsl:when>
+    </xsl:when>
+    
+    <xsl:when test="$first-char='|'">
+      <xsl:text> | </xsl:text>
+    </xsl:when>
+    
 		<xsl:when test="$first-char='&lt;'">
 			<xsl:choose>
 				<xsl:when test="substring($path,2,1)='-'">
@@ -667,12 +672,14 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
             <!-- matches MAPPING_OF(State_definition)/  -->
             <xsl:message>MAPPING_OF(State_definition)/</xsl:message>
           </xsl:when>
+          <xsl:when test=".='!'"/><!-- MWD -->
+          <xsl:when test=".='|'"/>
           <xsl:otherwise>
             <!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
             <xsl:call-template name="error_message">
               <xsl:with-param name="inline" select="'yes'"/>
               <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-	      <xsl:with-param name="message" select="concat('Error Map17: Possible syntax ERROR: ',name(preceding-sibling::*[1]),'xxx',.,'yyy',name(following-sibling::*[1]))"/>
+	      <xsl:with-param name="message" select="concat('Error Map17: Possible syntax ERROR: ',name(preceding-sibling::*[1]),' ',.,' ',name(following-sibling::*[1]))"/>
             </xsl:call-template>    
           </xsl:otherwise>
         </xsl:choose>
@@ -705,18 +712,16 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
             <xsl:variable name="found-derived" select="$schemas//entity[@name=$find-ent][derived/@name=$find-attr]" />
             <xsl:choose>
               <xsl:when test="$found-derived" >
-                <xsl:value-of select="." /> found as derived attribute in relevant schemas
-                <xsl:value-of select="$found-derived/ancestor::schema/@name" />
-                <br/>
+                <!--<xsl:value-of select="." /> found as derived attribute in relevant schemas <xsl:value-of select="$found-derived/ancestor::schema/@name" />
+                <br/> MWD -->
               </xsl:when>
               <xsl:otherwise>
                 <!-- check for inverse attribute -->
                 <xsl:variable name="found-inverse" select="$schemas//entity[@name=$find-ent][inverse/@name=$find-attr]" />
                 <xsl:choose>
                   <xsl:when test="$found-inverse" >
-                    <xsl:value-of select="." /> found as inverse attribute in relevant schemas 
-                    <xsl:value-of select="$found-inverse/ancestor::schema/@name" />
-                    <br/>
+                    <!--<xsl:value-of select="." /> found as inverse attribute in relevant schemas <xsl:value-of select="$found-inverse/ancestor::schema/@name" />
+                    <br/> MWD-->
                   </xsl:when>
                   <xsl:otherwise>
                     <!--	!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
@@ -819,10 +824,10 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
         </xsl:call-template>    
       </xsl:when>
       <xsl:otherwise>
-        <br/>
+        <!-- <br/>
         TYPE <xsl:value-of select="$derived-type"/> found 
         and based on <xsl:value-of select="$based-on-type"/>
-        <br/>		
+        <br/> MWD	-->	
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -850,10 +855,10 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
         </xsl:call-template>    
       </xsl:when>
       <xsl:otherwise>
-        <br/>
+        <!--<br/>
         TYPE <xsl:value-of select="$derived-type"/> found 
         and based on <xsl:value-of select="$based-on-type"/>
-        <br/>		
+        <br/> MWD -->		
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -895,9 +900,9 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
             </xsl:call-template>    
           </xsl:when>
           <xsl:otherwise>
-            <br/>			
+            <!-- <br/>			
             <xsl:value-of select="concat( $first,
-              ' is a supertype of ',$second)" />					
+              ' is a supertype of ',$second)" />	-->				
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -978,10 +983,10 @@ $Id: sect_5_mapping_check.xsl,v 1.23 2015/07/09 16:43:56 nigelshaw Exp $
             </xsl:call-template>    
           </xsl:when>
           <xsl:otherwise>
-            <br/>
+           <!-- <br/>
             TYPE <xsl:value-of select="$first"/> includes 
             <xsl:value-of select="$second"/> as select item 
-            <br/>
+            <br/> MWD -->
           </xsl:otherwise>
         </xsl:choose>	
       </xsl:when>

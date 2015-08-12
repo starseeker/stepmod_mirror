@@ -4,7 +4,7 @@
 
 <!--
 
-$Id: common.xsl,v 1.190 2014/06/17 02:12:04 thomasrthurman Exp $
+$Id: common.xsl,v 1.191 2015/06/08 17:14:20 mikeward Exp $
 
   Author:  Rob Bodington, Eurostep Limited
 
@@ -2890,12 +2890,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
       select="'../../../../images/warning.gif'"/>
 
-
+    
 
     <xsl:message>
 
       <xsl:value-of select="translate($message,$linebreakchar,'&#010;')"/>
-
+      
     </xsl:message>
 
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
@@ -2910,7 +2910,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
           align="bottom" border="0"
 
-          width="20" height="20"/>
+width="20" height="20"/>
+        
+       
 
         <font color="#FF0000" size="-1">
 
@@ -5667,55 +5669,33 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
        -->
 
   <xsl:template name="output_string_with_linebreaks">
-
     <xsl:param name="string"/>
-
-
-
-    <xsl:variable name="nstring"
-
-      select="translate($string,'&#xA;&#xD;','&#xA;')"/>
-
-
-
+    <xsl:variable name="nstring" select="translate($string,'&#xA;&#xD;','&#xA;')"/>
+      
+    <xsl:variable name="nstring-with-any-initial-nl-removed">
+          <xsl:choose>
+            <xsl:when test="starts-with($nstring, '&#xA;')">
+              <xsl:value-of select="substring-after($nstring, '&#xA;')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$nstring"/>
+            </xsl:otherwise>
+          </xsl:choose>
+    </xsl:variable>
+    
     <xsl:choose>
-
-      <xsl:when test="contains($nstring,'&#xA;')">
-
-        <xsl:variable
-
-          name="first"
-
-          select="substring-before($nstring,'&#xA;')"/>
-
-        <xsl:variable
-
-          name="rest"
-
-          select="substring-after($nstring,'&#xA;')"/>
-
-
-
+      <xsl:when test="contains($nstring-with-any-initial-nl-removed,'&#xA;')">
+        <xsl:variable name="first" select="substring-before($nstring-with-any-initial-nl-removed,'&#xA;')"/>
+        <xsl:variable name="rest" select="substring-after($nstring-with-any-initial-nl-removed,'&#xA;')"/>
         <xsl:value-of select="$first"/><br/>
-
         <xsl:call-template name="output_string_with_linebreaks">
-
-          <xsl:with-param name="string" select="$rest"/>
-
+           <xsl:with-param name="string" select="$rest"/>
         </xsl:call-template>
-
       </xsl:when>
-
       <xsl:otherwise>
-
-        <xsl:value-of select="$nstring"/>
-
+        <xsl:value-of select="$nstring-with-any-initial-nl-removed"/>
       </xsl:otherwise>
-
     </xsl:choose>
-
-
-
   </xsl:template>
 
 
@@ -7103,6 +7083,7 @@ is case sensitive.')"/>
       <xsl:call-template name="error_message">
 
         <xsl:with-param name="message" select="$first_sect"/>
+        
 
       </xsl:call-template>
 

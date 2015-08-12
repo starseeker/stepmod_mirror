@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.83 2007/03/09 15:01:03 mikeward Exp $
+$Id: sect_5_mapping.xsl,v 1.84 2013/10/25 15:52:58 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1024,6 +1024,8 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
               <td>
                 <xsl:variable name="msg">
                   <xsl:choose>
+                    <xsl:when test="./../@inherited_from_module"></xsl:when>
+                    
                     <xsl:when test="name(..)='alt_map'">
                       <xsl:variable name="extended_select" select="./@extended_select"/>
                       <xsl:variable name="attribute" select="../../@attribute"/>
@@ -1046,9 +1048,12 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:variable>
-                <xsl:call-template name="error_message">
+                <xsl:if test="string-length($msg)>0">
+                  <xsl:call-template name="error_message">
                   <xsl:with-param name="message" select="$msg"/>
                 </xsl:call-template>
+                </xsl:if>
+                
               </td>
             </tr>
           </xsl:if>

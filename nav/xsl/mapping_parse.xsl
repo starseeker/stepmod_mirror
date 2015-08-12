@@ -386,6 +386,9 @@
 		<xsl:when test="$first-char='|'">
 			<xsl:text> | </xsl:text>
 		</xsl:when>
+		<xsl:when test="$first-char='!'"><!-- MWD -->
+			<xsl:text> ! </xsl:text>
+		</xsl:when>
 		<xsl:when test="$first-char='*'">
 			<xsl:choose>
 				<xsl:when test="$last='&lt;'">

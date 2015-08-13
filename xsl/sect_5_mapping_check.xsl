@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.24 2015/07/10 10:55:49 nigelshaw Exp $
+$Id: sect_5_mapping_check.xsl,v 1.25 2015/08/12 11:21:32 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -637,6 +637,7 @@ $Id: sect_5_mapping_check.xsl,v 1.24 2015/07/10 10:55:49 nigelshaw Exp $
     <xsl:param name="schemas" />
     <xsl:if test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
       not(string(.) ='BOOLEAN' )  and 
+      not(string(.) ='.TRUE.' )  and 
       not(name(preceding-sibling::*[2]) ='subtype-template' or  
       name(preceding-sibling::*[2]) ='supertype-template' or
       name(preceding-sibling::*[2]) ='mapping-of') ">

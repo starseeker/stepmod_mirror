@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-nnnn">
    <application name="JSDAI" owner="LKSoft" source="extruded_structure_cross_section_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Extruded_structure_cross_section_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
@@ -13,20 +13,10 @@
       <type name="twist_direction_enum">
          <enumeration items="clockwise counter_clockwise"/>
       </type>
-      <entity name="Cross_sectional_group_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element)" supertypes="Shape_element_group">
-         <explicit name="max_cross_section_diameter" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="min_cross_section_diameter" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="minimum_bend_radius" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
+      <entity name="Cross_sectional_group_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element)" supertypes="Cross_sectional_part_shape_element">
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="cross_sectional_constituent_element"/>
-            <redeclaration entity-ref="Shape_element_group"/>
          </explicit>
       </entity>
       <entity name="Cross_sectional_group_shape_element_with_lacing" supertypes="Cross_sectional_group_shape_element">
@@ -45,7 +35,12 @@
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
       </entity>
-      <entity name="Cross_sectional_outer_part_shape_element" supertypes="Part_feature">
+      <entity name="Cross_sectional_outer_part_shape_element" supertypes="Cross_sectional_part_shape_element General_part_feature">
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\Part_shape_element.associated_definition"/>
+         </unique>
+      </entity>
+      <entity abstract.supertype="YES" name="Cross_sectional_part_shape_element" super.expression="Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element" supertypes="Part_shape_element">
          <explicit name="max_cross_section_diameter" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
@@ -55,17 +50,6 @@
          <explicit name="minimum_bend_radius" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="SELF\Part_feature.associated_definition"/>
-         </unique>
-      </entity>
-      <entity name="Shape_element_group" supertypes="Shape_element">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Shape_element"/>
-         </explicit>
-         <where expression="TRUE" label="WR1"/>
-         <where expression="NOT (SELF IN items)" label="WR2"/>
       </entity>
       <entity name="Twisted_cross_sectional_group_shape_element" supertypes="Cross_sectional_group_shape_element">
          <explicit name="twist_period" optional="YES">

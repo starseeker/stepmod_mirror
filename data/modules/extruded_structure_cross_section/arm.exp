@@ -1,7 +1,7 @@
 (*
-   $Id: arm.exp,v 1.2 2015/04/16 12:51:02 lothartklein Exp $
-   N - ISO/CD-TS - 10303- extruded_structure_cross_section - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.3 2015/06/02 18:31:35 lothartklein Exp $
+   N - ISO/TS 10303-1827 extruded_structure_cross_section - EXPRESS ARM*)
+
 SCHEMA Extruded_structure_cross_section_arm;
 
 USE FROM Physical_unit_usage_view_arm; -- ISO/TS 10303-1732
@@ -17,44 +17,30 @@ TYPE cross_sectional_constituent_element = SELECT (
   Cross_sectional_group_shape_element);
 END_TYPE;
 
-ENTITY Shape_element_group
-  SUBTYPE OF (Shape_element);
-  items : SET [1:?] OF Shape_element;
-WHERE
-  WR1: TRUE;-- the of_shape of the items shall be the same as the of_shape of THIS.
-  WR2: NOT (SELF IN items); -- plus acyclic 
-END_ENTITY; 
-
---- typically for library , except for the harness
-ENTITY Cross_sectional_outer_part_shape_element
-  SUBTYPE OF (Part_feature); -- or General_part_feature
+ENTITY Cross_sectional_part_shape_element
+  ABSTRACT SUPERTYPE OF (Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element)
+  SUBTYPE OF (Part_shape_element); -- or General_part_feature
   max_cross_section_diameter : OPTIONAL Length_data_element;
   min_cross_section_diameter : OPTIONAL Length_data_element;
   minimum_bend_radius : OPTIONAL Length_data_element;
+END_ENTITY;
+
+ENTITY Cross_sectional_outer_part_shape_element
+  SUBTYPE OF (Cross_sectional_part_shape_element, General_part_feature); 
 UNIQUE
   UR1: SELF\Shape_element.associated_definition;
 END_ENTITY;
--- IP: The shape of the cross section is perpendicular to the local centre line in the geometric representation.
 
--- The Cross_sectional_outer_part_shape_element is a kind of Part_feature
--- that represents the outer cross section shape that is perpendicular to a given centre-line.
 ENTITY Cross_sectional_outer_component_feature
   SUBTYPE OF (Component_feature);
   SELF\Component_feature.definition : Cross_sectional_outer_part_shape_element;
 END_ENTITY;
 
--- This belongs now to the assembly, e.g. the electrical harness
---  Informal Proposition (IP): the grouping is of a physical nature, at one cross-section an element can be only in one group
--- Note: A Cross_sectional_group_shape_element is not abstract on purpose because the designer may not know how the grouping is physically realised.
 ENTITY Cross_sectional_group_shape_element
   SUPERTYPE OF ( ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element) )
-  SUBTYPE OF (Shape_element_group);  -- Lothar thinks this should be Part_shape_element
-  max_cross_section_diameter : OPTIONAL Length_data_element;
-  min_cross_section_diameter : OPTIONAL Length_data_element;
-  minimum_bend_radius : OPTIONAL Length_data_element;
-  SELF\Shape_element_group.items : SET[1:?] OF cross_sectional_constituent_element; 
+  SUBTYPE OF (Cross_sectional_part_shape_element); 
+  items : SET[1:?] OF cross_sectional_constituent_element; 
 END_ENTITY;
--- IP: The shape of the cross section is perpendicular to the local centre line in the geometric representation.
 
 ENTITY Cross_sectional_group_shape_element_with_tubular_cover 
   SUBTYPE OF (Cross_sectional_group_shape_element);

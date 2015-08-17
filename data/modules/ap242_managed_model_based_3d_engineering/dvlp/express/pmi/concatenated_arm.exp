@@ -225,7 +225,7 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.40 2015/07/02 15:47:02 lothartklein Exp $
+   $Id: arm.exp,v 1.42 2015/08/14 10:53:37 lothartklein Exp $
    ISO TC184/SC4/WG12 N8321 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7873
 *)
@@ -283,6 +283,35 @@ USE FROM Tessellated_geometry_arm;  -- ISO/TS 10303-1819
 USE FROM Edge_shape_feature_arm; -- ISO/TS 10303-1673
 USE FROM Point_direction_model_arm;  -- -- ISO/TS 10303-1820
 USE FROM Numerical_interface_arm; -- ISO/TS 10303-1344
+USE FROM Zonal_breakdown_arm; -- ISO/TS 10303-1217 
+USE FROM System_breakdown_arm; -- ISO/TS 10303-1214
+USE FROM Physical_breakdown_arm; -- ISO/TS 10303-1215
+
+TYPE item_identified_representation_usage_definition_242 = SELECT BASED_ON item_identified_representation_usage_definition WITH (
+	Applied_activity_assignment, -- applied_action_assignment,
+	Applied_activity_method_assignment, -- applied_action_method_assignment,
+	Affected_items_assignment, -- applied_action_request_assignment,
+	Approval_assignment, -- applied_approval_assignment,
+	Certification_assignment, -- applied_certification_assignment,
+	Classification_assignment, -- applied_classification_assignment,
+	Contract_assignment, -- applied_contract_assignment,
+	Date_or_date_time_assignment, -- applied_date_and_time_assignment, applied_date_assignment,
+    Document_assignment, -- applied_document_reference, applied_document_usage_constraint_assignment,
+	Effectivity_assignment, -- applied_effectivity_assignment,
+	Event_assignment, -- applied_event_occurrence_assignment,
+    External_item_identification, -- applied_external_identification_assignment,
+    Group, -- applied_group_assignment,
+	Identification_assignment, -- applied_identification_assignment,
+	Ineffectivity_assignment, -- applied_ineffectivity_assignment,
+	Name_assignment, -- applied_name_assignment,
+	Project_assignment, -- applied_organizational_project_assignment,
+	Organization_or_person_in_organization_assignment, -- applied_organization_assignment, aplied_person_and_organization_assignment,
+	Security_classification_assignment, -- applied_security_classification_assignment,
+	Time_interval_assignment, -- applied_time_interval_assignment
+	Applied_information_usage_right, -- applied_usage_right
+	View_definition_relationship, -- product_definition_relationship
+	Assigned_property); -- property_definition
+END_TYPE;
 
 TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
  (Dimensional_size,
@@ -1168,7 +1197,7 @@ USE FROM Physical_connectivity_definition_arm; -- ISO/TS 10303-1755
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.41 2015/06/13 09:18:10 lothartklein Exp $
+   $Id: arm.exp,v 1.42 2015/07/09 13:05:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N8422 - ISO/TS 10303-1642 Assembly module usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8092
 *)
@@ -1194,7 +1223,7 @@ USE FROM Part_external_reference_arm; -- ISO/TS 10303-1711
       related_connector                       : OPTIONAL Next_assembly_usage;
     WHERE
       WR1 : NOT EXISTS(related_connector) OR
-            (SELF\Shape_element.associated_definition.described_element =
+            (SELF\Shape_element.associated_definition =
              related_connector\Product_occurrence_definition_relationship.related_view);
       WR2 : NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator);
   END_ENTITY;
@@ -2082,7 +2111,7 @@ USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 END_SCHEMA; 
 
 (*
-   $Id: arm.exp,v 1.36 2015/06/30 11:07:16 lothartklein Exp $
+   $Id: arm.exp,v 1.37 2015/08/06 08:23:59 lothartklein Exp $
    ISO TC184/SC4/WG12 N8119 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7523
 *)
@@ -2159,7 +2188,8 @@ WHERE
 END_ENTITY;
 
 ENTITY Wire_component
-	SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
+  SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
+  SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
 DERIVE 
   ends_a : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.name = 'end a');
   ends_b : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.name = 'end b');
@@ -3112,7 +3142,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Colour_arm
 (*
-   $Id: arm.exp,v 1.46 2015/06/15 09:59:44 lothartklein Exp $
+   $Id: arm.exp,v 1.47 2015/08/12 07:26:29 lothartklein Exp $
    ISO TC184/SC4/WG12 N7963 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7400
 *)
@@ -3184,7 +3214,7 @@ SCHEMA Component_feature_arm;
   
   ENTITY Derived_component_terminal
     SUBTYPE OF (Component_terminal);
-    derived_from : General_part_feature; 
+    SELF\Component_feature.definition renamed derived_from : General_part_feature; 
   WHERE
     WR1: NOT EXISTS(SELF\Component_feature.definition);
     WR2: SELF\Shape_element.associated_definition.derived_from = derived_from\Shape_element.associated_definition; 
@@ -3328,7 +3358,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.19 2012/10/11 05:49:26 liutkuviene Exp $
+   $Id: arm.exp,v 1.20 2015/08/07 07:20:04 lothartklein Exp $
    ISO TC184/SC4/WG12 N7780 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7406
 *)
@@ -3362,7 +3392,7 @@ USE FROM Tessellated_geometry_arm; -- ISO/TS 10303-1819
 USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
   TYPE boundary_class_zone = SELECT 
-    (Boundary_curve_representation,
+    (Boundary_curve_set,
      Loop);
   END_TYPE;
 
@@ -3411,8 +3441,30 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
       vertical_profile_height : Length_data_element;
   END_ENTITY;
 
-  ENTITY Boundary_curve_representation;
-    bounds : SET [1:?] OF Curve;
+  TYPE geometric_set_select = SELECT (
+    Curve,
+    Point,
+    Surface);
+  END_TYPE;
+  
+  TYPE curve_or_point = SELECT (
+    Curve,
+    Point);
+  END_TYPE;
+  
+  ENTITY Geometric_set
+    SUBTYPE OF (Detailed_geometric_model_element);
+    elements : SET [1:?] OF geometric_set_select;
+  END_ENTITY;
+
+  ENTITY Geometric_curve_set
+    SUBTYPE OF (Geometric_set);
+    SELF\Geometric_set.elements : SET [1:?] OF curve_or_point;
+  END_ENTITY;
+
+  ENTITY Boundary_curve_set
+    SUBTYPE OF (Geometric_curve_set);
+    SELF\Geometric_set.elements RENAMED bounds : SET [1:?] OF Curve; 
   END_ENTITY;
 
   ENTITY Composite_sheet_representation
@@ -3441,8 +3493,8 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
   ENTITY Geometric_sheet_representation
     SUBTYPE OF (Composite_sheet_representation);
       basis_surface : Surface;
-      cutouts       : OPTIONAL SET [1:?] OF Boundary_curve_representation;
-      outer_edge    : Boundary_curve_representation;
+      cutouts       : OPTIONAL SET [1:?] OF Boundary_curve_set;
+      outer_edge    : Boundary_curve_set;
   END_ENTITY;
 
   ENTITY Laid_ply_shape
@@ -3935,7 +3987,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Constructive_solid_geometry_3d_arm
 (*
-   $Id: arm.exp,v 1.19 2015/03/14 14:34:45 lothartklein Exp $
+   $Id: arm.exp,v 1.22 2015/08/14 10:01:28 lothartklein Exp $
    ISO TC184/SC4/WG12 N7975 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7412
 *) 
@@ -3945,10 +3997,42 @@ SCHEMA Contextual_shape_positioning_arm;
 USE FROM Geometric_model_relationship_arm;
 USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
+  TYPE axis_placement_mapping_source = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
+  );
+  END_TYPE; 
+
+  TYPE axis_placement_mapping_target = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
+  );
+  END_TYPE; 
+
+  TYPE described_element_select = SELECT (
+    View_definition_relationship,
+    Product_occurrence_definition_relationship);
+  END_TYPE;  
+
+  TYPE list_placement_transformation_select = LIST[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE set_placement_transformation_select = SET[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE single_or_set_or_list_placement_transformation = SELECT
+    (Axis_placement_mapping, 
+    set_placement_transformation_select, 
+    list_placement_transformation_select);
+  END_TYPE; 
+
   TYPE template_instance = SELECT
     (Geometric_placement_operation, 
      Geometric_model_relationship_with_transformation);
   END_TYPE; 
+
+  ENTITY Axis_placement_mapping;
+      source : axis_placement_mapping_source;
+      target : axis_placement_mapping_target;
+  END_ENTITY;
 
   ENTITY Contextual_shape_representation;
       contextual_shape          : described_element_select;
@@ -3991,7 +4075,7 @@ USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
   ENTITY Geometric_relationship_with_placement_transformation
     SUBTYPE OF (Geometric_model_relationship_with_transformation);
-      transformation: Axis_placement_mapping;
+      transformation: single_or_set_or_list_placement_transformation;
     WHERE
       WR1:  rep_1.context_of_items\Geometric_coordinate_space.dimension_count :=:
         rep_2.context_of_items\Geometric_coordinate_space.dimension_count;
@@ -5830,17 +5914,12 @@ USE FROM Presentation_hierarchy_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2015/06/15 12:35:39 lothartklein Exp $
+   $Id: arm.exp,v 1.4 2015/07/09 14:41:07 lothartklein Exp $
    N - ISO/CD-TS - 10303- edge_based_topological_representation_with_length - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Edge_based_topological_representation_with_length_arm;
 
 USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
-
-TYPE positive_length_measure = length_measure;
-WHERE
-  WR1: SELF > 0.0;
-END_TYPE;
 
 TYPE connected_edge_with_length_set_items = SELECT (
   Connected_edge_set,
@@ -5868,6 +5947,11 @@ WHERE
   WR1: SIZEOF(QUERY ( it <* SELF.items | 'ADVANCED_BOUNDARY_REPRESENTATION_ARM.CONNECTED_EDGE_SET' IN  TYPEOF(it)) ) = 1; 
 END_ENTITY;
   
+ENTITY Connected_edge_sub_set
+	SUBTYPE OF (Connected_edge_set);
+	parent_edge_set : Connected_edge_set;
+END_ENTITY;
+ 
 END_SCHEMA;
 (*
  $Id: arm.exp,v 1.8 2004/10/21 17:28:28 darla Exp $
@@ -6016,7 +6100,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (* 
-	$Id: arm.exp,v 1.33 2015/05/20 13:43:03 thomasrthurman Exp $
+	$Id: arm.exp,v 1.34 2015/08/11 12:06:07 lothartklein Exp $
 	ISO TC184/SC4/WG12 N8005 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7089
 *)
@@ -6068,13 +6152,6 @@ USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
       WR1: SELF\Axis_placement.dim = 3;
 -- convert to IP
 --     wr4: NOT EXISTS( axis ) OR NOT EXISTS( ref_direction ) OR ( cross_product( axis, ref_direction ).magnitude > 0 );
-  END_ENTITY;
-
-  ENTITY Axis_placement_mapping;
-      source : Axis_placement;
-      target : Axis_placement;
-    WHERE
-      WR1: source\Axis_placement.dim = target\Axis_placement.dim;
   END_ENTITY;
 
   ENTITY Point
@@ -9252,7 +9329,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.56 2015/06/02 08:57:20 lothartklein Exp $
+$Id: arm.exp,v 1.57 2015/08/14 10:04:31 lothartklein Exp $
 ISO TC184/SC4/WG12 N8026 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7448
 *) 
@@ -9417,7 +9494,7 @@ END_ENTITY;
 
 ENTITY Axis_placement_shape_element
    SUBTYPE OF (Shape_element);
-   SELF\Shape_element.identified_item : SET[1:1] OF Axis_placement;
+   SELF\Shape_element.identified_item : Axis_placement;
 END_ENTITY;
 
 ENTITY Between_shape_element
@@ -9630,12 +9707,12 @@ END_ENTITY;
 
 ENTITY Plane_shape_element
    SUBTYPE OF (Shape_element);
-   SELF\Shape_element.identified_item : SET[1:1] OF Plane;
+   SELF\Shape_element.identified_item : Plane;
 END_ENTITY;
 
 ENTITY Point_shape_element
    SUBTYPE OF (Shape_element);
-   SELF\Shape_element.identified_item : SET[1:1] OF Point;
+   SELF\Shape_element.identified_item : Point;
 END_ENTITY;
 
 ENTITY Position_tolerance
@@ -13091,7 +13168,7 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.16 2015/06/02 08:57:43 lothartklein Exp $
+   $Id: arm.exp,v 1.18 2015/08/14 10:19:10 lothartklein Exp $
    ISO TC184/SC4/WG12 N7921 - ISO/CD-TS - 10303-1816 Model based 3d geometrical dimensioning and tolerancing representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7358
 *)
@@ -13135,13 +13212,12 @@ END_TYPE;
 
 ENTITY Nominal_3d_edge
   SUBTYPE OF (Nominal_3d_integral_feature);
-  SELF\Shape_element.identified_item : SET[1:1] OF Edge_curve;
+  SELF\Shape_element.identified_item : Edge_curve;
 END_ENTITY;
 
 ENTITY Nominal_3d_feature 
   ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
   SUBTYPE OF (Part_shape_element);
-  SELF\Shape_element.associated_definition : Part_view_definition;
 WHERE
   WR1: SIZEOF ( QUERY ( pa <* SELF\Shape_element.associated_definition\Product_view_definition.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) > 0;
   WR2: SELF\Shape_element.associated_definition.shape_type = pmiwn3m_product_shape_type_enumeration.nominal_shape;
@@ -13149,13 +13225,13 @@ END_ENTITY;
 
 ENTITY Nominal_3d_integral_feature
   SUBTYPE OF (General_part_feature, Nominal_3d_feature);
-  SELF\Shape_element.identified_item : SET[1:1] OF nominal_3d_integral_feature_geometry;
+  SELF\Shape_element.identified_item : nominal_3d_integral_feature_geometry;
 END_ENTITY;    
 
 ENTITY Nominal_3d_derived_feature
   SUBTYPE OF (Nominal_3d_feature, Derived_shape_element);
   SELF\Derived_shape_element.derived_from: SET [1:?] OF Nominal_3d_feature;
-  SELF\Shape_element.identified_item : SET[1:1] OF nominal_3d_derived_feature_geometry;
+  SELF\Shape_element.identified_item : nominal_3d_derived_feature_geometry;
 END_ENTITY;   
 
 RULE gdt_representation_view_context_constraint FOR (Part_view_definition);
@@ -14825,39 +14901,6 @@ SCHEMA Part_feature_function_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.35 2010/01/25 18:37:20 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7080 - ISO/TS 10303-1714 Part feature location - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6477
-*)
-
-SCHEMA Part_feature_location_arm;
-
-	USE FROM Shape_feature_arm;	-- ISO/TS 10303-1764
-	
-	TYPE feature_or_non_feature_usage = EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
-
-	TYPE usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
-
-  ENTITY Usage_concept_usage_relationship
-     SUBTYPE OF (Geometric_placement_operation);
-       SELF\Geometric_placement_operation.template_definition RENAMED associated_shape_definition : Geometric_model;
-       associated_usage                                                                           : usage_concept;
-       associating_usage_shape                                                                    : feature_or_non_feature_usage;
-     INVERSE
-       composed_model : SET[1:1] OF Geometric_model FOR items;
-     WHERE
-       WR1 : associating_usage_shape = composed_model[1]; 
-       WR2 : NOT EXISTS(SELF\Representation_item.name);
-       WR3 : ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR
-             ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF));
-       WR4 : NOT('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_MODEL' IN TYPEOF(composed_model[1]));
-  END_ENTITY;
-
-END_SCHEMA;
-
-(*
    $Id: arm.exp,v 1.8 2015/04/16 13:57:13 lothartklein Exp $
    ISO TC184/SC4/WG12 N7894 - ISO/TS 10303-1807 General part feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7331
@@ -15552,7 +15595,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.83 2015/05/19 11:51:41 lothartklein Exp $
+   $Id: arm.exp,v 1.84 2015/07/06 21:49:22 lothartklein Exp $
    ISO TC184/SC4/WG12 N8215 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7610
 *)
@@ -15561,7 +15604,7 @@ SCHEMA Physical_unit_usage_view_arm;
 
 USE FROM Feature_and_connection_zone_arm;	-- ISO/TS 10303-1671
 USE FROM Item_definition_structure_arm;	-- ISO/TS 10303-1345
-USE FROM Part_feature_location_arm;	-- ISO/TS 10303-1714
+-- USE FROM Part_feature_location_arm;	-- ISO/TS 10303-1714
 USE FROM Requirement_assignment_arm;	-- ISO/TS 10303-1233
 USE FROM Shape_composition_arm;	-- ISO/TS 10303-1742
 USE FROM Part_shape_arm;
@@ -15589,10 +15632,12 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     (Part_feature);
   END_TYPE;
 
+(*
   TYPE puuv_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
     (Part_feature);
   END_TYPE;
-	
+*)
+  
   ENTITY Derived_part_view_definition_relationship
     SUBTYPE OF(View_definition_relationship);
       SELF\View_definition_relationship.relating_view : Part_view_definition;
@@ -15630,7 +15675,6 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       material_state_change   : OPTIONAL material_state_change_enumeration;
       precedent_feature       : OPTIONAL Part_feature;
     INVERSE
-      feature_shape           : SET [0:?] OF usage_concept_usage_relationship FOR associated_usage;
       subsequent_feature      : SET [0:1] OF Part_feature for precedent_feature;
     WHERE
       WR1:  NOT EXISTS(precedent_feature) OR
@@ -21994,7 +22038,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (* 
-	$Id: arm.exp,v 1.55 2015/05/19 13:31:06 lothartklein Exp $
+	$Id: arm.exp,v 1.58 2015/08/14 13:36:13 lothartklein Exp $
 	ISO TC184/SC4/WG12 N8050 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N7466
 *)
@@ -22022,17 +22066,14 @@ TYPE chained_geometric_model_link = SELECT (
     Geometric_model_relationship);
 END_TYPE;
 
-TYPE described_element_select = SELECT (
-  View_definition_relationship,
-  Product_occurrence_definition_relationship);
-END_TYPE;  
-
 TYPE shape_element_or_relationship_select = SELECT (
   Shape_element,
   Shape_element_relationship);
 END_TYPE;  
 
-TYPE geometric_item_specific_usage_select = SELECT (
+TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Assigned_property,
+  Independent_property,
   Shape_element, 
   Shape_element_relationship);
 END_TYPE; 
@@ -22060,24 +22101,34 @@ TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
    View_definition_relationship);
 END_TYPE; 
 
-ENTITY Geometric_item_specific_usage;
-    name            : STRING;
-    description     : OPTIONAL STRING;
-    definition      : geometric_item_specific_usage_select;
-    identified_item : geometric_model_item;
-    used_model      : shape_model;      
-END_ENTITY;
+TYPE list_representation_items = LIST [1:?] OF Representation_item;
+END_TYPE;
 
-ENTITY Chain_based_geometric_item_specific_usage
-    SUBTYPE OF (Geometric_item_specific_usage);
-    nodes : LIST [2:?] OF UNIQUE Geometric_model;
-    undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
-END_ENTITY;
+TYPE set_representation_items = SET [1:?] OF Representation_item;
+END_TYPE;
+
+TYPE item_identified_representation_usage_select = SELECT (
+	Representation_item,
+	list_representation_items,
+	set_representation_items);
+END_TYPE;
 
 ENTITY Assigned_shape_property
   SUBTYPE OF (Assigned_property);
   SELF\Assigned_property.described_element : assigned_shape_property_select;
 END_ENTITY; 
+
+ENTITY Item_identified_representation_usage;
+    name            : STRING;
+    description     : OPTIONAL STRING;
+    definition      : item_identified_representation_usage_definition;
+    used_representation : Representation;      
+    identified_item : item_identified_representation_usage_select;
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
+WHERE
+	WR1: EXISTS(nodes) = EXISTS(undirected_link);
+END_ENTITY;
 
 ENTITY Shape_dependent_property_representation -- maps to property_def_rep
   SUBTYPE OF (Property_definition_representation);
@@ -22102,11 +22153,14 @@ ENTITY Shape_element;
     description      : OPTIONAL STRING;
     associated_definition : shapeable_item;
 	product_definitional : OPTIONAL BOOLEAN;
-	identified_item : OPTIONAL SET [1:?] OF geometric_model_item;
+	identified_item : OPTIONAL geometric_model_item;
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
 UNIQUE
     UR1: id, associated_definition;    
 WHERE
     WR1: EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) <> TYPEOF(SELF));
+	WR2: EXISTS(nodes) = EXISTS(undirected_link);
 END_ENTITY;
 
 ENTITY Shape_element_relationship;
@@ -23550,6 +23604,55 @@ USE FROM Topologically_bounded_surface_arm; -- ISO 10303-1511
 END_SCHEMA;
 
 (*
+ $Id: arm.exp,v 1.10 2004/11/19 21:37:41 robbod Exp $
+ ISO TC184/SC4/WG12 N3178 - ISO/TS 10303-1214 System breakdown - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2300
+*) 
+
+
+SCHEMA System_breakdown_arm;
+
+USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
+
+
+ENTITY System_breakdown
+  SUBTYPE OF (Breakdown);
+END_ENTITY;
+
+ENTITY System_breakdown_context
+  SUBTYPE OF (Breakdown_context);
+  SELF\Breakdown_context.breakdown : System_breakdown_version;
+  SELF\Breakdown_context.breakdown_element : System_element_definition;
+END_ENTITY;
+
+ENTITY System_breakdown_version
+  SUBTYPE OF (Breakdown_version);
+  SELF\Breakdown_version.of_product : System_breakdown;
+END_ENTITY;
+
+ENTITY System_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY System_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.defined_version : System_element_version;
+END_ENTITY;
+
+ENTITY System_element_usage
+  SUBTYPE OF (Breakdown_element_usage);
+  SELF\Breakdown_element_usage.parent_element : System_element_definition;
+  SELF\Breakdown_element_usage.child_element : System_element_definition;
+END_ENTITY;
+
+ENTITY System_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : System_element;
+END_ENTITY;
+
+END_SCHEMA;  -- System_breakdown_arm
+
+(*
    $Id: arm.exp,v 1.23 2008/09/13 12:26:51 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5521 - ISO/TS 10303-1366 Tagged text representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5009
@@ -24167,7 +24270,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.20 2012/10/11 05:49:06 liutkuviene Exp $
+ $Id: arm.exp,v 1.21 2015/07/09 14:40:50 lothartklein Exp $
 ISO TC184/SC4/WG12 N7843 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7238
 *) 
@@ -24185,6 +24288,16 @@ END_TYPE;
 TYPE length_measure = REAL;
 END_TYPE; 
 
+TYPE positive_length_measure = non_negative_length_measure;
+WHERE
+  WR1: SELF > 0.0;
+END_TYPE; 
+
+TYPE non_negative_length_measure = length_measure;
+WHERE
+  WR1: SELF >= 0.0;
+END_TYPE;
+  
 TYPE measure_value = EXTENSIBLE SELECT
    (any_number_value, 
     any_string_value, 
@@ -24542,7 +24655,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.4 2015/07/01 15:35:51 lothartklein Exp $
+   $Id: arm.exp,v 1.9 2015/08/14 10:21:35 lothartklein Exp $
    N - ISO/CD-TS - 10303- wiring_harness_assembly_design - EXPRESS ARM*)
 
 SCHEMA Wiring_harness_assembly_design_arm;
@@ -24551,6 +24664,7 @@ USE FROM Assembly_module_design_arm;
 USE FROM Cable_arm;
 USE FROM Extruded_structure_cross_section_arm; 
 USE FROM Edge_based_topological_representation_with_length_arm; 
+REFERENCE FROM Foundation_representation_arm(using_representations);
 
 TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON 
  additional_application_domain_enumeration WITH (
@@ -24607,7 +24721,6 @@ TYPE whad_part_category = ENUMERATION BASED_ON part_category WITH (
   -- NO sealed_connector,            -- IEV ref 581-26-18 sealed connector   
   -- NO scoop_proof_connector,       -- IEV ref 581-26-17 scoop proof connector
 
-  connector_insert, -- IEV ref 581-27-11 connector insert
   cavity_plug, -- ! see def.
   seal,  -- ! see def.
   connector_housing,           -- ! IEV ref 581-27-10 connector housing
@@ -24666,6 +24779,15 @@ END_TYPE;
 -- IEV ref 461-05-04, oversheath, outer sheath, protective (overall) jacket (North America) 
 -- IEV ref	461-05-12 corrugated metallic sheath
 
+TYPE whad_axis_placement_mapping_source = SELECT BASED_ON axis_placement_mapping_source WITH (
+  Vertex,
+  Edge);
+END_TYPE; 
+
+TYPE whad_axis_placement_mapping_target = SELECT BASED_ON axis_placement_mapping_target WITH (
+  Curve,
+  Cartesian_point);
+END_TYPE; 
 
 TYPE whad_terminal_joint_type = ENUMERATION BASED_ON terminal_joint_type WITH ( 
   socket_terminal,          -- IEV ref 151-12-17 (581-22-06) socket contact, female_contact
@@ -24694,8 +24816,33 @@ END_TYPE;
 
 ENTITY Wiring_harness_assembly_design
   SUBTYPE OF (Assembly_module_design_view); 
-  topology : Connected_edge_with_length_set_representation;
+  topology : OPTIONAL Connected_edge_with_length_set_representation;
 END_ENTITY;
+
+ENTITY Harness_segment -- represents a topological Edge on the WHAD
+  SUBTYPE OF (Part_shape_element);
+  SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
+  SELF\Shape_element.identified_item : Edge; 
+  cross_section : OPTIONAL cross_sectional_constituent_element; 
+  forced_length : OPTIONAL Length_data_element;
+WHERE
+  -- the associated_definition must be within the Wiring_harness_assembly_design.topology
+  WR1: associated_definition.topology IN using_representations(identified_item);
+END_ENTITY;  
+
+ENTITY Harness_node -- represents a topological Vertex on the WHAD
+  SUBTYPE OF (Part_shape_element);
+  SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
+  SELF\Shape_element.identified_item : SET [1:1] OF Vertex;
+  attached_feature : OPTIONAL Component_feature; 
+WHERE
+  -- the associated_definition must be within the Wiring_harness_assembly_design.topology
+  WR1: associated_definition.topology IN using_representations(identified_item);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT whad_part_shape_element_subtypes FOR Part_shape_element;
+	ONEOF (Harness_segment, Harness_node);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;
 (*
@@ -24771,4 +24918,67 @@ ENTITY Work_request_status;
 END_ENTITY;
 
 END_SCHEMA;  -- Work_request_arm
+
+(*
+ $Id: arm.exp,v 1.10 2004/11/19 21:37:58 robbod Exp $
+ ISO TC184/SC4/WG12 N3199 - ISO/TS 10303-1217 Zonal breakdown - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2303
+*) 
+
+
+SCHEMA Zonal_breakdown_arm;
+
+USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
+
+USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+
+
+TYPE in_zone_item = EXTENSIBLE SELECT
+   (Product_view_definition);
+END_TYPE; 
+
+ENTITY In_zone;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  located_item : in_zone_item;
+  zone : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_breakdown
+  SUBTYPE OF (Breakdown);
+END_ENTITY;
+
+ENTITY Zone_breakdown_context
+  SUBTYPE OF (Breakdown_context);
+  SELF\Breakdown_context.breakdown : Zone_breakdown_version;
+  SELF\Breakdown_context.breakdown_element : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_breakdown_version
+  SUBTYPE OF (Breakdown_version);
+  SELF\Breakdown_version.of_product : Zone_breakdown;
+END_ENTITY;
+
+ENTITY Zone_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY Zone_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.defined_version : Zone_element_version;
+END_ENTITY;
+
+ENTITY Zone_element_usage
+  SUBTYPE OF (Breakdown_element_usage);
+  SELF\Breakdown_element_usage.parent_element : Zone_element_definition;
+  SELF\Breakdown_element_usage.child_element : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : Zone_element;
+END_ENTITY;
+
+END_SCHEMA;  -- Zonal_breakdown_arm
 

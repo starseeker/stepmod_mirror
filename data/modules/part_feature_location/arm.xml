@@ -2,25 +2,26 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1714">
    <application name="JSDAI" owner="LKSoft" source="part_feature_location_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Part_feature_location_arm">
       <interface kind="use" schema="Shape_feature_arm"/>
+      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <type name="feature_or_non_feature_usage">
          <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="usage_concept">
-         <select extensible="YES" genericentity="YES"/>
+         <select extensible="YES" genericentity="YES" selectitems="Part_feature"/>
       </type>
-      <entity name="Usage_concept_usage_relationship" supertypes="Geometric_placement_operation">
-         <explicit name="associated_shape_definition">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Usage_concept_usage_relationship" supertypes="Geometric_placement_operation">
+         <explicit name="associated_shape_definition" optional="NO">
             <typename name="Geometric_model"/>
             <redeclaration entity-ref="Geometric_placement_operation" old_name="template_definition"/>
          </explicit>
-         <explicit name="associated_usage">
+         <explicit name="associated_usage" optional="NO">
             <typename name="usage_concept"/>
          </explicit>
-         <explicit name="associating_usage_shape">
+         <explicit name="associating_usage_shape" optional="NO">
             <typename name="feature_or_non_feature_usage"/>
          </explicit>
          <inverse attribute="items" entity="Geometric_model" name="composed_model">
@@ -30,6 +31,7 @@
          <where expression="NOT EXISTS(SELF\Representation_item.name)" label="WR2"/>
          <where expression="('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR&#10;             ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF))" label="WR3"/>
          <where expression="NOT('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_MODEL' IN TYPEOF(composed_model[1]))" label="WR4"/>
+      <where label="IP1"/>
       </entity>
    </schema>
 </express>

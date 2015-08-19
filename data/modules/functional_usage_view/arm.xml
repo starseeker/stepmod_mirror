@@ -6,13 +6,17 @@
    <application name="JSDAI" owner="LKSoft" source="functional_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Functional_usage_view_arm">
       <interface kind="use" schema="Classification_assignment_arm"/>
+      <interface kind="use" schema="Group_arm"/>
       <interface kind="use" schema="Information_product_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <type name="fuuv_classification_item">
-         <select basedon="classification_item" extensible="YES" genericentity="YES" selectitems="Functional_unit_usage_view_terminal_definition"/>
+      <type name="fuv_classification_item">
+         <select basedon="classification_item" selectitems="Functional_unit_usage_view_terminal_definition"/>
+      </type>
+      <type name="fuv_groupable_item">
+         <select basedon="groupable_item" selectitems="Scalar_terminal_definition"/>
       </type>
       <entity name="Equivalent_functional_terminals_assignment">
          <explicit name="name">
@@ -37,27 +41,19 @@
             <unique.attribute attribute="SELF\Product.id"/>
          </unique>
       </entity>
-      <entity name="Functional_terminal_group">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="group_description">
-            <builtintype type="STRING"/>
-         </explicit>
+      <entity name="Functional_terminal_group" supertypes="Group">
          <explicit name="group_type">
             <builtintype type="STRING"/>
+            <redeclaration entity-ref="Group" old_name="id"/>
+         </explicit>
+         <explicit name="elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Scalar_terminal_definition"/>
+            <redeclaration entity-ref="Group"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="SELF\Group.name"/>
          </unique>
-      </entity>
-      <entity name="Functional_terminal_group_assignment">
-         <explicit name="composed_group">
-            <typename name="Functional_terminal_group"/>
-         </explicit>
-         <explicit name="functional_usage_view_terminal">
-            <typename name="Scalar_terminal_definition"/>
-         </explicit>
       </entity>
       <entity abstract.supertype="YES" name="Functional_unit_definition" supertypes="Information_definition">
          <explicit name="defined_version">

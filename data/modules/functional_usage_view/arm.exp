@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2015/03/14 14:34:45 lothartklein Exp $
+   $Id: arm.exp,v 1.27 2015/05/19 11:38:41 lothartklein Exp $
    ISO TC184/SC4/WG12 N7717 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6971
 *)
@@ -7,16 +7,21 @@
 SCHEMA Functional_usage_view_arm;
 
 USE FROM Classification_assignment_arm; -- ISO/TS 10303-1114
+USE FROM Group_arm; -- ISO/TS 10303-1113
 USE FROM Information_product_arm; -- ISO/TS 10303-1761
 USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
  
 REFERENCE FROM Support_resource_arm(bag_to_set); 
 
   
-  TYPE fuuv_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  TYPE fuv_classification_item = SELECT BASED_ON classification_item WITH
      (Functional_unit_usage_view_terminal_definition);
   END_TYPE;
 
+  TYPE fuv_groupable_item = SELECT BASED_ON groupable_item WITH (
+          Scalar_terminal_definition);
+  END_TYPE;
+  
   ENTITY Equivalent_functional_terminals_assignment;
       name                 : STRING;   
       equivalent_terminals : SET[2:?] OF Functional_unit_usage_view_terminal_definition;
@@ -33,19 +38,14 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       UR1: SELF\Product.id;
   END_ENTITY;
   
-  ENTITY Functional_terminal_group;
-      name              : STRING; 
-      group_description : STRING;
-      group_type        : STRING;
+  ENTITY Functional_terminal_group
+  	SUBTYPE OF (Group);
+      SELF\Group.id RENAMED group_type : STRING;
+      SELF\Group.elements : SET [0:?] OF Scalar_terminal_definition;
     UNIQUE
       UR1 : name;
   END_ENTITY;
 
-  ENTITY Functional_terminal_group_assignment;
-      composed_group                 : Functional_terminal_group;
-      functional_usage_view_terminal : Scalar_terminal_definition;
-  END_ENTITY;
- 
   ENTITY Functional_unit_definition
     ABSTRACT SUPERTYPE 
     SUBTYPE OF (Information_definition);

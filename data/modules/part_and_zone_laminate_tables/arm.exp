@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2012/10/11 20:25:50 thomasrthurman Exp $
+   $Id: arm.exp,v 1.14 2013/10/01 19:00:19 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7783 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6249
 *)
@@ -13,7 +13,6 @@ USE FROM Ply_orientation_specification_arm; -- ISO/TS 10303-1772
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
 USE FROM Stock_material_arm; -- ISO/TS 10303-1771
-
 
   TYPE component_class_for_assembly = SELECT 
     (Composite_assembly,
@@ -30,7 +29,6 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
      Woven_assembly);
   END_TYPE;
 
-
   TYPE thickness_laminate_table_component = SELECT 
     (Filament_laminate,
      Ply,
@@ -40,7 +38,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Composite_assembly
     SUBTYPE OF (Constituent_part);
       layup_part : Composite_assembly_table;
-      shape      : OPTIONAL composite_assembly_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL composite_assembly_shape;
   END_ENTITY;
 
   ENTITY Composite_assembly_sequence_definition;
@@ -67,7 +65,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
       made_from : filament_assembly_material;
-      shape     : OPTIONAL Filament_laminate_shape;
+     SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
   ENTITY Filament_laminate_shape;
@@ -106,14 +104,14 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
       ply_thickness        : Length_data_element;
       material_orientation : Direction_of_fiber_orientation_within_a_ply;
       material_type        : ply_stock_material;
-      shape                : OPTIONAL Ply_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL Ply_shape;
     DERIVE
       material_orientation_angle : Ply_orientation_angle := material_orientation.orientations[1]; 
   END_ENTITY;
 
   ENTITY Ply_laminate
     SUBTYPE OF (Constituent_part);
-      shape     : OPTIONAL ply_laminate_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_laminate_shape;
       ply_table : Ply_laminate_table;
   END_ENTITY;
 
@@ -128,7 +126,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
   ENTITY Ply_piece
     SUBTYPE OF (Constituent_part);
-      shape        : OPTIONAL ply_piece_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_piece_shape;
       warp_surface : LOGICAL;
   END_ENTITY;
 
@@ -143,7 +141,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
       cell_direction           : Direction_of_fiber_orientation_within_a_ply;
       made_from_stock          : Stock_core;
       made_from_processed_core : OPTIONAL SET [1:?] OF Processed_core;
-      shape                    : OPTIONAL core_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL core_shape;
     DERIVE
       cell_orientation_angle   : Ply_orientation_angle := cell_direction.orientations[1]; 
   END_ENTITY;

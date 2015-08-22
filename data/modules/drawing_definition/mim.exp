@@ -1,21 +1,41 @@
 (*
-   $Id: mim.exp,v 1.8 2008/09/12 11:53:29 liutkuviene Exp $
+   $Id$
    ISO TC184/SC4/WG12 N8000 - ISO/TS 10303-1309 Drawing definition - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7434
 *)
 
 SCHEMA Drawing_definition_mim;
 
-USE FROM Draughting_annotation_mim;
-USE FROM Presentation_hierarchy_mim;
+USE FROM Draughting_annotation_mim; -- ISO/TS 10303-1206
+USE FROM Presentation_hierarchy_mim; -- ISO/TS 10303-1330
 
-USE FROM drawing_definition_schema;
+USE FROM drawing_definition_schema; -- ISO 10303-101
 
-USE FROM presentation_organization_schema
-  (camera_image_2d_with_scale);
-  
+USE FROM presentation_organization_schema ( -- ISO 10303-46
+  camera_image_2d_with_scale);
+
+USE FROM document_schema (   --  ISO 10303-41
+  document, 
+  document_type,
+  document_representation_type); 
+   
+USE FROM management_resources_schema ( -- ISO 10303-41
+  document_reference);
+ 
+TYPE specified_item = SELECT
+  (drawing_revision);
+END_TYPE;
+
 ENTITY drawing_sheet_layout
   SUBTYPE OF (draughting_symbol_representation);
+END_ENTITY;
+
+ENTITY draughting_specification_reference
+  SUBTYPE OF (document_reference);
+  specified_items : SET [1:?] OF specified_item;
+WHERE
+  WR1: (SELF.assigned_document.kind.product_data_type =
+        'draughting specification');
 END_ENTITY;
 
 END_SCHEMA;

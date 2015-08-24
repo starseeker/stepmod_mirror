@@ -225,7 +225,7 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.42 2015/08/14 10:53:37 lothartklein Exp $
+   $Id: arm.exp,v 1.43 2015/08/18 10:55:23 lothartklein Exp $
    ISO TC184/SC4/WG12 N8321 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7873
 *)
@@ -318,7 +318,7 @@ TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_se
   Property_value_representation);
 END_TYPE;
     
-TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+TYPE general_organizational_data_select = SELECT (
   -- final_solution -- -- Complex_product subtype,
   -- Simple_property_association, -- already covered by Property_value_association
   -- would be Product_definition_kinematics, but already covered by supertype, -- Kinematic_simulation_information,
@@ -410,33 +410,29 @@ TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organizat
   Alternate_part_relationship);
 END_TYPE; 
 
-TYPE date_or_date_time_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH (
+TYPE date_or_date_time_item_242 = SELECT BASED_ON date_or_date_time_item WITH (
   general_organizational_data_select);
 END_TYPE;
 
-TYPE time_interval_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH (
+TYPE time_interval_item_242 = SELECT BASED_ON time_interval_item WITH (
   Time_interval_effectivity,
   general_organizational_data_select);
 END_TYPE;
 
-TYPE resource_definition_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_definition_select WITH (
+TYPE resource_definition_select_242 = SELECT BASED_ON resource_definition_select WITH (
   Product_as_individual_view,
   Breakdown_element_definition );
 END_TYPE;
 
-TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON process_operation_input_or_output_select WITH (
+TYPE process_operation_input_or_output_select_242 = SELECT BASED_ON process_operation_input_or_output_select WITH (
   Mated_part_relationship);
 END_TYPE;
 
-TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
+TYPE item_usage_relationship_item_242 = SELECT BASED_ON item_usage_relationship_item WITH (
   Product_occurrence);
 END_TYPE; 
 
-TYPE representation_proxy_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH (
-    Document_version);
-END_TYPE;
-
-TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
+TYPE change_management_object_242 = SELECT BASED_ON change_management_object WITH (
  Activity,
  Activity_relationship,
  Alternate_product_relationship,
@@ -452,7 +448,7 @@ TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ch
   );
 END_TYPE;
 
-TYPE change_relationship_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
+TYPE change_relationship_select_242 = SELECT BASED_ON change_relationship_select WITH (
     Process_plan_relationship,
     shape_element_relationship,
     replaced_usage_relationship,
@@ -3358,7 +3354,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.20 2015/08/07 07:20:04 lothartklein Exp $
+   $Id: arm.exp,v 1.21 2015/08/20 21:53:03 lothartklein Exp $
    ISO TC184/SC4/WG12 N7780 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7406
 *)
@@ -3411,7 +3407,8 @@ USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
   TYPE core_shape = SELECT 
     (Advanced_brep_shape_representation,
      Beveled_sheet_representation,
-     Faceted_brep_shape_representation);
+     Faceted_brep_shape_representation,
+     Tessellated_shape_representation);
   END_TYPE;
 
   TYPE ply_laminate_shape = EXTENSIBLE GENERIC_ENTITY SELECT 
@@ -4601,7 +4598,7 @@ END_TYPE;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.36 2012/10/11 05:49:05 liutkuviene Exp $
+   $Id: arm.exp,v 1.37 2015/08/20 09:13:06 lothartklein Exp $
    ISO TC184/SC4/WG12 N7987 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7421
 *)
@@ -4621,6 +4618,7 @@ USE FROM Specification_control_arm; -- ISO/CD-TS 10303-1112
 USE FROM Test_select_product_arm;	-- ISO/TS 10303-1757
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
+USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
 	
   TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
     (Activity, 
@@ -7533,9 +7531,9 @@ SCHEMA Externally_conditioned_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.3 2015/06/02 18:31:35 lothartklein Exp $
-   N - ISO/CD-TS - 10303- extruded_structure_cross_section - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.4 2015/08/17 15:24:26 lothartklein Exp $
+   N - ISO/TS 10303-1827 extruded_structure_cross_section - EXPRESS ARM*)
+
 SCHEMA Extruded_structure_cross_section_arm;
 
 USE FROM Physical_unit_usage_view_arm; -- ISO/TS 10303-1732
@@ -7551,44 +7549,30 @@ TYPE cross_sectional_constituent_element = SELECT (
   Cross_sectional_group_shape_element);
 END_TYPE;
 
-ENTITY Shape_element_group
-  SUBTYPE OF (Shape_element);
-  items : SET [1:?] OF Shape_element;
-WHERE
-  WR1: TRUE;-- the of_shape of the items shall be the same as the of_shape of THIS.
-  WR2: NOT (SELF IN items); -- plus acyclic 
-END_ENTITY; 
-
---- typically for library , except for the harness
-ENTITY Cross_sectional_outer_part_shape_element
-  SUBTYPE OF (Part_feature); -- or General_part_feature
+ENTITY Cross_sectional_part_shape_element
+  ABSTRACT SUPERTYPE OF (Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element)
+  SUBTYPE OF (Part_shape_element); -- or General_part_feature
   max_cross_section_diameter : OPTIONAL Length_data_element;
   min_cross_section_diameter : OPTIONAL Length_data_element;
   minimum_bend_radius : OPTIONAL Length_data_element;
+END_ENTITY;
+
+ENTITY Cross_sectional_outer_part_shape_element
+  SUBTYPE OF (Cross_sectional_part_shape_element, General_part_feature); 
 UNIQUE
   UR1: SELF\Shape_element.associated_definition;
 END_ENTITY;
--- IP: The shape of the cross section is perpendicular to the local centre line in the geometric representation.
 
--- The Cross_sectional_outer_part_shape_element is a kind of Part_feature
--- that represents the outer cross section shape that is perpendicular to a given centre-line.
 ENTITY Cross_sectional_outer_component_feature
   SUBTYPE OF (Component_feature);
   SELF\Component_feature.definition : Cross_sectional_outer_part_shape_element;
 END_ENTITY;
 
--- This belongs now to the assembly, e.g. the electrical harness
---  Informal Proposition (IP): the grouping is of a physical nature, at one cross-section an element can be only in one group
--- Note: A Cross_sectional_group_shape_element is not abstract on purpose because the designer may not know how the grouping is physically realised.
 ENTITY Cross_sectional_group_shape_element
   SUPERTYPE OF ( ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element) )
-  SUBTYPE OF (Shape_element_group);  -- Lothar thinks this should be Part_shape_element
-  max_cross_section_diameter : OPTIONAL Length_data_element;
-  min_cross_section_diameter : OPTIONAL Length_data_element;
-  minimum_bend_radius : OPTIONAL Length_data_element;
-  SELF\Shape_element_group.items : SET[1:?] OF cross_sectional_constituent_element; 
+  SUBTYPE OF (Cross_sectional_part_shape_element); 
+  items : SET[1:?] OF cross_sectional_constituent_element; 
 END_ENTITY;
--- IP: The shape of the cross section is perpendicular to the local centre line in the geometric representation.
 
 ENTITY Cross_sectional_group_shape_element_with_tubular_cover 
   SUBTYPE OF (Cross_sectional_group_shape_element);
@@ -8321,7 +8305,7 @@ SCHEMA Functional_specification_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.27 2015/05/19 11:38:41 lothartklein Exp $
+   $Id: arm.exp,v 1.28 2015/08/19 09:45:26 lothartklein Exp $
    ISO TC184/SC4/WG12 N7717 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6971
 *)
@@ -8329,16 +8313,21 @@ END_SCHEMA;
 SCHEMA Functional_usage_view_arm;
 
 USE FROM Classification_assignment_arm; -- ISO/TS 10303-1114
+USE FROM Group_arm; -- ISO/TS 10303-1113
 USE FROM Information_product_arm; -- ISO/TS 10303-1761
 USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
  
 REFERENCE FROM Support_resource_arm(bag_to_set); 
 
   
-  TYPE fuuv_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  TYPE fuv_classification_item = SELECT BASED_ON classification_item WITH
      (Functional_unit_usage_view_terminal_definition);
   END_TYPE;
 
+  TYPE fuv_groupable_item = SELECT BASED_ON groupable_item WITH (
+          Scalar_terminal_definition);
+  END_TYPE;
+  
   ENTITY Equivalent_functional_terminals_assignment;
       name                 : STRING;   
       equivalent_terminals : SET[2:?] OF Functional_unit_usage_view_terminal_definition;
@@ -8355,19 +8344,14 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       UR1: SELF\Product.id;
   END_ENTITY;
   
-  ENTITY Functional_terminal_group;
-      name              : STRING; 
-      group_description : STRING;
-      group_type        : STRING;
+  ENTITY Functional_terminal_group
+  	SUBTYPE OF (Group);
+      SELF\Group.id RENAMED group_type : STRING;
+      SELF\Group.elements : SET [0:?] OF Scalar_terminal_definition;
     UNIQUE
       UR1 : name;
   END_ENTITY;
 
-  ENTITY Functional_terminal_group_assignment;
-      composed_group                 : Functional_terminal_group;
-      functional_usage_view_terminal : Scalar_terminal_definition;
-  END_ENTITY;
- 
   ENTITY Functional_unit_definition
     ABSTRACT SUPERTYPE 
     SUBTYPE OF (Information_definition);
@@ -9329,7 +9313,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.57 2015/08/14 10:04:31 lothartklein Exp $
+$Id: arm.exp,v 1.58 2015/08/20 21:45:15 lothartklein Exp $
 ISO TC184/SC4/WG12 N8026 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7448
 *) 
@@ -9689,7 +9673,7 @@ END_ENTITY;
 
 ENTITY Perpendicularity_tolerance
    SUBTYPE OF (Geometric_tolerance);
-   datum_system : OPTIONAL Datum_system;
+   datum_system : Datum_system;
 INVERSE
    directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -9717,7 +9701,7 @@ END_ENTITY;
 
 ENTITY Position_tolerance
    SUBTYPE OF (Geometric_tolerance);
-   datum_system : Datum_system;
+   datum_system : OPTIONAL Datum_system;
 INVERSE
    directed_or_oriented_tolerance_zone : SET[0:1] OF Directed_or_oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
@@ -12925,6 +12909,50 @@ USE FROM Topologically_bounded_surface_arm; --ISO/TS 10303-1511:2004
 
 END_SCHEMA;
 (*
+ $Id: arm.exp,v 1.10 2012/10/06 20:09:56 liutkuviene Exp $
+ ISO TC184/SC4/WG12 N7738 - ISO/TS 10303-1147 Manufacturing configuration effectivity - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2628
+*)
+
+SCHEMA Manufacturing_configuration_effectivity_arm;
+
+USE FROM Configuration_effectivity_arm;
+
+USE FROM Person_organization_arm;
+
+USE FROM Product_occurrence_arm;
+
+USE FROM Specified_product_arm;
+
+
+ENTITY Dated_configuration
+SUBTYPE OF (Manufacturing_configuration);
+  SELF\Item_usage_effectivity.effectivity_domain: Dated_effectivity;
+END_ENTITY;
+
+ENTITY Lot_configuration
+SUBTYPE OF (Manufacturing_configuration);
+  SELF\Item_usage_effectivity.effectivity_domain: Lot_effectivity;
+END_ENTITY;
+
+ENTITY Manufacturing_configuration
+ABSTRACT SUPERTYPE OF (ONEOF(Serial_configuration,Dated_configuration,
+                         Lot_configuration))
+SUBTYPE OF (Item_usage_effectivity);
+  concerned_organization : SET[0:?] OF Organization;
+WHERE
+WR1: ('MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM' + '.PRODUCT_SPECIFICATION') IN TYPEOF(resolved_configuration.configuration);
+WR2: ('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE') IN
+TYPEOF(item_usage_relationship\View_definition_relationship.related_view); 
+END_ENTITY;
+
+ENTITY Serial_configuration
+ SUBTYPE OF (Manufacturing_configuration);
+  SELF\Item_usage_effectivity.effectivity_domain: Serial_effectivity;
+END_ENTITY;
+
+END_SCHEMA;
+(*
  $Id: arm.exp,v 1.6 2004/08/27 12:03:34 davidleal Exp $
  ISO TC184/SC4/WG12 N2798 - ISO/TS 10303-1091 Maths space - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1879
@@ -14580,7 +14608,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Part_and_version_identification_arm
 (*
-   $Id: arm.exp,v 1.14 2013/10/01 19:00:19 thomasrthurman Exp $
+   $Id: arm.exp,v 1.15 2015/08/20 21:52:34 lothartklein Exp $
    ISO TC184/SC4/WG12 N7783 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6249
 *)
@@ -14594,7 +14622,6 @@ USE FROM Ply_orientation_specification_arm; -- ISO/TS 10303-1772
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
 USE FROM Stock_material_arm; -- ISO/TS 10303-1771
-
 
   TYPE component_class_for_assembly = SELECT 
     (Composite_assembly,
@@ -14611,7 +14638,6 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
      Woven_assembly);
   END_TYPE;
 
-
   TYPE thickness_laminate_table_component = SELECT 
     (Filament_laminate,
      Ply,
@@ -14621,7 +14647,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Composite_assembly
     SUBTYPE OF (Constituent_part);
       layup_part : Composite_assembly_table;
-      shape      : OPTIONAL composite_assembly_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL composite_assembly_shape;
   END_ENTITY;
 
   ENTITY Composite_assembly_sequence_definition;
@@ -14648,7 +14674,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
       made_from : filament_assembly_material;
-      shape     : OPTIONAL Filament_laminate_shape;
+     SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
   ENTITY Filament_laminate_shape;
@@ -14687,14 +14713,14 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
       ply_thickness        : Length_data_element;
       material_orientation : Direction_of_fiber_orientation_within_a_ply;
       material_type        : ply_stock_material;
-      shape                : OPTIONAL Ply_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL Ply_shape;
     DERIVE
       material_orientation_angle : Ply_orientation_angle := material_orientation.orientations[1]; 
   END_ENTITY;
 
   ENTITY Ply_laminate
     SUBTYPE OF (Constituent_part);
-      shape     : OPTIONAL ply_laminate_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_laminate_shape;
       ply_table : Ply_laminate_table;
   END_ENTITY;
 
@@ -14709,7 +14735,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
   ENTITY Ply_piece
     SUBTYPE OF (Constituent_part);
-      shape        : OPTIONAL ply_piece_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_piece_shape;
       warp_surface : LOGICAL;
   END_ENTITY;
 
@@ -14724,7 +14750,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
       cell_direction           : Direction_of_fiber_orientation_within_a_ply;
       made_from_stock          : Stock_core;
       made_from_processed_core : OPTIONAL SET [1:?] OF Processed_core;
-      shape                    : OPTIONAL core_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL core_shape;
     DERIVE
       cell_orientation_angle   : Ply_orientation_angle := cell_direction.orientations[1]; 
   END_ENTITY;
@@ -17566,7 +17592,7 @@ SCHEMA Product_data_quality_criteria_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.4 2012/10/11 05:49:26 liutkuviene Exp $
+   $Id: arm.exp,v 1.5 2015/08/20 07:37:25 fumikitanaka Exp $
    ISO TC184/SC4/WG12 N7804 - ISO/TS 10303-1520 Product data quality definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7175
 *)
@@ -17592,7 +17618,7 @@ SCHEMA Product_data_quality_definition_arm;
     (Data_quality_definition);
   END_TYPE;
 
-  TYPE pqd_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON Organization_or_person_in_organization_item WITH
+  TYPE pdq_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON Organization_or_person_in_organization_item WITH
     (Data_quality_definition);
   END_TYPE;
 
@@ -18627,7 +18653,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Project_arm
 (*
-$Id: arm.exp,v 1.4 2009/08/11 07:58:27 robbod Exp $
+$Id: arm.exp,v 1.5 2015/08/18 11:03:23 lothartklein Exp $
 ISO TC184/SC4/WG12 N6582 - ISO/TS 10303-1399 Property as definition - EXPRESS ARM
 *) 
 
@@ -18635,15 +18661,6 @@ ISO TC184/SC4/WG12 N6582 - ISO/TS 10303-1399 Property as definition - EXPRESS AR
 SCHEMA Property_as_definition_arm;
 
 USE FROM Product_view_definition_properties_arm;    -- ISO/TS 10303-1034
-
-
-TYPE representation_proxy_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
-ENTITY Representation_proxy_item
-  SUBTYPE OF (Representation_item);
-  item : representation_proxy_select;
-END_ENTITY;
 
 ENTITY Single_property_is_definition
   SUBTYPE OF (Assigned_property);

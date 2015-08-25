@@ -4702,16 +4702,36 @@ END_SCHEMA;
 
 SCHEMA Drawing_definition_mim;
 
-USE FROM Draughting_annotation_mim;
-USE FROM Presentation_hierarchy_mim;
+USE FROM Draughting_annotation_mim; -- ISO/TS 10303-1206
+USE FROM Presentation_hierarchy_mim; -- ISO/TS 10303-1330
 
-USE FROM drawing_definition_schema;
+USE FROM drawing_definition_schema; -- ISO 10303-101
 
-USE FROM presentation_organization_schema
-  (camera_image_2d_with_scale);
-  
+USE FROM presentation_organization_schema ( -- ISO 10303-46
+  camera_image_2d_with_scale);
+
+USE FROM document_schema (   --  ISO 10303-41
+  document, 
+  document_type,
+  document_representation_type); 
+   
+USE FROM management_resources_schema ( -- ISO 10303-41
+  document_reference);
+ 
+TYPE specified_item = SELECT
+  (drawing_revision);
+END_TYPE;
+
 ENTITY drawing_sheet_layout
   SUBTYPE OF (draughting_symbol_representation);
+END_ENTITY;
+
+ENTITY draughting_specification_reference
+  SUBTYPE OF (document_reference);
+  specified_items : SET [1:?] OF specified_item;
+WHERE
+  WR1: (SELF.assigned_document.kind.product_data_type =
+        'draughting specification');
 END_ENTITY;
 
 END_SCHEMA;
@@ -9074,7 +9094,7 @@ SCHEMA Physical_component_feature_mim;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.21 2015/07/06 21:26:55 lothartklein Exp $
+   $Id: mim.exp,v 1.22 2015/08/22 11:31:20 lothartklein Exp $
    ISO TC184/SC4/WG12 N8195 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7590
 *)
@@ -9089,8 +9109,7 @@ USE FROM Physical_unit_design_view_mim;
 USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
 
 TYPE pcd_groupable_item = SELECT BASED_ON groupable_item WITH 
-   (physical_connectivity_definition,
-   group_relationship);
+   (physical_connectivity_definition);
 END_TYPE; 
 
 TYPE pcd_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
@@ -9133,12 +9152,16 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.3 2015/07/06 21:26:56 lothartklein Exp $
-   N - ISO/CD-TS - 10303- physical_connectivity_layout_topology_requirement - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+   $Id: mim.exp,v 1.4 2015/08/22 11:31:20 lothartklein Exp $
+   N - ISO/TS 10303-2836 physical_connectivity_layout_topology_requirement - EXPRESS MIM*)
+
 SCHEMA Physical_connectivity_layout_topology_requirement_mim;
 
 USE FROM Requirement_decomposition_mim; -- ISO/TS 10303-1740
+
+TYPE pcltr_groupable_item = SELECT BASED_ON groupable_item WITH 
+   (group_relationship);
+END_TYPE; 
 
 ENTITY physical_connectivity_layout_topology_link
     SUBTYPE OF(group_relationship);

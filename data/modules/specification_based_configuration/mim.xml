@@ -1,126 +1,51 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: mim.xml,v 1.10 2006/05/02 11:01:42 sonofre Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: 2006/05/02 11:01:42 $"
-  rcs.revision="$Revision: 1.10 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/specification_based_configuration/mim.exp"/>
-
-  <schema name="Specification_based_configuration_mim">
-
-    <interface
-      kind="use"
-      schema="Effectivity_application_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="Product_class_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="management_resources_schema">
-      <interfaced.item
-        name="effectivity_context_assignment"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="product_definition_schema">
-      <interfaced.item
-        name="product_definition"/>
-    </interface>
-    <type name="configured_effectivity_context_item">
-      <select
-        selectitems="product_concept_feature_association">
-      </select>
-    </type>
-
-    <type name="configured_effectivity_item">
-      <select
-        extensible="YES"
-        genericentity="YES"
-        selectitems="product_definition">
-      </select>
-    </type>
-
-    <entity
-      name="configured_effectivity_context_assignment"
-      supertypes="effectivity_context_assignment">
-      <explicit
-        name="assigned_effectivity_assignment">
-        <typename
-          name="configured_effectivity_assignment"/>
-        <redeclaration
-          entity-ref="effectivity_context_assignment"/>
-        </explicit>
-        <explicit
-          name="items">
-          <aggregate
-            type="SET"
-            lower="1"
-            upper="?"/>
-          <typename
-            name="configured_effectivity_context_item"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(SELF.items) = 1">
-        </where>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1108">
+   <application name="JSDAI" owner="LKSoft" source="specification_based_configuration_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Specification_based_configuration_mim">
+      <interface kind="use" schema="Effectivity_application_mim"/>
+      <interface kind="use" schema="Product_class_mim"/>
+      <interface kind="use" schema="management_resources_schema">
+         <interfaced.item name="effectivity_context_assignment"/>
+      </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_definition"/>
+      </interface>
+      <type name="configured_effectivity_context_item">
+         <select selectitems="product_concept_feature_association"/>
+      </type>
+      <type name="configured_effectivity_item">
+         <select extensible="YES" genericentity="YES" selectitems="product_definition"/>
+      </type>
+      <type name="sbc_effectivity_item">
+         <select basedon="effectivity_item" extensible="YES" genericentity="YES" selectitems="configured_effectivity_assignment"/>
+      </type>
+      <entity name="configured_effectivity_assignment" supertypes="effectivity_assignment">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="configured_effectivity_item"/>
+         </explicit>
+         <where expression="(SIZEOF(['EFFECTIVITY_SCHEMA.EFFECTIVITY'] * TYPEOF(SELF.assigned_effectivity) ) = 1) &#10;&#9;AND (SELF.assigned_effectivity.id = 'configuration validity')" label="WR1"/>
+         <where expression="SIZEOF(SELF.items) = 1" label="WR2"/>
+         <where expression="SIZEOF( QUERY( i &lt;* SELF.items | NOT ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) &#10;&#9;OR NOT (i\product_definition.frame_of_reference.name IN ['conceptual definition','part occurrence', 'functional definition','alternative definition']) )) = 0" label="WR3"/>
+         <where expression="SELF.role.name IN ['design', 'usage']" label="WR4"/>
+         <where expression="(SELF.role.name &lt;&gt; 'design') &#10;&#9;OR (SIZEOF( QUERY( i &lt;* SELF.items | ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'part occurrence') )) = 0)" label="WR5"/>
+         <where expression="(SELF.role.name &lt;&gt; 'usage') OR (SIZEOF( QUERY( i &lt;* SELF.items | ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'conceptual definition') )) = 0)" label="WR6"/>
+         <where expression="SELF.role.description IN ['exception', 'inherited', 'local']" label="WR7"/>
+         <where expression="SIZEOF( QUERY( x &lt;* USEDIN(SELF,'MANAGEMENT_RESOURCES_SCHEMA.' + 'EFFECTIVITY_CONTEXT_ASSIGNMENT.ASSIGNED_EFFECTIVITY_ASSIGNMENT') | 'SPECIFICATION_BASED_CONFIGURATION_MIM.CONFIGURED_EFFECTIVITY_CONTEXT_ASSIGNMENT' IN TYPEOF(x) )) = 1" label="WR8"/>
       </entity>
-
-      <entity
-        name="configured_effectivity_assignment"
-        supertypes="effectivity_assignment">
-        <explicit
-          name="items">
-          <aggregate
-            type="SET"
-            lower="1"
-            upper="?"/>
-          <typename
-            name="configured_effectivity_item"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="(SIZEOF(['EFFECTIVITY_SCHEMA.EFFECTIVITY'] * TYPEOF(SELF.assigned_effectivity)) = 1) AND (SELF.assigned_effectivity.id = 'configuration validity')">
-        </where>
-        <where
-          label="WR2"
-          expression="SIZEOF(SELF.items) = 1">
-        </where>
-        <where
-          label="WR3"
-          expression="SIZEOF(QUERY(i &lt;* SELF.items | NOT ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) OR NOT (i\product_definition.frame_of_reference.name IN ['conceptual definition','part occurrence', 'functional definition','alternative definition']))) = 0">
-        </where>
-        <where
-          label="WR4"
-          expression="SELF.role.name IN ['design', 'usage']">
-        </where>
-        <where
-          label="WR5"
-          expression="(SELF.role.name &lt;&gt; 'design') OR (SIZEOF(QUERY(i &lt;* SELF.items | ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'part occurrence'))) = 0)">
-        </where>
-        <where
-          label="WR6"
-          expression="(SELF.role.name &lt;&gt; 'usage') OR (SIZEOF(QUERY(i &lt;* SELF.items | ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'conceptual definition'))) = 0)">
-        </where>
-        <where
-          label="WR7"
-          expression="SELF.role.description IN ['exception', 'inherited', 'local']">
-        </where>
-        <where
-          label="WR8"
-          expression="SIZEOF(QUERY(x &lt;* USEDIN(SELF,'MANAGEMENT_RESOURCES_SCHEMA.' + 'EFFECTIVITY_CONTEXT_ASSIGNMENT.ASSIGNED_EFFECTIVITY_ASSIGNMENT') | 'SPECIFICATION_BASED_CONFIGURATION_MIM.CONFIGURED_EFFECTIVITY_CONTEXT_ASSIGNMENT' IN TYPEOF(x))) = 1">
-        </where>
+      <entity name="configured_effectivity_context_assignment" supertypes="effectivity_context_assignment">
+         <explicit name="assigned_effectivity_assignment">
+            <typename name="configured_effectivity_assignment"/>
+            <redeclaration entity-ref="effectivity_context_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="configured_effectivity_context_item"/>
+         </explicit>
+         <where expression="SIZEOF(SELF.items) = 1" label="WR1"/>
       </entity>
-
-    </schema>
-  </express>
+   </schema>
+</express>

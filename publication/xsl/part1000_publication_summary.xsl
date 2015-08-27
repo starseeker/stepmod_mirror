@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.9 2010/11/04 16:09:17 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -31,8 +31,10 @@ $Id: part1000_publication_summary.xsl,v 1.9 2010/11/04 16:09:17 robbod Exp $
   <!-- force the application of the stylesheet to the file specified in the
        file attribute -->
   <xsl:template match="/">
+    <xsl:variable name="pub_dir" select="./publication/@directory"/>
+    
     <xsl:variable name="publication_index" 
-      select="concat('../part1000/',./publication/@directory,'/publication_index.xml')"/>
+      select="concat('../part1000/', $pub_dir,'/publication_index.xml')"/>
     <xsl:apply-templates select="document($publication_index)/part1000.publication_index"/>
   </xsl:template>
 
@@ -122,10 +124,25 @@ $Id: part1000_publication_summary.xsl,v 1.9 2010/11/04 16:09:17 robbod Exp $
           <li>
             <a href="#delmodulenames">Deleted Modules sorted by name</a>
           </li>
+          <xsl:if test="//resource_docs/resource_doc">
+          <li>
+            <a href="#resourcenames">Resources sorted by name</a><!-- MWD --> 
+          </li>
+          <li>
+            <a href="#resourcenos">Resources sorted by part number</a><!-- MWD --> 
+          </li>
+          </xsl:if>
+          <xsl:if test="//deleted.resource_docs/resource_doc">
+            <li>
+              <a href="#delresourceenames">Deleted Resources sorted by name</a><!-- MWD --> 
+            </li>
+          </xsl:if>
         </ul>
         
         <xsl:apply-templates select="./modules" mode="table"/>    
-        <xsl:apply-templates select="./deleted.modules" mode="table"/>      
+        <xsl:apply-templates select="./deleted.modules" mode="table"/>
+        <xsl:apply-templates select="./resource_docs" mode="table"/> <!-- MWD -->   
+        <xsl:apply-templates select="./deleted.resourcedocs" mode="table"/>  <!-- MWD -->         
     </body>
   </HTML>
   </xsl:template>
@@ -453,6 +470,332 @@ $Id: part1000_publication_summary.xsl,v 1.9 2010/11/04 16:09:17 robbod Exp $
       </tr>      
     </xsl:otherwise>
   </xsl:choose>
-</xsl:template>
+  </xsl:template>
+  
+  <!-- MWD -->
+  
+  <xsl:template match="resource_docs" mode="table">
+    <xsl:variable name="resources">
+      <resources>
+        <xsl:for-each select="resource_doc">
+          <xsl:variable name="resource_doc_ok">
+            <xsl:call-template name="check_resource_doc_exists">
+              <xsl:with-param name="resource_doc" select="@name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$resource_doc_ok='true'">
+            <resource>
+              <xsl:variable name="resource_file"
+                select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+              <xsl:variable name="resource_node" select="document($resource_file)/resource"/>              
+              <xsl:attribute name="name">
+                <xsl:value-of select="@name"/>
+              </xsl:attribute>
+              
+              <xsl:attribute name="name.french">
+                <xsl:value-of select="$resource_node/@name.french"/>
+              </xsl:attribute>
+              <xsl:attribute name="part">
+                <xsl:value-of select="$resource_node/@part"/>
+              </xsl:attribute>
+              <xsl:attribute name="previous.revision.year">
+                <xsl:value-of select="$resource_node/@previous.revision.year"/>
+              </xsl:attribute>              
+              <xsl:attribute name="publication.date">
+                <xsl:value-of select="$resource_node/@publication.date"/>
+              </xsl:attribute>              
+              <xsl:attribute name="publication.year">
+                <xsl:value-of select="$resource_node/@publication.year"/>
+              </xsl:attribute>              
+              <xsl:attribute name="published">        
+                <xsl:value-of select="$resource_node/@published"/>
+              </xsl:attribute>              
+              <xsl:attribute name="status">
+                <xsl:value-of select="$resource_node/@status"/>
+              </xsl:attribute>              
+              <xsl:attribute name="version">
+                <xsl:value-of select="$resource_node/@version"/>
+              </xsl:attribute>             
+            </resource>
+          </xsl:if>
+        </xsl:for-each>
+      </resources>
+    </xsl:variable>
+    <p/>
+    <h3>      
+      <a name="resourcenames">Resources sorted by name</a>
+    </h3> 
+    <p><a href="#index">Index</a></p>
+    <table border="1">
+      <tr>
+        <td><b>Resource</b></td>
+        <td><b>Part</b></td>
+        <td><b>Stage</b></td>
+        <td><b>Edition</b></td>
+        <td><b>Year of<br/>publication</b></td>   
+        <td><b>Date of<br/>publication</b></td> 
+        <td><b>Previous year<br/>of publication</b></td>       
+        <td><b>Published</b></td>
+        <td><b>Title</b></td>
+        <td><b>CVS file revisions</b></td>
+      </tr>
+      
+      
+      
+      <xsl:choose>
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:variable name="resource_nodes" select="msxsl:node-set($resources)"/>
+          <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="resource_nodes" select="exslt:node-set($resources)"/>
+          <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </xsl:when>
+      </xsl:choose>
+    </table>
+    
+    
+    <h3>      
+      <a name="resourcenos">Resources sorted by part number</a>
+    </h3>
+    <p><a href="#index">Index</a></p>
+    <table border="1">
+      <tr>
+        <td><b>Resource</b></td>
+        <td><b>Part</b></td>
+        <td><b>Stage</b></td>
+        <td><b>Edition</b></td>
+        <td><b>Year of<br/>publication</b></td>   
+        <td><b>Date of<br/>publication</b></td> 
+        <td><b>Previous year<br/>of publication</b></td>       
+        <td><b>Published</b></td>
+        <td><b>Title</b></td>
+        <td><b>CVS file revisions</b></td>
+      </tr>
+      
+     
+      
+      
+      <xsl:choose>
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:variable name="resource_nodes" select="msxsl:node-set($resources)"/>
+          <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
+            <xsl:sort select="@part"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="resource_nodes" select="exslt:node-set($resources)"/>
+          <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
+            <xsl:sort select="@part"/>
+          </xsl:apply-templates>
+        </xsl:when>
+      </xsl:choose>
+    </table>
+  </xsl:template>
+  
+  <xsl:template match="resource" mode="table_row">
+    
+    <xsl:variable name="resource_ok">
+      <xsl:call-template name="check_resource_doc_exists">
+        <xsl:with-param name="resource_doc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$resource_ok='true'">
+        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/part1000')"/>
+        
+        <xsl:variable name="res_dir_name"
+          select="concat('iso10303_',./@part)"/>
+        
+        <tr>
+          <!-- Resource -->
+          <td>
+            <xsl:variable name="res_xref"
+              select="concat($pub_dir,'/data/resource_docs/',@name,'/sys/cover.htm')"/>
+            <a href="{$res_xref}">
+              <xsl:value-of select="@name"/>
+            </a>
+            
+            <xsl:variable name="res_name" select="@name"/>            
+            <xsl:if test="count(../resource[@name=$res_name])!=1">
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Resource ',@name,' is duplicated in publication_index.xml')"/>
+                </xsl:with-param>
+              </xsl:call-template>
+            </xsl:if>
+          </td>
+          
+          <!-- Part -->
+          <td>
+            <xsl:choose>
+              <xsl:when test="./@part">
+                <xsl:value-of select="concat('10303-',./@part)"/>
+                
+                <!-- check that the part number in repository_index -->
+                <xsl:variable name="resource_doc" select="@name"/>
+                <xsl:variable name="repo_res_number"
+                  select="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resource_doc]/@part"/>
+                <xsl:if test="$repo_res_number != ./@part">
+                  <br/>
+                  <font color="#FF0000" size="-1">
+                    The part number in repository_index
+                    (<xsl:value-of select="$repo_res_number"/>)
+                    does not equal that in resource 
+                    (<xsl:value-of select="./@part"/>).
+                  </font>
+                </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Stage -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@status))>0">
+                <xsl:value-of select="./@status"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Version -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@version))>0">
+                <xsl:value-of select="./@version"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Year -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@publication.year))>0">
+                <xsl:value-of select="./@publication.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          <!-- Date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@publication.date))>0">
+                <xsl:value-of select="./@publication.date"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <!-- Previous ed date -->
+          <td>
+            <xsl:choose>
+              <xsl:when 
+                test="string-length(normalize-space(./@previous.revision.year))>0">
+                <xsl:value-of select="./@previous.revision.year"/>
+              </xsl:when>
+              <xsl:otherwise>
+                -
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          
+          <td>
+            <xsl:value-of select="./@published"/>          
+          </td>
+          
+          
+          <!--  Title -->
+          <td>
+            <xsl:call-template name="resource_doc_display_name">
+              <xsl:with-param name="part_no" select="concat('10303-',./@part)"/>
+            </xsl:call-template>  
+            
+          </td>
+         
+          <!-- CVS revisions -->
+          <td>
+            <xsl:variable name="cvs_xref"
+              select="concat($pub_dir,'/data/resource_docs/',@name,'/publication_record.xml')"/>
+            
+            <a href="{$cvs_xref}">publication_record.xml</a>
+          </td>
+        </tr>
+      </xsl:when>
+      <!-- resource does not exist in repository index -->
+      <xsl:otherwise>
+        <tr>
+          <td>
+            <xsl:value-of select="../@name"/>
+          </td>
+          <td>
+            <xsl:value-of select="@name"/>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Error publication1: ', $resource_ok)"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+          <td>&#160;</td>
+        </tr>      
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template name="check_resource_doc_exists">
+    <xsl:param name="resource_doc"/>
+    <!-- the name of the resource_doc directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lresource_doc" select="translate($resource_doc,$UPPER,$LOWER)"/>
+    <xsl:variable name="ret_val">
+      <xsl:choose>
+        <xsl:when test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$lresource_doc]">
+          <xsl:value-of select="'true'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(' The resource document ', $lresource_doc, ' is not identified as a resource document in repository_index.xml')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+  
+  <xsl:template name="resource_doc_display_name">
+    <xsl:param name="part_no"/>
+    
+    <xsl:variable name="partRef" select="concat('ref', $part_no)"/>
+    
+    <xsl:variable name="normrefs" select="document(string('../../data/basic/normrefs.xml'))"/>
+    <xsl:variable name="rawSubtitle" select="$normrefs//normref[@id=$partRef]/stdref/subtitle"/>
+    <xsl:variable name="normSubtitle" select="normalize-space(string($rawSubtitle))"/>
+    <xsl:variable name="truncatedSubtitle" select="substring-after($normSubtitle, 'Integrated generic resource: ')"/>
+    <xsl:value-of select="$truncatedSubtitle"/>
+  </xsl:template>
 
 </xsl:stylesheet>

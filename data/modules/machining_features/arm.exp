@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2015/04/04 10:16:12 lothartklein Exp $
+   $Id: arm.exp,v 1.21 2015/06/02 10:45:20 lothartklein Exp $
    ISO TC184/SC4/WG12 N7915 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7352
 *)
@@ -8,6 +8,7 @@ SCHEMA Machining_features_arm;
 
 USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
 USE FROM Feature_and_connection_zone_arm;
+USE FROM Group_arm;
 USE FROM Measure_representation_arm;
 USE FROM Specification_document_arm;
 USE FROM Value_with_unit_arm;
@@ -206,7 +207,7 @@ ENTITY Compound_feature_element;
 END_ENTITY;
 
 ENTITY Compound_feature_relationship;
-  predecssor : Compound_feature_element;
+  predecessor : Compound_feature_element;
   successor : Compound_feature_element;
 END_ENTITY;
 
@@ -353,7 +354,7 @@ ENTITY Gear
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_gear, Defined_gear))
   SUBTYPE OF (Machining_feature);
   nominal_tooth_depth : Numerical_item_with_unit;
-  reference_preassure_angle : Numerical_item_with_unit;
+  reference_pressure_angle : Numerical_item_with_unit;
   profile_shift : Numerical_item_with_unit;
   number_of_teeth : Numerical_item_with_unit;
   face_width : Numerical_item_with_unit;
@@ -528,10 +529,9 @@ ENTITY Manufacturing_feature
   SUBTYPE OF (Shape_feature_definition);
 END_ENTITY;
 
-ENTITY Manufacturing_feature_group;
-  group_name : label;
-  group_description : text;
-  feature_groups : SET[1:?] OF manufacturing_group_select;
+ENTITY Manufacturing_feature_group
+  SUBTYPE OF (Group);
+  SELF\Group.elements : SET[1:?] OF manufacturing_group_select;
 END_ENTITY;
 
 ENTITY Marking_feature
@@ -683,7 +683,7 @@ ENTITY Pocket
     Rectangular_open_pocket))
   SUBTYPE OF (Multi_axis_feature);
   base_radius : Numerical_item_with_unit;
-  change_in_boundardy : OPTIONAL LIST[1:?] OF angle_or_directed_taper;
+  change_in_boundary : OPTIONAL LIST[1:?] OF angle_or_directed_taper;
   bottom_condition : pocket_bottom_condition_select;
   pocket_depth : Linear_path_feature_component;
 END_ENTITY;

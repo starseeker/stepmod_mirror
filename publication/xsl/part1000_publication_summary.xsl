@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.11 2015/08/27 13:01:16 mikeward Exp $
+$Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -476,7 +476,6 @@ $Id: part1000_publication_summary.xsl,v 1.11 2015/08/27 13:01:16 mikeward Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
-        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>

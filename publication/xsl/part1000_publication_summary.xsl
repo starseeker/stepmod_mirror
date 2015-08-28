@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
+$Id: part1000_publication_summary.xsl,v 1.11 2015/08/27 13:01:16 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -134,7 +134,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
           </xsl:if>
           <xsl:if test="//deleted.resource_docs/resource_doc">
             <li>
-              <a href="#delresourceenames">Deleted Resources sorted by name</a><!-- MWD --> 
+              <a href="#delresourcenames">Deleted Resources sorted by name</a><!-- MWD --> 
             </li>
           </xsl:if>
         </ul>
@@ -142,7 +142,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <xsl:apply-templates select="./modules" mode="table"/>    
         <xsl:apply-templates select="./deleted.modules" mode="table"/>
         <xsl:apply-templates select="./resource_docs" mode="table"/> <!-- MWD -->   
-        <xsl:apply-templates select="./deleted.resourcedocs" mode="table"/>  <!-- MWD -->         
+        <xsl:apply-templates select="./deleted.resource_docs" mode="table"/>  <!-- MWD -->         
     </body>
   </HTML>
   </xsl:template>
@@ -162,6 +162,9 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <td>
           <b>Team</b>
         </td>
+        <td>
+          <b>Collector Bug</b>
+        </td>
       </tr>
       <xsl:for-each select="module">
         <xsl:sort select="@name"/>
@@ -172,6 +175,9 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
           </td>
           <td>
             <xsl:value-of select="@team"/>
+          </td>
+          <td>
+            <xsl:value-of select="@collector_bug"/>
           </td>
         </tr>
       </xsl:for-each>
@@ -219,7 +225,10 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
               </xsl:attribute>              
               <xsl:attribute name="version">
                 <xsl:value-of select="$module_node/@version"/>
-              </xsl:attribute>             
+              </xsl:attribute>
+              <xsl:attribute name="collector_bug">
+                <xsl:value-of select="@collector_bug"/>
+              </xsl:attribute>
               </module>
           </xsl:if>
         </xsl:for-each>
@@ -243,6 +252,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <td><b>Title</b></td>
         <td><b>French title</b></td>
         <td><b>CVS file revisions</b></td>
+        <td><b>Collector Bug</b></td>
       </tr>
            
       <xsl:choose>
@@ -279,6 +289,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <td><b>Title</b></td>
         <td><b>French title</b></td>
         <td><b>CVS file revisions</b></td>
+        <td><b>Collector Bug</b></td>
       </tr>
       
       <xsl:choose>
@@ -445,6 +456,10 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
           
           <a href="{$cvs_xref}">publication_record.xml</a>
         </td>
+          <!-- bug -->
+          <td>
+            <xsl:value-of select="./@collector_bug"/>  
+          </td>
       </tr>
     </xsl:when>
     <!-- module does not exist in repository index -->
@@ -461,6 +476,8 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
@@ -515,7 +532,10 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
               </xsl:attribute>              
               <xsl:attribute name="version">
                 <xsl:value-of select="$resource_node/@version"/>
-              </xsl:attribute>             
+              </xsl:attribute>
+              <xsl:attribute name="collector_bug">
+                <xsl:value-of select="@collector_bug"/>
+              </xsl:attribute>
             </resource>
           </xsl:if>
         </xsl:for-each>
@@ -538,6 +558,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <td><b>Published</b></td>
         <td><b>Title</b></td>
         <td><b>CVS file revisions</b></td>
+        <td><b>Collector Bug</b></td>
       </tr>
       
       
@@ -575,6 +596,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
         <td><b>Published</b></td>
         <td><b>Title</b></td>
         <td><b>CVS file revisions</b></td>
+        <td><b>Collector Bug</b></td>
       </tr>
       
      
@@ -740,6 +762,10 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
             
             <a href="{$cvs_xref}">publication_record.xml</a>
           </td>
+          <!-- bug -->
+          <td>
+            <xsl:value-of select="./@collector_bug"/>  
+          </td>
         </tr>
       </xsl:when>
       <!-- resource does not exist in repository index -->
@@ -756,6 +782,7 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
               </xsl:with-param>
             </xsl:call-template>
           </td>
+          <td>&#160;</td>
           <td>&#160;</td>
           <td>&#160;</td>
           <td>&#160;</td>
@@ -796,6 +823,38 @@ $Id: part1000_publication_summary.xsl,v 1.10 2011/08/25 13:01:00 robbod Exp $
     <xsl:variable name="normSubtitle" select="normalize-space(string($rawSubtitle))"/>
     <xsl:variable name="truncatedSubtitle" select="substring-after($normSubtitle, 'Integrated generic resource: ')"/>
     <xsl:value-of select="$truncatedSubtitle"/>
+  </xsl:template>
+  
+  <xsl:template match="deleted.resource_docs" mode="table">
+    <h3>
+      <a name="delresourcenames">Deleted Resources sorted by name</a>
+    </h3>
+    <p>
+      <a href="#index">Index</a>
+    </p>
+    <table border="1">
+      <tr>
+        <td>
+          <b>Resource</b>
+        </td>
+        <td>
+          <b>Collector Bug</b>
+        </td>
+      </tr>
+      <xsl:for-each select="resource_doc">
+        <xsl:sort select="@name"/>
+        <tr>
+          <!-- Resource -->
+          <td>
+            <xsl:value-of select="@name"/>
+          </td>
+          <!-- bug -->
+          <td>
+            <xsl:value-of select="./@collector_bug"/>
+          </td>
+        </tr>
+      </xsl:for-each>
+    </table>
   </xsl:template>
 
 </xsl:stylesheet>

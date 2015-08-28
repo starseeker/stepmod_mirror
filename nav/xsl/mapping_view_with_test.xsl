@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.13 2004/06/04 14:28:36 mikeward Exp $
+$Id: mapping_view_with_test.xsl,v 1.14 2013/10/25 15:46:44 thomasrthurman Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1059,7 +1059,7 @@ $Id: mapping_view_with_test.xsl,v 1.13 2004/06/04 14:28:36 mikeward Exp $
 	
 		</xsl:when>
 
-		<xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;-',''))" >
+		<xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;',''))" ><!-- MWD hyphen removed -->
 				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
 					<xsl:call-template name="error_message">
 			

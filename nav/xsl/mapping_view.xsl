@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.22 2013/10/25 15:46:45 thomasrthurman Exp $
+$Id: mapping_view.xsl,v 1.23 2015/05/19 14:39:53 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -1220,7 +1220,7 @@ $Id: mapping_view.xsl,v 1.22 2013/10/25 15:46:45 thomasrthurman Exp $
 	
 		</xsl:when>
 
-		<xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;-',''))" >
+		<xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;',''))" ><!-- MWD hyphen removed -->
 				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
 					<xsl:call-template name="error_message">
 			

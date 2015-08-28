@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.26 2015/08/13 14:52:06 nigelshaw Exp $
+$Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -686,7 +686,7 @@ $Id: sect_5_mapping_check.xsl,v 1.26 2015/08/13 14:52:06 nigelshaw Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;-',''))" >
+      <xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;',''))" ><!-- MWD hyphen removed -->
 	      <!--        <xsl:copy-of select="."/> -->
         <!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
         <xsl:call-template name="error_message">
@@ -694,7 +694,7 @@ $Id: sect_5_mapping_check.xsl,v 1.26 2015/08/13 14:52:06 nigelshaw Exp $
           <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
           <xsl:with-param 
             name="message" 
-            select="concat('Error Map24: Possible syntax ERROR: ',.)"/>
+            select="concat('Error Map24FOO: Possible syntax ERROR: ',.)"/>
         </xsl:call-template>    
       </xsl:when>
       <xsl:when test="contains($LOWER,substring(.,1,1)) and contains(.,'.')" >

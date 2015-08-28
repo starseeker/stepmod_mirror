@@ -2107,7 +2107,7 @@ USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 END_SCHEMA; 
 
 (*
-   $Id: arm.exp,v 1.38 2015/08/25 07:16:52 lothartklein Exp $
+   $Id: arm.exp,v 1.39 2015/08/26 10:34:43 lothartklein Exp $
    ISO TC184/SC4/WG12 N8119 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7523
 *)
@@ -2152,9 +2152,9 @@ ENTITY Cable_component
   SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
   SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
 DERIVE 
-  ends_a : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end a');
-  ends_b : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name = 'end b');
-  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.name[1:13] = 'intermediate');
+  ends_a : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end a');
+  ends_b : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end b');
+  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name[1:13] = 'intermediate');
 INVERSE
   terminal_location_groups : SET OF Cable_component_terminal_location_group_identification FOR associated_definition;
 WHERE
@@ -2187,9 +2187,9 @@ ENTITY Wire_component
   SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
   SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
 DERIVE 
-  ends_a : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.name = 'end a');
-  ends_b : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.name = 'end b');
-  intermediates : SET[0:?] OF Wire_component_terminal := QUERY(t <* terminals | t.name[1:13] = 'intermediate ');
+  ends_a : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name = 'end a');
+  ends_b : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name = 'end b');
+  intermediates : SET[0:?] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name[1:13] = 'intermediate ');
 INVERSE
   terminals : SET[2:?] OF Wire_component_terminal FOR associated_definition;
 WHERE
@@ -2384,7 +2384,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.68 2015/05/12 09:16:02 lothartklein Exp $
+   $Id: arm.exp,v 1.69 2015/08/27 16:26:30 lothartklein Exp $
    ISO TC184/SC4/WG12 N7957 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7394
 *)
@@ -2631,7 +2631,7 @@ SCHEMA Characteristic_arm;
  --Type_qualifier.name shall be drawn only from 'nominal', 'typical' , 'maximium', 'minimum'
   LOCAL
      bag_data : BAG OF STRING := [];
-     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
+     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximum', 'minimum'];
   END_LOCAL;
   REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
     REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers);
@@ -5700,7 +5700,7 @@ USE FROM Curve_appearance_arm; -- ISO/CD-TS 10303-1003
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.7 2012/10/06 20:09:56 liutkuviene Exp $
+   $Id: arm.exp,v 1.8 2015/08/27 16:23:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N7675 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7074
 *)
@@ -5770,7 +5770,7 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
   END_ENTITY;    
 
   ENTITY Dimension_sequence_pair; 
-    allignment  : chained_or_parallel;
+    alignment  : chained_or_parallel;
 	predecessor : Dimension_callout;
 	successor   : Dimension_callout;
   END_ENTITY;
@@ -13006,8 +13006,8 @@ END_TYPE;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.8 2012/10/11 05:49:26 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7918 - ISO/CD-TS - 10303-1815 Mating structure - EXPRESS ARM
+   $Id: arm.exp,v 1.9 2015/08/26 10:29:24 lothartklein Exp $
+   ISO TC184/SC4/WG12 N7918 - ISO/TS 10303-1815 Mating structure - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7355
 *)
 
@@ -13045,7 +13045,7 @@ ENTITY Mated_part_relationship;
   related : Assembled_part_association;
 WHERE
   WR1: relating.relating_view :=: related.relating_view;
-  WR2: SIZEOF(QUERY(mj <* mating_joints | NOT(mj.associated_assembly.described_element :=: relating.relating_view)))= 0;
+  WR2: SIZEOF(QUERY(mj <* mating_joints | NOT(mj.associated_assembly :=: relating.relating_view)))= 0;
 END_ENTITY;
 
 END_SCHEMA;
@@ -15392,9 +15392,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.2 2015/05/19 22:46:47 lothartklein Exp $
-   N - ISO/CD-TS - 10303- physical_connectivity_layout_topology_requirement - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.3 2015/08/26 08:04:21 lothartklein Exp $
+   N - ISO/TS 10303-1826 physical_connectivity_layout_topology_requirement - EXPRESS ARM*)
+
 SCHEMA Physical_connectivity_layout_topology_requirement_arm;
 
 USE FROM Requirement_decomposition_arm; -- ISO/TS 10303-1740
@@ -15410,8 +15410,6 @@ END_ENTITY;
 
 ENTITY Physical_connectivity_layout_topology_node;
   terminal_type : STRING;
-WHERE
-  WR1 : (SIZEOF(SELF\Group.elements) = 0);
 END_ENTITY;
 
 ENTITY Physical_connectivity_layout_topology_requirement
@@ -15621,7 +15619,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.84 2015/07/06 21:49:22 lothartklein Exp $
+   $Id: arm.exp,v 1.85 2015/08/26 10:31:21 lothartklein Exp $
    ISO TC184/SC4/WG12 N8215 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7610
 *)
@@ -15672,7 +15670,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
       WR1: SIZEOF(get_derived_shape_element(related_view)) > 0;
       WR2: SIZEOF(QUERY(gdrse <* get_derived_shape_element(related_view) |
              (SIZEOF(QUERY(se <* gdrse.derived_from |
-                relating_view <> se.containing_shape.described_element
+                relating_view <> se.associated_definition 
               )) = 0)
              )) = SIZEOF(get_derived_shape_element(related_view));
       WR3 : NOT EXISTS(SELF\View_definition_relationship.relation_type);             
@@ -17818,7 +17816,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Product_identification_arm
 (*
-   $Id: arm.exp,v 1.23 2015/04/11 09:43:52 lothartklein Exp $
+   $Id: arm.exp,v 1.24 2015/08/26 10:44:13 lothartklein Exp $
    ISO TC184/SC4/WG12 N7750 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4266
 *) 
@@ -17852,7 +17850,7 @@ SCHEMA Product_occurrence_arm;
     SUBTYPE OF (Product_view_definition);
       SELF\Product_view_definition.defined_version : Part_version;
     DERIVE
-      SELF\Product_view_definition.initial_context : Initial_view_definition_context := Initial_view_definition_context('','',?);
+      SELF\Product_view_definition.initial_context : Initial_view_definition_context := View_definition_context('','') || Initial_view_definition_context(?);
     INVERSE
       occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
       view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
@@ -18866,7 +18864,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Requirement_assignment_arm
 (*
-   $Id: arm.exp,v 1.75 2015/06/14 21:24:46 lothartklein Exp $
+   $Id: arm.exp,v 1.76 2015/08/27 16:32:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N7037 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6543
 *)
@@ -18981,7 +18979,7 @@ SCHEMA Requirement_decomposition_arm;
 	  WR1 : NOT (SIZEOF(required_material) = 1) OR
             ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material));
       WR2: SELF\Product_view_definition.initial_context.application_domain IN 
-          ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical'];
+          ['mechanical', 'thermal', 'electromechanical', 'electromagnetic compatibility', 'electrical'];
       WR3: SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test'];
       WR4 : NOT EXISTS(SELF\Product_view_definition.name);
       WR5 : EXISTS(required_characteristic) XOR EXISTS(requirement_basis);
@@ -24672,7 +24670,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.10 2015/08/24 12:56:08 lothartklein Exp $
+   $Id: arm.exp,v 1.11 2015/08/25 12:38:50 lothartklein Exp $
    N - ISO/TS 10303-1828 wiring_harness_assembly_design - EXPRESS ARM*)
 
 SCHEMA Wiring_harness_assembly_design_arm;
@@ -24711,36 +24709,6 @@ TYPE whad_assembly_joint_type = ENUMERATION BASED_ON assembly_joint_type WITH (
 END_TYPE;
 
 TYPE whad_part_category = ENUMERATION BASED_ON part_category WITH (
-  wiring_harness,
- connector_kit, -- ! NEW
- contact_member, -- ! IEV ref		151-12-16
- connector_contact,   -- ! new def:  SINGEL      
-  connector,                   -- ! IEV ref 151-12-19 connector  
-  plug,                        -- ! IEV ref 151-12-21 plug
-  socket,                      -- ! IEV ref 151-12-20 socke
-  shielded_connector,          -- ! IEV ref 581-26-19 shielded connector
-  cavity_plug, -- ! see def.
-  seal,  -- ! see def.
-  connector_housing,           -- ! IEV ref 581-27-10 connector housing
-  emi_connector_housing,           -- ! see def.
-  connector_insert,            -- ! IEV ref 581-27-11 connector insert
-  -- NO connector_body,              -- IEV ref 581-27-09 connector body
-  backshell,         -- ! def: a connector element to guide the wires and cables 
-  electrified_backshell,         -- ! see def.
-
-  cable_support_sleeve, -- ! IEV ref		581-27-23	cable support sleeve
-  grommet, -- IEV ref 581-27-19 grommet 
-  strain_relief_accessory,
-  protective_covering, -- ! IEV ref 461-05-03 sheath
-  overbraid, -- ! see def.
-  conduit, -- ! IEV ref 442-02-03 conduit
-  corrugated_conduit,
-  shield,
-  terminal_lug, -- ! 461-17-01 (terminal) lug
-  terminal_block, 
-  joint_ferrule, -- IEV ref 461-17-04 joint ferrule
-  cable_ferrule, -- IEV ref 581-27-18 ferrule
-  shield_connector, 
   wiring_harness, 
   connector_kit, 
   contact_member,              -- IEV ref 151-12-16
@@ -24768,7 +24736,7 @@ TYPE whad_part_category = ENUMERATION BASED_ON part_category WITH (
   terminal_block,              -- IEV ref 581-26-26 terminal block
   joint_ferrule,               -- IEV ref 461-17-04 joint ferrule
   cable_ferrule,               -- IEV ref 581-27-18 ferrule
-  shield_connector,           
+  shield_connector,            -- IEV ref 461-17-12 screen connector; shield connector
   insulation_piercing_connector, -- IEV ref 461-11-08 insulation piercing connector 
   splice,                      -- IEV ref 581-24-19 splice  + ... 
   fixing_device,               -- IEV ref 442-02-40 fixing device
@@ -24831,7 +24799,7 @@ END_ENTITY;
 ENTITY Harness_node
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
-  SELF\Shape_element.identified_item : SET [1:1] OF Vertex;
+  SELF\Shape_element.identified_item : Vertex;
   attached_feature : OPTIONAL Component_feature; 
 WHERE
   WR1: associated_definition.topology IN using_representations(identified_item);

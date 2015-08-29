@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
+$Id: part1000_publication_summary.xsl,v 1.13 2015/08/28 08:56:37 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -205,9 +205,30 @@ $Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
               <xsl:attribute name="name.french">
                 <xsl:value-of select="$module_node/@name.french"/>
               </xsl:attribute>
+              
+              <xsl:variable name="part" select="$module_node/@part"/>
+              
               <xsl:attribute name="part">
-                <xsl:value-of select="$module_node/@part"/>
+                <xsl:value-of select="$part"/>
               </xsl:attribute>
+              
+              <xsl:variable name="partNoLength" select="string-length($part)"/>
+              <xsl:variable name="partNoWithLeadingZeros">
+                <xsl:choose>
+                  <xsl:when test="$partNoLength=1"><xsl:value-of select="concat('000000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=2"><xsl:value-of select="concat('00000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=3"><xsl:value-of select="concat('0000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=4"><xsl:value-of select="concat('000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=5"><xsl:value-of select="concat('00', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=6"><xsl:value-of select="concat('0', $part)"/></xsl:when>
+                  <xsl:otherwise><xsl:value-of select="@part"/></xsl:otherwise>
+                </xsl:choose>
+              </xsl:variable>
+              
+              <xsl:attribute name="partNoWithLeadingZeros">
+                <xsl:value-of select="$partNoWithLeadingZeros"/>
+              </xsl:attribute>
+              
               <xsl:attribute name="previous.revision.year">
                 <xsl:value-of select="$module_node/@previous.revision.year"/>
               </xsl:attribute>              
@@ -296,13 +317,13 @@ $Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
         <xsl:when test="function-available('msxsl:node-set')">
           <xsl:variable name="modules_nodes" select="msxsl:node-set($modules)"/>
           <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZeros"/>
           </xsl:apply-templates>
         </xsl:when>
         <xsl:when test="function-available('exslt:node-set')">
           <xsl:variable name="modules_nodes" select="exslt:node-set($modules)"/>
           <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZeros"/>
           </xsl:apply-templates>
         </xsl:when>
       </xsl:choose>
@@ -511,9 +532,30 @@ $Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
               <xsl:attribute name="name.french">
                 <xsl:value-of select="$resource_node/@name.french"/>
               </xsl:attribute>
+              
+              <xsl:variable name="part" select="$resource_node/@part"/>
+              
               <xsl:attribute name="part">
-                <xsl:value-of select="$resource_node/@part"/>
+                <xsl:value-of select="$part"/>
               </xsl:attribute>
+              
+              <xsl:variable name="partNoLength" select="string-length($part)"/>
+              <xsl:variable name="partNoWithLeadingZeros">
+                <xsl:choose>
+                  <xsl:when test="$partNoLength=1"><xsl:value-of select="concat('000000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=2"><xsl:value-of select="concat('00000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=3"><xsl:value-of select="concat('0000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=4"><xsl:value-of select="concat('000', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=5"><xsl:value-of select="concat('00', $part)"/></xsl:when>
+                  <xsl:when test="$partNoLength=6"><xsl:value-of select="concat('0', $part)"/></xsl:when>
+                  <xsl:otherwise><xsl:value-of select="@part"/></xsl:otherwise>
+                </xsl:choose>
+              </xsl:variable>
+              
+              <xsl:attribute name="partNoWithLeadingZeros">
+                <xsl:value-of select="$partNoWithLeadingZeros"/>
+              </xsl:attribute> 
+              
               <xsl:attribute name="previous.revision.year">
                 <xsl:value-of select="$resource_node/@previous.revision.year"/>
               </xsl:attribute>              
@@ -605,13 +647,13 @@ $Id: part1000_publication_summary.xsl,v 1.12 2015/08/28 08:27:21 mikeward Exp $
         <xsl:when test="function-available('msxsl:node-set')">
           <xsl:variable name="resource_nodes" select="msxsl:node-set($resources)"/>
           <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZeros"/>
           </xsl:apply-templates>
         </xsl:when>
         <xsl:when test="function-available('exslt:node-set')">
           <xsl:variable name="resource_nodes" select="exslt:node-set($resources)"/>
           <xsl:apply-templates select="$resource_nodes//resource" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZeros"/>
           </xsl:apply-templates>
         </xsl:when>
       </xsl:choose>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.124 2015/06/01 22:48:01 lothartklein Exp $
+   $Id: arm.exp,v 1.125 2015/08/19 09:44:42 lothartklein Exp $
    ISO TC184/SC4/WG12 N8338 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N7789
 *)
@@ -261,47 +261,12 @@ TYPE ap210_change_management_object = SELECT BASED_ON change_management_object W
  Organization_or_person_in_organization_assignment);
 END_TYPE;
 
-TYPE ap210_presentation_association_select = SELECT BASED_ON presentation_association_select WITH
-         (Activity,
-          Activity_method,
-          Activity_relationship,
-          Design_constraint_definition,
-          Product_concept,
-          Specification,
-          Specification_category,
-          Product_view_definition,
-          Product_version,
-          View_definition_relationship);
-END_TYPE;
-
 ENTITY Reference_part_template_for_analytical_model;
   template                  : Template_definition;
   analytical_representation : Analytical_model_definition;
 UNIQUE
   UR1 : template;
 END_ENTITY;
-
-(*
-ENTITY Bind_analytical_model_to_functional_unit_usage_view
-  analytical_usage : Analytical_model_application;
-  port_bindings : SET[2:?] OF Analytical_model_port_assignment;
-  bound_functional_unit : Functional_unit_usage_view;
-WHERE
-  WR1: SIZEOF(QUERY ( pb <* port_bindings | pb.
-                ('ADVANCED_BOUNDARY_REPRESENTATION_ARM.MANIFOLD_SOLID_BREP' IN  TYPEOF(it)) ) |
-               ( NOT (SIZEOF(QUERY ( csh <* collect_shells(msb) |
-                                (NOT (SIZEOF(QUERY ( fcs <* csh\
-                connected_face_set.connected_faces | (NOT (
-                'ADVANCED_BOUNDARY_REPRESENTATION_ARM.ADVANCED_FACE' IN TYPEOF(fcs))) )) = 0)) ))
-              = 0)) )) = 0;
-  WR1: 
-  
-  all the Analytical_model_port_assignment(s).
-       
-Functional_unit_usage_view_terminal_definition.associated_functional_unit_definition
-must point to the same Functional_unit_usage_view;
-END_ENTITY;
-*)
 
   SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_product_subtypes FOR Product;
     ABSTRACT SUPERTYPE;
@@ -313,13 +278,6 @@ END_ENTITY;
      Document_definition, Functional_unit_network_node_definition,
      Information_definition, Product_occurrence, Substance_view_definition);
   END_SUBTYPE_CONSTRAINT;
-
-(* LK 5425
-  SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_shape_element_subtypes FOR Shape_element;
-    ONEOF (Definitional_shape_element,
-      Non_definitional_shape_element);
-  END_SUBTYPE_CONSTRAINT;
-*)
 
   SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_information_product_subtypes FOR Information_product;
     ONEOF (Software, Analytical_model);

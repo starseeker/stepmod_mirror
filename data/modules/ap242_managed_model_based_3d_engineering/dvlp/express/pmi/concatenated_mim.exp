@@ -303,7 +303,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.44 2015/08/18 10:55:22 lothartklein Exp $
+   $Id: mim.exp,v 1.45 2015/08/30 09:56:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N8323 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7874
 *)
@@ -320,7 +320,6 @@ USE FROM Form_feature_in_panel_mim;
 USE FROM Assembly_constraints_mim;
 USE FROM Kinematic_analysis_control_and_result_mim;
 USE FROM Process_plan_mim;
--- geometry model for point clouds
 USE FROM Constructive_solid_geometry_2d_mim; -- ISO/TS 10303-1731
 USE FROM Product_as_individual_assembly_and_test_mim;
 USE FROM Scan_data_3d_shape_mim; --ISO/TS 10303-1831
@@ -417,6 +416,12 @@ REFERENCE FROM representation_schema(founded_item);
        'start_work', 
        'supplied_part_relationship']; 
   END_CONSTANT; 
+
+  TYPE ap242_information_usage_right_item = SELECT BASED_ON ir_usage_item WITH (
+  	product,
+  	product_definition,
+  	product_definition_formation); 
+  END_TYPE;
 
   TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
    (dimensional_size,
@@ -1548,7 +1553,7 @@ END_SCHEMA;  -- Assembly_structure_mim
 
 
 (*
-   $Id: mim.exp,v 1.29 2015/06/01 21:28:03 lothartklein Exp $
+   $Id: mim.exp,v 1.30 2015/08/28 17:24:21 lothartklein Exp $
    ISO TC184/SC4/WG12 N7943 - ISO/TS 10303-1649 Assembly technology - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7380
 *)
@@ -1562,11 +1567,11 @@ USE FROM Product_view_definition_reference_mim;	-- ISO/TS 10303-1738
 REFERENCE FROM product_property_definition_schema -- ISO 10303-41
   (acyclic_shape_aspect_relationship);
 
-TYPE at_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+TYPE at_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
      (assembly_joint);
 END_TYPE;
 
-TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+TYPE at_external_identification_item = SELECT BASED_ON external_identification_item WITH 
      (assembly_bond_definition);
 END_TYPE;
 
@@ -2117,7 +2122,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.43 2012/10/11 05:49:06 liutkuviene Exp $
+   $Id: mim.exp,v 1.44 2015/08/28 17:26:06 lothartklein Exp $
    ISO TC184/SC4/WG12 N7958 - ISO/TS 10303-1654 Characteristic - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7395
 *)
@@ -2131,7 +2136,7 @@ SCHEMA Characteristic_mim;
   USE FROM External_properties_mim;  -- ISO/TS 10303-1129 LK
   USE FROM group_schema(group);
 
-  TYPE c_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+  TYPE c_document_reference_item = SELECT BASED_ON document_reference_item WITH 
      (representation);
   END_TYPE;
 
@@ -2294,7 +2299,7 @@ END_SCHEMA;  -- Classification_assignment_mim
 
 (*
 
- $Id: mim.exp,v 1.31 2012/10/11 05:49:13 liutkuviene Exp $
+ $Id: mim.exp,v 1.32 2015/08/28 17:28:27 lothartklein Exp $
  ISO TC184/SC4/WG12 N7961 - ISO/CD-TS 10303-1111 Classification with attributes - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N7398
 *)
@@ -2332,23 +2337,23 @@ USE FROM representation_schema(
 
 USE FROM management_resources_schema(classification_role); 
 
-TYPE classification_item_extended = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (
+TYPE classification_item_extended = SELECT BASED_ON classification_item WITH (
 	characterized_class,
     classified_item);
 END_TYPE;
 
-TYPE classification_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
+TYPE classification_identification_item = SELECT BASED_ON identification_item WITH
   (class);
 END_TYPE;
 
-TYPE classification_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+TYPE classification_classification_item = SELECT BASED_ON classification_item WITH
   (class);
 END_TYPE;
 
-TYPE classified_item = EXTENSIBLE GENERIC_ENTITY SELECT (product, product_definition_formation, product_definition);
+TYPE classified_item = SELECT (product, product_definition_formation, product_definition);
 END_TYPE;
 
-TYPE cwa_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH (characterized_class);
+TYPE cwa_identification_item = SELECT BASED_ON identification_item WITH (characterized_class);
 END_TYPE;
 
 ENTITY characterized_class
@@ -3467,7 +3472,7 @@ USE FROM Shape_property_assignment_mim;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.36 2015/08/25 14:57:21 lothartklein Exp $
+   $Id: mim.exp,v 1.37 2015/08/28 17:36:48 lothartklein Exp $
    ISO TC184/SC4/WG12 N7988 - ISO/TS 10303-1628 Design product data management - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7422
 *)
@@ -3537,7 +3542,7 @@ TYPE design_pdm_action_item = SELECT BASED_ON action_items WITH (
 END_TYPE; 	
 	
 
-  TYPE design_pdm_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+  TYPE design_pdm_action_method_items = SELECT BASED_ON action_method_items WITH 
     (action, 
      action_method, 
      action_property, 
@@ -3560,7 +3565,7 @@ END_TYPE;
      product_definition_relationship);
   END_TYPE; 
 
-  TYPE design_pdm_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_action_request_item WITH (
+  TYPE design_pdm_action_request_item = SELECT BASED_ON action_request_item WITH (
 	action,
 	action_method,
 	action_property,
@@ -3587,7 +3592,7 @@ END_TYPE;
     versioned_action_request);
   END_TYPE;
 
-  TYPE design_pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
+  TYPE design_pdm_approval_item = SELECT BASED_ON approval_item WITH 
     (action_directive,
      action_property,
      action_request_solution,
@@ -3629,7 +3634,7 @@ END_TYPE;
 	 shape_representation);
   END_TYPE;
 
-  TYPE design_pdm_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_classification_item WITH (
+  TYPE design_pdm_attribute_classification_item = SELECT BASED_ON attribute_classification_item WITH (
 	action_directive,
 	action_method,
 	action_property,
@@ -3704,7 +3709,7 @@ END_TYPE;
 	versioned_action_request);
   END_TYPE;
 
-  TYPE design_pdm_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_language_item WITH 
+  TYPE design_pdm_attribute_language_item = SELECT BASED_ON attribute_language_item WITH 
     (information_right,
 	 information_usage_right,
      usage_association,
@@ -3722,7 +3727,7 @@ END_TYPE;
 	versioned_action_request);
   END_TYPE; 
 
-  TYPE design_pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_certification_item WITH 
+  TYPE design_pdm_certification_item = SELECT BASED_ON certification_item WITH 
     (alternate_product_relationship,
      product_definition_formation,
      make_from_usage_option,
@@ -3730,7 +3735,7 @@ END_TYPE;
 	product_definition_relationship);
   END_TYPE;
 
-  TYPE design_pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_classification_item WITH 
+  TYPE design_pdm_classification_item = SELECT BASED_ON classification_item WITH 
     (characterized_object,
      information_right,
      information_usage_right,
@@ -3743,12 +3748,12 @@ END_TYPE;
 	shape_aspect);
   END_TYPE;
 
-  TYPE design_pdm_configured_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON configured_effectivity_item WITH (
+  TYPE design_pdm_configured_effectivity_item = SELECT BASED_ON configured_effectivity_item WITH (
 	action_relationship,
 	product_definition);
 END_TYPE;
 
-  TYPE design_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
+  TYPE design_pdm_contract_item = SELECT BASED_ON contract_item WITH 
     (action_directive,
      alternate_product_relationship,
      directed_action,
@@ -3758,7 +3763,7 @@ END_TYPE;
      product_definition_formation);
   END_TYPE;
 
-  TYPE design_pdm_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_and_time_item WITH 
+  TYPE design_pdm_date_and_time_item = SELECT BASED_ON date_and_time_item WITH 
     (action_directive,
      approval_person_organization,
      certification,
@@ -3798,7 +3803,7 @@ END_TYPE;
 	shape_representation);
   END_TYPE;
 
-  TYPE design_pdm_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_item WITH 
+  TYPE design_pdm_date_item = SELECT BASED_ON date_item WITH 
     (action_directive,
      product_definition,
      directed_action,
@@ -3839,7 +3844,7 @@ END_TYPE;
 	shape_representation);
   END_TYPE;
 
-  TYPE design_pdm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_document_reference_item WITH 
+  TYPE design_pdm_document_reference_item = SELECT BASED_ON document_reference_item WITH 
     (applied_external_identification_assignment,
      assembly_component_usage,
      characterized_class,
@@ -3882,7 +3887,7 @@ END_TYPE;
 	security_classification);
   END_TYPE;
 
-  TYPE design_pdm_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH (
+  TYPE design_pdm_effectivity_item = SELECT BASED_ON effectivity_item WITH (
 	action,
 	action_method,
 	action_method_relationship,
@@ -3908,7 +3913,7 @@ END_TYPE;
 	shape_representation);
   END_TYPE;
 
-  TYPE design_pdm_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_occurrence_item WITH ( 
+  TYPE design_pdm_event_occurrence_item = SELECT BASED_ON event_occurrence_item WITH ( 
 	action,
 	action_directive,
 	action_method,
@@ -3947,7 +3952,7 @@ END_TYPE;
 	shape_representation);
   END_TYPE;
 
-  TYPE design_pdm_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+  TYPE design_pdm_groupable_item = SELECT BASED_ON groupable_item WITH 
     (group_relationship,
      product_definition,
      product_definition_formation,
@@ -3960,7 +3965,7 @@ END_TYPE;
      applied_name_assignment);
   END_TYPE;
 
-  TYPE design_pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+  TYPE design_pdm_identification_item = SELECT BASED_ON identification_item WITH 
     (configuration_item,
      group,
      group_relationship,
@@ -3991,20 +3996,37 @@ END_TYPE;
 	versioned_action_request);
   END_TYPE;
 
-  TYPE design_pdm_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
+  TYPE design_pdm_ir_usage_item = SELECT BASED_ON ir_usage_item WITH 
    (action_directive,
-    characterized_object,   
-    identification_item, 
-    requirement_assigned_item, 
-    classification_item, 
+    applied_external_identification_assignment,
     certification_item,
-    document_reference_item,      
+    characterized_object,   
+    classification_item, 
+    configuration_item,
+    design_pdm_identification_item,
+    design_pdm_classification_item,
+    design_pdm_document_reference_item,
+    design_pdm_requirement_assigned_item,
+    document_reference_item, 
+    group,     
+    group_relationship,
+    identification_item, 
+    information_right,
+    information_usage_right,
+    material_designation,
+    organization,
     person_and_organization,
+    product,
+    product_concept,
+    product_definition,
     product_definition_formation,
-    organization);  
+    product_definition_relationship,
+    representation_item,
+    requirement_assigned_item,
+    usage_association); 
   END_TYPE;
 
-  TYPE design_pdm_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON multi_language_attribute_item WITH 
+  TYPE design_pdm_multi_language_attribute_item = SELECT BASED_ON multi_language_attribute_item WITH 
     (information_right,
 	 information_usage_right,
      usage_association,
@@ -4025,7 +4047,7 @@ END_TYPE;
 	versioned_action_request);
   END_TYPE; 
 
-  TYPE design_pdm_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH 
+  TYPE design_pdm_name_item = SELECT BASED_ON name_item WITH 
     (external_class_library,
      group,
      group_relationship,
@@ -4033,7 +4055,7 @@ END_TYPE;
      product_definition);
   END_TYPE; 
 
-  TYPE design_pdm_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_organization_item WITH 
+  TYPE design_pdm_organization_item = SELECT BASED_ON organization_item WITH 
     (action_directive,
      applied_classification_assignment,
      applied_identification_assignment,
@@ -4067,7 +4089,7 @@ END_TYPE;
 	security_classification_level);
   END_TYPE;
 
-  TYPE design_pdm_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH (
+  TYPE design_pdm_project_item = SELECT BASED_ON project_item WITH (
 	assembly_component_usage,
 	configuration_item,
 	executed_action,
@@ -4078,7 +4100,7 @@ END_TYPE;
   END_TYPE;
 
 
-  TYPE design_pdm_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_person_and_organization_item WITH 
+  TYPE design_pdm_person_and_organization_item = SELECT BASED_ON person_and_organization_item WITH 
     (action_directive,
      applied_classification_assignment,
      applied_identification_assignment,
@@ -4111,7 +4133,7 @@ END_TYPE;
 	security_classification_level);
   END_TYPE;
 
-  TYPE design_pdm_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+  TYPE design_pdm_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
     (descriptive_representation_item, 
      configuration_item, 
      product_definition, 
@@ -4123,7 +4145,7 @@ END_TYPE;
      representation); 
   END_TYPE; 
 
-  TYPE design_pdm_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH 
+  TYPE design_pdm_requirement_source_item = SELECT BASED_ON requirement_source_item WITH 
     (group,
      group_relationship,
      product_definition,
@@ -4134,7 +4156,7 @@ END_TYPE;
      product_definition_relationship);
   END_TYPE; 
 
-  TYPE design_pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_security_classification_item WITH 
+  TYPE design_pdm_security_classification_item = SELECT BASED_ON security_classification_item WITH 
     (document,
      make_from_usage_option,
      product_definition_formation,
@@ -4166,7 +4188,7 @@ END_TYPE;
      product_definition);
   END_TYPE;
 
-  TYPE design_pdm_time_interval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH ( 
+  TYPE design_pdm_time_interval_item = SELECT BASED_ON time_interval_item WITH ( 
 	action_directive,
 	action_method,
 	action_property,
@@ -6539,7 +6561,7 @@ USE FROM Value_with_unit_mim;    -- ISO/TS 10303-1054
 
 END_SCHEMA;  -- Foundation_representation_mim
 (*
-   $Id: mim.exp,v 1.16 2015/06/01 21:32:22 lothartklein Exp $
+   $Id: mim.exp,v 1.17 2015/08/28 17:38:09 lothartklein Exp $
    ISO TC184/SC4/WG12 N6382 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5654
 *)
@@ -6555,7 +6577,7 @@ TYPE fatp_groupable_item = SELECT BASED_ON groupable_item WITH
    (part_connected_terminals_definition);
 END_TYPE; 
 
-TYPE fatp_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+TYPE fatp_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
   (part_connected_terminals_element,
    part_connected_terminals_definition);
 END_TYPE; 
@@ -6604,7 +6626,7 @@ USE FROM Product_breakdown_mim;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.18 2009/04/23 11:08:25 liutkuviene Exp $
+   $Id: mim.exp,v 1.19 2015/08/28 17:39:16 lothartklein Exp $
    ISO TC184/SC4/WG12 N6385 - ISO/TS 10303-1679 Functional specification - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5657
 *)
@@ -6616,11 +6638,11 @@ SCHEMA Functional_specification_mim;
 	
 	USE FROM Application_context_schema(application_context_element);	
 
-TYPE fs_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+TYPE fs_external_identification_item = SELECT BASED_ON external_identification_item WITH 
    (functional_specification);
 END_TYPE; 
 
-TYPE fs_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+TYPE fs_document_reference_item = SELECT BASED_ON document_reference_item WITH 
    (representation);
 END_TYPE; 
 	
@@ -7191,7 +7213,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Identification_assignment_mim
 (*  
-   $Id: mim.exp,v 1.16 2012/10/30 08:36:01 lothartklein Exp $
+   $Id: mim.exp,v 1.17 2015/08/28 17:40:19 lothartklein Exp $
    ISO TC184/SC4/WG12 N8233 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5408
 *)
@@ -7203,7 +7225,7 @@ USE FROM Document_definition_mim;
 
 USE FROM Part_view_definition_mim;
 
-  TYPE idrm_marked_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  TYPE idrm_marked_item = SELECT BASED_ON classification_item WITH
     (document_file,
      product_definition);
   END_TYPE;
@@ -7588,7 +7610,7 @@ SCHEMA Layered_2d_shape_mim;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.9 2012/10/11 05:49:04 liutkuviene Exp $
+   $Id: mim.exp,v 1.11 2015/08/28 07:24:12 lothartklein Exp $
    ISO TC184/SC4/WG12 N7916 - ISO/CD-TS - 10303-1814 Machining features - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7353
 *)
@@ -7597,11 +7619,18 @@ SCHEMA Machining_features_mim;
 
 USE FROM Elemental_geometric_shape_mim; -- ISO/TS 10303-1004
 USE FROM Feature_and_connection_zone_mim; 
+USE FROM Group_mim;
 USE FROM Measure_representation_mim;
 USE FROM Specification_document_mim;
 USE FROM Value_with_unit_mim;
 
 USE FROM aic_machining_feature; -- ISO 10303-522
+
+TYPE mf_groupable_item = SELECT BASED_ON groupable_item WITH (
+  instanced_feature,
+  replicate_feature,
+  transition_feature);
+END_TYPE;
 
 ENTITY face_shape_representation_relationship
   SUBTYPE OF (representation_relationship);
@@ -8056,7 +8085,7 @@ END_TYPE;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.43 2012/11/09 21:40:59 thomasrthurman Exp $
+   $Id: mim.exp,v 1.44 2015/08/28 17:46:55 lothartklein Exp $
    ISO TC184/SC4/WG12 N8271 - ISO/TS 10303-1703 Model parameter - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7084
 *)
@@ -8072,15 +8101,15 @@ USE FROM product_definition_schema     --  ISO 10303-41
 
 USE FROM product_property_definition_schema(characterized_definition);  -- ISO 10303-41
 
-  TYPE mp_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
+  TYPE mp_action_method_items = SELECT BASED_ON action_method_items WITH 
     (test_method_based_parameter_assignment);
   END_TYPE;   
 
-  TYPE mp_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+  TYPE mp_groupable_item = SELECT BASED_ON groupable_item WITH 
     (group_relationship);
   END_TYPE; 
 
-  TYPE mp_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+  TYPE mp_document_reference_item = SELECT BASED_ON document_reference_item WITH 
     (model_parameter);
   END_TYPE; 
 
@@ -8275,7 +8304,7 @@ END_SCHEMA;  -- Name_assignment_mim
 
 
 (*
-   $Id: mim.exp,v 1.30 2015/06/02 11:35:58 lothartklein Exp $
+   $Id: mim.exp,v 1.31 2015/08/28 17:48:20 lothartklein Exp $
    ISO TC184/SC4/WG12 N7742 - ISO/TS 10303-1704 Network functional design view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N6451
 *)
@@ -8291,7 +8320,7 @@ USE FROM Material_property_definition_schema (property_definition_relationship);
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set); 
 
-TYPE nfdv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+TYPE nfdv_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
      (component_functional_unit);
 END_TYPE; 
 
@@ -9094,7 +9123,7 @@ SCHEMA Physical_component_feature_mim;
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.22 2015/08/22 11:31:20 lothartklein Exp $
+   $Id: mim.exp,v 1.23 2015/08/28 17:53:35 lothartklein Exp $
    ISO TC184/SC4/WG12 N8195 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7590
 *)
@@ -9112,12 +9141,12 @@ TYPE pcd_groupable_item = SELECT BASED_ON groupable_item WITH
    (physical_connectivity_definition);
 END_TYPE; 
 
-TYPE pcd_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+TYPE pcd_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
      (shape_aspect_relationship,
       physical_connectivity_definition);
 END_TYPE; 
 
-TYPE pcd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+TYPE pcd_document_reference_item = SELECT BASED_ON document_reference_item WITH 
      (physical_connectivity_definition,
       physical_connectivity_element);
 END_TYPE; 
@@ -9177,7 +9206,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.39 2012/10/11 05:49:25 liutkuviene Exp $
+   $Id: mim.exp,v 1.40 2015/08/28 17:55:13 lothartklein Exp $
    ISO TC184/SC4/WG12 N8207 - ISO/TS 10303-1728 Physical unit design view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7602
 *)
@@ -9203,7 +9232,7 @@ USE FROM application_context_schema(application_context_element);
     assembly_component_usage);
   END_TYPE; 
 	
-  TYPE pudv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+  TYPE pudv_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
     (assembly_component_usage,
      assembly_item_number,
      component_material_relationship);
@@ -9240,7 +9269,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.39 2015/07/06 22:59:54 lothartklein Exp $
+   $Id: mim.exp,v 1.40 2015/08/28 17:57:58 lothartklein Exp $
    ISO TC184/SC4/WG12 N8216 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7611
 *)
@@ -9263,12 +9292,12 @@ USE FROM material_property_definition_schema(property_definition_relationship);
     (shape_aspect);
   END_TYPE; 
 
-  TYPE puuv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+  TYPE puuv_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH 
     (product_definition,
     shape_aspect);
   END_TYPE;
 
-  TYPE puuv_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+  TYPE puuv_document_reference_item = SELECT BASED_ON document_reference_item WITH 
     (shape_aspect);
   END_TYPE;
 	
@@ -9758,7 +9787,7 @@ USE FROM solid_shape_element_schema  -- ISO 10303-111
 END_SCHEMA;
 
 (*
-   $Id: mim.exp,v 1.10 2014/02/20 16:40:15 thomasrthurman Exp $
+   $Id: mim.exp,v 1.11 2015/08/30 09:19:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N8495 - ISO/TS - 10303-1803 Process plan - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7928
 *)
@@ -9770,6 +9799,7 @@ USE FROM Support_resource_mim; -- ISO/TS 10303-1800
 USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
 USE FROM Specification_control_mim; -- ISO/TS 10303-1112
 USE FROM Item_definition_structure_mim; -- ISO/TS 10303-1345
+USE FROM Time_interval_assignment_mim; -- ISO/TS 10303-1365
 
 USE FROM action_schema (   -- ISO 10303-41
    action,
@@ -10236,7 +10266,7 @@ USE FROM application_context_schema -- ISO 10303-41
 END_SCHEMA;
 
 (*
- $Id: mim.exp,v 1.20 2009/08/11 11:43:40 liutkuviene Exp $
+ $Id: mim.exp,v 1.21 2015/08/28 17:57:31 lothartklein Exp $
  ISO TC184/SC4/WG12 N6750 - ISO/TS 10303-1231 Product data management - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N5480
 *) 
@@ -10267,28 +10297,28 @@ USE FROM Time_interval_assignment_mim;    -- ISO/TS 10303-1365
 USE FROM Work_order_mim;    -- ISO/TS 10303-1043
 
 
-  TYPE pdm_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
+  TYPE pdm_action_items = SELECT BASED_ON action_items WITH 
    (configuration_effectivity, 
     product_definition, 
     product_definition_formation, 
     product_definition_relationship);
   END_TYPE; 
 
-  TYPE pdm_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_request_item WITH 
+  TYPE pdm_action_request_item = SELECT BASED_ON action_request_item WITH 
    (product_definition, 
     product_definition_formation, 
     product_definition_relationship, 
     property_definition);
   END_TYPE; 
 
-  TYPE pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+  TYPE pdm_approval_item = SELECT BASED_ON approval_item WITH 
    (action, 
     applied_action_assignment, 
     configuration_effectivity, 
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_language_item WITH 
+  TYPE pdm_attribute_language_item = SELECT BASED_ON attribute_language_item WITH 
    (applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_external_identification_assignment, 
@@ -10317,11 +10347,11 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     product_definition_relationship);
   END_TYPE; 
 
-  TYPE pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
+  TYPE pdm_certification_item = SELECT BASED_ON certification_item WITH 
    (product_definition_formation_relationship);
   END_TYPE; 
 
-  TYPE pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+  TYPE pdm_classification_item = SELECT BASED_ON classification_item WITH 
    (action, 
     action_directive, 
     action_method, 
@@ -10404,20 +10434,20 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
+  TYPE pdm_date_and_time_item = SELECT BASED_ON date_and_time_item WITH 
    (action, 
     applied_action_assignment, 
     executed_action, 
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH 
+  TYPE pdm_date_item = SELECT BASED_ON date_item WITH 
    (action, 
     applied_action_assignment, 
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+  TYPE pdm_document_reference_item = SELECT BASED_ON document_reference_item WITH 
    (action_method, 
     executed_action, 
     product_definition_formation_relationship, 
@@ -10426,26 +10456,26 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH 
+  TYPE pdm_effectivity_item = SELECT BASED_ON effectivity_item WITH 
    (product_definition, 
     product_definition_formation, 
     product_definition_relationship);
   END_TYPE; 
 
-  TYPE pdm_event_occurrence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_occurrence_item WITH 
+  TYPE pdm_event_occurrence_item = SELECT BASED_ON event_occurrence_item WITH 
    (organizational_project);
   END_TYPE; 
 
-  TYPE pdm_external_class_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH 
+  TYPE pdm_external_class_name_item = SELECT BASED_ON name_item WITH 
    (assembly_component_usage, 
     external_class_library);
   END_TYPE; 
 
-  TYPE pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+  TYPE pdm_identification_item = SELECT BASED_ON identification_item WITH 
    (shape_aspect_relationship);
   END_TYPE; 
 
-  TYPE pdm_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON multi_language_attribute_item WITH 
+  TYPE pdm_multi_language_attribute_item = SELECT BASED_ON multi_language_attribute_item WITH 
    (applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_external_identification_assignment, 
@@ -10474,7 +10504,7 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     product_definition_relationship);
   END_TYPE; 
 
-  TYPE pdm_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+  TYPE pdm_organization_item = SELECT BASED_ON organization_item WITH 
    (action, 
     applied_action_assignment, 
     approval, 
@@ -10485,7 +10515,7 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
+  TYPE pdm_person_and_organization_item = SELECT BASED_ON person_and_organization_item WITH 
    (action, 
     applied_action_assignment, 
     approval, 
@@ -10496,16 +10526,16 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
     versioned_action_request);
   END_TYPE; 
 
-  TYPE pdm_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH 
+  TYPE pdm_project_item = SELECT BASED_ON project_item WITH 
    (executed_action, 
     product_concept);
   END_TYPE; 
 
-  TYPE pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
+  TYPE pdm_security_classification_item = SELECT BASED_ON security_classification_item WITH 
    (assembly_component_usage);
   END_TYPE; 
 
-  TYPE pdm_time_interval_item = EXTENSIBLE SELECT BASED_ON time_interval_item WITH 
+  TYPE pdm_time_interval_item = SELECT BASED_ON time_interval_item WITH 
    (action);
   END_TYPE; 
 

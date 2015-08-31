@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_inner_part.xsl,v 1.2 2009/06/09 10:40:10 robbod Exp $
+$Id: index_resources_inner_part.xsl,v 1.3 2014/07/15 18:30:29 thomasrthurman Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -125,8 +125,40 @@ $Id: index_resources_inner_part.xsl,v 1.2 2009/06/09 10:40:10 robbod Exp $
 						<xsl:attribute name="name">
 							<xsl:value-of select="@name"/>
 						</xsl:attribute>
+						<xsl:variable name="ref" select="../@reference"/>
+						
 						<xsl:attribute name="reference">
-							<xsl:value-of select="../@reference"/>
+							<xsl:value-of select="$ref"/>
+						</xsl:attribute>
+						<!-- NB this code for correctly sorting standards relies on these stds all being prefixed with "ISO". Should this not be the case, additional checks will need to be included. -->
+						<xsl:variable name="refAfterHyphen" select="normalize-space(substring-after($ref, '-'))"/>
+						<xsl:variable name="refBeforeHyphen" select="normalize-space(substring-after(substring-before($ref, '-'), 'ISO'))"/>
+						<xsl:variable name="refLength" select="string-length($refAfterHyphen)"/>
+						<xsl:variable name="refWithLeadingZeros">
+								<xsl:choose>
+									<xsl:when test="$refLength=1"><xsl:value-of select="concat('000000', $refAfterHyphen)"/></xsl:when>
+									<xsl:when test="$refLength=2"><xsl:value-of select="concat('00000', $refAfterHyphen)"/></xsl:when>
+									<xsl:when test="$refLength=3"><xsl:value-of select="concat('0000', $refAfterHyphen)"/></xsl:when>
+									<xsl:when test="$refLength=4"><xsl:value-of select="concat('000', $refAfterHyphen)"/></xsl:when>
+									<xsl:when test="$refLength=5"><xsl:value-of select="concat('00', $refAfterHyphen)"/></xsl:when>
+									<xsl:when test="$refLength=6"><xsl:value-of select="concat('0', $refAfterHyphen)"/></xsl:when>
+									<xsl:otherwise><xsl:value-of select="$refAfterHyphen"/></xsl:otherwise>
+								</xsl:choose>
+						</xsl:variable>
+						<xsl:variable name="stdNoLength" select="string-length($refBeforeHyphen)"/>
+						<xsl:variable name="stdNoWithLeadingZeros">
+							<xsl:choose>
+								<xsl:when test="$stdNoLength=1"><xsl:value-of select="concat('000000', $refBeforeHyphen)"/></xsl:when>
+								<xsl:when test="$stdNoLength=2"><xsl:value-of select="concat('00000', $refBeforeHyphen)"/></xsl:when>
+								<xsl:when test="$stdNoLength=3"><xsl:value-of select="concat('0000', $refBeforeHyphen)"/></xsl:when>
+								<xsl:when test="$stdNoLength=4"><xsl:value-of select="concat('000', $refBeforeHyphen)"/></xsl:when>
+								<xsl:when test="$stdNoLength=5"><xsl:value-of select="concat('00', $refBeforeHyphen)"/></xsl:when>
+								<xsl:when test="$stdNoLength=6"><xsl:value-of select="concat('0', $refBeforeHyphen)"/></xsl:when>
+								<xsl:otherwise><xsl:value-of select="$refBeforeHyphen"/></xsl:otherwise>
+							</xsl:choose>
+						</xsl:variable>
+						<xsl:attribute name="refWithLeadingZeros">
+							<xsl:value-of select="concat($stdNoWithLeadingZeros, $refWithLeadingZeros)"/>
 						</xsl:attribute>
 					</resource>
 				</xsl:for-each>
@@ -136,10 +168,11 @@ $Id: index_resources_inner_part.xsl,v 1.2 2009/06/09 10:40:10 robbod Exp $
 			<xsl:when test="function-available('msxsl:node-set')">
 				<xsl:variable name="resource-node-set" select="msxsl:node-set($resources)"/>
 				<xsl:for-each select="$resource-node-set//resource">
-					<xsl:sort select="@reference"/>
+					<xsl:sort select="@refWithLeadingZeros"/>
                                         <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_RESOURCES,@name)"/>
 					<a href="{$mod-dir}/{@name}{$FILE_EXT}" TARGET="info">
                                           <xsl:value-of select="concat(@reference,' - ',@name)"/>
+						
 					</a>
 					<br/>
 				</xsl:for-each>
@@ -147,10 +180,10 @@ $Id: index_resources_inner_part.xsl,v 1.2 2009/06/09 10:40:10 robbod Exp $
 			<xsl:when test="function-available('exslt:node-set')">
 				<xsl:variable name="resource-node-set" select="exslt:node-set($resources)"/>
 				<xsl:for-each select="$resource-node-set//resource">
-					<xsl:sort select="@reference"/>
+					<xsl:sort select="@refWithLeadingZeros"/>
                                         <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_RESOURCES,@name)"/>
 					<a href="{$mod-dir}/{@name}{$FILE_EXT}" TARGET="info">
-                                          <xsl:value-of select="concat(@reference,' - ',@name)"/>
+						<xsl:value-of select="concat(@reference,' - ',@name)"/>
 					</a>
 					<br/>
 				</xsl:for-each>

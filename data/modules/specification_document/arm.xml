@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express
-  SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1747">
    <application name="JSDAI" owner="LKSoft" source="specification_document_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
@@ -11,7 +12,10 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="sd_documented_element_select">
-         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+         <select basedon="documented_element_select" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+      </type>
+      <type name="sd_organization_or_person_in_organization_item">
+         <select basedon="organization_or_person_in_organization_item" selectitems="Specification_definition"/>
       </type>
       <entity name="Design_specification" super.expression="Interface_specification_document_definition" supertypes="Specification_definition">
          <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
@@ -29,8 +33,8 @@
             <typename name="string_representation_item_select"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="document_portion" entity-ref="Partial_document_assignment"/>
-            <unique.attribute attribute="assigned_document" entity-ref="Document_assignment"/>
+            <unique.attribute attribute="SELF\Partial_document_assignment.document_portion"/>
+            <unique.attribute attribute="SELF\Document_assignment.assigned_document"/>
          </unique>
       </entity>
       <entity name="Process_specification" supertypes="Specification_definition">
@@ -43,7 +47,7 @@
          </explicit>
       </entity>
       <entity name="Specification_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)" supertypes="Document_definition">
-         <derived expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#xA;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#xA;                         (temp.role = 'document source') ))" name="source">
+         <derived expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') ))" name="source">
             <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2015/05/19 11:38:41 lothartklein Exp $
+   $Id: arm.exp,v 1.28 2015/08/19 09:45:26 lothartklein Exp $
    ISO TC184/SC4/WG12 N7717 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6971
 *)
@@ -63,20 +63,8 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 
   ENTITY Functional_unit_usage_view
     SUBTYPE OF (Functional_unit_definition);
---     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
      INVERSE
       access_mechanism : SET[0:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
-(*
-     WHERE
-      WR1: SIZEOF(analytical_model_application_reference) <= 1;
-      WR2: NOT(SIZEOF(analytical_model_application_reference) = 1) OR
-        (SIZEOF(QUERY( am <* access_mechanism |
-           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR
-              (SIZEOF(QUERY( ampa <* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |
-                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) 
-                 )) = 0))
-        )) = 0);
-*)
   END_ENTITY;
 
   ENTITY Functional_unit_usage_view_terminal_definition
@@ -197,22 +185,5 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     END_REPEAT;
    RETURN (TRUE);
   END_FUNCTION;
-
-(*
-  FUNCTION get_ama(
-	input : analytical_model_port_assignment_select) : SET OF Analytical_model_application;
-   LOCAL
-	ama : SET[0:?] OF Analytical_model_application := [];  --this gives us access to the information base
-	ampa : SET[0:?] OF Analytical_model_port_assignment :=[];
-   END_LOCAL;
-	ampa := bag_to_set(USEDIN (input, 'ANALYTICAL_MODEL_ARM.'+'ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'));
-	-- iterate over ampa
-	REPEAT i := 1 to SIZEOF(ampa) by 1;
-		ama := ama + ampa[i].associated_analytical_model_application;
-	END_REPEAT;
-
-	RETURN(ama);
-  END_FUNCTION;
-*)
 
 END_SCHEMA;

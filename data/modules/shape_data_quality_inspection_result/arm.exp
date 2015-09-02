@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2012/10/11 05:49:06 liutkuviene Exp $
+   $Id: arm.exp,v 1.13 2015/03/14 14:34:45 lothartklein Exp $
    ISO TC184/SC4/WG12 N7816 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7187
 *)
@@ -284,29 +284,16 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
   FUNCTION using_product_view_definition_of_geometric_model
   (item: Geometric_model) : SET OF Product_view_definition;
-(*  
   LOCAL
     local_s_d_a: SET OF Shape_description_association := [];
     local_p_d: SET OF Product_view_definition := [];
     i : INTEGER;
   END_LOCAL;
-  -- find Shape_description_association 
-   local_s_d_a  := bag_to_set (USEDIN (item, 
-   'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION')); 
-  
-  -- find Product_view_definitions
-  REPEAT i := 1 TO HIINDEX (local_s_d_a);
-     IF ('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
-       TYPEOF (local_s_d_a[i].definition)) THEN
-       IF ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
-         (local_s_d_a[i].definition\Item_shape.described_element))  THEN
-         local_p_d := local_p_d + local_s_d_a[i].definition\Item_shape.described_element;
-       END_IF;
-     END_IF;
-  END_REPEAT;
+    local_p_d  := bag_to_set (USEDIN (item, 
+   'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.PRIMARY_SHAPE_REPRESENTATION')); 
+    local_p_d  := local_p_d + bag_to_set (USEDIN (item, 
+   'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.AUXILIARY_SHAPE_REPRESENTATIONS')); 
   RETURN (local_p_d);
-*)
-  RETURN (?);
   END_FUNCTION;
 
   FUNCTION relating_geometric_models_of_extreme_values

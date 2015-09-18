@@ -36,7 +36,7 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Instance_attribute_reference"/>
          </explicit>
-         <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | &#10;    SIZEOF(QUERY(r &lt;* q.items |&#10;    'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' &#10;    IN TYPEOF(r))) &gt; 1)) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | &#10;    SIZEOF(QUERY(r &lt;* q.items |&#10;    'PARAMETERIZATION_AND_VARIATIONAL_REPRESENTATION_ARM.FIXED_INSTANCE_ATTRIBUTE_SET' &#10;    IN TYPEOF(r))) &gt; 1)) = 0" label="WR1"/>
       </entity>
       <entity name="Generated_finite_numeric_space" supertypes="Maths_space">
          <explicit name="start_value">
@@ -104,17 +104,17 @@
          <unique label="UR1">
             <unique.attribute attribute="current_result"/>
          </unique>
-         <where expression="QUERY(q &lt;* SELF\Representation_relationship.rep_1.items | NOT&#10;    ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM'&#10;    IN TYPEOF(q))) = SELF\Representation_relationship.rep_2.items" label="WR1"/>
+         <where expression="QUERY(q &lt;* SELF\Representation_relationship.rep_1.items | NOT&#10;    ('PARAMETERIZATION_AND_VARIATIONAL_REPRESENTATION_ARM.VARIATIONAL_REPRESENTATION_ITEM'&#10;    IN TYPEOF(q))) = SELF\Representation_relationship.rep_2.items" label="WR1"/>
          <where expression="SELF\Representation_relationship.rep_1.context_of_items :=:&#10;    SELF\Representation_relationship.rep_2.context_of_items" label="WR2"/>
-         <where expression="SIZEOF(QUERY(q &lt;* SELF\Representation_relationship.rep_2.items |&#10;    'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' &#10;    IN TYPEOF(q))) = 0" label="WR3"/>
+         <where expression="SIZEOF(QUERY(q &lt;* SELF\Representation_relationship.rep_2.items |&#10;    'PARAMETERIZATION_AND_VARIATIONAL_REPRESENTATION_ARM.VARIATIONAL_REPRESENTATION_ITEM' &#10;    IN TYPEOF(q))) = 0" label="WR3"/>
          <where expression="current_result :=: SELF\Representation_relationship.rep_2" label="WR4"/>
       </entity>
       <entity name="Variational_representation" supertypes="Representation">
          <inverse attribute="rep_1" entity="Variational_current_representation_relationship" name="cm_link"/>
-         <where expression="SIZEOF(QUERY(q &lt;* SELF\representation.items | &#10;    'VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION_ITEM' &#10;    IN TYPEOF(q))) &gt; 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(q &lt;* SELF\representation.items | &#10;    'PARAMETERIZATION_AND_VARIATIONAL_REPRESENTATION_ARM.VARIATIONAL_REPRESENTATION_ITEM' &#10;    IN TYPEOF(q))) &gt; 0" label="WR1"/>
       </entity>
       <entity abstract.supertype="YES" name="Variational_representation_item" super.expression="ONEOF (Auxiliary_geometric_representation_item, Bound_variational_parameter, Unbound_variational_parameter)" supertypes="Representation_item">
-         <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) |&#10;    NOT ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION'  &#10;    IN TYPEOF(q)))) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) |&#10;    NOT ('PARAMETERIZATION_AND_VARIATIONAL_REPRESENTATION_ARM.VARIATIONAL_REPRESENTATION'  &#10;    IN TYPEOF(q)))) = 0" label="WR1"/>
          <where expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) |&#10;    NOT (SELF IN q.items))) = 0" label="WR2"/>
       </entity>
       <function name="make_numeric_set">
@@ -170,7 +170,8 @@
   
   -- check that no invalid characters occur subsequently
 
-  REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
+  REPEAT i := 2 TO id_length
+   WHILE id_valid = TRUE;
     IF NOT (attid[i] IN valid_chars) THEN 
       id_valid := FALSE;
     END_IF;

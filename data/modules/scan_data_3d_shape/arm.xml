@@ -1,270 +1,126 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="C:\SMod14R\stepmod\data\modules\scan_data_3d_shape\arm.exp"/>
-
-  <schema name="Scan_data_3d_shape_arm">
-
-    <interface
-      kind="use"
-      schema="Elemental_geometric_shape_arm">
-    </interface>
-    <interface
-      kind="reference"
-      schema="Foundation_representation_arm">
-      <interfaced.item
-        name="using_representations"/>
-    </interface>
-    <type name="point_cloud_set_or_superset">
-      <select
-        selectitems="Point_cloud_dataset Point_cloud_superdataset">
-      </select>
-    </type>
-
-    <entity
-      name="Scan_data_shape_representation"
-      supertypes="Geometric_model">
-      <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="Scanned_data_item"/>
-        <redeclaration
-          entity-ref="Representation"/>
-        </explicit>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1831">
+   <application name="JSDAI" owner="LKSoft" source="scan_data_3d_shape_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Scan_data_3d_shape_arm">
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="reference" schema="Foundation_representation_arm">
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <type name="point_cloud_set_or_superset">
+         <select selectitems="Point_cloud_dataset Point_cloud_superdataset"/>
+      </type>
+      <entity name="Point_cloud_dataset" supertypes="Scanned_data_item">
+         <explicit name="point_coordinates">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="Scanned_data_item"
-        super.expression="(ONEOF(Point_cloud_dataset, Point_cloud_superdataset, Triangulated_point_cloud_dataset,Scan_3d_model))"
-        supertypes="Detailed_geometric_model_element">
-        <where
-          label="WR1"
-          expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) | NOT ('SCAN_DATA_3D_SHAPE_ARM.SCAN_DATA_SHAPE_REPRESENTATION' IN TYPEOF(using_rep)))) = 0">
-        </where>
+      <entity name="Point_cloud_dataset_with_colours" supertypes="Point_cloud_dataset">
+         <explicit name="colours">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="SIZEOF(colours) =   SIZEOF(SELF\Point_cloud_dataset.point_coordinates)" label="WR1"/>
       </entity>
-
-      <entity
-        name="Point_cloud_dataset"
-        supertypes="Scanned_data_item">
-        <explicit
-          name="point_coordinates">
-          <aggregate
-            type="LIST"
-            lower="1"
-            upper="?"/>
-          <builtintype
-            type="REAL"
-            typelabel="3 ] OF REAL"/>
-        </explicit>
+      <entity name="Point_cloud_dataset_with_intensities" supertypes="Point_cloud_dataset">
+         <explicit name="intensities">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="SIZEOF(intensities) =   SIZEOF(SELF\Point_cloud_dataset.point_coordinates)" label="WR1"/>
       </entity>
-
-      <entity
-        name="Point_cloud_dataset_with_normals"
-        supertypes="Point_cloud_dataset">
-        <explicit
-          name="normals">
-          <aggregate
-            type="LIST"
-            lower="1"
-            upper="?"/>
-          <builtintype
-            type="REAL"
-            typelabel="3 ] OF REAL"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(normals) = SIZEOF(SELF\Point_cloud_dataset.point_coordinates)">
-        </where>
+      <entity name="Point_cloud_dataset_with_normals" supertypes="Point_cloud_dataset">
+         <explicit name="normals">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="SIZEOF(normals) =       SIZEOF(SELF\Point_cloud_dataset.point_coordinates)" label="WR1"/>
       </entity>
-
-      <entity
-        name="Point_cloud_dataset_with_colours"
-        supertypes="Point_cloud_dataset">
-        <explicit
-          name="colours">
-          <aggregate
-            type="LIST"
-            lower="1"
-            upper="?"/>
-          <builtintype
-            type="REAL"
-            typelabel="3 ] OF REAL"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(colours) = SIZEOF(SELF\Point_cloud_dataset.point_coordinates)">
-        </where>
+      <entity name="Point_cloud_superdataset" supertypes="Scanned_data_item">
+         <explicit name="pts_per_sublist">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="sublists">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="Point_cloud_dataset"/>
+         </explicit>
+         <where expression="consistent_sizes_point_clouds(SELF.pts_per_sublist, SELF.sublists)" label="WR1"/>
       </entity>
-
-      <entity
-        name="Point_cloud_dataset_with_intensities"
-        supertypes="Point_cloud_dataset">
-        <explicit
-          name="intensities">
-          <aggregate
-            type="LIST"
-            lower="1"
-            upper="?"/>
-          <builtintype
-            type="REAL"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(intensities) = SIZEOF(SELF\Point_cloud_dataset.point_coordinates)">
-        </where>
+      <entity name="Scan_3d_model" supertypes="Scanned_data_item">
+         <explicit name="scanner_info">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Scanner_property"/>
+         </explicit>
+         <explicit name="scanned_points">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Scanned_data_item"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(tmp &lt;* Scanned_points | 'SCAN_DATA_3D_SHAPE_ARM.SCAN_3D_MODEL' IN TYPEOF(tmp))) = 0" label="WR1"/>
       </entity>
-
-      <entity
-        name="Point_cloud_superdataset"
-        supertypes="Scanned_data_item">
-        <explicit
-          name="pts_per_sublist">
-          <builtintype
-            type="INTEGER"/>
-        </explicit>
-        <explicit
-          name="sublists">
-          <aggregate
-            type="LIST"
-            lower="2"
-            upper="?"/>
-          <typename
-            name="Point_cloud_dataset"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="consistent_sizes_point_clouds(SELF.pts_per_sublist, SELF.sublists)">
-        </where>
+      <entity name="Scan_data_shape_representation" supertypes="Geometric_model">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Scanned_data_item"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="Triangulated_point_cloud_dataset"
-        supertypes="Scanned_data_item">
-        <explicit
-          name="points">
-          <typename
-            name="Point_cloud_set_or_superset"/>
-        </explicit>
-        <explicit
-          name="triangles">
-          <aggregate
-            type="LIST"
-            lower="1"
-            upper="?"/>
-          <builtintype
-            type="INTEGER"
-            typelabel="3 ] OF INTEGER"/>
-        </explicit>
+      <entity name="Scanned_data_item" super.expression="ONEOF (Point_cloud_dataset, Point_cloud_superdataset, Triangulated_point_cloud_dataset, Scan_3d_model)" supertypes="Detailed_geometric_model_element">
+         <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) | NOT ('SCAN_DATA_3D_SHAPE_ARM.SCAN_DATA_SHAPE_REPRESENTATION' IN TYPEOF(using_rep)))) = 0" label="WR1"/>
       </entity>
-
-      <entity
-        name="Scan_3d_model"
-        supertypes="Scanned_data_item">
-        <explicit
-          name="scanner_info">
-          <aggregate
-            type="SET"
-            lower="1"
-            upper="?"/>
-          <typename
-            name="Scanner_property"/>
-        </explicit>
-        <explicit
-          name="scanned_points">
-          <aggregate
-            type="SET"
-            lower="1"
-            upper="?"/>
-          <typename
-            name="Scanned_data_item"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY(tmp &lt;* scanned_points | 'SCAN_DATA_3D_SHAPE_MODEL_SCHEMA.SCAN_3D_MODEL' IN TYPEOF(tmp))) = 0">
-        </where>
+      <entity name="Scanner_basic_properties" supertypes="Scanner_property">
+         <explicit name="scanner_identification">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="scanner_location">
+            <typename name="Axis_placement_3d"/>
+         </explicit>
+         <explicit name="scanner_uncertainty" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <where expression="(NOT (EXISTS(scanner_uncertainty))) OR (scanner_uncertainty &gt; 0.0)" label="WR1"/>
       </entity>
-
-      <entity
-        name="Scanner_property"
-        abstract.supertype="YES"
-        supertypes="Representation_item">
+      <entity abstract.supertype="YES" name="Scanner_property" supertypes="Representation_item"/>
+      <entity name="Triangulated_point_cloud_dataset" supertypes="Scanned_data_item">
+         <explicit name="points">
+            <typename name="point_cloud_set_or_superset"/>
+         </explicit>
+         <explicit name="triangles">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="Scanner_basic_properties"
-        supertypes="Scanner_property">
-        <explicit
-          name="scanner_identification">
-          <typename
-            name="label"/>
-        </explicit>
-        <explicit
-          name="scanner_location">
-          <typename
-            name="Axis_placement_3d"/>
-        </explicit>
-        <explicit
-          name="scanner_uncertainty"
-          optional="YES">
-          <typename
-            name="length_measure"/>
-        </explicit>
-     <where
-               label="WR1"
-               expression="(NOT (EXISTS(scanner_uncertainty))) OR (scanner_uncertainty > 0.0)">
-        </where>
-     </entity>
-
-      <function
-        name="consistent_sizes_point_clouds">
-        <parameter
-          name="max">
-          <builtintype
-            type="INTEGER"/>
-        </parameter>
-        <parameter
-          name="point_lists">
-          <aggregate
-            type="LIST"/>
-          <typename
-            name="Point_cloud_dataset"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
-LOCAL
-ndatasets : INTEGER := SIZEOF(point_lists);
-RESULT: BOOLEAN := TRUE;
-END_LOCAL;
-REPEAT i := 1 TO (ndatasets - 1);
-IF (SIZEOF(point_lists[i].point_coordinates) &lt;&gt; max) THEN
-result := FALSE;
-RETURN(result);
-END_IF;
-END_REPEAT;
-IF (SIZEOF(point_lists[ndatasets].point_coordinates) &gt; max) THEN
-result := FALSE;
-RETURN(result);
-END_IF;
-RETURN(result);
-        </algorithm>
+      <function name="consistent_sizes_point_clouds">
+         <parameter name="max">
+            <builtintype type="INTEGER"/>
+         </parameter>
+         <parameter name="point_lists">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="Point_cloud_dataset"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+     ndatasets : INTEGER := SIZEOF(point_lists);
+     RESULT: BOOLEAN := TRUE;
+     
+       END_LOCAL;
+  REPEAT i := 1 TO (ndatasets - 1);
+     IF (SIZEOF(point_lists[i].point_coordinates) &lt;&gt; max)  THEN
+      result := FALSE;
+      RETURN(result);
+    END_IF; 
+  END_REPEAT;
+   IF (SIZEOF(point_lists[ndatasets].point_coordinates) &gt; max)  THEN
+     result := FALSE;
+     RETURN(result);
+   END_IF;
+  RETURN(result);</algorithm>
       </function>
-
-    </schema>
-  </express>
+   </schema>
+</express>

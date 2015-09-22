@@ -1,4 +1,4 @@
-$Id: create_a_CR_package.txt,v 1.13 2015/06/03 16:17:21 thomasrthurman Exp $
+$Id: create_a_CR_package.txt,v 1.14 2015/06/04 15:44:37 thomasrthurman Exp $
 provides detailed step by step instructions to build a CR and evaluate it.
 [[!!do not commit any directory with "isopub" in the path!!]]
 T. Thurman
@@ -130,41 +130,46 @@ Ap210_electronic_assembly_interconnect_and_packaging_design_arm, "STORING_SOURCE
 -Commit arm_lf.exp, mim_lf.exp for 409, 410, 442.
 -Create arm_lf.xml for 409, 410, 442.
 -Create mim_lf.xml for 409, 410, 442.
+Step two-(B)
+tag ap209_*, ap210_el*, and ap242_man* directories with relevant SMRL_CR... tag, moving tags if needed.
+At the end of this step all modules and resource_docs and resources directories shall be correctly tagged.
 ====================================
 
 Step three:
+Summary: build actual CR publication package and copy over previous SMRL with CR content.
+Step three-(A)
+A-1 checkout stepmod/data with previous SMRL tag
+A-2 checkout stepmod/data with current CR tag
+-This changes the state of the local repo to be SMRL_previous modified to current CR.
 –Requires ANT and Java and Saxon 6.5.5
-–Run: stepmod\utils\mkpart1000CR.wsf
-fill in: "CR00NNN" to create a directory
--read the stepmod\publication\part1000\<CR00NNN>\readme.txt for some instructions.
-•Add the docs to the publication
-–Edit: stepmod\publication\part1000\<CR00NNN>\publication_index.xml
---get appropriate N numbers from Convener.
--reference stepmod\publication\part1000\CR00009\publication_index.xml for examples.
 <for each module in the publication_index.xml>
  execute xslt against 
 stepmod/data/modules/<module>/nav/mapping_view.xml
 -replace mapping_view_with_test.xml with mapping_view.xml 5/28/2015 tt
+--is this still valid after Mike W and Nigel fixes?
 -look for red marks.
 -fix red marks.
 </for>
 -note: look to the XSLT in WG12 N8496 14.1 to extract the list of modules.
--note that now we should be able to include modules and resources in a CR build.
--create an empty log file: log.txt in stepmod\publication\part1000\<CR00NNN>\log.txt
 •Build the ANT file
 –Run: ant –buildfilebuildbuild
 •Generate the HTML
 –Run: ant all
 –Generates: stepmod\publication\isopub\<CR00NNN>
--review the contents of the log.txt file for real errors due to missing modules in publication_index.xml
+-review the contents of the build.log file created in step (1) for real errors due to missing modules in publication_index.xml
 -or other errors
+--because the local repo is strictly built from SMRL_previous and CR_current there should be exact provenance for errors/changes
 -commit the contents of stepmod\publication\part1000\<CR00NNN> to CVS.
 [[!!do not commit any directory with "isopub" in the path!!]]
 -review the content of stepmod\publication\isopub\<CR00NNN> for errors.
 -fix errors until none.
+--move SMRL_CRxxx tag as needed to make it up to date.
 
+Step three-(B)
 retrieve last SMRL and put it somewhere.
-copy the stepmod\publication\isopub\<CR00NNN> over the top of previous SMRL
+copy the stepmod\publication\isopub\<CR00NNN> over the top of previous SMRL.
+The copy command shall first delete the relevant directory and then insert new content.
+No previous content shall be retained for the relevant directories.
 ====================================
 
 
@@ -184,12 +189,18 @@ stepmod\publication\<APNNN>\log.txt
 commit the directory stepmod\publication\<APNNN>\ to CVS.
 [[!!do not commit any directory with "isopub" in the path!!]]
 -examine the log file for errors that need fixing.
--fix errors
-merge the stepmod\publication\isopub\<APNNN> into the previous SMRL
+-fix errors in AP doc.
+-fix errors in modules or resources and repeat Step three to ensure tags and data are valid.
+</for each design AP>.
+<for each design AP>
+merge the stepmod\publication\isopub\<APNNN> into the SMRL directory structure
 (look to AP242 ed1 directory structure for details)
 run linkcheck against the APNNN/index.htm
-(I think it is ok to merge multiple APs for testing into one SMRL as they have isolated names)
+(I think it is ok to merge multiple APs for testing into one SMRL directory structure as they have isolated names)
 verify the missing links are only ones related to old link for sc4 directory.
+If other missing links are found:
+fix missing links at AP document and repeat Step four
+fix missing links in other docs and repeat Step three to ensure tags and data are valid.
 </for each design AP>.
 ====================================
 

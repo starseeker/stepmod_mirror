@@ -1,5 +1,5 @@
 (*
-$Id: mim_lf.exp,v 1.47 2015/09/04 13:43:51 kevletu Exp $
+$Id: mim_lf.exp,v 1.48 2015/09/24 12:45:01 kevletu Exp $
 WG12 N8583 - ISO/TS 10303-409 ap209_multidisciplinary_analysis_and_design - EXPRESS MIM LF
 *)
 
@@ -1100,10 +1100,12 @@ TYPE product_space = SELECT
 END_TYPE;
 (* USED FROM (mathematical_functions_schema); *)
 (* This EXTENSIBLE SELECT have been replaced with plain SELECT for EXPRESS E1 layout. *)
-TYPE tuple_space = SELECT (
-   extended_tuple_space,
-   product_space);
-END_TYPE;
+TYPE tuple_space = SELECT
+    ( product_space,
+(* next line added as patch for BZ#5023 *)
+      mesh_derived_maths_space,
+     extended_tuple_space );
+  END_TYPE;
 
 (* USED FROM (mathematical_functions_schema); *)
 TYPE maths_space_or_function = SELECT
@@ -2551,6 +2553,18 @@ TYPE defined_data_name = SELECT (
    coordinate_data_name,
    fd_defined_data_name);
 END_TYPE;
+
+  (* The following enumeration is added as patch for BZ#5048 *)
+  TYPE property_3d_data_name = ENUMERATION OF
+    ( acceleration,
+      displacement,
+      force,
+      momentum,
+      position,
+      skin_friction,
+      velocity,
+      vorticity );
+  END_TYPE;  
 
 (* USED FROM (basis_schema); *)
 (* This EXTENSIBLE SELECT have been replaced with plain SELECT for EXPRESS E1 layout. *)
@@ -4265,16 +4279,167 @@ TYPE shape_representation_item = SELECT
    topological_representation_item);
 END_TYPE;
 (* USED FROM (geometric_model_schema); *)
+
+
 (* This SELECT set has been pruned. *)
 TYPE csg_primitive = SELECT (
    block,
    bounded_primitive_2d,
+(* The following five items have been added to resolve BZ#5057. *)
+   cyclide_segment_solid, 
+   eccentric_cone, 
+   ellipsoid, 
+   faceted_primitive, 
+   rectangular_pyramid, 
+(* end of insertion;patch 5057 *)
    right_angular_wedge,
    right_circular_cone,
    right_circular_cylinder,
    sphere,
    torus);
 END_TYPE;
+
+(* 
+   The following seven ENTITYs have been added to address Bug 5057 
+   until they can properly be added to the constituent modules.
+*)
+ENTITY convex_hexahedron
+  SUBTYPE OF (faceted_primitive);
+WHERE
+  WR1: SIZEOF(points) = 8;
+  WR2: above_plane(points[1], points[2], points[3], points[4]) = 0.0;
+  WR3: above_plane(points[5], points[8], points[7], points[6]) = 0.0;
+  WR4: above_plane(points[1], points[4], points[8], points[5]) = 0.0;
+  WR5: above_plane(points[4], points[3], points[7], points[8]) = 0.0;
+  WR6: above_plane(points[3], points[2], points[6], points[7]) = 0.0;
+  WR7: above_plane(points[1], points[5], points[6], points[2]) = 0.0;
+  WR8: same_side([points[1], points[2], points[3]], [points[5], points[6],
+points[7], points[8]]);
+  WR9: same_side([points[1], points[4], points[8]], [points[3], points[7],
+points[6], points[2]]);
+  WR10: same_side([points[1], points[2], points[5]], [points[3], points[7],
+points[8], points[4]]);
+  WR11: same_side([points[5], points[6], points[7]], [points[1], points[2],
+points[3], points[4]]);
+  WR12: same_side([points[3], points[7], points[6]], [points[1], points[4],
+points[8], points[5]]);
+  WR13: same_side([points[3], points[7], points[8]], [points[1], points[5],
+points[6], points[2]]);
+END_ENTITY;
+
+ENTITY cyclide_segment_solid
+  SUBTYPE OF (geometric_representation_item);
+  position : axis2_placement_3d;
+  radius1 : positive_length_measure;
+  radius2 : positive_length_measure;
+  cone_angle1 : plane_angle_measure;
+  cone_angle2 : plane_angle_measure;
+  turn_angle : plane_angle_measure;
+END_ENTITY;
+
+ENTITY eccentric_cone
+  SUBTYPE OF (geometric_representation_item);
+  position : axis2_placement_3d;
+  semi_axis_1 : positive_length_measure;
+  semi_axis_2 : positive_length_measure;
+  height : positive_length_measure;
+  x_offset : length_measure;
+  y_offset : length_measure;
+  ratio : REAL;
+WHERE
+  WR1: ratio >= 0.0;
+END_ENTITY;
+
+ENTITY ellipsoid
+  SUBTYPE OF (geometric_representation_item);
+  position : axis2_placement_3d;
+  semi_axis_1 : positive_length_measure;
+  semi_axis_2 : positive_length_measure;
+  semi_axis_3 : positive_length_measure;
+END_ENTITY;
+
+ENTITY faceted_primitive
+  SUPERTYPE OF (ONEOF (tetrahedron,
+                       convex_hexahedron))
+  SUBTYPE OF (geometric_representation_item);
+  points : LIST[4:?] OF UNIQUE cartesian_point;
+WHERE
+  WR1: points[1].dim = 3;
+END_ENTITY;
+
+ENTITY rectangular_pyramid
+  SUBTYPE OF (geometric_representation_item);
+  position : axis2_placement_3d;
+  xlength : positive_length_measure;
+  ylength : positive_length_measure;
+  height : positive_length_measure;
+END_ENTITY;
+
+ENTITY tetrahedron
+  SUBTYPE OF (faceted_primitive);
+WHERE
+  WR1: SIZEOF(points) = 4;
+  WR2: above_plane(points[1], points[2], points[3], points[4]) <> 0.0;
+END_ENTITY;
+
+(* End of added ENTITYs.patch 5057 *)
+
+
+(* 
+   The following two FUNCTIONs have been added to address Bug 5057
+   until they can properly be added to the constituent modules.
+*)
+
+FUNCTION above_plane (p1 : cartesian_point; p2 : cartesian_point; p3 :
+cartesian_point; p4 : cartesian_point) : REAL;
+
+LOCAL
+     dir2, dir3, dir4 : direction :=
+                 dummy_gri || direction([1.0, 0.0, 0.0]);
+     val, mag         : REAL;
+   END_LOCAL;
+
+   IF (p1.dim <> 3) THEN
+     RETURN(?);
+   END_IF;
+   REPEAT i := 1 TO 3;
+     dir2.direction_ratios[i] := p2.coordinates[i] - p1.coordinates[i];
+     dir3.direction_ratios[i] := p3.coordinates[i] - p1.coordinates[i];
+     dir4.direction_ratios[i] := p4.coordinates[i] - p1.coordinates[i];
+     mag := dir4.direction_ratios[i]*dir4.direction_ratios[i];
+  END_REPEAT;
+  mag := sqrt(mag);
+  val := mag*dot_product(dir4, cross_product(dir2, dir3).orientation);
+  RETURN(val);
+
+END_FUNCTION; 
+
+FUNCTION same_side (plane_pts : LIST[3:3] OF cartesian_point; test_points :
+LIST[2:?] OF cartesian_point) : BOOLEAN;
+
+LOCAL
+     val1, val2 : REAL;
+     n          : INTEGER;
+   END_LOCAL;
+
+   IF (plane_pts[1].dim = 2) OR (test_points[1].dim = 2) THEN
+     RETURN(?);
+   END_IF;
+   n := SIZEOF(test_points);
+   val1 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                       test_points[1] );
+   REPEAT i := 2 TO n;
+     val2 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                       test_points[i] );
+     IF (val1*val2 <= 0.0) THEN
+       RETURN(FALSE);
+     END_IF;
+   END_REPEAT;
+   RETURN(TRUE);
+
+END_FUNCTION; 
+
+(* End of added FUNCTIONs.patch 5057 *)
 
 (* USED FROM (solid_shape_element_schema); *)
 TYPE base_solid_select = SELECT
@@ -10089,9 +10254,9 @@ ENTITY product_of_mesh;
   operands : LIST [2:2] OF mesh;
   product  : mesh;
 WHERE
-  wr1 : (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND
-        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND
-        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(product));
+  wr1 : (AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND
+        (AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND
+        (AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF+'.STRUCTURED_MESH' IN TYPEOF(product));
   wr2 : operands[1].index_count = 1;
   wr3 : operands[1].index_count + operands[2].index_count
         = product.index_count;
@@ -33436,10 +33601,6 @@ WHERE
     WR2: SIZEOF(QUERY(it <* SELF\representation.items | (SIZEOF(['AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.NODE_SET', 'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.MAPPED_ITEM'] * TYPEOF(it)) = 1))) >= 1;
 END_ENTITY;
 
-(* Implicit interfaced from: mesh_topology_schema *)
-FUNCTION this_schema : STRING;
-  RETURN('MESH_TOPOLOGY_SCHEMA');
-END_FUNCTION;
 (* REFERENCE FROM (basic_attribute_schema); *)
   FUNCTION get_role (obj : role_select):object_role;
     LOCAL
@@ -41301,14 +41462,39 @@ END_FUNCTION;
     END_IF;
   END_FUNCTION;
 
-(* Implicit interfaced from: domain_schema *)
-FUNCTION is_coordinate_property(arg : specified_general_property) : BOOLEAN;
-  IF ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN
-      TYPEOF(arg) ) THEN
-    RETURN(TRUE);
-  END_IF;
-  RETURN ('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN TYPEOF(arg));
-END_FUNCTION;
+FUNCTION is_coordinate_property(
+               arg : specified_general_property
+           ) : BOOLEAN;
+(* this line 
+    IF
+'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM' IN
+TYPEOF( arg ) THEN
+   is replaced by the following two lines as patch for BZ#5019 *)
+    IF
+('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.EXTERNALLY_DEFINED_ITEM'
+IN
+        TYPEOF(arg\specified_general_property.name_specifier) ) THEN  
+      RETURN( TRUE );
+    END_IF;
+(* this line 
+    RETURN(
+'AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+TYPEOF( arg ) );
+   is replaced by the following section as patch for BZ#5019 and BZ#5054
+    RETURN
+('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+    TYPEOF(arg\specified_general_property.name_specifier)); *)
+    IF (arg\specified_general_property.name_specifier =
+PROPERTY_3D_DATA_NAME.POSITION)
+        OR
+      
+('AP209_MULTIDISCIPLINARY_ANALYSIS_AND_DESIGN_MIM_LF.COORDINATE_DATA_NAME' IN
+        TYPEOF(arg\specified_general_property.name_specifier)) THEN 
+       RETURN ( TRUE );
+    ELSE
+       RETURN( FALSE );
+    END_IF;
+  END_FUNCTION;
 
 (* Implicit interfaced from: product_structure_schema *)
 FUNCTION unambiguously_specified_multi_level_reference_designator (links : LIST[1:?] OF next_assembly_usage_occurrence) : BOOLEAN;

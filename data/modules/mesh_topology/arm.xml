@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2013/02/19 18:34:33 $" rcs.revision="$Revision: 1.12 $" reference="ISO/TS 10303-1386">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1386">
    <application name="JSDAI" owner="LKSoft" source="mesh_topology_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Mesh_topology_arm">
       <interface kind="use" schema="Basic_geometric_topology_arm"/>
@@ -42,20 +42,20 @@
       </type>
       <entity name="Array_based_unstructured_mesh" supertypes="Unstructured_mesh">
          <explicit name="cells">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="cell_count"/>
             <typename name="Vertex_defined_cell"/>
          </explicit>
-         <where expression="SELF\Mesh.index_count = 1" label="WR1"/>
+         <where expression="SELF\Mesh.index_count = 1" label="wr1"/>
       </entity>
       <entity name="Array_based_unstructured_mesh_and_vertices" supertypes="Array_based_unstructured_mesh">
          <explicit name="vertex_count">
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="vertices">
-            <aggregate lower="1" type="ARRAY" unique="YES" upper="0"/>
+            <aggregate lower="1" type="ARRAY" unique="YES" upper="vertex_count"/>
             <typename name="Vertex"/>
          </explicit>
-         <where expression="all_mesh_vertices(SELF)" label="WR1"/>
+         <where expression="all_mesh_vertices(SELF)" label="wr1"/>
       </entity>
       <entity name="Cell" super.expression="ONEOF (Cell_of_structured_mesh, Vertex_defined_cell)" supertypes="Detailed_topological_model_element">
          <explicit name="description">
@@ -70,7 +70,7 @@
             <typename name="Structured_mesh"/>
          </explicit>
          <explicit name="cell_identifier">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="index_count"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <derived expression="the_mesh\Mesh.index_count" name="index_count">
@@ -88,22 +88,21 @@
             <typename name="Fea_model"/>
          </explicit>
          <explicit name="cells">
-            <aggregate lower="1" type="ARRAY" unique="YES" upper="0"/>
+            <aggregate lower="1" type="ARRAY" unique="YES" upper="cell_count"/>
             <typename name="Element"/>
          </explicit>
-         <where label="IP1"/>
       </entity>
       <entity name="Extraction_of_structured_submesh" supertypes="Extraction_of_submesh">
          <explicit name="lower_vertex">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="whole_indices"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="used_indices">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="part_indices"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="used_senses">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="part_indices"/>
             <builtintype type="BOOLEAN"/>
          </explicit>
          <derived expression="whole\Mesh.index_count" name="whole_indices">
@@ -128,7 +127,7 @@
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="cells">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="cell_count"/>
             <typename name="Cell"/>
          </explicit>
       </entity>
@@ -137,7 +136,7 @@
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="vertices">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="vertex_count"/>
             <typename name="Vertex"/>
          </explicit>
       </entity>
@@ -147,7 +146,7 @@
          </explicit>
          <explicit name="indices">
             <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="nindices"/>
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
@@ -156,11 +155,11 @@
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="start">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="nindices"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="finish">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="nindices"/>
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
@@ -173,15 +172,15 @@
          </explicit>
       </entity>
       <entity name="Mesh_derived_maths_space" supertypes="Maths_space">
-         <explicit name="id">
-            <typename name="identifier"/>
+         <explicit name="description">
+            <typename name="text"/>
          </explicit>
          <explicit name="name">
             <typename name="label"/>
          </explicit>
-         <explicit name="description">
-            <typename name="text"/>
-         </explicit>        
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
          <explicit name="the_mesh">
             <typename name="Mesh"/>
          </explicit>
@@ -197,9 +196,9 @@
          <explicit name="product">
             <typename name="Mesh"/>
          </explicit>
-         <where expression="(this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND&#10;        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND&#10;        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(product))" label="WR1"/>
-         <where expression="operands[1].index_count = 1" label="WR2"/>
-         <where expression="operands[1].index_count + operands[2].index_count&#10;        = product.index_count" label="WR3"/>
+         <where expression="('MESH_TOPOLOGY_ARM.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND&#10;        ('MESH_TOPOLOGY_ARM.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND&#10;        ('MESH_TOPOLOGY_ARM.STRUCTURED_MESH' IN TYPEOF(product))" label="wr1"/>
+         <where expression="operands[1].index_count = 1" label="wr2"/>
+         <where expression="operands[1].index_count + operands[2].index_count&#10;        = product.index_count" label="wr3"/>
       </entity>
       <entity name="Rind">
          <explicit name="index_count">
@@ -212,11 +211,11 @@
       </entity>
       <entity name="Structured_mesh" supertypes="Mesh">
          <explicit name="vertex_counts">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="SELF\mesh.index_count"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="cell_counts">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="SELF\mesh.index_count"/>
             <builtintype type="INTEGER"/>
          </explicit>
          <explicit name="kind">
@@ -242,7 +241,7 @@
             <typename name="element_order"/>
          </explicit>
          <explicit name="vertices">
-            <aggregate lower="1" optional="YES" type="ARRAY" upper="0"/>
+            <aggregate lower="1" optional="YES" type="ARRAY" upper="vn_count"/>
             <typename name="Vertex"/>
          </explicit>
          <derived expression="cell_counts(SELF)[1]" name="bound_count">
@@ -261,7 +260,7 @@
             <builtintype type="INTEGER"/>
          </derived>
          <derived expression="shorten_array(vertices, vn_count, required_count)" name="required_vertices">
-            <aggregate lower="1" type="ARRAY" upper="0"/>
+            <aggregate lower="1" type="ARRAY" upper="required_count"/>
             <typename name="Vertex"/>
          </derived>
       </entity>
@@ -306,9 +305,9 @@ END_LOCAL;
   result : ARRAY [1:3] OF INTEGER := [0,0,0];
 END_LOCAL;
   CASE arg.order OF
-     element_order.linear    : om1 := 0;
-     element_order.quadratic : om1 := 1;
-     element_order.cubic     : om1 := 2;
+    element_order.linear    : om1 := 0;
+    element_order.quadratic : om1 := 1;
+    element_order.cubic     : om1 := 2;
     OTHERWISE : RETURN(result);
   END_CASE;
   om1sq := om1**2;
@@ -320,21 +319,21 @@ END_LOCAL;
           result[2] := om1*eds;                   -- 0, 0, 0
           result[3] := 0;                         -- 0, 0, 0
         END;
-   cell_shape_1d.line :
+    cell_shape_1d.line :
         BEGIN
           vts := 2; eds := 1; qf := 0; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 1, 2
           result[3] := 0;                         -- 0, 0, 0
         END;
-   cell_shape_2d.quadrilateral : 
+    cell_shape_2d.quadrilateral : 
         BEGIN
           vts := 4; eds := 4; qf := 1; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 4, 8
           result[3] := om1sq*qf;                  -- 0, 1, 4
         END;
-   cell_shape_2d.triangle : 
+    cell_shape_2d.triangle : 
         BEGIN
           vts := 3; eds := 3; qf := 0; tf := 1;
           result[1] := vts;
@@ -344,21 +343,21 @@ END_LOCAL;
             element_order.linear : result[3] := 0;              -- 0
           END_CASE;
         END;
-   cell_shape_3d.hexahedron :
+    cell_shape_3d.hexahedron :
         BEGIN
           vts := 8; eds := 12; qf := 6; tf := 0;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 12, 24
           result[3] := om1sq*(qf+om1);            -- 0, 7, 32
         END;
-   cell_shape_3d.wedge :
+    cell_shape_3d.wedge :
         BEGIN
           vts := 6; eds := 9; qf := 3; tf := 2;
           result[1] := vts;
           result[2] := om1*eds;                   -- 0, 9,  18
           result[3] := om1sq*qf + om1*tf;         -- 0, 3, 16
         END;
-   cell_shape_3d.tetrahedron : 
+    cell_shape_3d.tetrahedron : 
         BEGIN
           vts := 4; eds := 6; qf := 0; tf := 4;
           result[1] := vts;
@@ -368,7 +367,7 @@ END_LOCAL;
             element_order.linear : result[3] := 0;              -- 0
           END_CASE;
         END;
-   cell_shape_3d.pyramid : 
+    cell_shape_3d.pyramid : 
         BEGIN
           vts := 5; eds := 8; qf := 1; tf := 4;
           result[1] := vts;
@@ -379,8 +378,7 @@ END_LOCAL;
           END_CASE;
         END;
   END_CASE;
-RETURN(result);
-         </algorithm>
+RETURN(result);</algorithm>
       </function>
       <function name="shorten_array">
          <parameter name="longa">
@@ -407,10 +405,6 @@ RETURN(result);
      END_REPEAT;
      RETURN(shorta);
    END_IF;</algorithm>
-      </function>
-      <function name="this_schema">
-         <builtintype type="STRING"/>
-         <algorithm>RETURN('MESH_TOPOLOGY_SCHEMA');</algorithm>
       </function>
    </schema>
 </express>

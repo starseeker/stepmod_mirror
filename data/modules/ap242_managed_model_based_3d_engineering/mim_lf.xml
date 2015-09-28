@@ -372,7 +372,7 @@
          <select selectitems="mapped_item axis2_placement_2d csg_solid_2d"/>
       </type>
       <type name="csg_primitive">
-         <select selectitems="block bounded_primitive_2d right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
+         <select selectitems="block bounded_primitive_2d cyclide_segment_solid eccentric_cone ellipsoid faceted_primitive rectangular_pyramid right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
       </type>
       <type name="csg_select">
          <select selectitems="boolean_result csg_primitive"/>
@@ -3969,6 +3969,21 @@
          </explicit>
          <where expression="SELF\named_unit.dimensions = derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component)" label="WR1"/>
       </entity>
+      <entity name="convex_hexahedron" supertypes="faceted_primitive">
+         <where expression="SIZEOF(points) = 8" label="WR1"/>
+         <where expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0" label="WR2"/>
+         <where expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0" label="WR3"/>
+         <where expression="above_plane(points[1], points[4], points[8], points[5]) = 0.0" label="WR4"/>
+         <where expression="above_plane(points[4], points[3], points[7], points[8]) = 0.0" label="WR5"/>
+         <where expression="above_plane(points[3], points[2], points[6], points[7]) = 0.0" label="WR6"/>
+         <where expression="above_plane(points[1], points[5], points[6], points[2]) = 0.0" label="WR7"/>
+         <where expression="same_side([points[1], points[2], points[3]], [points[5], points[6],&#10;points[7], points[8]])" label="WR8"/>
+         <where expression="same_side([points[1], points[4], points[8]], [points[3], points[7],&#10;points[6], points[2]])" label="WR9"/>
+         <where expression="same_side([points[1], points[2], points[5]], [points[3], points[7],&#10;points[8], points[4]])" label="WR10"/>
+         <where expression="same_side([points[5], points[6], points[7]], [points[1], points[2],&#10;points[3], points[4]])" label="WR11"/>
+         <where expression="same_side([points[3], points[7], points[6]], [points[1], points[4],&#10;points[8], points[5]])" label="WR12"/>
+         <where expression="same_side([points[3], points[7], points[8]], [points[1], points[5],&#10;points[6], points[2]])" label="WR13"/>
+      </entity>
       <entity name="coordinated_universal_time_offset">
          <explicit name="hour_offset">
             <builtintype type="INTEGER"/>
@@ -4233,6 +4248,26 @@
          <where expression="validate_inspected_elements_type(SELF,&#10;            ['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.CURVE'])" label="WR3"/>
          <where expression="validate_locations_of_extreme_value_type(SELF,&#10;            ['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.POINT_ON_CURVE'])" label="WR4"/>
          <where expression="validate_accuracy_types(SELF,&#10;            ['AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.LENGTH_MEASURE'])" label="WR5"/>
+      </entity>
+      <entity name="cyclide_segment_solid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="radius1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="radius2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="cone_angle1">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="cone_angle2">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="turn_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
       </entity>
       <entity name="cylindrical_pair" supertypes="low_order_kinematic_pair">
          <derived expression="FALSE" name="t_x">
@@ -5233,6 +5268,30 @@
          </unique>
          <where expression="('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.DRAWING_SHEET_REVISION' IN &#10;                  TYPEOF(SELF\area_in_set.area)) &#10;              AND&#10;              ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.DRAWING_REVISION' &#10;               IN TYPEOF (SELF\area_in_set.in_set))" label="WR1"/>
       </entity>
+      <entity name="eccentric_cone" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="semi_axis_1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="height">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="x_offset">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="y_offset">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="ratio">
+            <builtintype type="REAL"/>
+         </explicit>
+         <where expression="ratio &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="edge" super.expression="ONEOF (edge_curve, edge_with_length, oriented_edge, subedge)" supertypes="topological_representation_item">
          <explicit name="edge_start">
             <typename name="vertex"/>
@@ -5408,6 +5467,20 @@
             <typename name="positive_length_measure"/>
          </explicit>
          <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="ellipsoid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="semi_axis_1">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_2">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="semi_axis_3">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
@@ -6005,6 +6078,13 @@
          <where expression="SIZEOF ( &#10;QUERY ( msb &lt;* &#10;QUERY ( it &lt;* items| ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.MANIFOLD_SOLID_BREP' IN TYPEOF (it)) )| ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.ORIENTED_CLOSED_SHELL' IN TYPEOF (msb\manifold_solid_brep.outer)) )) = 0" label="WR5"/>
          <where expression="SIZEOF ( &#10;QUERY ( brv &lt;* &#10;QUERY ( it &lt;* items| ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.BREP_WITH_VOIDS' IN TYPEOF (it)) )| NOT ( SIZEOF ( &#10;QUERY ( csh &lt;* brv\brep_with_voids.voids| csh\oriented_closed_shell.orientation )) = 0) )) = 0" label="WR6"/>
          <where expression="SIZEOF ( &#10;QUERY ( mi &lt;* &#10;QUERY ( it &lt;* items| ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.FACETED_BREP_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0" label="WR7"/>
+      </entity>
+      <entity name="faceted_primitive" super.expression="ONEOF (tetrahedron, convex_hexahedron)" supertypes="geometric_representation_item">
+         <explicit name="points">
+            <aggregate lower="4" type="LIST" unique="YES" upper="?"/>
+            <typename name="cartesian_point"/>
+         </explicit>
+         <where expression="points[1].dim = 3" label="WR1"/>
       </entity>
       <entity name="fact_type" supertypes="property_definition"/>
       <entity name="feature_component_definition" supertypes="characterized_object">
@@ -11254,6 +11334,20 @@
          <where expression="(SIZEOF(QUERY ( pd &lt;* USEDIN(SELF,&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PROPERTY_DEFINITION.DEFINITION') | &#10;         (NOT (SIZEOF(QUERY ( impl_rep &lt;* QUERY ( pdr &lt;* USEDIN(pd,&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;         ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS' &#10;         IN TYPEOF(pdr.used_representation)) ) | &#10;         (NOT (SIZEOF(QUERY ( it &lt;* impl_rep.used_representation.items | &#10;         ((SIZEOF([&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.MEASURE_REPRESENTATION_ITEM',&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.LENGTH_MEASURE_WITH_UNIT'] *&#10;         TYPEOF(it)) = 2) AND (it.name = 'column spacing'))))= 1)) )) &#10;         = 0)) )) = 0)" label="WR9"/>
          <where expression="(SIZEOF(QUERY ( pd &lt;* USEDIN(SELF,&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PROPERTY_DEFINITION.DEFINITION') | &#10;         (NOT (SIZEOF(QUERY ( impl_rep &lt;* QUERY ( pdr &lt;* USEDIN(pd,&#10;         'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;         ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.SHAPE_REPRESENTATION_WITH_PARAMETERS' &#10;         IN TYPEOF(pdr.used_representation)) ) | &#10;         (NOT (SIZEOF(QUERY ( it &lt;* impl_rep.used_representation.items | &#10;         (('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.PLACEMENT' IN TYPEOF(it)) AND &#10;         (it.name = 'orientation')) )) = 1)) )) = 0)) )) = 0)" label="WR10"/>
       </entity>
+      <entity name="rectangular_pyramid" supertypes="geometric_representation_item">
+         <explicit name="position">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="xlength">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="ylength">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <explicit name="height">
+            <typename name="positive_length_measure"/>
+         </explicit>
+      </entity>
       <entity name="rectangular_trimmed_surface" supertypes="bounded_surface">
          <explicit name="basis_surface">
             <typename name="surface"/>
@@ -13819,6 +13913,10 @@
       </entity>
       <entity name="test_method_based_parameter_assignment" supertypes="parameter_assignment"/>
       <entity name="test_point_part_feature" supertypes="part_tooling_feature"/>
+      <entity name="tetrahedron" supertypes="faceted_primitive">
+         <where expression="SIZEOF(points) = 4" label="WR1"/>
+         <where expression="above_plane(points[1], points[2], points[3], points[4]) &lt;&gt; 0.0" label="WR2"/>
+      </entity>
       <entity name="text_font">
          <explicit name="id">
             <typename name="identifier"/>
@@ -15319,6 +15417,39 @@ REPEAT i:=1 TO number_of_input_instances;
 END_REPEAT;</algorithm>
          <where expression="dependently_instantiated(all_instances, set_of_input_types,&#10;                                previous_in_chain)" label="WR1"/>
       </rule>
+      <function name="above_plane">
+         <parameter name="p1">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p2">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p3">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="p4">
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="REAL"/>
+         <algorithm>LOCAL
+     dir2, dir3, dir4 : direction :=
+                 dummy_gri || direction([1.0, 0.0, 0.0]);
+     val, mag         : REAL;
+   END_LOCAL;
+
+   IF (p1.dim &lt;&gt; 3) THEN
+     RETURN(?);
+   END_IF;
+   REPEAT i := 1 TO 3;
+     dir2.direction_ratios[i] := p2.coordinates[i] - p1.coordinates[i];
+     dir3.direction_ratios[i] := p3.coordinates[i] - p1.coordinates[i];
+     dir4.direction_ratios[i] := p4.coordinates[i] - p1.coordinates[i];
+     mag := dir4.direction_ratios[i]*dir4.direction_ratios[i];
+  END_REPEAT;
+  mag := sqrt(mag);
+  val := mag*dot_product(dir4, cross_product(dir2, dir3).orientation);
+  RETURN(val);</algorithm>
+      </function>
       <function name="acyclic">
          <parameter name="arg1">
             <typename name="generic_expression"/>
@@ -23371,6 +23502,36 @@ RETURN (FALSE);</algorithm>
          </parameter>
          <typename name="kinematic_link_representation"/>
          <algorithm>RETURN (?);</algorithm>
+      </function>
+      <function name="same_side">
+         <parameter name="plane_pts">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="cartesian_point"/>
+         </parameter>
+         <parameter name="test_points">
+            <aggregate lower="2" type="LIST" upper="?"/>
+            <typename name="cartesian_point"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+     val1, val2 : REAL;
+     n          : INTEGER;
+   END_LOCAL;
+
+   IF (plane_pts[1].dim = 2) OR (test_points[1].dim = 2) THEN
+     RETURN(?);
+   END_IF;
+   n := SIZEOF(test_points);
+   val1 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                       test_points[1] );
+   REPEAT i := 2 TO n;
+     val2 := above_plane(plane_pts[1], plane_pts[2], plane_pts[3],
+                       test_points[i] );
+     IF (val1*val2 &lt;= 0.0) THEN
+       RETURN(FALSE);
+     END_IF;
+   END_REPEAT;
+   RETURN(TRUE);</algorithm>
       </function>
       <function name="scalar_times_vector">
          <parameter name="scalar">

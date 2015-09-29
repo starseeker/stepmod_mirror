@@ -295,9 +295,9 @@
          </explicit>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Connected_filled_area" supertypes="Conductive_filled_area">
-         <explicit name="associated_definition" optional="NO">
+         <explicit name="resident_stratum" optional="NO">
             <typename name="Design_layer_stratum"/>
-            <redeclaration entity-ref="Shape_element"/>
+            <redeclaration entity-ref="Stratum_feature"/>
          </explicit>
          <explicit name="implementation_requirement" optional="NO">
             <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
@@ -717,8 +717,8 @@
             <typename name="Layered_interconnect_module_design_view"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-         <where expression="EXISTS(SELF\Shape_feature_definition.primary_shape_representation) &#10;       AND (NOT EXISTS(SELF\Shape_feature_definition.auxiliary_shape_representations))" label="WR1"/>
-         <where expression="'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.primary_shape_representation)" label="WR2"/>
+         <where expression="EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation) &#10;       AND (NOT EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.auxiliary_shape_representations))" label="WR1"/>
+         <where expression="'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation)" label="WR2"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Layered_interconnect_module_design_view" super.expression="Layered_interconnect_panel_design_view" supertypes="Interconnect_module_design_view">
          <explicit name="used_stack_model" optional="NO">
@@ -798,7 +798,7 @@
          <explicit name="derived_layer_geometry" optional="NO">
             <typename name="Stratum_feature_based_derived_pattern"/>
          </explicit>
-         <where expression="SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition&#10;        :=: derived_layer_geometry.reference_stratum_feature.associated_definition" label="WR1"/>
+         <where expression="SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum&#10;        :=: derived_layer_geometry.reference_stratum_feature.associated_definition" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Multi_stratum_special_symbol_component" supertypes="Structured_layout_component">
          <explicit name="derived_from" optional="NO">
@@ -1057,8 +1057,8 @@
          <inverse attribute="item" entity="External_source_identification" name="layer_usage">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
-         <where expression="reference_stratum_feature\Stratum_feature.associated_definition IN extent\Inter_stratum_extent.included_stratum" label="WR1"/>
-         <where expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',&#10;                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.associated_definition)) = 1" label="WR2"/>
+         <where expression="reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum" label="WR1"/>
+         <where expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',&#10;                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1" label="WR2"/>
          <where expression="SIZEOF(QUERY(ds &lt;* extent\Inter_Stratum_extent.included_stratum |&#10;             NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))&#10;                 )) = 1" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Stratum_feature_conductive_join" super.expression="Physical_network_supporting_stratum_feature_conductive_join">

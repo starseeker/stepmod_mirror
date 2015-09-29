@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.343 2015/09/02 22:28:49 lothartklein Exp $
+   $Id: arm.exp,v 1.344 2015/09/24 09:59:50 kevletu Exp $
    ISO TC184/SC4/WG12 N8980 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8170
 *)
@@ -323,7 +323,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Connected_filled_area
     SUBTYPE OF (Conductive_filled_area);
-      SELF\Stratum_feature.associated_definition : Design_layer_stratum;
+      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
       implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
     INVERSE
       join_component : SET [0:?] OF Single_stratum_printed_component FOR stratum_feature_implementation;
@@ -684,9 +684,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       applied_stack                       : SET [1:?] OF Local_linear_stack;
       SELF\Shape_element.associated_definition : Layered_interconnect_module_design_view;
   WHERE
-    WR1: EXISTS(SELF\Shape_feature_definition.primary_shape_representation) 
-       AND (NOT EXISTS(SELF\Shape_feature_definition.auxiliary_shape_representations));
-    WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.primary_shape_representation);   
+    WR1: EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation) 
+       AND (NOT EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.auxiliary_shape_representations));
+    WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation);   
   END_ENTITY;
 
   ENTITY Generic_laminate_text_component
@@ -795,7 +795,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Stratum_feature_template_component);
       derived_layer_geometry : Stratum_feature_based_derived_pattern;
     WHERE
-      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition
+      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum
         :=: derived_layer_geometry.reference_stratum_feature.associated_definition;
   END_ENTITY;
 
@@ -1101,9 +1101,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     INVERSE
       layer_usage	: SET[0:1] OF External_source_identification FOR item;
     WHERE
-      WR1: reference_stratum_feature\Stratum_feature.associated_definition IN extent\Inter_stratum_extent.included_stratum;
+      WR1: reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum;
       WR2: SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.associated_definition)) = 1;
+                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1;
       WR3: SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
              NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
                  )) = 1;

@@ -4058,6 +4058,21 @@
          </explicit>
          <where expression="valid_csg_2d_primitives(SELF)" label="WR1"/>
       </entity>
+      <entity name="cubic_bezier_tessellated_edge" supertypes="tessellated_edge">
+         <explicit name="line_strip">
+            <aggregate lower="4" type="LIST" upper="?"/>
+            <builtintype type="INTEGER"/>
+            <redeclaration entity-ref="tessellated_edge"/>
+         </explicit>
+      </entity>
+      <entity name="cubic_bezier_triangulated_face" supertypes="tessellated_face">
+         <explicit name="ctriangles">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <aggregate lower="10" type="LIST" upper="10"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SIZEOF( SELF\tessellated_face.normals) = 0" label="WR1"/>
+      </entity>
       <entity abstract.supertype="YES" name="currency" super.expression="ONEOF (externally_defined_currency, iso4217_currency)" supertypes="context_dependent_unit">
          <where expression="((SELF\named_unit.dimensions.length_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.mass_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.time_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND&#10;           (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0))" label="WR1"/>
       </entity>
@@ -11610,7 +11625,7 @@
          </explicit>
       </entity>
       <entity name="retention" supertypes="action">
-         <where expression="SIZEOF( QUERY( aa &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;           'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |&#10;               ('ACTIVITY.APPLIED_ACTION_ASSIGNMENT' IN&#10;                TYPEOF(aa)) AND&#10;               (aa.role.name = 'retention')&#10;              )) &gt;= 1" label="WR1"/>
+         <where expression="SIZEOF( QUERY( aa &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;           'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |&#10;               ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.APPLIED_ACTION_ASSIGNMENT' IN&#10;                TYPEOF(aa)) AND&#10;               (aa.role.name = 'retention')&#10;              )) &gt;= 1" label="WR1"/>
          <where expression="(SIZEOF( QUERY( atia &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;     'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |&#10;                        (atia.role.name = 'minimum retention period') &#10;                       )) = 1) AND&#10;                     (SIZEOF( QUERY( atia &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;     'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |&#10;                        (atia.role.name = 'maximum retention period') &#10;                       )) = 1) AND&#10;                     (SIZEOF( QUERY( atia1 &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;     'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |&#10;                       (atia1.role.name = 'minimum retention period') AND&#10;                       ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.TIME_INTERVAL_WITH_BOUNDS' IN&#10;                        TYPEOF(atia1.assigned_time_interval)) AND&#10;                       (EXISTS(atia1.assigned_time_interval\time_interval_with_bounds.secondary_bound) OR&#10;                        EXISTS(atia1.assigned_time_interval\time_interval_with_bounds.duration)) AND&#10;                       (SIZEOF( QUERY( atia2 &lt;* USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;       'APPLIED_TIME_INTERVAL_ASSIGNMENT.ITEMS') |&#10; (atia2.role.name = 'maximum retention period') AND&#10; ('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.TIME_INTERVAL_WITH_BOUNDS' IN&#10;  TYPEOF(atia2.assigned_time_interval)) AND&#10; (EXISTS(atia2.assigned_time_interval\time_interval_with_bounds.secondary_bound) OR&#10;  EXISTS(atia2.assigned_time_interval\time_interval_with_bounds.duration)) AND&#10; (atia1.assigned_time_interval\time_interval_with_bounds.primary_bound :=: &#10;  atia2.assigned_time_interval\time_interval_with_bounds.primary_bound)&#10;)) = 1) &#10;                       )) = 1)" label="WR2"/>
          <where expression="SIZEOF( USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;                      'ACTION_RELATIONSHIP.RELATING_ACTION')) +&#10;              SIZEOF( USEDIN(SELF,'AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF.' +&#10;                      'ACTION_RELATIONSHIP.RELATED_ACTION')) = 0" label="WR3"/>
       </entity>
@@ -13807,7 +13822,7 @@
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
-      <entity name="tessellated_edge" supertypes="tessellated_structured_item">
+      <entity name="tessellated_edge" super.expression="ONEOF (tessellated_connecting_edge, cubic_bezier_tessellated_edge)" supertypes="tessellated_structured_item">
          <explicit name="coordinates">
             <typename name="coordinates_list"/>
          </explicit>
@@ -13819,7 +13834,7 @@
             <builtintype type="INTEGER"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face)" supertypes="tessellated_structured_item">
+      <entity abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face, cubic_bezier_triangulated_face)" supertypes="tessellated_structured_item">
          <explicit name="coordinates">
             <typename name="coordinates_list"/>
          </explicit>

@@ -3392,7 +3392,7 @@ FUNCTION positive_surface_weights(bss: Rational_b_spline_surface) : BOOLEAN;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.48 2015/09/24 09:59:56 kevletu Exp $
+   $Id: arm.exp,v 1.50 2015/09/29 19:01:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N8642 - ISO/TS 10303-1650 Bare die - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8116
 *)
@@ -3428,11 +3428,11 @@ SCHEMA Bare_die_arm;
       die_seating_plane : non_feature_shape_element FOR associated_definition;
     WHERE
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.SHAPE_ELEMENT') | ('BARE_DIE_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.SHAPE_ELEMENT') | ('BARE_DIE_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.SHAPE_ELEMENT') | ('BARE_DIE_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR4 : 'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(die_seating_plane);
   END_ENTITY;
 
@@ -3470,7 +3470,7 @@ SCHEMA Bare_die_arm;
 
   ENTITY Bare_die_template_terminal
     SUBTYPE OF (Part_feature_template_definition, Shape_element);
-      SELF\Part_feature_template_definition.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view; -- LK 5425            
+      SELF\Feature_definition_with_connection_area.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;        
       seating_plane_zone                 : OPTIONAL Connection_zone_bare_die_interface_plane_relationship;
    DERIVE
    	  SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
@@ -6831,9 +6831,9 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.22 2012/10/11 05:49:13 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N8125 - ISO/TS 10303-1662 Design specific assignment to assembly usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7529
+   $Id: arm.exp,v 1.23 2015/09/29 18:15:51 kevletu Exp $
+   ISO TC184/SC4/WG12 N9123 - ISO/TS 10303-1662 Design specific assignment to assembly usage view - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8125
 *)
 
 SCHEMA Design_specific_assignment_to_assembly_usage_view_arm;
@@ -15916,7 +15916,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.61 2015/09/24 09:59:50 kevletu Exp $
+   $Id: arm.exp,v 1.62 2015/09/29 13:53:38 lothartklein Exp $
    ISO TC184/SC4/WG12 N8986 - ISO/TS 10303-1692 Land - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8235
 *)
@@ -16065,9 +16065,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
      resident_sftc := input\Material_removal_laminate_component.design_intent[i];
      CASE TRUE OF
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
-       associated_definition := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition;
+       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum;
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum)) :
-       associated_definition := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
+       resident_stratum := resident_sftc\Stratum_feature_template_component.implementation_or_resident_stratum;
        OTHERWISE :
         RETURN(?);
      END_CASE;
@@ -16893,7 +16893,7 @@ END_FUNCTION;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.344 2015/09/24 09:59:50 kevletu Exp $
+   $Id: arm.exp,v 1.345 2015/09/29 14:02:36 lothartklein Exp $
    ISO TC184/SC4/WG12 N8980 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8170
 *)
@@ -17217,7 +17217,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
 
   ENTITY Connected_filled_area
     SUBTYPE OF (Conductive_filled_area);
-      SELF\Stratum_feature.associated_definition : Design_layer_stratum;
+      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
       implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
     INVERSE
       join_component : SET [0:?] OF Single_stratum_printed_component FOR stratum_feature_implementation;
@@ -17578,9 +17578,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
       applied_stack                       : SET [1:?] OF Local_linear_stack;
       SELF\Shape_element.associated_definition : Layered_interconnect_module_design_view;
   WHERE
-    WR1: EXISTS(SELF\Shape_feature_definition.primary_shape_representation) 
-       AND (NOT EXISTS(SELF\Shape_feature_definition.auxiliary_shape_representations));
-    WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.primary_shape_representation);   
+    WR1: EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation) 
+       AND (NOT EXISTS(SELF\Shape_element.associated_definition\Product_view_definition.auxiliary_shape_representations));
+    WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_element.associated_definition\Product_view_definition.primary_shape_representation);   
   END_ENTITY;
 
   ENTITY Generic_laminate_text_component
@@ -17689,7 +17689,7 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     SUBTYPE OF (Stratum_feature_template_component);
       derived_layer_geometry : Stratum_feature_based_derived_pattern;
     WHERE
-      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.associated_definition
+      WR1: SELF\Stratum_feature_template_component.implementation_or_resident_stratum\Stratum_feature.resident_stratum
         :=: derived_layer_geometry.reference_stratum_feature.associated_definition;
   END_ENTITY;
 
@@ -17995,9 +17995,9 @@ REFERENCE FROM Physical_unit_2d_design_view_arm(pu2dv_has_shape, pu2dv_typeof); 
     INVERSE
       layer_usage	: SET[0:1] OF External_source_identification FOR item;
     WHERE
-      WR1: reference_stratum_feature\Stratum_feature.associated_definition IN extent\Inter_stratum_extent.included_stratum;
+      WR1: reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum;
       WR2: SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.associated_definition)) = 1;
+                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1;
       WR3: SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
              NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
                  )) = 1;
@@ -18456,7 +18456,7 @@ END_FUNCTION;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.65 2015/09/24 09:59:51 kevletu Exp $
+   $Id: arm.exp,v 1.66 2015/09/29 18:57:25 lothartklein Exp $
    ISO TC184/SC4/WG12 N8977 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8173
 *)
@@ -18529,7 +18529,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
                  NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )
                  )) = 0;               
      WR8 : SIZEOF(QUERY(tc <* tiebar_component |
-           NOT(SIZEOF(USEDIN(tc,'COMPONENT_FEATURE_ARM.COMPONENT_FEATURE.ASSOCIATED_COMPONENT')) = 0)
+           NOT(SIZEOF(USEDIN(tc,'COMPONENT_FEATURE_ARM.COMPONENT_FEATURE.ASSOCIATED_DEFINITION')) = 0)
               )) = 0;
     WR9 : NOT(SIZEOF(passage_component) = 1) OR
              (SIZEOF(QUERY(pc <* passage_component | NOT((SIZEOF(tiebar_component) = 0) OR
@@ -22009,7 +22009,7 @@ END_ENTITY;
 END_SCHEMA;   
 
 (*
-   $Id: arm.exp,v 1.95 2015/09/24 09:59:49 kevletu Exp $
+   $Id: arm.exp,v 1.96 2015/09/29 19:06:33 lothartklein Exp $
    ISO TC184/SC4/WG12 N8953 - ISO/TS 10303-1707 Package - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8430
 *)
@@ -22116,9 +22116,9 @@ SCHEMA Package_arm;
       one_orientation_feature               : LOGICAL := (SIZEOF(orientation_feature) = 1);
       two_orientation_features              : LOGICAL := (SIZEOF(orientation_feature) = 2);
       three_orientation_features            : LOGICAL := (SIZEOF(orientation_feature) = 3);
-      package_seating_plane                 : SET OF Seating_plane := bag_to_set(QUERY(nfse <* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.SCOPE')|
+      package_seating_plane                 : SET OF Seating_plane := bag_to_set(QUERY(nfse <* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.ASSOCIATED_DEFINITION')|
                                                 'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(nfse)));
-      interface_plane                       : SET OF Interface_plane := bag_to_set(QUERY(nfse <* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.SCOPE')|
+      interface_plane                       : SET OF Interface_plane := bag_to_set(QUERY(nfse <* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.ASSOCIATED_DEFINITION')|
                                                 'NON_FEATURE_SHAPE_ELEMENT_ARM.INTERFACE_PLANE' IN TYPEOF(nfse)));
     INVERSE
       body                                  : SET[0:1] OF Package_body FOR associated_definition;
@@ -24745,7 +24745,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.33 2012/10/06 20:09:56 liutkuviene Exp $
+   $Id: arm.exp,v 1.34 2015/09/29 19:12:53 lothartklein Exp $
    ISO TC184/SC4/WG12 N7747 - ISO/TS 10303-1729 Physical unit interconnect definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6516
 *)
@@ -24785,9 +24785,9 @@ WHERE
  WR13: connector_in_uv_1 <> component_2;
  WR14: component_1 <> connector_in_uv_2;
  WR15: connector_in_uv_2 <> component_2;
- WR16: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PART_OCCURRENCE' IN 
+ WR16: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN 
         TYPEOF(component_1\Product_occurrence_definition_relationship.related_view);      
- WR17: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PART_OCCURRENCE' IN 
+ WR17: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN 
         TYPEOF(component_2\Product_occurrence_definition_relationship.related_view);
  WR18: associated_definition = component_1\Product_occurrence_definition_relationship.relating_view;
  WR19: associated_definition = component_2\Product_occurrence_definition_relationship.relating_view;
@@ -24940,7 +24940,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.89 2015/09/24 09:59:50 kevletu Exp $
+   $Id: arm.exp,v 1.90 2015/09/29 14:08:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N8899 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8215
 *)
@@ -25049,7 +25049,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);
     WHERE
       WR1 : NOT (SIZEOF(USEDIN(SELF, '')) > 1) OR 
        (SIZEOF(QUERY(foo <* USEDIN(SELF,'') | 
-       NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
+       NOT(SIZEOF(['PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
         'PHYSICAL_UNIT_USAGE_VIEW_ARM.SHAPE_DESCRIPTION_ASSOCIATION'] * TYPEOF(foo))= 1)
         )) 
         = 0);
@@ -25974,7 +25974,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA; -- Primitive_solids_arm
 (*
-   $Id: arm.exp,v 1.88 2015/09/11 09:41:18 sophieherail Exp $
+   $Id: arm.exp,v 1.89 2015/09/29 14:20:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N8892 - ISO/TS 10303-1737 Printed physical layout template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8218
 *)
@@ -26140,7 +26140,7 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
       width             : Length_tolerance_characteristic;
       required_material : Stratum_technology;
     INVERSE
-      boundary : SET[0:4] OF template_material_cross_section_boundary FOR associated_definition;
+      boundary : SET[0:4] OF template_material_cross_section_boundary FOR associated_definition2;
     WHERE
       WR1 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
         'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'top')) <= 1;
@@ -26249,9 +26249,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Template_material_cross_section_boundary
     SUBTYPE OF (Non_feature_shape_element);
-      SELF\Shape_element.associated_definition : Printed_part_template_material;
+      associated_definition2 : Printed_part_template_material;
     UNIQUE
-      UR1 : associated_definition, SELF\Shape_element.element_name;
+      UR1 : associated_definition2, SELF\Shape_element.element_name;
     WHERE
       WR1 : SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right'];
   END_ENTITY;
@@ -31966,7 +31966,7 @@ SCHEMA Shape_parameters_arm;
 *)
 END_SCHEMA;
 (* 
-	$Id: arm.exp,v 1.61 2015/09/25 09:01:17 lothartklein Exp $
+	$Id: arm.exp,v 1.62 2015/09/29 14:25:02 lothartklein Exp $
 	ISO TC184/SC4/WG12 N8830 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N8050
 *)
@@ -32012,6 +32012,12 @@ TYPE assigned_shape_property_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Product_occurrence_definition_relationship, 
   Product_view_definition, 
   View_definition_relationship,
+  Shape_element,
+  Shape_element_relationship);
+END_TYPE;
+
+TYPE spa_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
+  Product_occurrence_definition_relationship,
   Shape_element,
   Shape_element_relationship);
 END_TYPE;

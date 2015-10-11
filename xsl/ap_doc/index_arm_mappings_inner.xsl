@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.30 2013/10/01 20:19:17 thomasrthurman Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -502,6 +502,8 @@ $Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
 						translate(substring($this-entity,1,1),$LOWER,$UPPER),
 						substring($this-entity,2))" />
 
+	<xsl:variable name="this-select-mod" select="translate(substring-before( $this-select/../@name, '_arm'), $UPPER,$LOWER)" />
+
 	<xsl:if test="string-length($this-item) > 0" >
 
 <!-- this may fail if a select type contains another select type -->
@@ -536,6 +538,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
 				<br/>&#160;&#160;
 
 				<xsl:choose>
+
 					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to=$this-item]" >
 
 						<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" 
@@ -583,6 +586,16 @@ $Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
                                             </xsl:otherwise>
                                           </xsl:choose>
                                         </xsl:when>
+					<xsl:when test="$called-modules//module[@name=$this-select-mod]//ae//aa[@attribute=$this-attribute and @assertion_to=$this-item]" >
+						<!-- this will work provided there are not two selects being extended with the same attribute name and assertion to -->
+						<xsl:variable name="found-mapping" select="$called-modules//module[@name=$this-select-mod]//ae//aa[@attribute=$this-attribute and @assertion_to=$this-item]" />
+						<xsl:variable name="found-mapping-ent" select="translate($found-mapping/../@entity,$UPPER,$LOWER)" />
+
+						<A HREF="{$STEPMOD_DATA_MODULES}{$this-select-mod}/sys/5_mapping{$FILE_EXT}#aeentity{$found-mapping-ent}aaattribute{$this-attribute}assertion_to{$lc-this-item}" 
+						target="info">map</A>
+						<xsl:text> </xsl:text>
+
+	                                 </xsl:when>
 
 					<xsl:otherwise>
 <!--						Mapping NOT found select -->
@@ -606,7 +619,6 @@ $Id: index_arm_mappings_inner.xsl,v 1.28 2009/03/27 21:35:48 robbod Exp $
  					</xsl:otherwise>
 				</xsl:choose>
 
-				<br/>
 			</xsl:when>
 			
 			<xsl:when test="$called-schemas//schema/type[@name=$this-item]" >

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.30 2013/10/01 20:19:17 thomasrthurman Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.31 2015/10/11 19:08:05 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -417,7 +417,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.30 2013/10/01 20:19:17 thomasrthurman Exp 
 		          <xsl:with-param 
 		            name="message" 
 		            select="concat('WARNING: Missing assertion_to=&#x22;',
-			    $attr-type-name,'&#x22; in mapping of entity ',$lc-ent,' in module ',$mod-name)" />
+			    $attr-type-name,'&#x22; in mapping of entity ',$lc-ent,' attribute ',$attr-name,' in module ',$mod-name)" />
 			</xsl:call-template>    	
 
 		</xsl:if>

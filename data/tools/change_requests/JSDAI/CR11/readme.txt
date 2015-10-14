@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.1 2015/05/31 17:07:34 thomasrthurman Exp $
+$Id: readme.txt,v 1.2 2015/06/09 09:46:01 kevletu Exp $
 See file
 stepmod/utils/create_a_CR_package.txt
 for instructions on creating the contents of this directory.

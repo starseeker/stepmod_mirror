@@ -295,7 +295,7 @@
 		          <xsl:with-param 
 		            name="message" 
 		            select="concat('WARNING: Missing assertion_to=&#x22;',
-			    $attr-type-name,'&#x22; in mapping of entity ',$lc-ent,' in module ',$mod-name)" />
+			    $attr-type-name,'&#x22; in mapping of entity ',$lc-ent,' attribute ',$attr-name,' in module ',$mod-name)" />
 			</xsl:call-template>    	
 
 		</xsl:if>

@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.24 2011/09/14 23:20:16 lothartklein Exp $
+$Id: arm.exp,v 1.25 2012/10/11 05:49:04 liutkuviene Exp $
 ISO TC184/SC4/WG12 N7828 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7193
 *) 
@@ -142,7 +142,39 @@ WHERE
     WR1: radius > 0.0;
     WR2: minor_radius > 0.0;
 END_ENTITY;
- 
+
+ENTITY Cylindrical_point
+    SUBTYPE OF (Cartesian_point);
+    r : length_measure;
+    theta : plane_angle_measure;
+    z : length_measure;
+DERIVE
+    SELF\Cartesian_point.coordinates : LIST [3:3] OF length_measure := [r*cos(theta), r*sin(theta), z];
+WHERE
+    WR1: r >= 0.0;
+END_ENTITY;
+
+ENTITY Spherical_point
+    SUBTYPE OF (Cartesian_point);
+    r : length_measure;
+    theta : plane_angle_measure;
+    phi : plane_angle_measure;
+DERIVE
+    SELF\Cartesian_point.coordinates : LIST [3:3] OF length_measure := [r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)];
+WHERE
+    WR1: r >= 0.0;
+END_ENTITY;
+
+ENTITY Polar_point
+  SUBTYPE OF (Cartesian_point);
+  r : length_measure;
+  theta : plane_angle_measure;
+DERIVE
+  SELF\Cartesian_point.coordinates : LIST[2:2] OF length_measure := [r*cos(theta), r*sin(theta)];
+WHERE
+  WR1: r >= 0.0;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
   ONEOF (Direction,
          Axis_placement,
@@ -156,6 +188,12 @@ SUBTYPE_CONSTRAINT point_subtypes FOR Point;
   ONEOF (Cartesian_point,
          Point_on_curve,
          Point_on_surface);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT cartesian_point_subtypes FOR Cartesian_point;
+  ONEOF (Cylindrical_point,
+         Polar_point,
+         Spherical_point);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Basic_geometry_arm

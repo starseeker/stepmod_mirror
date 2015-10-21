@@ -32,6 +32,23 @@
          <where expression="radius &gt;= 0.0" label="WR1"/>
       </entity>
       <entity name="Curve" super.expression="ONEOF (Conic, Line)" supertypes="Detailed_geometric_model_element"/>
+      <entity name="Cylindrical_point" supertypes="Cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="z">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[r*cos(theta), r*sin(theta), z]" name="coordinates">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="Cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="Cylindrical_surface" supertypes="Surface">
          <explicit name="position">
             <typename name="Axis_placement_3d"/>
@@ -95,6 +112,37 @@
             <typename name="Surface"/>
          </explicit>
       </entity>
+      <entity name="Polar_point" supertypes="Cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="[r*cos(theta), r*sin(theta)]" name="coordinates">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="Cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
+      <entity name="Spherical_point" supertypes="Cartesian_point">
+         <explicit name="r">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="theta">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="phi">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <derived expression="[r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)]" name="coordinates">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="length_measure"/>
+            <redeclaration entity-ref="Cartesian_point"/>
+         </derived>
+         <where expression="r &gt;= 0.0" label="WR1"/>
+      </entity>
       <entity name="Spherical_surface" supertypes="Surface">
          <explicit name="position">
             <typename name="Axis_placement_3d"/>
@@ -133,5 +181,6 @@
       </entity>
       <subtype.constraint entity="Detailed_geometric_model_element" name="alternate_geometry_items" super.expression="ONEOF (Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Surface)"/>
       <subtype.constraint entity="Point" name="point_subtypes" super.expression="ONEOF (Cartesian_point, Point_on_curve, Point_on_surface)"/>
+      <subtype.constraint entity="Cartesian_point" name="cartesian_point_subtypes" super.expression="ONEOF (Cylindrical_point, Polar_point, Spherical_point)"/>
    </schema>
 </express>

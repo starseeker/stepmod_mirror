@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.12 2010/02/11 11:22:58 robbod Exp $
+$Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -136,6 +136,12 @@ $Id: sect_g_change.xsl,v 1.12 2010/02/11 11:22:58 robbod Exp $
       <xsl:apply-templates select="./mim.changes">
         <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
       </xsl:apply-templates>
+      <xsl:apply-templates select="./arm_longform.changes">
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="./mim_longform.changes">
+        <xsl:with-param name="annex" select="concat($annex_letter,'.',position()+1)"/>
+      </xsl:apply-templates>
     </xsl:for-each>
   </xsl:template>
   
@@ -190,7 +196,39 @@ $Id: sect_g_change.xsl,v 1.12 2010/02/11 11:22:58 robbod Exp $
     <xsl:apply-templates select="./mim.deletions"/>
   </xsl:template>
   
+  <xsl:template match="arm_longform.changes">
+    <xsl:param name="annex"/>
+    <xsl:variable name="section_number" 
+      select="count(../arm.changes)+count(../mapping.changes)+count(../mim.changes)+2"/>
+    <xsl:variable name="aname" select="concat(name(),../@version)"/>
+    <h2>
+      <a name="{$aname}">
+        <xsl:value-of select="concat($annex, '.',$section_number,' Changes made to the ARM Longform')"/>
+      </a>
+    </h2><xsl:apply-templates select="./description"/>
+    <xsl:apply-templates select="./arm.additions"/>
+    <xsl:apply-templates select="./arm.modifications"/>
+    <xsl:apply-templates select="./arm.deletions"/>
+  </xsl:template>
   
+  <xsl:template match="mim_longform.changes">
+    <xsl:param name="annex"/>
+    <xsl:variable name="section_number" 
+      select="count(../arm.changes)+
+              count(../mapping.changes)+
+              count(../mim.changes)+
+              count(../arm_longform.changes)+2"/>
+    <xsl:variable name="aname" select="concat(name(),../@version)"/>
+    <h2>
+      <a name="{$aname}">
+        <xsl:value-of select="concat($annex,'.', $section_number,' Changes made to the MIM Longform')"/>
+      </a>
+    </h2>    
+    <xsl:apply-templates select="./description"/>
+    <xsl:apply-templates select="./mim.additions"/>
+    <xsl:apply-templates select="./mim.modifications"/>
+    <xsl:apply-templates select="./mim.deletions"/>
+  </xsl:template>
   
   <xsl:template match="arm.additions|arm.modifications|arm.deletions|mim.additions|mim.modifications|mim.deletions" mode="modified.object">
     <xsl:apply-templates select="./modified.object" mode="check_attributes"/>

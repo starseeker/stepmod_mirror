@@ -702,6 +702,9 @@
       <type name="luminous_intensity_measure">
          <builtintype type="REAL"/>
       </type>
+      <type name="machining_feature_definition">
+         <select selectitems="boss compound_feature externally_defined_feature_definition flat_face gear marking outer_round outside_profile pocket protrusion removal_volume replicate_feature revolved_profile rib_top round_hole rounded_end spherical_cap step slot thread turned_knurl"/>
+      </type>
       <type name="magnetic_flux_density_measure">
          <builtintype type="REAL"/>
       </type>
@@ -9135,14 +9138,25 @@
             <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
             <typename name="next_assembly_usage_occurrence"/>
          </explicit>
-         <derived expression="SELF\product_definition_relationship.related_product_definition" name="leaf">
+         <derived expression="location[1]\product_definition_relationship.relating_product_definition" name="relating_product_definition">
+            <typename name="product_definition"/>
+            <redeclaration entity-ref="product_definition_relationship"/>
+         </derived>
+         <derived expression="location[HIINDEX(location)]\product_definition_relationship.related_product_definition" name="related_product_definition">
+            <typename name="product_definition_or_reference"/>
+            <redeclaration entity-ref="product_definition_relationship"/>
+         </derived>
+         <derived expression="related_product_definition" name="leaf">
             <typename name="product_definition_or_reference"/>
          </derived>
-         <derived expression="SELF\product_definition_relationship.relating_product_definition" name="root">
+         <derived expression="relating_product_definition" name="root">
             <typename name="product_definition"/>
          </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="location"/>
+         </unique>
          <where expression="unambiguously_specified_multi_level_reference_designator(location)" label="WR1"/>
-         <where expression="SIZEOF(QUERY(cp &lt;* location | NOT (&#10;         EXISTS(cp\assembly_component_usage.reference_designator)))) = 0" label="WR2"/>
+         <where expression="SIZEOF( QUERY ( cp &lt;* location | NOT EXISTS(cp\assembly_component_usage.reference_designator ))) = 0" label="WR2"/>
       </entity>
       <entity name="multi_stratum_printed_component" supertypes="printed_component structured_layout_component"/>
       <entity name="multi_stratum_printed_part_template" supertypes="structured_printed_part_template multi_stratum_structured_template"/>
@@ -15576,9 +15590,6 @@
       </rule>
       <rule appliesto="application_context" name="ap210_application_protocol_definition_required">
          <where expression="SIZEOF( QUERY( ac &lt;* application_context |&#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |&#10;                (apd.application_interpreted_model_schema_name = 'ap210_electronic_assembly_interconnect_and_packaging_design')&#10;                )) &gt; 0)&#10;              )) &gt; 0" label="WR1"/>
-      </rule>
-      <rule appliesto="application_context" name="ap242_application_protocol_definition_required">
-         <where expression="SIZEOF( QUERY( ac &lt;* application_context | &#10;              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | &#10;                apd.application_interpreted_model_schema_name = 'ap242_managed_model_based_3d_engineering' &#10;                )) &gt; 0) &#10;              )) &gt; 0" label="WR1"/>
       </rule>
       <rule appliesto="area_component" name="area_component_shape_constraint">
          <where expression="SIZEOF( QUERY( ac &lt;* area_component |&#10;            NOT(SIZEOF (QUERY (pdr &lt;* USEDIN(ac,'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;              NOT(NOT(pdr\property_definition_representation.used_representation\representation.id = 'ac2dsm') OR&#10;                      ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM_LF.SINGLE_AREA_CSG_2D_SHAPE_REPRESENTATION' IN TYPEOF(pdr\property_definition_representation.used_representation)))&#10;                )) = 0)&#10;              )) = 0" label="WR1"/>

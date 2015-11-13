@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_part1000.xsl,v 1.17 2010/12/21 15:44:23 robbod Exp $
+<!--  $Id: build_part1000.xsl,v 1.19 2014/05/08 10:49:52 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -5449,9 +5449,9 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="present" select="normalize-space($present1)"/>
 		<xsl:choose>
 			<xsl:when test="string-length($present)>1">
-				<xsl:message> ************************************************************ WARNING
+				<!--<xsl:message> ************************************************************ WARNING
 					Should only process application protocols or modules or resources Not a mixture
-					************************************************************ </xsl:message>
+					************************************************************ </xsl:message> MWD -->
 				<xsl:value-of select="'false'"/>
 			</xsl:when>
 			<xsl:otherwise>

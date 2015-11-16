@@ -1,0 +1,186 @@
+(*
+   $Id: arm.exp,v 1.2 2015/01/04 17:23:18 thomasrthurman Exp $
+   N - ISO/CD-TS - 10303- screw_thread - EXPRESS ARM
+*)
+(* rev 1.2
+removed Screw_thread_context.wr1 as screw thread may not be the primary context.
+*)
+
+(* UNDER DEVELOPMENT *)
+SCHEMA Aerospace_screw_thread_arm;
+
+   USE FROM Characterizable_object_arm
+    (Characterizable_object);
+
+   USE FROM Document_assignment_arm
+    (Document_assignment,
+     documented_element_select);
+
+  USE FROM ELEMENTAL_GEOMETRIC_SHAPE_ARM
+   (Axis_placement);
+
+  USE FROM Shape_property_assignment_arm
+   (Shape_element);
+
+  USE FROM MEASURE_REPRESENTATION_ARM
+   (Numerical_item_with_unit);
+
+  USE FROM Part_view_definition_arm
+   (Additional_part_view_definition_context);
+
+  USE FROM Product_view_definition_arm
+   (View_definition_context,
+    Additional_view_definition_context);
+   
+  USE FROM SPECIFICATION_DOCUMENT_ARM
+   (Specification_definition);
+
+   USE FROM Support_resource_arm
+   (identifier,
+    text,
+    label);
+
+   USE FROM Surface_conditions_arm
+    (Coating_layer,
+     Surface_texture);
+
+  USE FROM Value_with_unit_extension_arm
+    (Length_data_element,
+     Angle_data_element);
+
+   USE FROM Value_with_unit_arm
+    (count_measure);
+
+  TYPE aerospace_design_category_1_or_2 = ENUMERATION OF(
+      category_1,
+      category_2);
+  END_TYPE;
+  
+  TYPE mdf_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
+    (Screw_thread_feature_definition);
+  END_TYPE;
+
+  TYPE thread_hand = ENUMERATION OF
+    (left,
+     right);
+  END_TYPE;
+
+  TYPE thread_side = ENUMERATION OF
+    (internal,
+     external);
+  END_TYPE;
+
+  TYPE thread_runout_length_quantification = ENUMERATION OF
+    (pitch,
+    dimension);
+  END_TYPE;
+
+  TYPE thread_effective_length_modification = ENUMERATION OF
+    (no_length_modification,
+     additional_length);
+  END_TYPE;
+
+ENTITY Length_numerical_item_with_unit
+  SUBTYPE OF (Length_data_element, Numerical_item_with_unit);
+END_ENTITY;
+
+ENTITY Angle_numerical_item_with_unit
+  SUBTYPE OF (Angle_data_element, Numerical_item_with_unit);
+END_ENTITY;
+
+ENTITY Catalogue_screw_thread_feature_definition
+  SUBTYPE OF (Screw_thread_feature_definition);
+  documentation : Specification_definition;
+  major_diameter : OPTIONAL Length_numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Defined_screw_thread_feature_definition
+  SUBTYPE OF (Screw_thread_feature_definition);
+  crest : OPTIONAL Length_numerical_item_with_unit;
+  minor_diameter : OPTIONAL Length_numerical_item_with_unit;
+  pitch_diameter : OPTIONAL Length_numerical_item_with_unit;
+  major_diameter : Length_numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Additional_screw_thread_context
+  SUBTYPE OF (Additional_part_view_definition_context);
+DERIVE
+  SELF\Additional_view_definition_context.application_domain : STRING := 'screw thread';
+  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
+END_ENTITY;
+
+ENTITY Screw_thread_feature
+  SUBTYPE OF (Shape_element);
+  effective_length : Length_numerical_item_with_unit;
+  definition : Screw_thread_feature_definition;
+  maximum_length : OPTIONAL Length_data_element;
+  placement : Axis_placement;
+  DERIVE
+   SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
+  WHERE
+   WR1: NOT EXISTS(SELF\Shape_element.product_definitional);
+END_ENTITY;
+
+ENTITY Screw_thread_feature_definition
+  ABSTRACT SUPERTYPE OF (ONEOF(Catalogue_screw_thread_feature_definition, Defined_screw_thread_feature_definition, Metric_aerospace_screw_thread_feature_definition, Aerospace_screw_thread_feature_definition))
+  SUBTYPE OF (Characterizable_object);
+  form : text;
+  (*
+  also called thread profile
+The cross-sectional shape of a thread is often called its form or threadform (also spelled thread form). It may be square, triangular, trapezoidal, or other shapes. The terms form and threadform sometimes refer to all design aspects taken together (cross-sectional shape, pitch, and diameters).
+Most triangular threadforms are based on an isosceles triangle. These are usually called V-threads or vee-threads because of the shape of the letter V. For 60° V-threads, the isosceles triangle is, more specifically, equilateral. For buttress threads, the triangle is scalene.
+The theoretical triangle is usually truncated to varying degrees (that is, the tip of the triangle is cut short). A V-thread in which there is no truncation (or a minuscule amount considered negligible) is called a sharp V-thread. Truncation occurs (and is codified in standards) for practical reasons:
+  *)
+  gaging_system : OPTIONAL text;
+  hand : thread_hand;
+  side : thread_side;
+  runout : OPTIONAL Thread_runout;
+  series : OPTIONAL text;--coarse, fine,..
+  (*
+  series of threads, i.e. groups of diameter and number of threads per inch combinations distinguished from each other by the number of threads per inch associated with any given thread diameter.
+  *)
+  INVERSE
+  reference_documents : SET [1:?] OF Document_assignment FOR is_assigned_to;
+END_ENTITY;
+
+ENTITY Metric_aerospace_screw_thread_feature_definition
+  SUBTYPE OF (Screw_thread_feature_definition);
+  tolerance_class : text;
+  nominal_size : count_measure;
+  pitch : count_measure;
+  special_thread : BOOLEAN;
+END_ENTITY;
+
+ENTITY Aerospace_screw_thread_feature_definition
+  SUBTYPE OF (Screw_thread_feature_definition);
+  coating : OPTIONAL Coating_layer;
+  fit_class : text;
+  design_category : OPTIONAL aerospace_design_category_1_or_2;
+  (*
+  not in iso 3161?
+  *)
+  
+  nominal_major_diameter : OPTIONAL Length_data_element;
+  nominal_minor_diameter : OPTIONAL Length_data_element;
+  number_of_threads_per_inch : OPTIONAL count_measure;
+  pitch_diameter : OPTIONAL Length_numerical_item_with_unit;
+  qualifying_information : OPTIONAL text;
+  root_radius : OPTIONAL Length_numerical_item_with_unit;
+--  Screw_thread_feature_definition\series : text;
+  (*
+  graded pitch: coarse, fine, extra fine
+  constant pitch: 8, 12, 16 threads per inch
+  *)
+  significant_digits : OPTIONAL INTEGER;
+  surface_roughness : OPTIONAL Surface_texture;
+ DERIVE
+   pitch : REAL := 1.0/number_of_threads_per_inch;
+END_ENTITY;
+
+ENTITY Thread_runout;
+  length_of_runout : Length_numerical_item_with_unit;
+  length_quantification : thread_runout_length_quantification;
+  effective_length_modification : thread_effective_length_modification;
+END_ENTITY;
+
+END_SCHEMA;

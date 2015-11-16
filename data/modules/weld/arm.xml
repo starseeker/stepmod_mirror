@@ -5,6 +5,7 @@
    <schema name="Weld_arm">
       <interface kind="use" schema="Advanced_boundary_representation_arm"/>
       <interface kind="use" schema="Assembly_technology_arm">
+         <interfaced.item name="Assembly_joint"/>
          <interfaced.item name="Assembled_with_bonding"/>
          <interfaced.item name="Assembly_bond_definition"/>
       </interface>
@@ -37,13 +38,14 @@
       <interface kind="use" schema="Foundation_representation_arm">
          <interfaced.item name="Representation"/>
       </interface>
-      <interface kind="use" schema="Generic_material_aspects_arm">
-         <interfaced.item name="Material_identification"/>
-      </interface>
+      <interface kind="use" schema="Generic_material_aspects_arm"/>
       <interface kind="use" schema="Geometric_tolerance_arm">
          <interfaced.item name="Axis_placement_shape_element"/>
          <interfaced.item name="Dimensional_location_with_datum_feature"/>
          <interfaced.item name="Flatness_tolerance"/>
+      </interface>
+      <interface kind="use" schema="Item_definition_structure_arm">
+         <interfaced.item name="Assembly_definition"/>
       </interface>
       <interface kind="use" schema="Machining_features_arm">
          <interfaced.item name="Face_shape_element"/>
@@ -51,59 +53,50 @@
       </interface>
       <interface kind="use" schema="Manifold_surface_arm"/>
       <interface kind="use" schema="Manifold_subsurface_arm"/>
-      <interface kind="use" schema="Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm">
-         <interfaced.item name="Nominal_3d_feature"/>
-         <interfaced.item name="Nominal_3d_integral_feature"/>
-      </interface>
+      <interface kind="use" schema="Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm"/>
       <interface kind="use" schema="Person_organization_assignment_arm"/>
       <interface kind="use" schema="Physical_component_feature_arm">
          <interfaced.item name="Physical_component_feature"/>
       </interface>
-      <interface kind="use" schema="Product_and_manufacturing_information_view_context_arm">
-         <interfaced.item name="Gdt_representation_view_context"/>
-         <interfaced.item name="Material_specification_view_context"/>
-         <interfaced.item name="Model_based_view_context"/>
-         <interfaced.item name="Surface_finish_view_context"/>
-      </interface>
       <interface kind="use" schema="Part_view_definition_arm">
-         <interfaced.item name="Part_view_definition_context"/>
+         <interfaced.item name="Part_view_definition"/>
+         <interfaced.item name="Initial_part_view_definition_context"/>
+         <interfaced.item name="Additional_part_view_definition_context"/>
       </interface>
+      <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="Part_shape_arm">
          <interfaced.item name="General_part_feature"/>
       </interface>
-      <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm">
-         <interfaced.item name="Associated_shape_element"/>
+         <interfaced.item name="Item_identified_representation_usage"/>
+         <interfaced.item name="Shape_element"/>
+         <interfaced.item name="Shape_element_relationship"/>
+         <interfaced.item name="item_identified_representation_usage_select"/>
       </interface>
       <interface kind="use" schema="Specification_document_arm">
          <interfaced.item name="Process_specification"/>
+         <interfaced.item name="Material_specification"/>
       </interface>
       <interface kind="use" schema="Value_with_unit_arm">
          <interfaced.item name="count_measure"/>
       </interface>
-      <interface kind="use" schema="Surface_conditions_arm">
-         <interfaced.item name="Surface_texture"/>
-      </interface>
+      <interface kind="use" schema="Surface_conditions_arm"/>
       <interface kind="use" schema="Topologically_bounded_surface_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm">
          <interfaced.item name="Angle_data_element"/>
          <interfaced.item name="Length_data_element"/>
       </interface>
-      <interface kind="reference" schema="Dimension_tolerance_arm">
-         <interfaced.item name="dimension_target"/>
-      </interface>
+      <interface kind="reference" schema="Dimension_tolerance_arm"/>
       <interface kind="reference" schema="Part_feature_location_arm">
          <interfaced.item name="feature_or_non_feature_usage"/>
       </interface>
-      <interface kind="reference" schema="Physical_unit_design_view_arm">
+      <interface kind="reference" schema="Assembly_component_arm">
          <interfaced.item name="Assembly_component"/>
       </interface>
       <interface kind="reference" schema="Support_resource_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <interface kind="reference" schema="Shape_property_assignment_arm">
-         <interfaced.item name="shapeable_item"/>
-      </interface>
+      <interface kind="reference" schema="Shape_property_assignment_arm"/>
       <type name="arrow_or_other">
          <enumeration items="arrow_side other_side"/>
       </type>
@@ -413,24 +406,13 @@
             <typename name="weld_auxiliary_material_role"/>
          </explicit>
          <explicit name="shape" optional="YES">
-            <typename name="Associated_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Welding_definition"/>
             <redeclaration entity-ref="Material_identification"/>
          </explicit>
-      </entity>
-      <entity name="Weld_context" supertypes="Part_view_definition_context">
-         <derived expression="'weld'" name="application_domain">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="View_definition_context"/>
-         </derived>
-         <derived expression="'design'" name="life_cycle_stage">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="View_definition_context"/>
-         </derived>
-         <where expression="SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0" label="WR1"/>
       </entity>
       <entity name="Weld_definition" super.expression="ONEOF (Fillet_weld_definition, Butt_weld_definition, Flanged_butt_or_corner_weld_definition, Plug_weld_in_circular_holes_definition, Plug_weld_in_slot_definition, Spot_weld_definition, Seam_weld_definition, Edge_weld_definition, Overlay_weld_definition, Stake_weld_definition, Stud_weld_definition, Pre_defined_combined_weld_definition)" supertypes="Characterizable_object"/>
       <entity name="Weld_element" supertypes="Characterizable_object">
@@ -480,11 +462,20 @@
          <where expression="NOT (SIZEOF(weld_elements) &gt; 0) OR (SIZEOF(weld_elements) = number_of_weld_elements)" label="WR2"/>
          <where expression="NOT (SIZEOF(weld_elements) &gt; 0) OR &#10;               (SIZEOF(QUERY(we &lt;* weld_elements | EXISTS(we\Weld_element.precedent_element))) = (number_of_weld_elements -1))" label="WR3"/>
       </entity>
+      <entity name="Welded_assembly" supertypes="Assembly_definition">
+         <where expression="('weld' = SELF\Part_view_definition.initial_context\Initial_part_view_definition_context.application_domain) OR&#10;                SIZEOF(QUERY(ac &lt;* SELF\Part_view_definition.additional_contexts | ac\Additional_part_view_definition_context.application_domain = 'weld')) = 1" label="WR1"/>
+         <where expression="('design' = initial_context\View_definition_context.life_cycle_stage) OR&#10;                SIZEOF(QUERY(ac &lt;* additional_contexts | ac\View_definition_context.life_cycle_stage = 'design')) = 1" label="WR2"/>
+      </entity>
       <entity abstract.supertype="YES" name="Welded_joint" super.expression="ONEOF (Butt_joint, Corner_joint, T_joint, Lap_joint, Edge_joint)" supertypes="Assembled_with_bonding">
          <explicit name="default_bond_definition">
             <typename name="Welding_definition"/>
             <redeclaration entity-ref="Assembled_with_bonding"/>
          </explicit>
+         <explicit name="associated_assembly">
+            <typename name="Welded_assembly"/>
+            <redeclaration entity-ref="Assembly_joint"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Assembly_joint.joint_type)" label="WR1"/>
       </entity>
       <entity abstract.supertype="YES" name="Welding_definition" super.expression="ONEOF (Butt_joint_welding_definition, Corner_joint_welding_definition, T_joint_welding_definition, Lap_joint_welding_definition, Edge_joint_welding_definition)" supertypes="Assembly_bond_definition">
          <explicit name="supplemental_information">
@@ -506,10 +497,10 @@
             <typename name="Path_element_with_ends"/>
          </explicit>
          <explicit name="arrow_side">
-            <typename name="Associated_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <explicit name="other_side" optional="YES">
-            <typename name="Associated_shape_element"/>
+            <typename name="Shape_element"/>
          </explicit>
          <inverse attribute="default_bond_definition" entity="Welded_joint" name="welded_joint">
             <inverse.aggregate lower="1" type="SET" upper="?"/>

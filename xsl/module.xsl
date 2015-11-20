@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.230 2014/05/28 19:53:13 nigelshaw Exp $
+$Id: module.xsl,v 1.231 2014/05/29 16:24:47 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1375,7 +1375,7 @@ TT remove since locke is no longer available.
   select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
   -->
   <xsl:variable name="names_url"
-    select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
+    select="'http://standards.iso.org/iso/10303/tech/short_names/short-names.txt'"/>
   
   <xsl:variable name="parts_url"
     select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>

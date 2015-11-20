@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.92 2014/05/29 20:31:13 nigelshaw Exp $
+$Id: resource.xsl,v 1.93 2014/06/12 18:20:11 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1059,7 +1059,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 
 
     <xsl:variable name="names_url"
-    		  select="'http://standards.iso.org/iso/10303/tech/short_names/short_names.txt'"/>
+    		  select="'http://standards.iso.org/iso/10303/tech/short_names/short-names.txt'"/>
   
     <xsl:variable name="parts_url"
 		  select="'http://standards.iso.org/iso/10303/smrl/v6/tech/smrlv6.zip'"/>

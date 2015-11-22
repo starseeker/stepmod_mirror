@@ -1,5 +1,0 @@
-<result>
-  { 
-    .//intro/para 
-  }
-</result>

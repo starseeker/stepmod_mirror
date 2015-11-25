@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.21 2009/07/02 09:20:55 robbod Exp $
+     $Id: express_link.xsl,v 1.22 2012/12/13 22:16:04 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -311,10 +311,41 @@
       <xsl:otherwise></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  
+    
   <xsl:variable name="xref" select="concat($express_file_to_ref,'#',$aname)"/>
   <xsl:value-of select="$xref"/>
 </xsl:template>
+  
+  <xsl:template name="get_bom_object_xref"><!-- MWD -->
+    <xsl:param name="object_name"/>
+    <xsl:param name="object_used_in_schema_name"/>
+    <xsl:param name="clause" select="section"/>
+    
+    <xsl:variable 
+      name="first"
+      select="substring-before($global_xref_list, concat('.',$object_name,'|'))"/>
+    <xsl:variable name="schema">
+      <xsl:call-template name="get_last">
+        <xsl:with-param name="str"
+          select="substring-after($first,'|')"/>
+        <xsl:with-param name="token" select="'|'"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param 
+          name="section1" 
+          select="$schema"/>
+        <xsl:with-param 
+          name="section2" 
+          select="$object_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="xref" select="concat('#',$aname)"/>
+    <xsl:value-of select="$xref"/>
+  </xsl:template>
 
 <!-- called from template name="get_object_xref" -->
 <xsl:template name="get_last_orig">
@@ -478,6 +509,46 @@
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+  
+  <xsl:template name="bom_link_object"><!-- MWD -->
+    <xsl:param name="object_name"/>
+    <xsl:param name="clause" select="section"/>
+    <!-- the schema in which the object has been used -->
+    <xsl:param name="object_used_in_schema_name"/>
+    
+    <!-- make sure that the arguments don't have any whitespace -->
+    <xsl:variable name="lobject_name" 
+      select="normalize-space($object_name)"/>
+    
+    <xsl:variable name="lobject_used_in_schema_name" 
+      select="normalize-space($object_used_in_schema_name)"/>
+    
+    <xsl:choose>
+      <xsl:when
+        test="contains($global_xref_list,concat('.',$lobject_name,'|'))">
+        <xsl:variable name="xref">
+          <xsl:call-template name="get_bom_object_xref">
+            <xsl:with-param name="clause" select="$clause"/>
+            <xsl:with-param name="object_name" select="$lobject_name"/>
+            <xsl:with-param name="object_used_in_schema_name" select="$lobject_used_in_schema_name"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <A HREF="{$xref}">
+          <xsl:value-of select="$lobject_name"/>
+        </A>
+        
+        
+        
+        <!-- xsl:message>     
+          <xsl:value-of select="concat('xr:{',$object_name,':',$xref,'}')"/>
+          </xsl:message -->
+      </xsl:when>
+      
+      <xsl:otherwise>
+        <xsl:value-of select="$lobject_name"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 <!-- Recurse through a list of select items and output the list as a
      sorted  set of  URLS.
@@ -1186,7 +1257,7 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
         <xsl:value-of 
           select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm_lf;'),
                   '/sys/',$arm_file,$FILE_EXT)"/>
-      </xsl:when>
+      </xsl:when>      
 
       <xsl:otherwise>
         <xsl:value-of 

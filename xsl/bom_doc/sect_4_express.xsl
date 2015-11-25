@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.7 2014/06/13 12:57:13 nigelshaw Exp $
+     $Id: sect_4_express.xsl,v 1.8 2014/07/04 20:06:56 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -653,7 +653,7 @@
     </xsl:otherwise>
   </xsl:choose>
 
-  <xsl:call-template name="link_object">
+  <xsl:call-template name="bom_link_object">
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
@@ -1145,7 +1145,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 <xsl:template match="description" mode="underlying"/>  
 
 <xsl:template match="typename" mode="underlying">
-  <xsl:call-template name="link_object">
+  <xsl:call-template name="bom_link_object">
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../../@name"/>
@@ -1179,7 +1179,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   
   SELECT<xsl:if test="@basedon">
     BASED_ON 
-      <xsl:call-template name="link_object">
+      <xsl:call-template name="bom_link_object">
         <xsl:with-param name="object_name" select="@basedon"/>
         <xsl:with-param name="object_used_in_schema_name" 
           select="../../@name"/>
@@ -1210,7 +1210,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   ENUMERATION
   <xsl:if test="@basedon">
     BASED_ON 
-    <xsl:call-template name="link_object">
+    <xsl:call-template name="bom_link_object">
       <xsl:with-param name="object_name" select="@basedon"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -1666,7 +1666,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
 </xsl:template>
 
-<xsl:template match="redeclaration" mode="code">SELF\<xsl:call-template name="link_object">
+<xsl:template match="redeclaration" mode="code">SELF\<xsl:call-template name="bom_link_object">
       <xsl:with-param name="object_name" select="@entity-ref"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -1699,7 +1699,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>
-  <xsl:call-template name="link_object">
+  <xsl:call-template name="bom_link_object">
     <xsl:with-param name="object_name" select="@entity"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
@@ -1742,7 +1742,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
   <xsl:choose>
     <xsl:when test="@entity-ref">
-      SELF\<xsl:call-template name="link_object">
+      SELF\<xsl:call-template name="bom_link_object">
       <xsl:with-param name="object_name" select="@entity-ref"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -2280,7 +2280,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   *)<br/>
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <xsl:value-of select="@name"/></A>
   <xsl:text> FOR </xsl:text>
-  <xsl:call-template name="link_object">
+  <xsl:call-template name="bom_link_object">
     <xsl:with-param name="object_name" select="@entity"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../@name"/>
@@ -2349,7 +2349,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b> 
           constraint specifies that 
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2358,7 +2358,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b>
           is an abstract supertype and that instances of subtypes of
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2384,7 +2384,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b> 
           constraint specifies that instances of subtypes of
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2411,7 +2411,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b> 
           constraint specifies that 
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2421,7 +2421,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           is an abstract supertype and that defines 
           a constraint that applies to instances of subtypes of
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2440,7 +2440,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b> 
           constraint specifies a constraint that applies to instances of subtypes of
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -2458,7 +2458,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </b> 
           constraint specifies that 
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@entity"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../@name"/>
@@ -3076,7 +3076,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     <!-- mikeward added -->
     <xsl:template name="output_FOR_argument">
         <xsl:param name="arg"/>
-           <xsl:call-template name="link_object">
+           <xsl:call-template name="bom_link_object">
                 <xsl:with-param name="object_name" select="$arg"/>
                 <xsl:with-param name="object_used_in_schema_name" select="../../@name"/>
                 <xsl:with-param name="clause" select="'section'"/>
@@ -3115,7 +3115,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </b>
     <!-- output the default description -->
     the set of all instances of 
-    <xsl:call-template name="link_object">
+    <xsl:call-template name="bom_link_object">
       <xsl:with-param name="object_name" select="$arg"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -3839,7 +3839,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     select="concat('../../',$module_name,'/sys/1_scope',$FILE_EXT)"/>
   
   The base definition of the 
-  <xsl:call-template name="link_object">
+  <xsl:call-template name="bom_link_object">
     <xsl:with-param name="object_name" select="@item"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
@@ -3853,7 +3853,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   The following modifications apply to this part of ISO 10303.
   <p>
     The definition of 
-    <xsl:call-template name="link_object">
+    <xsl:call-template name="bom_link_object">
       <xsl:with-param name="object_name" select="@item"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -3901,7 +3901,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           The <b><xsl:value-of select="$typename"/></b> type is an extension
           of the 
           <b>
-            <xsl:call-template name="link_object">
+            <xsl:call-template name="bom_link_object">
               <xsl:with-param name="object_name" select="@basedon"/>
               <xsl:with-param name="object_used_in_schema_name" 
                 select="../../@name"/>
@@ -3960,7 +3960,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
         The <b><xsl:value-of select="$typename"/></b> type is an extension
         of the 
         <b>
-          <xsl:call-template name="link_object">
+          <xsl:call-template name="bom_link_object">
             <xsl:with-param name="object_name" select="@basedon"/>
             <xsl:with-param name="object_used_in_schema_name" 
               select="../../@name"/>
@@ -4177,6 +4177,5 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:choose>
     
   </xsl:template>
-  
   
 </xsl:stylesheet>

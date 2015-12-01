@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="bom_descriptions.xml" language_version="2" rcs.date="$Date: 2014/04/11 14:39:02 $" rcs.revision="$Revision: 1.20 $">
+<express description.file="bom_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="managed_model_based_3d_engineering_bom schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="managed_model_based_3d_engineering_bom">
       <constant expression="'MANAGED_MODEL_BASED_3D_ENGINEERING_BOM.'" name="SCHEMA_NAME">
@@ -74,12 +74,6 @@
       </type>
       <type name="ConditionParameterSelect">
          <select selectitems="Activity ActivityAssignment ActivityMethod ActivityMethodAssignment AddressAssignment Approval ApprovalAssignment Breakdown BreakdownElement BreakdownElementVersion BreakdownElementView BreakdownElementViewRelationship BreakdownVersion BreakdownVersionAssignment CertificationAssignment Classification Condition ConditionAssignment ConditionRelationship ContractAssignment DateAndPersonAssignment DateTimeAssignment DateTimeString Descriptor Document DocumentAssignment DocumentDefinition DocumentDefinitionRelationship DocumentVersion EffectivityAssignment EventAssignment ExternalPropertyDefinition FrozenAssignment Identifier IndividualPart IndividualPartVersion IndividualPartView IndividualPartViewRelationship InformationUsageRightAssignment MaterialPropertyAssignment ModelPropertyAssignment Organization OrganizationOrPersonInOrganizationAssignment Part PartVersion PartView PartViewRelationship ProcessOperationResourceAssignment ProductConcept ProductConfiguration ProjectAssignment PropertyDefinition PropertyDefinitionAssignment PropertyDefinitionRelationship PropertyDefinitionString PropertyValue PropertyValueAssignment PropertyValueRelationship Proxy Requirement RequirementAssignment RequirementVersion RequirementView RequirementViewRelationship SecurityClassificationAssignment Specification SpecificationAssignment SpecificationCategoryAssignment SpecificationConditionAssignment SpecificationInclusionAssignment TimeIntervalAssignment WorkOrderAssignment WorkRequest WorkRequestAssignment"/>
-      </type>
-      <type name="ConfiguredItemSelect">
-         <select selectitems="AlternativeSolution AssemblyViewRelationship BreakdownElement Occurrence ProcessOperationOccurrence ProcessPlan"/>
-      </type>
-      <type name="ConfiguredSpecificationSelect">
-         <select selectitems="SpecificationAssignment SpecificationConditionAssignment"/>
       </type>
       <type name="ContractAssignmentSelect">
          <select selectitems="Activity ActivityMethod ActivityMethodAssignment ActivityMethodRelationship AlternativeSolution Breakdown BreakdownElement BreakdownElementVersion BreakdownVersion Classification Descriptor Document DocumentVersion ExchangeContextClassLibrary Identifier IndividualPart IndividualPartVersion InformationUsageRight Organization Part PartVersion PersonInOrganization ProductConfiguration Project Proxy Requirement RequirementAssignment RequirementCollectionRelationship RequirementSource RequirementVersion RequirementVersionRelationship RequirementView WorkOrder WorkRequest"/>
@@ -397,7 +391,6 @@
             <typename name="Activity"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="ActivityAssignmentSelect"/>
          </explicit>
       </entity>
@@ -458,7 +451,6 @@
             <typename name="ActivityMethod"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="ActivityMethodAssignmentSelect"/>
          </explicit>
       </entity>
@@ -737,7 +729,6 @@
             <typename name="Approval"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="ApprovalAssignmentSelect"/>
          </explicit>
       </entity>
@@ -786,28 +777,16 @@
             <typename name="ClassSelect"/>
          </explicit>
       </entity>
-      <entity name="AssemblyJoint">
-         <explicit name="id" optional="YES">
-            <typename name="IdentifierSelect"/>
-         </explicit>
-         <explicit name="name" optional="YES">
-            <typename name="DescriptorSelect"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <typename name="DescriptorSelect"/>
-         </explicit>
-         <explicit name="classifiedAs" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Classification"/>
-         </explicit>
-         <explicit name="assemblyShape">
+      <entity name="AssemblyJoint" supertypes="PartShapeElement">
+         <explicit name="elementOf">
             <typename name="AssemblyDefinition"/>
+            <redeclaration entity-ref="ShapeElement"/>
          </explicit>
          <explicit name="shapeElement1">
-            <typename name="ShapeElement"/>
+            <typename name="OccurrenceShapeElement"/>
          </explicit>
          <explicit name="shapeElement2">
-            <typename name="ShapeElement"/>
+            <typename name="OccurrenceShapeElement"/>
          </explicit>
       </entity>
       <entity abstract.supertype="YES" name="AssemblyOccurrenceRelationship" super.expression="ONEOF (NextAssemblyOccurrenceUsage, PromissoryAssemblyOccurrenceUsage)" supertypes="ViewOccurrenceRelationship">
@@ -1212,7 +1191,6 @@
             <typename name="BreakdownVersion"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="BreakdownVersionAssignmentSelect"/>
          </explicit>
       </entity>
@@ -1251,14 +1229,14 @@
          <explicit name="rotationMatrix">
             <aggregate lower="2" type="LIST" upper="3"/>
             <aggregate lower="2" type="LIST" upper="3"/>
-            <typename name="LengthMeasure"/>
+            <builtintype type="REAL"/>
          </explicit>
          <explicit name="scale" optional="YES">
             <builtintype type="REAL"/>
          </explicit>
          <explicit name="translationVector">
             <aggregate lower="2" type="LIST" upper="3"/>
-            <typename name="LengthMeasure"/>
+            <builtintype type="REAL"/>
          </explicit>
          <derived expression="SIZEOF(translationVector)" name="dim">
             <builtintype type="INTEGER"/>
@@ -1266,8 +1244,9 @@
          <derived expression="NVL(scale,1.0)" name="scl">
             <builtintype type="REAL"/>
          </derived>
-         <where expression="scl &gt; 0.0" label="WR1"/>
-         <where expression="SIZEOF(translationVector) = SIZEOF(rotationMatrix)" label="WR2"/>
+         <where expression="{-1.0 &lt;= rotationMatrix &lt;= 1.0}" label="WR1"/>
+         <where expression="scale &gt; 0.0" label="WR2"/>
+         <where expression="SIZEOF(translationVector) = SIZEOF(rotationMatrix)" label="WR3"/>
       </entity>
       <entity name="CentreOfMass" supertypes="ShapeDependentProperty">
          <explicit name="centrePoint">
@@ -1318,7 +1297,6 @@
             <typename name="Certification"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="CertificationAssignmentSelect"/>
          </explicit>
       </entity>
@@ -1454,6 +1432,9 @@
             <typename name="AxisPlacementOrTransformationSelect"/>
             <redeclaration entity-ref="GeometricRepresentation"/>
          </explicit>
+         <inverse attribute="relating" entity="GeometricRepresentationRelationship" name="composedModels">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
       </entity>
       <entity name="CompositeAssembly" supertypes="ConstituentPart">
          <explicit name="layupPart">
@@ -1670,7 +1651,6 @@
             <typename name="Contract"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="ContractAssignmentSelect"/>
          </explicit>
       </entity>
@@ -1751,7 +1731,6 @@
             <typename name="DateAndPersonOrganization"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="DateTimePersonOrganizationElementSelect"/>
          </explicit>
       </entity>
@@ -1781,7 +1760,6 @@
             <typename name="DateTimeString"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="DateTimeAssignmentSelect"/>
          </explicit>
       </entity>
@@ -1958,7 +1936,6 @@
             <typename name="AssignedDocumentSelect"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="DocumentAssignmentSelect"/>
          </explicit>
          <explicit name="documentPortion" optional="YES">
@@ -2149,7 +2126,6 @@
             <typename name="Effectivity"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="EffectivityAssignmentSelect"/>
          </explicit>
          <explicit name="effectivityIndication">
@@ -2273,7 +2249,6 @@
             <typename name="Event"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="GeneralOrganizationalDataSelect"/>
          </explicit>
       </entity>
@@ -2596,6 +2571,11 @@
             <typename name="PhysicalElementSelect"/>
          </explicit>
       </entity>
+      <entity name="GeneralGeometricRepresentationRelationship" supertypes="GeometricRepresentationRelationship">
+         <explicit name="relationType">
+            <typename name="ClassSelect"/>
+         </explicit>
+      </entity>
       <entity name="GeneralShapeDependentProperty" supertypes="ShapeDependentProperty">
          <explicit name="propertyType">
             <typename name="PropertyDefinitionSelect"/>
@@ -2658,7 +2638,7 @@
             <typename name="ClassSelect"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="GeometricRepresentationRelationship" super.expression="ONEOF (GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace)">
+      <entity abstract.supertype="YES" name="GeometricRepresentationRelationship" super.expression="ONEOF (GeneralGeometricRepresentationRelationship, GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace)">
          <explicit name="id" optional="YES">
             <typename name="IdentifierSelect"/>
          </explicit>
@@ -2695,6 +2675,10 @@
          <where expression="SELF\GeometricRepresentationRelationship.relating.contextOfItems :&lt;&gt;: SELF\GeometricRepresentationRelationship.related.contextOfItems" label="WR1"/>
       </entity>
       <entity name="GeometricRepresentationRelationshipWithSameCoordinateSpace" supertypes="GeometricRepresentationRelationship">
+         <derived expression="TRUE" name="definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="GeometricRepresentationRelationship"/>
+         </derived>
          <where expression="SELF\GeometricRepresentationRelationship.relating.contextOfItems :=: SELF\GeometricRepresentationRelationship.related.contextOfItems" label="WR1"/>
       </entity>
       <entity name="GeometricSheetRepresentation" supertypes="CompositeSheetRepresentation">
@@ -2915,7 +2899,7 @@
          </explicit>
          <inverse attribute="versions" entity="IndividualPart" name="versionOf"/>
       </entity>
-      <entity name="IndividualPartVersionRelationship">
+      <entity name="IndividualPartVersionRelationship" super.expression="ProductPlannedToRealized">
          <explicit name="id" optional="YES">
             <typename name="IdentifierSelect"/>
          </explicit>
@@ -3048,8 +3032,7 @@
          <explicit name="assignedRight">
             <typename name="InformationUsageRight"/>
          </explicit>
-         <explicit name="isAssignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
+         <explicit name="assignedTo">
             <typename name="InformationUsageRightAssignmentSelect"/>
          </explicit>
       </entity>
@@ -3439,7 +3422,6 @@
             <typename name="IdentifierSelect"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="MaterialIdentificationAssignmentSelect"/>
          </explicit>
       </entity>
@@ -3570,7 +3552,6 @@
             <typename name="ModelProperty"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="PropertyAssignmentSelect"/>
          </explicit>
          <explicit name="validityContext" optional="YES">
@@ -3666,7 +3647,7 @@
             <typename name="NumericalContext"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Occurrence" super.expression="ONEOF (QuantifiedOccurrence, SelectedOccurrence, SingleOccurrence, SpecifiedOccurrence)">
+      <entity abstract.supertype="YES" name="Occurrence" super.expression="ONEOF (QuantifiedOccurrence, SingleOccurrence, SpecifiedOccurrence)">
          <explicit name="id">
             <typename name="IdentifierSelect"/>
          </explicit>
@@ -3717,6 +3698,15 @@
             <typename name="Occurrence"/>
          </explicit>
          <where expression="relating :&lt;&gt;: related" label="WR1"/>
+      </entity>
+      <entity name="OccurrenceShapeElement" supertypes="ShapeElement">
+         <explicit name="elementOf">
+            <typename name="Occurrence"/>
+            <redeclaration entity-ref="ShapeElement"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="PartShapeElement"/>
+         </explicit>
       </entity>
       <entity name="OneOfCondition" supertypes="Condition">
          <derived expression="'one of'" name="conditionType">
@@ -3791,7 +3781,6 @@
             <typename name="OrganizationOrPersonInOrganizationSelect"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="DateTimePersonOrganizationElementSelect"/>
          </explicit>
       </entity>
@@ -3866,6 +3855,12 @@
             <typename name="Part"/>
          </explicit>
          <where expression="relating :&lt;&gt;: related" label="WR1"/>
+      </entity>
+      <entity name="PartShapeElement" super.expression="AssemblyJoint" supertypes="ShapeElement">
+         <explicit name="elementOf">
+            <typename name="PartView"/>
+            <redeclaration entity-ref="ShapeElement"/>
+         </explicit>
       </entity>
       <entity name="PartToIndividualPartAssociation">
          <explicit name="description" optional="YES">
@@ -3967,6 +3962,10 @@
          <explicit name="definingGeometry" optional="YES">
             <typename name="GeometricModel"/>
          </explicit>
+         <explicit name="auxiliaryGeometry" optional="YES">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="GeometricModel"/>
+         </explicit>
          <explicit name="initialContext">
             <typename name="ViewContext"/>
          </explicit>
@@ -3975,6 +3974,7 @@
             <typename name="ProxySelect"/>
          </explicit>
          <inverse attribute="views" entity="PartVersion" name="viewOf"/>
+         <where expression="NOT (EXISTS(auxiliaryGeometry)) OR EXISTS(definingGeometry)" label="WR1"/>
       </entity>
       <entity name="PartViewRelationship" super.expression="ONEOF (AssemblyViewRelationship, GeometricalRelationship, MakeFromRelationship, ProcessStateRelationship, ReplacedPartViewRelationship, ToolPartRelationship)">
          <explicit name="id" optional="YES">
@@ -4689,7 +4689,6 @@
             <typename name="Project"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="ProjectAssignmentSelect"/>
          </explicit>
       </entity>
@@ -4728,7 +4727,7 @@
             <redeclaration entity-ref="PartViewRelationship"/>
          </derived>
       </entity>
-      <entity name="PropertyDefinition">
+      <entity name="PropertyDefinition" super.expression="MaterialPropertyDefinition">
          <explicit name="id">
             <typename name="IdentifierSelect"/>
          </explicit>
@@ -4945,9 +4944,13 @@
          </explicit>
       </entity>
       <entity name="QuantifiedOccurrence" supertypes="Occurrence">
-         <explicit name="quantity">
-            <typename name="NumericalValue"/>
+         <explicit name="quantity" optional="YES">
+            <typename name="ValueWithUnit"/>
          </explicit>
+         <explicit name="criterion" optional="YES">
+            <typename name="MultiLingualStringSelect"/>
+         </explicit>
+         <where expression="EXISTS(quantity) OR EXISTS(criterion)" label="WR1"/>
       </entity>
       <entity name="RealizedIndividualPart" supertypes="IndividualPartVersion"/>
       <entity name="RectangularSize" super.expression="NamedSize">
@@ -5244,7 +5247,6 @@
             <typename name="Classification"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="GeneralOrganizationalDataSelect"/>
          </explicit>
          <explicit name="earliestEnd">
@@ -5308,16 +5310,7 @@
             <typename name="SecurityClassification"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="SecurityClassificationAssignmentSelect"/>
-         </explicit>
-      </entity>
-      <entity name="SelectedOccurrence" supertypes="Occurrence">
-         <explicit name="criterion">
-            <typename name="MultiLingualStringSelect"/>
-         </explicit>
-         <explicit name="quantity">
-            <typename name="ValueWithUnit"/>
          </explicit>
       </entity>
       <entity name="SerialEffectivity" supertypes="Effectivity">
@@ -5360,7 +5353,7 @@
             <typename name="ClassSelect"/>
          </explicit>
       </entity>
-      <entity name="ShapeElement" super.expression="CoatingLayer">
+      <entity name="ShapeElement" super.expression="ONEOF (PartShapeElement, OccurrenceShapeElement, CoatingLayer)">
          <explicit name="id" optional="YES">
             <typename name="IdentifierSelect"/>
          </explicit>
@@ -5747,7 +5740,6 @@
             <typename name="TimeInterval"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="GeneralOrganizationalDataSelect"/>
          </explicit>
       </entity>
@@ -5972,7 +5964,6 @@
             <typename name="WorkOrder"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="WorkOrderAssignmentSelect"/>
          </explicit>
       </entity>
@@ -6052,7 +6043,6 @@
             <typename name="WorkRequest"/>
          </explicit>
          <explicit name="assignedTo">
-            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="WorkRequestAssignmentSelect"/>
          </explicit>
       </entity>

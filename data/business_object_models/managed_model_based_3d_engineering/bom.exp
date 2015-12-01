@@ -1,7 +1,22 @@
 (*
-   $Id: arm.exp,v 1.66 2014/02/08 18:01:09 thomasrthurman Exp $
+   $Id: bom.exp,v 1.33 2014/05/29 19:08:31 darla Exp $
    ISO TC184/SC4/WG12 N8520 - ISO/TS 10303-3001 managed model based 3d engineering bom - EXPRESS BOM
-  
+   
+   change Log:
+   Issues addressed for TC1:
+   #5447: ConfiguredItemSelect and ConfiguredSpecificationSelect removed
+   #5067: cardinality changed from [1:?] 1 for assignedTo attrbutes
+   #5710: In CartesianTransformation, for attributes rotationMatrix and translationVector: Lenghtmeasure changed to REAL.
+          WR added to constrain the values for rotationMatrix to -1..1 inclusive
+   #5709: Add INV attribute for ComposedGeomtericModel.composedModels to constrain the GeometricRepresentationRelationship.relating to [1:?]
+   #5619: New entity GeneralGeometricRepresentationRelationship added as subtype of GeometricRepresentationRelationship with attribute RelationType
+   #5616: In GeometricRepresentationRelationshipWithSameCoordinateSpace. New derived attribute SELF\GeometricRepresentationRelationship.definitional : BOOLEAN := .TRUE. added
+   #4984: ProductPlannedToRealized added in SUPERTYPE clause of IndividualPartVersionRelationship
+   #5620: In PartView new attribute auxiliaryGeometry with type GeometricModel and cardinality OPTONAL SET[1:?] added. Where rule added.
+   #4985: MaterialPropertyDefinition added in SUPERTYPE clause of PropertyDefinition
+   #4951: In InformationUsageRightAssignment renamed attribute "isAssignedTo" to "assignedTo"
+   #5682: Entity SelectedOccurrence merged into QuantifiedOccurrence
+   #5688: New entities PartShapeElement and OccurrenceShapeELement added. Entity AssemblyJoint modified
 *)
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -622,22 +637,6 @@ TYPE ConditionParameterSelect = SELECT(
   WorkOrderAssignment,
   WorkRequest,
   WorkRequestAssignment
-);
-END_TYPE;
-
-TYPE ConfiguredItemSelect = SELECT(
-  AlternativeSolution,
-  AssemblyViewRelationship,
-  BreakdownElement,
-  Occurrence,
-  ProcessOperationOccurrence,
-  ProcessPlan
-);
-END_TYPE;
-
-TYPE ConfiguredSpecificationSelect = SELECT(
-  SpecificationAssignment,
-  SpecificationConditionAssignment
 );
 END_TYPE;
 
@@ -2065,7 +2064,7 @@ ENTITY ActivityAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedActivity : Activity;
-  assignedTo : SET[1:?] OF ActivityAssignmentSelect;
+  assignedTo : ActivityAssignmentSelect;
 END_ENTITY;
 
 ENTITY ActivityHappeningRelationship
@@ -2092,7 +2091,7 @@ ENTITY ActivityMethodAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedActivityMethod : ActivityMethod;
-  assignedTo : SET[1:?] OF ActivityMethodAssignmentSelect;
+  assignedTo : ActivityMethodAssignmentSelect;
 END_ENTITY;
 
 ENTITY ActivityMethodRelationship;
@@ -2226,7 +2225,7 @@ ENTITY ApprovalAssignment;
   description : OPTIONAL SET[1:?] OF DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   assignedApproval : Approval;
-  assignedTo : SET[1:?] OF ApprovalAssignmentSelect;
+  assignedTo : ApprovalAssignmentSelect;
 END_ENTITY;
 
 ENTITY ApprovalRelationship;
@@ -2255,14 +2254,11 @@ ENTITY AssemblyDefinition
   assemblyType : OPTIONAL ClassSelect;
 END_ENTITY;
 
-ENTITY AssemblyJoint;
-  id : OPTIONAL IdentifierSelect;
-  name : OPTIONAL DescriptorSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  assemblyShape : AssemblyDefinition;
-  shapeElement1 : ShapeElement;
-  shapeElement2 : ShapeElement;
+ENTITY AssemblyJoint
+  SUBTYPE OF(PartShapeElement);
+  SELF\ShapeElement.elementOf : AssemblyDefinition;
+  shapeElement1 : OccurrenceShapeElement;
+  shapeElement2 : OccurrenceShapeElement;
 END_ENTITY;
 
 ENTITY AssemblyOccurrenceRelationship
@@ -2471,7 +2467,7 @@ ENTITY BreakdownVersionAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedBreakdownVersion : BreakdownVersion;
-  assignedTo : SET[1:?] OF BreakdownVersionAssignmentSelect;
+  assignedTo : BreakdownVersionAssignmentSelect;
 END_ENTITY;
 
 ENTITY BreakdownVersionRelationship;
@@ -2494,15 +2490,16 @@ END_ENTITY;
 
 ENTITY CartesianTransformation
   SUBTYPE OF(DetailedGeometricModelItem);
-  rotationMatrix : LIST[2:3] OF LIST[2:3] OF LengthMeasure;
+  rotationMatrix : LIST[2:3] OF LIST[2:3] OF REAL;
   scale : OPTIONAL REAL;
-  translationVector : LIST[2:3] OF LengthMeasure;
+  translationVector : LIST[2:3] OF REAL;
 DERIVE
   dim : INTEGER := SIZEOF(translationVector);
   scl : REAL := NVL(scale,1.0);
 WHERE
-  WR1: scl > 0.0;
-  WR2: SIZEOF(translationVector) = SIZEOF(rotationMatrix);
+  WR1: {-1.0 <= rotationMatrix <= 1.0};
+  WR2: scale > 0.0;
+  WR3: SIZEOF(translationVector) = SIZEOF(rotationMatrix);
 END_ENTITY;
 
 ENTITY CentreOfMass
@@ -2526,7 +2523,7 @@ ENTITY CertificationAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
   assignedCertification : Certification;
-  assignedTo : SET[1:?] OF CertificationAssignmentSelect;
+  assignedTo : CertificationAssignmentSelect;
 END_ENTITY;
 
 ENTITY ChangeElementSequence;
@@ -2608,6 +2605,8 @@ END_ENTITY;
 ENTITY ComposedGeometricModel
   SUBTYPE OF(GeometricModel);
   SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
+INVERSE
+  composedModels : SET[1:?] OF GeometricRepresentationRelationship FOR relating;  
 END_ENTITY;
 
 ENTITY CompositeAssembly
@@ -2732,7 +2731,7 @@ ENTITY ContractAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
   assignedContract : Contract;
-  assignedTo : SET[1:?] OF ContractAssignmentSelect;
+  assignedTo : ContractAssignmentSelect;
 END_ENTITY;
 
 ENTITY ContractRelationship;
@@ -2781,7 +2780,7 @@ ENTITY DateAndPersonAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedDateAndPerson : DateAndPersonOrganization;
-  assignedTo : SET[1:?] OF DateTimePersonOrganizationElementSelect;
+  assignedTo : DateTimePersonOrganizationElementSelect;
 END_ENTITY;
 
 ENTITY DateAndPersonOrganization;
@@ -2795,7 +2794,7 @@ ENTITY DateTimeAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedDate : DateTimeString;
-  assignedTo : SET[1:?] OF DateTimeAssignmentSelect;
+  assignedTo : DateTimeAssignmentSelect;
 END_ENTITY;
 
 ENTITY DegeneratePcurve
@@ -2905,7 +2904,7 @@ ENTITY DocumentAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedDocument : AssignedDocumentSelect;
-  assignedTo : SET[1:?] OF DocumentAssignmentSelect;
+  assignedTo : DocumentAssignmentSelect;
   documentPortion : OPTIONAL MultiLingualStringSelect;
 END_ENTITY;
 
@@ -3000,7 +2999,7 @@ ENTITY EffectivityAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedEffectivity : Effectivity;
-  assignedTo : SET[1:?] OF EffectivityAssignmentSelect;
+  assignedTo : EffectivityAssignmentSelect;
   effectivityIndication : BOOLEAN;
 END_ENTITY;
 
@@ -3056,7 +3055,7 @@ ENTITY EventAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedEvent : Event;
-  assignedTo : SET[1:?] OF GeneralOrganizationalDataSelect;
+  assignedTo : GeneralOrganizationalDataSelect;
 END_ENTITY;
 
 ENTITY EventRelationship;
@@ -3279,6 +3278,11 @@ ENTITY FunctionalBreakdownElementViewAssociation;
   associatedPhysicalElement : PhysicalElementSelect;
 END_ENTITY;
 
+ENTITY GeneralGeometricRepresentationRelationship
+  SUBTYPE OF(GeometricRepresentationRelationship);
+  relationType : ClassSelect;
+END_ENTITY;
+
 ENTITY GeneralShapeDependentProperty
   SUBTYPE OF(ShapeDependentProperty);
   propertyType : PropertyDefinitionSelect;
@@ -3323,7 +3327,7 @@ END_ENTITY;
 
 ENTITY GeometricRepresentationRelationship
   ABSTRACT
-  SUPERTYPE OF(ONEOF(GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace));
+  SUPERTYPE OF(ONEOF(GeneralGeometricRepresentationRelationship,GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace));
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
@@ -3349,6 +3353,8 @@ END_ENTITY;
 
 ENTITY GeometricRepresentationRelationshipWithSameCoordinateSpace
   SUBTYPE OF(GeometricRepresentationRelationship);
+DERIVE
+  SELF\GeometricRepresentationRelationship.definitional : BOOLEAN := TRUE;
 WHERE
   WR1: SELF\GeometricRepresentationRelationship.relating.contextOfItems :=: SELF\GeometricRepresentationRelationship.related.contextOfItems;
 END_ENTITY;
@@ -3454,7 +3460,8 @@ INVERSE
   versionOf : IndividualPart FOR versions;
 END_ENTITY;
 
-ENTITY IndividualPartVersionRelationship;
+ENTITY IndividualPartVersionRelationship
+  SUPERTYPE OF(ONEOF(ProductPlannedToRealized));
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
@@ -3513,7 +3520,7 @@ ENTITY InformationUsageRightAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
   assignedRight : InformationUsageRight;
-  isAssignedTo : SET[1:?] OF InformationUsageRightAssignmentSelect;
+  assignedTo : InformationUsageRightAssignmentSelect;
 END_ENTITY;
 
 ENTITY InformationUsageRightRelationship;
@@ -3739,7 +3746,7 @@ END_ENTITY;
 
 ENTITY MaterialIdentification;
   id : IdentifierSelect;
-  assignedTo : SET[1:?] OF MaterialIdentificationAssignmentSelect;
+  assignedTo : MaterialIdentificationAssignmentSelect;
 END_ENTITY;
 
 ENTITY MaterialPropertyAssignment;
@@ -3811,7 +3818,7 @@ ENTITY ModelPropertyAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
   assignedProperty : ModelProperty;
-  assignedTo : SET[1:?] OF PropertyAssignmentSelect;
+  assignedTo : PropertyAssignmentSelect;
   validityContext : OPTIONAL ValidityContextSelect;
 END_ENTITY;
 
@@ -3886,7 +3893,7 @@ END_ENTITY;
 
 ENTITY Occurrence
   ABSTRACT
-  SUPERTYPE OF(ONEOF(QuantifiedOccurrence, SelectedOccurrence, SingleOccurrence, SpecifiedOccurrence));
+  SUPERTYPE OF(ONEOF(QuantifiedOccurrence, SingleOccurrence, SpecifiedOccurrence));
   id : IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
@@ -3912,6 +3919,12 @@ ENTITY OccurrenceRelationship
   related : Occurrence;
 WHERE
   WR1: relating :<>: related;
+END_ENTITY;
+
+ENTITY OccurrenceShapeElement
+  SUBTYPE OF(ShapeElement);
+  SELF\ShapeElement.elementOf : Occurrence;
+  definition: OPTIONAL PartShapeElement;
 END_ENTITY;
 
 ENTITY OneOfCondition
@@ -3949,7 +3962,7 @@ ENTITY OrganizationOrPersonInOrganizationAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedPersonOrOrganization : OrganizationOrPersonInOrganizationSelect;
-  assignedTo : SET[1:?] OF DateTimePersonOrganizationElementSelect;
+  assignedTo : DateTimePersonOrganizationElementSelect;
 END_ENTITY;
 
 ENTITY OrganizationRelationship;
@@ -3987,6 +4000,12 @@ ENTITY PartRelationship
   related : Part;
 WHERE
   WR1: relating :<>: related;
+END_ENTITY;
+
+ENTITY PartShapeElement
+  SUPERTYPE OF(ONEOF(AssemblyJoint))
+  SUBTYPE OF(ShapeElement);
+  SELF\ShapeElement.elementOf : PartView;
 END_ENTITY;
 
 ENTITY PartToIndividualPartAssociation;
@@ -4034,10 +4053,13 @@ ENTITY PartView
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   additionalContexts : OPTIONAL SET[1:?] OF ViewContext;
   definingGeometry : OPTIONAL GeometricModel;
+  auxiliaryGeometry : OPTIONAL SET[1:?] OF GeometricModel;
   initialContext : ViewContext;
   sameAs : OPTIONAL SET[1:?] OF ProxySelect;
 INVERSE
   viewOf : PartVersion FOR views;
+WHERE  
+  WR1: NOT (EXISTS(auxiliaryGeometry)) OR EXISTS(definingGeometry);
 END_ENTITY;
 
 ENTITY PartViewRelationship
@@ -4423,7 +4445,7 @@ ENTITY ProjectAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedProject : Project;
-  assignedTo : SET[1:?] OF ProjectAssignmentSelect;
+  assignedTo : ProjectAssignmentSelect;
 END_ENTITY;
 
 ENTITY ProjectRelationship;
@@ -4449,7 +4471,8 @@ DERIVE
   SELF\PartViewRelationship.relationType : ClassString := 'promissory assembly view';
 END_ENTITY;
 
-ENTITY PropertyDefinition;
+ENTITY PropertyDefinition
+  SUPERTYPE OF(ONEOF(MaterialPropertyDefinition));
   id : IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   versionId : OPTIONAL IdentifierSelect;
@@ -4558,7 +4581,10 @@ END_ENTITY;
 
 ENTITY QuantifiedOccurrence
   SUBTYPE OF(Occurrence);
-  quantity : NumericalValue;
+  quantity : OPTIONAL ValueWithUnit;
+  criterion : OPTIONAL MultiLingualStringSelect;
+  WHERE  
+  WR1: EXISTS(quantity) OR EXISTS(criterion);
 END_ENTITY;
 
 ENTITY RealizedIndividualPart
@@ -4726,7 +4752,7 @@ ENTITY RetentionPeriod;
   id : OPTIONAL IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  assignedTo : SET[1:?] OF GeneralOrganizationalDataSelect;
+  assignedTo : GeneralOrganizationalDataSelect;
   earliestEnd : PeriodOrDateSelect;
   latestEnd : PeriodOrDateSelect;
   start : EventOrDateSelect;
@@ -4760,13 +4786,7 @@ ENTITY SecurityClassificationAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
   assignedSecurityClassification : SecurityClassification;
-  assignedTo : SET[1:?] OF SecurityClassificationAssignmentSelect;
-END_ENTITY;
-
-ENTITY SelectedOccurrence
-  SUBTYPE OF(Occurrence);
-  criterion : MultiLingualStringSelect;
-  quantity : ValueWithUnit;
+  assignedTo : SecurityClassificationAssignmentSelect;
 END_ENTITY;
 
 ENTITY SerialEffectivity
@@ -4793,7 +4813,7 @@ ENTITY ShapeDependentProperty
 END_ENTITY;
 
 ENTITY ShapeElement
-  SUPERTYPE OF(ONEOF(CoatingLayer));
+  SUPERTYPE OF(ONEOF(PartShapeElement,OccurrenceShapeElement,CoatingLayer));
   id : OPTIONAL IdentifierSelect;
   name : OPTIONAL DescriptorSelect;
   description : OPTIONAL DescriptorSelect;
@@ -5010,7 +5030,7 @@ ENTITY TimeIntervalAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedTimeInterval : TimeInterval;
-  assignedTo : SET[1:?] OF GeneralOrganizationalDataSelect;
+  assignedTo : GeneralOrganizationalDataSelect;
 END_ENTITY;
 
 ENTITY TimeIntervalEffectivity
@@ -5163,7 +5183,7 @@ ENTITY WorkOrderAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedWorkOrder : WorkOrder;
-  assignedTo : SET[1:?] OF WorkOrderAssignmentSelect;
+  assignedTo : WorkOrderAssignmentSelect;
 END_ENTITY;
 
 ENTITY WorkOrderRelationship;
@@ -5196,7 +5216,7 @@ ENTITY WorkRequestAssignment;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : ClassSelect;
   assignedWorkRequest : WorkRequest;
-  assignedTo : SET[1:?] OF WorkRequestAssignmentSelect;
+  assignedTo : WorkRequestAssignmentSelect;
 END_ENTITY;
 
 ENTITY WorkRequestRelationship;

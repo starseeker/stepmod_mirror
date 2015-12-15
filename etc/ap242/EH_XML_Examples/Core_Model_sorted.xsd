@@ -2675,9 +2675,7 @@
 	<xsd:complexType name="DefinitionBasedOccurrence" abstract="true">
 		<xsd:complexContent>
 			<xsd:extension base="Occurrence">
-				<xsd:sequence>
-					<xsd:element name="Occurrence" type="Occurrence" minOccurs="0" maxOccurs="unbounded" />
-				</xsd:sequence>
+				<xsd:sequence/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
@@ -4249,6 +4247,34 @@
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
+	<xsd:complexType name="GeometricRepresentationRelationshipWithMultiItemTransformation">
+		<xsd:complexContent>
+			<xsd:extension base="GeometricRepresentationRelationship">
+				<xsd:sequence>
+					<xsd:element name="Origin">
+						<xsd:complexType>
+							<xsd:group ref="PlacementTransformationOriginSelect" maxOccurs="unbounded" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="Target">
+						<xsd:complexType>
+							<xsd:group ref="PlacementTransformationTargetSelect" maxOccurs="unbounded" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="GeometricRepresentationRelationshipWithPlacementToTopologyTransformation">
+		<xsd:complexContent>
+			<xsd:extension base="GeometricRepresentationRelationship">
+				<xsd:sequence>
+					<xsd:element name="Origin" type="cmn:Reference" />
+					<xsd:element name="Target" type="cmn:Reference" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
 	<xsd:complexType name="GeometricRepresentationRelationshipWithPlacementTransformation">
 		<xsd:complexContent>
 			<xsd:extension base="GeometricRepresentationRelationship">
@@ -4306,6 +4332,7 @@
 			<xsd:extension base="PartShapeElement">
 				<xsd:sequence>
 					<xsd:element name="AttachedFeature" type="cmn:Reference" minOccurs="0" />
+					<xsd:element name="NodeType" type="NodeTypeEnum" minOccurs="0" />
 				</xsd:sequence>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -5706,10 +5733,10 @@
 							<xsd:group ref="DescriptorSelect" minOccurs="0" />
 						</xsd:complexType>
 					</xsd:element>
-					<xsd:element name="SpecifiedOccurrence" type="SpecifiedOccurrence" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element name="Id" type="Id" />
 					<xsd:element name="Marking" type="xsd:string" minOccurs="0" />
 					<xsd:element name="MaterialIdentification" type="MaterialIdentification" minOccurs="0" maxOccurs="unbounded" />
+					<xsd:element name="Occurrence" type="Occurrence" minOccurs="0" maxOccurs="unbounded" />
 					<xsd:element name="ShapeDependentProperty" type="ShapeDependentProperty" minOccurs="0" maxOccurs="unbounded" />
 					<xsd:element name="ShapeElement" type="ShapeElement" minOccurs="0" maxOccurs="unbounded" />
 					<xsd:element name="SurfaceCondition" type="SurfaceCondition" minOccurs="0" maxOccurs="unbounded" />
@@ -8278,7 +8305,7 @@
 		<xsd:complexContent>
 			<xsd:extension base="cmn:BaseObject">
 				<xsd:sequence>
-					<xsd:element name="AssignedRequirement" type="RequirementView" />
+					<xsd:element name="AssignedRequirement" type="cmn:Reference" />
 					<xsd:element name="ClassifiedAs" minOccurs="0">
 						<xsd:complexType>
 							<xsd:sequence>
@@ -10561,6 +10588,7 @@
 	</xsd:group>
 	<xsd:group name="AssemblyDesignSelect">
 		<xsd:choice>
+			<xsd:element name="AssemblyViewRelationship" type="cmn:Reference" />
 			<xsd:element name="Occurrence" type="cmn:Reference" />
 		</xsd:choice>
 	</xsd:group>
@@ -10730,7 +10758,7 @@
 			<xsd:element name="ActivityAssignment" type="ActivityAssignment" />
 			<xsd:element name="ActivityMethod" type="cmn:Reference" />
 			<xsd:element name="ActivityMethodAssignment" type="ActivityMethodAssignment" />
-			<xsd:element name="ActivityMethodRelationship" type="cmn:Reference" />
+			<xsd:element name="ActivityMethodRelationship" type="ActivityMethodRelationship" />
 			<xsd:element name="AddressAssignment" type="AddressAssignment" />
 			<xsd:element name="Approval" type="cmn:Reference" />
 			<xsd:element name="ApprovalAssignment" type="ApprovalAssignment" />
@@ -10850,6 +10878,7 @@
 	<xsd:group name="ConfiguredItemSelect">
 		<xsd:choice>
 			<xsd:element name="AlternativeSolution" type="cmn:Reference" />
+			<xsd:element name="AssemblyViewRelationship" type="cmn:Reference" />
 			<xsd:element name="BreakdownElement" type="cmn:Reference" />
 			<xsd:element name="Occurrence" type="cmn:Reference" />
 			<xsd:element name="ProcessOperationOccurrence" type="cmn:Reference" />
@@ -11157,6 +11186,13 @@
 			<xsd:element name="GeometricRepresentation" type="cmn:Reference" />
 			<xsd:element name="Identifier" type="cmn:Reference" />
 			<xsd:element name="IdentifierRelationship" type="cmn:Reference" />
+			<xsd:element name="IdentifierSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Identifier" minOccurs="2" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="IdentifierString" type="xsd:string" />
 			<xsd:element name="IndividualAssemblyRelationship" type="cmn:Reference" />
 			<xsd:element name="IndividualPart" type="cmn:Reference" />
@@ -11360,6 +11396,13 @@
 			<xsd:element name="GeometricRepresentation" type="cmn:Reference" />
 			<xsd:element name="Identifier" type="cmn:Reference" />
 			<xsd:element name="IdentifierRelationship" type="cmn:Reference" />
+			<xsd:element name="IdentifierSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Identifier" minOccurs="2" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="IdentifierString" type="xsd:string" />
 			<xsd:element name="IndividualAssemblyRelationship" type="cmn:Reference" />
 			<xsd:element name="IndividualPartTestResult" type="cmn:Reference" />
@@ -11458,6 +11501,13 @@
 	</xsd:group>
 	<xsd:group name="IdentifierSelect">
 		<xsd:choice>
+			<xsd:element name="IdentifierSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Identifier" minOccurs="2" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:group ref="SingleIdentifierSelect" minOccurs="0" />
 		</xsd:choice>
 	</xsd:group>
@@ -11482,6 +11532,7 @@
 			<xsd:element name="Approval" type="cmn:Reference" />
 			<xsd:element name="AssemblyOccurrenceRelationship" type="cmn:Reference" />
 			<xsd:element name="AssemblyOccurrenceRelationshipSubstitution" type="cmn:Reference" />
+			<xsd:element name="AssemblyViewRelationship" type="cmn:Reference" />
 			<xsd:element name="AssemblyViewRelationshipSubstitution" type="cmn:Reference" />
 			<xsd:element name="Breakdown" type="cmn:Reference" />
 			<xsd:element name="BreakdownElement" type="cmn:Reference" />
@@ -11517,6 +11568,13 @@
 			<xsd:element name="GeometricRepresentation" type="cmn:Reference" />
 			<xsd:element name="Identifier" type="cmn:Reference" />
 			<xsd:element name="IdentifierRelationship" type="cmn:Reference" />
+			<xsd:element name="IdentifierSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Identifier" minOccurs="2" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
 			<xsd:element name="IdentifierString" type="xsd:string" />
 			<xsd:element name="IndividualAssemblyRelationship" type="cmn:Reference" />
 			<xsd:element name="IndividualPart" type="cmn:Reference" />
@@ -11620,18 +11678,18 @@
 	<xsd:group name="MaterialIdentificationAssignmentSelect">
 		<xsd:choice>
 			<xsd:element name="AlternativeSolution" type="cmn:Reference" />
-			<xsd:element name="BreakdownElementView" type="cmn:Reference" />
+			<xsd:element name="BreakdownElementView" type="BreakdownElementView" />
 			<xsd:element name="Hardcopy" type="cmn:Reference" />
 			<xsd:element name="IndividualPartView" type="IndividualPartView" />
-			<xsd:element name="Occurrence" type="cmn:Reference" />
-			<xsd:element name="PartView" type="cmn:Reference" />
+			<xsd:element name="Occurrence" type="Occurrence" />
+			<xsd:element name="PartView" type="PartView" />
 			<xsd:element name="PartViewRelationship" type="PartViewRelationship" />
 			<xsd:element name="ProductConcept" type="cmn:Reference" />
 			<xsd:element name="ProductConfiguration" type="cmn:Reference" />
 			<xsd:element name="RequirementView" type="RequirementView" />
 			<xsd:element name="ShapeElement" type="cmn:Reference" />
-			<xsd:element name="ShapeElementRelationship" type="cmn:Reference" />
-			<xsd:element name="ViewOccurrenceRelationship" type="cmn:Reference" />
+			<xsd:element name="ShapeElementRelationship" type="ShapeElementRelationship" />
+			<xsd:element name="ViewOccurrenceRelationship" type="ViewOccurrenceRelationship" />
 		</xsd:choice>
 	</xsd:group>
 	<xsd:simpleType name="MatingTypeEnum">
@@ -11659,7 +11717,7 @@
 	<xsd:group name="MeasureActivitySelect">
 		<xsd:choice>
 			<xsd:element name="Activity" type="cmn:Reference" />
-			<xsd:element name="ProcessOperationOccurrence" type="cmn:Reference" />
+			<xsd:element name="ProcessOperationOccurrence" type="ProcessOperationOccurrence" />
 		</xsd:choice>
 	</xsd:group>
 	<xsd:group name="ModelPropertyValueSelect">
@@ -11680,15 +11738,26 @@
 			<xsd:element name="LocalizedString" type="LocalizedString" maxOccurs="unbounded" />
 		</xsd:choice>
 	</xsd:group>
+	<xsd:simpleType name="NodeTypeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="branch node" />
+			<xsd:enumeration value="extremity node" />
+			<xsd:enumeration value="intermediate node" />
+			<xsd:enumeration value="external node" />
+		</xsd:restriction>
+	</xsd:simpleType>
 	<xsd:group name="OccurrenceDefinitionSelect">
 		<xsd:choice>
-			<xsd:element name="DefinitionBasedOccurrence" type="cmn:Reference" />
+			<xsd:element name="Occurrence" type="cmn:Reference" />
 			<xsd:element name="PartView" type="cmn:Reference" />
 			<xsd:element name="ProductConfiguration" type="cmn:Reference" />
 		</xsd:choice>
 	</xsd:group>
 	<xsd:group name="OccurrenceDefinitionBasedSelect">
-		<xsd:choice/>
+		<xsd:choice>
+			<xsd:element name="PartView" type="cmn:Reference" />
+			<xsd:element name="ProductConfiguration" type="cmn:Reference" />
+		</xsd:choice>
 	</xsd:group>
 	<xsd:group name="OccurrenceUsageContextSelect">
 		<xsd:choice>
@@ -11705,7 +11774,7 @@
 	</xsd:group>
 	<xsd:group name="ParameterSelect">
 		<xsd:choice>
-			<xsd:element name="ConditionParameter" type="cmn:Reference" />
+			<xsd:element name="ConditionParameter" type="ConditionParameter" />
 			<xsd:group ref="ConditionParameterSelect" minOccurs="0" />
 		</xsd:choice>
 	</xsd:group>
@@ -11825,6 +11894,20 @@
 			<xsd:element name="PartView" type="cmn:Reference" />
 		</xsd:choice>
 	</xsd:group>
+	<xsd:group name="PlacementTransformationOriginSelect">
+		<xsd:choice>
+			<xsd:element name="AxisPlacement" type="cmn:Reference" />
+			<xsd:element name="Edge" type="cmn:Reference" />
+			<xsd:element name="Vertex" type="cmn:Reference" />
+		</xsd:choice>
+	</xsd:group>
+	<xsd:group name="PlacementTransformationTargetSelect">
+		<xsd:choice>
+			<xsd:element name="AxisPlacement" type="cmn:Reference" />
+			<xsd:element name="CartesianPoint" type="cmn:Reference" />
+			<xsd:element name="Curve" type="cmn:Reference" />
+		</xsd:choice>
+	</xsd:group>
 	<xsd:group name="PlyLaminateShapeSelect">
 		<xsd:choice>
 			<xsd:element name="CompositeSheetRepresentation" type="cmn:Reference" />
@@ -11867,6 +11950,7 @@
 	<xsd:group name="ProcessOperationInputOrOutputSelect">
 		<xsd:choice>
 			<xsd:element name="AssemblyOccurrenceRelationship" type="cmn:Reference" />
+			<xsd:element name="AssemblyViewRelationship" type="cmn:Reference" />
 			<xsd:element name="Occurrence" type="cmn:Reference" />
 			<xsd:element name="PartVersion" type="cmn:Reference" />
 		</xsd:choice>
@@ -12015,7 +12099,7 @@
 	<xsd:group name="PropertyValueSelect">
 		<xsd:choice>
 			<xsd:element name="CartesianPoint" type="cmn:Reference" />
-			<xsd:element name="NumericalValue" type="cmn:Reference" />
+			<xsd:element name="NumericalValue" type="NumericalValue" />
 		</xsd:choice>
 	</xsd:group>
 	<xsd:group name="ProxyItemSelect">
@@ -12104,6 +12188,7 @@
 			<xsd:element name="AlternativeSolution" type="cmn:Reference" />
 			<xsd:element name="AssemblyOccurrenceRelationship" type="cmn:Reference" />
 			<xsd:element name="AssemblyOccurrenceRelationshipSubstitution" type="cmn:Reference" />
+			<xsd:element name="AssemblyViewRelationship" type="cmn:Reference" />
 			<xsd:element name="AssemblyViewRelationshipSubstitution" type="cmn:Reference" />
 			<xsd:element name="Breakdown" type="cmn:Reference" />
 			<xsd:element name="BreakdownElement" type="cmn:Reference" />
@@ -12174,12 +12259,19 @@
 	</xsd:group>
 	<xsd:group name="SimpleOrSpatialRotationSelect">
 		<xsd:choice>
-			<xsd:element name="RotationAboutDirection" type="cmn:Reference" />
+			<xsd:element name="RotationAboutAxes">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="PlaneAngleMeasure" type="xsd:double" maxOccurs="3" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RotationAboutDirection" type="RotationAboutDirection" />
 		</xsd:choice>
 	</xsd:group>
 	<xsd:group name="SingleIdentifierSelect">
 		<xsd:choice>
-			<xsd:element name="Identifier" type="cmn:Reference" />
+			<xsd:element name="Identifier" type="Identifier" />
 			<xsd:element name="IdentifierString" type="xsd:string" />
 		</xsd:choice>
 	</xsd:group>
@@ -12348,15 +12440,15 @@
 			<xsd:element name="ActivityMethod" type="cmn:Reference" />
 			<xsd:element name="Breakdown" type="cmn:Reference" />
 			<xsd:element name="BreakdownElement" type="cmn:Reference" />
-			<xsd:element name="BreakdownElementVersion" type="cmn:Reference" />
-			<xsd:element name="BreakdownElementView" type="cmn:Reference" />
+			<xsd:element name="BreakdownElementVersion" type="BreakdownElementVersion" />
+			<xsd:element name="BreakdownElementView" type="BreakdownElementView" />
 			<xsd:element name="BreakdownElementViewRelationship" type="BreakdownElementViewRelationship" />
-			<xsd:element name="BreakdownVersion" type="cmn:Reference" />
+			<xsd:element name="BreakdownVersion" type="BreakdownVersion" />
 			<xsd:element name="Contract" type="cmn:Reference" />
 			<xsd:element name="Document" type="cmn:Reference" />
-			<xsd:element name="DocumentDefinition" type="cmn:Reference" />
+			<xsd:element name="DocumentDefinition" type="DocumentDefinition" />
 			<xsd:element name="DocumentDefinitionRelationship" type="DocumentDefinitionRelationship" />
-			<xsd:element name="DocumentVersion" type="cmn:Reference" />
+			<xsd:element name="DocumentVersion" type="DocumentVersion" />
 			<xsd:element name="File" type="cmn:Reference" />
 			<xsd:element name="IndividualPart" type="cmn:Reference" />
 			<xsd:element name="IndividualPartVersion" type="IndividualPartVersion" />
@@ -12364,8 +12456,8 @@
 			<xsd:element name="IndividualPartViewRelationship" type="IndividualPartViewRelationship" />
 			<xsd:element name="Organization" type="cmn:Reference" />
 			<xsd:element name="Part" type="cmn:Reference" />
-			<xsd:element name="PartVersion" type="cmn:Reference" />
-			<xsd:element name="PartView" type="cmn:Reference" />
+			<xsd:element name="PartVersion" type="PartVersion" />
+			<xsd:element name="PartView" type="PartView" />
 			<xsd:element name="PartViewRelationship" type="PartViewRelationship" />
 			<xsd:element name="Person" type="cmn:Reference" />
 			<xsd:element name="PersonInOrganization" type="cmn:Reference" />

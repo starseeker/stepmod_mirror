@@ -1,278 +1,391 @@
-$Id: create_a_CR_package.txt,v 1.24 2015/11/23 16:42:58 kevletu Exp $
+$Id: create_a_CR_package.txt,v 1.23 2015/11/05 00:49:45 thomasrthurman Exp $
 provides detailed step by step instructions to build a CR and evaluate it.
 [[!!do not commit any directory with "isopub" in the path!!]]
-T. Thurman
---note that this process does NOT product pretty-printed EXPRESS because there is no AP publication involved.
---For the CR that is intended to product long forms that are pretty-printed additional steps are involved.
+The following two documents are included by reference:
+ISO/TC 184/SC 4/WG 12 N8352 STEPmod Deliverable directory structure
+ISO TC 184/SC 4/WG 12 N8496 Procedure for building the STEP Module and Resource Library
 
-Step one (iterativly):
-Create a CR publication package upon project approval
---update bugzilla for each bug that is addressed by this CR to change the bug
-(a)- status/resolution to "resolved/fixed" and assign to hunten (use Gmail account!)
-(b)- target milestone to this CR identifier
+Table of Contents:
+Step one  : Create a CR publication package upon project approval
+Step two  : Build and commit long forms
+Step Three: Build actual CR publication package for ISO and evaluation copy including updated SMRL for WG21.
+Step four : AP integration level testing
+Step five : Upload files to WG12 drop-in box
+Step six  : Mark all related bugs as RESOLVED/FIXED and assign to Keith
+Step seven: Update bug #3361 update tag index with the tag for this CR.
 
-- execute make_CR.wsf
---that creates stepmod/publication/part1000/CR<NNN> and contents that includes
-publication_index.xml
-commit publication_index.xml
-check out publication_index.xml
+=================================================================
 
-build.log
-commit build.log
-check out build.log
+Step one:
 
-add content to publication_index.xml.
-<module number="1232" name="design_material_aspects" team="ap242" version="1" arm.change="y" mim.change="n" collector_bug="0000" />
-<resource_doc number="41"....collector_bug="0000"/>
-<resource name="management_resources_schema" version="333" collector_bug="0000" />
-	We have (description?, contacts, resource_docs?, deleted.resource_docs?, resources?, deleted.resources?, modules?, deleted.modules?, business_object_models?, deleted.business_object_models?)>
-	see the dtd referenced by publication_index.xml for required format and sequence.
-commit publication_index.xml to sourceforge.
+-- create a CR publication package upon project approval
+	
+	-- update bugzilla for each bug that is addressed by this CR to change the bug:
 
--commit the source files for the JSDAI EXPRESS-G editor that was used to create this change request.
--a new directory has been created for this purpose:
--stepmod/data/tools/change_requests/JSDAI/CR12.
--A new directory based on change requests was chosen because it is impossible to disambiguate the JSDAI dictionary and EXPRESS-G files to an individual
--module or resource as the tool is currently used.
+		-- set status/resolution to "resolved/fixed" and assign to hunten (use Gmail account!)
 
--for the initial trial, Kevin is to create and populate needed subdirectories under 
--stepmod/data/tools/change_requests/JSDAI/CR12
-to validate that all required data including property files is committed to stepmod.
+		-- set target milestone to this CR identifier
 
--ensure all your mods are committed to stepmod and you have tagged your mods with the right CR tag!
---one way to it is to check out CRxxxx and look at the result
--to avoid conflicts, only tag data directories that are specified in the publication_index.xml
--update stepmod/repository_index.xml for new modules (tag with CR #)
-stepmod/repository_index.xml
-<resources>
-<resource name="<schema_name>" part="<part_number>"/>
-</resources>
+	-- execute stepmod\utils\make_CR.wsf 
+	
+	-- enter "CR<NNN>" 
+		note: that creates stepmod/publication/part1000/CR<NNN> and contents that includes publication_index.xml  
+		
+	-- commit publication_index.xml  
+	
+	-- check out publication_index.xml  
 
-<resource_docs>
+	-- create a blank build.log
+	
+	-- commit build.log
+	
+	-- check out build.log
+
+	-- add content to publication_index.xml   
+
+	-- populate  
+		<part1000.publication_index
+			wg.number.publication_set=""
+			wg.number.publication_set_comments=""
+			date.iso_submission=""
+			date.iso_publication=""
+			sc4.working_group="">
+			
+	-- edit  
+		<part1000.publication_index>
+			<description/>
+			eg: "<description>for AP242 ed2 CD</description>"
+
+	-- edit  
+		<part1000.publication_index>
+			<contacts>
+				<projlead>
+				<editor>
+			</contacts>
+			eg: "<projlead ref="wg12convener"/><editor ref="AP242.projlead"/>"
+
+	-- add (if required) 
+		<resource_docs>
+			<resource_doc/> ....
+			eg: "<resource_doc name="geometric_and_topological_representation" collector_bug="5566" />"
+			
+	-- populate  
+		<modules> with
+			<module/> ....
+			eg: "<module number="1514" name="advanced_boundary_representation" team="ap242" version="4" arm.change="n" mim.change="n" collector_bug="5298"/>"
+			
+	-- add  (if required)  
+		<deleted.modules>
+			<module number/> ....
+			eg: "<module number="1666" name="extended_geometric_tolerance" team="ap242" collector_bug="5298"/>"
+			
+	-- add  (if required)  
+		<business_object_models>
+			<bom_doc/> ....
+			eg: "<bom_doc name="managed_model_based_3d_engineering" collector_bug="9999"/>"	
+			
+	-- add  (if required)  
+		<deleted.business_object_models>
+			<bom_doc/> ....
+			eg: "<bom_doc name="managed_model_based_3d_engineering" collector_bug="9999"/>"	
+			
+		
+	-- commit publication_index.xml to sourceforge 
+
+	-- commit the data files for the JSDAI EXPRESS-G editor that was used to create this change request.
+	   The data files are the artifacts not otherwise available on stepmod used as input to the EXPRESS-G editor or that are the native data files for the EXPRESS-G editor. 
+    	note: A new directory has been created for this purpose: stepmod/data/tools/change_requests/JSDAI/CR12. A new directory 
+	    	based on change requests was chosen because it is impossible to disambiguate the JSDAI dictionary and EXPRESS-G files 
+		    to an individual module or resource as the tool is currently used.)
+	    note: For the initial trial, Kevin is to create and populate needed subdirectories under stepmod/data/tools/change_requests/JSDAI/CR12
+		     to check that all required data including property files is committed to stepmod.
+
+	-- ensure all your modifications are committed to stepmod and you have tagged your modified files with the correct CR tags! 
+		note: one way to evaluae success is to check out a separate project with the tag CRxxxx and compare with your committed local repository. 
+		note: to avoid conflicts, only tag data directories that are specified in the publication_index.xml
+	
+	-- initialize local stepmod repo with "switch to another version" with latest published SMRL tag 
+
+	--replace each module or resource doc or resource directory that is included in the CR with the copy tagged with the CR name.
+	    (in other words,switch those specific directories to be updated with the CR with "switch to another version" with "your" CR tag!)
+	     eg: only one schema in part 42 is being updated so only one schema directory would be switched, in addition to the part42 resource doc directory.
+
+	-- update bug #3347 Maintain record CVS tags used
+
+	-- update stepmod/repository_index.xml for new modules (tag with CR #) 
+====================================
+
+Step two --Build and commit long forms
+Step two (A):
+
+-- create ARM/MIM EXPRESS and XML longforms for 409, 410, 442 
+	note: use longform.jar, longform_arm.prop, longform_mim.prop, longform_edms.bat, longform.EDMscript (tailored to local environment and particular 4xx module).  
+	
+-- update concatenated_arm.exp, concatenated_mim.exp for 4xx  
+	note: 409 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap209.../dvlp 
+	note: 410 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap210_el*/dvlp/pmi 
+	note: 442 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap242_m*/dvlp/express/pmi 
+	note: each ap project may have its own location for these.
+	      For new projects, it is suggested to use stepmod/data/modules/ap2xx.../dvlp
+-- execute shtolo using usual longform.EDMscript
+	note: The diagnostic file in the example is the diagnostic for the concatenated file!!!! so the endings are not the same for the diagnostic and for the output .exp file
+	  eg:
+		  Schemata>MakeLongForm(
+		  "n:\concatenated_arm.exp",
+		  "n:\electronic_assembly_interconnect_and_packaging_design_arm_sf.exp.dia",
+		  Ap210_electronic_assembly_interconnect_and_packaging_design_arm,
+		  "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
+		  "REPLACE_SCHEMA_NAMES,REPLACE_SCHEMA_NAMES_REPORT,DIAGNOSTICS_FOR_ROOT_ONLY,DIAGNOSTICS_FOR_INTERFACED_ONLY,EXPRESS_EDITION_2,TC2,EDITION_1_LONGFORM")
+		  'n:' is the location of the concatenated files.
+
+    -- explain how to generate your own script [TODO]
+
+-- evaluate concatenated_arm.exp, concatenated_mim.exp for errors using the EDMS diagnostic report
+   -- identify and add missing modules to CR (go back to Step One to do that)
+-- execute patches listed in stepmod/publication/part1000/CRNNNNN/patches.xlsx 
+
+-- commit concatenated_arm.exp, concatenated_mim.exp for each long form required.
+
+-- commit the six diagnostic files "n:\<schema_name>_sf.exp.dia":
+ 
+-- execute longform EXPRESS evaluation using longform.EDMscript 'DefineSchema' command.
+	eg:
+		Schemata>DefineSchema(
+		"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
+		"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp.dia",
+		Ap210_electronic_assembly_interconnect_and_packaging_design_arm, "STORING_SOURCE,DELETING_EXISTING_SCHEMAS,TC2")
+		'n:' is the location of the concatenated files.
+
+
+-- evaluate error report from longform.EDMscript
+
+   -- identify and add missing modules to CR (go back to Step One to do that)
+
+-- for each 4xx modules, commit in the right directory:
+	note: concatenated_arm/mim.exp.EDM_validation.dia : EDMs diagnostic output of the concatenated schemas
+	note: concatenated_arm/mim.exp.shtolo_log.dia : EDMs log output of the "Make Long Form" function
+	note: arm/mim_lf.exp.EDM_check.dia : EDMs diagnostic output of the resulting long form schema
+	note: update the list of logs to be committed [TODO]
+
+-- commit the diagnostic file "n:\<schema_name>_lf.exp.dia": 
+
+-- copy and rename longform files if needed
+	eg: "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp" to stepmod/data/modules/ap210_el*/arm_lf.exp"
+
+
+-- ensure that the correct header information is included in the first few lines of the file
+	eg:
+		(*
+		   $Id: create_a_CR_package.txt,v 1.23 2015/11/05 00:49:45 thomasrthurman Exp $
+		   ISO TC184/SC4/WG3 8232 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM Long form
+		   Supersedes ISO TC184/SC4/WG3 N2601
+		*)
+		note: The header will need to be copied into the longform before commit.
+
+-- commit arm_lf.exp, mim_lf.exp files.
+
+-- execute the Express Engine pretty printer option against the arm_lf.exp, mim_lf.exp files.
+   
+-- compare the pretty results with the original long forms for consistency of the EXPRESS.
+   Use the Express Engine compare option or other compare tools.
+-- create arm_lf.xml for 4xx
+
+-- create mim_lf.xml for 4xx
+	note: JSDAI is can do this
+    note: Fixing express2xml.js for the SELF\ bug would mean we could automate that step.
     
-    <resource_doc name="<resource name>"/>
+-- Execute the Express Engine compare function using the previous SMRL 4xx long form(s) as reference_schema
+    and current 4xx long form(s) as trial_schema.
+      -- Use the xml mode to generate data for the 4xx arm_descriptions.xml or mim_descriptions.xml files,
+          as appropriate.
+      -- paste the xml output of the compare function into the arm longform change annex and mim longform 
+          change annex as appropriate.
+    Note: These are command line actions and can be scripted.
+
+Step two (B):
+
+-- evaluate the longform schemas with the steptools expfront tool looking for especially items not covered by EDMS 
+	eg: incorrect schema names that cause no schema name replacement during shtolo process.
+
+   -- identify and add missing modules to CR (go back to Step One to do that)
+
+    -- go to this web page: http://www.steptools.com/translate/expfront
+
+    -- follow the instructions for uploading a file but do not select "Include Integrated resources in compilation" as the long forms are complete
+
+    -- commit the diagnostic files in the usual location with these generic names arm_lf.exp.STEPTools_check.dia and mim_lf.exp.STEPTools_check.dia
+
+Step two (C):
+
+-- tag ap2xx* directories with relevant SMRL_CR... tag, moving tags if needed
+	note: At the end of this step all modules and resource_docs and resources directories shall be correctly tagged.
+	      At the end of this step all EXPRESS interfaces have been resolved.
+	
+====================================
+
+Step Three:
+
+build actual CR publication package for ISO and evaluation copy including updated SMRL for WG21.
+
+	Step three (A):
+	
+	-- checkout stepmod/data with previous SMRL tag [TO DO]
+	   Note: It is assumed that the STEPmod repo is valid.
+	         Validation of the SMRL tag with the published SMRL is not in scope for this process.
+	-- checkout stepmod/data with current CR tag [TO DO]
+	   note: This changes the state of the local repo to be SMRL_previous modified to current CR.
+	   note: the directories that are NOT data directories shall be at the HEAD state.
+	   note: the following can be done on an incremental basis - module by module - rather than doing a full AP build – requires ANT and Java and Saxon 6.5.5:
+	    	for each module in the publication_index.xml:
+		-- execute xslt against stepmod/data/modules/<module>/sys/5_mapping.xml
+		-- look for red text
+		-- fix red text
+	
+	-- goto stepmod\publication\part1000\<CR00NNN>
+	
+	-- run ant -buildfile buildbuild.xml
+	
+	-- run ant all 
+	   note: This will generate stepmod\publication\isopub\<CR00NNN>
+[[The above directory is the "to be delivered to ISO" content.]]
+	
+	-- review the contents of the build.log file created by ant -buildfile buildbuild.xml for real errors due to missing modules in publication_index.xml or other errors
+	   note: Because the local repository is strictly built from SMRL_previous and CR_current there should be exact provenance for errors/changes.
+
+	-- commit the contents of stepmod\publication\part1000\<CR00NNN> to CVS 
+	   note: !!do not commit any directory with "isopub" in the path!!
+	
+	-- review the content of stepmod\publication\isopub\<CR00NNN> for errors
+	
+	-- fix errors until none
+	
+       -- identify and add missing modules to CR (go back to Step One to do that)
+
+	-- move SMRL_CRxxx tag as needed to make it up to date
+
+	Step three-(B): 
+	SMRL integration tests
+	
+	-- build the new test SMRL
+	[[This test SMRL can be provided to WG21 for ballot of the CR.]]
+		-- retrieve last SMRL and put it somewhere
+			eg "stepmod\publication\part1000\SMRL_v6_rc1"
+		
+		-- delete the directories (and contents) corresponding to the elements explicitly listed in 
+			stepmod\publication\part1000\<CR00NNN>\publication_index.xml from 
+			SMRL_v#####\data\business_object_models and/or 
+			SMRL_v#####\data\modules and/or 
+			SMRL_v#####\data\resource_docs and/or
+			SMRL_v#####\data\resources
+
+		-- copy the directories (and contents) corresponding to the elements explicitly listed in 
+			stepmod\publication\part1000\<CR00NNN>\publication_index.xml 
+			from
+			stepmod\publication\isopub\<CR00NNN>\part1000\data\business_object_models and/or
+			stepmod\publication\isopub\<CR00NNN>\part1000\data\modules and/or
+			stepmod\publication\isopub\<CR00NNN>\part1000\data\resource_docs and/or
+			stepmod\publication\isopub\<CR00NNN>\part1000\data\data\business_object_models
+			to the equvalent directories in the new SMRL:
+			SMRL_v#####\data\business_object_models and/or 
+			SMRL_v#####\data\modules and/or 
+			SMRL_v#####\data\resource_docs and/or
+			SMRL_v#####\data\resources
+			
+		note: This procedure ensures that no previous content is retained in the relevant directories and also 
+		ensures that extra content created by the CR publication build does not get injected into the SMRL. For 
+		CR11, it is ok to copy the resource directories for p42, p43 as all resource directories for
+		those resource parts are new. For CR12 and following only the resources included in the publication_index.xml 
+		shall be injected into the new SMRL.
+
+	-- execute the arm and mim index generation process per ISO/TC 184/SC 4/WG 12 N 8496 
     
-  </resource_docs>
-  
-<modules>
-<!-- bug nnnn -->
-     <module name="scan_3d_data_shape" part="<part number value from convener>" project="AP242" status="in-development"/>
-...
--Add 409, 410, 442 to CR
--get all meta-data numbers from convener (including 409, 410, 442)
--initialize local stepmod repo with "switch to another version" with latest published SMRL tag
--update each module or resource doc or resource directory that is included in the CR so as to include the changes proposed.
--(that is switch those specific directories to be updated with the CR with "switch to another version" with "your" CR tag!
-<example: only one schema in part 42 is being updated so only one schema directory would be switched,
-in addition to the part42 resource doc directory.>
-
--update bug #3347 Maintain record CVS tags used
+	-- execute link checks against the integrated SMRL
+	   Resolve link checks by repeating earlier steps as required.
+	   
 ====================================
-
-Step two:
-Create ARM/MIM EXPRESS and XML longforms for 409, 410, 442
---note that this process does NOT product pretty-printed EXPRESS because there is no AP publication involved.
---For the CR that is intended to product long forms that are pretty-printed additional steps are involved.
--use longform.jar, longform_arm.prop, longform_mim.prop, longform_edms.bat, longform.EDMscript (tailored to local environment and particular 4xx module).
--update concatenated_arm.exp, concatenated_mim.exp for 409, 410, 442
---409 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap209.../dvlp
---410 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap210_el*/dvlp/pmi
---442 concatenated_arm.exp, concatenated_mim.exp are in stepmod/data/modules/ap242_m*/dvlp/express/pmi
--execute shtolo using usual longform.EDMscript
--note that the diagnostic file in the example is the diagnostic for the concatenated file!!!! so the endings are not the same for the diagnostic and for the output .exp file
-<example>:
-Schemata>MakeLongForm(
-"n:\concatenated_arm.exp",
-"n:\electronic_assembly_interconnect_and_packaging_design_arm_sf.exp.dia",
-Ap210_electronic_assembly_interconnect_and_packaging_design_arm,
-"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
-"REPLACE_SCHEMA_NAMES,REPLACE_SCHEMA_NAMES_REPORT,DIAGNOSTICS_FOR_ROOT_ONLY,DIAGNOSTICS_FOR_INTERFACED_ONLY,EXPRESS_EDITION_2,TC2,EDITION_1_LONGFORM")
-'n:' is the location of the concatenated files.
-</example>
---TODO explain how to generate your own script
--evaluate concatenated_arm.exp, concatenated_mim.exp for errors using the EDMS diagnostic report
--execute patches for bug
--note review the unix "patch" command if necessary.
--more than one patch may be included in a patch file for convenience.
-#4619, 
-#4662 (content in #4661), 
-#4665, 
-#4667, 
-#4668, 
-#4820, 
-#4904 comment #0, 
-#4904 comment #2, 
-#4978, 
-#4988, 
-#4992, 
-#4994, 
-#5004, 
-#5018, 
-#5019, 
-#5023, 
-#5048, 
-#5051, 
-#5052,  (is this still required? If not CR team should get Keith to mark the bug VERIFIED.)
-#5053, (is this fix published? If so Keith shall mark the bug VERIFIED.)
-#5054,
-#5056,
-#5057,
-#5539.
-
----NOTE: list for bug has been consolidated in /stepmod/publication/part1000/CR00011/patches.xlsx
---- & tag as SHTOLO on bugzilla
-
--Commit concatenated_arm.exp, concatenated_mim.exp for 409, 410, 442
--Commit the six diagnostic files "n:\<schema_name>_sf.exp.dia": 
--execute longform EXPRESS evaluation using longform.EDMscript 'DefineSchema' command.
-<example>:
-Schemata>DefineSchema(
-"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp",
-"n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp.dia",
-Ap210_electronic_assembly_interconnect_and_packaging_design_arm, "STORING_SOURCE,DELETING_EXISTING_SCHEMAS,TC2")
-'n:' is the location of the concatenated files.
-</end_example>
-
--evaluate error report from longform.EDMscript
--Commit the six diagnostic files "n:\<schema_name>_lf.exp.dia": 
--copy and rename e.g., "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp" to stepmod/data/modules/ap210_el*/arm_lf.exp"
--do same for five other longform files.
--Commit arm_lf.exp, mim_lf.exp for 409, 410, 442.
--For each of the 3 AP modules, commit in the right directory:
-
---concatenated_arm/mim.exp.EDM_validation.dia : EDMs diagnostic output of the concatenated schemas
---concatenated_arm/mim.exp.shtolo_log.dia : EDMs log output of the "Make Long Form" function
---arm/mim_lf.exp.EDM_check.dia : EDMs diagnostic output of the resulting long form schema
----TODO: update the list of logs to be committed
-
-Ensure that the correct header information is included in the first few lines of the file.
-Example:
-(*
-   $Id: create_a_CR_package.txt,v 1.24 2015/11/23 16:42:58 kevletu Exp $
-   ISO TC184/SC4/WG3 8232 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM Long form
-   Supersedes ISO TC184/SC4/WG3 N2601
-*)
-[The header will need to be copied into the longform before commit.]
-
--Create arm_lf.xml for 409, 410, 442.
--Create mim_lf.xml for 409, 410, 442.
--- JSDAI is able to it
-
-Step two-(B)
-Evaluate the 6 schemas with the steptools expfront tool looking for especially items not covered by EDMS 
-(e.g., incorrect schema names that cause no schema name replacement during shtolo process).
-Go to this web page:
-http://www.steptools.com/translate/expfront
-Follow the instructions for uploading a file but do not select "Include Integrated resources in compilation" as the long forms
-are complete.
-Commit the six diagnostic files in the usual location with these generic names arm_lf.exp.STEPTools_check.dia and mim_lf.exp.STEPTools_check.dia
-
-Step two-(C)
-tag ap209_*, ap210_el*, and ap242_man* directories with relevant SMRL_CR... tag, moving tags if needed.
-At the end of this step all modules and resource_docs and resources directories shall be correctly tagged.
-====================================
-
-Step three:
-
-Summary: build actual CR publication package and copy over previous SMRL with CR content.
-
-Step three-(A)
-A-1 checkout stepmod/data with previous SMRL tag
-A-2 checkout stepmod/data with current CR tag in a different sworkspace
-Replace manually SMRL directories & files by CR11 directories & files - be careful how your tool replace the files
-This changes the state of the local repo to be SMRL_previous modified to current CR.
-
--note: the directories that are NOT data directories shall be at the HEAD state.
---note2: the following can be done via incremental basis of module by module rather doing a full AP build
-–Requires ANT and Java and Saxon 6.5.5
-
-<for each module in the publication_index.xml>
- execute xslt against 
-stepmod/data/modules/<module>/sys/5_mapping.xml
--look for red marks.
--fix red marks.
-</for>
-•Build the ANT file
-–Run: ant –buildfilebuildbuild
---NOTE: remove the previous build.xml before running build.xml
-•Generate the HTML
-–Run: ant all
-–Generates: stepmod\publication\isopub\<CR00NNN>
--review the contents of the build.log file created in step (1) for real errors due to missing modules in publication_index.xml
--or other errors
---because the local repo is strictly built from SMRL_previous and CR_current there should be exact provenance for errors/changes
--commit the contents of stepmod\publication\part1000\<CR00NNN> to CVS.
-[[!!do not commit any directory with "isopub" in the path!!]]
--review the content of stepmod\publication\isopub\<CR00NNN> for errors.
--fix errors until none.
---move SMRL_CRxxx tag as needed to make it up to date.
-
-Step three-(B): build the new SMRL
-retrieve last SMRL and put it somewhere.
-delete the items explicitly listed in stepmod\publication\part1000\<CR00NNN>\publication_index.xml
-from the new SMRL.
-copy the items explicitly listed in stepmod\publication\part1000\<CR00NNN>\publication_index.xml
-to the new SMRL.
-This sequence ensures that no previous content shall be retained for the relevant directories.
-It also ensures that extra content created by the CR publication build does not get injected
-into the SMRL.
-For CR11, it is ok to copy the resource directories for p42, p43 as all resource directories for
-those resource parts are new.
-For CR12 and following only the resources included in the publication_index.xml shall be injected
-into the new SMRL.
-====================================
-
 
 Step four:
-<for> each design ap build an ap publication package.
-Run:stepmod\utils\mkpublication.wsf
-fill in: "APNNN" to create a directory
-–Edit: stepmod\publication\<APNNN>\publication_index.xml
--create an empty log file
-stepmod\publication\<APNNN>\log.txt
-•Build the ANT file
-–Run: ant –buildfilebuildbuild
---NOTE: remove the previous build.xml before running build.xml
-•Generate the HTML
-<for each design AP>
-–Run: ant all
-–Generates: stepmod\publication\isopub\<APNNN>
-commit the directory stepmod\publication\<APNNN>\ to CVS.
-[[!!do not commit any directory with "isopub" in the path!!]]
--examine the log file for errors that need fixing.
--fix errors in AP doc.
--fix errors in modules or resources and repeat Step three to ensure tags and data are valid.
-</for each design AP>.
+AP integration level testing
 
-<for each design AP>
-merge the 
-> stepmod\publication\isopub\<APNNN>\iso10303_2xx\abstracts
-> stepmod\publication\isopub\<APNNN>\iso10303_2xx\data/application_protocols/<ap_name>
-> stepmod\publication\isopub\<APNNN>\iso10303_2xx\images
-> stepmod\publication\isopub\<APNNN>\iso10303_2xx\iso10303_210.htm
-> stepmod\publication\isopub\<APNNN>\iso10303_2xx\iso10303_210_readme.txt
-with the SMRL directory structure 
-going in iso_10303-2xx\
+Step four (A)
+Build and test AP level docs.
+Note: AP2xx docs are not delivered as part of a CR.
+      They are only used for testing using build processes.
 
-(look to AP242 ed1 directory structure for details)
-run linkcheck against the APNNN/index.htm
-(I think it is ok to merge multiple APs for testing into one SMRL directory structure as they have isolated names)
-verify the missing links are only ones related to old link for sc4 directory.
-If other missing links are found:
-fix missing links at AP document and repeat Step four
-fix missing links in other docs and repeat Step three to ensure tags and data are valid.
-</for each design AP>.
+-- for each AP corresponding to the AP modules listed in 
+	stepmod\publication\part1000\<CR00NNN>\publication_index.xml 
+	build an AP publication package
 
+-- run stepmod\utils\mkpublication.wsf
+
+-- enter "APNNN" - to create a directory in stepmod\publication\publication
+
+-– edit stepmod\publication\publication\<APNNN>\publication_index.xml
+
+-- create an empty log file stepmod\publication\publication\<APNNN>\log.txt
+
+-- build the ANT file
+	
+	-- go to stepmod\publication\publication\<APNNN>
+	
+	-– run ant -buildfile buildbuild.xml
+	
+	-– run ant all
+	
+	note: This generates stepmod\publication\isopub\<APNNN>
+
+	-- commit the directory stepmod\publication\<APNNN>\ to CVS
+
+	note: !!do not commit any directory with "isopub" in the path!!
+
+	-- examine the log file for errors that need fixing
+
+	-- fix errors in AP doc
+	
+	-- fix errors in modules or resources and repeat Step three to ensure tags and data are valid.
+
+	-- merge the AP publication and the SMRL as follows:
+		
+		-- copy the stepmod\publication\isopub\<APNNN>\iso10303_2xx\abstracts folder 
+			into SMRL_v#####\
+		
+		-- copy the stepmod\publication\isopub\<APNNN>\iso10303_2xx\data\application_protocols\<ap_name> folder 
+			into SMRL_v#####\data\application_protocols\
+			note: you will need to create an application_protocols folder under SMRL_v#####\data\
+			
+		-- copy the contents of the stepmod\publication\isopub\<APNNN>\iso10303_2xx\images folder 
+			into SMRL_v#####\images overwritting any duplicate file in the SMLRL
+			
+		-- copy the 
+			stepmod\publication\isopub\<APNNN>\iso10303_2xx\iso10303_2xx.htm
+			and
+			stepmod\publication\isopub\<APNNN>\iso10303_2xx\iso10303_2xx_readme.txt
+			into SMRL_v#####\
+	[[This test AP can be provided to WG21 for ballot of the CR.]]
+
+	-- execute link checks against the AP document SMRL_v#####\iso10303_2xx.htm.
+	   fix errors found in link check.
+	   
 ====================================
 
 Step five:
-upload the modified multiple AP / SMRL directory as a zip file to WG12 drop-in box. Check with Convener for zip file name to use.
+
+-- upload the modified SMRL as a zip file to WG12 drop-in box for the ballot package if requested.
+-- upload the stepmod\publication\isopub\<CR00NNN> (zipped) if requested.
+-- upload the test AP as a zip file if requested.
+   note: Check with Convener for which option is desired and which zip file name to use.
+
 ====================================
 
 Step six:
-Mark all related bugs as RESOLVED/FIXED and assign to Keith (ensure correct milestone!!).
+
+-- mark all related bugs as RESOLVED/FIXED and assign to Keith
+   note: !!ensure correct milestone!!
+
 ====================================
 
 Step seven:
-Update bug #3361 update tag index with the tag for this CR.
 
+-- update bug #3361 update tag index with the tag for this CR (if needed)
+
+=================

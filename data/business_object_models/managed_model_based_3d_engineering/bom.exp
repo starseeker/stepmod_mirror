@@ -1,5 +1,5 @@
 (*
-   $Id: bom.exp,v 1.33 2014/05/29 19:08:31 darla Exp $
+   $Id: bom.exp,v 1.34 2015/12/01 17:15:55 ungerer Exp $
    ISO TC184/SC4/WG12 N8520 - ISO/TS 10303-3001 managed model based 3d engineering bom - EXPRESS BOM
    
    change Log:
@@ -17,6 +17,8 @@
    #4951: In InformationUsageRightAssignment renamed attribute "isAssignedTo" to "assignedTo"
    #5682: Entity SelectedOccurrence merged into QuantifiedOccurrence
    #5688: New entities PartShapeElement and OccurrenceShapeELement added. Entity AssemblyJoint modified
+   #5078: New type OccurrenceOrOccurrenceDefinitionSelect, new entity DefinitionBasedOccurrence added. Entities Occurrence, SingleOccurrence, QuantifiedOccurrence, SpecifiedOccurrence, ViewOccurrenceRelationship modified.
+   #5693,#5698: New entities Representation, RepresentationContext added. GeometricRepresentation, GeometricCoordinateSpace modified.
 *)
 
 SCHEMA managed_model_based_3d_engineering_bom;
@@ -75,7 +77,7 @@ TYPE ActivityAssignmentSelect = SELECT(
   ExternalOwlClass,
   File,
   FrozenAssignment,
-  GeometricRepresentation,
+  Representation,
   IndividualAssemblyRelationship,
   IndividualPart,
   IndividualPartVersion,
@@ -285,7 +287,7 @@ TYPE ApprovalAssignmentSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FrozenAssignment,
-  GeometricRepresentation,
+  Representation,
   Identifier,
   IdentifierRelationship,
   InZone,
@@ -922,7 +924,7 @@ TYPE EffectivityAssignmentSelect = SELECT(
   File,
   FileRelationship,
   FrozenAssignment,
-  GeometricRepresentation,
+  Representation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1126,7 +1128,7 @@ TYPE GeneralOrganizationalDataSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FrozenAssignment,
-  GeometricRepresentation,
+  Representation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1281,7 +1283,7 @@ TYPE InformationUsageRightAssignmentSelect = SELECT(
   ExternalPropertyDefinition,
   File,
   FileRelationship,
-  GeometricRepresentation,
+  Representation,
   Identifier,
   IdentifierRelationship,
   IdentifierSet,
@@ -1464,6 +1466,12 @@ END_TYPE;
 TYPE OccurrenceDefinitionSelect = SELECT(
   PartView,
   ProductConfiguration
+);
+END_TYPE;
+
+TYPE OccurrenceOrOccurrenceDefinitionSelect = SELECT(
+  Occurrence,
+  OccurrenceDefinitionSelect
 );
 END_TYPE;
 
@@ -1818,7 +1826,7 @@ TYPE SecurityClassificationAssignmentSelect = SELECT(
   ExternalClassSystem,
   ExternalPropertyDefinition,
   File,
-  GeometricRepresentation,
+  Representation,
   Hardcopy,
   Identifier,
   IdentifierRelationship,
@@ -1915,7 +1923,7 @@ TYPE SuppliedObjectSelect = SELECT(
   ExternalOwlClass,
   File,
   FormatProperty,
-  GeometricRepresentation,
+  Representation,
   IndividualPartTestResult,
   IndividualPartView,
   InformationRight,
@@ -2042,21 +2050,21 @@ TYPE WorkRequestAssignmentSelect = SELECT(
 );
 END_TYPE;
 
-ENTITY Activity
-  ABSTRACT
-  SUPERTYPE OF(ONEOF(ActualActivity, PlannedActivity));
-  id : IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  activityType : ClassSelect;
-  chosenMethod : OPTIONAL ActivityMethod;
-  concernedOrganizations : OPTIONAL SET[1:?] OF Organization;
-  possibleMethods : OPTIONAL SET[1:?] OF ActivityMethod;
-  requestor : OPTIONAL DateAndPersonOrganization;
-  sameAs : OPTIONAL SET[1:?] OF ProxySelect;
-  status : OPTIONAL ClassSelect;
-  supplyingOrganizations : OPTIONAL SET[1:?] OF Organization;
-END_ENTITY;
+  ENTITY Activity
+    ABSTRACT
+    SUPERTYPE OF(ONEOF(ActualActivity, PlannedActivity));
+    id : IdentifierSelect;
+    description : OPTIONAL DescriptorSelect;
+    classifiedAs : OPTIONAL SET[1:?] OF Classification;
+    activityType : ClassSelect;
+    chosenMethod : OPTIONAL ActivityMethod;
+    concernedOrganizations : OPTIONAL SET[1:?] OF Organization;
+    possibleMethods : OPTIONAL SET[1:?] OF ActivityMethod;
+    requestor : OPTIONAL DateAndPersonOrganization;
+    sameAs : OPTIONAL SET[1:?] OF ProxySelect;
+    status : OPTIONAL ClassSelect;
+    supplyingOrganizations : OPTIONAL SET[1:?] OF Organization;
+  END_ENTITY;
 
 ENTITY ActivityAssignment;
   id : OPTIONAL IdentifierSelect;
@@ -2604,7 +2612,7 @@ END_ENTITY;
 
 ENTITY ComposedGeometricModel
   SUBTYPE OF(GeometricModel);
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
+  SELF\Representation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
 INVERSE
   composedModels : SET[1:?] OF GeometricRepresentationRelationship FOR relating;  
 END_ENTITY;
@@ -2795,6 +2803,13 @@ ENTITY DateTimeAssignment;
   role : ClassSelect;
   assignedDate : DateTimeString;
   assignedTo : DateTimeAssignmentSelect;
+END_ENTITY;
+
+ENTITY DefinitionBasedOccurrence
+  ABSTRACT
+  SUPERTYPE OF (ONEOF(QuantifiedOccurrence, SingleOccurrence))
+  SUBTYPE OF (Occurrence);
+  SELF\Occurrence.definition : OccurrenceDefinitionSelect;
 END_ENTITY;
 
 ENTITY DegeneratePcurve
@@ -3143,7 +3158,7 @@ ENTITY ExternalGeometricModel
   SUPERTYPE OF(ONEOF(ExternalAdvancedBrepShapeRepresentation, ExternalCsgShapeRepresentation, ExternalCurveSweptSolidShapeRepresentation, ExternalEdgeBasedWireframeShapeRepresentation, ExternalElementaryBrepShapeRepresentation, ExternalFacetedBrepShapeRepresentation, ExternalGeometricallyBoundedSurfaceShapeRepresentation, ExternalGeometricallyBoundedWireframeShapeRepresentation, ExternalManifoldSurfaceShapeRepresentation, ExternalShellBasedWireframeShapeRepresentation, ExternalTessellatedShapeRepresentation))
   SUBTYPE OF(GeometricModel);
   externalFile : DigitalFile;
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
+  SELF\Representation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
   parameterValues : OPTIONAL SET[1:?] OF PropertyValue;
 END_ENTITY;
 
@@ -3297,11 +3312,9 @@ DERIVE
   SELF\PartViewRelationship.relationType : ClassString := 'geometrically related part view';
 END_ENTITY;
 
-ENTITY GeometricCoordinateSpace;
-  id : IdentifierSelect;
-  accuracies : OPTIONAL SET[1:?] OF MeasureQualification;
+ENTITY GeometricCoordinateSpace
+  SUBTYPE OF (RepresentationContext);
   dimensionCount : INTEGER;
-  units : OPTIONAL SET[1:?] OF Unit;
 WHERE
   WR1: dimensionCount > 0;
 END_ENTITY;
@@ -3314,15 +3327,9 @@ END_ENTITY;
 
 ENTITY GeometricRepresentation
   ABSTRACT
-  SUPERTYPE OF(ONEOF(ConstituentShapeRepresentation, GeometricModel, InterpolatedConfigurationModel, KinematicLink, LinkMotionAlongPath, Mechanism, MechanismState, StyledModel));
-  id : IdentifierSelect;
-  name : OPTIONAL DescriptorSelect;
-  description : OPTIONAL DescriptorSelect;
-  versionId : OPTIONAL IdentifierSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  contextOfItems : GeometricCoordinateSpace;
-  items : SET[1:?] OF RepresentationItem;
-  representationTypes : OPTIONAL SET[1:?] OF ClassSelect;
+  SUPERTYPE OF(ONEOF(ConstituentShapeRepresentation, GeometricModel, InterpolatedConfigurationModel, KinematicLink, LinkMotionAlongPath, Mechanism, MechanismState, StyledModel))
+  SUBTYPE OF (Representation);
+  SELF\Representation.contextOfItems : GeometricCoordinateSpace;
 END_ENTITY;
 
 ENTITY GeometricRepresentationRelationship
@@ -3536,7 +3543,7 @@ END_ENTITY;
 
 ENTITY InterpolatedConfigurationModel
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : SET[1:?] OF InterpolatedConfigurationSequence;
+  SELF\Representation.items : SET[1:?] OF InterpolatedConfigurationSequence;
   parameterUnit : Unit;
 END_ENTITY;
 
@@ -3560,7 +3567,7 @@ END_ENTITY;
 
 ENTITY KinematicLink
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacement;
+  SELF\Representation.items : SET[1:?] OF AxisPlacement;
   ofModel : OPTIONAL ExternalGeometricModel;
 END_ENTITY;
 
@@ -3632,7 +3639,7 @@ END_ENTITY;
 
 ENTITY LinkMotionAlongPath
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : SET[1:?] OF KinematicPathDefinedByNodes;
+  SELF\Representation.items : SET[1:?] OF KinematicPathDefinedByNodes;
   timeUnit : OPTIONAL Unit;
 END_ENTITY;
 
@@ -3798,12 +3805,12 @@ END_ENTITY;
 
 ENTITY Mechanism
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : SET[1:?] OF KinematicPair;
+  SELF\Representation.items : SET[1:?] OF KinematicPair;
 END_ENTITY;
 
 ENTITY MechanismState
   SUBTYPE OF(GeometricRepresentation);
-  SELF\GeometricRepresentation.items : SET[1:?] OF KinematicPairValue;
+  SELF\Representation.items : SET[1:?] OF KinematicPairValue;
   representedMechanism : Mechanism;
 END_ENTITY;
 
@@ -3891,14 +3898,14 @@ ENTITY NumericalValue
   valueContext : OPTIONAL NumericalContext;
 END_ENTITY;
 
-ENTITY Occurrence
+ENTITY Occurrence 
   ABSTRACT
-  SUPERTYPE OF(ONEOF(QuantifiedOccurrence, SingleOccurrence, SpecifiedOccurrence));
+  SUPERTYPE OF(ONEOF(DefinitionBasedOccurrence, SpecifiedOccurrence));
   id : IdentifierSelect;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  definition : OccurrenceOrOccurrenceDefinitionSelect;
   definingGeometry : OPTIONAL GeometricModel;
-  definition : OccurrenceDefinitionSelect;
 END_ENTITY;
 
 ENTITY OccurrencePlacement;
@@ -4580,10 +4587,10 @@ ENTITY QualitativeUncertainty
 END_ENTITY;
 
 ENTITY QuantifiedOccurrence
-  SUBTYPE OF(Occurrence);
+  SUBTYPE OF (DefinitionBasedOccurrence );
   quantity : OPTIONAL ValueWithUnit;
   criterion : OPTIONAL MultiLingualStringSelect;
-  WHERE  
+WHERE  
   WR1: EXISTS(quantity) OR EXISTS(criterion);
 END_ENTITY;
 
@@ -4623,6 +4630,25 @@ ENTITY ReplacedUsageRelationship
   usageContext : OccurrenceUsageContextSelect;
 DERIVE
   SELF\OccurrenceRelationship.relationType : ClassString := 'replaced usage';
+END_ENTITY;
+
+ENTITY Representation
+  SUPERTYPE OF (GeometricRepresentation);
+  id : IdentifierSelect;
+  name : OPTIONAL DescriptorSelect;
+  description : OPTIONAL DescriptorSelect;
+  versionId : OPTIONAL IdentifierSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  contextOfItems : RepresentationContext;
+  items : SET[1:?] OF RepresentationItem;
+  representationTypes : OPTIONAL SET[1:?] OF ClassSelect;
+END_ENTITY;
+
+ENTITY RepresentationContext
+  SUPERTYPE OF (GeometricCoordinateSpace);
+  id : IdentifierSelect;
+  accuracies : OPTIONAL SET[1:?] OF MeasureQualification;
+  units : OPTIONAL SET[1:?] OF Unit;
 END_ENTITY;
 
 ENTITY RepresentationItem
@@ -4835,7 +4861,7 @@ WHERE
 END_ENTITY;
 
 ENTITY SingleOccurrence
-  SUBTYPE OF(Occurrence);
+  SUBTYPE OF(DefinitionBasedOccurrence);
 END_ENTITY;
 
 ENTITY SizeProperty;
@@ -4913,10 +4939,9 @@ ENTITY SpecificationInclusionAssignment;
 END_ENTITY;
 
 ENTITY SpecifiedOccurrence
-  SUBTYPE OF(Occurrence);
-  assemblyContext : AssemblyDefinition;
-  subAssemblyRelationship : Occurrence;
-  upperAssemblyRelationship : Occurrence;
+  SUBTYPE OF (Occurrence);
+  SELF\Occurrence.definition : Occurrence;
+  upperUsage : Occurrence;
 END_ENTITY;
 
 ENTITY StandardUncertainty
@@ -5085,7 +5110,7 @@ END_ENTITY;
 
 ENTITY TransformedGeometricModel
   SUBTYPE OF(GeometricModel);
-  SELF\GeometricRepresentation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
+  SELF\Representation.items : SET[1:?] OF AxisPlacementOrTransformationSelect;
 DERIVE
   sourceModel : GeometricModel := derivedFrom.relating;
 INVERSE
@@ -5164,7 +5189,7 @@ ENTITY ViewOccurrenceRelationship
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   relationType : ClassSelect;
   relating : PartView;
-  related : Occurrence;
+  related : DefinitionBasedOccurrence;
 END_ENTITY;
 
 ENTITY WorkOrder;

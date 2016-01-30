@@ -1,4 +1,4 @@
-$Id: create_a_CR_package.txt,v 1.27 2016/01/12 15:27:11 thomasrthurman Exp $
+$Id: create_a_CR_package.txt,v 1.28 2016/01/12 22:30:19 thomasrthurman Exp $
 provides detailed step by step instructions to build a CR and evaluate it.
 [[!!do not commit any directory with "isopub" in the path!!]]
 The following two documents are included by reference:
@@ -6,6 +6,7 @@ ISO/TC 184/SC 4/WG 12 N8352 STEPmod Deliverable directory structure
 ISO TC 184/SC 4/WG 12 N8496 Procedure for building the STEP Module and Resource Library
 
 Table of Contents:
+Step zero  : Debugging mapping specifications
 Step one   : Create a CR publication package upon project approval
 Step two   : Build and commit long forms
 Step Three : Build actual CR publication package for ISO.
@@ -16,7 +17,17 @@ Step seven : Mark all related bugs as RESOLVED/FIXED and assign to Keith
 Step eight : Update bug #3361 update tag index with the tag for this CR.
 
 =================================================================
+Step zero:
+-- Debug mapping specifications for a module
+	--- for each module of interest
+		-- execute xslt transform against stepmod/data/modules/<module>/sys/5_mapping.xml
+		     note: use saxon 655 on command line or XML IDE.
+		           The XSLT file is specified in the above xml file.
+		-- look for red text
+		-- fix red text
+	note: the above should go in the stepmod help but leave here until that happens.
 
+=================================================================
 Step one:
 
 -- create a CR publication package upon project approval
@@ -177,7 +188,7 @@ Step two (A):
 -- ensure that the correct header information is included in the first few lines of the file
 	eg:
 		(*
-		   $Id: create_a_CR_package.txt,v 1.27 2016/01/12 15:27:11 thomasrthurman Exp $
+		   $Id: create_a_CR_package.txt,v 1.28 2016/01/12 22:30:19 thomasrthurman Exp $
 		   ISO TC184/SC4/WG3 8232 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM Long form
 		   Supersedes ISO TC184/SC4/WG3 N2601
 		*)
@@ -227,20 +238,27 @@ Step two (C):
 Step Three:
 
 Build actual CR publication package for ISO.
-	Step three (A):
-	
-	-- checkout stepmod/data with previous SMRL tag [TO DO]
-	   Note: It is assumed that the STEPmod repo is valid.
-	         Validation of the SMRL tag with the published SMRL is not in scope for this process.
-	-- checkout stepmod/data with current CR tag [TO DO]
-	   note: This changes the state of the local repo to be SMRL_previous modified to current CR.
-	   note: the directories that are NOT data directories shall be at the HEAD state.
-	   note: the following can be done on an incremental basis - module by module - rather than doing a full AP build – requires ANT and Java and Saxon 6.5.5:
-	    	for each module in the publication_index.xml:
-		-- execute xslt against stepmod/data/modules/<module>/sys/5_mapping.xml
-		-- look for red text
-		-- fix red text
-	
+	Step three (A1): Initialize local repo.
+	--If this is the first pass through Step three,
+	         execute this step (A1) 
+	        Otherwise start at step (A2).
+    -- Preconditions
+    --- 1: empty local directory
+    --- 2: the STEPmod remote repo tags are valid
+	         see bugzilla bug
+	         http://www.wikistep.org/bugzilla/show_bug.cgi?id=3361.
+	-- Initialize a local instance of stepmod from HEAD
+	     Use CVS checkout command
+	-- replace stepmod/data with previous SMRL tag [TO DO]
+	    Use CVS replace command.
+	-- replace stepmod/data with current CR tag [TODO]
+	    Use CVS replace command.
+    -- Postcondition
+    	   The directories that are NOT data directories shall be at the HEAD state.
+    	   The data directories that are not part of CR shall be at previous SMRL state.
+    	   The data directories that are part of the CR shall be at the current CR state.
+    	   
+	Step three (A2): Execute process
 	-- goto stepmod\publication\part1000\<CR00NNN>
 	
 	-- run ant -buildfile buildbuild.xml
@@ -305,6 +323,8 @@ Build actual CR publication package for ISO.
 	    Specific checks are TBD.
 	   Resolve link checks by repeating earlier steps as required.
 	   
+	-- move SMRL_CRxxx tag as needed to make it up to date
+
 ====================================
 
 Step four:
@@ -368,6 +388,7 @@ Note: AP2xx docs are not delivered as part of a CR.
 
 	-- execute link checks against the AP document SMRL_v#####\iso10303_2xx.htm.
 	   fix errors found in link check.
+	-- move SMRL_CRxxx tag as needed to make it up to date
 	   
 ====================================
 

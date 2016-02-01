@@ -1,4 +1,4 @@
-$Id: create_a_CR_package.txt,v 1.29 2016/01/30 20:12:01 thomasrthurman Exp $
+$Id: create_a_CR_package.txt,v 1.30 2016/01/31 01:30:03 thomasrthurman Exp $
 provides detailed step by step instructions to build a CR and evaluate it.
 [[!!do not commit any directory with "isopub" in the path!!]]
 The following two documents are included by reference:
@@ -111,18 +111,15 @@ Step one:
 		    to an individual module or resource as the tool is currently used.)
 	    note: For the initial trial, Kevin is to create and populate needed subdirectories under stepmod/data/tools/change_requests/JSDAI/CR12
 		     to check that all required data including property files is committed to stepmod.
-
-	-- ensure all your modifications are committed to stepmod and you have tagged your modified files with the correct CR tags! 
-		note: one way to evaluae success is to check out a separate project with the tag CRxxxx and compare with your committed local repository. 
+        note: For graphic editors that generate binary store on a per module basis the binary files shall be
+             stored under the data directory for which the editor is providing the graphic.
+             
+	-- commit all data to stepmod
+	-- tag all modified files with the correct CR tags! 
+		note: one way to evaluate success is to check out a separate project with the tag CRxxxx and compare with your committed local repository. 
 		note: to avoid conflicts, only tag data directories that are specified in the publication_index.xml
 	
-	-- initialize local stepmod repo with "switch to another version" with latest published SMRL tag 
-
-	--replace each module or resource doc or resource directory that is included in the CR with the copy tagged with the CR name.
-	    (in other words,switch those specific directories to be updated with the CR with "switch to another version" with "your" CR tag!)
-	     eg: only one schema in part 42 is being updated so only one schema directory would be switched, in addition to the part42 resource doc directory.
-
-	-- update bug #3347 Maintain record CVS tags used
+	-- update bug #3361 Maintain record CVS tags used
 
 	-- update stepmod/repository_index.xml for new modules (tag with CR #) 
 ====================================
@@ -170,7 +167,7 @@ Step two (A):
 
 
 -- evaluate error report from longform.EDMscript
-
+   -- correct modules in CR (go back to Step One to do that)
    -- identify and add missing modules to CR (go back to Step One to do that)
 
 -- for each 4xx modules, commit in the right directory:
@@ -182,13 +179,14 @@ Step two (A):
 -- commit the diagnostic file "n:\<schema_name>_lf.exp.dia": 
 
 -- copy and rename longform files if needed
-	eg: "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp" to stepmod/data/modules/ap210_el*/arm_lf.exp"
+	eg: "n:\electronic_assembly_interconnect_and_packaging_design_arm_lf.exp" to 
+	stepmod/data/modules/ap210_el*/arm_lf.exp"
 
 
 -- ensure that the correct header information is included in the first few lines of the file
 	eg:
 		(*
-		   $Id: create_a_CR_package.txt,v 1.29 2016/01/30 20:12:01 thomasrthurman Exp $
+		   $Id: create_a_CR_package.txt,v 1.30 2016/01/31 01:30:03 thomasrthurman Exp $
 		   ISO TC184/SC4/WG3 8232 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM Long form
 		   Supersedes ISO TC184/SC4/WG3 N2601
 		*)
@@ -197,6 +195,8 @@ Step two (A):
 -- commit arm_lf.exp, mim_lf.exp files.
 
 -- execute the Express Engine pretty printer option against the arm_lf.exp, mim_lf.exp files.
+   [[Ensure that both the non-pretty and the pretty EXPRESS are committed
+     because the pretty printer does not retain comments.]] 
    
 -- compare the pretty results with the original long forms for consistency of the EXPRESS.
    Use the Express Engine compare option or other compare tools.
@@ -239,27 +239,23 @@ Step two (C):
 Step Three:
 
 Build actual CR publication package for ISO.
-	Step three (A1): Initialize local repo.
-	--If this is the first pass through Step three,
-	         execute this step (A1) 
-	        Otherwise start at step (A2).
+	Step A3.1: Initialize local repo.
     -- Preconditions
     --- 1: empty local directory
-    --- 2: the STEPmod remote repo tags are valid
+    --- 2: "one to one and onto" correspondence between the STEPmod remote data directories tagged with this CR 
+           and the contents of publication_index.xml.
 	         see bugzilla bug
 	         http://www.wikistep.org/bugzilla/show_bug.cgi?id=3361.
 	-- Initialize a local instance of stepmod from HEAD
-	     Use CVS checkout command
-	-- replace stepmod/data with previous SMRL tag [TO DO]
-	    Use CVS replace command.
-	-- replace stepmod/data with current CR tag [TODO]
-	    Use CVS replace command.
+	     Use CVS checkout command: cvs co -d "stepmod" -P -A "/stepmod".
+	Step A3.2: Replace stepmod/data with current CR tag [TODO]
+	    Use CVS replace command: cvs update -r "SMRL_CR00011" -C -d -P "/stepmod/data"
     -- Postcondition
     	   The directories that are NOT data directories shall be at the HEAD state.
-    	   The data directories that are not part of CR shall be at previous SMRL state.
     	   The data directories that are part of the CR shall be at the current CR state.
+    	   The data directories that are not part of CR shall not exist in the local directory.
     	   
-	Step three (A2): Execute process
+	Step A3.3: Execute build process
 	-- goto stepmod\publication\part1000\<CR00NNN>
 	
 	-- run ant -buildfile buildbuild.xml
@@ -269,27 +265,28 @@ Build actual CR publication package for ISO.
 [[The above directory is the "to be delivered to ISO" content.]]
 	
 	-- review the contents of the build.log file created by ant -buildfile buildbuild.xml for real errors due to missing modules in publication_index.xml or other errors
-	   note: Because the local repository is strictly built from SMRL_previous and CR_current there should be exact provenance for errors/changes.
+	   note: Because the local repository is strictly built from CR_current there should be exact provenance for errors/changes.
 
+	Step A3.4: Execute commit process
 	-- commit the contents of stepmod\publication\part1000\<CR00NNN> to CVS 
 	   note: !!do not commit any directory with "isopub" in the path!!
 	
 	-- review the content of stepmod\publication\isopub\<CR00NNN> for errors
 	
 	-- fix errors until none
-	
-       -- identify and add missing modules to CR (go back to Step One to do that)
-
+       -- identify and add missing modules to CR (go back to Step one to do that)
+       -- after error fix go back to Step one.
+       
 	-- move SMRL_CRxxx tag as needed to make it up to date
 
 	Step three-(B): 
 	SMRL integration tests
 	
 	-- build the new test SMRL
-	[[This test SMRL can be provided to WG21 for ballot of the CR.
-	  However, it does not include an index, as it is only for incremental testing.
-	  A test SMRL with indices is the output of step five.]]
-		-- retrieve last SMRL and put it somewhere
+	       [[This test SMRL can be provided to WG21 for ballot of the CR.
+	         However, it does not include an index, as it is only for incremental testing.
+	         A test SMRL with indices is the output of step five.]]
+		-- retrieve last SMRL and put it somewhere as "SMRL_v#####"
 			eg "stepmod\publication\part1000\SMRL_v6_rc1"
 		
 		-- delete the directories (and contents) corresponding to the elements explicitly listed in 
@@ -312,17 +309,14 @@ Build actual CR publication package for ISO.
 			SMRL_v#####\data\resource_docs and/or
 			SMRL_v#####\data\resources
 			
-		note: This procedure ensures that no previous content is retained in the relevant directories and also 
-		ensures that extra content created by the CR publication build does not get injected into the SMRL. For 
-		CR11, it is ok to copy the resource directories for p42, p43 as all resource directories for
-		those resource parts are new. For CR12 and following only the resources included in the publication_index.xml 
-		shall be injected into the new SMRL.
+		note: This procedure ensures that no previous content is retained in the relevant directories.
 
 	-- execute link checks against the integrated test SMRL directories.
 	    Note that there are no indices built so the links being checked are the internal links only.
 	    We may wish to specify link checks only start from the 4xx modules for simplicity.
 	    Specific checks are TBD.
 	   Resolve link checks by repeating earlier steps as required.
+	   	  Go back to Step one to do that.
 	   
 	-- move SMRL_CRxxx tag as needed to make it up to date
 
@@ -366,7 +360,7 @@ Note: AP2xx docs are not delivered as part of a CR.
 
 	-- fix errors in AP doc
 	
-	-- fix errors in modules or resources and repeat Step three to ensure tags and data are valid.
+	-- fix errors in modules or resources and repeat Step one to ensure tags and data are valid.
 
 	-- merge the AP publication and the SMRL as follows:
 		
@@ -388,20 +382,20 @@ Note: AP2xx docs are not delivered as part of a CR.
 	[[This test AP can be provided to WG21 for ballot of the CR.]]
 
 	-- execute link checks against the AP document SMRL_v#####\iso10303_2xx.htm.
-	   fix errors found in link check.
+	   fix errors found in link check. Repeat step Four or Step one as needed.
 	-- move SMRL_CRxxx tag as needed to make it up to date
 	   
 ====================================
 
 Step five:
 Build SMRL indices and perform link checks.
-
-	-- execute the arm and mim index generation process per ISO/TC 184/SC 4/WG 12 N 8496 
-	-- execute link checks against the integrated test SMRL directories.
 	    Note: This check is moved till the latest possible step because it is manually intensive
 	          and needs more clarification as to the decision process for including schemas
 	          in the indices. Currently the process for deciding what schemas to include is
 	          up to the developer creating the cover sheet that includes the index.
+
+	-- execute the arm and mim index generation process per ISO/TC 184/SC 4/WG 12 N 8496 
+	-- execute link checks against the integrated test SMRL directories.
 	   Resolve link checks by repeating earlier steps as required.
     -- Upload the test SMRL as directed by Convener.
 ====================================

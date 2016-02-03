@@ -1,10 +1,8 @@
-NOTE NOTE: build.xml is modified to remove resources.
-Also this build does not include 3001.
 This directory contains files used to generate a Part 1000 change request package
 
 To build the change request package:
 
-1) Add the modules to be published to: publication_index.xml
+1) Add the modules, resources, or bo models to be published to: publication_index.xml 
 
 2) Generate the ANT build file using ANT
      ant -buildfile buildbuild.xml
@@ -18,7 +16,7 @@ To build the change request package:
    This will create a directory:
      stepmod/publication/isopub/CR00011
 
-5) The HTML for each part to be published will be generated and stored in
+5) The HTML for each part to be published will be generated and stored in 
      stepmod/publication/isopub/CR00011/part1000
    The directory:
      stepmod/publication/isopub/CR00011/part1000/data/modules
@@ -31,7 +29,7 @@ To build the change request package:
      contains the EXPRESS for all the modules and integrated resources schemas.
    The complete directory:
      stepmod/publication/isopub/CR00011/part1000
-   is added to the zip file:
+   is added to the zip file: 
      stepmod/publication/isopub/CR00011/CR00011<YYYYMMDD>.zip
    where <YYYMMDD> is the date of the build.
    The zip file is to be sent to the modules validation team for sign off

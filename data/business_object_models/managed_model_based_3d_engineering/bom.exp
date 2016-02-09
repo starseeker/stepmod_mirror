@@ -1,5 +1,5 @@
 (*
-   $Id: bom.exp,v 1.35 2016/01/15 15:56:54 ungerer Exp $
+   $Id: bom.exp,v 1.37 2016/02/05 14:23:08 ungerer Exp $
    ISO TC184/SC4/WG12 N8520 - ISO/TS 10303-3001 managed model based 3d engineering bom - EXPRESS BOM
    
    change Log:
@@ -2507,8 +2507,8 @@ DERIVE
   dim : INTEGER := SIZEOF(translationVector);
   scl : REAL := NVL(scale,1.0);
 WHERE
-  -- WR1: {-1.0 <= rotationMatrix <= 1.0};
-  WR1: SIZEOF( QUERY(xi <* rotationMatrix | NOT ({-1.0 <= xi <= 1.0}) ) )= 0;
+  WR1: SIZEOF( QUERY(xi <* rotationMatrix |
+                     SIZEOF( QUERY(xj <* xi | (-1.0 > xj) OR (xj > 1.0))) > 0)) = 0;
   WR2: scale > 0.0;
   WR3: SIZEOF(translationVector) = SIZEOF(rotationMatrix);
 END_ENTITY;
@@ -4088,7 +4088,7 @@ ENTITY PartViewToIndividualPartViewAssociation;
   description : OPTIONAL DescriptorSelect;
   classifiedAs : OPTIONAL SET[1:?] OF Classification;
   role : OPTIONAL ClassSelect;
-  associatedInduvidualPart : IndividualPartView;
+  associatedIndividualPart : IndividualPartView;
   associatedPart : PartViewOrProductConfigurationSelect;
 END_ENTITY;
 

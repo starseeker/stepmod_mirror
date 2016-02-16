@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.3 2014/06/07 17:40:11 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.4 2014/06/16 12:17:02 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -630,8 +630,8 @@ Purpose: To build the initial ANT publication file.
 			</xsl:attribute>
 		</xsl:element>
 
-		<!-- MWD -->
-		<!--<xsl:element name="property">
+		<!-- MWD 2016-02-15 -->
+		<xsl:element name="property">
 			<xsl:attribute name="name">ARMDESCRIPTIONSXML</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="modules/module" mode="list">
@@ -711,7 +711,9 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="suffix" select="'/mim_lf.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
-		</xsl:element>-->
+		</xsl:element>
+	
+		<!-- MWD 2016-02-15 -->
 
 		<xsl:element name="property">
 			<xsl:attribute name="name">EXPRESS</xsl:attribute>

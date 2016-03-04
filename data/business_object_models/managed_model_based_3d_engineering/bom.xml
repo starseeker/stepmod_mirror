@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="bom_descriptions.xml" language_version="2" rcs.date="$Date: 2016/01/15 15:56:55 $" rcs.revision="$Revision: 1.23 $">
+<express description.file="bom_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="managed_model_based_3d_engineering_bom schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="managed_model_based_3d_engineering_bom">
       <constant expression="'MANAGED_MODEL_BASED_3D_ENGINEERING_BOM.'" name="SCHEMA_NAME">
@@ -1247,7 +1247,7 @@
          <derived expression="NVL(scale,1.0)" name="scl">
             <builtintype type="REAL"/>
          </derived>
-         <where expression="{-1.0 &lt;= rotationMatrix &lt;= 1.0}" label="WR1"/>
+         <where expression="SIZEOF( QUERY(xi &lt;* rotationMatrix |&#10;                     SIZEOF( QUERY(xj &lt;* xi | (-1.0 &gt; xj) OR (xj &gt; 1.0))) &gt; 0)) = 0" label="WR1"/>
          <where expression="scale &gt; 0.0" label="WR2"/>
          <where expression="SIZEOF(translationVector) = SIZEOF(rotationMatrix)" label="WR3"/>
       </entity>
@@ -2613,25 +2613,14 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="GeometricRepresentationRelationship" super.expression="ONEOF (GeneralGeometricRepresentationRelationship, GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace)">
-         <explicit name="id" optional="YES">
-            <typename name="IdentifierSelect"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <typename name="DescriptorSelect"/>
-         </explicit>
-         <explicit name="classifiedAs" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Classification"/>
-         </explicit>
+      <entity abstract.supertype="YES" name="GeometricRepresentationRelationship" super.expression="ONEOF (GeneralGeometricRepresentationRelationship, GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace)" supertypes="RepresentationRelationship">
          <explicit name="relating">
             <typename name="GeometricRepresentation"/>
+            <redeclaration entity-ref="RepresentationRelationship"/>
          </explicit>
          <explicit name="related">
             <typename name="GeometricRepresentation"/>
-         </explicit>
-         <explicit name="definitional">
-            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="RepresentationRelationship"/>
          </explicit>
       </entity>
       <entity name="GeometricRepresentationRelationshipWithCartesianTransformation" supertypes="GeometricRepresentationRelationship">
@@ -2652,7 +2641,7 @@
       <entity name="GeometricRepresentationRelationshipWithSameCoordinateSpace" supertypes="GeometricRepresentationRelationship">
          <derived expression="TRUE" name="definitional">
             <builtintype type="BOOLEAN"/>
-            <redeclaration entity-ref="GeometricRepresentationRelationship"/>
+            <redeclaration entity-ref="RepresentationRelationship"/>
          </derived>
          <where expression="SELF\GeometricRepresentationRelationship.relating.contextOfItems :=: SELF\GeometricRepresentationRelationship.related.contextOfItems" label="WR1"/>
       </entity>
@@ -3984,7 +3973,7 @@
          <explicit name="role" optional="YES">
             <typename name="ClassSelect"/>
          </explicit>
-         <explicit name="associatedInduvidualPart">
+         <explicit name="associatedIndividualPart">
             <typename name="IndividualPartView"/>
          </explicit>
          <explicit name="associatedPart">
@@ -5023,6 +5012,27 @@
          </explicit>
          <explicit name="external" optional="YES">
             <typename name="ExternalItem"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="RepresentationRelationship" super.expression="GeometricRepresentationRelationship">
+         <explicit name="id" optional="YES">
+            <typename name="IdentifierSelect"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="DescriptorSelect"/>
+         </explicit>
+         <explicit name="classifiedAs" optional="YES">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Classification"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Representation"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Representation"/>
+         </explicit>
+         <explicit name="definitional">
+            <builtintype type="BOOLEAN"/>
          </explicit>
       </entity>
       <entity name="Requirement">

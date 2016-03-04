@@ -1,5 +1,5 @@
 (*
-   $Id: bom.exp,v 1.37 2016/02/05 14:23:08 ungerer Exp $
+   $Id: bom.exp,v 1.38 2016/02/09 11:02:09 ungerer Exp $
    ISO TC184/SC4/WG12 N8520 - ISO/TS 10303-3001 managed model based 3d engineering bom - EXPRESS BOM
    
    change Log:
@@ -3337,13 +3337,10 @@ END_ENTITY;
 
 ENTITY GeometricRepresentationRelationship
   ABSTRACT
-  SUPERTYPE OF(ONEOF(GeneralGeometricRepresentationRelationship,GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace));
-  id : OPTIONAL IdentifierSelect;
-  description : OPTIONAL DescriptorSelect;
-  classifiedAs : OPTIONAL SET[1:?] OF Classification;
-  relating : GeometricRepresentation;
-  related : GeometricRepresentation;
-  definitional : BOOLEAN;
+  SUPERTYPE OF(ONEOF(GeneralGeometricRepresentationRelationship,GeometricRepresentationRelationshipWithCartesianTransformation, GeometricRepresentationRelationshipWithPlacementTransformation, GeometricRepresentationRelationshipWithSameCoordinateSpace))
+  SUBTYPE OF (RepresentationRelationship); id : OPTIONAL IdentifierSelect;
+  SELF\RepresentationRelationship.relating : GeometricRepresentation;
+  SELF\RepresentationRelationship.related : GeometricRepresentation;
 END_ENTITY;
 
 ENTITY GeometricRepresentationRelationshipWithCartesianTransformation
@@ -4659,6 +4656,17 @@ ENTITY RepresentationItem
   SUPERTYPE OF(ONEOF(DetailedGeometricModelItem, ExternalRepresentationItem, InterpolatedConfigurationSequence, KinematicPair, KinematicPairValue));
   name : OPTIONAL DescriptorSelect;
   external : OPTIONAL ExternalItem;
+END_ENTITY;
+
+ENTITY RepresentationRelationship
+  ABSTRACT
+  SUPERTYPE OF(ONEOF(GeometricRepresentationRelationship));
+  id : OPTIONAL IdentifierSelect;
+  description : OPTIONAL DescriptorSelect;
+  classifiedAs : OPTIONAL SET[1:?] OF Classification;
+  relating : Representation;
+  related : Representation;
+  definitional : BOOLEAN;
 END_ENTITY;
 
 ENTITY Requirement;

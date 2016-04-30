@@ -7,4 +7,15 @@ http://github.com/stepcode/stepcode and scl-dev on google groups
 The executable is rather small on the mac os x 10.11.x
 cmake-gui v 3.5.2 was used to configure the build.
 
-A separate directory will be provided for each os for which the exppp app is provided.
+=======WARNING=========
+This application is only provided for users to support comparing the released 409, 410, 442 longforms
+ from 2014 to newer longforms because those published longforms were created by this executable (which
+ has some anomalies. In order to simplify comparison, any longform to be compared with those longforms
+ should also be processed by the exppp tool. Otherwise there will be too many differences caused by
+ extra parantheses for the comparison to be productive.)
+ 
+For newer editions, use the Express Engine --pretty function.
+compiled binaries are available from https://sourceforge.net/projects/exp-engine/
+
+============INSTALL=======
+A separate directory should be provided for each os for which the exppp app is provided.

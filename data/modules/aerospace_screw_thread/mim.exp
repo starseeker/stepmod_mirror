@@ -1,22 +1,80 @@
-(*
-   $Id: mim.exp,v 1.1 2016/04/18 17:31:10 thomasrthurman Exp $
+(* $Id: mim.exp,v 1.2 2016/05/01 00:20:57 thomasrthurman Exp $
    N - ISO/TS-10303-1833 aerospace_screw_thread - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Aerospace_screw_thread_mim;
 
-USE FROM Shape_feature_mim;
-USE FROM external_reference_schema
+USE FROM aic_machining_feature -- ISO 10303-522
+         (shape_defining_relationship,
+          thread_runout);
+
+USE FROM Document_assignment_mim; --ISO/TS 10303-1764
+
+USE FROM Shape_feature_mim; --ISO/TS 10303-1764
+
+USE FROM external_reference_schema -- ISO 10303-41
         (externally_defined_item,
          external_source);
-        
+
+USE FROM PRODUCT_PROPERTY_DEFINITION_SCHEMA -- ISO 10303-41
+        (shape_aspect_relationship);
+       
+USE FROM shape_aspect_definition_schema --ISO/TS 10303-1764
+        (shape_representation_with_parameters);
+
+TYPE ast_documented_element_select = SELECT BASED_ON document_reference_item WITH
+    (screw_thread_feature_definition);
+  END_TYPE;
+   
 ENTITY catalogue_screw_thread_feature_definition
- SUBTYPE OF (shape_feature_definition, externally_defined_item);
+ SUBTYPE OF (screw_thread_feature_definition, externally_defined_item);
  DERIVE
   screw_thread_feature_definition_id : identifier := SELF\externally_defined_item.item_id;
   source_id : identifier := SELF\externally_defined_item.source\external_source.source_id;
  WHERE
   WR1 : screw_thread_feature_definition_id = 'catalogue screw thread';
   WR2 : source_id = 'catalogue screw thread specification';
-  WR3 : SELF\characterized_object.description = 'screw thread feature definition';
 END_ENTITY;
+
+ENTITY screw_thread_feature_definition
+    SUBTYPE OF (  characterized_object, 
+                  product_definition_shape,
+                  shape_aspect,
+                  shape_definition_representation,
+                  shape_representation_with_parameters);
+  DERIVE
+   definition_1   : screw_thread_feature_definition := SELF\property_definition.definition;
+   definition_2   : screw_thread_feature_definition := SELF\property_definition_representation.definition;
+   definition_3   : screw_thread_feature_definition := SELF\shape_aspect.of_shape;
+   representation : screw_thread_feature_definition := SELF\property_definition_representation.used_representation;
+   runout_relationships        : SET [0:?] OF shape_defining_relationship := bag_to_set(QUERY( sar <* USEDIN(SELF,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+                     (sar\shape_aspect_relationship.description = 'thread runout usage') AND 
+                     ('AIC_MACHINING_FEATURE.SHAPE_DEFINING_RELATIONSHIP' IN TYPEOF(sar))
+                     ));
+   documents      : SET [1:?] OF applied_document_reference := bag_to_set(USEDIN(SELF,'DOCUMENT_ASSIGNMENT_MIM.APPLIED_DOCUMENT_REFERENCE.ITEMS'));
+  WHERE
+   WR1 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('fit class' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item))
+         )) = 1;
+   WR2 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('form' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item))
+         )) = 1;
+   WR3 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('gaging system' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item))
+         )) <= 1;
+   WR4 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('hand' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item) AND
+          ('left' = item\descriptive_representation_item.description) OR ('right' = item\descriptive_representation_item.description))
+         )) = 1;
+   WR5 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('side' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item) AND
+          ('internal' = item\descriptive_representation_item.description) OR ('external' = item\descriptive_representation_item.description))
+         )) = 1;
+   WR6 : SIZEOF(QUERY(item <* representation\representation.items | 
+         (('series' = item\representation_item.name) AND ('QUALIFIED_MEASURE_SCHEMA.DESCRIPTIVE_REPRESENTATION_ITEM') IN TYPEOF(item))
+         )) <= 1;
+   WR7 : SIZEOF(QUERY(rr <* runout_relationships | 'AIC_MACHINING_FEATURE.THREAD_RUNOUT' IN TYPEOF(rr\SHAPE_ASPECT_RELATIONSHIP.relating_shape_aspect))) <= 1;
+   WR8 : SIZEOF(runout_relationships) <= 1;
+   WR9 : SIZEOF(documents) = 1;
+END_ENTITY;
+
 END_SCHEMA;

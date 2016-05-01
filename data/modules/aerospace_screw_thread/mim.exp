@@ -1,6 +1,22 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
-   N - ISO/CD-TS - 10303- aerospace_screw_thread - EXPRESS MIM*)
+   $Id: mim.exp,v 1.1 2016/04/18 17:31:10 thomasrthurman Exp $
+   N - ISO/TS-10303-1833 aerospace_screw_thread - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Aerospace_screw_thread_mim;
+
+USE FROM Shape_feature_mim;
+USE FROM external_reference_schema
+        (externally_defined_item,
+         external_source);
+        
+ENTITY catalogue_screw_thread_feature_definition
+ SUBTYPE OF (shape_feature_definition, externally_defined_item);
+ DERIVE
+  screw_thread_feature_definition_id : identifier := SELF\externally_defined_item.item_id;
+  source_id : identifier := SELF\externally_defined_item.source\external_source.source_id;
+ WHERE
+  WR1 : screw_thread_feature_definition_id = 'catalogue screw thread';
+  WR2 : source_id = 'catalogue screw thread specification';
+  WR3 : SELF\characterized_object.description = 'screw thread feature definition';
+END_ENTITY;
 END_SCHEMA;

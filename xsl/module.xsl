@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.231 2014/05/29 16:24:47 nigelshaw Exp $
+$Id: module.xsl,v 1.232 2015/11/20 22:50:10 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1174,7 +1174,13 @@ TT remove since locke is no longer available.
 		            select="'Error P1: Insufficient introduction material provided.'"/>
         </xsl:call-template>    
   </xsl:if>
-  <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
+  <!-- this ensures that a false error maeesage is NOT generated when the part in question is a resource rather than a module MWD 2016-05-03  -->
+  <xsl:choose>
+    <xsl:when test="name(..)='resource'">
+     <!-- we could add a test here MWD -->
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
         <xsl:call-template name="error_message">
 	  <xsl:with-param name="inline" select="'yes'"/>
 	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -1183,6 +1189,11 @@ TT remove since locke is no longer available.
 		            select="'Error P2: Introduction does not start with required text: This part of ISO 10303 specifies .'"/>
         </xsl:call-template>    
   </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
+ 
+  
+  
 
   <p>
     ISO 10303 is an International Standard for the computer-interpretable 

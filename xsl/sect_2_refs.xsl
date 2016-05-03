@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
+$Id: sect_2_refs.xsl,v 1.16 2012/11/01 19:01:48 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep .
   Purpose: Output the refs section as a web page
@@ -37,8 +37,8 @@ $Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
   <xsl:output method="html"/>
 
 
-  <!-- overwrites the template declared in module.xsl -->
-  <xsl:template match="module">
+  <!-- added by MWD 2016-05-03 -->
+  <xsl:template match="resource">
     
     <h2>2 Normative references</h2>
     
@@ -50,6 +50,87 @@ $Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
     </p>
     
    <!-- collect up all the normrefs for the module into a normref_nodes node
+    set, then sort and output them 
+    The list comprises:
+    All default normrefs listed in ../data/basic/normrefs_default.xml
+    All normrefs explicitly included in the module by normref.inc
+    All default normrefs that define terms for which abbreviations are provided and listed in ../data/basic/abbreviations_default.xml
+    All modules referenced by a USE FROM in the ARM
+    All modules referenced by a USE FROM in the MIM
+    All integrated resources referenced by a USE FROM in the MIM
+  -->
+    <xsl:variable name="normref_list">
+      <!-- <normref_nodes> 
+        A node set used to collect up all the normative references 
+        These are then sorted an output -->
+      <xsl:element name="normref_nodes">
+        <!-- for some reason I cannot pass a parameter in apply-templates
+          when applied to a node set, hence storing it in the XML -->
+        <xsl:attribute name="current_module_status">
+          <xsl:value-of select="string(@status)"/>
+        </xsl:attribute>
+        
+        <!-- collect default normative reference -->
+        <xsl:apply-templates select="document('../data/basic/normrefs_default.xml')/normrefs"
+          mode="generate_node"> </xsl:apply-templates>
+        
+        <!-- collect normative references explicitly referenced in the module -->
+        <xsl:apply-templates select="normrefs/normref.inc" mode="generate_node"/>
+        <xsl:apply-templates select="normrefs/normref" mode="generate_node"/>
+        
+        <!-- collect normative references that define terms for which abbreviations are provided
+          and listed in ../data/basic/abbreviations_default.xml -->
+        <xsl:apply-templates
+          select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"
+          mode="generate_node"/>
+        <xsl:apply-templates select="abbreviations/abbreviation.inc" mode="generate_node"/>
+        
+        
+        
+        
+      </xsl:element>
+      <!--  </normref_nodes> -->
+    </xsl:variable>
+
+<!--
+    <xsl:for-each select="msxsl:node-set($normref_list)/*">
+      <p>
+	<xsl:copy-of select="."/>
+      </p>
+    </xsl:for-each>
+
+    <saxon:output href="c:/temp/normref_list.xml" method="xml">
+      <xsl:copy-of select="$normref_list"/>
+    </saxon:output>
+-->
+
+    <xsl:choose>
+      <xsl:when test="function-available('msxsl:node-set')">
+        <xsl:variable name="normref_nodes" select="msxsl:node-set($normref_list)"/>
+        <xsl:apply-templates select="$normref_nodes" mode="output_normrefs"/>
+      </xsl:when>
+      <xsl:when test="function-available('exslt:node-set')">
+        <xsl:variable name="normref_nodes" select="exslt:node-set($normref_list)"/>
+        <xsl:apply-templates select="$normref_nodes" mode="output_normrefs"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message> Only support SAXON and MXSL XSL parsers. </xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="module">
+    
+    <h2>2 Normative references</h2>
+    
+    <p>
+      The following referenced documents are indispensable for the application of
+      this document. For dated references, only the edition cited applies. For
+      undated references, the latest edition of the referenced document
+      (including any amendments) applies.
+    </p>
+    
+    <!-- collect up all the normrefs for the module into a normref_nodes node
     set, then sort and output them 
     The list comprises:
     All default normrefs listed in ../data/basic/normrefs_default.xml
@@ -102,19 +183,19 @@ $Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
       </xsl:element>
       <!--  </normref_nodes> -->
     </xsl:variable>
-
-<!--
+    
+    <!--
     <xsl:for-each select="msxsl:node-set($normref_list)/*">
       <p>
 	<xsl:copy-of select="."/>
       </p>
     </xsl:for-each>
-
+    
     <saxon:output href="c:/temp/normref_list.xml" method="xml">
       <xsl:copy-of select="$normref_list"/>
     </saxon:output>
 -->
-
+    
     <xsl:choose>
       <xsl:when test="function-available('msxsl:node-set')">
         <xsl:variable name="normref_nodes" select="msxsl:node-set($normref_list)"/>
@@ -129,7 +210,6 @@ $Id: sect_2_refs.xsl,v 1.15 2012/10/26 12:17:49 mikeward Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
 
 <!-- generate the normref node for included/referenced normrefs in a module -->
 <xsl:template match="normref.inc" mode="generate_node">

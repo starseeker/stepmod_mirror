@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.9 2011/08/25 12:59:49 robbod Exp $
+$Id: normref_check.xsl,v 1.10 2014/06/05 21:55:42 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -17,7 +17,7 @@ $Id: normref_check.xsl,v 1.9 2011/08/25 12:59:49 robbod Exp $
 
   <xsl:import href="../sect_2_refs.xsl"/>
   <!-- MWD START -->
-  <xsl:import href="../res_doc/sect_2_refs.xsl"/>
+  <!--<xsl:import href="../res_doc/sect_2_refs.xsl"/>-->
   <!-- MWD END -->
   <xsl:output 
     method="html"
@@ -76,16 +76,23 @@ $Id: normref_check.xsl,v 1.9 2011/08/25 12:59:49 robbod Exp $
         <xsl:call-template name="output_unpublished_normrefs_footnote"/>-->
         
         <h2>Index</h2>
+        <!-- MWD START 2016-05-03 -->
+        <h3>Modules</h3>
+        <!-- MWD END -->
         <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_index">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_output">
-          <xsl:sort select="@name"/>
-        </xsl:apply-templates>
-        <!-- MWD START -->
+        <!-- MWD START 2016-05-03 -->
+        <h3>Resources</h3>
         <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="normref_index">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
+        <!-- MWD END -->
+        <xsl:apply-templates select="$publication_index_xml//modules/module" mode="normref_output">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        
+        <!-- MWD START -->
         <xsl:apply-templates select="$publication_index_xml//resource_docs/resource_doc" mode="normref_output">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>

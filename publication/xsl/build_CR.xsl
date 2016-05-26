@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.7 2016/05/06 11:27:28 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.8 2016/05/25 09:23:26 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
-Purpose: To build the initial ANT publication file. 
+Purpose: To build the ANT build file from which a Change Request is produced. 
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:exslt="http://exslt.org/common" exclude-result-prefixes="exslt" version="1.0">
 
-	<!--<xsl:import href="../../xsl/ap_doc/common.xsl"/>-->
 	<xsl:import href="../../xsl/res_doc/common.xsl"/>
-	<!-- MWD START -->
 	<xsl:import href="../../xsl/bom_doc/common.xsl"/>
-	<!-- MWD END -->
+	
 	<xsl:output method="xml" indent="yes"/>
 
+	
 	<xsl:variable name="mim_modules">
 		<xsl:call-template name="get_mod_node_set"/>
 	</xsl:variable>
 
-
-
-
 	<xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
-
-
-
 
 	<xsl:variable name="dlongforms">
 		<xsl:apply-templates select="$mim_modules_node_set/module" mode="long_form"/>
 	</xsl:variable>
-
 
 	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
 	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
@@ -45,13 +37,12 @@ Purpose: To build the initial ANT publication file.
 
 
 		<xsl:choose>
-			<!-- dont check to see if a pure build
-		   <xsl:when test="contains($index_ok1,'false') or contains($index_ok2,'false')"> -->
+			
 			<xsl:when test="''">
-				<!-- MWD 2016-05-09 resources added and s added to resource document -->
+				
 				<xsl:message> ************************************************************ ABORTING
 					THE BUILD The file part1000.publication_index.xml is referencing modules,
-					resources, resource documents, or APs that have errors
+					resources, resource documents, or business object models that have errors
 					************************************************************ </xsl:message>
 			</xsl:when>
 			<xsl:otherwise>
@@ -63,7 +54,7 @@ Purpose: To build the initial ANT publication file.
 
 				<!-- 
 			 note the use of xsl:extension-element-prefixes to prevent the
-			 output of the names space
+			 output of the name space
 		-->
 				<project xsl:extension-element-prefixes="exslt" name="part1000_publication"
 					default="all" basedir="../../..">
@@ -2314,23 +2305,7 @@ Purpose: To build the initial ANT publication file.
 				<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>	
 				</xsl:attribute>
 			</xsl:element>
-			
-			<xsl:element name="property">
-				<xsl:attribute name="name">RESOURCESXML<xsl:value-of select="$part_number"/></xsl:attribute>
-				<xsl:attribute name="value">
-					<xsl:variable name="resource_list_w_commas">
-						<xsl:for-each select="../../resources/resource[@number=$part_number]">
-							<xsl:variable name="prefix" select="'data/resources/'"/>
-							<xsl:variable name="part_name" select="./@name"/>
-							<xsl:variable name="suffix" select="'*.xml'"/>
-							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
-						</xsl:for-each>
-					</xsl:variable>
-					<!-- strip final comma -->
-					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
-				</xsl:attribute>
-			</xsl:element>
-			
+						
 			<xsl:element name="property">
 				<xsl:attribute name="name">RESOURCESSCHEMAEXPGGIFS<xsl:value-of select="$part_number"/></xsl:attribute>
 				<xsl:attribute name="value">
@@ -2347,7 +2322,94 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 			
+			<!--<xsl:element name="property">
+				<xsl:attribute name="name">RESDESCXML<xsl:value-of select="$part_number"/></xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:variable name="resource_list_w_commas">
+						<xsl:for-each select="../../resources/resource[@number=$part_number]">
+							<xsl:variable name="prefix" select="'data/resources/'"/>
+							<xsl:variable name="part_name" select="./@name"/>
+							<xsl:variable name="suffix" select="'descriptions.xml'"/>
+							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
+						</xsl:for-each>
+					</xsl:variable>
+					<!-\- strip final comma -\->
+					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
+				</xsl:attribute>
+			</xsl:element>-->
 			
+			<!--<xsl:element name="property">
+				<xsl:attribute name="name">RESDEVXML<xsl:value-of select="$part_number"/></xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:variable name="resource_list_w_commas">
+						<xsl:for-each select="../../resources/resource[@number=$part_number]">
+							<xsl:variable name="prefix" select="'data/resources/'"/>
+							<xsl:variable name="part_name" select="./@name"/>
+							<xsl:variable name="suffix" select="'developer.xml'"/>
+							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
+						</xsl:for-each>
+					</xsl:variable>
+					<!-\- strip final comma -\->
+					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
+				</xsl:attribute>
+			</xsl:element>-->
+			
+			<xsl:element name="property">
+				<xsl:attribute name="name">RESSCHEMAXML<xsl:value-of select="$part_number"/></xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:variable name="resource_list_w_commas">
+						<xsl:for-each select="../../resources/resource[@number=$part_number]">
+							<xsl:variable name="prefix" select="'data/resources/'"/>
+							<xsl:variable name="part_name" select="./@name"/>
+							<xsl:variable name="suffix" select="'*schema.xml'"/>
+							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
+						</xsl:for-each>
+					</xsl:variable>
+					<!-- strip final comma -->
+					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
+				</xsl:attribute>
+			</xsl:element>
+			
+			<xsl:element name="property">
+				<xsl:attribute name="name">RESMAPXML<xsl:value-of select="$part_number"/></xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:variable name="resource_list_w_commas">
+						<xsl:for-each select="../../resources/resource[@number=$part_number]">
+							<xsl:variable name="prefix" select="'data/resources/'"/>
+							<xsl:variable name="part_name" select="./@name"/>
+							<xsl:variable name="suffix" select="'resource_map.xml'"/>
+							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
+						</xsl:for-each>
+					</xsl:variable>
+					<!-- strip final comma -->
+					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
+				</xsl:attribute>
+			</xsl:element>
+			
+			<xsl:element name="property">
+				<xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS<xsl:value-of select="$part_number"/></xsl:attribute>
+				
+				<xsl:attribute name="value">
+					<xsl:variable name="resource_list_w_commas">
+						<xsl:for-each select="../../resources/resource[@number=$part_number]">
+							<xsl:variable name="prefix" select="'data/resources/'"/>
+							<xsl:variable name="part_name" select="./@name"/>
+							<xsl:variable name="suffix" select="'*expg*.xml'"/>
+							<xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"/>,<xsl:text/>
+						</xsl:for-each>
+					</xsl:variable>
+					<!-- strip final comma -->
+					<xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas)-1)"/>
+				</xsl:attribute>
+				
+			<!--<xsl:attribute name="value">
+				<xsl:apply-templates select="$mim_modules_node_set/resource"
+					mode="list_for_resources">
+					<xsl:with-param name="prefix" select="'data/resources/'"/>
+					<xsl:with-param name="suffix" select="'expg*.xml'"/>
+				</xsl:apply-templates>
+			</xsl:attribute>-->
+		</xsl:element>
 
 		</xsl:for-each>
 
@@ -2357,19 +2419,10 @@ Purpose: To build the initial ANT publication file.
 
 		
 
-		<xsl:element name="property">
-			<xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS</xsl:attribute>
-			<xsl:attribute name="value">
-				<xsl:apply-templates select="$mim_modules_node_set/resource"
-					mode="list_for_resources">
-					<xsl:with-param name="prefix" select="'data/resources/'"/>
-					<xsl:with-param name="suffix" select="'expg*.xml'"/>
-				</xsl:apply-templates>
-			</xsl:attribute>
-		</xsl:element>
+		
 
 		<!-- The dependent modules -->
-		<xsl:element name="property">
+		<!--<xsl:element name="property">
 			<xsl:attribute name="name">DMODEXPRESS</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
@@ -2767,7 +2820,7 @@ Purpose: To build the initial ANT publication file.
 					<xsl:with-param name="suffix" select="'/mim.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
-		</xsl:element>
+		</xsl:element> -->
 
 	</xsl:template>
 
@@ -3415,9 +3468,19 @@ Purpose: To build the initial ANT publication file.
 					</xsl:attribute>
 					<xsl:attribute name="files">
 						<!-- BAR -->
-						<xsl:value-of select="concat('${RESOURCESXML', $res_part_no, '}')"/>
+						<xsl:value-of select="concat('${RESSCHEMAXML', $res_part_no, '}')"/>
 					</xsl:attribute>
 				</xsl:element>
+				<xsl:element name="srcfilelist">
+					<xsl:attribute name="dir">
+						<xsl:value-of select="'.'"/>
+					</xsl:attribute>
+					<xsl:attribute name="files">
+						<!-- BAR -->
+						<xsl:value-of select="concat('${RESOURCESSCHEMAEXPGXMLS', $res_part_no, '}')"/>
+					</xsl:attribute>
+				</xsl:element>
+				
 				<xsl:element name="targetfileset">
 					<xsl:attribute name="dir">
 						<xsl:value-of select="'${PUBDIR}'"/>
@@ -3427,18 +3490,14 @@ Purpose: To build the initial ANT publication file.
 					</xsl:attribute>
 				</xsl:element>
 			</dependset>
-
-
-
+						
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
-					<!-- BAR -->
-					<xsl:value-of select="concat('${RESOURCESXML', $res_part_no, '}')"/>
+					<xsl:value-of
+						select="concat('${RESSCHEMAXML', $res_part_no, '}')"/>
 				</xsl:attribute>
 				<xsl:attribute name="destdir">
-					<!-- BAR -->
 					<xsl:value-of select="concat('${PUBDIR}/iso10303_', $res_part_no)"/>
-					<!--<xsl:value-of select="'${PUBDIR}'"/>-->
 				</xsl:attribute>
 				<xsl:attribute name="extension">
 					<xsl:value-of select="'.htm'"/>
@@ -3479,6 +3538,73 @@ Purpose: To build the initial ANT publication file.
 				</xsl:choose>
 			</xsl:element>
 
+			<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<xsl:value-of
+						select="concat('${RESOURCESSCHEMAEXPGXMLS', $res_part_no, '}')"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<xsl:value-of select="concat('${PUBDIR}/iso10303_', $res_part_no)"/>
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
+				</xsl:attribute>
+			</xsl:element>
+
+			<!--<xsl:element name="xslt">
+				<xsl:attribute name="includes">
+					<!-\- BAR -\->
+					<xsl:value-of select="concat('${RESOURCESXML', $res_part_no, '}')"/>
+				</xsl:attribute>
+				<xsl:attribute name="destdir">
+					<!-\- BAR -\->
+					<xsl:value-of select="concat('${PUBDIR}/iso10303_', $res_part_no)"/>
+					<!-\-<xsl:value-of select="'${PUBDIR}'"/>-\->
+				</xsl:attribute>
+				<xsl:attribute name="extension">
+					<xsl:value-of select="'.htm'"/>
+				</xsl:attribute>
+				<xsl:attribute name="style">
+					<xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
+				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
+				<xsl:element name="param">
+					<xsl:attribute name="name">
+						<xsl:value-of select="'output_background'"/>
+					</xsl:attribute>
+					<xsl:attribute name="expression">
+						<xsl:value-of select="'${OUTPUT_RESOURCES_BACKGROUND}'"/>
+					</xsl:attribute>
+				</xsl:element>
+				<xsl:choose>
+					<xsl:when test="./@background.image.dependent.resources">
+						<xsl:element name="param">
+							<xsl:attribute name="name">
+								<xsl:value-of select="'background_image'"/>
+							</xsl:attribute>
+							<xsl:attribute name="expression">
+								<xsl:value-of select="./@background.image.dependent.resources"/>
+							</xsl:attribute>
+						</xsl:element>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:element name="param">
+							<xsl:attribute name="name">
+								<xsl:value-of select="'background_image'"/>
+							</xsl:attribute>
+							<xsl:attribute name="expression">
+								<xsl:value-of select="'greybackground.jpg'"/>
+							</xsl:attribute>
+						</xsl:element>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:element>-->
+
+			
+			
 			<xsl:element name="copy">
 				<xsl:attribute name="todir">
 					<!-- BAR -->
@@ -3513,9 +3639,9 @@ Purpose: To build the initial ANT publication file.
 		</target>
 	</xsl:template>
 
-	<xsl:template match="part1000.publication_index" mode="target_isodepmodules">
+	<!--<xsl:template match="part1000.publication_index" mode="target_isodepmodules">
 		<xsl:param name="menu"/>
-		<xsl:apply-templates select="." mode="target_isodepmodules_publication_record"/>
+		
 		<xsl:text>
 	</xsl:text>
 		<target xsl:extension-element-prefixes="exslt" name="isodepmodules"
@@ -3693,7 +3819,7 @@ Purpose: To build the initial ANT publication file.
 			</xsl:element>
 
 
-			<!-- RBN - ISO do not want the abstract in the module
+			<!-\- RBN - ISO do not want the abstract in the module
 		   <xsl:element name="xslt">
 		   <xsl:attribute name="includes">
 		   <xsl:value-of select="'${DMODABSTRACTXML}'"/>
@@ -3704,7 +3830,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
 		   <xsl:with-param name="menu" select="$menu"/>
 		   </xsl:apply-templates>
-		   </xsl:element> -->
+		   </xsl:element> -\->
 
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
@@ -3786,8 +3912,8 @@ Purpose: To build the initial ANT publication file.
 				</xsl:element>
 			</xsl:element>
 
-			<!-- move the cover page to SC4 cover page  -->
-			<!-- RBN Commented out as per request from ISO
+			<!-\- move the cover page to SC4 cover page  -\->
+			<!-\- RBN Commented out as per request from ISO
 		   <xsl:element name="move">
 		   <xsl:attribute name="todir">${P1000DIR}</xsl:attribute>
 		   <xsl:element name="fileset">
@@ -3795,9 +3921,9 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:attribute name="includes">${DMODCOVERHTM}</xsl:attribute>
 		   </xsl:element>
 		   <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-		   </xsl:element> -->
+		   </xsl:element> -\->
 
-			<!-- generate the ISO cover page  -->
+			<!-\- generate the ISO cover page  -\->
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${DMODISOCOVERXML}'"/>
@@ -3810,7 +3936,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:apply-templates>
 			</xsl:element>
 
-			<!-- move the ISO cover page to cover page -->
+			<!-\- move the ISO cover page to cover page -\->
 			<xsl:element name="move">
 				<xsl:attribute name="todir">${P1000DIR}</xsl:attribute>
 				<xsl:element name="fileset">
@@ -3869,7 +3995,7 @@ Purpose: To build the initial ANT publication file.
 			</xsl:element>
 
 
-			<!-- RBN the test need to be run on the dependent modules -->
+			<!-\- RBN the test need to be run on the dependent modules -\->
 			<xsl:if test="string-length($dlongforms) > 0">
 
 				<xsl:element name="xslt">
@@ -3887,8 +4013,8 @@ Purpose: To build the initial ANT publication file.
 					</xsl:apply-templates>
 				</xsl:element>
 
-				<!-- RBN the test need to be run on the dependent modules       
-			 <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
+				<!-\- RBN the test need to be run on the dependent modules       
+			 <xsl:if test="string-length($dlongforms)>0"></xsl:if> -\->
 				<xsl:element name="xslt">
 					<xsl:attribute name="includes">
 						<xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
@@ -4018,7 +4144,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:element>
 			</xsl:element>
 		</target>
-	</xsl:template>
+	</xsl:template>-->
 
 
 	<!-- called from template match="part1000.publication_index" mode="dependent_modules_target" -->
@@ -5173,7 +5299,7 @@ Purpose: To build the initial ANT publication file.
 	</xsl:template>-->
 
 
-	<xsl:template match="part1000.publication_index" mode="target_resources_publication_record">
+	<!--<xsl:template match="part1000.publication_index" mode="target_resources_publication_record">
 		<xsl:variable name="resdoc_schema">
 			<xsl:call-template name="get_resource_schema_node_set"/>
 		</xsl:variable>
@@ -5186,7 +5312,7 @@ Purpose: To build the initial ANT publication file.
 			<xsl:apply-templates select="$resdoc_schema_node_set/resource" mode="pub_record_style"/>
 		</xsl:element>
 
-	</xsl:template>
+	</xsl:template>-->
 
 	<!-- generate the target "target_isoresdocs" -->
 	<!-- BAR -->
@@ -7168,16 +7294,7 @@ Purpose: To build the initial ANT publication file.
 	<!--<xsl:template match="application_protocols" mode="target_all"> publish_isoapdocs </xsl:template>-->
 	<xsl:template match="business_object_models" mode="target_all"> publish_isobomdocs </xsl:template>
 
-	<!-- generate the target "isodepmodules_publication_record" -->
-	<xsl:template match="part1000.publication_index" mode="target_isodepmodules_publication_record">
-		<xsl:text>
-	 </xsl:text>
-		<xsl:element name="target">
-			<xsl:attribute name="name">isodepmodules_publication_record</xsl:attribute>
-			<xsl:attribute name="depends">init</xsl:attribute>
-			<xsl:apply-templates select="$mim_modules_node_set/module" mode="pub_record_style"/>
-		</xsl:element>
-	</xsl:template>
+	
 
 	<!--<xsl:template match="ap_doc" mode="copy_express">
 		<xsl:param name="express_dir"/>
@@ -8000,7 +8117,7 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- Generates the style task for generating the publication record for a
      module -->
-	<xsl:template match="module" mode="pub_record_style">
+	<!--<xsl:template match="module" mode="pub_record_style">
 		<xsl:variable name="module_file"
 			select="concat('../../data/modules/', @name, '/module.xml')"/>
 		<xsl:variable name="module_xml" select="document($module_file)"/>
@@ -8118,7 +8235,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>
+	</xsl:template>-->
 
 	<!-- Generates the style task for generating the publication record for an
      AP document -->
@@ -8248,7 +8365,7 @@ Purpose: To build the initial ANT publication file.
 	<!-- MWD 2016-05-18 commented out -->
 	<!-- Generates the style task for generating the publication record for a
      resource document -->
-	<xsl:template match="resource_doc" mode="pub_record_style">
+	<!--<xsl:template match="resource_doc" mode="pub_record_style">
 		<xsl:variable name="resdoc_file"
 			select="concat('../../data/resource_docs/', @name, '/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
@@ -8259,7 +8376,7 @@ Purpose: To build the initial ANT publication file.
 		<xsl:variable name="CVS_dir_xslresdoc_entry"
 			select="concat('CVS_dir_xslresdoc_entry_', @name)"/>
 
-		<!-- MWD 2016-05-11 -->
+		<!-\- MWD 2016-05-11 -\->
 		<xsl:variable name="res_part_no" select="./@number"/>
 		<xsl:variable name="res_doc_dir" select="concat('${PUBDIR}/iso10303_', $res_part_no)"/>
 
@@ -8314,21 +8431,21 @@ Purpose: To build the initial ANT publication file.
 				<xsl:value-of select="concat('data/resource_docs/', @name, '/resource.xml')"/>
 			</xsl:attribute>
 			<xsl:attribute name="out">
-				<!-- MWD 2016-05-13 -->
+				<!-\- MWD 2016-05-13 -\->
 				<xsl:value-of
 					select="concat($res_doc_dir, '/data/resource_docs/', @name, '/publication_record.xml')"/>
-				<!--<xsl:value-of
+				<!-\-<xsl:value-of
 					select="concat('${P1000DIR}/data/resource_docs/',@name,'/publication_record.xml')"
-				/>-->
+				/>-\->
 			</xsl:attribute>
 			<xsl:attribute name="style">
 				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_record.xsl'"/>
 			</xsl:attribute>
 
 			<xsl:attribute name="destdir">
-				<!-- MWD 2016-05-11 -->
+				<!-\- MWD 2016-05-11 -\->
 				<xsl:value-of select="$res_doc_dir"/>
-				<!--<xsl:value-of select="'${P1000DIR}'"/>-->
+				<!-\-<xsl:value-of select="'${P1000DIR}'"/>-\->
 			</xsl:attribute>
 
 			<xsl:element name="param">
@@ -8378,7 +8495,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>
+	</xsl:template>-->
 
 	<!-- Generates the style task for generating the publication record for a
 	resource  -->
@@ -8442,7 +8559,7 @@ Purpose: To build the initial ANT publication file.
 
 	<!-- Generates the style task for generating the publication record for a
 		bom -->
-	<xsl:template match="bom_doc" mode="pub_record_style">
+	<!--<xsl:template match="bom_doc" mode="pub_record_style">
 		<xsl:variable name="bomdoc_file"
 			select="concat('../../data/business_object_models/', @name, '/business_object_model.xml')"/>
 		<xsl:variable name="bomdoc_xml" select="document($bomdoc_file)"/>
@@ -8566,7 +8683,7 @@ Purpose: To build the initial ANT publication file.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>
+	</xsl:template>-->
 
 
 	<xsl:template match="part1000.publication_index" mode="target_zip">

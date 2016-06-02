@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.8 2016/05/25 09:23:26 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.9 2016/05/26 23:11:33 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -1247,8 +1247,10 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					</xsl:apply-templates>
 				</xsl:attribute>
 			</xsl:element>
+			
+			<!-- MWD removed 2016-06-02 -->
 
-			<xsl:element name="property">
+			<!--<xsl:element name="property">
 				<xsl:attribute name="name">RESDOCMAINXML<xsl:value-of select="$part_number"
 					/></xsl:attribute>
 				<xsl:attribute name="value">
@@ -1257,7 +1259,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 						<xsl:with-param name="suffix" select="'/sys/main.xml'"/>
 					</xsl:apply-templates>
 				</xsl:attribute>
-			</xsl:element>
+			</xsl:element>-->
 
 			<xsl:element name="property">
 				<xsl:attribute name="name">RESDOCSCHEMAXML<xsl:value-of select="$part_number"
@@ -5498,8 +5500,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
 			</xsl:element>
 
-			<!-- MWD   2016-05-05 restored -->
-			<xsl:element name="xslt">
+			<!-- MWD   2016-06-02 unrestored -->
+			<!--<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="concat('${RESDOCMAINXML', $partnumber, '}')"/>
 				</xsl:attribute>
@@ -5507,7 +5509,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					<xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_main.xsl'"/>
 				</xsl:attribute>
 				<xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
-			</xsl:element>
+			</xsl:element>-->
 
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">

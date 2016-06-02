@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.9 2016/05/26 23:11:33 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.10 2016/06/02 17:02:43 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -2256,6 +2256,29 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 								<xsl:value-of select="$res_doc_directory"/>
 							</xsl:attribute>
 						</xsl:element>
+						
+						<xsl:variable name="res_doc_images_directory"
+							select="concat($res_doc_directory, '/images')"/>
+						<xsl:element name="mkdir">
+							<xsl:attribute name="dir">
+								<xsl:value-of select="$res_doc_images_directory"/>
+							</xsl:attribute>
+						</xsl:element>
+						
+						<xsl:element name="copy">
+							<xsl:attribute name="todir">
+								<xsl:value-of select="$res_doc_images_directory"/>
+							</xsl:attribute>
+							<xsl:element name="fileset">
+								<xsl:attribute name="dir">
+									<xsl:value-of select="'${P1000DIR}/images'"/>
+								</xsl:attribute>
+							</xsl:element>
+							<xsl:attribute name="includes">
+								<xsl:value-of select="'${IMAGES}'"/>
+							</xsl:attribute>
+						</xsl:element>
+						
 					</xsl:for-each>
 				</xsl:when>
 			</xsl:choose>
@@ -3435,7 +3458,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 	<!--<xsl:apply-templates select="./resouces/resouce" mode="target_resources"/>-->
 	<!--</xsl:template>-->
 
-	<!-- MWD 2016-05-12 NB this matches resource_doc but is generating a target for the resources belongin to that resource_doc -->
+	<!-- MWD 2016-05-12 NB this matches resource_doc but is generating a target for the resources belonging to that resource_doc -->
 	<xsl:template match="resource_doc" mode="target_resources">
 		<xsl:param name="partnumber"/>
 		<xsl:text>

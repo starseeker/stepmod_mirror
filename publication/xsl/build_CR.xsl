@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.10 2016/06/02 17:02:43 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.11 2016/06/02 23:06:25 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -3577,6 +3577,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
 				</xsl:attribute>
+				<param name="output_type" expression="HTM"/>
 			</xsl:element>
 
 			<!--<xsl:element name="xslt">

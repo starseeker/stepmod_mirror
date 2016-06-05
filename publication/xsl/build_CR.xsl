@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.11 2016/06/02 23:06:25 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.12 2016/06/03 22:11:28 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -6728,17 +6728,18 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 	<!-- MWD END-->
 
 	<xsl:template match="resource_doc" mode="target_publish_isoresdocs">
+		<xsl:variable name="part_number" select="./@number"/>
 		<xsl:variable name="resdoc_file"
 			select="concat('../../data/resource_docs/', @name, '/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
 
-		<!--<xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/> ISO10303 -->
-		<!--<xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'/')"/> ISO10303 -->
+		<xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
+		<xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/', 'iso10303_', $part_number,'/')"/>
 		<!--<xsl:variable name="resdoc_express_dir"
 			select="concat('${PUBDIR}/',$resdoc_iso_no,'/','inserts','/')"/> ISO10303 -->
 
-		<!--<xsl:variable name="data_resdoc_dir"
-			select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/> ISO10303 -->
+		<xsl:variable name="data_resdoc_dir"
+			select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/> 
 
 
 		<xsl:variable name="part" select="$resdoc_xml/resource/@part"/>
@@ -6833,17 +6834,18 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<!-- RBN - changed to move as per request from ISO 
 	 <xsl:element name="copy">
 	   -->
-		<!--<xsl:element name="move">
+		<xsl:element name="move">
 			<xsl:attribute name="file">
 				<xsl:value-of
-					select="concat('${P1000DIR}/data/resource_docs/',@name,'/sys/abstract.htm')"/>
+					select="concat($resdoc_dir, 'data/resource_docs/',@name,'/sys/abstract.htm')"/>
 			</xsl:attribute>
 			<xsl:attribute name="tofile">
 				<xsl:value-of
-					select="concat($resdoc_dir,'abstracts/abstract_',$resdoc_xml/resource/@part,'.htm')"
-				/>
+					select="concat($resdoc_dir,'abstracts/abstract_',$part_number,'.htm')"/>
+				<!--<xsl:value-of
+					select="concat($resdoc_dir,'abstracts/abstract_',$resdoc_xml/resource/@part,'.htm')"/>-->
 			</xsl:attribute>
-			</xsl:element>  ISO10303 -->
+			</xsl:element> 
 
 
 

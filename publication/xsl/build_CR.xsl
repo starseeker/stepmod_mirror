@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.12 2016/06/03 22:11:28 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.13 2016/06/05 08:14:51 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -6737,7 +6737,9 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/', 'iso10303_', $part_number,'/')"/>
 		<!--<xsl:variable name="resdoc_express_dir"
 			select="concat('${PUBDIR}/',$resdoc_iso_no,'/','inserts','/')"/> ISO10303 -->
-
+		<!-- MWD 2016-06-06 -->
+		<xsl:variable name="resdoc_express_dir"
+			select="concat($resdoc_dir,'inserts','/')"/>
 		<xsl:variable name="data_resdoc_dir"
 			select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/> 
 
@@ -6891,13 +6893,19 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				select="concat('${PUBDIR}','/iso10303_',$resdoc_xml/resource/@part,'/','inserts','/')"
 			/>
 			</xsl:variable>  ISO10303 -->
+		<!-- MWD 2016-06-06 -->
+		<xsl:variable name="express_dir">
+			<xsl:value-of
+				select="$resdoc_express_dir"
+			/>
+		</xsl:variable>
 
-
-		<!--<xsl:element name="mkdir">
+		<!-- MWD 2016-06-06 -->
+		<xsl:element name="mkdir">
 			<xsl:attribute name="dir">
 				<xsl:value-of select="$express_dir"/>
 			</xsl:attribute>
-			</xsl:element>  ISO10303 -->
+		</xsl:element>  
 
 		<!-- MWD 2016-05-05 unrestored -->
 		<!-- <xsl:element name="concat">
@@ -6915,9 +6923,9 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</xsl:element> -->
 
 		<!-- MWD 2016-05-05 unrestored -->
-		<!-- <xsl:element name="concat">
+		 <xsl:element name="concat">
 			<xsl:attribute name="destfile">
-				 <xsl:value-of select="concat('wg12n',$wg.number.express,'.exp')" /> 
+				 <!--<xsl:value-of select="concat('wg12n',$wg.number.express,'.exp')" />--> 
 				<xsl:value-of select="concat($express_dir,$express_file)"/>
 			</xsl:attribute>
 			<xsl:element name="fileset">
@@ -6928,7 +6936,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					<xsl:value-of select="$schemalist"/>
 				</xsl:attribute>
 			</xsl:element>
-		</xsl:element> -->
+		</xsl:element> 
 
 
 		<!--<xsl:element name="zip">

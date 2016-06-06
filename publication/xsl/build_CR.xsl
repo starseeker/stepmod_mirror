@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.13 2016/06/05 08:14:51 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.14 2016/06/06 10:26:14 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -6792,7 +6792,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</xsl:element> ISO10303 -->
 
 		<!-- the frontpage redirected to resource cover page -->
-		<!--<xsl:element name="xslt">
+		<xsl:element name="xslt">
 			<xsl:attribute name="in">
 				<xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
 			</xsl:attribute>
@@ -6816,7 +6816,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					<xsl:value-of select="'${P1000DIR}/images'"/>
 				</xsl:attribute>
 			</xsl:element>
-		</xsl:element> ISO10303 -->
+		</xsl:element> 
 
 		<!-- MWD 2016-05-05 unrestored -->
 		<!-- copy the resources -->

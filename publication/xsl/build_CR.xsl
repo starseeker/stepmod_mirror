@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.14 2016/06/06 10:26:14 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.15 2016/06/06 16:09:27 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -6763,7 +6763,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<!--<xsl:apply-templates select="." mode="pub_record_style"/>-->
 
 		<!-- the readme -->
-		<!--<xsl:element name="xslt">
+		<!-- MWD 2016-06-06 -->
+		<xsl:element name="xslt">
 			<xsl:attribute name="in">
 				<xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
 			</xsl:attribute>
@@ -6776,7 +6777,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			<xsl:attribute name="destdir">
 				<xsl:value-of select="$resdoc_dir"/>
 			</xsl:attribute>
-		</xsl:element> ISO10303 -->
+		</xsl:element> 
 
 		<!-- make sure that the CR/LF are windows for the readme -->
 		<!--<xsl:element name="fixcrlf">

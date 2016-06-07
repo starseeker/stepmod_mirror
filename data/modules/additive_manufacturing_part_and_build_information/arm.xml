@@ -1,12 +1,430 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
 <express
-   language_version="2"
-   rcs.date="$Date: 2010/02/04 16:48:02 $"
-   rcs.revision="$Revision: 1.46 $">
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="../data/modules/additive_manufacturing_part_and_build_information/arm.exp"/>
+
   <schema name="Additive_manufacturing_part_and_build_information_arm">
-  </schema>
-</express>
+
+    <interface
+      kind="use"
+      schema="Construction_geometry_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Elemental_geometric_shape_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Foundation_representation_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Item_definition_structure_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Part_view_definition_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Process_plan_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Property_assignment_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Value_with_unit_extension_arm">
+    </interface>
+    <type name="build_volume_representation_select">
+      <select
+        selectitems="Build_volume_representation Geometric_model">
+      </select>
+    </type>
+
+    <type name="additive_manufacturing_orientation_representation_select">
+      <select
+        selectitems="Build_direction_representation Additive_manufacturing_X_direction_representation Additive_manufacturing_placement_representation">
+      </select>
+    </type>
+
+    <type name="additive_manufacturing_workpiece_select">
+      <select
+        selectitems="Additive_manufacturing_view_definition Build_plate_definition">
+      </select>
+    </type>
+
+    <entity
+      name="Additive_manufacturing_view_definition"
+      supertypes="Assembly_definition">
+      <explicit
+        name="initial_context">
+        <typename
+          name="Additive_manufacturing_view_context"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+        </explicit>
+        <explicit
+          name="its_part">
+          <typename
+            name="Part_view_definition"/>
+        </explicit>
+        <explicit
+          name="its_support_geometry">
+          <aggregate
+            type="SET"
+            lower="0"
+            upper="?"/>
+          <typename
+            name="Additive_manufacturing_support_structure"/>
+        </explicit>
+        <explicit
+          name="its_part_design"
+          optional="YES">
+          <typename
+            name="Part_view_definition"/>
+        </explicit>
+      </entity>
+
+      <entity
+        name="Additive_manufacturing_support_structure"
+        supertypes="Assembly_definition">
+        <explicit
+          name="initial_context">
+          <typename
+            name="Additive_manufacturing_view_context"/>
+          <redeclaration
+            entity-ref="Product_view_definition"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Additive_manufacturing_view_context"
+          supertypes="Initial_part_view_definition_context">
+          <derived
+            name="application_domain"
+            expression="'Additive manufacturing'">
+            <typename
+              name="application_domain_string"/>
+            <redeclaration
+              entity-ref="Initial_view_definition_context"/>
+            </derived>
+          </entity>
+
+          <entity
+            name="Additive_manufacturing_property_assignment"
+            supertypes="Assigned_property">
+            <explicit
+              name="described_element">
+              <typename
+                name="Additive_manufacturing_view_definition"/>
+              <redeclaration
+                entity-ref="Assigned_property"/>
+              </explicit>
+            </entity>
+
+            <entity
+              name="Additive_manufacturing_orientation_property"
+              supertypes="Property_representation">
+              <explicit
+                name="definition">
+                <typename
+                  name="Additive_manufacturing_property_assignment"/>
+                <redeclaration
+                  entity-ref="Property_definition_representation"/>
+                </explicit>
+                <explicit
+                  name="used_representation">
+                  <typename
+                    name="additive_manufacturing_orientation_representation_select"/>
+                  <redeclaration
+                    entity-ref="Property_definition_representation"/>
+                  </explicit>
+                </entity>
+
+                <entity
+                  name="Build_direction_representation"
+                  supertypes="Representation">
+                  <explicit
+                    name="context_of_items">
+                    <typename
+                      name="Geometric_coordinate_space"/>
+                    <redeclaration
+                      entity-ref="Representation"/>
+                    </explicit>
+                    <explicit
+                      name="build_direction">
+                      <aggregate
+                        type="SET"
+                        lower="1"
+                        upper="1"/>
+                      <typename
+                        name="Direction"/>
+                      <redeclaration
+                        entity-ref="Representation" old_name="items"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="Additive_manufacturing_X_direction_representation"
+                      supertypes="Representation">
+                      <explicit
+                        name="context_of_items">
+                        <typename
+                          name="Geometric_coordinate_space"/>
+                        <redeclaration
+                          entity-ref="Representation"/>
+                        </explicit>
+                        <explicit
+                          name="items">
+                          <aggregate
+                            type="SET"
+                            lower="1"
+                            upper="1"/>
+                          <typename
+                            name="Direction"/>
+                          <redeclaration
+                            entity-ref="Representation"/>
+                          </explicit>
+                        </entity>
+
+                        <entity
+                          name="Additive_manufacturing_placement_representation"
+                          supertypes="Constructive_geometry">
+                          <explicit
+                            name="items">
+                            <aggregate
+                              type="SET"
+                              lower="1"
+                              upper="1"/>
+                            <typename
+                              name="Axis_placement_3d"/>
+                            <redeclaration
+                              entity-ref="Representation"/>
+                            </explicit>
+                            <derived
+                              name="location"
+                              expression="SELF\Representation.items[1]\Axis_placement.location">
+                              <typename
+                                name="Cartesian_point"/>
+                            </derived>
+                            <derived
+                              name="build_direction"
+                              expression="SELF\Representation.items[1]\Axis_placement.axis">
+                              <typename
+                                name="Direction"/>
+                            </derived>
+                          </entity>
+
+                          <entity
+                            name="Additive_manufacturing_workplan"
+                            supertypes="Process_operation_definition">
+                            <derived
+                              name="process_type"
+                              expression="'Additive manufacturing'">
+                              <builtintype
+                                type="STRING"/>
+                              <redeclaration
+                                entity-ref="Process_operation_definition"/>
+                              </derived>
+                            </entity>
+
+                            <entity
+                              name="Additive_manufacturing_workplan_occurrence"
+                              supertypes="Process_operation_occurrence">
+                              <explicit
+                                name="operation_definition">
+                                <typename
+                                  name="Additive_manufacturing_workplan"/>
+                                <redeclaration
+                                  entity-ref="Process_operation_occurrence"/>
+                                </explicit>
+                              </entity>
+
+                              <entity
+                                name="Additive_manufacturing_process_product_association"
+                                supertypes="Process_operation_input_or_output">
+                                <explicit
+                                  name="its_workplan">
+                                  <typename
+                                    name="Additive_manufacturing_workplan_occurrence"/>
+                                  <redeclaration
+                                    entity-ref="Process_operation_input_or_output" old_name="operation"/>
+                                  </explicit>
+                                  <explicit
+                                    name="its_setup">
+                                    <typename
+                                      name="Additive_manufacturing_setup"/>
+                                    <redeclaration
+                                      entity-ref="Process_operation_input_or_output" old_name="element"/>
+                                    </explicit>
+                                    <derived
+                                      name="role"
+                                      expression="'Output'">
+                                      <builtintype
+                                        type="STRING"/>
+                                      <redeclaration
+                                        entity-ref="Process_operation_input_or_output"/>
+                                      </derived>
+                                    </entity>
+
+                                    <entity
+                                      name="Additive_manufacturing_setup"
+                                      supertypes="Product_occurrence">
+                                      <explicit
+                                        name="its_origin">
+                                        <typename
+                                          name="Axis_placement_3d"/>
+                                      </explicit>
+                                      <inverse
+                                        name="its_workpiece_setup"
+                                        entity="Additive_manufacturing_workpiece_setup"
+                                        attribute="relating_view">
+                                        <inverse.aggregate
+                                          type="SET"
+                                          lower="1"
+                                          upper="?"/>
+                                      </inverse>
+                                    </entity>
+
+                                    <entity
+                                      name="Additive_manufacturing_workpiece_setup"
+                                      supertypes="Product_occurrence_definition_relationship">
+                                      <explicit
+                                        name=" its_workpiece">
+                                        <typename
+                                          name="additive_manufacturing_workpiece_select"/>
+                                        <redeclaration
+                                          entity-ref="Product_occurrence_definition_relationship" old_name="related_view"/>
+                                        </explicit>
+                                        <explicit
+                                          name="relating_view">
+                                          <typename
+                                            name="Additive_manufacturing_setup"/>
+                                          <redeclaration
+                                            entity-ref="Product_occurrence_definition_relationship"/>
+                                          </explicit>
+                                          <explicit
+                                            name="placement"
+                                            optional="YES">
+                                            <typename
+                                              name="Additive_manufacturing_workpiece_placement"/>
+                                          </explicit>
+                                        </entity>
+
+                                        <entity
+                                          name="Additive_manufacturing_workpiece_placement"
+                                          supertypes="Representation_relationship">
+                                          <explicit
+                                            name="rep_1">
+                                            <typename
+                                              name="additive_manufacturing_orientation_representation_select"/>
+                                            <redeclaration
+                                              entity-ref="Representation_relationship"/>
+                                            </explicit>
+                                          </entity>
+
+                                          <entity
+                                            name="Additive_manufacturing_build_plate_assignment"
+                                            supertypes="Process_operation_resource_assignment">
+                                            <explicit
+                                              name="operation">
+                                              <typename
+                                                name="Additive_manufacturing_workplan_occurrence"/>
+                                              <redeclaration
+                                                entity-ref="Process_operation_resource_assignment"/>
+                                              </explicit>
+                                              <explicit
+                                                name="resource_definition">
+                                                <typename
+                                                  name="Build_plate_definition"/>
+                                                <redeclaration
+                                                  entity-ref="Process_operation_resource_assignment"/>
+                                                </explicit>
+                                              </entity>
+
+                                              <entity
+                                                name="Build_plate_definition"
+                                                supertypes="Product_view_definition">
+                                                <explicit
+                                                  name="build_volume_representation">
+                                                  <typename
+                                                    name="Build_volume_representation_select"/>
+                                                </explicit>
+                                                <explicit
+                                                  name="build_plate_representation"
+                                                  optional="YES">
+                                                  <typename
+                                                    name="Geometric_model"/>
+                                                </explicit>
+                                              </entity>
+
+                                              <entity
+                                                name="Build_volume_representation"
+                                                supertypes="Representation">
+                                                <explicit
+                                                  name="items">
+                                                  <aggregate
+                                                    type="SET"
+                                                    lower="1"
+                                                    upper="1"/>
+                                                  <typename
+                                                    name="Build_volume"/>
+                                                  <redeclaration
+                                                    entity-ref="Representation"/>
+                                                  </explicit>
+                                                </entity>
+
+                                                <entity
+                                                  name="Build_volume"
+                                                  abstract.supertype="YES"
+                                                  super.expression="( ONEOF ( Rectangular_build_volume, Circular_build_volume))"
+                                                  supertypes="Representation_item">
+                                                  <explicit
+                                                    name="height"
+                                                    optional="YES">
+                                                    <typename
+                                                      name="Length_data_element"/>
+                                                  </explicit>
+                                                </entity>
+
+                                                <entity
+                                                  name="Rectangular_build_volume"
+                                                  supertypes="Build_volume">
+                                                  <explicit
+                                                    name="plate_length">
+                                                    <typename
+                                                      name="Length_data_element"/>
+                                                  </explicit>
+                                                  <explicit
+                                                    name="plate_width">
+                                                    <typename
+                                                      name="Length_data_element"/>
+                                                  </explicit>
+                                                </entity>
+
+                                                <entity
+                                                  name="Circular_build_volume"
+                                                  supertypes="Build_volume">
+                                                  <explicit
+                                                    name="plate_radius">
+                                                    <typename
+                                                      name="Length_data_element"/>
+                                                  </explicit>
+                                                </entity>
+
+                                              </schema>
+                                            </express>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.16 2015/08/31 17:44:22 lothartklein Exp $
+   $Id: arm.exp,v 1.17 2015/09/24 09:59:50 kevletu Exp $
    ISO TC184/SC4/WG12 N8941 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7783
 *)
@@ -102,16 +102,14 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
     SUBTYPE OF (Constituent_part);
       constituents         : OPTIONAL LIST [1:?] OF Ply_piece;
       ply_thickness        : Length_data_element;
-      material_orientation : Direction_of_fiber_orientation_within_a_ply;
+      material_orientation : Ply_orientation_angle;
       material_type        : ply_stock_material;
-      shape : OPTIONAL Ply_shape;
-    DERIVE
-      material_orientation_angle : Ply_orientation_angle := material_orientation.orientations[1]; 
+      shape                : OPTIONAL Ply_shape;
   END_ENTITY;
 
   ENTITY Ply_laminate
     SUBTYPE OF (Constituent_part);
-      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_laminate_shape;
+      shape : OPTIONAL ply_laminate_shape;
       ply_table : Ply_laminate_table;
   END_ENTITY;
 
@@ -138,13 +136,11 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Processed_core
     SUBTYPE OF (Constituent_part);
       added_material           : OPTIONAL LIST [0:?] OF Ply;
-      cell_direction           : Direction_of_fiber_orientation_within_a_ply;
+      cell_direction           : Ply_orientation_angle;
       made_from_stock          : Stock_core;
       made_from_processed_core : OPTIONAL SET [1:?] OF Processed_core;
-      shape : OPTIONAL core_shape;
-    DERIVE
-      cell_orientation_angle   : Ply_orientation_angle := cell_direction.orientations[1]; 
-  END_ENTITY;
+      shape                    : OPTIONAL core_shape;
+   END_ENTITY;
 
   ENTITY Smeared_material
     SUBTYPE OF (Zone_structural_makeup);

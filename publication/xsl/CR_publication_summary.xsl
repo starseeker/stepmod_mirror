@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: CR_publication_summary.xsl,v 1.1 2014/06/05 21:46:23 mikeward Exp $
+$Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -843,10 +843,10 @@ $Id: CR_publication_summary.xsl,v 1.1 2014/06/05 21:46:23 mikeward Exp $
         <xsl:with-param name="resource_doc" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
-    
+    <xsl:variable name="partNo" select="./@part"/>
     <xsl:choose>
       <xsl:when test="$resource_doc_ok='true'">
-        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/part1000')"/>
+        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/iso10303_', $partNo)"/>
         
        <!-- <xsl:variable name="mod_dir_name"
           select="concat('iso10303_',./@part)"/>-->

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
+$Id: CR_publication_summary.xsl,v 1.3 2016/06/22 22:33:56 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -205,6 +205,31 @@ $Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
               <xsl:with-param name="module" select="@name"/>
             </xsl:call-template>
           </xsl:variable>
+          
+          <xsl:variable name="partNoWithLeadingZeros">
+            <xsl:choose>
+              <xsl:when test="string-length(@number)=1">
+                <xsl:value-of select="concat('00000', @number)"/>
+              </xsl:when>
+              <xsl:when test="string-length(@number)=2">
+                <xsl:value-of select="concat('0000', @number)"/>
+              </xsl:when>
+              <xsl:when test="string-length(@number)=3">
+                <xsl:value-of select="concat('000', @number)"/>
+              </xsl:when>
+              <xsl:when test="string-length(@number)=4">
+                <xsl:value-of select="concat('00', @number)"/>
+              </xsl:when>
+              <xsl:when test="string-length(@number)=5">
+                <xsl:value-of select="concat('0', @number)"/>
+              </xsl:when>
+              <xsl:when test="string-length(@number)=6">
+                <xsl:value-of select="@number"/>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:variable>
+          
+          
           <xsl:if test="$module_ok='true'">
             <module>
               <xsl:variable name="module_file"
@@ -220,6 +245,7 @@ $Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
               <xsl:attribute name="part">
                 <xsl:value-of select="$module_node/@part"/>
               </xsl:attribute>
+              
               <xsl:attribute name="previous.revision.year">
                 <xsl:value-of select="$module_node/@previous.revision.year"/>
               </xsl:attribute>              
@@ -237,7 +263,10 @@ $Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
               </xsl:attribute>              
               <xsl:attribute name="version">
                 <xsl:value-of select="$module_node/@version"/>
-              </xsl:attribute>             
+              </xsl:attribute>
+              <xsl:attribute name="partNoWithLeadingZerosAtt">
+                <xsl:value-of select="$partNoWithLeadingZeros"/>
+              </xsl:attribute>
               </module>
           </xsl:if>
         </xsl:for-each>
@@ -302,13 +331,13 @@ $Id: CR_publication_summary.xsl,v 1.2 2014/06/11 14:21:41 mikeward Exp $
         <xsl:when test="function-available('msxsl:node-set')">
           <xsl:variable name="modules_nodes" select="msxsl:node-set($modules)"/>
           <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZerosAtt"/>
           </xsl:apply-templates>
         </xsl:when>
         <xsl:when test="function-available('exslt:node-set')">
           <xsl:variable name="modules_nodes" select="exslt:node-set($modules)"/>
           <xsl:apply-templates select="$modules_nodes//module" mode="table_row">
-            <xsl:sort select="@part"/>
+            <xsl:sort select="@partNoWithLeadingZerosAtt"/>
           </xsl:apply-templates>
         </xsl:when>
       </xsl:choose>

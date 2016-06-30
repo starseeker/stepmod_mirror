@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.16 2016/06/06 17:18:18 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.17 2016/06/06 17:19:38 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -2010,15 +2010,15 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 
 
 
-		<!--<xsl:variable name="bomdoc_file"
+		<xsl:variable name="bomdoc_file"
 			select="concat('../../data/business_object_models/',business_object_models/bom_doc/@name,'/business_object_model.xml')"/>
-		<xsl:variable name="resdoc_xml" select="document($bomdoc_file)"/>-->
+		<xsl:variable name="resdoc_xml" select="document($bomdoc_file)"/>
 
 
 	</xsl:template>
 
 	<!-- variables for building the business object model documents -->
-	<!--<xsl:template match="part1000.publication_index" mode="bomdoc_variables">
+	<xsl:template match="part1000.publication_index" mode="bomdoc_variables">
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMDOCGIFS</xsl:attribute>
 			<xsl:attribute name="value">
@@ -2046,7 +2046,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		
 		
 		
-		<!-\- HTML -\->
+		<!-- HTML -->
 		<xsl:element name="property">
 			<xsl:attribute name="name">BOMISOCOVERHTM</xsl:attribute>
 			<xsl:attribute name="value">
@@ -2071,12 +2071,12 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 
 		
 
-		<!-\-<xsl:variable name="resdoc_file"
+		<!--<xsl:variable name="resdoc_file"
 			select="concat('../../data/business_object_models/',business_object_models/bom_doc/@name,'/resource.xml')"/>
-		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>-\->
+		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>-->
 		
-		<!-\- MWD -\->
-		<!-\-<xsl:element name="property">
+		<!-- MWD -->
+		<!--<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGXMLS</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="$resdoc_xml//schema" mode="list">
@@ -2084,10 +2084,10 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					<xsl:with-param name="suffix" select="'expg*.xml'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
-		</xsl:element>-\->
+		</xsl:element>-->
 
-		<!-\- MWD -\->
-		<!-\-<xsl:element name="property">
+		<!-- MWD -->
+		<!--<xsl:element name="property">
 			<xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGGIFS</xsl:attribute>
 			<xsl:attribute name="value">
 				<xsl:apply-templates select="$resdoc_xml//schema" mode="list">
@@ -2105,9 +2105,9 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					<xsl:with-param name="suffix" select="'expg*.jpg'"/>
 				</xsl:apply-templates>
 			</xsl:attribute>
-		</xsl:element>-\->
+		</xsl:element>-->
 	</xsl:template>
--->
+
 
 	<!-- generate the target "isoindex" -->
 	<xsl:template match="part1000.publication_index" mode="target_isoindex">
@@ -8596,7 +8596,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 
 	<!-- Generates the style task for generating the publication record for a
 		bom -->
-	<!--<xsl:template match="bom_doc" mode="pub_record_style">
+	<xsl:template match="bom_doc" mode="pub_record_style">
 		<xsl:variable name="bomdoc_file"
 			select="concat('../../data/business_object_models/', @name, '/business_object_model.xml')"/>
 		<xsl:variable name="bomdoc_xml" select="document($bomdoc_file)"/>
@@ -8720,7 +8720,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>-->
+	</xsl:template>
 
 
 	<xsl:template match="part1000.publication_index" mode="target_zip">

@@ -1,28 +1,35 @@
 (*
- $Id: arm.exp,v 1.11 2012/10/06 20:09:56 liutkuviene Exp $
- ISO TC184/SC4/WG12 N7753 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N5458
+ $Id: arm.exp,v 1.12 2013/11/24 15:11:34 thomasrthurman Exp $
+ ISO TC184/SC4/WG12 N9238 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7753
 *)
 
 SCHEMA Ply_orientation_specification_arm;
 
-USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
+USE FROM Part_and_zone_laminate_tables_arm; -- ISO/TS 10303-1770
+USE FROM Value_with_unit_arm; -- ISO TS 10303-1054
 
-  TYPE angle_select = SELECT 
-    (Axis_placement_3d,
-     Curve,
+  TYPE direction_select = SELECT
+    (Curve_11,
+     Cylindrical_11,
      Direction,
-     Point_path);
+     Point_array,
+     Polar_11,
+     User_defined_11);
   END_TYPE;
 
-  ENTITY Direction_of_fiber_orientation_within_a_ply
-    SUBTYPE OF (Representation);
-      SELF\Representation.context_of_items : Geometric_coordinate_space; 
-      SELF\Representation.items            : SET[1:?] OF angle_select;
-    INVERSE 
-      orientations : SET[1:1] OF Ply_orientation_angle FOR rep_1;
+  ENTITY Curve_11
+    SUBTYPE OF (Detailed_geometric_model_element)
+      guide_curves : LIST [1:?] OF Curve;
+      11_offset    : Value_with_unit;
   END_ENTITY;
-
+ 
+  ENTITY Cylindrical_11
+    SUBTYPE OF (Detailed_geometric_model_element)
+      guide_curves : LIST [1:?] OF Curve;
+      11_offset    : Value_with_unit;
+  END_ENTITY;
+ 
   ENTITY Draped_orientation_angle
     SUBTYPE OF (Ply_orientation_angle);
   END_ENTITY;
@@ -35,8 +42,7 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
     SUPERTYPE OF (ONEOF (Draped_orientation_angle, 
                          Laid_orientation_angle)) 
     SUBTYPE OF (Representation_relationship);  
-      angle_reference                        : angle_select; 
-      SELF\Representation_relationship.rep_1 : Direction_of_fiber_orientation_within_a_ply;
+      SELF\Representation_relationship.rep_1 : Value_with_unit;
       SELF\Representation_relationship.rep_2 : Reinforcement_orientation_basis; 
   END_ENTITY;
 
@@ -46,26 +52,37 @@ USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
       vector : LIST [1:2] OF Direction;
   END_ENTITY;
 
-  ENTITY Point_path
+  ENTITY Point_array
     SUBTYPE OF (Detailed_geometric_model_element);
       directions : LIST [1:?] OF Point_and_vector;
   END_ENTITY;
-
+ 
+  ENTITY Polar_11
+    SUBTYPE OF(Detailed_geometric_model_element)
+      guide_curves : LIST [1:?] OF Curve;
+      11_offset    : Value_with_unit;
+  END_ENTITY;
+ 
   ENTITY Reinforcement_orientation_basis
     SUBTYPE OF (Representation);
-      SELF\Representation.context_of_items : Geometric_coordinate_space; 
-      SELF\Representation.items            : SET [1:1] OF Axis_placement_3d; 
+      SELF\Representation.context_of_items       : Geometric_coordinate_space;
+      SELF\Representation.items[1]               : Axis_placement_3d;
+      primary_basis_11_direction                 : direction_select;
     DERIVE
-      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
-      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.ref_direction;
-    INVERSE 
-      tables       : SET[1:?] OF Laminate_table FOR basis; 
-      orientations : SET[1:?] OF Ply_orientation_angle FOR rep_2;
+      basis_placement_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
+    INVERSE
+      table       : Laminate_table FOR basis;
+      orientation : Ply_orientation_angle FOR rep_2;
   END_ENTITY;
 
+  ENTITY User_defined_11
+    SUBTYPE OF (Representation_item);
+      Definition : String_representation_item;
+  END_ENTITY;
+ 
   SUBTYPE_CONSTRAINT pos_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
     ONEOF (Point_and_vector,
-           Point_path);
+           Point_array);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

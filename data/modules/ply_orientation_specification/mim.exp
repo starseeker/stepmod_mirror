@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.11 2015/09/24 09:59:57 kevletu Exp $
+ $Id: mim.exp,v 1.12 2016/07/05 18:49:29 kahunten Exp $
  ISO TC184/SC4/WG12 N9239 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N8897
 *)
@@ -20,13 +20,26 @@ USE FROM representation_schema(
   TYPE point_array_members = LIST [1:?] OF point_and_vector;
   END_TYPE;
 
+  ENTITY cartesian_11
+    SUBTYPE OF (geometric_representation_item);
+  WHERE
+    WR1: 'PLY_ORIENTATION_SPECIFICATION_MIM.AXIS_PLACEMENT_3D' IN TYPEOF(SELF);
+  END_ENTITY;
+ 
   ENTITY curve_11
     SUBTYPE OF (geometric_representation_item);
+  WHERE
+ WHERE
+    WR1: ('PLY_ORIENTATION_SPECIFICATION_MIM.CURVE' IN TYPEOF(SELF)) OR
+         ('PLY_ORIENTATION_SPECIFICATION_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
   END_ENTITY;
  
   ENTITY cylindrical_11
     SUBTYPE OF (geometric_representation_item);
-  END_ENTITY;
+  WHERE
+    WR1: ('PLY_ORIENTATION_SPECIFICATION_MIM.CURVE' IN TYPEOF(SELF)) OR
+         ('PLY_ORIENTATION_SPECIFICATION_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
+ END_ENTITY;
  
   ENTITY draped_orientation_angle
     SUBTYPE OF (ply_orientation_angle);
@@ -58,11 +71,14 @@ USE FROM representation_schema(
 
   ENTITY polar_11
     SUBTYPE OF (geometric_representation_item);
+  WHERE
+    WR1: ('PLY_ORIENTATION_SPECIFICATION_MIM.CURVE' IN TYPEOF(SELF)) OR
+         ('PLY_ORIENTATION_SPECIFICATION_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF));
   END_ENTITY;
  
   SUBTYPE_CONSTRAINT pos_compound_representation_item_subtypes FOR compound_representation_item;
     ONEOF (point_and_vector,
-	  point_array);
+	       point_array);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

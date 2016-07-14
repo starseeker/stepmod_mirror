@@ -1,7 +1,7 @@
 (*
-   $Id: arm.exp,v 1.18 2016/06/14 16:17:58 kahunten Exp $
-   ISO TC184/SC4/WG12 N9236 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8941
+   $Id: arm.exp,v 1.17 2015/09/24 09:59:50 kevletu Exp $
+   ISO TC184/SC4/WG12 N8941 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7783
 *)
 
 SCHEMA Part_and_zone_laminate_tables_arm;
@@ -38,7 +38,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Composite_assembly
     SUBTYPE OF (Constituent_part);
       layup_part : Composite_assembly_table;
-      shape      : OPTIONAL composite_assembly_shape;
+      shape : OPTIONAL composite_assembly_shape;
   END_ENTITY;
 
   ENTITY Composite_assembly_sequence_definition;
@@ -65,7 +65,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
       made_from : filament_assembly_material;
-     shape      : OPTIONAL Filament_laminate_shape;
+     shape : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
   ENTITY Filament_laminate_shape;
@@ -102,14 +102,16 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
     SUBTYPE OF (Constituent_part);
       constituents         : OPTIONAL LIST [1:?] OF Ply_piece;
       ply_thickness        : Length_data_element;
-      material_orientation : Ply_orientation_angle;
+      material_orientation : Direction_of_fiber_orientation_within_a_ply;
       material_type        : ply_stock_material;
-      shape                : OPTIONAL Ply_shape;
+      shape : OPTIONAL Ply_shape;
+    DERIVE
+      material_orientation_angle : Ply_orientation_angle := material_orientation.orientations[1]; 
   END_ENTITY;
 
   ENTITY Ply_laminate
     SUBTYPE OF (Constituent_part);
-      shape     : OPTIONAL ply_laminate_shape;
+      SELF\Product_view_definition.primary_shape_representation RENAMED shape : OPTIONAL ply_laminate_shape;
       ply_table : Ply_laminate_table;
   END_ENTITY;
 
@@ -124,7 +126,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
   ENTITY Ply_piece
     SUBTYPE OF (Constituent_part);
-      shape        : OPTIONAL ply_piece_shape;
+      shape : OPTIONAL ply_piece_shape;
       warp_surface : LOGICAL;
   END_ENTITY;
 
@@ -136,11 +138,13 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Processed_core
     SUBTYPE OF (Constituent_part);
       added_material           : OPTIONAL LIST [0:?] OF Ply;
-      cell_direction           : Ply_orientation_angle;
+      cell_direction           : Direction_of_fiber_orientation_within_a_ply;
       made_from_stock          : Stock_core;
       made_from_processed_core : OPTIONAL SET [1:?] OF Processed_core;
-      shape                    : OPTIONAL core_shape;
-   END_ENTITY;
+      shape : OPTIONAL core_shape;
+    DERIVE
+      cell_orientation_angle   : Ply_orientation_angle := cell_direction.orientations[1]; 
+  END_ENTITY;
 
   ENTITY Smeared_material
     SUBTYPE OF (Zone_structural_makeup);

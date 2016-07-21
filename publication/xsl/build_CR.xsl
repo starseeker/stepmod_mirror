@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.17 2016/06/06 17:19:38 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.18 2016/06/30 15:16:31 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -3665,7 +3665,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</target>
 	</xsl:template>
 
-	<!--<xsl:template match="part1000.publication_index" mode="target_isodepmodules">
+	<!-- MWD uncommented 2016-07-20 uncommented -->
+	<xsl:template match="part1000.publication_index" mode="target_isodepmodules">
 		<xsl:param name="menu"/>
 		
 		<xsl:text>
@@ -3845,7 +3846,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			</xsl:element>
 
 
-			<!-\- RBN - ISO do not want the abstract in the module
+			<!-- RBN - ISO do not want the abstract in the module
 		   <xsl:element name="xslt">
 		   <xsl:attribute name="includes">
 		   <xsl:value-of select="'${DMODABSTRACTXML}'"/>
@@ -3856,7 +3857,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		   <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
 		   <xsl:with-param name="menu" select="$menu"/>
 		   </xsl:apply-templates>
-		   </xsl:element> -\->
+		   </xsl:element> -->
 
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
@@ -3938,8 +3939,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:element>
 			</xsl:element>
 
-			<!-\- move the cover page to SC4 cover page  -\->
-			<!-\- RBN Commented out as per request from ISO
+			<!-- move the cover page to SC4 cover page  -->
+			<!-- RBN Commented out as per request from ISO
 		   <xsl:element name="move">
 		   <xsl:attribute name="todir">${P1000DIR}</xsl:attribute>
 		   <xsl:element name="fileset">
@@ -3947,9 +3948,9 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		   <xsl:attribute name="includes">${DMODCOVERHTM}</xsl:attribute>
 		   </xsl:element>
 		   <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-		   </xsl:element> -\->
+		   </xsl:element> -->
 
-			<!-\- generate the ISO cover page  -\->
+			<!-- generate the ISO cover page  -->
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
 					<xsl:value-of select="'${DMODISOCOVERXML}'"/>
@@ -3962,7 +3963,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:apply-templates>
 			</xsl:element>
 
-			<!-\- move the ISO cover page to cover page -\->
+			<!-- move the ISO cover page to cover page -->
 			<xsl:element name="move">
 				<xsl:attribute name="todir">${P1000DIR}</xsl:attribute>
 				<xsl:element name="fileset">
@@ -4021,7 +4022,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			</xsl:element>
 
 
-			<!-\- RBN the test need to be run on the dependent modules -\->
+			<!-- RBN the test need to be run on the dependent modules -->
 			<xsl:if test="string-length($dlongforms) > 0">
 
 				<xsl:element name="xslt">
@@ -4039,8 +4040,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 					</xsl:apply-templates>
 				</xsl:element>
 
-				<!-\- RBN the test need to be run on the dependent modules       
-			 <xsl:if test="string-length($dlongforms)>0"></xsl:if> -\->
+				<!-- RBN the test need to be run on the dependent modules       
+			 <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
 				<xsl:element name="xslt">
 					<xsl:attribute name="includes">
 						<xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
@@ -4170,7 +4171,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:element>
 			</xsl:element>
 		</target>
-	</xsl:template>-->
+	</xsl:template>
 
 
 	<!-- called from template match="part1000.publication_index" mode="dependent_modules_target" -->
@@ -5324,8 +5325,9 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</target>
 	</xsl:template>-->
 
-
-	<!--<xsl:template match="part1000.publication_index" mode="target_resources_publication_record">
+	<!-- MWD 2016-07-20 uncommented -->
+	
+	<xsl:template match="part1000.publication_index" mode="target_resources_publication_record">
 		<xsl:variable name="resdoc_schema">
 			<xsl:call-template name="get_resource_schema_node_set"/>
 		</xsl:variable>
@@ -5338,16 +5340,16 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			<xsl:apply-templates select="$resdoc_schema_node_set/resource" mode="pub_record_style"/>
 		</xsl:element>
 
-	</xsl:template>-->
+	</xsl:template>
 
 	<!-- generate the target "target_isoresdocs" -->
 	<!-- BAR -->
 	<xsl:template match="resource_doc" mode="target_isoresdocs">
 		<!--<xsl:template match="part1000.publication_index" mode="target_isoresdocs">-->
 		<xsl:param name="partnumber" select="''"/>
-		<!-- MWD 2016-05-17 commented out -->
+		<!-- MWD 2016-07-20 uncommented next line -->
 
-		<!--<xsl:apply-templates select="." mode="target_resources_publication_record"/>-->
+		<xsl:apply-templates select="." mode="target_resources_publication_record"/>
 
 		<!-- BAR -->
 		<xsl:variable name="target_name" select="concat('isoresdocs', $partnumber)"/>
@@ -5733,6 +5735,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 	<!-- generate the target "target_isobomdocs" -->
 	<xsl:template match="part1000.publication_index" mode="target_isobomdocs">
 
+		<!-- MWD 2016-07-20 uncommented next line re-commented -->
 		<!--<xsl:apply-templates select="." mode="target_boms_publication_record"/>-->
 
 		<target name="isobomdocs" depends="init" description="generate HTML for all BO Models">
@@ -6567,9 +6570,12 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			<xsl:attribute name="depends">isoindex, isomodules</xsl:attribute>
 			<xsl:attribute name="description">Copy HTML for modules listed in publication_index to
 				publication directory</xsl:attribute>
-			<!--<xsl:apply-templates select="//module" mode="target_publish_isomodules"/>
+			
+			<!-- MWD 2016-07-20 next 3 lines uncommented -->
+			
+			<xsl:apply-templates select="//module" mode="target_publish_isomodules"/>
 			<xsl:apply-templates select="//resource_docs" mode="target_publish_isoresdocs"/>
-			<xsl:apply-templates select="//business_object_models" mode="target_publish_isobomdocs"/>-->
+			<xsl:apply-templates select="//business_object_models" mode="target_publish_isobomdocs"/>
 		</xsl:element>
 	</xsl:template>
 
@@ -8154,7 +8160,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 
 	<!-- Generates the style task for generating the publication record for a
      module -->
-	<!--<xsl:template match="module" mode="pub_record_style">
+	<!-- MWD 2016-07-20 uncommented -->
+	<xsl:template match="module" mode="pub_record_style">
 		<xsl:variable name="module_file"
 			select="concat('../../data/modules/', @name, '/module.xml')"/>
 		<xsl:variable name="module_xml" select="document($module_file)"/>
@@ -8272,7 +8279,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>-->
+	</xsl:template>
 
 	<!-- Generates the style task for generating the publication record for an
      AP document -->
@@ -8399,10 +8406,11 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</xsl:element>
 	</xsl:template>-->
 
-	<!-- MWD 2016-05-18 commented out -->
+	
 	<!-- Generates the style task for generating the publication record for a
      resource document -->
-	<!--<xsl:template match="resource_doc" mode="pub_record_style">
+	<!-- MWD 2016-07-20 uncommented -->
+	<xsl:template match="resource_doc" mode="pub_record_style">
 		<xsl:variable name="resdoc_file"
 			select="concat('../../data/resource_docs/', @name, '/resource.xml')"/>
 		<xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
@@ -8413,7 +8421,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<xsl:variable name="CVS_dir_xslresdoc_entry"
 			select="concat('CVS_dir_xslresdoc_entry_', @name)"/>
 
-		<!-\- MWD 2016-05-11 -\->
+		<!-- MWD 2016-05-11 -->
 		<xsl:variable name="res_part_no" select="./@number"/>
 		<xsl:variable name="res_doc_dir" select="concat('${PUBDIR}/iso10303_', $res_part_no)"/>
 
@@ -8468,21 +8476,21 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				<xsl:value-of select="concat('data/resource_docs/', @name, '/resource.xml')"/>
 			</xsl:attribute>
 			<xsl:attribute name="out">
-				<!-\- MWD 2016-05-13 -\->
+				<!-- MWD 2016-05-13 -->
 				<xsl:value-of
 					select="concat($res_doc_dir, '/data/resource_docs/', @name, '/publication_record.xml')"/>
-				<!-\-<xsl:value-of
+				<!--<xsl:value-of
 					select="concat('${P1000DIR}/data/resource_docs/',@name,'/publication_record.xml')"
-				/>-\->
+				/>-->
 			</xsl:attribute>
 			<xsl:attribute name="style">
 				<xsl:value-of select="'${STEPMODSTYLES}/publication/pub_record.xsl'"/>
 			</xsl:attribute>
 
 			<xsl:attribute name="destdir">
-				<!-\- MWD 2016-05-11 -\->
+				<!-- MWD 2016-05-11 -->
 				<xsl:value-of select="$res_doc_dir"/>
-				<!-\-<xsl:value-of select="'${P1000DIR}'"/>-\->
+				<!--<xsl:value-of select="'${P1000DIR}'"/>-->
 			</xsl:attribute>
 
 			<xsl:element name="param">
@@ -8532,12 +8540,12 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-	</xsl:template>-->
+	</xsl:template>
 
 	<!-- Generates the style task for generating the publication record for a
 	resource  -->
-	<!-- MWD -->
-	<!--<xsl:template match="resource" mode="pub_record_style">
+	<!-- MWD 2016-07-20 uncommented -->
+	<xsl:template match="resource" mode="pub_record_style">
 
 		<xsl:variable name="res_name" select="substring-after(@name,'/')"/>
 		<xsl:variable name="res_file"
@@ -8592,7 +8600,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element>
-		</xsl:template>-->
+		</xsl:template>
 
 	<!-- Generates the style task for generating the publication record for a
 		bom -->

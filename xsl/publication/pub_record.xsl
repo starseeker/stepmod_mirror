@@ -10,8 +10,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
-
-  <xsl:output method="xml" indent="yes"/>
+  
+  <xsl:output method="xml" indent="yes" doctype-system="../../../../../../dtd/publication_record.dtd"/>
 
 <!-- 
      This parameter is passed in from ANT build. 
@@ -48,6 +48,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:template match="application_protocol">
     <xsl:variable name="edition" select="@version"/>
+    
     <publication_record>
       <application_protocols>
         <xsl:apply-templates select="." mode="published_part">

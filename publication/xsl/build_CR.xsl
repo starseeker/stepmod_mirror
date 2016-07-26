@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.18 2016/06/30 15:16:31 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.19 2016/07/21 09:56:29 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -105,8 +105,12 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 						<!-- BAR -->
 						<xsl:for-each select="./resource_docs/resource_doc">
 							<xsl:variable name="part_number" select="./@number"/>
+							<!-- MWD name added 2016-07-26 -->
+							<xsl:variable name="part_name" select="./@name"/>
 							<xsl:apply-templates select="." mode="target_isoresdocs">
 								<xsl:with-param name="partnumber" select="$part_number"/>
+								<!-- MWD name param added 2016-07-26 -->
+								<xsl:with-param name="partname" select="$part_name"/>
 							</xsl:apply-templates>
 						</xsl:for-each>
 						<xsl:apply-templates select="." mode="target_publish_isoresdocs"/>
@@ -176,12 +180,14 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 
-			<xsl:element name="property">
+			<!-- MWD 2016-07-26 SC4COVERDIR commented out -->
+
+			<!--<xsl:element name="property">
 				<xsl:attribute name="name">SC4COVERDIR</xsl:attribute>
 				<xsl:attribute name="value">
 					<xsl:value-of select="concat('publication/isopub/', @name, '/sc4covers')"/>
 				</xsl:attribute>
-			</xsl:element>
+			</xsl:element>-->
 
 			<xsl:element name="property">
 				<xsl:attribute name="name">P1000DIR</xsl:attribute>
@@ -190,10 +196,17 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 				</xsl:attribute>
 			</xsl:element>
 			<!-- IMAGES -->
+			<!-- MWD 2016-07-25 IMAGESDIR added -->
+			<xsl:element name="property">
+				<xsl:attribute name="name">IMAGESDIR</xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:value-of select="'images'"/>
+				</xsl:attribute>
+			</xsl:element>
 			<xsl:element name="property">
 				<xsl:attribute name="name">IMAGES</xsl:attribute>
 				<xsl:attribute name="value">
-					<xsl:value-of select="'images/*.*'"/>
+					<xsl:value-of select="'*.*'"/>
 				</xsl:attribute>
 			</xsl:element>
 
@@ -2265,19 +2278,23 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 							</xsl:attribute>
 						</xsl:element>
 						
-						<xsl:element name="copy">
+						<!-- MWD 2016-07-26 redundant (because repeated later) -->
+						<!--<xsl:element name="copy">
 							<xsl:attribute name="todir">
 								<xsl:value-of select="$res_doc_images_directory"/>
 							</xsl:attribute>
 							<xsl:element name="fileset">
 								<xsl:attribute name="dir">
-									<xsl:value-of select="'${P1000DIR}/images'"/>
+									<!-\- MWD 2016-07-25 changed to IMAGESDIR -\->
+									<xsl:value-of select="'${IMAGESDIR}'"/>
+								</xsl:attribute>
+								<!-\- moved from parent (copy) element to fileset element -\->
+								<xsl:attribute name="includes">
+									<xsl:value-of select="'${IMAGES}'"/>
 								</xsl:attribute>
 							</xsl:element>
-							<xsl:attribute name="includes">
-								<xsl:value-of select="'${IMAGES}'"/>
-							</xsl:attribute>
-						</xsl:element>
+							
+						</xsl:element>-->
 						
 					</xsl:for-each>
 				</xsl:when>
@@ -5347,6 +5364,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 	<xsl:template match="resource_doc" mode="target_isoresdocs">
 		<!--<xsl:template match="part1000.publication_index" mode="target_isoresdocs">-->
 		<xsl:param name="partnumber" select="''"/>
+		<!-- MWD added 2016-07-26 -->
+		<xsl:param name="partname" select="''"/>
 		<!-- MWD 2016-07-20 uncommented next line -->
 
 		<xsl:apply-templates select="." mode="target_resources_publication_record"/>
@@ -5355,6 +5374,14 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<xsl:variable name="target_name" select="concat('isoresdocs', $partnumber)"/>
 		<!-- BAR -->
 		<!--<target name="isoresdocs" depends="init" description="generate HTML for all listed resource docs">-->
+		
+		<!-- MWD added 2016-07-26 -->
+		<xsl:variable name="res_doc_directory"
+			select="concat('${PUBDIR}/iso10303_', $partnumber, '/data/resource_docs/', $partname, '/sys')"/>
+		
+				
+		
+		
 		<target name="{$target_name}" depends="init"
 			description="generate HTML for all listed resource docs">
 			<dependset>
@@ -5621,7 +5648,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			<!-- generate the ISO cover page  -->
 			<xsl:element name="xslt">
 				<xsl:attribute name="includes">
-					<xsl:value-of select="'${RESDOCISOCOVERXML}'"/>
+					<xsl:value-of select="concat('${RESDOCISOCOVERXML', $partnumber, '}')"/>
 				</xsl:attribute>
 				<xsl:attribute name="style">
 					<xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_isocover.xsl'"/>
@@ -5630,11 +5657,15 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			</xsl:element>
 
 			<!-- move the ISO cover page to cover page -->
+			
+			<!-- HERE -->
+			
+			
 			<xsl:element name="move">
-				<xsl:attribute name="todir">${P1000DIR}</xsl:attribute>
+				<xsl:attribute name="todir"><xsl:value-of select="$res_doc_directory"/></xsl:attribute>
 				<xsl:element name="fileset">
-					<xsl:attribute name="dir">${P1000DIR}</xsl:attribute>
-					<xsl:attribute name="includes">${RESDOCISOCOVERHTM}</xsl:attribute>
+					<xsl:attribute name="dir"><xsl:value-of select="$res_doc_directory"/></xsl:attribute>
+					<xsl:attribute name="includes"><xsl:value-of select="'isocover.htm'"/></xsl:attribute>
 				</xsl:element>
 				<mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
 			</xsl:element>
@@ -6764,7 +6795,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		<xsl:comment>Publish resource doc: <xsl:value-of select="@name"/>
 		</xsl:comment>
 
-		<!-- generate the publication record for the AP doc-->
+		<!-- generate the publication record for the resource doc-->
 		<!-- MWD 2016-05-18 commented out -->
 		<!--<xsl:apply-templates select="." mode="pub_record_style"/>-->
 
@@ -6820,7 +6851,12 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 			</xsl:attribute>
 			<xsl:element name="fileset">
 				<xsl:attribute name="dir">
-					<xsl:value-of select="'${P1000DIR}/images'"/>
+					<!-- MWD 2016-07-25 changed to IMAGESDIR -->
+					<xsl:value-of select="'${IMAGESDIR}'"/>
+				</xsl:attribute>
+				<!-- MWD 2016-07-25 includes attribute added -->
+				<xsl:attribute name="includes">
+					<xsl:value-of select="'${IMAGES}'"/>
 				</xsl:attribute>
 			</xsl:element>
 		</xsl:element> 

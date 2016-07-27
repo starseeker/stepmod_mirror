@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build_CR.xsl,v 1.19 2016/07/21 09:56:29 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.20 2016/07/26 23:16:12 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -6797,7 +6797,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 
 		<!-- generate the publication record for the resource doc-->
 		<!-- MWD 2016-05-18 commented out -->
-		<!--<xsl:apply-templates select="." mode="pub_record_style"/>-->
+		<xsl:apply-templates select="." mode="pub_record_style"/>
 
 		<!-- the readme -->
 		<!-- MWD 2016-06-06 -->

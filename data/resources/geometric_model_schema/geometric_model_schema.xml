@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2012/09/08 11:59:57 $" rcs.revision="$Revision: 1.12 $" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2015/06/09 09:01:53 $" rcs.revision="$Revision: 1.14 $" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="geometric_model_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="geometric_model_schema">
       <interface kind="reference" schema="geometry_schema"/>
@@ -15,7 +15,8 @@
          <interfaced.item name="plane_angle_unit"/>
          <interfaced.item name="positive_length_measure"/>
          <interfaced.item name="positive_plane_angle_measure"/>
-      </interface>
+         <interfaced.item name="ratio_measure"/>
+     </interface>
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="founded_item"/>
          <interfaced.item name="representation"/>
@@ -25,7 +26,13 @@
       <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="shape_representation"/>
       </interface>
-      <type name="boolean_operand">
+      <type name="angular_deviation">
+               <typename name="positive_plane_angle_measure"/>
+      </type>
+     <type name="aspect_ratio">
+                    <typename name="ratio_measure"/>
+      </type>
+     <type name="boolean_operand">
          <select selectitems="solid_model half_space_solid csg_primitive boolean_result half_space_2d"/>
       </type>
       <type name="boolean_operator">
@@ -33,6 +40,9 @@
       </type>
       <type name="bounded_primitive_2d">
                <select extensible="YES" genericentity="YES" selectitems="circular_area elliptic_area rectangular_area polygonal_area area_with_outer_boundary"/>
+      </type>
+     <type name="chordal_deviation">
+                     <typename name="positive_length_measure"/>
       </type>
       <type name="csg_primitive">
          <select selectitems="sphere ellipsoid block right_angular_wedge faceted_primitive rectangular_pyramid torus right_circular_cone eccentric_cone right_circular_cylinder cyclide_segment_solid bounded_primitive_2d"/>
@@ -49,6 +59,12 @@
       <type name="geometric_set_select">
          <select selectitems="point curve surface"/>
       </type>
+      <type name="length_to_height_ratio">
+                          <typename name="ratio_measure"/>
+      </type>
+      <type name="maximum_edge_length">
+                           <typename name="positive_length_measure"/>
+      </type>
       <type name="path_or_composite_curve">
          <select selectitems="path composite_curve"/>
       </type>
@@ -57,6 +73,9 @@
       </type>
       <type name="tessellated_edge_or_vertex">
          <select selectitems="tessellated_edge tessellated_vertex"/>
+      </type>
+      <type name="tessellation_accuracy_parameter_item">
+               <select extensible="YES" genericentity="NO" selectitems="angular_deviation aspect_ratio chordal_deviation length_to_height_ratio maximum_edge_length"/>
       </type>
       <type name="wireframe_model">
          <select selectitems="shell_based_wireframe_model edge_based_wireframe_model"/>
@@ -626,6 +645,13 @@
              <where expression="'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN&#10;        TYPEOF(SELF\representation.context_of_items)" label="WR1"/>
             <where expression="NOT(SIZEOF(QUERY(it &lt;* SELF.items |&#10;                            'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_ITEM' IN TYPEOF(it))) = 0)" label="WR2"/>
          </entity>
+        <entity name="tessellated_shape_representation_with_accuracy_parameters" supertypes="tessellated_shape_representation">
+	        <explicit name="tessellation_accuracy_parameters">
+                    <aggregate lower="1" type="SET" upper="?"/>
+                   <typename name="tessellation_accuracy_parameter_item"/>
+               </explicit>    
+          </entity>
+        
         <entity abstract.supertype="YES" name="tessellated_item" super.expression="ONEOF (coordinates_list, tessellated_solid, tessellated_shell, tessellated_wire, tessellated_geometric_set, tessellated_curve_set, tessellated_point_set, tessellated_surface_set, tessellated_structured_item)" supertypes="geometric_representation_item">
                 <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) |&#10;          NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN&#10;         TYPEOF(using_rep)))) = 0" label="WR1"/>
              </entity>

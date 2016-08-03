@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.22 2016/08/02 12:57:25 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.23 2016/08/03 01:07:21 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -1715,6 +1715,11 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:element name="target">
             <xsl:attribute name="name">variables</xsl:attribute>
             <xsl:attribute name="description">initialize variables</xsl:attribute>
+            <tstamp>
+                <format property="START_TIME" pattern="EEE, d MMM yyyy HH:mm:ss"/>
+                <format property="PUB_DATE" pattern="yyyy-MM-dd"/>
+            </tstamp>
+            <echo> Publication started: ${START_TIME} </echo>
 
             <!-- target directory for modules and BOMs -->
             <xsl:element name="property">
@@ -3295,9 +3300,6 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             <xsl:attribute name="description">Copy HTML for all modules listed in publication_index to
                 publication directory</xsl:attribute>
             <xsl:apply-templates select="//module" mode="target_publish_isomodules"/>
-           <!-- <xsl:apply-templates select="//resource_docs" mode="target_publish_isoresdocs"/>
-            <xsl:apply-templates select="//business_object_models" mode="target_publish_isobomdocs"
-            />-->
         </xsl:element>
         
         <xsl:element name="target">
@@ -3307,6 +3309,14 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                 publication directory</xsl:attribute>
             <xsl:apply-templates select="//resource_docs" mode="target_publish_isoresdocs"/>
         </xsl:element>
+        
+        <!--<xsl:element name="target">
+            <xsl:attribute name="name">target_publish_isobomdocs</xsl:attribute>
+            <xsl:attribute name="depends">isoindex, isobomdocs</xsl:attribute>
+            <xsl:attribute name="description">Copy HTML for all business object model documents listed in publication_index to
+                publication directory</xsl:attribute>
+            <xsl:apply-templates select="//resource_docs" mode="target_publish_isobomdocs"/>
+        </xsl:element>-->
         
     </xsl:template>
 

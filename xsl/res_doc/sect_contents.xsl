@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.40 2013/11/01 18:36:41 mikeward Exp $
+$Id: sect_contents.xsl,v 1.41 2014/06/12 18:05:08 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -548,7 +548,7 @@ $Id: sect_contents.xsl,v 1.40 2013/11/01 18:36:41 mikeward Exp $
       </xsl:when>
       <xsl:otherwise>
         <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
-          <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/>
+          <xsl:value-of select="concat($clause_no,' ',$resource_display_name,' schema')"/>
         </A>
       </xsl:otherwise>
     </xsl:choose>

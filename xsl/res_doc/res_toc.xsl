@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.31 2011/03/08 10:19:58 lothartklein Exp $
+$Id: res_toc.xsl,v 1.32 2014/06/19 05:51:31 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -67,7 +67,7 @@ $Id: res_toc.xsl,v 1.31 2011/03/08 10:19:58 lothartklein Exp $
           </xsl:when>
           <xsl:otherwise>
             <A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}">
-              <xsl:value-of select="concat($clauseno,' ', $resource_display_name)"/>
+              <xsl:value-of select="concat($clauseno,' ', $resource_display_name,' schema')"/>
             </A>
           </xsl:otherwise>
         </xsl:choose>

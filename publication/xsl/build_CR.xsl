@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.26 2016/08/04 10:21:18 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.27 2016/08/04 10:37:45 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -2260,7 +2260,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:attribute name="extension">
             <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
-        <!--<param name="output_type" expression="HTM"/>
+        <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
             <xsl:attribute name="name">
                 <xsl:value-of select="'INLINE_ERRORS'"/>
@@ -2316,7 +2316,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             <xsl:attribute name="expression">
                 <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
             </xsl:attribute>
-        </xsl:element>-->
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="module" mode="list">
@@ -2655,7 +2655,47 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:attribute name="extension">
             <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
-
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'publication'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${PUBLICATION}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'output_rcs'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${OUTPUT_RCS}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'output_issues'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'INLINE_ERRORS'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${INLINE_ERRORS}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'menubar_file'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${ISOMENU}'"/>
+            </xsl:attribute>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="resource_doc" mode="list_for_resource_docs">
@@ -3182,6 +3222,41 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:attribute name="extension">
             <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
+        
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'publication'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${PUBLICATION}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'output_rcs'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${OUTPUT_RCS}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'INLINE_ERRORS'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${INLINE_ERRORS}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+            <xsl:attribute name="name">
+                <xsl:value-of select="'menubar_file'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+                <xsl:value-of select="'${ISOMENU}'"/>
+            </xsl:attribute>
+        </xsl:element>
+        
     </xsl:template>
 
     <xsl:template match="part1000.publication_index" mode="target_zip">

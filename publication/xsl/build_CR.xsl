@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.25 2016/08/04 00:15:05 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.26 2016/08/04 10:21:18 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -3320,34 +3320,41 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     <xsl:template match="part1000.publication_index" mode="target_publish_isoparts">
         <xsl:text>
 	 </xsl:text>
+        <xsl:if test="./modules">
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isomodules</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isomodules</xsl:attribute>
             <xsl:attribute name="description">Copy HTML for all modules listed in publication_index to publication directory</xsl:attribute>
             <xsl:apply-templates select="//module" mode="target_publish_isomodules"/>
         </xsl:element>
+        </xsl:if>
         
+        <xsl:if test="./resource_docs">
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isoresdocs</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isoresdocs</xsl:attribute>
             <xsl:attribute name="description">Copy HTML for all resource documents listed in publication_index to publication directory</xsl:attribute>
             <xsl:apply-templates select="//resource_doc" mode="target_publish_isoresdocs"/>
         </xsl:element>
+        </xsl:if>
         
+        <xsl:if test="./resources">
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isoresources</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isoresources</xsl:attribute>
             <xsl:attribute name="description">Copy HTML for all resources listed in publication_index to publication directory</xsl:attribute>
             <xsl:apply-templates select="//resource" mode="target_publish_isoresources"/>
         </xsl:element>
+        </xsl:if>
         
+        <xsl:if test="./business_object_models">
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isobomdocs</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isobomdocs</xsl:attribute>
             <xsl:attribute name="description">Copy HTML for all business object models listed in publication_index to publication directory</xsl:attribute>
             <xsl:apply-templates select="//bom_doc" mode="target_publish_isobomdocs"/>
         </xsl:element>
-        
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="module" mode="target_publish_isomodules">

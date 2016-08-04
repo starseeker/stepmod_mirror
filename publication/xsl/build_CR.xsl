@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.24 2016/08/03 16:32:19 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.25 2016/08/04 00:15:05 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -22,6 +22,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <project xsl:extension-element-prefixes="exslt" name="part1000_publication" default="all"
             basedir="../../..">
             <xsl:apply-templates select="." mode="target_variables"/>
+            <xsl:apply-templates select="." mode="target_checkcvstag"/>
             <xsl:if test="./modules/module">
                 <xsl:apply-templates select="." mode="target_modules_check"/>
             </xsl:if>
@@ -51,6 +52,31 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             <xsl:apply-templates select="." mode="target_publish_isoparts"/>
             <xsl:apply-templates select="." mode="target_all"/>
         </project>
+    </xsl:template>
+
+    <!-- generate the target "checkcvstag" -->
+    <xsl:template match="part1000.publication_index" mode="target_checkcvstag">
+        <xsl:element name="target">
+            <xsl:attribute name="name">checkcvstag</xsl:attribute>
+            <xsl:attribute name="description">check CVS tag</xsl:attribute>
+            <xsl:variable name="CVS_tag" select="@name"/>
+            <input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
+                addproperty="do.continue"/>
+            <condition property="do.abort">
+                <xsl:element name="equals">
+                    <xsl:attribute name="arg1">n</xsl:attribute>
+                    <xsl:attribute name="arg2">${do.continue}</xsl:attribute>
+                </xsl:element>
+            </condition>
+            <xsl:variable name="fail_msg">-
+                ------------------------------------------------------------ You need to tag the
+                repository before publishing the modules and/or resources and/or bo models. Use:
+                <xsl:value-of select="$CVS_tag"/>
+                ------------------------------------------------------------ </xsl:variable>
+            <fail if="do.abort">
+                <xsl:value-of select="$fail_msg"/>
+            </fail>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="part1000.publication_index" mode="target_isomodules">
@@ -1625,7 +1651,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     </xsl:template>
 
     <xsl:template match="part1000.publication_index" mode="target_init">
-        <target xsl:extension-element-prefixes="exslt" name="init" depends="variables">
+        <target xsl:extension-element-prefixes="exslt" name="init" depends="checkcvstag, variables">
             <xsl:choose>
                 <xsl:when test="./resource_docs/resource_doc">
 

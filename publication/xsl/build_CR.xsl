@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.27 2016/08/04 10:37:45 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.28 2016/08/04 14:57:57 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -3699,10 +3699,73 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     <!-- generate the publication record for the resource doc-->
     <xsl:template match="resource_doc" mode="target_publish_isoresdocs">
         <xsl:variable name="resdoc_name" select="./@name"/>
+        <xsl:variable name="resdoc_number" select="./@number"/>
+        <xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/', 'iso10303_', $resdoc_number,'/')"/>
         <xsl:text>
 	    </xsl:text>
         <xsl:comment>Publish resource doc: <xsl:value-of select="$resdoc_name"/></xsl:comment>              
         <xsl:apply-templates select="." mode="pub_record_style"/>
+        
+        <xsl:element name="xslt">
+            <xsl:attribute name="in">
+                <xsl:value-of select="concat('data/resource_docs/', $resdoc_name, '/resource.xml')"/>
+            </xsl:attribute>
+            <xsl:attribute name="out">
+                <xsl:value-of select="concat($resdoc_dir, $resdoc_number,'_readme.txt')"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+                <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_readme.xsl'"/>
+            </xsl:attribute>
+            <xsl:attribute name="destdir">
+                <xsl:value-of select="$resdoc_dir"/>
+            </xsl:attribute>
+        </xsl:element> 
+        
+        <!-- make sure that the CR/LF are windows for the readme -->
+        <xsl:element name="fixcrlf">
+            <xsl:attribute name="srcdir">
+                <xsl:value-of select="$resdoc_dir"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+                <xsl:value-of select="concat($resdoc_number,'_readme.txt')"/>
+            </xsl:attribute>
+            <xsl:attribute name="eol">
+                <xsl:value-of select="'crlf'"/>
+            </xsl:attribute>
+        </xsl:element> 
+        
+        <!-- the frontpage redirected to resource cover page -->
+        <!--<xsl:element name="xslt">
+            <xsl:attribute name="in">
+                <xsl:value-of select="concat('data/resource_docs/',@name,'/resource.xml')"/>
+            </xsl:attribute>
+            <xsl:attribute name="out">
+                <xsl:value-of select="concat($resdoc_dir,$resdoc_number,'.htm')"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+                <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_frontpage.xsl'"/>
+            </xsl:attribute>
+            <xsl:attribute name="destdir">
+                <xsl:value-of select="$resdoc_dir"/>
+            </xsl:attribute>
+            <param name="output_type" expression="HTM"/>
+        </xsl:element>-->
+        
+        <xsl:element name="move">
+            <xsl:attribute name="file">
+                <xsl:value-of
+                    select="concat($resdoc_dir, 'data/resource_docs/',@name,'/sys/abstract.htm')"/>
+            </xsl:attribute>
+            <xsl:attribute name="tofile">
+                <xsl:value-of
+                    select="concat($resdoc_dir,'abstracts/abstract_',$resdoc_number,'.htm')"/>
+            </xsl:attribute>
+        </xsl:element> 
+        
+        
+        
+       
+        
     </xsl:template>
     
     <!-- generate the publication record for the resource -->
@@ -3715,6 +3778,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     </xsl:template>
     
     <xsl:template match="resource_doc" mode="pub_record_style">
+        
+        
         <xsl:variable name="resdoc_file"
             select="concat('../../data/resource_docs/', @name, '/resource.xml')"/>
         <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>

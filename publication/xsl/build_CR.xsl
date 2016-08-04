@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.23 2016/08/03 01:07:21 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.24 2016/08/03 16:32:19 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -1601,13 +1601,13 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             </xsl:choose>
             <xsl:choose>
                 <xsl:when test="./resources">
-                    <xsl:value-of select="'isoresources, '"/>
+                    <xsl:value-of select="'isoresources, publish_isoresources, '"/>
                 </xsl:when>
 
             </xsl:choose>
             <xsl:choose>
                 <xsl:when test="./business_object_models">
-                    <xsl:value-of select="'isobomdocs, '"/>
+                    <xsl:value-of select="'isobomdocs, publish_isobomdocs, '"/>
                 </xsl:when>
             </xsl:choose>
         </xsl:variable>
@@ -3297,37 +3297,39 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isomodules</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isomodules</xsl:attribute>
-            <xsl:attribute name="description">Copy HTML for all modules listed in publication_index to
-                publication directory</xsl:attribute>
+            <xsl:attribute name="description">Copy HTML for all modules listed in publication_index to publication directory</xsl:attribute>
             <xsl:apply-templates select="//module" mode="target_publish_isomodules"/>
         </xsl:element>
         
         <xsl:element name="target">
             <xsl:attribute name="name">publish_isoresdocs</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isoresdocs</xsl:attribute>
-            <xsl:attribute name="description">Copy HTML for all resource documents listed in publication_index to
-                publication directory</xsl:attribute>
-            <xsl:apply-templates select="//resource_docs" mode="target_publish_isoresdocs"/>
+            <xsl:attribute name="description">Copy HTML for all resource documents listed in publication_index to publication directory</xsl:attribute>
+            <xsl:apply-templates select="//resource_doc" mode="target_publish_isoresdocs"/>
         </xsl:element>
         
-        <!--<xsl:element name="target">
-            <xsl:attribute name="name">target_publish_isobomdocs</xsl:attribute>
+        <xsl:element name="target">
+            <xsl:attribute name="name">publish_isoresources</xsl:attribute>
+            <xsl:attribute name="depends">isoindex, isoresources</xsl:attribute>
+            <xsl:attribute name="description">Copy HTML for all resources listed in publication_index to publication directory</xsl:attribute>
+            <xsl:apply-templates select="//resource" mode="target_publish_isoresources"/>
+        </xsl:element>
+        
+        <xsl:element name="target">
+            <xsl:attribute name="name">publish_isobomdocs</xsl:attribute>
             <xsl:attribute name="depends">isoindex, isobomdocs</xsl:attribute>
-            <xsl:attribute name="description">Copy HTML for all business object model documents listed in publication_index to
-                publication directory</xsl:attribute>
-            <xsl:apply-templates select="//resource_docs" mode="target_publish_isobomdocs"/>
-        </xsl:element>-->
+            <xsl:attribute name="description">Copy HTML for all business object models listed in publication_index to publication directory</xsl:attribute>
+            <xsl:apply-templates select="//bom_doc" mode="target_publish_isobomdocs"/>
+        </xsl:element>
         
     </xsl:template>
 
     <xsl:template match="module" mode="target_publish_isomodules">
-        <xsl:variable name="module_file"
-            select="concat('../../data/modules/', @name, '/module.xml')"/>
-        <xsl:variable name="module_xml" select="document($module_file)"/>
+        <xsl:variable name="module_name"/>
         <xsl:text>
 	    </xsl:text>
-        <xsl:comment> Publish module: <xsl:value-of select="@name"/></xsl:comment>
-        <!-- generate the publication record -->
+        <xsl:comment> Publish module: <xsl:value-of select="$module_name"/></xsl:comment>
+        <!-- generate the publication record for modules -->
         <xsl:apply-templates select="." mode="pub_record_style"/>
     </xsl:template>
     
@@ -3588,19 +3590,20 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     
     <!-- generate the publication record for the resource doc-->
     <xsl:template match="resource_doc" mode="target_publish_isoresdocs">
-        <xsl:variable name="resdoc_number" select="./@number"/>
-        <xsl:variable name="resdoc_name" select="./@number"/>
-        <xsl:variable name="resdoc_file" select="concat('../../data/resource_docs/', $resdoc_name, '/resource.xml')"/>
-        <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
-        <xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/', 'iso10303_', $resdoc_number,'/')"/>
-        <xsl:variable name="resdoc_express_dir" select="concat($resdoc_dir,'inserts','/')"/>
-        <xsl:variable name="res_doc_images_dir" select="concat('${PUBDIR}/iso10303_', $resdoc_number, '/images')"/>
+        <xsl:variable name="resdoc_name" select="./@name"/>
         <xsl:text>
 	    </xsl:text>
-        <xsl:comment>Publish resource doc: <xsl:value-of select="@name"/></xsl:comment>
-                        
+        <xsl:comment>Publish resource doc: <xsl:value-of select="$resdoc_name"/></xsl:comment>              
         <xsl:apply-templates select="." mode="pub_record_style"/>
-        
+    </xsl:template>
+    
+    <!-- generate the publication record for the resource -->
+    <xsl:template match="resource" mode="target_publish_isoresources">
+        <xsl:variable name="resource_name" select="./@name"/>
+        <xsl:text>
+	    </xsl:text>
+        <xsl:comment>Publish resource: <xsl:value-of select="$resource_name"/></xsl:comment>              
+        <xsl:apply-templates select="." mode="pub_record_style"/>
     </xsl:template>
     
     <xsl:template match="resource_doc" mode="pub_record_style">
@@ -3701,6 +3704,198 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                 <xsl:attribute name="name">CVS_dir_xslresdoc_entry</xsl:attribute>
                 <xsl:attribute name="expression">
                     <xsl:value-of select="concat('${', $CVS_dir_xslresdoc_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">
+                    <xsl:value-of select="'CVS_tag'"/>
+                </xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="'${CVS_tag}'"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">
+                    <xsl:value-of select="'PUBLICATION_DATE'"/>
+                </xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="'${PUB_DATE}'"/>
+                </xsl:attribute>
+            </xsl:element>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="bom_doc" mode="target_publish_isobomdocs">
+        <xsl:variable name="bom_name" select="./@name"/>
+        <xsl:text>
+		</xsl:text>
+        <xsl:comment>Publish business object model: <xsl:value-of select="$bom_name"/>
+		</xsl:comment>
+        <!-- generate the publication record for the B doc-->
+        <xsl:apply-templates select="." mode="pub_record_style"/>
+    </xsl:template>
+    
+    <xsl:template match="bom_doc" mode="pub_record_style">
+        <xsl:variable name="bomdoc_file"
+            select="concat('../../data/business_object_models/', @name, '/business_object_model.xml')"/>
+        <xsl:variable name="bomdoc_xml" select="document($bomdoc_file)"/>
+        <xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_dir_dot_entry_', @name)"/>
+        <xsl:variable name="CVS_dir_dvlp_entry" select="concat('CVS_dir_dvlp_entry_', @name)"/>
+        <xsl:variable name="CVS_dir_sys_entry" select="concat('CVS_dir_sys_entry_', @name)"/>
+        <xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_', @name)"/>
+        <xsl:variable name="CVS_dir_xslp28xsd_entry" select="concat('CVS_dir_xslp28xsd_entry_', @name)"/>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_dot_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of select="concat('data/business_object_models/', @name, '/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_dvlp_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of select="concat('data/business_object_models/', @name, '/dvlp/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_sys_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of
+                    select="concat('data/business_object_models/', @name, '/sys/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_xsl_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of select="concat('xsl', '/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_xslp28xsd_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of select="concat('xsl/p28xsd', '/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="xslt">
+            <xsl:attribute name="force">yes</xsl:attribute>
+            <xsl:attribute name="in">
+                <xsl:value-of
+                    select="concat('data/business_object_models/', @name, '/business_object_model.xml')"
+                />
+            </xsl:attribute>
+            <xsl:attribute name="out">
+                <xsl:value-of
+                    select="concat('${P1000DIR}/data/business_object_models/', @name, '/publication_record.xml')"
+                />
+            </xsl:attribute>
+            <xsl:attribute name="style">
+                <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_record.xsl'"/>
+            </xsl:attribute>
+            <xsl:attribute name="destdir">
+                <xsl:value-of select="'${P1000DIR}'"/>
+            </xsl:attribute>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_dot_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${', $CVS_dir_dot_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_dvlp_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${', $CVS_dir_dvlp_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_sys_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${', $CVS_dir_sys_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_xsl_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${', $CVS_dir_xsl_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_xslp28xsd_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${', $CVS_dir_xslp28xsd_entry, '}')"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">
+                    <xsl:value-of select="'CVS_tag'"/>
+                </xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="'${CVS_tag}'"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">
+                    <xsl:value-of select="'PUBLICATION_DATE'"/>
+                </xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="'${PUB_DATE}'"/>
+                </xsl:attribute>
+            </xsl:element>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="resource" mode="pub_record_style">
+        
+        <xsl:variable name="res_name" select="./@name"/>
+        <xsl:variable name="res_number" select="./@number"/>
+        <xsl:variable name="res_file"
+            select="concat('../../data/resources/',$res_name,'/',$res_name,'.xml')"/>
+        <xsl:variable name="res_xml" select="document($res_file)"/>
+        <xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_res_entry_',@name)"/>
+        <xsl:variable name="res_doc_dir" select="concat('${PUBDIR}/iso10303_', $res_number)"/>
+        
+        <xsl:element name="loadfile">
+            <xsl:attribute name="property">
+                <xsl:value-of select="$CVS_dir_dot_entry"/>
+            </xsl:attribute>
+            <xsl:attribute name="srcfile">
+                <xsl:value-of select="concat('data/resources/',$res_name,'/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="xslt">
+            <xsl:attribute name="in">
+                <xsl:value-of select="concat('data/resources/',$res_name,'/',$res_name,'.xml')"/>
+            </xsl:attribute>
+            <xsl:attribute name="out">
+                <xsl:value-of
+                    select="concat($res_doc_dir, '/data/resources/',$res_name,'/publication_record.xml')"
+                />
+            </xsl:attribute>
+            <xsl:attribute name="style">
+                <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_record.xsl'"/>
+            </xsl:attribute>
+            <xsl:attribute name="destdir">
+                <xsl:value-of select="$res_doc_dir"/>
+            </xsl:attribute>
+            <xsl:element name="param">
+                <xsl:attribute name="name">CVS_dir_dot_entry</xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${',$CVS_dir_dot_entry,'}')"/>
                 </xsl:attribute>
             </xsl:element>
             <xsl:element name="param">

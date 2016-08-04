@@ -166,6 +166,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:variable name="file_name" select="substring-before(substring-after($line,'/'),'/')"/>
           <xsl:variable name="revision" select="substring-before(substring-after(substring-after($line,$file_name),'/'),'/')"/>
           <xsl:variable name="date" select="substring-before(substring-after(substring-after($line,$revision),'/'),'/')"/>
+          <xsl:variable name="status" select="'up-to-date'"/><!-- this is just a place-holder; need to write code to access CVS -->
           <xsl:element name="file">
             <xsl:attribute name="name">
               <xsl:value-of select="$file_name"/>              
@@ -176,7 +177,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:attribute name="cvs_date">
               <xsl:value-of select="$date"/>
             </xsl:attribute>
+            <!--<xsl:attribute name="status">
+              <xsl:value-of select="$status"/>
+            </xsl:attribute>-->
           </xsl:element>
+          
         </xsl:if>
         <xsl:call-template name="entries_to_xml">
           <xsl:with-param name="entries" select="$rest"/>

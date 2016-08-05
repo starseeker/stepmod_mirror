@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.41 2014/06/12 18:05:08 mikeward Exp $
+$Id: sect_contents.xsl,v 1.42 2016/08/04 09:27:33 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -555,7 +555,7 @@ $Id: sect_contents.xsl,v 1.41 2014/06/12 18:05:08 mikeward Exp $
     <br/> 
 
    &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
-           <xsl:value-of select="concat(string($clause_no),'.1 Introduction')"/>
+           <xsl:value-of select="concat(string($clause_no),'.1 General')"/><!-- MWD changed from "Introduction" to "General" 2016-08-05 -->
            </A><BR/>
 
            <!-- fundamental concepts - seems to always be there -->

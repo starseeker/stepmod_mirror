@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--  $Id: build_CR.xsl,v 1.28 2016/08/04 14:57:57 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.29 2016/08/04 16:21:26 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -60,6 +60,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             <xsl:attribute name="name">checkcvstag</xsl:attribute>
             <xsl:attribute name="description">check CVS tag</xsl:attribute>
             <xsl:variable name="CVS_tag" select="@name"/>
+            
             <input message="Have you tagged the CVS repository (y/n)? The Tag to use is {$CVS_tag}"
                 addproperty="do.continue"/>
             <condition property="do.abort">
@@ -1774,6 +1775,14 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                     <xsl:value-of select="'${DSTAMP}'"/>
                 </xsl:attribute>
             </xsl:element>
+            
+            <xsl:element name="property">
+                <xsl:attribute name="name">ISOMENU</xsl:attribute>
+                <xsl:attribute name="value">
+                    <xsl:value-of
+                        select="concat('./publication/part1000/', @name, '/menubar_iso.xml')"/>
+                </xsl:attribute>
+            </xsl:element>            
 
             <xsl:element name="property">
                 <xsl:attribute name="name">PUBSRCDIR</xsl:attribute>
@@ -3453,6 +3462,10 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_', @name)"/>
         <xsl:variable name="CVS_dir_xslp28xsd_entry"
             select="concat('CVS_dir_xslp28xsd_entry_', @name)"/>
+        
+        <xsl:variable name="CVS_status" select="concat('up-to-date_', @name)"/>
+        
+       
 
         <xsl:element name="loadfile">
             <xsl:attribute name="property">
@@ -3496,6 +3509,13 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             </xsl:attribute>
             <xsl:attribute name="srcfile">
                 <xsl:value-of select="concat('xsl/p28xsd', '/CVS/Entries')"/>
+            </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="property">
+            <xsl:attribute name="name"><xsl:value-of select="concat('CVS_status_', @name)"/></xsl:attribute>
+            <xsl:attribute name="value">
+                <xsl:value-of select="$CVS_status"/>
             </xsl:attribute>
         </xsl:element>
 
@@ -3558,6 +3578,14 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                 </xsl:attribute>
                 <xsl:attribute name="expression">
                     <xsl:value-of select="'${PUB_DATE}'"/>
+                </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="param">
+                <xsl:attribute name="name">
+                    <xsl:value-of select="'CVS_status'"/>
+                </xsl:attribute>
+                <xsl:attribute name="expression">
+                    <xsl:value-of select="concat('${CVS_status_', @name, '}')"/>
                 </xsl:attribute>
             </xsl:element>
         </xsl:element>

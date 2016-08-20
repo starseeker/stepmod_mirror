@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
+$Id: descriptions.xsl,v 1.4 2002/06/20 13:05:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: To display the ARM or MIM external descriptions file.
@@ -48,6 +48,7 @@ $Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
   <xsl:template match="ext_description">
     <xsl:variable name="arm_mim"
       select="substring-before(/ext_descriptions/@schema_file,'.xml')"/>
+    
     <xsl:variable name="baselink">
       <xsl:value-of select="concat(/ext_descriptions/@module_directory,':',$arm_mim,':')"/>
     </xsl:variable>
@@ -55,13 +56,14 @@ $Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
 
     <hr/>
     <i>Reference: </i>
+    
     <xsl:variable name="href">
       <xsl:call-template name="get_href_from_express_ref">
         <xsl:with-param name="linkend" select="concat($baselink,@linkend)"/>
         <xsl:with-param name="baselink" select="'../../'"/>
       </xsl:call-template>
     </xsl:variable>
-
+    
     <xsl:call-template name="check_valid_linkend">
       <xsl:with-param name="linkend" select="@linkend"/>
     </xsl:call-template>
@@ -80,6 +82,7 @@ $Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
                     ' is incorrectly specified')"/>
         </xsl:call-template>
         <xsl:apply-templates/>
+        
       </xsl:when>
       <xsl:otherwise>
         <a href="{$href}">

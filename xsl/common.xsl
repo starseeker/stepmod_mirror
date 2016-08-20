@@ -1,149 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-
-$Id: common.xsl,v 1.191 2015/06/08 17:14:20 mikeward Exp $
-
+$Id: common.xsl,v 1.192 2015/08/12 11:36:36 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
-
   Owner:   Developed by Eurostep and supplied to NIST under contract.
-
-  Purpose:
-
-     Templates that are common to most other stylesheets
-
+  Purpose: Templates that are common to most other stylesheets
 -->
 
 <xsl:stylesheet 
-
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-
   xmlns:exslt="http://exslt.org/common"
-
   exclude-result-prefixes="msxsl exslt"
-
   version="1.0">
 
 
 
   <!--
-
        Template to determine whether the output is XML or HTML
-
        Sets variable global FILE_EXT
-
-       -->
+  -->
 
   <xsl:import href="file_ext.xsl"/>
 
-
-
   <!-- parameters that control the output -->
-
   <xsl:import href="parameters.xsl"/>
-
-
 
   <xsl:output method="html"/>
 
-
-
 <!--
-
      Output a cascading stylesheet. The stylesheet is specified in the
-
      global parameter: output_css in parameter.xsl, so to prevent a
-
      cascading stylesheet being used set output_css to ''
-
      To override this and force a cascading stylesheet set
-
      overide_css
-
      -->
 
 <xsl:template name="output_css">
-
   <xsl:param name="path"/>
-
   <xsl:param name="override_css"/>
-
   <xsl:choose>
-
     <xsl:when test="$override_css">
-
       <xsl:variable name="hpath"
-
       select="concat($path,$override_css)"/>
-
       <link
-
         rel="stylesheet"
-
         type="text/css"
-
         href="{$hpath}"/>
-
     </xsl:when>
-
     <xsl:when test="$output_css">
-
       <xsl:variable name="hpath"
-
         select="concat($path,$output_css)"/>
-
       <linkg
-
         rel="stylesheet"
-
         type="text/css"
-
         href="{$hpath}"/>
-
     </xsl:when>
-
   </xsl:choose>
-
 </xsl:template>
 
-
-
-
-
 <!--
-
      Output an HTML meta element for inclusion in the header of the HTML file
-
 -->
 
 <xsl:template name="meta-elements">
-
   <xsl:param name="name" />
-
   <xsl:param name="content" />
-
-
-
   <xsl:element name="META">
-
     <xsl:attribute name="name">
-
       <xsl:value-of select="$name"/>
-
     </xsl:attribute>
-
     <xsl:attribute name="content">
-
       <xsl:value-of select="$content"/>
-
     </xsl:attribute>
-
   </xsl:element>
-
 </xsl:template>
 
 
@@ -3821,255 +3752,131 @@ width="20" height="20"/>
 
 
    <xsl:template name="get_href_from_express_ref">
-
      <xsl:param name="linkend"/>
-
      <!-- the relative path to be added to the url -->
-
      <xsl:param name="baselink" select="'../../../'"/>
-
-    <!-- remove all whitespace -->
-
-    <xsl:variable
-
-      name="nlinkend"
-
-      select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-
-
-
-    <xsl:variable name="module">
-
-      <xsl:call-template name="module_name">
-
-        <xsl:with-param name="module" select="substring-before($nlinkend,':')"/>
-
-      </xsl:call-template>
-
-    </xsl:variable>
-
      
-
-     <!-- BOM -->
-
-     <xsl:variable name="model">
-
-       <xsl:call-template name="model_name2">
-
-         <xsl:with-param name="model_param" select="substring-before($nlinkend,':')"/>
-
-       </xsl:call-template>
-
-     </xsl:variable>
-
-
-
-
-
+    <!-- remove all whitespace -->
     <xsl:variable
-
-      name="nlinkend1"
-
-      select="substring-before(substring-after($nlinkend,':'),':')"/>
-
-
-
-    <xsl:variable name="arm_mim_ir">
-
-      <xsl:choose>
-
-        <xsl:when test="$nlinkend1='arm'
-
-                        or $nlinkend1='arm_lf_express'
-
-                        or $nlinkend1='arm_express'
-
-                        or $nlinkend1='mim'
-
-                        or $nlinkend1='mim_lf_express'
-
-                        or $nlinkend1='mim_express'
-
-                        or $nlinkend1='ir_express'
-
-						            or $nlinkend1='ir'
-
-						            or $nlinkend1='bom'"><!-- BOM -->
-
-          <xsl:value-of select="$nlinkend1"/>
-
-        </xsl:when>
-
-        <xsl:otherwise>
-
-          <!-- error found, do nothing until href variable is set -->
-
-          <xsl:value-of select="''"/>
-
-        </xsl:otherwise>
-
-      </xsl:choose>
-
+      name="nlinkend"
+      select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+     
+    <xsl:variable name="module">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="substring-before($nlinkend,':')"/>
+      </xsl:call-template>
     </xsl:variable>
 
-
+    <!-- BOM -->
+    <xsl:variable name="model">
+       <xsl:call-template name="model_name2">
+         <xsl:with-param name="model_param" select="substring-before($nlinkend,':')"/>
+       </xsl:call-template>
+    </xsl:variable>
 
     <xsl:variable
+      name="nlinkend1"
+      select="substring-before(substring-after($nlinkend,':'),':')"/>
+     
+     <!--<xsl:variable name="stringLengthOfNlinkend" select="$nlinkend1"/>
+     <xsl:variable name="stringLengthOfNlinkendMinus_schema" select="stringLengthOfNlinkend - 6"/>
+     <xsl:variable name="_schema_suffix" select="substring($nlinkend1, $stringLengthOfNlinkend)"/>
+-->
+    <xsl:variable name="arm_mim_ir">
+      <xsl:choose>
+        <xsl:when test="$nlinkend1='arm'
+                        or $nlinkend1='arm_lf_express'
+                        or $nlinkend1='arm_express'
+                        or $nlinkend1='mim'
+                        or $nlinkend1='mim_lf_express'
+                        or $nlinkend1='mim_express'
+                        or $nlinkend1='ir_express'
+						            or $nlinkend1='ir'
+						            or $nlinkend1='bom'
+						            or starts-with($nlinkend1,'aic')
+						            or contains($nlinkend1,'_schema')
+					">
+          <!--
+          or $_schema_suffix='_schema'
+          or contains($nlinkend1,'_schema'
+          -->
+          <xsl:value-of select="$nlinkend1"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- error found, do nothing until href variable is set -->
+          <xsl:value-of select="''"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
-      name="express_ref"
-
-      select="translate(substring-after(substring-after($nlinkend,':'),':'),
-
-              'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
-
-
+    <xsl:variable name="express_ref" select="translate(substring-after(substring-after($nlinkend,':'),':'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
     <xsl:variable name="href">
-
       <xsl:choose>
-
         <xsl:when test="$module='' or $arm_mim_ir=''">
-
+          
           <!--
-
                error do nothing as the error will be picked up after the
-
                href variable is set.
-
                -->
-
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='ir_express'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'resources/',$module,'/',
-
-                    $module,$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'resources/',$module,'/', $module,$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='ir'">
-
           <!-- get the name and position of the resource_part containing the schema. -->
-
-          <xsl:variable
-
-            name="schema"
-
-            select="substring-before($express_ref,'.')"/>
-
-          
-
+          <xsl:variable name="schema" select="substring-before($express_ref,'.')"/>
           <xsl:variable name="resdoc_xml" select="document(concat('../data/resource_docs/',$module,'/resource.xml'))"/>
-
-          
-
           <xsl:variable name="temp" >
-
             <xsl:for-each select="$resdoc_xml/resource//schema">
-
               <xsl:if test="@name=$schema">
-
-                <xsl:value-of select="concat($baselink,'resource_docs/',$module,
-
-                                      '/sys/', position()+3,'_schema',$FILE_EXT,'#',$express_ref)"/>
-
+                <xsl:value-of select="concat($baselink,'resource_docs/',$module, '/sys/', position()+3,'_schema',$FILE_EXT,'#',$express_ref)"/>
               </xsl:if>
-
             </xsl:for-each>
-
           </xsl:variable>
-
           <xsl:value-of select="$temp"/>
-
         </xsl:when>
 
-
-
         <xsl:when test="$arm_mim_ir='arm'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'modules/',$module, '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <!-- BOM -->
-
         <xsl:when test="$arm_mim_ir='bom'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'business_object_models/',$model,
-
-            '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'business_object_models/',$model, '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
-
-
 
         <xsl:when test="$arm_mim_ir='arm_express'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/arm',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'modules/',$module, '/arm',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
-
-
 
         <xsl:when test="$arm_mim_ir='mim'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'modules/',$module, '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
-        
-
-        
-
         <xsl:when test="$arm_mim_ir='mim_express'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/mim',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'modules/',$module, '/mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='mim_lf_express'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/sys/e_exp_mim_lf',$FILE_EXT,'#',$express_ref)"/>
-
+          <xsl:value-of select="concat($baselink,'modules/',$module, '/sys/e_exp_mim_lf',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='arm_lf_express'">
-
-          <xsl:value-of
-
-            select="concat($baselink,'modules/',$module,
-
-                    '/sys/e_exp_arm_lf',$FILE_EXT,'#',$express_ref)"/>
-
+           <xsl:value-of select="concat($baselink,'modules/',$module, '/sys/e_exp_arm_lf',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
-
+        
+        <xsl:when test="starts-with($nlinkend1,'aic')">
+          <xsl:value-of select="concat($baselink,'resources/',$module, '/', $module, $FILE_EXT, '#',$express_ref)"/>
+        </xsl:when>
+        
+        <xsl:when test="contains($nlinkend1, '_schema')">
+          <xsl:value-of select="concat($baselink,'resources/',$module, '/', $module, $FILE_EXT, '#',$express_ref)"/>
+        </xsl:when>
+        
       </xsl:choose>
-
     </xsl:variable>
 
     <xsl:value-of select="$href"/>

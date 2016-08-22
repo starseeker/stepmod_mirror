@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.194 2016/08/22 13:48:19 mikeward Exp $
+$Id: common.xsl,v 1.195 2016/08/22 14:00:38 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -2173,6 +2173,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 <!-- added template to display eqn  and bigeqn RJG March 2012 -->
 
 <xsl:template match="eqn" >
+  <xsl:variable name="eqn_id" select="./@id"/>
+  
 
   <font size="+1">
 
@@ -2183,7 +2185,10 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </p>
 
   </font>
-
+  <xsl:if test="string-length($eqn_id > 0)">
+    <a name="{$eqn_id}"/>
+  </xsl:if>
+  
 </xsl:template>
 
 

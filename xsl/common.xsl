@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.193 2016/08/20 08:53:11 mikeward Exp $
+$Id: common.xsl,v 1.194 2016/08/22 13:48:19 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -2099,7 +2099,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 <xsl:template match="a">
 
-  <a href="{@href}" target="_blank">
+  <!-- <a href="{@href}" target="_blank"> MWD 2016-08-22 -->
+  <a href="{@href}" target="_self">
   <xsl:variable name="link_name">
     <xsl:apply-templates/>
   </xsl:variable>

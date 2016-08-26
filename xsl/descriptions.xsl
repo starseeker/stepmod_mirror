@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: descriptions.xsl,v 1.4 2002/06/20 13:05:53 robbod Exp $
+$Id: descriptions.xsl,v 1.5 2016/08/20 08:53:12 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: To display the ARM or MIM external descriptions file.
@@ -44,7 +44,8 @@ $Id: descriptions.xsl,v 1.4 2002/06/20 13:05:53 robbod Exp $
     </h2>
     <xsl:apply-templates/>
   </xsl:template>
-
+  
+  
   <xsl:template match="ext_description">
     <xsl:variable name="arm_mim"
       select="substring-before(/ext_descriptions/@schema_file,'.xml')"/>
@@ -102,6 +103,11 @@ $Id: descriptions.xsl,v 1.4 2002/06/20 13:05:53 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <xsl:template match="bold">
+    <b><xsl:apply-templates/></b>
+  </xsl:template>
+  
       
   <!-- overwrite express_ref defined in common.xsl
        calls get_href_from_express_ref with a baselink

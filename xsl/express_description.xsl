@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.51 2014/07/04 20:06:56 mikeward Exp $
+$Id: express_description.xsl,v 1.52 2015/08/03 09:21:19 mikeward Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -612,6 +612,10 @@ $Id: express_description.xsl,v 1.51 2014/07/04 20:06:56 mikeward Exp $
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+  
+  <xsl:template match="bold">
+    <b><xsl:apply-templates/></b>
+  </xsl:template>
 
 
 <xsl:template match="p" mode="first_paragraph_attribute">

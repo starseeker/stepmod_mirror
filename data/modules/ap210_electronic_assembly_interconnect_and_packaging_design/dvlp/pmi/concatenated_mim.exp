@@ -355,16 +355,18 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.116 2014/02/13 15:22:40 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N8340 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG3 N7790
+   $Id: mim.exp,v 1.119 2015/09/07 11:24:52 kevletu Exp $
+   ISO TC184/SC4/WG12 N8586 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG3 N8340
 *)
 
 
 SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim;
 
+
 	USE FROM Ap242_managed_model_based_3d_engineering_mim; 	-- ISO/TS 10303-442
 
+    USE FROM Analytical_model_mim; -- ISO/TS 10303-1603
 	USE FROM Assembly_2d_shape_mim;	-- ISO/TS 10303-1632
 	USE FROM Assembly_3d_shape_mim;	-- ISO/TS 10303-1633
 	USE FROM Assembly_module_with_cable_component_2d_mim;	-- ISO/TS 10303-1638
@@ -644,18 +646,6 @@ TYPE ap210_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
 	vector);
 END_TYPE;
 
-TYPE ap210_presented_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON presented_item_select WITH
-    (action,
-    action_method,
-    action_relationship,
-    product_concept,
-    product_concept_feature,
-    product_concept_feature_category,
-    product_definition,
-    product_definition_formation,
-    product_definition_relationship);
-END_TYPE;
-
 FUNCTION valid_2d_wireframe_edge_curve
   (crv   : curve; schma : STRING) : BOOLEAN;
 
@@ -693,7 +683,7 @@ END_LOCAL;
  RETURN(pd[1].description = 'true');
 END_FUNCTION;
 
-RULE application_protocol_definition_required FOR
+RULE ap210_application_protocol_definition_required FOR
     (application_context);
 WHERE
   WR1:  SIZEOF( QUERY( ac <* application_context |
@@ -833,13 +823,14 @@ END_SCHEMA;
 
 
 (*
-   $Id: mim.exp,v 1.38 2013/03/05 14:34:59 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N8323 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N7874
+   $Id: mim.exp,v 1.46 2015/09/07 12:25:19 kevletu Exp $
+   ISO TC184/SC4/WG12 N8591 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N8323
 *)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
 
+USE FROM Wiring_harness_assembly_design_mim;
 USE FROM Mating_structure_mim;
 USE FROM Shape_data_quality_inspection_result_mim; -- ISO/TS 10303-1524
 USE FROM Externally_conditioned_data_quality_inspection_result_mim; -- ISO/TS 10303-1822
@@ -849,10 +840,9 @@ USE FROM Form_feature_in_panel_mim;
 USE FROM Assembly_constraints_mim;
 USE FROM Kinematic_analysis_control_and_result_mim;
 USE FROM Process_plan_mim;
--- geometry model for point clouds
 USE FROM Constructive_solid_geometry_2d_mim; -- ISO/TS 10303-1731
 USE FROM Product_as_individual_assembly_and_test_mim;
-
+USE FROM Scan_data_3d_shape_mim; --ISO/TS 10303-1831
 USE FROM Characterized_representation_mim;
 USE FROM Chemical_substance_mim; -- ISO/TS 10303-1655 
 USE FROM Composite_material_aspects_mim; -- ISO/TS 10303-1768
@@ -891,7 +881,9 @@ USE FROM Tessellated_geometry_mim;  -- ISO/TS 10303-1819
 USE FROM Edge_shape_feature_mim; -- ISO/TS 10303-1673
 USE FROM Point_direction_model_mim;  -- -- ISO/TS 10303-1820
 USE FROM Numerical_interface_mim; -- ISO/TS 10303-1344
-
+USE FROM Zonal_breakdown_mim; -- ISO/TS 10303-1217 
+USE FROM System_breakdown_mim; -- ISO/TS 10303-1214
+USE FROM Physical_breakdown_mim; -- ISO/TS 10303-1215
 
 USE FROM application_context_schema   -- ISO 10303-41
   (application_context,
@@ -944,7 +936,13 @@ REFERENCE FROM representation_schema(founded_item);
        'start_work', 
        'supplied_part_relationship']; 
   END_CONSTANT; 
-  
+
+  TYPE ap242_information_usage_right_item = SELECT BASED_ON ir_usage_item WITH (
+  	product,
+  	product_definition,
+  	product_definition_formation); 
+  END_TYPE;
+
   TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
    (dimensional_size,
     representation);
@@ -1008,7 +1006,7 @@ REFERENCE FROM representation_schema(founded_item);
     property_definition);
   END_TYPE;
   
-  TYPE ap242_change_management_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH 
+  TYPE ap242_change_management_object = SELECT BASED_ON change_management_object WITH 
     (action_items,
      action,
      action_relationship,
@@ -1017,7 +1015,7 @@ REFERENCE FROM representation_schema(founded_item);
      event_occurrence);
   END_TYPE;
 
-  TYPE ap242_change_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH 
+  TYPE ap242_change_relationship_select = SELECT BASED_ON change_relationship_select WITH 
     (product_definition_relationship,
      action_relationship,
      shape_aspect_relationship);
@@ -1393,7 +1391,7 @@ REFERENCE FROM representation_schema(founded_item);
     start_work);
   END_TYPE; 
 
-  TYPE presented_item_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON presented_item_select WITH 
+  TYPE presented_item_select_242 = SELECT BASED_ON presented_item_select WITH 
     (action,
     action_method,
     action_relationship,
@@ -1436,7 +1434,7 @@ REFERENCE FROM representation_schema(founded_item);
 	resource_property);
   END_TYPE; 
 
-TYPE action_items_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH ( 
+TYPE action_items_242 = SELECT BASED_ON action_items WITH ( 
 	executed_action,
 	mechanical_design_geometric_presentation_representation,
 	presentation_area,
@@ -1446,7 +1444,7 @@ TYPE action_items_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items W
 	drawing_revision);
 END_TYPE; 
 
-TYPE classification_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH ( 
+TYPE classification_item_242 = SELECT BASED_ON classification_item WITH ( 
 	feature_definition,
 	general_feature,
 	plus_minus_tolerance,
@@ -1454,7 +1452,7 @@ TYPE classification_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classif
 	resource_property);
 END_TYPE; 
 
-TYPE configured_effectivity_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON configured_effectivity_item WITH ( 
+TYPE configured_effectivity_item_242 = SELECT BASED_ON configured_effectivity_item WITH ( 
 	process_plan,
 	product_process_plan);
 END_TYPE; 
@@ -1666,7 +1664,7 @@ END_RULE; -- subtype_mandatory_shape_representation
  
 END_RULE;
 
-  RULE application_protocol_definition_required FOR 
+  RULE ap242_application_protocol_definition_required FOR 
       (application_context); 
     WHERE 
       WR1:  SIZEOF( QUERY( ac <* application_context | 
@@ -2757,7 +2755,7 @@ USE FROM topology_schema  -- ISO 10303-42
 END_SCHEMA;
 
 (*
-$Id: mim.exp,v 1.20 2012/10/11 05:49:04 liutkuviene Exp $
+$Id: mim.exp,v 1.21 2015/10/21 18:37:40 lothartklein Exp $
 ISO TC184/SC4/WG12 N7829 - ISO/TS 10303-1652 Basic geometry - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N7194
 *) 
@@ -2787,7 +2785,10 @@ USE FROM geometry_schema   -- ISO 10303-42
   surface_of_linear_extrusion,
   surface_of_revolution,
   swept_surface,
-  toroidal_surface); 
+  toroidal_surface,
+  spherical_point,
+  cylindrical_point,
+  polar_point); 
 
 
 END_SCHEMA;  -- Basic_geometry_mim
@@ -3676,7 +3677,7 @@ SCHEMA Connectivity_allocation_to_physical_network_mim;
 END_SCHEMA;
 
 (*
-$Id: mim.exp,v 1.25 2015/09/24 09:59:49 kevletu Exp $
+$Id: mim.exp,v 1.26 2016/04/18 09:49:31 kevletu Exp $
 ISO TC184/SC4/WG12 N9165 - ISO/TS 10303-1131 Construction geometry - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N7772
 *) 
@@ -5823,7 +5824,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-$Id: mim.exp,v 1.31 2015/09/24 09:59:50 kevletu Exp $
+$Id: mim.exp,v 1.32 2016/04/18 09:49:31 kevletu Exp $
 ISO TC184/SC4/WG12 N9157 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N8006
 *)
@@ -13998,7 +13999,7 @@ SCHEMA Product_data_quality_criteria_mim;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.6 2015/08/20 07:37:25 fumikitanaka Exp $
+   $Id: mim.exp,v 1.7 2016/04/18 09:49:31 kevletu Exp $
    ISO TC184/SC4/WG12 N9176 - ISO/TS 10303-1520 Product data quality definition - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7176
 *)
@@ -14933,6 +14934,15 @@ USE FROM Requirement_view_definition_mim;    -- ISO/TS 10303-1141
 
 END_SCHEMA;  -- Requirement_view_definition_relationship_mim
 
+(*
+   $Id: mim.exp,v 1.4 2016/04/18 09:49:31 kevletu Exp $
+   ISO TC184/SC4/WG12 N9202 - ISO/TS 10303-1831 Scan_data_3d_shape
+*)
+SCHEMA Scan_data_3d_shape_mim;
+  USE FROM scan_data_3d_shape_model_schema;
+  USE FROM elemental_geometric_shape_mim;
+  REFERENCE FROM representation_schema(using_representations);
+END_SCHEMA;
 (*
  $Id: mim.exp,v 1.9 2004/10/22 15:22:41 darla Exp $
  ISO TC184/SC4/WG12 N1097 - ISO/TS 10303-1015 Security classification - EXPRESS MIM
@@ -16118,6 +16128,27 @@ USE FROM topology_schema  -- ISO 10303-42
     
 END_SCHEMA;
 (*
+ $Id: mim.exp,v 1.10 2004/11/19 21:37:41 robbod Exp $
+ ISO TC184/SC4/WG12 N3179 - ISO/TS 10303-1214 System breakdown - EXPRESS MIM
+ Supersedes ISO TC184/SC4/WG12 N2301
+*) 
+
+
+SCHEMA System_breakdown_mim;
+
+USE FROM Product_breakdown_mim;    -- ISO/TS 10303-1248
+
+
+ENTITY system_breakdown_context
+  SUBTYPE OF (breakdown_context);
+END_ENTITY;
+
+ENTITY system_element_usage
+  SUBTYPE OF (breakdown_element_usage);
+END_ENTITY;
+
+END_SCHEMA;  -- System_breakdown_mim
+(*
    $Id: mim.exp,v 1.26 2008/09/13 12:26:51 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5522 - ISO/TS 10303-1366 Tagged text representation - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N5010
@@ -16171,7 +16202,7 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: mim.exp,v 1.11 2015/09/30 16:53:06 lothartklein Exp $
+   $Id: mim.exp,v 1.12 2016/04/18 09:49:31 kevletu Exp $
    ISO TC184/SC4/WG12 N9195 - ISO/CD-TS 10303-1819 Tessellated geometry - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7667
  *)
@@ -16587,6 +16618,47 @@ SUBTYPE OF (action_request_assignment);
 END_ENTITY;
 
 END_SCHEMA;
+(*
+ $Id: mim.exp,v 1.11 2004/11/29 14:08:47 mikeward Exp $
+ ISO TC184/SC4/WG12 N3200 - ISO/TS 10303-1217 Zonal breakdown - EXPRESS MIM
+ Supersedes ISO TC184/SC4/WG12 N2304
+*) 
+
+
+SCHEMA Zonal_breakdown_mim;
+
+USE FROM Group_mim;    -- ISO/TS 10303-1113
+
+USE FROM group_schema   -- ISO 10303-41
+  (group); 
+
+USE FROM Product_breakdown_mim;    -- ISO/TS 10303-1248
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product_definition); 
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
+
+
+TYPE in_zone_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+   (product_definition);
+END_TYPE; 
+
+ENTITY in_zone
+  SUBTYPE OF (group);
+END_ENTITY;
+
+ENTITY zone_breakdown_context
+  SUBTYPE OF (breakdown_context);
+END_ENTITY;
+
+ENTITY zone_element_usage
+  SUBTYPE OF (breakdown_element_usage);
+END_ENTITY;
+
+END_SCHEMA;  -- Zonal_breakdown_mim
+
+
 (*
 $Id: action_schema.exp,v 1.20 2014/03/04 00:30:24 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N8369
@@ -32491,8 +32563,8 @@ END_FUNCTION;
 
 END_SCHEMA; -- finite_element_analysis_control_and_result_schema
 (* 
-$Id: geometric_model_schema.exp,v 1.16 2015/08/18 06:55:13 kevletu Exp $
-ISO 10303 TC184/SC4/WG12 N9202 (3 schemas)
+$Id: geometric_model_schema.exp,v 1.19 2016/08/18 12:23:26 kevletu Exp $
+ISO 10303 TC184/SC4/WG12 N9204 (3 schemas)
 
 EXPRESS Source:
 ISO 10303-42 ed5 Geometric and topological representation - Geometric model schema
@@ -33352,9 +33424,9 @@ END_SCHEMA;  -- geometric_model_schema
 
 
 (*
-   $Id: geometry_schema.exp,v 1.23 2015/10/21 15:51:25 lothartklein Exp $ *)
+   $Id: geometry_schema.exp,v 1.24 2016/04/18 08:42:58 kevletu Exp $ *)
 (* Geometry schema from STEPMOD with proposed isogeometry additions and changes - these are annotated with isogeometry comment
-Part of Part 42 Edition 5 EXPRESS WG12 N9202
+Part of Part 42 Edition 5 EXPRESS WG12 N9204
 
 EXPRESS Source:
 ISO 10303-42 ed5 Geometric and topological representation - Geometry schema
@@ -53995,8 +54067,8 @@ END_ENTITY;
 END_SCHEMA;  -- qualified_measure_schema
 
 (*
-$Id: representation_schema.exp,v 1.15 2015/12/01 11:14:38 kevletu Exp $
-ISO 10303 TC184/SC4/WG12 N9204
+$Id: representation_schema.exp,v 1.11 2014/03/04 00:30:40 thomasrthurman Exp $
+ISO 10303 TC184/SC4/WG12 N6135
 
 EXPRESS Source:
 ISO 10303-43 ed3 Representation structures - Representation schema
@@ -54024,7 +54096,7 @@ ISO 10303-43 ed3 Representation structures - Representation schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA representation_schema '{iso standard 10303 part(43) version(6) object(1) representation_schema(1)}';
+SCHEMA representation_schema '{iso standard 10303 part(43) version(2) object(1) representation_schema(1)}';
 
 REFERENCE FROM basic_attribute_schema
   (description_attribute,
@@ -54047,7 +54119,6 @@ REFERENCE FROM support_resource_schema
   TYPE rs_description_attribute_select = SELECT BASED_ON description_attribute_select WITH (
     representation);
   END_TYPE;
-  
   TYPE rs_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
     representation);
   END_TYPE;
@@ -54068,19 +54139,9 @@ REFERENCE FROM support_resource_schema
   TYPE set_representation_item = SET [1:?] OF representation_item;
   END_TYPE;
 
-  TYPE list_item_defined_transformation = 
-    LIST[2:?] OF item_defined_transformation;
-  END_TYPE; 
-
-  TYPE set_item_defined_transformation = 
-    SET[2:?] OF item_defined_transformation;
-  END_TYPE; 
-  
   TYPE transformation = SELECT
     (item_defined_transformation,
-     functionally_defined_transformation,
-     list_item_defined_transformation,
-     set_item_defined_transformation);
+     functionally_defined_transformation);
   END_TYPE;
 
   ENTITY binary_representation_item 
@@ -54419,8 +54480,8 @@ REFERENCE FROM support_resource_schema
 
 END_SCHEMA;
 (*
-   $Id: scan_data_3d_shape_model_schema,v 1.13 2015/04/01 10:07:06 lothartklein Exp $
-ISO 10303 TC184/SC4/WG12 N9202
+   $Id: scan_data_3d_shape_model_schema.exp,v 1.7 2016/06/02 16:04:20 lothartklein Exp $
+ISO 10303 TC184/SC4/WG12 N9204
 
 EXPRESS Source:
 ISO 10303-42 ed5 Geometric and topological representation - Scan data 3d shape model schema
@@ -54451,8 +54512,8 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 SCHEMA scan_data_3d_shape_model_schema;
 REFERENCE FROM measure_schema(global_unit_assigned_context, positive_length_measure); -- ISO 10303-41
 REFERENCE FROM representation_schema(representation, 
-                            representation_item);  -- ISO 10303-43
-REFERENCE FROM product_property_representation_schema(shape_representation); -- ISO 10303-41
+                            representation_item,
+                            using_representations);  -- ISO 10303-43
 REFERENCE FROM product_property_representation_schema(shape_representation); -- ISO 10303-41
 REFERENCE FROM support_resource_schema(label); -- ISO 10303-41
 REFERENCE FROM geometry_schema(axis2_placement_3d,
@@ -62266,8 +62327,8 @@ END_SCHEMA;
 
 
 (*
-   $Id: topology_schema.exp,v 1.13 2015/04/01 10:07:06 lothartklein Exp $
-ISO 10303 TC184/SC4/WG12 N9202
+   $Id: topology_schema.exp,v 1.14 2016/04/18 08:42:58 kevletu Exp $
+ISO 10303 TC184/SC4/WG12 N9204
 
 EXPRESS Source:
 ISO 10303-42 ed5 Geometric and topological representation - Topology schema

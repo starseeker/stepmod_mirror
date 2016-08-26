@@ -225,14 +225,14 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.34 2013/03/05 14:34:59 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N8321 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7873
+   $Id: arm.exp,v 1.47 2015/09/25 09:01:17 lothartklein Exp $
+   ISO TC184/SC4/WG12 N8590 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8321
 *)
 
 SCHEMA Ap242_managed_model_based_3d_engineering_arm;
 
--- USE FROM Assembly_technology_arm; -- now covered by Mating_structure_arm  
+USE FROM Wiring_harness_assembly_design_arm;
 USE FROM Mating_structure_arm;
 USE FROM Shape_data_quality_inspection_result_arm; -- ISO/TS 10303-1524
 USE FROM Externally_conditioned_data_quality_inspection_result_arm; -- ISO/TS 10303-1822
@@ -242,10 +242,9 @@ USE FROM Form_feature_in_panel_arm;
 USE FROM Assembly_constraints_arm;
 USE FROM Kinematic_analysis_control_and_result_arm;
 USE FROM Process_plan_arm;
--- geometry model for point clouds
 USE FROM Constructive_solid_geometry_2d_arm; -- ISO/TS 10303-1731
 USE FROM Product_as_individual_assembly_and_test_arm;
-
+USE FROM Scan_data_3d_shape_arm; --ISO/TS 10303-1831
 USE FROM Characterized_representation_arm;
 USE FROM Chemical_substance_arm; -- ISO/TS 10303-1655 
 USE FROM Composite_material_aspects_arm; -- ISO/TS 10303-1768
@@ -284,13 +283,57 @@ USE FROM Tessellated_geometry_arm;  -- ISO/TS 10303-1819
 USE FROM Edge_shape_feature_arm; -- ISO/TS 10303-1673
 USE FROM Point_direction_model_arm;  -- -- ISO/TS 10303-1820
 USE FROM Numerical_interface_arm; -- ISO/TS 10303-1344
+USE FROM Zonal_breakdown_arm; -- ISO/TS 10303-1217 
+USE FROM System_breakdown_arm; -- ISO/TS 10303-1214
+USE FROM Physical_breakdown_arm; -- ISO/TS 10303-1215
+
+TYPE ap242_draughting_model_item_definition = SELECT BASED_ON draughting_model_item_definition WITH ( 
+  Characterizable_object);
+END_TYPE; 
+
+TYPE ap242_material_item_select = SELECT BASED_ON material_item_select WITH ( 
+  Characterizable_object);
+END_TYPE; 
+
+TYPE ap242_information_usage_right_item = SELECT BASED_ON information_usage_right_item WITH ( 
+  Product_as_individual, 
+  Product_as_individual_view, 
+  Product_as_planned, 
+  Product_as_realized);
+END_TYPE;
+
+TYPE item_identified_representation_usage_definition_242 = SELECT BASED_ON item_identified_representation_usage_definition WITH (
+	Applied_activity_assignment, -- applied_action_assignment,
+	Applied_activity_method_assignment, -- applied_action_method_assignment,
+	Affected_items_assignment, -- applied_action_request_assignment,
+	Approval_assignment, -- applied_approval_assignment,
+	Certification_assignment, -- applied_certification_assignment,
+	Classification_assignment, -- applied_classification_assignment,
+	Contract_assignment, -- applied_contract_assignment,
+	Date_or_date_time_assignment, -- applied_date_and_time_assignment, applied_date_assignment,
+    Document_assignment, -- applied_document_reference, applied_document_usage_constraint_assignment,
+	Effectivity_assignment, -- applied_effectivity_assignment,
+	Event_assignment, -- applied_event_occurrence_assignment,
+    External_item_identification, -- applied_external_identification_assignment,
+    Group, -- applied_group_assignment,
+	Identification_assignment, -- applied_identification_assignment,
+	Ineffectivity_assignment, -- applied_ineffectivity_assignment,
+	Name_assignment, -- applied_name_assignment,
+	Project_assignment, -- applied_organizational_project_assignment,
+	Organization_or_person_in_organization_assignment, -- applied_organization_assignment, aplied_person_and_organization_assignment,
+	Security_classification_assignment, -- applied_security_classification_assignment,
+	Time_interval_assignment, -- applied_time_interval_assignment
+	Applied_information_usage_right, -- applied_usage_right
+	View_definition_relationship, -- product_definition_relationship
+	Assigned_property); -- property_definition
+END_TYPE;
 
 TYPE property_variable_rep_select_242 = SELECT BASED_ON property_variable_rep_select WITH
  (Dimensional_size,
   Property_value_representation);
 END_TYPE;
     
-TYPE general_organizational_data_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+TYPE general_organizational_data_select = SELECT (
   -- final_solution -- -- Complex_product subtype,
   -- Simple_property_association, -- already covered by Property_value_association
   -- would be Product_definition_kinematics, but already covered by supertype, -- Kinematic_simulation_information,
@@ -382,33 +425,29 @@ TYPE organization_or_person_in_organization_item_242 = SELECT BASED_ON organizat
   Alternate_part_relationship);
 END_TYPE; 
 
-TYPE date_or_date_time_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH (
+TYPE date_or_date_time_item_242 = SELECT BASED_ON date_or_date_time_item WITH (
   general_organizational_data_select);
 END_TYPE;
 
-TYPE time_interval_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON time_interval_item WITH (
+TYPE time_interval_item_242 = SELECT BASED_ON time_interval_item WITH (
   Time_interval_effectivity,
   general_organizational_data_select);
 END_TYPE;
 
-TYPE resource_definition_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_definition_select WITH (
+TYPE resource_definition_select_242 = SELECT BASED_ON resource_definition_select WITH (
   Product_as_individual_view,
   Breakdown_element_definition );
 END_TYPE;
 
-TYPE process_operation_input_or_output_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON process_operation_input_or_output_select WITH (
+TYPE process_operation_input_or_output_select_242 = SELECT BASED_ON process_operation_input_or_output_select WITH (
   Mated_part_relationship);
 END_TYPE;
 
-TYPE item_usage_relationship_item_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON item_usage_relationship_item WITH (
+TYPE item_usage_relationship_item_242 = SELECT BASED_ON item_usage_relationship_item WITH (
   Product_occurrence);
 END_TYPE; 
 
-TYPE representation_proxy_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON representation_proxy_select WITH (
-    Document_version);
-END_TYPE;
-
-TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_management_object WITH (
+TYPE change_management_object_242 = SELECT BASED_ON change_management_object WITH (
  Activity,
  Activity_relationship,
  Alternate_product_relationship,
@@ -424,7 +463,7 @@ TYPE change_management_object_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ch
   );
 END_TYPE;
 
-TYPE change_relationship_select_242 = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON change_relationship_select WITH (
+TYPE change_relationship_select_242 = SELECT BASED_ON change_relationship_select WITH (
     Process_plan_relationship,
     shape_element_relationship,
     replaced_usage_relationship,
@@ -444,10 +483,6 @@ END_TYPE;
     Part_version, 
     Part_view_definition, 
     Security_classification);
-  END_TYPE; 
-
-  TYPE appearance_context_242 = SELECT BASED_ON appearance_context WITH 
-    (Visual_appearance);
   END_TYPE; 
 
   TYPE approval_item_242 = SELECT BASED_ON approval_item WITH 
@@ -555,7 +590,6 @@ END_TYPE;
     External_geometric_model, 
     Independent_property, 
     Independent_property_relationship, 
-    Item_shape, 
     Make_from_relationship, 
     Product_version_relationship, 
     Representation, 
@@ -587,17 +621,11 @@ END_TYPE;
       WR1: SIZEOF(QUERY(p <* Person | SIZEOF(USEDIN(p, 'PERSON_ORGANIZATION_ARM' + '.PERSON_IN_ORGANIZATION.CONCERNED_PERSON')) = 0)) = 0;
   END_RULE; 
 
-  RULE shape_requires_product_view FOR 
-      (Item_shape);
-    WHERE
-      WR1: SIZEOF(QUERY(is <* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0;
-  END_RULE; 
-  
   RULE specific_product_occurrence_definition_relationship FOR 
       (Product_occurrence_definition_relationship);
     WHERE
-      WR1: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PART_VIEW_DEFINITION_ARM' + '.PART_VIEW_DEFINITION' IN TYPEOF(occ_rel.relating_view)))) = 0;
-      WR2: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE' IN TYPEOF(occ_rel.related_view)))) = 0;
+      WR1: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(occ_rel.relating_view)))) = 0;
+      WR2: SIZEOF(QUERY(occ_rel <* Product_occurrence_definition_relationship | NOT ('PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' IN TYPEOF(occ_rel.related_view)))) = 0;
   END_RULE; 
   
   SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;
@@ -1851,7 +1879,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-$Id: arm.exp,v 1.25 2012/10/11 05:49:04 liutkuviene Exp $
+$Id: arm.exp,v 1.27 2015/12/11 18:26:15 lothartklein Exp $
 ISO TC184/SC4/WG12 N7828 - ISO/TS 10303-1652 Basic geometry - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7193
 *) 
@@ -1872,9 +1900,7 @@ END_ENTITY;
 
 ENTITY Circle
    SUBTYPE OF (Conic);
-   radius   : length_measure;
-WHERE
-   WR1: radius > 0.0;
+   radius   : positive_length_measure;
 END_ENTITY;
 
 ENTITY Conic
@@ -1886,10 +1912,8 @@ END_ENTITY;
  ENTITY  Conical_surface
    SUBTYPE OF (Surface);
    position : Axis_placement_3d;
-   radius     : length_measure;
+   radius     : positive_length_measure;
    semi_angle : plane_angle_measure;
-WHERE
-   WR1: radius >= 0.0;
 END_ENTITY;
 
 
@@ -1900,19 +1924,14 @@ END_ENTITY;
 
 ENTITY Cylindrical_surface
    SUBTYPE OF (Surface);
-    position : Axis_placement_3d;
-   radius : length_measure;
-WHERE
-   WR1: radius > 0.0;
+   position : Axis_placement_3d;
+   radius : positive_length_measure;
 END_ENTITY;
 
 ENTITY Ellipse
    SUBTYPE OF(Conic);
-   first_semi_axis: length_measure;
-   second_semi_axis: length_measure;
-WHERE
-   WR1: first_semi_axis > 0.0;
-   WR2: first_semi_axis > 0.0;
+   first_semi_axis: positive_length_measure;
+   second_semi_axis: positive_length_measure;
 END_ENTITY;
  
 ENTITY Extruded_surface
@@ -1922,11 +1941,8 @@ END_ENTITY;
 
 ENTITY Hyperbola
    SUBTYPE OF(Conic);
-   semi_axis: length_measure;
-   imaginary_semi_axis: length_measure;
-WHERE
-   WR1: semi_axis > 0.0;
-   WR2: imaginary_semi_axis > 0.0;
+   semi_axis: positive_length_measure;
+   imaginary_semi_axis: positive_length_measure;
 END_ENTITY;
 
 
@@ -1961,9 +1977,7 @@ END_ENTITY;
 ENTITY Spherical_surface
    SUBTYPE OF (Surface);
    position : Axis_placement_3d;
-   radius   : length_measure;
-WHERE
-    WR1: radius > 0.0;
+   radius   : positive_length_measure;
 END_ENTITY;
  
  
@@ -1988,13 +2002,36 @@ END_ENTITY;
 ENTITY Toroidal_surface
    SUBTYPE OF (Surface);
    position : Axis_placement_3d;
-   radius : length_measure;
-   minor_radius : length_measure;
-WHERE
-    WR1: radius > 0.0;
-    WR2: minor_radius > 0.0;
+   radius : positive_length_measure;
+   minor_radius : positive_length_measure;
 END_ENTITY;
- 
+
+ENTITY Cylindrical_point
+    SUBTYPE OF (Cartesian_point);
+    r : positive_length_measure;
+    theta : plane_angle_measure;
+    z : length_measure;
+DERIVE
+    SELF\Cartesian_point.coordinates : LIST [3:3] OF length_measure := [r*cos(theta), r*sin(theta), z];
+END_ENTITY;
+
+ENTITY Spherical_point
+    SUBTYPE OF (Cartesian_point);
+    r : positive_length_measure;
+    theta : plane_angle_measure;
+    phi : plane_angle_measure;
+DERIVE
+    SELF\Cartesian_point.coordinates : LIST [3:3] OF length_measure := [r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)];
+END_ENTITY;
+
+ENTITY Polar_point
+  SUBTYPE OF (Cartesian_point);
+  r : positive_length_measure;
+  theta : plane_angle_measure;
+DERIVE
+  SELF\Cartesian_point.coordinates : LIST[2:2] OF length_measure := [r*cos(theta), r*sin(theta)];
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
   ONEOF (Direction,
          Axis_placement,
@@ -2008,6 +2045,12 @@ SUBTYPE_CONSTRAINT point_subtypes FOR Point;
   ONEOF (Cartesian_point,
          Point_on_curve,
          Point_on_surface);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT cartesian_point_subtypes FOR Cartesian_point;
+  ONEOF (Cylindrical_point,
+         Polar_point,
+         Spherical_point);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Basic_geometry_arm
@@ -3141,7 +3184,7 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.22 2015/09/24 09:59:56 kevletu Exp $
+   $Id: arm.exp,v 1.23 2016/04/18 09:49:31 kevletu Exp $
    ISO TC184/SC4/WG12 N9185 - ISO/TS 10303-1767 Composite constituent shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7780
 *)
@@ -5697,7 +5740,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (* 
-	$Id: arm.exp,v 1.35 2015/09/24 09:59:50 kevletu Exp $
+	$Id: arm.exp,v 1.36 2016/04/18 09:49:31 kevletu Exp $
 	ISO TC184/SC4/WG12 N9156 - ISO/TS 10303-1004 Elemental geometric shape - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N8005
 *)
@@ -5845,7 +5888,7 @@ END_SCHEMA;
 
 
 (*
-$Id: arm.exp,v 1.12 2015/09/24 09:59:51 kevletu Exp $
+$Id: arm.exp,v 1.13 2016/04/18 09:49:30 kevletu Exp $
 ISO TC184/SC4/WG12 N9159 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N8008
 *)
@@ -7953,7 +7996,7 @@ USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.10 2015/09/18 11:28:06 lothartklein Exp $
+ $Id: arm.exp,v 1.11 2016/04/18 09:49:31 kevletu Exp $
  ISO TC184/SC4/WG12 N9187 - ISO/TS 10303-1789 Geometric constraints - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7205
 *)
@@ -8995,7 +9038,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.11 2015/09/18 11:46:24 lothartklein Exp $
+ $Id: arm.exp,v 1.12 2016/04/18 09:49:31 kevletu Exp $
  ISO TC184/SC4/WG12 N9172 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7235
 *)
@@ -13028,7 +13071,7 @@ END_ENTITY;
 END_SCHEMA;   
 
 (*
- $Id: arm.exp,v 1.8 2015/09/24 09:59:57 kevletu Exp $
+ $Id: arm.exp,v 1.9 2016/04/18 09:49:31 kevletu Exp $
  ISO TC184/SC4/WG12 N9189 - ISO/TS 10303-1790 Parameterization and variational representation - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7852
 *)
@@ -14607,7 +14650,7 @@ USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.6 2008/09/13 12:26:54 liutkuviene Exp $
+ $Id: arm.exp,v 1.7 2016/04/18 09:49:31 kevletu Exp $
  ISO TC184/SC4/WG12 N9167 - ISO/TS 10303-1318 Procedural solid model - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4789
 *)
@@ -16992,6 +17035,118 @@ END_ENTITY;
 
 END_SCHEMA;  -- Requirement_view_definition_relationship_arm
 
+(*
+   $Id: arm.exp,v 1.5 2016/06/17 09:35:59 kevletu Exp $
+   ISO TC184/SC4/WG12 N9201 - ISO/CD-TS - 10303- Scan_data_3d_shape - EXPRESS ARM*)
+
+SCHEMA Scan_data_3d_shape_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+REFERENCE FROM Foundation_representation_arm(using_representations);
+
+TYPE point_cloud_set_or_superset = SELECT
+   (Point_cloud_dataset,
+    Point_cloud_superdataset);
+END_TYPE;
+
+
+ENTITY Scan_data_shape_representation
+SUBTYPE OF(Geometric_model);
+  SELF\Representation.items : SET[1:?] OF Scanned_data_item;
+END_ENTITY;
+
+ENTITY Scanned_data_item
+   SUPERTYPE OF (ONEOF(Point_cloud_dataset, Point_cloud_superdataset, Triangulated_point_cloud_dataset,Scan_3d_model))
+   SUBTYPE OF(Detailed_geometric_model_element);
+WHERE
+  WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) | NOT ('SCAN_DATA_3D_SHAPE_ARM.SCAN_DATA_SHAPE_REPRESENTATION' IN TYPEOF(using_rep)))) = 0;
+END_ENTITY;
+
+ENTITY Point_cloud_dataset
+    SUBTYPE OF(Scanned_data_item);
+   point_coordinates : LIST [1: ?] OF LIST[3:3] OF REAL;
+END_ENTITY;
+
+ENTITY Point_cloud_dataset_with_normals
+    SUBTYPE OF(Point_cloud_dataset);
+   normals : LIST [1: ?] OF LIST[3:3] OF REAL;
+ WHERE
+   WR1: SIZEOF(normals) =       SIZEOF(SELF\Point_cloud_dataset.point_coordinates); 
+END_ENTITY;
+
+ENTITY Point_cloud_dataset_with_colours
+    SUBTYPE OF(Point_cloud_dataset);
+   colour_indices : LIST [1: ?] OF LIST[3:3] OF INTEGER;
+ WHERE
+   WR1: SIZEOF(colour_indices) =   SIZEOF(SELF\Point_cloud_dataset.point_coordinates); 
+END_ENTITY;
+
+ENTITY Point_cloud_dataset_with_intensities
+    SUBTYPE OF(Point_cloud_dataset);
+    intensities : LIST [1: ?] OF REAL;
+ WHERE
+   WR1: SIZEOF(intensities) =   SIZEOF(SELF\Point_cloud_dataset.point_coordinates); 
+END_ENTITY;
+
+ENTITY Point_cloud_superdataset
+    SUBTYPE OF(Scanned_data_item);
+    pts_per_sublist : INTEGER; 
+    sublists : LIST [2 : ?] OF Point_cloud_dataset;
+  WHERE
+    WR1 : consistent_sizes_point_clouds(SELF.pts_per_sublist, SELF.sublists);
+END_ENTITY;
+
+ENTITY Triangulated_point_cloud_dataset
+    SUBTYPE OF(Scanned_data_item);
+     points : Point_cloud_set_or_superset;
+    triangles : LIST [1: ?] OF LIST[3:3] OF INTEGER;
+END_ENTITY;
+
+
+ENTITY Scan_3d_model
+SUBTYPE OF(Scanned_data_item);
+  scanner_info : SET [1 : ?] OF Scanner_property;
+  scanned_points : SET [1: ?] OF Scanned_data_item;
+WHERE
+     WR1: SIZEOF(QUERY(tmp <* Scanned_points | 'SCAN_DATA_3D_SHAPE_MODEL_SCHEMA.SCAN_3D_MODEL' IN TYPEOF(tmp))) = 0;
+END_ENTITY; 
+
+ENTITY Scanner_property
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF(Representation_item);
+END_ENTITY;
+
+
+ENTITY Scanner_basic_properties
+   SUBTYPE OF(Scanner_property);
+   scanner_identification: label;
+   scanner_location: Axis_placement_3d;
+   scanner_uncertainty: OPTIONAL length_measure;
+   WHERE
+     WR1: (NOT (EXISTS(scanner_uncertainty))) OR (scanner_uncertainty > 0.0);
+END_ENTITY;   
+
+
+FUNCTION consistent_sizes_point_clouds (max : INTEGER; point_lists : LIST OF Point_cloud_dataset) : BOOLEAN;
+   LOCAL
+     ndatasets : INTEGER := SIZEOF(point_lists);
+     RESULT: BOOLEAN := TRUE;
+     
+       END_LOCAL;
+  REPEAT i := 1 TO (ndatasets - 1);
+     IF (SIZEOF(point_lists[i].point_coordinates) <> max)  THEN
+      result := FALSE;
+      RETURN(result);
+    END_IF; 
+  END_REPEAT;
+   IF (SIZEOF(point_lists[ndatasets].point_coordinates) > max)  THEN
+     result := FALSE;
+     RETURN(result);
+   END_IF;
+  RETURN(result);
+END_FUNCTION;
+
+END_SCHEMA;
 (*
  $Id: arm.exp,v 1.11 2004/11/15 21:22:48 thendrix Exp $
 ISO TC184/SC4/WG12 N3221 - ISO/TS 10303-1015 Security classification - EXPRESS ARM
@@ -20244,7 +20399,7 @@ END_ENTITY;
   
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.14 2015/09/24 09:59:58 kevletu Exp $
+ $Id: arm.exp,v 1.15 2016/04/18 09:49:31 kevletu Exp $
  ISO TC184/SC4/WG12 N9169 - ISO/TS 10303-1319 Solid with local modification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7795
  *)
@@ -21198,7 +21353,7 @@ END_FUNCTION;
 END_SCHEMA;
 (*
  $Id: arm.exp,v 1.35 2013/10/10 19:01:09 thomasrthurman Exp $
- ISO TC184/SC4/WG12 N9163 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
+ ISO TC184/SC4/WG12 N8062 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N7475
 *)
 
@@ -21358,6 +21513,55 @@ USE FROM Topologically_bounded_surface_arm; -- ISO 10303-1511
 END_SCHEMA;
 
 (*
+ $Id: arm.exp,v 1.10 2004/11/19 21:37:41 robbod Exp $
+ ISO TC184/SC4/WG12 N3178 - ISO/TS 10303-1214 System breakdown - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2300
+*) 
+
+
+SCHEMA System_breakdown_arm;
+
+USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
+
+
+ENTITY System_breakdown
+  SUBTYPE OF (Breakdown);
+END_ENTITY;
+
+ENTITY System_breakdown_context
+  SUBTYPE OF (Breakdown_context);
+  SELF\Breakdown_context.breakdown : System_breakdown_version;
+  SELF\Breakdown_context.breakdown_element : System_element_definition;
+END_ENTITY;
+
+ENTITY System_breakdown_version
+  SUBTYPE OF (Breakdown_version);
+  SELF\Breakdown_version.of_product : System_breakdown;
+END_ENTITY;
+
+ENTITY System_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY System_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.defined_version : System_element_version;
+END_ENTITY;
+
+ENTITY System_element_usage
+  SUBTYPE OF (Breakdown_element_usage);
+  SELF\Breakdown_element_usage.parent_element : System_element_definition;
+  SELF\Breakdown_element_usage.child_element : System_element_definition;
+END_ENTITY;
+
+ENTITY System_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : System_element;
+END_ENTITY;
+
+END_SCHEMA;  -- System_breakdown_arm
+
+(*
    $Id: arm.exp,v 1.23 2008/09/13 12:26:51 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5521 - ISO/TS 10303-1366 Tagged text representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5009
@@ -21424,7 +21628,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (* Updated March 2015 with curved triangle additions
-   $Id: arm.exp,v 1.10 2015/09/24 09:59:51 kevletu Exp $
+   $Id: arm.exp,v 1.11 2016/04/18 09:49:31 kevletu Exp $
    ISO TC184/SC4/WG12 N9194 - ISO/CD-TS 10303-1819 Tessellated geometry - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7666
 *)
@@ -21975,7 +22179,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.22 2015/09/10 13:45:30 sophieherail Exp $
+ $Id: arm.exp,v 1.23 2016/04/18 09:49:31 kevletu Exp $
 ISO TC184/SC4/WG12 N9161 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N7843
 *) 
@@ -22432,4 +22636,67 @@ ENTITY Work_request_status;
 END_ENTITY;
 
 END_SCHEMA;  -- Work_request_arm
+
+(*
+ $Id: arm.exp,v 1.10 2004/11/19 21:37:58 robbod Exp $
+ ISO TC184/SC4/WG12 N3199 - ISO/TS 10303-1217 Zonal breakdown - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2303
+*) 
+
+
+SCHEMA Zonal_breakdown_arm;
+
+USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
+
+USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+
+
+TYPE in_zone_item = EXTENSIBLE SELECT
+   (Product_view_definition);
+END_TYPE; 
+
+ENTITY In_zone;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  located_item : in_zone_item;
+  zone : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_breakdown
+  SUBTYPE OF (Breakdown);
+END_ENTITY;
+
+ENTITY Zone_breakdown_context
+  SUBTYPE OF (Breakdown_context);
+  SELF\Breakdown_context.breakdown : Zone_breakdown_version;
+  SELF\Breakdown_context.breakdown_element : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_breakdown_version
+  SUBTYPE OF (Breakdown_version);
+  SELF\Breakdown_version.of_product : Zone_breakdown;
+END_ENTITY;
+
+ENTITY Zone_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY Zone_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.defined_version : Zone_element_version;
+END_ENTITY;
+
+ENTITY Zone_element_usage
+  SUBTYPE OF (Breakdown_element_usage);
+  SELF\Breakdown_element_usage.parent_element : Zone_element_definition;
+  SELF\Breakdown_element_usage.child_element : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Zone_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : Zone_element;
+END_ENTITY;
+
+END_SCHEMA;  -- Zonal_breakdown_arm
 

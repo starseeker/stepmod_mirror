@@ -8,20 +8,13 @@
       <interface kind="use" schema="Part_and_zone_laminate_tables_mim"/>
       <interface kind="use" schema="geometry_schema">
          <interfaced.item name="point"/>
+         <interfaced.item name="direction"/>
       </interface>
       <interface kind="use" schema="representation_schema">
-         <interfaced.item name="item_defined_transformation"/>
          <interfaced.item name="compound_representation_item"/>
-         <interfaced.item name="representation_item_relationship"/>
       </interface>
-      <type name="angle_direction_reference_select">
-         <select selectitems="direction curve point_path"/>
-      </type>
-      <type name="angle_direction_reference_with_a2p3d_select">
-         <select selectitems="angle_direction_reference_select axis2_placement_3d"/>
-      </type>
-      <type name="orientation_basis_select">
-         <select selectitems="axis2_placement_3d min_and_major_ply_orientation_basis"/>
+      <type name="basis_11_direction_member">
+         <select selectitems="cartesian_11 curve_11 cylindrical_11 polar_11 point_array user_defined_11"/>
       </type>
       <type name="point_and_vector_member">
          <select selectitems="point direction"/>
@@ -30,31 +23,36 @@
          <aggregate lower="2" type="LIST" upper="3"/>
          <typename name="point_and_vector_member"/>
       </type>
-      <type name="point_path_members">
+      <type name="point_array_members">
          <aggregate lower="1" type="LIST" upper="?"/>
          <typename name="point_and_vector"/>
       </type>
-      <entity name="angle_direction_reference" supertypes="representation_item_relationship geometric_representation_item">
-         <explicit name="relating_representation_item">
-            <typename name="orientation_basis_select"/>
-            <redeclaration entity-ref="representation_item_relationship"/>
-         </explicit>
-         <explicit name="related_representation_item">
-            <typename name="angle_direction_reference_select"/>
-            <redeclaration entity-ref="representation_item_relationship"/>
-         </explicit>
-         <where expression="((('PLY_ORIENTATION_SPECIFICATION_MIM.POINT_PATH' IN TYPEOF(related_representation_item)) AND&#10;        ('PLY_ORIENTATION_SPECIFICATION_MIM.MIN_AND_MAJOR_PLY_ORIENTATION_BASIS' IN TYPEOF(relating_representation_item))) &#10;        OR&#10;&#9;&#9;(NOT('PLY_ORIENTATION_SPECIFICATION_MIM.POINT_PATH' IN TYPEOF(related_representation_item)) AND&#10;        ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF(relating_representation_item))))" label="WR1"/>
+      <entity name="cartesian_11" supertypes="geometric_representation_item">
+         <where expression="'PLY_ORIENTATION_SPECIFICATION_MIM.AXIS_PLACEMENT_3D' IN TYPEOF(SELF)" label="WR1"/>
       </entity>
-      <entity name="draped_defined_transformation" supertypes="transformation_with_derived_angle"/>
-      <entity name="laid_defined_transformation" supertypes="transformation_with_derived_angle"/>
-      <entity name="min_and_major_ply_orientation_basis" supertypes="representation_item_relationship geometric_representation_item">
-         <explicit name="minor_orientation_basis">
-            <typename name="axis2_placement_3d"/>
-            <redeclaration entity-ref="representation_item_relationship" old_name="relating_representation_item"/>
+      <entity name="curve_11" supertypes="geometric_representation_item">
+         <where expression="('PLY_ORIENTATION_SPECIFICATION_MIM.CURVE' IN TYPEOF(SELF)) OR&#10;         ('PLY_ORIENTATION_SPECIFICATION_MIM.MEASURE_WITH_UNIT' IN TYPEOF(SELF))" label="WR1"/>
+      </entity>
+      <entity name="cylindrical_11" supertypes="geometric_representation_item">
+         <where expression="('PLY_ORIENTATION_SPECIFICATION_MIM.CURVE' IN TYPEOF(SELF))" label="WR1"/>
+      </entity>
+      <entity name="draped_orientation_angle" supertypes="ply_orientation_angle"/>
+      <entity name="laid_orientation_angle" supertypes="ply_orientation_angle"/>
+      <entity name="ply_angle_representation" supertypes="representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="measure_representation_item"/>
+            <redeclaration entity-ref="representation"/>
          </explicit>
-         <explicit name="major_orientation_basis">
-            <typename name="axis2_placement_3d"/>
-            <redeclaration entity-ref="representation_item_relationship" old_name="related_representation_item"/>
+      </entity>
+      <entity name="ply_orientation_angle" supertypes="representation_relationship">
+         <explicit name="rep_1">
+            <typename name="reinforcement_orientation_basis"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="ply_angle_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
          </explicit>
       </entity>
       <entity name="point_and_vector" supertypes="compound_representation_item geometric_representation_item">
@@ -63,56 +61,24 @@
             <redeclaration entity-ref="compound_representation_item"/>
          </explicit>
       </entity>
-      <entity name="point_path" supertypes="compound_representation_item geometric_representation_item">
+      <entity name="point_array" supertypes="compound_representation_item geometric_representation_item">
          <explicit name="item_element">
-            <typename name="point_path_members"/>
+            <typename name="point_array_members"/>
             <redeclaration entity-ref="compound_representation_item"/>
          </explicit>
       </entity>
-      <entity name="transformation_with_derived_angle" super.expression="ONEOF (draped_defined_transformation, laid_defined_transformation)" supertypes="item_defined_transformation">
-         <explicit name="transform_item_1">
-            <typename name="angle_direction_reference_with_a2p3d_select"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </explicit>
-         <explicit name="transform_item_2">
-            <typename name="axis2_placement_3d"/>
-            <redeclaration entity-ref="item_defined_transformation"/>
-         </explicit>
-         <derived expression="derive_angle (&#10;        SELF\item_defined_transformation.transform_item_1,&#10;        SELF\item_defined_transformation.transform_item_2)" name="orientation_angle">
-            <typename name="plane_angle_measure"/>
-         </derived>
-         <where expression="(SELF\item_defined_transformation.transform_item_1\&#10;            axis2_placement_3d.p[3].direction_ratios[1] =&#10;            SELF\item_defined_transformation.transform_item_2\&#10;            axis2_placement_3d.p[3].direction_ratios[1])&#10;          AND&#10;           (SELF\item_defined_transformation.transform_item_1\&#10;            axis2_placement_3d.p[3].direction_ratios[2] =&#10;            SELF\item_defined_transformation.transform_item_2\&#10;            axis2_placement_3d.p[3].direction_ratios[2])&#10;          AND&#10;           (SELF\item_defined_transformation.transform_item_1\&#10;            axis2_placement_3d.p[3].direction_ratios[3] =&#10;            SELF\item_defined_transformation.transform_item_2\&#10;            axis2_placement_3d.p[3].direction_ratios[3])" label="WR1"/>
+      <entity name="polar_11" supertypes="geometric_representation_item">
+         <where expression="('PLY_ORIENTATION_SPECIFICATION_MIM.AXIS2_PLACEMENT_3D' IN TYPEOF(SELF))" label="WR1"/>
       </entity>
-      <subtype.constraint entity="compound_representation_item" name="pos_compound_representation_item_subtypes" super.expression="ONEOF (point_and_vector, point_path)"/>
-      <function name="derive_angle">
-         <parameter name="placement_1">
-            <typename name="axis2_placement_3d"/>
-         </parameter>
-         <parameter name="placement_2">
-            <typename name="axis2_placement_3d"/>
-         </parameter>
-         <typename name="plane_angle_measure"/>
-         <algorithm>LOCAL
-      v1     : direction;
-      v2     : direction;
-      mag_v1 : REAL;
-      mag_v2 : REAL;
-      theta  : plane_angle_measure;
-    END_LOCAL;
-    v1 := placement_1.p[1];
-    v2 := placement_2.p[1];
-    mag_v1 := SQRT (v1.direction_ratios[1]*v1.direction_ratios[1] +
-                    v1.direction_ratios[2]*v1.direction_ratios[2]);
-    mag_v2 := SQRT (v2.direction_ratios[1]*v2.direction_ratios[1] +
-                    v2.direction_ratios[2]*v2.direction_ratios[2]);
-    IF ((mag_v1 = 0.0) OR (mag_v2 = 0.0)) THEN
-      theta := 0.0;
-      RETURN (theta);
-    END_IF;
-    theta := ACOS ((v1.direction_ratios[1]*v2.direction_ratios[1] +
-                    v1.direction_ratios[2]*v2.direction_ratios[2]) /
-                   (mag_v1*mag_v2));
-    RETURN (theta);</algorithm>
-      </function>
+      <entity name="reinforcement_orientation_basis" supertypes="representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="basis_11_direction_member"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
+      <entity name="user_defined_11" supertypes="representation_item"/>
+      <subtype.constraint entity="representation" name="pos_representation_subtypes" super.expression="ONEOF (reinforcement_orientation_basis, ply_angle_representation)"/>
+      <subtype.constraint entity="compound_representation_item" name="pos_compound_representation_item_subtypes" super.expression="ONEOF (point_and_vector, point_array)"/>
    </schema>
 </express>

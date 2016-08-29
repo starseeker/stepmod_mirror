@@ -6,31 +6,42 @@
    <application name="JSDAI" owner="LKSoft" source="ply_orientation_specification_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ply_orientation_specification_arm">
       <interface kind="use" schema="Part_and_zone_laminate_tables_arm"/>
-      <type name="angle_select">
-         <select selectitems="Axis_placement_3d Curve Direction Point_path"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <type name="direction_select">
+         <select selectitems="Cartesian_11 Curve_11 Cylindrical_11 Direction Point_array Polar_11 User_defined_11"/>
       </type>
-      <entity name="Direction_of_fiber_orientation_within_a_ply" supertypes="Representation">
-         <explicit name="context_of_items">
-            <typename name="Geometric_coordinate_space"/>
-            <redeclaration entity-ref="Representation"/>
+      <entity name="Cartesian_11" supertypes="Detailed_geometric_model_element">
+         <explicit name="placement">
+            <typename name="Axis_placement_3d"/>
          </explicit>
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="angle_select"/>
-            <redeclaration entity-ref="Representation"/>
+      </entity>
+      <entity name="Curve_11" supertypes="Detailed_geometric_model_element">
+         <explicit name="guide_curves">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Curve"/>
          </explicit>
-         <inverse attribute="rep_1" entity="Ply_orientation_angle" name="orientations">
-            <inverse.aggregate lower="1" type="SET" upper="1"/>
-         </inverse>
+         <explicit name="fiber_11_offset">
+            <typename name="Value_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Cylindrical_11" supertypes="Detailed_geometric_model_element">
+         <explicit name="guide_curves">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Curve"/>
+         </explicit>
       </entity>
       <entity name="Draped_orientation_angle" supertypes="Ply_orientation_angle"/>
       <entity name="Laid_orientation_angle" supertypes="Ply_orientation_angle"/>
-      <entity name="Ply_orientation_angle" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)" supertypes="Representation_relationship">
-         <explicit name="angle_reference">
-            <typename name="angle_select"/>
+      <entity name="Ply_angle_representation" supertypes="Representation">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Measure_item"/>
+            <redeclaration entity-ref="Representation"/>
          </explicit>
+      </entity>
+      <entity name="Ply_orientation_angle" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)" supertypes="Representation_relationship">
          <explicit name="rep_1">
-            <typename name="Direction_of_fiber_orientation_within_a_ply"/>
+            <typename name="Ply_angle_representation"/>
             <redeclaration entity-ref="Representation_relationship"/>
          </explicit>
          <explicit name="rep_2">
@@ -47,10 +58,15 @@
             <typename name="Direction"/>
          </explicit>
       </entity>
-      <entity name="Point_path" supertypes="Detailed_geometric_model_element">
+      <entity name="Point_array" supertypes="Detailed_geometric_model_element">
          <explicit name="directions">
             <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="Point_and_vector"/>
+         </explicit>
+      </entity>
+      <entity name="Polar_11" supertypes="Detailed_geometric_model_element">
+         <explicit name="placement">
+            <typename name="Axis_placement_3d"/>
          </explicit>
       </entity>
       <entity name="Reinforcement_orientation_basis" supertypes="Representation">
@@ -63,19 +79,21 @@
             <typename name="Axis_placement_3d"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <derived expression="SELF\Representation.items[1]\Axis_placement.location" name="basis_location">
+         <explicit name="basis_11_direction">
+            <typename name="direction_select"/>
+         </explicit>
+         <derived expression="SELF\Representation.items[1]\Axis_placement.location" name="basis_placement_location">
             <typename name="Cartesian_point"/>
          </derived>
-         <derived expression="SELF\Representation.items[1]\Axis_placement.ref_direction" name="orientation">
-            <typename name="Direction"/>
-         </derived>
-         <inverse attribute="basis" entity="Laminate_table" name="tables">
-            <inverse.aggregate lower="1" type="SET" upper="?"/>
-         </inverse>
-         <inverse attribute="rep_2" entity="Ply_orientation_angle" name="orientations">
-            <inverse.aggregate lower="1" type="SET" upper="?"/>
-         </inverse>
+         <inverse attribute="basis" entity="Laminate_table" name="table"/>
+         <inverse attribute="rep_2" entity="Ply_orientation_angle" name="orientation"/>
+         <where expression="'PLY_ORIENTATION_SPECIFICATION_ARM.AXIS_PLACEMENT_3D' IN TYPEOF(SELF\Representation.items[1])" label="WR1"/>
       </entity>
-      <subtype.constraint entity="Detailed_geometric_model_element" name="pos_detailed_geometric_model_element_subtypes" super.expression="ONEOF (Point_and_vector, Point_path)"/>
+      <entity name="User_defined_11" supertypes="Representation_item">
+         <explicit name="Definition">
+            <typename name="String_representation_item"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Detailed_geometric_model_element" name="pos_detailed_geometric_model_element_subtypes" super.expression="ONEOF (Point_and_vector, Point_array, Cartesian_11, Curve_11, Cylindrical_11, Polar_11)"/>
    </schema>
 </express>

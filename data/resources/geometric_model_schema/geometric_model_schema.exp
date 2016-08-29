@@ -1,5 +1,5 @@
 (* 
-$Id: geometric_model_schema.exp,v 1.17 2016/04/18 08:42:58 kevletu Exp $
+$Id: geometric_model_schema.exp,v 1.18 2016/08/03 14:59:29 kevletu Exp $
 ISO 10303 TC184/SC4/WG12 N9204 (3 schemas)
 
 EXPRESS Source:
@@ -41,7 +41,8 @@ REFERENCE FROM measure_schema   -- ISO 10303-41
    plane_angle_measure,
    plane_angle_unit,
    positive_length_measure,
-   positive_plane_angle_measure); 
+   positive_plane_angle_measure,
+   ratio_measure); 
 
 REFERENCE FROM representation_schema   -- ISO 10303-43
   (founded_item,
@@ -52,6 +53,11 @@ REFERENCE FROM representation_schema   -- ISO 10303-43
 REFERENCE FROM product_property_representation_schema   -- ISO 10303-41
   (shape_representation); 
 
+TYPE angular_deviation = positive_plane_angle_measure;
+END_TYPE;
+
+TYPE aspect_ratio =  ratio_measure;
+END_TYPE;
 
 TYPE boolean_operand = SELECT
    (boolean_result, 
@@ -74,6 +80,9 @@ TYPE bounded_primitive_2d = EXTENSIBLE GENERIC_ENTITY SELECT
     polygonal_area, 
     rectangular_area);
 END_TYPE; 
+
+TYPE chordal_deviation = positive_length_measure;
+END_TYPE;
 
 TYPE csg_primitive = SELECT
    (block, 
@@ -111,6 +120,12 @@ TYPE geometric_set_select = SELECT
     surface);
 END_TYPE; 
 
+TYPE length_to_height_ratio = ratio_measure;
+END_TYPE;
+
+TYPE maximum_edge_length = positive_length_measure;
+END_TYPE;
+
 TYPE path_or_composite_curve = SELECT
    (composite_curve, 
     path);
@@ -124,6 +139,14 @@ END_TYPE;
 TYPE tessellated_edge_or_vertex = SELECT
    (tessellated_edge, 
     tessellated_vertex);
+END_TYPE; 
+
+TYPE tessellation_accuracy_parameter_item = 
+    EXTENSIBLE SELECT(angular_deviation,
+                      aspect_ratio,
+                      chordal_deviation,
+                      length_to_height_ratio,
+                      maximum_edge_length);
 END_TYPE; 
 
 TYPE wireframe_model = SELECT
@@ -562,6 +585,12 @@ WHERE
        'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_ITEM' IN TYPEOF (it))) = 0 );  
 END_ENTITY;
 
+ENTITY tessellated_shape_representation_with_accuracy_parameters
+  SUBTYPE OF (tessellated_shape_representation);
+     tessellation_accuracy_parameters : SET [1:?] OF
+       tessellation_accuracy_parameter_item;
+END_ENTITY;
+
 ENTITY tessellated_item
   ABSTRACT SUPERTYPE OF (ONEOF (coordinates_list,
                                 tessellated_solid,
@@ -856,6 +885,3 @@ LOCAL
  END_FUNCTION; 
 
 END_SCHEMA;  -- geometric_model_schema
-
-
-

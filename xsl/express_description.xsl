@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.52 2015/08/03 09:21:19 mikeward Exp $
+$Id: express_description.xsl,v 1.53 2016/08/26 10:19:51 mikeward Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -634,11 +634,11 @@ $Id: express_description.xsl,v 1.52 2015/08/03 09:21:19 mikeward Exp $
 
 <xsl:template match="text()" mode="chktxt" >
   <xsl:if test="contains(.,'_')">
-    <xsl:call-template name="error_message">
+    <!-- MWD commented out as a temporary measure. This test is misfiring <xsl:call-template name="error_message">
       <xsl:with-param name="message" >       
       <xsl:value-of     select="concat('Warning Ent7: ',' check for express identifier not bold nor linked ')"/>
       </xsl:with-param>
-    </xsl:call-template>
+    </xsl:call-template>-->
   </xsl:if>
 </xsl:template>
 

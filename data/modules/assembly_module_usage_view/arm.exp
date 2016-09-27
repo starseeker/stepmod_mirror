@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2015/07/09 13:05:45 lothartklein Exp $
+   $Id: arm.exp,v 1.43 2015/09/10 09:28:59 kevletu Exp $
    ISO TC184/SC4/WG12 N8610 - ISO/TS 10303-1642 Assembly module usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8422
 *)
@@ -18,20 +18,20 @@ USE FROM Part_external_reference_arm; -- ISO/TS 10303-1711
   END_ENTITY;
 
   ENTITY Assembly_module_terminal
---    SUPERTYPE OF (assembly_module_interface_terminal ANDOR Layered_assembly_module_terminal)
     SUBTYPE OF (Part_terminal);
       SELF\Part_feature.associated_definition : Assembly_module_usage_view;
---      reference_terminal                      : OPTIONAL Packaged_part_interface_terminal;
+      reference_terminal                      : OPTIONAL Part_terminal; 
       related_connector                       : OPTIONAL Next_assembly_usage;
     WHERE
       WR1 : NOT EXISTS(related_connector) OR
             (SELF\Shape_element.associated_definition =
              related_connector\Product_occurrence_definition_relationship.related_view);
       WR2 : NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator);
+      WR3 : NOT EXISTS(reference_terminal) OR 
+        reference_terminal\Part_terminal.interface_or_join_terminal :=: interface_terminal;
   END_ENTITY;
 
   ENTITY Assembly_module_usage_view
---    SUPERTYPE OF (Layered_assembly_module_usage_view)
     SUBTYPE OF (Part_usage_view);
       implemented_function              : OPTIONAL Functional_unit_usage_view;
     INVERSE

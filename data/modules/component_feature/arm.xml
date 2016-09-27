@@ -10,16 +10,13 @@
       <type name="cf_groupable_item">
          <select basedon="groupable_item" extensible="NO" genericentity="NO" selectitems="Component_feature"/>
       </type>
-      <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature" super.expression="ONEOF (Component_feature_location_group_identification, Component_terminal)" supertypes="Shape_element">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature" super.expression="ONEOF (Component_feature_group_identification, Component_terminal)" supertypes="Shape_element">
          <explicit name="definition" optional="YES">
             <typename name="General_part_feature"/>
          </explicit>
          <explicit name="associated_definition" optional="NO">
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="Shape_element"/>
-         </explicit>
-         <explicit name="location_group" optional="YES">
-            <typename name="Component_feature_location_group_identification"/>
          </explicit>
          <derived expression="TRUE" name="product_definitional">
             <builtintype fixed="NO" type="BOOLEAN"/>
@@ -33,8 +30,14 @@
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
-         <where expression="SELF\Shape_element.associated_definition = location_group\Shape_element.associated_definition" label="WR1"/>
       <where label="IP1"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Component_feature_group_identification" supertypes="Component_feature">
+         <explicit name="elements" optional="NO">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="Component_feature"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(e &lt;* elements | SELF\Shape_element.associated_definition :&lt;&gt;: e\Shape_element.associated_definition)) = 0" label="WR1"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="YES" name="Component_feature_joint" supertypes="Component_feature_relationship Shape_element">
          <explicit name="feature_1" optional="NO">
@@ -52,11 +55,6 @@
          <where expression="feature_1 &lt;&gt; feature_2" label="WR1"/>
          <where expression="associated_definition IN &#10;        feature_1\Shape_element.associated_definition\Assembly_component.assemblies" label="WR2"/>
          <where expression="associated_definition IN &#10;        feature_2\Shape_element.associated_definition\Assembly_component.assemblies" label="WR3"/>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="Component_feature_location_group_identification" supertypes="Component_feature">
-         <inverse attribute="location_group" entity="Component_feature" name="elements">
-            <inverse.aggregate lower="0" type="SET" upper="?"/>
-         </inverse>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="Component_feature_make_from_relationship" supertypes="Component_feature_relationship">
          <explicit name="reusable_feature" optional="NO">

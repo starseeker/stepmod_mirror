@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2015/08/12 07:26:29 lothartklein Exp $
+   $Id: arm.exp,v 1.48 2016/03/09 22:20:24 lothartklein Exp $
    ISO TC184/SC4/WG12 N7963 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7400
 *)
@@ -14,18 +14,15 @@ SCHEMA Component_feature_arm;
 	END_TYPE; 
 
   ENTITY Component_feature
-    ABSTRACT SUPERTYPE  OF ( ONEOF(Component_feature_location_group_identification, Component_terminal))
+    ABSTRACT SUPERTYPE  OF ( ONEOF(Component_feature_group_identification, Component_terminal))
     SUBTYPE OF (Shape_element);
       definition           : OPTIONAL General_part_feature;
       SELF\Shape_element.associated_definition : Assembly_component;
-      location_group : OPTIONAL Component_feature_location_group_identification;
     DERIVE
       SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
     UNIQUE
       UR1 : definition, associated_definition;
       UR2 : SELF\Shape_element.element_name, associated_definition;
-    WHERE
-      WR1: SELF\Shape_element.associated_definition = location_group\Shape_element.associated_definition; 
   END_ENTITY;
 
   ENTITY Component_feature_joint
@@ -46,10 +43,11 @@ SCHEMA Component_feature_arm;
         feature_2\Shape_element.associated_definition\Assembly_component.assemblies;     
   END_ENTITY;
 
-  ENTITY Component_feature_location_group_identification
+  ENTITY Component_feature_group_identification
     SUBTYPE OF (Component_feature);
-  INVERSE  
-    elements : SET OF Component_feature FOR location_group;
+    elements : SET[0:?] OF Component_feature;
+    WHERE
+      WR1: SIZEOF(QUERY(e <* elements | SELF\Shape_element.associated_definition :<>: e\Shape_element.associated_definition)) = 0;
   END_ENTITY;
 
   ENTITY Component_feature_make_from_relationship

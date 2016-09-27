@@ -34,32 +34,28 @@
          </inverse>
          <where expression="EXISTS(ends_a)" label="WR1"/>
          <where expression="EXISTS(ends_b)" label="WR2"/>
-         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals)" label="WR3"/>
+         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.elements) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.elements)" label="WR3"/>
          <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
          <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
       </entity>
       <entity name="Cable_component_terminal" supertypes="Derived_component_terminal">
-         <explicit name="location_group">
-            <typename name="Cable_component_terminal_location_group_identification"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="derived_from">
             <typename name="Wire_identification"/>
             <redeclaration entity-ref="Derived_component_terminal"/>
          </explicit>
-         <derived expression="SELF\Component_feature.location_group.associated_definition" name="associated_definition">
-            <typename name="Cable_component"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </derived>
+         <inverse attribute="elements" entity="Cable_component_terminal_location_group_identification" name="location_group"/>
+         <where expression="EXISTS(location_group)" label="WR1"/>
       </entity>
-      <entity name="Cable_component_terminal_location_group_identification" supertypes="Component_feature_location_group_identification">
+      <entity name="Cable_component_terminal_location_group_identification" supertypes="Component_feature_group_identification">
          <explicit name="associated_definition">
             <typename name="Cable_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <inverse attribute="location_group" entity="Cable_component_terminal" name="terminals">
-            <inverse.aggregate lower="1" type="SET" upper="?"/>
-         </inverse>
+         <explicit name="elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Cable_component_terminal"/>
+            <redeclaration entity-ref="Component_feature_group_identification"/>
+         </explicit>
       </entity>
       <entity name="Cable_usage_view" supertypes="Part_usage_view">
          <inverse attribute="associated_definition" entity="Wire_identification" name="conductors">
@@ -102,7 +98,6 @@
             <typename name="Wire_identification"/>
             <redeclaration entity-ref="Derived_component_terminal"/>
          </explicit>
-         <where expression="NOT EXISTS(SELF\Component_feature.location_group)" label="WR1"/>
       </entity>
       <entity name="Wire_identification" supertypes="General_part_feature">
          <explicit name="code">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.40 2015/09/18 11:24:53 lothartklein Exp $
+   $Id: arm.exp,v 1.41 2015/09/24 09:59:56 kevletu Exp $
    ISO TC184/SC4/WG12 N8646 - ISO/TS 10303-1653 Cable - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8119
 *)
@@ -27,17 +27,17 @@ END_ENTITY;
 
 ENTITY Cable_component_terminal
   SUBTYPE OF (Derived_component_terminal);
-  SELF\Component_feature.location_group : Cable_component_terminal_location_group_identification; 
   SELF\Derived_component_terminal.derived_from : Wire_identification;
-DERIVE
-  SELF\Component_feature.associated_definition : Cable_component := SELF\Component_feature.location_group.associated_definition;
+INVERSE
+  location_group : Cable_component_terminal_location_group_identification FOR elements; 
+WHERE
+  WR1: EXISTS(location_group);
 END_ENTITY;
 
 ENTITY Cable_component_terminal_location_group_identification
-  SUBTYPE OF (Component_feature_location_group_identification);
+  SUBTYPE OF (Component_feature_group_identification);
   SELF\Component_feature.associated_definition : Cable_component;
-INVERSE
-  terminals : SET[1:?] OF Cable_component_terminal FOR location_group;
+  SELF\Component_feature_group_identification.elements : SET[0:?] OF Cable_component_terminal;
 END_ENTITY;
 
 ENTITY Cable_component
@@ -52,7 +52,7 @@ INVERSE
 WHERE
   WR1: EXISTS(ends_a);
   WR2: EXISTS(ends_b);
-  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.terminals); -- the number of terminals on both ends are the same
+  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.elements) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.elements); -- the number of terminals on both ends are the same
   WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
   WR5: cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
 END_ENTITY;
@@ -71,8 +71,6 @@ ENTITY Wire_component_terminal
   SUBTYPE OF (Derived_component_terminal);
   SELF\Component_feature.associated_definition : Wire_component;
   SELF\Derived_component_terminal.derived_from : Wire_identification;
-WHERE
-  WR1: NOT EXISTS(SELF\Component_feature.location_group); 
 END_ENTITY;
 
 ENTITY Wire_component

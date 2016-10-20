@@ -21,7 +21,7 @@ use File::Copy qw(move);
 
 my $parser= Spreadsheet::ParseXLSX->new();
 #my $workbook= $parser->parse("/Users/aminatambengue/Documents/ISO/WG12/STEP-ISO10303/stepmod/CR_Geometry_WG_Numbers_table_example.xlsx");
-my $workbook= $parser->parse("../publication/part1000/CR_Geometry/CR_Geometry_WG_Numbers_table.xlsx");
+my $workbook= $parser->parse("../publication/part1000/CR_itemshape_1/WG_Number_excel_table.xlsx");
 
 if (!defined $workbook) {
 	die $parser->error(), ".\n";
@@ -158,8 +158,8 @@ sub updatemodule {
 	open ($fh,'<', $filename) or die "Impossible d'ouvrir le fichier $filename en lecture\n";
 	open ($fh2, '>>', $newfile) or die "Impossible d'ouvrir le fichier $newfile en écriture \n";
 	my $line;
-	my $pubyear = '2015-05';
-	my $pubdate = '2015-05-15';
+	my $pubyear = '2016-11';
+	my $pubdate = '2016-11-20';
 	while (defined ($line = <$fh>)){
 ####### replace the wg number
 		my @wg;

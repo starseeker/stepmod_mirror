@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!--  $Id: build_CR.xsl,v 1.29 2016/08/04 16:21:26 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.30 2016/08/18 17:39:00 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -9,7 +10,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
     xmlns:exslt="http://exslt.org/common" exclude-result-prefixes="exslt" version="1.0">
 
     <xsl:import href="../../xsl/res_doc/common.xsl"/>
-    <xsl:import href="../../xsl/bom_doc/common.xsl"/>
+    <!--<xsl:import href="../../xsl/bom_doc/common.xsl"/> FOO -->
 
     <xsl:output method="xml" indent="yes"/>
 
@@ -1613,10 +1614,10 @@ Purpose: To build the ANT build file from which a Change Request is produced.
 		</xsl:text>
 
         <xsl:variable name="target">
-            <xsl:value-of select="'normref_check, bibliography_check, modules_check, wgn_summary, '"/>
+            <xsl:value-of select="'normref_check, bibliography_check, wgn_summary, '"/>
             <xsl:choose>
                 <xsl:when test="./modules">
-                    <xsl:value-of select="'isomodules, publish_isomodules, '"/>
+                    <xsl:value-of select="'modules_check, isomodules, publish_isomodules, '"/>
                 </xsl:when>
 
             </xsl:choose>

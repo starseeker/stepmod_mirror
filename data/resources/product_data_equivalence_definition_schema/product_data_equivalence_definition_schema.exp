@@ -1,0 +1,88 @@
+(*
+
+ISO 10303 TC184/SC4/WG12 Nxxxx
+
+EXPRESS Source:
+ISO 10303-62 ed1 Equivalence validation of product data - Product data equivalence definition schema
+
+The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
+and derivations of the Schema:
+
+Copyright ISO 2014  All rights reserved
+Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
+to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
+implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
+subject to the following conditions:
+
+THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
+USE OR OTHER DEALINGS IN THE SCHEMA.
+
+In addition, any modified copy of the Schema shall include the following notice:
+
+THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+ISO 10303-62 ed1 Equivalence validation of product data - Product data equivalence definition schema
+AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
+*)
+
+SCHEMA product_data_equivalence_definition_schema '{iso standard 10303 part(62) version(1) object(1) product_data_equivalence_definition_schema(1)}';
+
+  REFERENCE FROM product_data_equivalence_criteria_schema
+    (data_equivalence_criteria_representation);
+
+  REFERENCE FROM product_data_equivalence_inspection_result_schema
+    (data_equivalence_inspection_result_representation);
+    
+  REFERENCE FROM product_definition_schema
+    (product_definition_or_reference,
+     product_definition_relationship);
+
+  REFERENCE FROM support_resource_schema 
+    (identifier,
+     label,
+     text);
+
+  TYPE equivalence_product_data_select = SELECT
+    (product_definition_or_reference,
+     product_definition_relationship);
+  END_TYPE;
+
+  TYPE used_equivalence_representation_select = SELECT
+    (data_equivalence_criteria_representation,
+     data_equivalence_inspection_result_representation);
+  END_TYPE;
+
+  ENTITY data_equivalence_definition;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+  END_ENTITY;
+
+  ENTITY data_equivalence_definition_relationship;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      relating_data_equivalence_definition : data_equivalence_definition;
+      related_data_equivalence_definition  : data_equivalence_definition;
+  END_ENTITY;
+  
+  ENTITY data_equivalence_definition_representation_relationship;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      definition          : data_equivalence_definition;
+      used_representation : used_equivalence_representation_select;
+  END_ENTITY;
+  
+  ENTITY product_data_and_data_equivalence_relationship;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      product_data : equivalence_product_data_select;
+      data_equivalence : data_equivalence_definition;
+  END_ENTITY;
+
+END_SCHEMA; -- product_data_equivalence_definition_schema

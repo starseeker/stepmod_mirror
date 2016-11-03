@@ -1,0 +1,178 @@
+(*
+
+ISO 10303 TC184/SC4/WG12 Nxxxx
+
+EXPRESS Source:
+ISO 10303-62 ed1 Equivalence validation of product data - Annotated 3d model equivalence criteria schema
+
+The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
+and derivations of the Schema:
+
+Copyright ISO 2014  All rights reserved
+Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
+to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
+implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
+subject to the following conditions:
+
+THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
+USE OR OTHER DEALINGS IN THE SCHEMA.
+
+In addition, any modified copy of the Schema shall include the following notice:
+
+THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+ISO 10303-62 ed1 Equivalence validation of product data - Annotated model 3d equivalence criteria schema
+AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
+*)
+
+SCHEMA annotated_3d_model_equivalence_criteria_schema '{iso standard 10303 part(62) version(1) object(1) annotated_3d_model_equivalence_criteria_schema(1)}';
+
+  REFERENCE FROM measure_schema
+    (measure_with_unit,
+     unit);
+
+  REFERENCE FROM product_data_equivalence_criteria_schema
+    (data_equivalence_assessment_specification,
+     data_equivalence_criteria_representation,
+     data_equivalence_criterion,
+     data_equivalence_criterion_assessment_association,
+     data_equivalence_inspection_requirement,
+     data_equivalence_report_request);
+   
+  REFERENCE FROM product_data_equivalence_inspection_result_schema
+    (inspected_equivalence_element_select);
+
+  REFERENCE FROM qualified_measure_schema
+    (measure_representation_item,
+     qualified_representation_item,
+     value_qualifier,
+     type_qualifier);
+
+  REFERENCE FROM representation_schema
+    (compound_representation_item,
+     representation,
+     representation_item,
+     representation_item_relationship,
+     set_representation_item,
+     value_representation_item);
+
+  REFERENCE FROM shape_data_quality_criteria_schema
+    (shape_measurement_accuracy,
+     shape_data_quality_lower_value_limit,
+     shape_data_quality_upper_value_limit,
+     shape_data_quality_value_limit,
+     shape_data_quality_value_limit_type_select,
+     shape_data_quality_value_range);
+
+  REFERENCE FROM support_resource_schema 
+    (identifier,
+     label,
+     text,
+     bag_to_set);
+  
+  TYPE a3m_accuracy_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+
+  TYPE a3m_element_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+
+  TYPE a3m_equivalence_assessment_specification_select = SELECT
+    (a3m_equivalence_assessment_by_logical_test,
+     a3m_equivalence_assessment_by_numerical_test);
+  END_TYPE;
+  
+  TYPE a3m_extreme_location_types_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+
+  TYPE a3m_measured_data_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+
+  TYPE accuracy_associated_target_select = EXTENSIBLE SELECT;
+  END_TYPE;
+
+  TYPE representative_value_type = ENUMERATION OF
+    (average_value,
+     max_value,
+     min_value,
+     min_max_value);
+  END_TYPE;
+
+  ENTITY a3m_equivalence_accuracy_association;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      specific_accuracy   : shape_measurement_accuracy;
+      equivalence_target : accuracy_associated_target_select;
+  END_ENTITY;
+  
+  ENTITY a3m_equivalence_assessment_by_logical_test
+    SUBTYPE OF(data_equivalence_assessment_specification);
+  END_ENTITY;
+
+  ENTITY a3m_equivalence_assessment_by_numerical_test
+    SUBTYPE OF(data_equivalence_assessment_specification);
+      threshold : shape_data_quality_value_limit_type_select;
+  END_ENTITY;
+
+  ENTITY a3m_equivalence_criteria_representation
+    SUBTYPE OF(data_equivalence_criteria_representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\representation.items|
+                               'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_SCHEMA.' +
+                               'A3M_EQUIVALENCE_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+  
+  ENTITY a3m_equivalence_criterion
+    ABSTRACT SUPERTYPE OF (a3m_equivalence_criterion_with_specified_elements)
+    SUBTYPE OF(data_equivalence_criterion, data_equivalence_inspection_requirement);
+      assessment_specification : a3m_equivalence_assessment_specification_select;
+      comparing_element_types : LIST[1:?] OF a3m_element_type_name;
+      compared_element_types : LIST[1:?] OF a3m_element_type_name;
+      measured_data_type : a3m_measured_data_type_name;
+      locations_of_extreme_value_types : LIST[0:?] OF a3m_extreme_location_types_name;
+      accuracy_types : LIST[0:?] OF a3m_accuracy_type_name;
+    WHERE
+      WR1 : SIZEOF(USEDIN(SELF,
+            'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+
+            'DATA_EQUIVALENCE_CRITERION_ASSESSMENT_ASSOCIATION.'+
+            'CRITERION'
+            )) = 0;
+      WR2 : SIZEOF(QUERY(i1<*bag_to_set(
+              USEDIN(SELF,
+                    'REPRESENTATION_SCHEMA.'+
+                    'REPRESENTATION_ITEM_RELATIONSHIP.'+
+                    'RELATED_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+
+             'DATA_EQUIVALENCE_CRITERION_INSPECTION_ASSOCIATION'
+              IN TYPEOF(i1))) = 0;
+      WR3 : SIZEOF(QUERY(i1<*bag_to_set(
+              USEDIN(SELF,
+                    'REPRESENTATION_SCHEMA.'+
+                    'REPRESENTATION_ITEM_RELATIONSHIP.'+
+                    'RELATING_REPRESENTATION_ITEM'))|
+             'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+
+             'DATA_EQUIVALENCE_CRITERION_INSPECTION_ASSOCIATION'
+              IN TYPEOF(i1))) = 0;
+  END_ENTITY;
+
+  ENTITY a3m_equivalence_criterion_with_specified_elements
+    SUBTYPE OF(a3m_equivalence_criterion);
+      comparing_specified_elements : SET[1:?] OF inspected_equivalence_element_select; 
+      compared_specified_elements : SET[1:?] OF inspected_equivalence_element_select; 
+  END_ENTITY;
+
+  ENTITY a3m_equivalence_inspection_requirement_with_values
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF(data_equivalence_inspection_requirement);
+      applied_values : SET[1:?] OF measure_representation_item;
+  END_ENTITY;
+
+  ENTITY a3m_equivalence_summary_report_request_with_representative_value
+    SUBTYPE OF(data_equivalence_report_request);
+      report_request_type : representative_value_type;
+  END_ENTITY;
+
+END_SCHEMA; -- annotated_3d_model_equivalence_criteria_schema

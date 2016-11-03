@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/CD 10303-62">
+   <application name="JSDAI" owner="LKSoft" source="product_data_equivalence_inspection_result_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="product_data_equivalence_inspection_result_schema">
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="count_measure"/>
+         <interfaced.item name="measure_with_unit"/>
+      </interface>
+      <interface kind="reference" schema="product_data_equivalence_criteria_schema">
+         <interfaced.item name="data_equivalence_criteria_representation"/>
+         <interfaced.item name="data_equivalence_criterion"/>
+         <interfaced.item name="data_equivalence_inspection_requirement"/>
+         <interfaced.item name="summary_report_style_type"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_item_relationship"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="inspected_equivalence_element_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="criterion_report_item_with_number_of_data" supertypes="data_equivalence_inspection_criterion_report_item">
+         <explicit name="statistical_value">
+            <typename name="count_measure"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="summary_report_style_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\data_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="criterion_report_item_with_value" supertypes="data_equivalence_inspection_criterion_report_item">
+         <explicit name="report_value">
+            <typename name="measure_with_unit"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="label"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\data_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="data_equivalence_inspected_element_pair" supertypes="representation_item">
+         <explicit name="comparing_elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="inspected_equivalence_element_select"/>
+         </explicit>
+         <explicit name="compared_elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="inspected_equivalence_element_select"/>
+         </explicit>
+         <where expression="(SIZEOF(comparing_elements) &lt;&gt; 0) OR (SIZEOF(compared_elements) &lt;&gt; 0)" label="WR1"/>
+      </entity>
+      <entity name="data_equivalence_inspection_criterion_report" supertypes="data_equivalence_inspection_report">
+         <explicit name="statistical_values">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="data_equivalence_inspection_criterion_report_item"/>
+         </explicit>
+      </entity>
+      <entity name="data_equivalence_inspection_criterion_report_item" super.expression="ONEOF (criterion_report_item_with_number_of_data, criterion_report_item_with_value)" supertypes="representation_item">
+         <inverse attribute="statistical_values" entity="data_equivalence_inspection_criterion_report" name="criterion_report"/>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="data_equivalence_inspection_instance_report" supertypes="data_equivalence_inspection_report">
+         <explicit name="inspected_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="data_equivalence_inspection_instance_report_item"/>
+         </explicit>
+      </entity>
+      <entity name="data_equivalence_inspection_instance_report_item" supertypes="representation_item">
+         <explicit name="inspected_element">
+            <typename name="data_equivalence_inspected_element_pair"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="data_equivalence_inspection_report" super.expression="ONEOF (data_equivalence_inspection_criterion_report, data_equivalence_inspection_instance_report)" supertypes="representation_item">
+         <explicit name="inspection_result">
+            <typename name="data_equivalence_inspection_result"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="data_equivalence_inspection_result" supertypes="representation_item">
+         <explicit name="criterion_inspected">
+            <typename name="data_equivalence_criterion"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="data_equivalence_inspection_result_representation" supertypes="representation">
+         <explicit name="criteria_inspected">
+            <typename name="data_equivalence_criteria_representation"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY( q &lt;* SELF\representation.items|&#10;                                'PRODUCT_DATA_EQUIVALENCE_INSPECTION_RESULT_SCHEMA.' +&#10;                                'DATA_EQUIVALENCE_INSPECTION_RESULT' IN TYPEOF(q))) &gt; 0" label="WR1"/>
+      </entity>
+      <entity name="data_equivalence_inspection_result_with_judgement" supertypes="data_equivalence_inspection_result">
+         <explicit name="judgement">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="data_equivalence_report_inspection_association" supertypes="representation_item_relationship">
+         <explicit name="relating_representation_item">
+            <typename name="data_equivalence_inspection_requirement"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+         <explicit name="related_representation_item">
+            <typename name="data_equivalence_inspection_report"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

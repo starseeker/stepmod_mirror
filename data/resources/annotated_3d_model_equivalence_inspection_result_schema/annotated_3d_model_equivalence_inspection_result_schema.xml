@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/CD 10303-62">
+   <application name="JSDAI" owner="LKSoft" source="annotated_3d_model_equivalence_inspection_result_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="annotated_3d_model_equivalence_inspection_result_schema">
+      <interface kind="reference" schema="annotated_3d_model_equivalence_criteria_schema">
+         <interfaced.item name="representative_value_type"/>
+      </interface>
+      <interface kind="reference" schema="product_data_equivalence_inspection_result_schema">
+         <interfaced.item name="criterion_report_item_with_number_of_data"/>
+         <interfaced.item name="criterion_report_item_with_value"/>
+         <interfaced.item name="data_equivalence_inspection_result"/>
+         <interfaced.item name="data_equivalence_inspection_result_representation"/>
+         <interfaced.item name="data_equivalence_inspection_criterion_report_item"/>
+         <interfaced.item name="data_equivalence_inspection_instance_report_item"/>
+      </interface>
+      <interface kind="reference" schema="shape_data_quality_criteria_schema">
+         <interfaced.item name="shape_measurement_accuracy"/>
+      </interface>
+      <type name="equivalence_location_of_extreme_value_select">
+         <select extensible="YES"/>
+      </type>
+      <type name="equivalence_measured_value_select">
+         <select extensible="YES"/>
+      </type>
+      <type name="target_annotated_3d_model_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="a3m_equivalence_criterion_report_item_with_measured_value" supertypes="data_equivalence_inspection_criterion_report_item">
+         <explicit name="representative_measured_value">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="representative_value_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\data_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="a3m_equivalence_inspection_instance_report_item" supertypes="data_equivalence_inspection_instance_report_item">
+         <explicit name="measured_value_for_inspected_element">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+      </entity>
+      <entity name="a3m_equivalence_inspection_result_accuracy_association">
+         <explicit name="applied_specific_accuracy">
+            <typename name="shape_measurement_accuracy"/>
+         </explicit>
+         <explicit name="data_equivalence_result">
+            <typename name="data_equivalence_inspection_result"/>
+         </explicit>
+      </entity>
+      <entity name="a3m_equivalence_inspection_result_representation" supertypes="data_equivalence_inspection_result_representation"/>
+      <entity name="a3m_inspected_model_and_inspection_result_relationship">
+         <explicit name="inspected_model">
+            <typename name="target_annotated_3d_model_select"/>
+         </explicit>
+         <explicit name="equivalence_result">
+            <typename name="a3m_equivalence_inspection_result_representation"/>
+         </explicit>
+      </entity>
+      <entity name="equivalence_extreme_instance">
+         <explicit name="comparing_elements">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="equivalence_location_of_extreme_value_select"/>
+         </explicit>
+         <explicit name="compared_elements">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="equivalence_location_of_extreme_value_select"/>
+         </explicit>
+         <explicit name="measured_value">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+         <where expression="(SIZEOF(comparing_elements) &lt;&gt; 0) OR (SIZEOF(compared_elements) &lt;&gt; 0)" label="WR1"/>
+      </entity>
+      <entity name="equivalence_instance_report_item_with_extreme_instances" supertypes="a3m_equivalence_inspection_instance_report_item">
+         <explicit name="extreme_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="equivalence_extreme_instance"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="data_equivalence_inspection_criterion_report_item" name="a3m_criterion_report_item_subtypes" super.expression="ONEOF (a3m_equivalence_criterion_report_item_with_measured_value, criterion_report_item_with_number_of_data, criterion_report_item_with_value)"/>
+   </schema>
+</express>

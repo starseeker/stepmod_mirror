@@ -853,9 +853,9 @@ SCHEMA Area_2d_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.8 2012/10/11 05:49:05 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7876 - ISO/TS - 10303-1802 Assembly component - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7313
+   $Id: arm.exp,v 1.11 2016/10/20 12:12:42 kevletu Exp $
+   ISO TC184/SC4/WG12 N9296 - ISO/TS - 10303-1802 Assembly component - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7876
 *)
 
 SCHEMA Assembly_component_arm;
@@ -864,9 +864,8 @@ USE FROM Component_grouping_arm;
 USE FROM Assembly_shape_arm;
 
 ENTITY Assembly_component
-  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence_shape);
+  SUBTYPE OF (Definition_based_product_occurrence);
 DERIVE
-  SELF\Item_shape.described_element : Assembly_component := SELF;
   assemblies : SET OF Product_view_definition := ac_get_assemblies(SELF);
   groups : SET OF Assembly_group_component := ac_get_groups(SELF);
   versions : SET OF Product_version := ac_get_versions(assemblies);
@@ -1149,9 +1148,9 @@ END_SCHEMA;  -- Assembly_feature_relationship_arm
 
 
 (*
-   $Id: arm.exp,v 1.9 2012/10/12 15:48:48 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7897 - ISO/CD-TS - 10303-1808 Assembly shape - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7334
+   $Id: arm.exp,v 1.13 2016/10/20 12:13:26 kevletu Exp $
+   ISO TC184/SC4/WG12 N9298 - ISO/TS 10303-1808 Assembly shape - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7897
 *)
 
 SCHEMA Assembly_shape_arm;
@@ -1175,11 +1174,6 @@ TYPE multi_or_next_assembly_usage_occurrence = SELECT (
     Next_assembly_usage);
 END_TYPE;
 
-ENTITY Assembly_shape
-  SUBTYPE OF (Part_shape);
-  SELF\Item_shape.described_element : Assembly_definition;
-END_ENTITY;  
-
 ENTITY Component_path_shape_element
     SUBTYPE OF (Part_shape_element);
     location : multi_or_next_assembly_usage_occurrence;
@@ -1191,16 +1185,11 @@ ENTITY Component_path_shape_element
       EXISTS(location\Assembly_component_relationship.location_indicator); 
 END_ENTITY;
 
-ENTITY Part_occurrence_shape
-  SUBTYPE OF (Item_shape);
-  SELF\Item_shape.described_element : Definition_based_product_occurrence;
-END_ENTITY;  
-
 END_SCHEMA;
 (*
-$Id: arm.exp,v 1.32 2012/10/12 16:18:31 lothartklein Exp $
-ISO TC184/SC4/WG12 N7729 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
-Supersedes ISO TC184/SC4/WG12 N6111
+$Id: arm.exp,v 1.36 2016/10/20 11:49:45 kevletu Exp $
+ISO TC184/SC4/WG12 N9275 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N7729
 *) 
 
 
@@ -1262,6 +1251,11 @@ ENTITY Product_occurrence_definition_relationship
   ABSTRACT SUPERTYPE;
   relating_view : product_view_definition_or_reference;
   related_view : product_view_definition_or_reference;
+  shape_type : OPTIONAL contextual_shape_type_enumeration; 
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
+WHERE
+  WR1: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
 
 ENTITY Promissory_usage
@@ -1434,8 +1428,8 @@ END_SCHEMA;
 
 (*
  $Id$
- ISO TC184/SC4/WG12 N7945 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7382
+ ISO TC184/SC4/WG12 N9287 - ISO/TS 10303-1311 Associative draughting elements - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7945
 *)
 
 SCHEMA Associative_draughting_elements_arm;
@@ -1463,7 +1457,9 @@ USE FROM Draughting_element_arm; -- ISO/TS 10303-1310
   END_TYPE;
 
   TYPE draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Item_shape,
+    Product_occurrence_definition_relationship, 
+    Product_view_definition, 
+    View_definition_relationship,
     Shape_element,
     Shape_element_relationship);
   END_TYPE; 
@@ -2534,18 +2530,28 @@ SCHEMA Characteristic_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.8 2009/12/21 15:19:48 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N6884 - ISO/TS 10303-1765 Characterizable object - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4296
+   $Id: arm.exp,v 1.12 2016/10/20 12:10:50 kevletu Exp $
+   ISO TC184/SC4/WG12 N9293 - ISO/TS 10303-1765 Characterizable object - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6884
 *)
 
 SCHEMA Characterizable_object_arm;
 
+USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Support_resource_arm;
+
+TYPE characterizable_object_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
+  unspecified ); 
+END_TYPE;
 
 ENTITY Characterizable_object;
   name : label;
   description : OPTIONAL text;
+  shape_type : OPTIONAL characterizable_object_shape_type_enumeration;
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
+WHERE
+  WR1: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
 
 END_SCHEMA;
@@ -3688,9 +3694,9 @@ END_ENTITY;
 
 END_SCHEMA;  -- Constructive_solid_geometry_3d_arm
 (*
-   $Id: arm.exp,v 1.18 2012/10/11 05:49:06 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7975 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7412
+   $Id: arm.exp,v 1.24 2016/10/20 11:50:40 kevletu Exp $
+   ISO TC184/SC4/WG12 N9277 - ISO/TS 10303-1027 Contextual shape positioning - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7975
 *) 
 
 SCHEMA Contextual_shape_positioning_arm;
@@ -3698,14 +3704,45 @@ SCHEMA Contextual_shape_positioning_arm;
 USE FROM Geometric_model_relationship_arm;
 USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
+  TYPE axis_placement_mapping_source = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
+  );
+  END_TYPE; 
+
+  TYPE axis_placement_mapping_target = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Axis_placement
+  );
+  END_TYPE; 
+
+  TYPE described_element_select = SELECT (
+    View_definition_relationship,
+    Product_occurrence_definition_relationship);
+  END_TYPE;  
+
+  TYPE list_placement_transformation_select = LIST[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE set_placement_transformation_select = SET[1:?] OF Axis_placement_mapping;
+  END_TYPE; 
+
+  TYPE single_or_set_or_list_placement_transformation = SELECT
+    (Axis_placement_mapping, 
+    set_placement_transformation_select, 
+    list_placement_transformation_select);
+  END_TYPE; 
 
   TYPE template_instance = SELECT
     (Geometric_placement_operation, 
      Geometric_model_relationship_with_transformation);
   END_TYPE; 
 
+  ENTITY Axis_placement_mapping;
+      source : axis_placement_mapping_source;
+      target : axis_placement_mapping_target;
+  END_ENTITY;
+
   ENTITY Contextual_shape_representation;
-      contextual_shape          : Contextual_item_shape;
+      contextual_shape          : described_element_select;
       representing_relationship : Geometric_model_relationship;
     DERIVE
       context_representation    : geometric_representation_select := representing_relationship.rep_2 ;
@@ -3745,20 +3782,10 @@ USE FROM Shape_property_assignment_arm;    --  ISO/TS 10303-1032
 
   ENTITY Geometric_relationship_with_placement_transformation
     SUBTYPE OF (Geometric_model_relationship_with_transformation);
-      transformation: Axis_placement_mapping;
+      transformation: single_or_set_or_list_placement_transformation;
     WHERE
       WR1:  rep_1.context_of_items\Geometric_coordinate_space.dimension_count :=:
         rep_2.context_of_items\Geometric_coordinate_space.dimension_count;
-  END_ENTITY;
-
-  ENTITY Shape_placement_association
-    SUBTYPE OF (Shape_description_association);
-      SELF\Shape_description_association.used_representation : Geometric_placement_model;
-      SELF\Shape_description_association.definition : Associated_contextual_item_shape;
-  END_ENTITY;
-  
-  ENTITY Associated_contextual_item_shape
-    SUBTYPE OF (Associated_item_shape, Contextual_item_shape);
   END_ENTITY;
 
 END_SCHEMA;
@@ -3991,12 +4018,12 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.7 2012/10/11 05:49:26 liutkuviene Exp $
-    ISO TC184/SC4/WG12 N7888 - ISO/CD-TS - 10303-1809 Default setting association - EXPRESS ARM
-    Supersedes ISO TC184/SC4/WG12 N7325
+   $Id: arm.exp,v 1.11 2016/10/20 12:14:28 kevletu Exp $
+    ISO TC184/SC4/WG12 N9300 - ISO/TS 10303-1809 Default setting association - EXPRESS ARM
+    Supersedes ISO TC184/SC4/WG12 N7888
 *)
     
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Default_setting_association_arm;
 
 USE FROM Shape_property_assignment_arm;
@@ -4011,7 +4038,7 @@ ENTITY Default_shape_property
     Default_thickness
   )) 
   SUBTYPE OF (Assigned_shape_property);
-  SELF\Assigned_shape_property.described_element : Item_shape;
+  SELF\Assigned_shape_property.described_element : shapeable_item;
 END_ENTITY;
 
 ENTITY Default_chamfer
@@ -4260,8 +4287,8 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.9 2006/04/28 23:54:33 thendrix Exp $
- ISO TC184/SC4/WG12 N3799 - ISO/CD-TS 10303-1232 Design material aspects - EXPRESS ARM
+ $Id: arm.exp,v 1.15 2016/10/20 11:58:24 kevletu Exp $
+ ISO TC184/SC4/WG12 N9285 - ISO/CD-TS 10303-1232 Design material aspects - EXPRESS ARM
 *)
 
 SCHEMA Design_material_aspects_arm;
@@ -4272,10 +4299,11 @@ USE FROM Product_view_definition_arm;
 
 USE FROM Shape_property_assignment_arm;
 
-TYPE dma_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-  (Item_shape,
-   Product_view_definition,
-   Shape_element);
+TYPE dma_material_item_select = SELECT BASED_ON material_item_select WITH (
+  Product_occurrence_definition_relationship, 
+  Product_view_definition, 
+  View_definition_relationship,
+  Shape_element);
 END_TYPE;
 
 END_SCHEMA;
@@ -12060,9 +12088,9 @@ END_TYPE;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.8 2012/10/11 05:49:26 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7918 - ISO/CD-TS - 10303-1815 Mating structure - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7355
+   $Id: arm.exp,v 1.11 2016/10/20 12:14:58 kevletu Exp $
+   ISO TC184/SC4/WG12 N9302 - ISO/TS 10303-1815 Mating structure - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7918
 *)
 
 SCHEMA Mating_structure_arm;
@@ -12099,7 +12127,7 @@ ENTITY Mated_part_relationship;
   related : Assembled_part_association;
 WHERE
   WR1: relating.relating_view :=: related.relating_view;
-  WR2: SIZEOF(QUERY(mj <* mating_joints | NOT(mj.associated_assembly.described_element :=: relating.relating_view)))= 0;
+  WR2: SIZEOF(QUERY(mj <* mating_joints | NOT(mj.associated_assembly :=: relating.relating_view)))= 0;
 END_ENTITY;
 
 END_SCHEMA;
@@ -12250,9 +12278,9 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.11 2012/10/11 05:49:05 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7921 - ISO/CD-TS - 10303-1816 Model based 3d geometrical dimensioning and tolerancing representation - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7358
+   $Id: arm.exp,v 1.21 2016/10/20 12:15:30 kevletu Exp $
+   ISO TC184/SC4/WG12 N9304 - ISO/TS 10303-1816 Model based 3d geometrical dimensioning and tolerancing representation - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7921
 *)
 
 SCHEMA Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_arm;
@@ -12288,43 +12316,46 @@ TYPE mb3gdtsr_edge_of_undefined_shape_size_element = SELECT
   Nominal_3D_edge);  
 END_TYPE;
 
-ENTITY Gdt_representation_shape
-  SUBTYPE OF (Nominal_3d_model_shape, Part_shape);
-WHERE
-  WR1: 'PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.GDT_REPRESENTATION_VIEW_CONTEXT' IN TYPEOF(described_element\Product_view_definition.additional_contexts); 
-END_ENTITY;  
-  
+TYPE mb3dgdt_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
+  geometrical_dimensioning_and_tolerancing_representation);
+END_TYPE;
+
 ENTITY Nominal_3d_edge
   SUBTYPE OF (Nominal_3d_integral_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : Edge_curve := association\Geometric_item_specific_usage.identified_item;
-WHERE
-  WR1: 'BASIC_GEOMETRIC_TOPOLOGY_ARM.EDGE_CURVE' IN
-     TYPEOF(SELF\Associated_shape_element.associated_item);
+  SELF\Shape_element.identified_item : Edge_curve;
 END_ENTITY;
 
 ENTITY Nominal_3d_feature 
   ABSTRACT SUPERTYPE OF (ONEOF (Nominal_3d_integral_feature, Nominal_3d_derived_feature))
-  SUBTYPE OF (Associated_shape_element, Part_shape_element);
-  SELF\Shape_element.containing_shape : Gdt_representation_shape;
+  SUBTYPE OF (Part_shape_element);
+WHERE
+  WR1: SIZEOF ( QUERY ( pa <* SELF\Shape_element.associated_definition\Product_view_definition.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) > 0;
+  WR2: SELF\Shape_element.associated_definition.shape_type = pmiwn3m_product_shape_type_enumeration.nominal_shape;
 END_ENTITY;
 
 ENTITY Nominal_3d_integral_feature
   SUBTYPE OF (General_part_feature, Nominal_3d_feature);
-DERIVE
-  SELF\Associated_shape_element.associated_item : nominal_3d_integral_feature_geometry := association\Geometric_item_specific_usage.identified_item;
-WHERE
-  WR1: EXISTS(associated_item);
+  SELF\Shape_element.identified_item : nominal_3d_integral_feature_geometry;
 END_ENTITY;    
 
 ENTITY Nominal_3d_derived_feature
   SUBTYPE OF (Nominal_3d_feature, Derived_shape_element);
   SELF\Derived_shape_element.derived_from: SET [1:?] OF Nominal_3d_feature;
-DERIVE
-  SELF\Associated_shape_element.associated_item : nominal_3d_derived_feature_geometry := association\Geometric_item_specific_usage.identified_item;
-WHERE
-  WR1: EXISTS(associated_item);
+  SELF\Shape_element.identified_item : nominal_3d_derived_feature_geometry;
 END_ENTITY;   
+
+RULE gdt_representation_view_context_constraint FOR (Part_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( p <* Part_view_definition | 
+        (SIZEOF ( QUERY ( pa <* p.additional_contexts | pa.application_domain = mb3dgdt_additional_application_domain_enumeration.geometrical_dimensioning_and_tolerancing_representation) ) > 0)
+           AND ( 
+                 (p.initial_context.application_domain <> pamap_initial_application_domain_enumeration.model_based_product_geometry)
+                 OR 
+                 (p.initial_context.life_cycle_stage <> pvd_life_cycle_stage_enumeration.design)
+               )
+                      ) 
+               ) = 0 ;
+END_RULE; 
 
 END_SCHEMA;
 (*
@@ -14854,140 +14885,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.11 2012/10/11 05:49:17 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7933 - ISO/CD-TS - 10303-1810 Product and manufacturing information view context - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7370
-*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Product_and_manufacturing_information_view_context_arm;
-
-USE FROM Part_view_definition_arm; -- ISO/TS 10303-1023
-USE FROM Document_assignment_arm; -- ISO/TS 10303-1122
-
-TYPE mbgdt_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select  WITH (
-  Model_based_view_context,
-  Gdt_representation_view_context,
-  Model_based_3d_annotation_presentation_view_context);
-END_TYPE;
-
-ENTITY Model_based_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'model based product geometry';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
-END_ENTITY;
--- TYPE dimensioning_document = ENUMERATION (ISO, ASME);
--- END_TYPE;
-
-ENTITY Gdt_representation_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'geometrical dimensioning and tolerancing representation';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
---  dimensioning_standard : dimensioning_document := ISO; -- some expression through the documents, see wr4, may help writing further rules
--- note: when we write the rules we will decide which derived attribute to use
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
-         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
-        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
-  -- WR4: TRUE; -- must have at least either ISO 1101 or ASME Y14.5 as associated dimension standard document
-END_ENTITY;
-
-ENTITY Model_based_3d_annotation_presentation_view_context
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'model based 3D annotation presentation';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-  WR2: SIZEOF ( QUERY(pvd <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') |
-         NOT('PRODUCT_AND_MANUFACTURING_INFORMATION_VIEW_CONTEXT_ARM.MODEL_BASED_VIEW_CONTEXT' IN TYPEOF(pvd.initial_context) ) ) ) = 0 ; 
-        -- Part_view_definition.initial_context shall be of type Model_based_view_context 
-  -- WR4: TRUE; -- must have at least either ISO 1101, ISO 16792, ASME Y14.41 or ASME Y14.5 as associated model standard document
-END_ENTITY;
-
-ENTITY Surface_finish_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'surface finish';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Machining_feature_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'machining feature';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Material_specification_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'material specification';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Process_state_view_context 
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'process state';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Kinematic_mechanism_context  
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'kinematic_mechanism';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT') ) =0 ;  -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Kinematic_state_context  
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'kinematic state';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
-END_ENTITY;
-
-ENTITY Motion_context  
-  SUBTYPE OF (Part_view_definition_context);
-DERIVE
-  SELF\View_definition_context.application_domain : STRING := 'motion';
-  SELF\View_definition_context.life_cycle_stage : STRING := 'design';
-WHERE
-  WR1: SIZEOF ( USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS') ) =0 ; -- there shall be no users in the role PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXT;
-END_ENTITY;
-
-SUBTYPE_CONSTRAINT pmi_part_view_definition_context FOR Part_view_definition_context;
-  ONEOF (
-    Gdt_representation_view_context, 
-    Kinematic_mechanism_context,
-    Kinematic_state_context,
-    Model_based_view_context, 
-    Model_based_3d_annotation_presentation_view_context,
-    Motion_context,
-    Surface_finish_view_context,
-    Machining_feature_view_context,
-    Material_specification_view_context,
-    Process_state_view_context);
-END_SUBTYPE_CONSTRAINT;
-
-END_SCHEMA;
-(*
    $Id: arm.exp,v 1.5 2012/10/11 05:49:13 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7936 - ISO/CD-TS - 10303-1811 Product and manufacturing information with nominal 3d models - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7373
@@ -16169,38 +16066,85 @@ END_ENTITY;
 END_SCHEMA;  -- Product_version_relationship_arm
 
 (*
- $Id: arm.exp,v 1.8 2006/03/24 19:03:52 thendrix Exp $
- ISO TC184/SC4/WG12 N4351 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N1532
+ $Id: arm.exp,v 1.13 2016/10/20 11:45:49 kevletu Exp $
+ ISO TC184/SC4/WG12 N9272 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N4351
 *)
    
 SCHEMA Product_view_definition_arm;
 
 USE FROM Product_version_arm;
-         
+USE FROM Shape_property_assignment_arm;
+
+TYPE life_cycle_stage_string = STRING;
+END_TYPE;
+
+TYPE life_cycle_stage_select  = SELECT (
+  life_cycle_stage_string,
+  life_cycle_stage_enumeration);
+END_TYPE;
+
+TYPE life_cycle_stage_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
+TYPE application_domain_string = STRING;
+END_TYPE;
+
+TYPE initial_application_domain_select  = SELECT (
+  application_domain_string,
+  initial_application_domain_enumeration);
+END_TYPE;
+
+TYPE initial_application_domain_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
+TYPE additional_application_domain_select  = SELECT (
+  application_domain_string,
+  additional_application_domain_enumeration);
+END_TYPE;
+
+TYPE additional_application_domain_enumeration = EXTENSIBLE ENUMERATION OF (unspecified);
+END_TYPE;
+
+TYPE product_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
+  unspecified); 
+END_TYPE;
+                
 ENTITY Product_view_definition;
   id              	: OPTIONAL STRING;
   name  	      	: OPTIONAL STRING;
   additional_characterization	      : OPTIONAL STRING;
-  initial_context 	: View_definition_context;
-  additional_contexts   : SET [0:?] OF View_definition_context;
+  initial_context 	: Initial_view_definition_context;
+  additional_contexts   : SET [0:?] OF Additional_view_definition_context;
   defined_version  	: Product_version;
+  shape_type : OPTIONAL product_shape_type_enumeration;
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
 WHERE
-  WR1: NOT (initial_context IN additional_contexts);
-  WR2: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+  WR1: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+  WR2: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
    
-ENTITY View_definition_context;
-  application_domain	: STRING;
-  life_cycle_stage 	: STRING;
+ENTITY View_definition_context
+  ABSTRACT SUPERTYPE OF (ONEOF (Initial_view_definition_context, Additional_view_definition_context));
+  life_cycle_stage 	: life_cycle_stage_select;
   description	 	: OPTIONAL STRING;
-WHERE
-  WR1: (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
-    'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')) > 0) OR
-    (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
-    'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')) > 0);
 END_ENTITY;
-   
+
+ENTITY Initial_view_definition_context
+  SUBTYPE OF (View_definition_context);
+  application_domain : initial_application_domain_select ;
+INVERSE
+  views : SET[1:?] OF Product_view_definition FOR initial_context;
+END_ENTITY;
+
+ENTITY Additional_view_definition_context
+  SUBTYPE OF (View_definition_context);
+  application_domain :  additional_application_domain_select ;
+INVERSE
+  views : SET[1:?] OF Product_view_definition FOR additional_contexts;
+END_ENTITY;
+
 END_SCHEMA;
 
 (*
@@ -16259,8 +16203,9 @@ SCHEMA Product_view_definition_reference_arm;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.14 2012/09/22 22:35:47 thomasrthurman Exp $
- ISO TC184/SC4/WG12 N2939 - ISO/TS 10303-1041 Product view definition relationship - EXPRESS ARM
+ $Id: arm.exp,v 1.19 2016/10/20 11:53:01 kevletu Exp $
+ ISO TC184/SC4/WG12 N9281 - ISO/TS 10303-1041 Product view definition relationship - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N2939
 *)
 
 
@@ -16274,12 +16219,21 @@ TYPE as_product_view_definition_or_reference = SELECT (
     Generic_product_view_definition_reference);
 END_TYPE;
 
+TYPE contextual_shape_type_enumeration = EXTENSIBLE ENUMERATION OF ( 
+  unspecified); 
+END_TYPE;
+                
 ENTITY View_definition_relationship;
   id : OPTIONAL STRING;
   relation_type : OPTIONAL STRING;
   description : OPTIONAL STRING;
   relating_view : as_product_view_definition_or_reference;
   related_view : as_product_view_definition_or_reference;
+  shape_type : OPTIONAL contextual_shape_type_enumeration; 
+  primary_shape_representation : OPTIONAL shape_model;
+  auxiliary_shape_representations : OPTIONAL SET[1:?] OF shape_model;
+WHERE
+  WR1: NOT (EXISTS(auxiliary_shape_representations)) OR EXISTS(primary_shape_representation);
 END_ENTITY;
 
 ENTITY View_definition_usage
@@ -19536,9 +19490,9 @@ SCHEMA Shape_data_quality_criteria_arm;
   
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.12 2012/10/11 05:49:06 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N7816 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7187
+   $Id: arm.exp,v 1.16 2016/10/20 12:08:36 kevletu Exp $
+   ISO TC184/SC4/WG12 N9289 - ISO/TS 10303-1524 shape_data_quality_inspection_result - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7816
 *)
 
 SCHEMA Shape_data_quality_inspection_result_arm;
@@ -19826,21 +19780,10 @@ SCHEMA Shape_data_quality_inspection_result_arm;
     local_p_d: SET OF Product_view_definition := [];
     i : INTEGER;
   END_LOCAL;
-  -- find Shape_description_association 
-   local_s_d_a  := bag_to_set (USEDIN (item, 
-   'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION')); 
-  
-  -- find Product_view_definitions
-  REPEAT i := 1 TO HIINDEX (local_s_d_a);
-     IF ('SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN 
-       TYPEOF (local_s_d_a[i].definition)) THEN
-       IF ('PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' IN TYPEOF
-         (local_s_d_a[i].definition\Item_shape.described_element))  THEN
-         local_p_d := local_p_d + local_s_d_a[i].definition\Item_shape.described_element;
-       END_IF;
-     END_IF;
-  END_REPEAT;
-
+    local_p_d  := bag_to_set (USEDIN (item, 
+   'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.PRIMARY_SHAPE_REPRESENTATION')); 
+    local_p_d  := local_p_d + bag_to_set (USEDIN (item, 
+   'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.AUXILIARY_SHAPE_REPRESENTATIONS')); 
   RETURN (local_p_d);
   END_FUNCTION;
 
@@ -19913,9 +19856,9 @@ SCHEMA Shape_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.20 2012/10/11 05:49:13 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N8047 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7463
+   $Id: arm.exp,v 1.25 2016/10/20 12:09:25 kevletu Exp $
+   ISO TC184/SC4/WG12 N9291 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N8047
 *)
 
 SCHEMA Shape_feature_arm;
@@ -19933,14 +19876,18 @@ TYPE sf_property_assignment_select = SELECT BASED_ON property_assignment_select 
   Characterizable_object);
 END_TYPE; 
 
+TYPE sf_assigned_shape_property_select = SELECT BASED_ON assigned_shape_property_select WITH ( 
+  Characterizable_object);
+END_TYPE; 
+
+TYPE sf_represented_definition = SELECT BASED_ON represented_definition WITH ( 
+  Characterizable_object);
+END_TYPE; 
+
 ENTITY Shape_feature_definition
   SUBTYPE OF (Characterizable_object);
-  DERIVE
-    feature_model : SET [1:?] OF Geometric_model := get_geometric_model(of_shape); 
-  INVERSE
-    of_shape : Item_shape FOR described_element;
-  WHERE
-    WR1: EXISTS(feature_model);
+WHERE
+  WR1: EXISTS(SELF\Characterizable_object.primary_shape_representation);
 END_ENTITY;
 
 ENTITY Instanced_feature  
@@ -19956,32 +19903,15 @@ ENTITY General_feature
   SUBTYPE OF (Shape_feature_definition);
 END_ENTITY; 
 
-FUNCTION get_geometric_model(input : Item_shape) : SET OF Geometric_model;
-  LOCAL
-    sda : SET OF Shape_description_association := [];
-    gm : SET OF Geometric_model := [];
-  END_LOCAL;
- 
-  sda := bag_to_set(USEDIN(input,
-	 	'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
- 
-  REPEAT i := 1 to SIZEOF(sda) BY 1;
-    IF 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION' IN TYPEOF (sda[i]) THEN
-      gm := gm + sda[i]\Property_definition_representation.used_representation;
-    END_IF;
-  END_REPEAT;
-  RETURN(gm);
-END_FUNCTION;
-
 SUBTYPE_CONSTRAINT sf_shape_element FOR Shape_element;
   ONEOF (Instanced_feature, Placed_feature);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (* 
-	$Id: arm.exp,v 1.51 2012/10/11 05:49:03 liutkuviene Exp $
-	ISO TC184/SC4/WG12 N8050 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
-	Supersedes ISO TC184/SC4/WG12 N7466
+	$Id: arm.exp,v 1.63 2016/10/20 11:52:05 kevletu Exp $
+	ISO TC184/SC4/WG12 N9279 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N8050
 *)
 
 
@@ -19995,43 +19925,44 @@ USE FROM Property_assignment_arm;
 USE FROM Geometric_model_relationship_arm; -- ISO/TS 10303-1403 
 USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
-TYPE spa_property_assignment_select = SELECT BASED_ON property_assignment_select WITH ( 
-  Item_shape,
-  Shape_element, 
-  Shape_element_relationship);
-END_TYPE; 
-
 TYPE chained_geometric_model_link = SELECT (
-    Geometric_placement_operation,
-    Geometric_coordinate_space,
-    Geometric_model_relationship);
+  Geometric_placement_operation,
+  Geometric_coordinate_space,
+  Geometric_model_relationship);
 END_TYPE;
-
-TYPE described_element_select = SELECT (
-  View_definition_relationship,
-  Product_occurrence_definition_relationship);
-END_TYPE;  
 
 TYPE shape_element_or_relationship_select = SELECT (
   Shape_element,
   Shape_element_relationship);
 END_TYPE;  
 
-TYPE geometric_item_specific_usage_select = SELECT (
+TYPE item_identified_representation_usage_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Assigned_property,
+  Independent_property,
   Shape_element, 
   Shape_element_relationship);
 END_TYPE; 
 
-TYPE spa_represented_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON represented_definition WITH (
-    Item_shape,
-    Shape_element,
-    Shape_element_relationship);
+TYPE spa_represented_definition = SELECT BASED_ON represented_definition WITH (
+  Product_occurrence_definition_relationship, 
+  Product_view_definition, 
+  View_definition_relationship,
+  Shape_element,
+  Shape_element_relationship);
 END_TYPE;
 
 TYPE assigned_shape_property_select = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Item_shape,
-    Shape_element,
-    Shape_element_relationship);
+  Product_occurrence_definition_relationship, 
+  Product_view_definition, 
+  View_definition_relationship,
+  Shape_element,
+  Shape_element_relationship);
+END_TYPE;
+
+TYPE spa_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
+  Product_occurrence_definition_relationship,
+  Shape_element,
+  Shape_element_relationship);
 END_TYPE;
 
 TYPE shape_model = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -20039,66 +19970,40 @@ TYPE shape_model = EXTENSIBLE GENERIC_ENTITY SELECT
    Geometric_model);
 END_TYPE; 
 
-TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT
-  (Product_occurrence_definition_relationship, 
-   Product_view_definition, 
-   View_definition_relationship);
+TYPE shapeable_item = EXTENSIBLE GENERIC_ENTITY SELECT (
+  Product_occurrence_definition_relationship, 
+  Product_view_definition, 
+  View_definition_relationship);
 END_TYPE; 
 
-ENTITY Associated_item_shape
-  SUBTYPE OF (Item_shape);
-DERIVE
-  associated_model : shape_model := association\Property_definition_representation.used_representation;
-INVERSE  
-  association : Shape_description_association FOR definition;
-END_ENTITY;  
+TYPE list_representation_items = LIST [1:?] OF Representation_item;
+END_TYPE;
 
-ENTITY Associated_shape_element 
-  SUBTYPE OF (Shape_element);
-  SELF\Shape_element.containing_shape : Associated_item_shape;
-DERIVE
-  associated_item : geometric_model_item := association\Geometric_item_specific_usage.identified_item;
-INVERSE 
-  association : Geometric_item_specific_usage FOR definition;
-WHERE
-  WR1: EXISTS(associated_item);
-  WR2: association\Geometric_item_specific_usage.used_model\Geometric_model.context_of_items = 
-  SELF\Shape_element.containing_shape\Associated_item_shape.association\Property_definition_representation.used_representation\Geometric_model.context_of_items;
-END_ENTITY;
+TYPE set_representation_items = SET [1:?] OF Representation_item;
+END_TYPE;
 
-ENTITY Contextual_item_shape
-  SUBTYPE OF (Item_shape);
-    SELF\Item_shape.described_element : described_element_select;
-  DERIVE
-    shaped_product : Product_view_definition := spa_get_definition(SELF);
-END_ENTITY;
-
-ENTITY Geometric_item_specific_usage;
-    name            : STRING;
-    description     : OPTIONAL STRING;
-    definition      : geometric_item_specific_usage_select;
-    identified_item : geometric_model_item;
-    used_model      : shape_model;      
-END_ENTITY;
-
-ENTITY Chain_based_geometric_item_specific_usage
-    SUBTYPE OF (Geometric_item_specific_usage);
-    nodes : LIST [2:?] OF UNIQUE Geometric_model;
-    undirected_link : LIST [1:?] OF UNIQUE chained_geometric_model_link;
-END_ENTITY;
-
-ENTITY Item_shape;
-  id                : OPTIONAL STRING;
-  description       : OPTIONAL STRING;
-  described_element : shapeable_item;
-UNIQUE
-  UR1: described_element;
-END_ENTITY;
+TYPE item_identified_representation_usage_select = SELECT (
+	Representation_item,
+	list_representation_items,
+	set_representation_items);
+END_TYPE;
 
 ENTITY Assigned_shape_property
   SUBTYPE OF (Assigned_property);
   SELF\Assigned_property.described_element : assigned_shape_property_select;
 END_ENTITY; 
+
+ENTITY Item_identified_representation_usage;
+    name            : STRING;
+    description     : OPTIONAL STRING;
+    definition      : item_identified_representation_usage_definition;
+    used_representation : Representation;      
+    identified_item : item_identified_representation_usage_select;
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
+WHERE
+	WR1: EXISTS(nodes) = EXISTS(undirected_link);
+END_ENTITY;
 
 ENTITY Shape_dependent_property_representation -- maps to property_def_rep
   SUBTYPE OF (Property_definition_representation);
@@ -20107,7 +20012,7 @@ END_ENTITY;
 
 ENTITY Shape_description_association -- maps to shape_def_rep
   SUBTYPE OF (Property_definition_representation);
-  SELF\Property_definition_representation.definition : Associated_item_shape;
+  SELF\Property_definition_representation.definition : shapeable_item;
   SELF\Property_definition_representation.used_representation : shape_model;
 END_ENTITY;
 
@@ -20121,11 +20026,16 @@ ENTITY Shape_element;
     id               : OPTIONAL STRING;
     element_name     : STRING;
     description      : OPTIONAL STRING;
-    containing_shape : Item_shape;
+    associated_definition : shapeable_item;
+	product_definitional : OPTIONAL BOOLEAN;
+	identified_item : OPTIONAL geometric_model_item;
+    nodes : OPTIONAL LIST [2:?] OF UNIQUE Geometric_model;
+    undirected_link : OPTIONAL LIST [1:?] OF UNIQUE chained_geometric_model_link;
 UNIQUE
-    UR1: id, containing_shape;    
+    UR1: id, associated_definition;    
 WHERE
     WR1: EXISTS(element_name) OR (TYPEOF(SELF\Shape_element) <> TYPEOF(SELF));
+	WR2: EXISTS(nodes) = EXISTS(undirected_link);
 END_ENTITY;
 
 ENTITY Shape_element_relationship;
@@ -20141,6 +20051,7 @@ SUBTYPE_CONSTRAINT property_definition_representation_subtype FOR Property_defin
   ONEOF (Shape_description_association, Shape_dependent_property_representation, Shape_element_description_association);
 END_SUBTYPE_CONSTRAINT;
 
+(* TBD Bug 5298 - Remove Item_shape and subtypes
 FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_definition;
   IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'
     IN TYPEOF(input\Item_shape.described_element))
@@ -20154,6 +20065,7 @@ FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_defi
   END_IF;    
   RETURN(?);
 END_FUNCTION;
+*)
 
 END_SCHEMA;  
 (*
@@ -21352,9 +21264,9 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.35 2013/10/10 19:01:09 thomasrthurman Exp $
- ISO TC184/SC4/WG12 N8062 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7475
+ $Id: arm.exp,v 1.41 2016/10/20 11:54:50 kevletu Exp $
+ ISO TC184/SC4/WG12 N9283 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N8062
 *)
 
 SCHEMA Surface_conditions_arm;
@@ -21367,7 +21279,11 @@ USE FROM Part_view_definition_arm;
 
 USE FROM Value_with_unit_extension_arm;
 
-TYPE sc_dimension_target = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dimension_target WITH (
+TYPE sc_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
+  surface_finish);
+END_TYPE;
+
+TYPE sc_dimension_target = SELECT BASED_ON dimension_target WITH (
    Coating_layer);
 END_TYPE; 
 
@@ -21378,12 +21294,15 @@ END_TYPE;
     Part_view_definition);
   END_TYPE;
 
-  TYPE sf_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+  TYPE sf_material_item_select = SELECT BASED_ON material_item_select WITH
 	(Coating_layer);
   END_TYPE;
 
-  TYPE shaped_element_select = SELECT
-    (Shape_element, Item_shape);
+  TYPE shaped_element_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Product_occurrence_definition_relationship, 
+    Product_view_definition, 
+    View_definition_relationship,
+    Shape_element);
   END_TYPE;
 
   ENTITY Coating_layer

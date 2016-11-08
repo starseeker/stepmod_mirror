@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!--  $Id: build_CR.xsl,v 1.30 2016/08/18 17:39:00 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.31 2016/10/28 10:23:17 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -1007,6 +1007,15 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                         <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
                     </xsl:attribute>
                     <param name="output_type" expression="HTM"/>
+                    <!-- MWD 2016-11-08 added -->
+                    <xsl:element name="param">
+                        <xsl:attribute name="name">
+                            <xsl:value-of select="'output_rcs'"/>
+                        </xsl:attribute>
+                        <xsl:attribute name="expression">
+                            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+                        </xsl:attribute>
+                    </xsl:element>
                 </xsl:element>
                 
                 <!--<xsl:element name="xslt">
@@ -1805,6 +1814,16 @@ Purpose: To build the ANT build file from which a Change Request is produced.
             <xsl:element name="property">
                 <xsl:attribute name="name">STEPMODDTDDIR</xsl:attribute>
                 <xsl:attribute name="value">dtd</xsl:attribute>
+            </xsl:element>
+            
+            <!-- added MWD 2016-11-08 -->
+            <xsl:element name="property">
+                <xsl:attribute name="name">OUTPUT_RCS</xsl:attribute>
+                <xsl:attribute name="value">NO</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="property">
+                <xsl:attribute name="name">OUTPUT_ISSUES</xsl:attribute>
+                <xsl:attribute name="value">NO</xsl:attribute>
             </xsl:element>
 
             <xsl:choose>

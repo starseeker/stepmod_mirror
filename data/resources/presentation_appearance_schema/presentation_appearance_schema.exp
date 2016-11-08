@@ -364,18 +364,18 @@ REFERENCE FROM support_resource_schema
       tolerances        : SET [1:2] OF tolerance_deviation_select;
       definition_space  : product_or_presentation_space;
     WHERE
-      WR1: (HIINDEX(SELF.tolerances) = 1)
+      WR1: (HIINDEX(tolerances) = 1)
             XOR
-        (TYPEOF(SELF.tolerances[1]) <> TYPEOF(SELF.tolerances[2]));
+        (TYPEOF(tolerances[1]) <> TYPEOF(tolerances[2]));
   END_ENTITY;
 
   ENTITY approximation_tolerance_parameter
     SUBTYPE OF (founded_item);
       tolerances : SET [1:2] OF tolerance_parameter_select;
     WHERE
-      WR1: (HIINDEX (SELF.tolerances) = 1 )
+      WR1: (HIINDEX (tolerances) = 1 )
              XOR
-        (TYPEOF (SELF.tolerances[1]) <> TYPEOF (SELF.tolerances[2]));
+        (TYPEOF (tolerances[1]) <> TYPEOF (tolerances[2]));
   END_ENTITY;
 
   ENTITY character_glyph_style_outline
@@ -403,8 +403,8 @@ REFERENCE FROM support_resource_schema
       style_context : LIST[1:?] OF style_context_select;
     WHERE
       WR1: 
-(SIZEOF(QUERY(sc <* SELF.style_context | 'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(sc)))= 1) OR
-(SIZEOF(QUERY(sc <* SELF.style_context |
+(SIZEOF(QUERY(sc <* style_context | 'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(sc)))= 1) OR
+(SIZEOF(QUERY(sc <* style_context |
      ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(sc))
   OR ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(sc)) ))
   = SIZEOF(style_context));     
@@ -479,7 +479,7 @@ REFERENCE FROM support_resource_schema
   ENTITY draughting_pre_defined_curve_font
     SUBTYPE OF (pre_defined_curve_font);
     WHERE
-      WR1: SELF.name IN
+      WR1: SELF\pre_defined_item.name IN
         ['continuous',
          'chain',
          'chain double dash',
@@ -512,7 +512,7 @@ REFERENCE FROM support_resource_schema
       name        : label;
       fill_styles : SET [1:?] OF fill_style_select;
     WHERE
-      WR1: SIZEOF(QUERY(fill_style <* SELF.fill_styles |
+      WR1: SIZEOF(QUERY(fill_style <* fill_styles |
          'PRESENTATION_APPEARANCE_SCHEMA.'+
          'FILL_AREA_STYLE_COLOUR' IN
          TYPEOF(fill_style)
@@ -576,7 +576,7 @@ REFERENCE FROM support_resource_schema
       lower_precedence  : hiding_or_blanking_select;
       occlusion_context : representation;
     WHERE
-      WR1: acyclic_occlusion_precedence (SELF, [SELF.lower_precedence]);
+      WR1: acyclic_occlusion_precedence (SELF, [lower_precedence]);
   END_ENTITY;
 
   ENTITY one_direction_repeat_factor
@@ -637,8 +637,8 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (founded_item);
       styles : SET [1:?] OF presentation_style_select;
     WHERE
-      WR1: SIZEOF (QUERY (style1 <* SELF.styles |
-           NOT (SIZEOF (QUERY (style2 <* (SELF.styles - style1) |
+      WR1: SIZEOF (QUERY (style1 <* styles |
+           NOT (SIZEOF (QUERY (style2 <* (styles - style1) |
            NOT ((TYPEOF (style1) <> TYPEOF (style2)) OR
              (SIZEOF (['PRESENTATION_APPEARANCE_SCHEMA.' + 
                        'SURFACE_STYLE_USAGE',
@@ -647,13 +647,13 @@ REFERENCE FROM support_resource_schema
                      TYPEOF (style1)) = 1)
            ))) = 0
          ))) = 0;
-      WR2: SIZEOF (QUERY (style1 <* SELF.styles |
+      WR2: SIZEOF (QUERY (style1 <* styles |
          'PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN
          TYPEOF(style1)
          )) <= 2;
-      WR3: SIZEOF (QUERY (style1 <* SELF.styles |
+      WR3: SIZEOF (QUERY (style1 <* styles |
          ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style1)) AND 
-         (SIZEOF (QUERY (style2 <* (SELF.styles - style1) |
+         (SIZEOF (QUERY (style2 <* (styles - style1) |
            ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style2)) AND 
            ((style1\surface_style_usage.side = both) OR 
            (style2\surface_style_usage.side = both) OR 
@@ -673,12 +673,12 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (founded_item);
       style_of_symbol : presentation_style_assignment;
     WHERE
-      WR1: SIZEOF (QUERY ( style <* SELF.style_of_symbol.styles |
+      WR1: SIZEOF (QUERY ( style <* style_of_symbol\presentation_style_assignment.styles |
            'PRESENTATION_APPEARANCE_SCHEMA.SYMBOL_STYLE' IN
            TYPEOF (style))) = 0;
       WR2: NOT ('PRESENTATION_APPEARANCE_SCHEMA.' +
                 'PRESENTATION_STYLE_BY_CONTEXT' IN
-              TYPEOF (SELF.style_of_symbol)
+              TYPEOF (style_of_symbol)
            );
   END_ENTITY;
 
@@ -693,9 +693,9 @@ REFERENCE FROM support_resource_schema
       styles :  SET [1:?] OF presentation_style_assignment;
       item   :  styled_item_target; 
     WHERE
-      WR1: (SIZEOF(SELF.styles) = 1)
+      WR1: (SIZEOF(styles) = 1)
                XOR
-         (SIZEOF(QUERY(pres_style <* SELF.styles |
+         (SIZEOF(QUERY(pres_style <* styles |
          NOT ('PRESENTATION_APPEARANCE_SCHEMA.' +
               'PRESENTATION_STYLE_BY_CONTEXT' IN
          TYPEOF(pres_style))
@@ -715,8 +715,8 @@ REFERENCE FROM support_resource_schema
       name   : label;
       styles : SET [1:7] OF surface_style_element_select;
     WHERE
-      WR1: SIZEOF(QUERY( style1 <* SELF.styles |
-           SIZEOF(QUERY( style2 <* SELF.styles - style1 |
+      WR1: SIZEOF(QUERY( style1 <* styles |
+           SIZEOF(QUERY( style2 <* styles - style1 |
            TYPEOF(style1) = TYPEOF(style2)
            )) > 0
            )) = 0;
@@ -742,10 +742,10 @@ REFERENCE FROM support_resource_schema
       style_of_parameter_lines : curve_or_render;
       direction_counts         : SET [1:2] OF direction_count_select;
     WHERE
-      WR1: (HIINDEX(SELF.direction_counts) = 1)
+      WR1: (HIINDEX(direction_counts) = 1)
                         XOR
-         (TYPEOF(SELF.direction_counts[1]) <>
-          TYPEOF(SELF.direction_counts[2]));
+         (TYPEOF(direction_counts[1]) <>
+          TYPEOF(direction_counts[2]));
   END_ENTITY;
 
   ENTITY surface_style_reflectance_ambient;
@@ -773,9 +773,9 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (surface_style_rendering);
       properties : SET [1:2] OF rendering_properties_select;
     WHERE
-      WR1: (HIINDEX(SELF.properties) = 1)
+      WR1: (HIINDEX(properties) = 1)
                    XOR
-         (TYPEOF(SELF.properties[1]) <> TYPEOF(SELF.properties[2]));
+         (TYPEOF(properties[1]) <> TYPEOF(properties[2]));
   END_ENTITY;
 
   ENTITY surface_style_segmentation_curve
@@ -814,8 +814,8 @@ REFERENCE FROM support_resource_schema
     SUBTYPE OF (text_style);
       characteristics : SET [1:4] OF box_characteristic_select;
     WHERE
-      WR1: SIZEOF( QUERY( c1 <* SELF.characteristics |
-           SIZEOF( QUERY( c2 <* SELF.characteristics - c1 |
+      WR1: SIZEOF( QUERY( c1 <* characteristics |
+           SIZEOF( QUERY( c2 <* characteristics - c1 |
            TYPEOF (c1) = TYPEOF (c2)
            )) > 0
            )) = 0;

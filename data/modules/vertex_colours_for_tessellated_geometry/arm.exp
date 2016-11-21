@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2016/11/14 16:34:14 kevletu Exp $
    N - ISO/CD-TS - 10303- vertex_colours_for_tessellated_geometry - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Vertex_colours_for_tessellated_geometry_arm;
@@ -27,45 +27,18 @@ TYPE unsigned_8_bit_integer = INTEGER;
 		WR1: { 0 <= SELF <= 255 };
 END_TYPE;
 
-ENTITY Styled_element
-  SUBTYPE OF (Representation_item);
-  appearance : styled_element_appearance;
-  element : Detailed_geometric_model_element;
-  invisible : BOOLEAN;
-END_ENTITY;
 
-ENTITY styled_item
-      SUBTYPE OF (representation_item);
-        styles :  SET [0:?] OF presentation_style_assignment;
-        item   :  styled_item_target; 
-      WHERE
-        WR1:  (SIZEOF(styles = 0) AND ( 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_TESSELLATED_ITEM' IN TYPEOF(self)))
-               OR
-              (SIZEOF(styles) = 1)
-               OR
-              ((SIZEOF(styles) > 1) AND (SIZEOF(QUERY(pres_style <* styles | NOT ('PRESENTATION_APPEARANCE_SCHEMA.' + 'PRESENTATION_STYLE_BY_CONTEXT' IN TYPEOF(pres_style)))) = 0));
-        WR2: NOT ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(item));
-        WR3: ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(item)) OR
-             ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item)) OR
-             ('PRESENTATION_APPEARANCE_SCHEMA.CONTEXT_DEPENDENT_OVER_RIDING_STYLED_ITEM' IN TYPEOF(SELF));
-      
-END_ENTITY; 
-
-    
-    (*  added new subtype of styled_item *)
-   ENTITY styled_tessellated_item 
-     SUBTYPE OF (styled_item);
-     SELF\styled_item.item : tessellated_surface_item;
+ENTITY Styled_tessellated_item 
+	SUBTYPE OF (Representation_item);
+	 element : tessellated_surface_item;
      colour_type : colour_type_enum;
      colour_values : LIST[1:?] OF LIST[3:4] OF unsigned_8_bit_integer;
    DERIVE
-     coloured_coordinate_values : coordinates_list := get_coordinate_values(
-          SELF\styled_item.item );
+     coloured_coordinate_values : Coordinates_list := get_coordinate_values(SELF\styled_item.item );
    WHERE
-     WR1 : SIZEOF(styles )= 0;
-     WR2 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
+     WR1 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
            ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 4)))= 0));
-     WR3 : SIZEOF(colour_values) = coloured_coordinate_values.npoints;
+     WR2 : SIZEOF(colour_values) = coloured_coordinate_values.npoints;
   END_ENTITY;
  
  (* The descriptions of the above new WHERE rules are 

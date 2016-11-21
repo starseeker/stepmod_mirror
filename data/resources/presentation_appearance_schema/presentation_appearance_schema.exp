@@ -34,6 +34,11 @@ REFERENCE FROM external_reference_schema
     (externally_defined_item,
      pre_defined_item);
 
+REFERENCE FROM geometric_model_schema
+    (tessellated_item,
+    tessellated_face,
+    tessellated_surface_set);
+
 REFERENCE FROM geometry_schema
     (axis2_placement,
      b_spline_curve, 
@@ -177,7 +182,8 @@ REFERENCE FROM support_resource_schema
      fill_area_style_tiles,
      pre_defined_hatch_style,
      externally_defined_hatch_style,
-     fill_area_style_hatching);
+     fill_area_style_hatching,
+     texture_style_specification);
   END_TYPE;
 
   TYPE fill_area_style_tile_shape_select = SELECT
@@ -328,10 +334,25 @@ REFERENCE FROM support_resource_schema
      symbol_colour);
   END_TYPE;
 
+  TYPE tessellated_face_or_tessellated_surface_set = SELECT
+    (tessellated_face,
+     tessellated_surface_set);
+  END_TYPE; 
 
   TYPE text_justification = label;
   END_TYPE;
 
+  TYPE texture_file_type = ENUMERATION OF
+    (JPEG, 
+    PNG,
+    GIF,
+    TIFF,
+    BMP,
+    DDS,
+    TGA,
+    other);
+  END_TYPE;
+  
   TYPE tolerance_deviation_select = SELECT
     (curve_tolerance_deviation,
      surface_tolerance_deviation);
@@ -357,6 +378,11 @@ REFERENCE FROM support_resource_schema
       WR1: SELF > 1;
   END_TYPE;
 
+  TYPE zero_to_one_bounded_non_negative_real = REAL;
+   WHERE
+  	WR1: { 0. <= SELF <= 1. };
+  END_TYPE;  
+  
   ENTITY approximation_tolerance
     SUBTYPE OF (founded_item);
       tolerance : tolerance_select;
@@ -805,6 +831,39 @@ REFERENCE FROM support_resource_schema
       style : surface_side_style_select;
   END_ENTITY;
 
+  ENTITY tessellated_styled_item_with_texture
+	SUBTYPE OF (styled_item);  
+  		SELF\styled_item.styles : SET [1:1] OF presentation_style_assignment;
+		SELF\styled_item.item   : tessellated_face_or_tessellated_surface_set;
+    DERIVE
+      texture_style_specification : texture_style_tessellation_specification := styles[LOINDEX(styles)]\presentation_style_assignment.styles[LOINDEX(styles)];
+    WHERE
+     WR1: SIZEOF(styles[LOINDEX(styles)]\presentation_style_assignment.styles) = 1;
+     WR2: NOT ('GEOMETRIC_MODEL_SCHEMA.TRIANGULATED_FACE' IN TYPEOF(item))
+          OR
+          NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
+          OR
+           (
+            ((SIZEOF(item\triangulated_face.pnindex) > 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\triangulated_face.pnindex))))
+            OR
+            ((SIZEOF(item\triangulated_face.pnindex) = 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_face.coordinates))))
+           );
+    WR3: NOT ('GEOMETRIC_MODEL_SCHEMA.COMPLEX_TRIANGULATED_FACE' IN TYPEOF(item))
+         OR
+         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
+         OR
+           (
+            ((SIZEOF(item\complex_triangulated_face.pnindex) > 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\complex_triangulated_face.pnindex))))
+            OR
+            ((SIZEOF(item\complex_triangulated_face.pnindex) = 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_face.coordinates))))
+           );
+    WR4: NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET' IN TYPEOF(item))
+         OR
+         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
+         OR
+         (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_surface_set.coordinates)));
+  END_ENTITY;
+  
   ENTITY text_style
     SUBTYPE OF (founded_item);
       name                 : label;
@@ -839,6 +898,24 @@ REFERENCE FROM support_resource_schema
   ENTITY text_style_with_spacing
     SUBTYPE OF (text_style);
       character_spacing : character_spacing_select;
+  END_ENTITY;
+
+  ENTITY texture_style_specification
+  	SUBTYPE OF (founded_item)
+  	ABSTRACT SUPERTYPE;
+  END_ENTITY;
+  
+  ENTITY texture_style_tessellation_specification
+     ABSTRACT SUPERTYPE
+     SUBTYPE OF (texture_style_specification);
+  END_ENTITY;
+  
+  ENTITY single_texture_style_tessellation_specification
+     SUBTYPE OF (texture_style_tessellation_specification);
+     texture_image: label;
+     texture_coordinates: LIST [1:?] OF LIST [2:2] OF zero_to_one_bounded_non_negative_real;
+     texture_format: texture_file_type;
+     repeating_pattern: BOOLEAN;
   END_ENTITY;
 
   ENTITY two_direction_repeat_factor

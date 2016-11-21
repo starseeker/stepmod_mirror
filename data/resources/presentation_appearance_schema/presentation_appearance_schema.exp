@@ -35,9 +35,14 @@ REFERENCE FROM external_reference_schema
      pre_defined_item);
 
 REFERENCE FROM geometric_model_schema
-    (tessellated_item,
-    tessellated_face,
-    tessellated_surface_set);
+    (coordinates_list,
+     tessellated_edge,
+     tessellated_face,
+     tessellated_item,
+     tessellated_shell,
+     tessellated_solid,
+     tessellated_surface_set,
+     tessellated_vertex);
 
 REFERENCE FROM geometry_schema
     (axis2_placement,
@@ -104,7 +109,7 @@ REFERENCE FROM support_resource_schema
     (label,
      bag_to_set);
  
-
+ 
   TYPE approximation_method = ENUMERATION OF
     (chordal_deviation,
      chordal_length);
@@ -141,6 +146,11 @@ REFERENCE FROM support_resource_schema
     (character_glyph_style_stroke,
      character_glyph_style_outline,
      text_style_for_defined_font);
+  END_TYPE;
+
+  TYPE colour_type_enum = ENUMERATION OF(
+    RGB8,
+    RGBT8);
   END_TYPE;
 
   TYPE curve_font_or_scaled_curve_font_select = SELECT
@@ -339,6 +349,13 @@ REFERENCE FROM support_resource_schema
      tessellated_surface_set);
   END_TYPE; 
 
+  TYPE  tessellated_surface_item = SELECT 
+    (tessellated_face, 
+     tessellated_shell,
+     tessellated_solid,
+     tessellated_surface_set);
+  END_TYPE;
+
   TYPE text_justification = label;
   END_TYPE;
 
@@ -371,6 +388,11 @@ REFERENCE FROM support_resource_schema
   TYPE u_direction_count = INTEGER;
     WHERE
       WR1: SELF > 1;
+  END_TYPE;
+
+  TYPE unsigned_8_bit_integer = INTEGER;
+    WHERE
+      WR1: { 0 <= SELF <= 255 };
   END_TYPE;
 
   TYPE v_direction_count = INTEGER;
@@ -723,22 +745,36 @@ REFERENCE FROM support_resource_schema
 
   ENTITY styled_item
     SUBTYPE OF (representation_item);
-      styles :  SET [1:?] OF presentation_style_assignment;
+      styles :  SET [0:?] OF presentation_style_assignment;
       item   :  styled_item_target; 
     WHERE
-      WR1: (SIZEOF(styles) = 1)
-               XOR
-         (SIZEOF(QUERY(pres_style <* styles |
-         NOT ('PRESENTATION_APPEARANCE_SCHEMA.' +
-              'PRESENTATION_STYLE_BY_CONTEXT' IN
-         TYPEOF(pres_style))
-         )) = 0);
+      WR1: (SIZEOF(styles = 0) AND ( 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_TESSELLATED_ITEM' IN TYPEOF(self)))
+           OR
+           (SIZEOF(styles) = 1)
+           OR
+           ((SIZEOF(styles) > 1) AND
+            (SIZEOF(QUERY(pres_style <* styles | NOT ('PRESENTATION_APPEARANCE_SCHEMA.' + 'PRESENTATION_STYLE_BY_CONTEXT' IN
+                                                  TYPEOF(pres_style)))) = 0));
       WR2: NOT ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(item));
       WR3: ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(item)) OR
            ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item)) OR
            ('PRESENTATION_APPEARANCE_SCHEMA.CONTEXT_DEPENDENT_OVER_RIDING_STYLED_ITEM' IN TYPEOF(SELF));
   END_ENTITY;
 
+   ENTITY styled_tessellated_item 
+     SUBTYPE OF (styled_item);
+     SELF\styled_item.item : tessellated_surface_item;
+     colour_type : colour_type_enum;
+     colour_values : LIST[1:?] OF LIST[3:4] OF unsigned_8_bit_integer;
+   DERIVE
+     coloured_coordinate_values : coordinates_list := get_coordinate_values(item );
+   WHERE
+     WR1 : SIZEOF(SELF\styled_item.styles)= 0;
+     WR2 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
+           ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* colour_values | NOT (SIZEOF(clist) = 4)))= 0));
+     WR3 : SIZEOF(colour_values) = coloured_coordinate_values\coordinates_list.npoints;
+  END_ENTITY;
+ 
   ENTITY surface_rendering_properties;
     rendered_colour : colour;
   END_ENTITY;
@@ -999,4 +1035,103 @@ REFERENCE FROM support_resource_schema
     RETURN (TRUE);
   END_FUNCTION;
 
-END_SCHEMA; 
+ FUNCTION get_coordinate_values
+  (source : tessellated_surface_item) : coordinates_list; 
+ LOCAL
+      coordinate_values : coordinates_list;
+      max : INTEGER;
+ END_LOCAL;
+       (* If source is of type tessellated_face its single coordinates_list is returned *)  
+    CASE TRUE OF
+    'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_FACE' IN TYPEOF(source): --first case 
+    BEGIN
+      coordinate_values := source\tessellated_face.coordinates;
+      RETURN(coordinate_values);
+    END;
+       (* If source is of type tessellated_surface_set its single coordinates_list is returned *)  
+   'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET' IN TYPEOF(source): --second case
+    BEGIN
+      coordinate_values := source\tessellated_surface_set.coordinates;
+      RETURN(coordinate_values);
+    END;    
+       (* For complex cases of tessellated_solid or tessellated_shell multiple coordinates_lists
+        may occur. A valid return is only possible if a single coordinates_list is used for all components of the shell or solid *)
+       (*  A tessellated_solid, or tessellated_shell  has a SET of teessellated_structured_items which must be inspected, the local variable coordinate_values is 
+        set to the coordinates_list referenced by items[1] and is later compared to other referenced coordinates_lists *)
+   'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID' IN TYPEOF(source): -- third case
+    BEGIN
+      IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_FACE' IN TYPEOF(source\tessellated_solid.items[1]) THEN
+        coordinate_values := source\tessellated_solid.items[1]\tessellated_face.coordinates;
+      END_IF;
+     IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_EDGE' IN TYPEOF(source\tessellated_solid.items[1]) THEN
+       coordinate_values := source\tessellated_solid.items[1]\tessellated_edge.coordinates;
+     END_IF;
+     IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_VERTEX' IN TYPEOF(source\tessellated_solid.items[1]) THEN
+       coordinate_values := source\tessellated_solid.items[1]\tessellated_vertex.coordinates;
+     END_IF;
+     max := SIZEOF(source\tessellated_solid.items);
+      IF   max = 1 THEN 
+       RETURN(coordinate_values);
+     (* simple case with only 1 item in the list *)
+      ELSE REPEAT i := 2 TO max;
+       (* check that each item on the list references the same coordintes_list as items[1], if NOT rerurn ? *) 
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_FACE' IN TYPEOF(source\tessellated_solid.items[i]) THEN
+          IF NOT(coordinate_values :=: source\tessellated_solid.items[i]\tessellated_face.coordinates) THEN 
+           RETURN (?);
+          END_IF;  
+        END_IF;
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_EDGE' IN TYPEOF(source\tessellated_solid.items[i] THEN
+          IF NOT(coordinate_values :=: source\tessellated_solid.items[i]\tessellated_edge.coordinates) THEN
+           RETURN(?);
+          END_IF;
+        END_IF;  
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_VERTEX' IN TYPEOF(source\tessellated_solid.items[i]} THEN
+         IF NOT(coordinate_values :=: source\tessellated_solid.items[i]\tessellated_vertex.coordinates) THEN
+           RETURN(?);
+         END_IF;  
+       END_IF; 
+     END_REPEAT;
+     RETURN(coordinate_values);
+      (* all items referenced by the tessellated_solid share the same coordinates list which is now returned. *) 
+    END_IF;
+  END;   
+      (* tessellated_shell has a SET of tessellated_structured_items which must be inspected *)
+   'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL' IN TYPEOF(source): --fourth case
+    BEGIN
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_FACE' IN TYPEOF(source\tessellated_shell.items[1]) THEN
+         coordinate_values := source\tessellated_shell.items[1]\tessellated_face.coordinates;
+        END_IF;
+       IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_EDGE' IN TYPEOF(source\tessellated_shell.items[1]) THEN
+         coordinate_values := source\tessellated_shell.items[1]\tessellated_edge.coordinates;
+       END_IF;
+       IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_VERTEX' IN TYPEOF(source\tessellated_shell.items[1]) THEN
+        coordinate_values := source\tessellated_shell.items[1]\tessellated_vertex.coordinates;
+       END_IF;
+       max := SIZEOF(source\tessellated_shell.items);
+       IF  max = 1 THEN RETURN(coordinate_values);
+       (* simple case with only 1 item in the list *)
+       ELSE REPEAT i := 2 TO max;
+        (* check that each item on the list references the same coordinates_list as item[1], if NOT rerurn ? *) 
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_FACE' IN TYPEOF(source\tessellated_shell.items[i]) THEN
+         IF NOT(coordinate_values :=: source\tessellated_shell.items[i]\tessellated_face.coordinates) THEN 
+           RETURN (?);
+         END_IF;  
+        END_IF;
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_EDGE' IN TYPEOF(source\tessellated_shell.items[i]) THEN
+          IF NOT (coordinate_values :=: source\tessellated_shell.items[i]\tessellated_edge.coordinates) THEN
+            RETURN(?);
+          END_IF;
+        END_IF;  
+        IF 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_VERTEX' IN TYPEOF(source\tessellated_shell.items[i]) THEN
+         IF NOT (coordinate_values :=: source\tessellated_shell.items[i]\tessellated_vertex.coordinates) THEN
+           RETURN(?);
+         END_IF;  
+        END_IF; 
+      END_REPEAT;
+      RETURN(coordinate_values);
+       (* all items referenced by the tessellated_shell share the same coordinates_list which is now returned. *) 
+     END_IF;
+   END;
+   END_CASE;
+ END_FUNCTION; 
+ END_SCHEMA; 

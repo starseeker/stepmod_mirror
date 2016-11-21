@@ -8,7 +8,7 @@ ISO 10303-46 ed3 Visual presentation - Presentation appearance schema
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
 
-Copyright ISO 2014  All rights reserved
+Copyright ISO 2017  All rights reserved
 Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
 to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
 implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
@@ -28,7 +28,7 @@ ISO 10303-46 ed3 Visual presentation - Presentation appearance schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA presentation_appearance_schema '{iso standard 10303 part(46) version(3) object(1) presentation_appearance_schema(3)}';
+SCHEMA presentation_appearance_schema '{iso standard 10303 part(46) version(6) object(1) presentation_appearance_schema(3)}';
  
 REFERENCE FROM external_reference_schema
     (externally_defined_item,
@@ -45,9 +45,6 @@ REFERENCE FROM geometry_schema
      polyline, 
      vector);
 
-REFERENCE FROM topology_schema
-    (topological_representation_item);
-
 REFERENCE FROM group_schema
   (group);
 
@@ -60,6 +57,13 @@ REFERENCE FROM measure_schema
      ratio_measure,
      positive_ratio_measure);
 
+REFERENCE FROM presentation_definition_schema
+    (annotation_curve_occurrence,
+     annotation_fill_area,
+     annotation_symbol_occurrence,
+     annotation_text_with_delineation,
+     symbol_representation_with_blanking_box);
+
 REFERENCE FROM presentation_organization_schema
      (area_dependent_annotation_representation,
       presentation_area,
@@ -71,18 +75,14 @@ REFERENCE FROM presentation_organization_schema
       product_data_representation_view,
       view_dependent_annotation_representation);
 
-REFERENCE FROM presentation_definition_schema
-    (annotation_curve_occurrence,
-     annotation_fill_area,
-     annotation_symbol_occurrence,
-     annotation_text_with_delineation,
-     symbol_representation_with_blanking_box);
-
 REFERENCE FROM presentation_resource_schema
     (character_glyph_symbol_outline,
      character_glyph_symbol_stroke,
      colour);
 
+REFERENCE FROM product_property_representation_schema(
+         context_dependent_shape_representation);
+         
 REFERENCE FROM representation_schema
     (founded_item,
      mapped_item,
@@ -91,6 +91,9 @@ REFERENCE FROM representation_schema
      representation_map,
      representation_relationship,
      using_representations);
+
+REFERENCE FROM topology_schema
+    (topological_representation_item);
 
 REFERENCE FROM support_resource_schema
     (label,
@@ -278,6 +281,7 @@ REFERENCE FROM support_resource_schema
 
   TYPE style_context_select = SELECT
     (group,
+     context_dependent_shape_representation,
      presentation_layer_assignment,
      presentation_set,
      representation,
@@ -406,6 +410,7 @@ REFERENCE FROM support_resource_schema
 (SIZEOF(QUERY(sc <* style_context | 'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(sc)))= 1) OR
 (SIZEOF(QUERY(sc <* style_context |
      ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(sc))
+  OR ('PRESENTATION_APPEARANCE_SCHEMA.CONTEXT_DEPENDENT_SHAPE_REPRESENTATION' IN TYPEOF(sc))
   OR ('REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP' IN TYPEOF(sc)) ))
   = SIZEOF(style_context));     
   END_ENTITY;

@@ -1,14 +1,14 @@
 (*
-$Id: representation_schema.exp,v 1.15 2015/12/01 11:14:38 kevletu Exp $
-ISO 10303 TC184/SC4/WG12 N9206
+$Id: representation_schema.exp,v 1.16 2016/04/18 08:42:58 kevletu Exp $
+ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
-ISO 10303-43 ed3 Representation structures - Representation schema
+ISO 10303-43 ed5 Representation structures - Representation schema
 
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
 
-Copyright ISO 2014  All rights reserved
+Copyright ISO 2017  All rights reserved
 Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
 to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
 implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
@@ -24,11 +24,11 @@ USE OR OTHER DEALINGS IN THE SCHEMA.
 In addition, any modified copy of the Schema shall include the following notice:
 
 THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
-ISO 10303-43 ed3 Representation structures - Representation schema
+ISO 10303-43 ed5 Representation structures - Representation schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA representation_schema '{iso standard 10303 part(43) version(6) object(1) representation_schema(1)}';
+SCHEMA representation_schema '{iso standard 10303 part(43) version(7) object(1) representation_schema(1)}';
 
 REFERENCE FROM basic_attribute_schema
   (description_attribute,
@@ -37,6 +37,9 @@ REFERENCE FROM basic_attribute_schema
    get_id_value,
    id_attribute,
    id_attribute_select);
+
+REFERENCE FROM external_reference_schema(
+         pre_defined_item);
 
 REFERENCE FROM measure_schema
   (measure_value,
@@ -64,6 +67,11 @@ REFERENCE FROM support_resource_schema
   TYPE founded_item_select = SELECT
     (founded_item,
      representation_item);
+  END_TYPE;
+
+  TYPE representation_or_representation_reference = SELECT (
+             representation,
+             representation_reference);
   END_TYPE;
 
   TYPE list_representation_item = LIST [1:?] OF representation_item;
@@ -187,6 +195,13 @@ REFERENCE FROM support_resource_schema
       representations_in_context : SET [1:?] OF representation FOR context_of_items;
   END_ENTITY;
 
+  ENTITY representation_context_reference;
+   SUBTYPE OF (pre_defined_item);
+      context_identifier : identifier;
+   INVERSE
+      representations_in_context : SET [1:?] OF representation_reference FOR context_of_items;
+  END_ENTITY;
+
   ENTITY representation_item
     SUPERTYPE OF(ONEOF(binary_representation_item,
       compound_representation_item, 
@@ -214,11 +229,17 @@ REFERENCE FROM support_resource_schema
         SELF.mapped_representation.context_of_items);
   END_ENTITY;
 
+  ENTITY representation_reference
+   SUBTYPE OF (pre_defined_item);
+    id                                : identifier;
+    context_of_items                  : representation_context_reference;
+  END_ENTITY;
+
   ENTITY representation_relationship;
       name        : label;
       description : OPTIONAL text;
-      rep_1       : representation;
-      rep_2       : representation;
+      rep_1        : representation_or_representation_reference;
+      rep_2        : representation_or_representation_reference;
   END_ENTITY;
 
   ENTITY representation_relationship_with_transformation

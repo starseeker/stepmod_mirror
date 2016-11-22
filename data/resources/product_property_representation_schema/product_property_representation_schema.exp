@@ -1,9 +1,9 @@
 (*
-$Id: product_property_representation_schema.exp,v 1.41 2015/07/13 20:54:19 thomasrthurman Exp $
+$Id: product_property_representation_schema.exp,v 1.42 2016/11/22 17:09:08 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
-ISO 10303-41 ed6 Fundamentals of product description and support - Product property representation schema
+ISO 10303-41 ed5 Fundamentals of product description and support - Product property representation schema
 
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
@@ -24,11 +24,11 @@ USE OR OTHER DEALINGS IN THE SCHEMA.
 In addition, any modified copy of the Schema shall include the following notice:
 
 THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
-ISO 10303-41 ed6 Fundamentals of product description and support - Product property representation schema
+ISO 10303-41 ed5 Fundamentals of product description and support - Product property representation schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA product_property_representation_schema '{iso standard 10303 part(41) version(9) object(1) product_property_representation_schema(19)}';
+SCHEMA product_property_representation_schema '{iso standard 10303 part(41) version(8) object(1) product_property_representation_schema(19)}';
 
   REFERENCE FROM basic_attribute_schema (
     description_attribute, 
@@ -60,7 +60,8 @@ SCHEMA product_property_representation_schema '{iso standard 10303 part(41) vers
     representation_context, 
     representation_map,
     list_representation_item,
-    set_representation_item);
+    set_representation_item,
+    get_representations_for_items);
   REFERENCE FROM support_resource_schema (
     bag_to_set, 
     label, 
@@ -160,7 +161,8 @@ SCHEMA product_property_representation_schema '{iso standard 10303 part(41) vers
     used_representation : representation;
     identified_item : item_identified_representation_usage_select;
   WHERE
-    WR1: SELF.used_representation IN using_representations(SELF.identified_item);
+    WR1:NOT (SIZEOF(identified_item) = 1) OR used_representation IN using_representations(identified_item);
+    WR2: NOT (SIZEOF(identified_item) > 1) OR used_representation IN get_representations_for_items(identified_item);
   END_ENTITY;
 
   ENTITY property_definition_representation;

@@ -10,7 +10,7 @@
 	<xsl:output method="text" encoding="UTF-8" indent="no"
 		omit-xml-declaration="yes" />
 	<!-- INPUT: CR publication_index.xml.
-		 OUTPUT: WG12 N numbers text list for each modules
+		 OUTPUT: WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
 		 (next update: consider resources) -->
 
 	<xsl:template match="/">

@@ -157,8 +157,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:template name="entries_to_xml">
     <xsl:param name="entries"/>
-    <xsl:variable name="line" select="normalize-space(substring-before($entries,'&#xD;'))"/>
-    <xsl:variable name="rest" select="substring-after($entries,'&#xD;')"/>
+    <xsl:variable name="line" select="normalize-space(substring-before($entries,'//'))"/>
+    <xsl:variable name="rest" select="substring-after($entries,'//')"/>
     <xsl:choose>
       <xsl:when test="$line">
         <xsl:if test="substring($line,1,1)='/'">

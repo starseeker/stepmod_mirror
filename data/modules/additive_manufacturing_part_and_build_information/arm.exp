@@ -1,45 +1,70 @@
 (*
-   $Id: arm.exp,v 1.2 2016/06/07 14:51:19 duchierp Exp $
+   $Id: arm.exp,v 1.3 2016/06/14 14:25:43 duchierp Exp $
    N - ISO/CD-TS - 10303- additive_manufacturing_part_and_build_information - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Additive_manufacturing_part_and_build_information_arm;
 
- USE FROM Construction_geometry_arm; -- ISO/TS 10303-1131
  USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
  USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
  USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
  USE FROM Part_view_definition_arm; --ISO/TS 10303-1023
- USE FROM Process_plan_arm; -- ISO/TS 10303-1803
  USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
  USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
- TYPE build_volume_representation_select= SELECT
-    (Build_volume_representation,
-     Geometric_model);
- END_TYPE; 
- 
  TYPE additive_manufacturing_orientation_representation_select= SELECT
     (Build_direction_representation,
-    Additive_manufacturing_x_direction_representation,
-    Additive_manufacturing_placement_representation);
+    Additive_manufacturing_x_direction_representation);
  END_TYPE;
+
+  TYPE build_volume_representation_select= SELECT
+     (Build_volume_representation,
+     Geometric_model);
+ END_TYPE; 
+
+ ENTITY Additive_manufacturing_orientation_property
+     SUBTYPE OF (Property_representation);
+     SELF\Property_definition_representation.definition: Additive_manufacturing_property_assignment;
+     SELF\Property_definition_representation.used_representation: additive_manufacturing_orientation_representation_select;
+ END_ENTITY;
  
- TYPE additive_manufacturing_workpiece_select= SELECT
-    (Additive_manufacturing_view_definition,
-    Build_plate_definition);
- END_TYPE;
- 
- ENTITY Additive_manufacturing_view_definition
-     SUBTYPE OF (Assembly_definition);
+ ENTITY Additive_manufacturing_part_definition
+     SUBTYPE OF (Part_view_definition);
      SELF\Product_view_definition.initial_context : Additive_manufacturing_view_context ;
-     its_part : Part_view_definition;
-     its_support_geometry : SET [0 : ?] OF Additive_manufacturing_support_structure;
-     its_part_design : OPTIONAL Part_view_definition;
  END_ENTITY;
 
+ ENTITY Additive_manufacturing_property_assignment
+     SUBTYPE OF (Assigned_property);
+     SELF\Assigned_property.described_element : Additive_manufacturing_part_definition;
+ END_ENTITY;
+
+ ENTITY Additive_manufacturing_setup
+     SUBTYPE OF (Product_occurrence);
+     its_origin: Axis_placement_3d;
+     INVERSE
+         its_workpiece_setup : SET [1 : ?] OF Additive_manufacturing_workpiece_setup FOR relating_view;
+         its_support_setup : SET [0 : ?] OF Additive_manufacturing_support_setup FOR relating_view;
+         its_build_plate_setup : Additive_manufacturing_setup_build_plate FOR relating_view;
+ END_ENTITY;
+
+ ENTITY Additive_manufacturing_setup_build_plate
+     SUBTYPE OF (Product_occurrence_definition_relationship); 
+     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_build_plate: Build_plate_definition;
+     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     INVERSE
+          placement : Contextual_shape_representation FOR contextual_shape;
+ END_ENTITY;
+ 
+ ENTITY Additive_manufacturing_support_setup
+     SUBTYPE OF (Product_occurrence_definition_relationship); 
+     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_support: Additive_manufacturing_support_structure;
+     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     INVERSE
+          placement : Contextual_shape_representation FOR contextual_shape;
+ END_ENTITY;
+ 
  ENTITY Additive_manufacturing_support_structure 
-     SUBTYPE OF (Assembly_definition);
-     SELF\Product_view_definition.initial_context :   Additive_manufacturing_view_context ;
+     SUBTYPE OF (Part_view_definition);
+     SELF\Product_view_definition.initial_context : Additive_manufacturing_view_context ;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_view_context
@@ -48,21 +73,17 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
          SELF\Initial_view_definition_context.application_domain : application_domain_string := 'Additive manufacturing';
  END_ENTITY;
 
- ENTITY Additive_manufacturing_property_assignment
-     SUBTYPE OF (Assigned_property);
-     SELF\Assigned_property.described_element : Additive_manufacturing_view_definition;
+ ENTITY Additive_manufacturing_workpiece_setup
+     SUBTYPE OF (Product_occurrence_definition_relationship); 
+     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_workpiece: Additive_manufacturing_part_definition;
+     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     INVERSE
+          placement : Contextual_shape_representation FOR contextual_shape;
  END_ENTITY;
 
- ENTITY Additive_manufacturing_orientation_property
-     SUBTYPE OF (Property_representation);
-     SELF\Property_definition_representation.definition: Additive_manufacturing_property_assignment;
-     SELF\Property_definition_representation.used_representation: additive_manufacturing_orientation_representation_select;
- END_ENTITY;
-
- ENTITY Build_direction_representation
-     SUBTYPE OF (Representation);
-     SELF\Representation.context_of_items : Geometric_coordinate_space;
-     SELF\Representation.items RENAMED build_direction: SET [1:1] OF Direction;
+ ENTITY Additive_manufacturing_workplan;
+      id : STRING;
+      its_setup :Additive_manufacturing_setup;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_x_direction_representation
@@ -71,67 +92,16 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
      SELF\Representation.items : SET [1:1] OF Direction;
  END_ENTITY;
 
- ENTITY Additive_manufacturing_placement_representation
-     SUBTYPE OF (Constructive_geometry);
-     SELF\Representation.items : SET [1:1] OF Axis_placement_3d;
-     DERIVE
-       location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
-       build_direction : Direction := SELF\Representation.items[1]\Axis_placement.axis;
- END_ENTITY;
-
- ENTITY Additive_manufacturing_workplan
-     SUBTYPE OF (Process_operation_definition);
-     DERIVE
-         SELF\Process_operation_definition.process_type : STRING := 'Additive manufacturing';
- END_ENTITY;
-
- ENTITY Additive_manufacturing_workplan_occurrence
-     SUBTYPE OF (Process_operation_occurrence);
-     SELF\Process_operation_occurrence.operation_definition:Additive_manufacturing_workplan; 
- END_ENTITY;
-
- ENTITY Additive_manufacturing_process_product_association
-     SUBTYPE OF (Process_operation_input_or_output);
-     SELF\Process_operation_input_or_output.operation RENAMED its_workplan : Additive_manufacturing_workplan_occurrence;
-     SELF\Process_operation_input_or_output.element RENAMED its_setup: Additive_manufacturing_setup;
-     DERIVE
-         SELF\Process_operation_input_or_output.role : STRING := 'Output'; 
- END_ENTITY;
- 
- ENTITY Additive_manufacturing_setup
-     SUBTYPE OF (Product_occurrence);
-     its_origin: Axis_placement_3d;
-     INVERSE
-         its_workpiece_setup : SET [1 : ?] OF Additive_manufacturing_workpiece_setup FOR relating_view;
- END_ENTITY;
-
- ENTITY Additive_manufacturing_workpiece_setup
-     SUBTYPE OF (Product_occurrence_definition_relationship); 
-     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_workpiece: additive_manufacturing_workpiece_select;
-     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
-     placement : OPTIONAL Additive_manufacturing_workpiece_placement;
- END_ENTITY;
- 
- ENTITY Additive_manufacturing_workpiece_placement
-     SUBTYPE OF (Representation_relationship);
-     SELF\Representation_relationship.rep_1 : additive_manufacturing_orientation_representation_select;
- END_ENTITY;
- 
- ENTITY Additive_manufacturing_build_plate_assignment
-     SUBTYPE OF (Process_operation_resource_assignment);
-     SELF\Process_operation_resource_assignment.operation : Additive_manufacturing_workplan_occurrence;
-     SELF\Process_operation_resource_assignment.resource_definition : Build_plate_definition ;
+ ENTITY Build_direction_representation
+     SUBTYPE OF (Representation);
+     SELF\Representation.context_of_items : Geometric_coordinate_space;
+     SELF\Representation.items RENAMED build_direction: SET [1:1] OF Direction;
  END_ENTITY;
 
  ENTITY Build_plate_definition
      SUBTYPE OF (Product_view_definition);
      build_volume_representation  : Build_volume_representation_select;
      build_plate_representation: OPTIONAL Geometric_model;
- END_ENTITY;
-
- ENTITY Build_volume_representation
-     SUBTYPE OF (Representation);
-     SELF\Representation.items  : SET [1:1] OF Build_volume;
  END_ENTITY;
 
  ENTITY Build_volume
@@ -143,15 +113,20 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
      height : OPTIONAL Length_data_element;
  END_ENTITY;
 
+ ENTITY Circular_build_volume
+     SUBTYPE OF (Build_volume);
+     plate_radius :Length_data_element;
+ END_ENTITY;
+
+ ENTITY Build_volume_representation
+     SUBTYPE OF (Representation);
+     SELF\Representation.items  : SET [1:1] OF Build_volume;
+ END_ENTITY;
+
  ENTITY Rectangular_build_volume
      SUBTYPE OF (Build_volume);
      plate_length : Length_data_element;
      plate_width  : Length_data_element;
- END_ENTITY;
-
- ENTITY Circular_build_volume
-     SUBTYPE OF (Build_volume);
-     plate_radius :Length_data_element;
  END_ENTITY;
 
 END_SCHEMA;

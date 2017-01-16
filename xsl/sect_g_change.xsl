@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
+$Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -285,29 +285,18 @@ $Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
       </objects>
     </xsl:variable>   
     <xsl:choose>
+      
       <xsl:when test="function-available('msxsl:node-set')">
         <xsl:variable name="objectnodes" select="msxsl:node-set($objects)"/>
         <xsl:for-each select="$objectnodes//modified.object">
           <li>
             <xsl:choose>
-              <xsl:when test="position()=last()">
+              <xsl:when test="count(./description) > 1">
                 <xsl:apply-templates select=".">
                   <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
                   <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
-                  </xsl:apply-templates>.</xsl:when>
-              <xsl:otherwise><xsl:apply-templates select=".">
-                <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
-                <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
-              </xsl:apply-templates>;</xsl:otherwise>
-            </xsl:choose>            
-          </li>
-        </xsl:for-each>
-      </xsl:when>
-      <xsl:when test="function-available('exslt:node-set')">         
-        <xsl:variable name="objectnodes" select="exslt:node-set($objects)"/>
-        <xsl:for-each select="$objectnodes//modified.object">
-          <li>
-            <xsl:choose>
+                </xsl:apply-templates>
+              </xsl:when>
               <xsl:when test="position()=last()">
                 <xsl:apply-templates select=".">
                   <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
@@ -321,6 +310,32 @@ $Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
           </li>
         </xsl:for-each>
       </xsl:when>
+
+       <xsl:when test="function-available('exslt:node-set')">         
+        <xsl:variable name="objectnodes" select="exslt:node-set($objects)"/>
+        <xsl:for-each select="$objectnodes//modified.object">
+          <li>
+            <xsl:choose>
+              <xsl:when test="count(./description) > 1">
+                <xsl:apply-templates select=".">
+                  <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                  <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+                </xsl:apply-templates>
+              </xsl:when>
+              <xsl:when test="position()=last()">
+                <xsl:apply-templates select=".">
+                  <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                  <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+                </xsl:apply-templates>.</xsl:when>
+              <xsl:otherwise><xsl:apply-templates select=".">
+                <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
+                <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
+              </xsl:apply-templates>;</xsl:otherwise>
+              </xsl:choose>
+          </li>
+        </xsl:for-each>
+      </xsl:when>
+
       <xsl:otherwise>BROWSER NOT SUPPORTED</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -427,9 +442,18 @@ $Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$object"/>
-        <xsl:apply-templates select="description" mode="modified.object"/>
+    <!-- MWD -->
+        <xsl:choose>
+          <xsl:when test="count(description) > 1">:
+            <ul><xsl:apply-templates select="description" mode="modified.object"/></ul>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="description" mode="modified.object"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
+
   </xsl:template>
   
   <xsl:template match="p" mode="position">
@@ -437,10 +461,23 @@ $Id: sect_g_change.xsl,v 1.13 2010/02/22 08:57:23 robbod Exp $
   </xsl:template>
   
   <xsl:template match="description" mode="modified.object">
-    <xsl:if test="string-length(normalize-space(./child::text()[1])!=0)">
-        <br/>  
-    </xsl:if>    
-    <xsl:apply-templates select="."/>
+     <!-- MWD -->
+    <xsl:choose>
+      <xsl:when test="following-sibling::description">
+          <li><xsl:apply-templates select="."/>;</li>        
+      </xsl:when>
+      <xsl:when test="preceding-sibling::description">
+        <xsl:choose>
+          <xsl:when test="position()=last()"><li><xsl:apply-templates select="."/>.</li></xsl:when>
+          <xsl:otherwise><li><xsl:apply-templates select="."/>;</li></xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:if test="string-length(normalize-space(./child::text()[1])!=0)">
+          <br/>  
+        </xsl:if>
+        <xsl:apply-templates select="."/></xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   

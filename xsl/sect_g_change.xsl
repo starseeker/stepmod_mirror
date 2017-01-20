@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
+$Id: sect_g_change.xsl,v 1.15 2017/01/16 05:55:18 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -291,7 +291,7 @@ $Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
         <xsl:for-each select="$objectnodes//modified.object">
           <li>
             <xsl:choose>
-              <xsl:when test="count(./description) > 1">
+              <xsl:when test="./description/ul">
                 <xsl:apply-templates select=".">
                   <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
                   <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
@@ -316,7 +316,7 @@ $Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
         <xsl:for-each select="$objectnodes//modified.object">
           <li>
             <xsl:choose>
-              <xsl:when test="count(./description) > 1">
+              <xsl:when test="./description/ul">
                 <xsl:apply-templates select=".">
                   <xsl:with-param name="arm_mim_clause" select="$arm_mim_clause"/>
                   <xsl:with-param name="arm_mim_suffix" select="$arm_mim_suffix"/>
@@ -460,17 +460,19 @@ $Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
     <xsl:value-of select="position()"/>
   </xsl:template>
   
+    
   <xsl:template match="description" mode="modified.object">
-     <!-- MWD -->
+    <!-- MWD -->
     <xsl:choose>
-      <xsl:when test="following-sibling::description">
-          <li><xsl:apply-templates select="."/>;</li>        
-      </xsl:when>
-      <xsl:when test="preceding-sibling::description">
-        <xsl:choose>
-          <xsl:when test="position()=last()"><li><xsl:apply-templates select="."/>.</li></xsl:when>
-          <xsl:otherwise><li><xsl:apply-templates select="."/>;</li></xsl:otherwise>
-        </xsl:choose>
+      <xsl:when test="./ul">
+        <ul>
+          <xsl:for-each select="./ul/li">
+            <xsl:choose>
+              <xsl:when test="position()=last()"><li><xsl:apply-templates select="."/>.</li></xsl:when>
+              <xsl:otherwise><li><xsl:apply-templates select="."/>;</li></xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </ul>
       </xsl:when>
       <xsl:otherwise>
         <xsl:if test="string-length(normalize-space(./child::text()[1])!=0)">
@@ -478,6 +480,10 @@ $Id: sect_g_change.xsl,v 1.14 2015/10/26 14:28:55 thomasrthurman Exp $
         </xsl:if>
         <xsl:apply-templates select="."/></xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="li">
+    <xsl:value-of select="."/>
   </xsl:template>
   
   

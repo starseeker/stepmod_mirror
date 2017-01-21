@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!--  $Id: build_CR.xsl,v 1.31 2016/10/28 10:23:17 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.32 2016/11/08 21:38:58 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -1016,6 +1016,16 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                             <xsl:value-of select="'${OUTPUT_RCS}'"/>
                         </xsl:attribute>
                     </xsl:element>
+                    <!-- MWD 2017-01-18 added  (thx Robert Swindells)  -->
+                    <xsl:element name="param">
+                        <xsl:attribute name="name">
+                            <xsl:value-of select="'menubar_file'"/>
+                        </xsl:attribute>
+                        <xsl:attribute name="expression">
+                            <xsl:value-of select="'${ISOMENU}'"/>
+                        </xsl:attribute>
+                    </xsl:element>
+                    
                 </xsl:element>
                 
                 <!--<xsl:element name="xslt">

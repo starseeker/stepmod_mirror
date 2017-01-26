@@ -11,25 +11,28 @@
 		omit-xml-declaration="yes" />
 	<!-- INPUT: CR publication_index.xml.
 		 OUTPUT: WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
-		 (next update: consider resources) -->
+		 (next update: consider resources and resource docs) -->
 
 	<xsl:template match="/">
-		<xsl:for-each select="/part1000.publication_index/modules/module">
-			<xsl:value-of select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
+	<xsl:for-each select="/part1000.publication_index/modules/module">
+		<!-- use this to only get the modules names in a single line: <xsl:value-of 
+			select="concat(@name, ' ')" /> -->
+		<xsl:value-of
+			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:if test="@arm.change = 'y'">
+			<xsl:value-of
+				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' ARM EXPRESS')" />
 			<xsl:text>&#xa;</xsl:text>
-			<xsl:if test="@arm.change = 'y'">
-				<xsl:value-of select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' ARM EXPRESS')" />
-				<xsl:text>&#xa;</xsl:text>
-			</xsl:if>
-			<xsl:if test="@mim.change = 'y'">
-				<xsl:value-of select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
-				<xsl:text>&#xa;</xsl:text>
-			</xsl:if>
-		</xsl:for-each>
+		</xsl:if>
+		<xsl:if test="@mim.change = 'y'">
+			<xsl:value-of
+				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
+			<xsl:text>&#xa;</xsl:text>
+		</xsl:if>
+	</xsl:for-each>
 
-
-
-	</xsl:template>
+</xsl:template>
 
 
 

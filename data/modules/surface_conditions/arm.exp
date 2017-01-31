@@ -1,17 +1,14 @@
 (*
- $Id: arm.exp,v 1.40 2015/09/25 09:01:17 lothartklein Exp $
+ $Id: arm.exp,v 1.41 2016/10/20 11:54:50 kevletu Exp $
  ISO TC184/SC4/WG12 N9283 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N8062
 *)
 
 SCHEMA Surface_conditions_arm;
 
-USE FROM Dimension_tolerance_arm;
-
 USE FROM Generic_material_aspects_arm;
-
+USE FROM Geometric_tolerance_arm;
 USE FROM Part_view_definition_arm;
-
 USE FROM Value_with_unit_extension_arm;
 
 TYPE sc_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
@@ -38,6 +35,99 @@ END_TYPE;
     Product_view_definition, 
     View_definition_relationship,
     Shape_element);
+  END_TYPE;
+
+  TYPE surface_lay_and_orientation = ENUMERATION OF (
+    perpendicular, -- reverse T
+    parallel, -- =
+    crossed, -- X,
+    multi_directional, -- M,
+    circular, -- C,
+    radial, -- R,
+    particulate_non_directional_or_protuberant ); -- P
+  END_TYPE;
+
+  TYPE surface_texture_characteristic_type = ENUMERATION OF (
+    Rp, -- ISO 4287
+    Rv, -- ISO 4287
+    Rz, -- ISO 4287
+    Rc, -- ISO 4287
+    Rt, -- ISO 4287
+    Ra, -- ISO 4287
+    Rq, -- ISO 4287
+    Rsk, -- ISO 4287
+    Rku, -- ISO 4287
+    RSm, -- ISO 4287
+    Rdeltaq, -- ISO 4287
+    Rmrc, -- ISO 4287
+    Rsigmac, -- ISO 4287
+    Rmr, -- ISO 4287
+    Wp, -- ISO 4287
+    Wv, -- ISO 4287
+    Wz, -- ISO 4287
+    Wc, -- ISO 4287
+    Wt, -- ISO 4287
+    Wa, -- ISO 4287
+    Wq, -- ISO 4287
+    Wsk, -- ISO 4287
+    Wku, -- ISO 4287
+    WSm, -- ISO 4287
+    Wdeltaq, -- ISO 4287
+    Wmrc, -- ISO 4287
+    Wsigmac, -- ISO 4287
+    Wmr, -- ISO 4287
+    Pp, -- ISO 4287
+    Pv, -- ISO 4287
+    Pz, -- ISO 4287
+    Pc, -- ISO 4287
+    Pt, -- ISO 4287
+    Pa, -- ISO 4287
+    Pq, -- ISO 4287
+    Psk, -- ISO 4287
+    Pku, -- ISO 4287
+    PSm, -- ISO 4287
+    PDeltaq, -- ISO 4287
+    Pmrc, -- ISO 4287
+    Psigmac, -- ISO 4287
+    Pmr, -- ISO 4287
+    R, -- motif parameters, ISO 12085
+    Rx, -- motif parameters, ISO 12085
+    AR, -- motif parameters, ISO 12085
+    W, -- motif parameters, ISO 12085
+    Wx, -- motif parameters, ISO 12085
+    AW, -- motif parameters, ISO 12085
+    Wte, -- motif parameters, ISO 12085
+    Rk, -- linear material ratio curve parameter, ISO 13565
+    Rpk, -- linear material ratio curve parameter, ISO 13565
+    Rvk, -- linear material ratio curve parameter, ISO 13565
+    Mr1, -- linear material ratio curve parameter, ISO 13565
+    Mr2, -- linear material ratio curve parameter, ISO 13565
+    Rke, -- linear material ratio curve parameter, ISO 13565
+    Rpke, -- linear material ratio curve parameter, ISO 13565
+    Rvke, -- linear material ratio curve parameter, ISO 13565
+    Mr1e, -- linear material ratio curve parameter, ISO 13565
+    Mr2e, -- linear material ratio curve parameter, ISO 13565
+    Rpq, -- parameter based on material probability curve, ISO 13565-3
+    Rvq, -- parameter based on material probability curve, ISO 13565-3
+    Rmq, -- parameter based on material probability curve, ISO 13565-3
+    Ppq, -- parameter based on material probability curve, ISO 13565-3
+    Pvq, -- parameter based on material probability curve, ISO 13565-3
+    Pmq -- parameter based on material probability curve, ISO 13565-3
+  );
+  END_TYPE;
+  -- Note: all surface_texture_characteristic_type data elements listed above may be obtained from ASME B46.1-2009 for ASME datasets.
+
+  TYPE surface_texture_material_removal_condition_enumeration = ENUMERATION OF (
+    any_process_allowed,
+    material_removal_required,
+    no_material_removal);
+  END_TYPE;
+
+  TYPE surface_texture_requirement_type = ENUMERATION OF (
+    unilateral_upper, -- unilateral upper tolerance = no prefix
+    unilateral_lower, -- unilateral lower tolerance = L
+    bilateral_upper, -- bilateral tolerance upper = U
+    bilateral_lower); -- bilateral tolerance lower = L
   END_TYPE;
 
   ENTITY Coating_layer
@@ -92,16 +182,38 @@ END_TYPE;
 
   ENTITY Surface_texture
     SUBTYPE OF (Surface_condition);
-      measuring_method    : STRING;
-      measuring_direction : OPTIONAL Measurement_path;
-      parameters : SET[0:?] OF Surface_texture_parameter;
+      material_removal_condition : surface_texture_material_removal_condition_enumeration;
+      direction : OPTIONAL surface_lay_and_orientation;
+      direction_reference : OPTIONAL Axis_placement_shape_element;
+      measuring_direction : OPTIONAL Measurement_path; -- for other directions
+      manufacturing_method : OPTIONAL STRING;
+      machining_allowance : OPTIONAL Length_data_element;
+      parameters: SET[0:?] OF Surface_texture_parameter;
   DERIVE
     SELF\Assigned_property.name : STRING := 'surface texture';
   END_ENTITY;
   
-  ENTITY Surface_texture_parameter;
-    parameter_value : measure_qualification_or_value_with_unit;
-    parameter_name : STRING;
+  ENTITY Surface_texture_parameter
+    ABSTRACT SUPERTYPE OF (
+      User_defined_surface_texture_parameter ANDOR
+      Standard_surface_texture_parameter);
+  END_ENTITY;
+  
+  ENTITY User_defined_surface_texture_parameter
+    SUBTYPE OF (Surface_texture_parameter);
+      string_representation : STRING;
+  END_ENTITY;
+
+  ENTITY Standard_surface_texture_parameter
+    SUBTYPE OF (Surface_texture_parameter);
+      characteristic_type : surface_texture_characteristic_type;
+      characteristic_value : OPTIONAL Value_with_unit;
+      additional_information : OPTIONAL STRING;
+      tolerance_type : surface_texture_requirement_type;
+      number_of_sampling_lengths : OPTIONAL INTEGER;
+      evaluation_length : OPTIONAL Length_data_element;
+      transmission_band_filter_short_wave : OPTIONAL Length_data_element;
+      transmission_band_filter_long_wave : OPTIONAL Length_data_element;
   END_ENTITY;
 
   ENTITY Tactile_appearance

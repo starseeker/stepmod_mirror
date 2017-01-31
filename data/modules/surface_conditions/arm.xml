@@ -5,8 +5,8 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1110">
    <application name="JSDAI" owner="LKSoft" source="surface_conditions_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Surface_conditions_arm">
-      <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Generic_material_aspects_arm"/>
+      <interface kind="use" schema="Geometric_tolerance_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="measure_qualification_or_value_with_unit">
@@ -26,6 +26,18 @@
       </type>
       <type name="shaped_element_select">
          <select extensible="YES" genericentity="YES" selectitems="Product_occurrence_definition_relationship Product_view_definition View_definition_relationship Shape_element"/>
+      </type>
+      <type name="surface_lay_and_orientation">
+         <enumeration items="perpendicular parallel crossed multi_directional circular radial particulate_non_directional_or_protuberant"/>
+      </type>
+      <type name="surface_texture_characteristic_type">
+         <enumeration items="Rp Rv Rz Rc Rt Ra Rq Rsk Rku RSm Rdeltaq Rmrc Rsigmac Rmr Wp Wv Wz Wc Wt Wa Wq Wsk Wku WSm Wdeltaq Wmrc Wsigmac Wmr Pp Pv Pz Pc Pt Pa Pq Psk Pku PSm PDeltaq Pmrc Psigmac Pmr R Rx AR W Wx AW Wte Rk Rpk Rvk Mr1 Mr2 Rke Rpke Rvke Mr1e Mr2e Rpq Rvq Rmq Ppq Pvq Pmq"/>
+      </type>
+      <type name="surface_texture_material_removal_condition_enumeration">
+         <enumeration items="any_process_allowed material_removal_required no_material_removal"/>
+      </type>
+      <type name="surface_texture_requirement_type">
+         <enumeration items="unilateral_upper unilateral_lower bilateral_upper bilateral_lower"/>
       </type>
       <entity name="Coating_layer" supertypes="Shape_element">
          <inverse attribute="is_applied_to" entity="Thickness_size" name="thickness">
@@ -81,6 +93,32 @@
             <redeclaration entity-ref="Assigned_property"/>
          </derived>
       </entity>
+      <entity name="Standard_surface_texture_parameter" supertypes="Surface_texture_parameter">
+         <explicit name="characteristic_type">
+            <typename name="surface_texture_characteristic_type"/>
+         </explicit>
+         <explicit name="characteristic_value" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="additional_information" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="tolerance_type">
+            <typename name="surface_texture_requirement_type"/>
+         </explicit>
+         <explicit name="number_of_sampling_lengths" optional="YES">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="evaluation_length" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="transmission_band_filter_short_wave" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="transmission_band_filter_long_wave" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+      </entity>
       <entity abstract.supertype="YES" name="Surface_condition" super.expression="ONEOF (Contact_ratio, Hardness, Tactile_appearance, Treatment_result, Visual_appearance, Surface_texture)" supertypes="Assigned_shape_property">
          <explicit name="value_determination" optional="YES">
             <builtintype type="STRING"/>
@@ -94,11 +132,23 @@
          </inverse>
       </entity>
       <entity name="Surface_texture" supertypes="Surface_condition">
-         <explicit name="measuring_method">
-            <builtintype type="STRING"/>
+         <explicit name="material_removal_condition">
+            <typename name="surface_texture_material_removal_condition_enumeration"/>
+         </explicit>
+         <explicit name="direction" optional="YES">
+            <typename name="surface_lay_and_orientation"/>
+         </explicit>
+         <explicit name="direction_reference" optional="YES">
+            <typename name="Axis_placement_shape_element"/>
          </explicit>
          <explicit name="measuring_direction" optional="YES">
             <typename name="Measurement_path"/>
+         </explicit>
+         <explicit name="manufacturing_method" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="machining_allowance" optional="YES">
+            <typename name="Length_data_element"/>
          </explicit>
          <explicit name="parameters">
             <aggregate lower="0" type="SET" upper="?"/>
@@ -109,14 +159,7 @@
             <redeclaration entity-ref="Assigned_property"/>
          </derived>
       </entity>
-      <entity name="Surface_texture_parameter">
-         <explicit name="parameter_value">
-            <typename name="measure_qualification_or_value_with_unit"/>
-         </explicit>
-         <explicit name="parameter_name">
-            <builtintype type="STRING"/>
-         </explicit>
-      </entity>
+      <entity abstract.supertype="YES" name="Surface_texture_parameter" super.expression="User_defined_surface_texture_parameter ANDOR Standard_surface_texture_parameter"/>
       <entity name="Tactile_appearance" supertypes="Surface_condition">
          <explicit name="depth" optional="YES">
             <typename name="Measure_item"/>
@@ -134,6 +177,11 @@
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Assigned_property"/>
          </derived>
+      </entity>
+      <entity name="User_defined_surface_texture_parameter" supertypes="Surface_texture_parameter">
+         <explicit name="string_representation">
+            <builtintype type="STRING"/>
+         </explicit>
       </entity>
       <entity name="Visual_appearance" supertypes="Surface_condition">
          <explicit name="colour_id">

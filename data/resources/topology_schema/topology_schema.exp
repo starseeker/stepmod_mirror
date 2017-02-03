@@ -1,5 +1,5 @@
 (*
-   $Id: topology_schema.exp,v 1.13 2015/04/01 10:07:06 lothartklein Exp $
+   $Id: topology_schema.exp,v 1.14 2016/04/18 08:42:58 kevletu Exp $
 ISO 10303 TC184/SC4/WG12 N9204
 
 EXPRESS Source:
@@ -28,10 +28,16 @@ ISO 10303-42 ed5 Geometric and topological representation - Topology schema
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topology_schema(2)}';
+SCHEMA topology_schema '{iso standard 10303 part(42) version(11) object(1) topology_schema(2)}';
+   REFERENCE FROM basic_attribute_schema (aggregate_id_attribute, 
+                                                    id_attribute, 
+                                             id_attribute_select, 
+                                          get_aggregate_id_value, 
+                                                   get_id_value);
    REFERENCE FROM geometry_schema;
-   REFERENCE FROM representation_schema(representation_item);
+   REFERENCE FROM representation_schema(representation_item, representation);
    REFERENCE FROM measure_schema(positive_length_measure);
+   REFERENCE FROM support_resource_schema (bag_to_set, identifier);
 
  CONSTANT
     dummy_tri : topological_representation_item := representation_item('')||
@@ -59,6 +65,14 @@ SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topol
 
   TYPE set_of_reversible_topology_item =
                        SET [0:?] of reversible_topology_item;
+  END_TYPE;
+
+--new
+(*
+Extend id_attribute_select 
+*)
+  TYPE tri_id_attribute_select = SELECT BASED_ON id_attribute_select WITH (
+    topological_representation_item);
   END_TYPE;
 
  TYPE shell = SELECT
@@ -279,7 +293,16 @@ SCHEMA topology_schema '{iso standard 10303 part(42) version(10) object(1) topol
                     connected_volume_set, volume_with_faces,
                      (loop ANDOR path)))
     SUBTYPE OF (representation_item);
-  END_ENTITY;
+--new
+  DERIVE
+    id           : identifier := get_id_value(SELF);
+    aggregate_id : identifier := get_aggregate_id_value(SELF);
+  WHERE
+    WR1:
+     SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+    WR2:
+     SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.AGGREGATE_ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+ END_ENTITY;
 
 
  ENTITY vertex
@@ -467,7 +490,29 @@ END_FUNCTION;
       RETURN (the_reverse);
  END_FUNCTION;
 
- FUNCTION list_face_loops(f: face) : LIST[0:?] OF loop;
+--new
+FUNCTION get_tri_in_representations (members : SET OF representation) : SET OF topological_representation_item;
+
+ LOCAL
+ tri_set : SET OF topological_representation_item := [];
+END_LOCAL;
+
+IF SIZEOF(members) = 0 THEN
+RETURN(?);
+END_IF;
+
+REPEAT i := LOINDEX(members) TO HIINDEX(members);
+  REPEAT J := LOINDEX(members[i]\representation.items) TO HIINDEX(members[i]\representation.items);
+   IF 'TOPOLOGY_SCHEMA.TOPOLOGICAL_REPRESENTATION_ITEM' IN TYPEOF(members[i]\representation.items[j]) THEN
+    tri_set := tri_set + members[i]\representation.items[j];
+   END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+RETURN(tri_set);
+END_FUNCTION;
+
+FUNCTION list_face_loops(f: face) : LIST[0:?] OF loop;
    LOCAL
      loops : LIST[0:?] OF loop := [];
    END_LOCAL;
@@ -701,6 +746,37 @@ END_FUNCTION;
    END_IF;
 
    RETURN (?);
+ END_FUNCTION;
+
+(*
+The FUNCTION valid_tri_ids returns TRUE if each tri has an id and if each id is used only once in the SET of tri.
+Note: The value of aggregate_id and of id shall be disjoint in order to support possible
+use case where there shall be no more than one id of any kind assigned to a tri.
+*)
+
+FUNCTION valid_tri_ids (objs : SET OF topological_representation_item) : BOOLEAN;
+
+
+LOCAL
+   values              : BAG OF identifier := [];
+END_LOCAL;
+
+  REPEAT i := LOINDEX(objs) TO HIINDEX(objs);
+--each tri shall have at least one id.
+   IF NOT(EXISTS(objs[i]\topological_representation_item.id) OR
+          EXISTS(objs[i]\topological_representation_item.aggregate_id)) THEN
+    RETURN(FALSE);
+   END_IF;
+   values := values + objs[i]\topological_representation_item.id 
+                       + objs[i]\topological_representation_item.aggregate_id;
+  END_REPEAT;
+
+--ids are unique across both types
+ IF SIZEOF(bag_to_set(values)) <> SIZEOF(values) THEN 
+   RETURN(FALSE);
+ END_IF;
+
+ RETURN (TRUE);
  END_FUNCTION;
 
 

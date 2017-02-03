@@ -42,7 +42,9 @@ REFERENCE FROM geometric_model_schema
      tessellated_shell,
      tessellated_solid,
      tessellated_surface_set,
-     tessellated_vertex);
+     tessellated_vertex,
+     triangulated_face,
+     complex_triangulated_face);
 
 REFERENCE FROM geometry_schema
     (axis2_placement,
@@ -748,13 +750,11 @@ REFERENCE FROM support_resource_schema
       styles :  SET [0:?] OF presentation_style_assignment;
       item   :  styled_item_target; 
     WHERE
-      WR1: (SIZEOF(styles = 0) AND ( 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_TESSELLATED_ITEM' IN TYPEOF(self)))
+      WR1: (SIZEOF(styles) = 0) AND ( 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_TESSELLATED_ITEM' IN TYPEOF(self))
            OR
            (SIZEOF(styles) = 1)
            OR
-           ((SIZEOF(styles) > 1) AND
-            (SIZEOF(QUERY(pres_style <* styles | NOT ('PRESENTATION_APPEARANCE_SCHEMA.' + 'PRESENTATION_STYLE_BY_CONTEXT' IN
-                                                  TYPEOF(pres_style)))) = 0));
+           (SIZEOF(styles) > 1) AND (SIZEOF(QUERY(pres_style <* styles | NOT ('PRESENTATION_APPEARANCE_SCHEMA.' + 'PRESENTATION_STYLE_BY_CONTEXT' IN TYPEOF(pres_style)))) = 0);
       WR2: NOT ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(item));
       WR3: ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(item)) OR
            ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item)) OR
@@ -881,25 +881,22 @@ REFERENCE FROM support_resource_schema
           OR
           NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
           OR
-           (
-            ((SIZEOF(item\triangulated_face.pnindex) > 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\triangulated_face.pnindex))))
+           ((
+            ((SIZEOF(item\triangulated_face.pnindex) > 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\triangulated_face.pnindex))))
             OR
-            ((SIZEOF(item\triangulated_face.pnindex) = 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_face.coordinates))))
-           );
+            ((SIZEOF(item\triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints)));
     WR3: NOT ('GEOMETRIC_MODEL_SCHEMA.COMPLEX_TRIANGULATED_FACE' IN TYPEOF(item))
          OR
          NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
          OR
-           (
-            ((SIZEOF(item\complex_triangulated_face.pnindex) > 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\complex_triangulated_face.pnindex))))
+            ((SIZEOF(item\complex_triangulated_face.pnindex) > 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\complex_triangulated_face.pnindex)))
             OR
-            ((SIZEOF(item\complex_triangulated_face.pnindex) = 0) AND (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_face.coordinates))))
-           );
+            ((SIZEOF(item\complex_triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints));
     WR4: NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET' IN TYPEOF(item))
          OR
          NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))
          OR
-         (SIZEOF(single_texture_style_tessellation_specification.texture_coordinates = SIZEOF(item\tessellated_surface_set.coordinates)));
+         (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_surface_set.coordinates\coordinates_list.npoints);
   END_ENTITY;
   
   ENTITY text_style

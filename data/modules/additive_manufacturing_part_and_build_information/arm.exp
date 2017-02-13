@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2016/06/14 14:25:43 duchierp Exp $
+   $Id: arm.exp,v 1.4 2017/01/10 16:13:00 duchierp Exp $
    N - ISO/CD-TS - 10303- additive_manufacturing_part_and_build_information - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Additive_manufacturing_part_and_build_information_arm;
@@ -15,11 +15,6 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
     (Build_direction_representation,
     Additive_manufacturing_x_direction_representation);
  END_TYPE;
-
-  TYPE build_volume_representation_select= SELECT
-     (Build_volume_representation,
-     Geometric_model);
- END_TYPE; 
 
  ENTITY Additive_manufacturing_orientation_property
      SUBTYPE OF (Property_representation);
@@ -48,7 +43,7 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
 
  ENTITY Additive_manufacturing_setup_build_plate
      SUBTYPE OF (Product_occurrence_definition_relationship); 
-     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_build_plate: Build_plate_definition;
+     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_build_plate: Build_platform_definition;
      SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
      INVERSE
           placement : Contextual_shape_representation FOR contextual_shape;
@@ -98,10 +93,10 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
      SELF\Representation.items RENAMED build_direction: SET [1:1] OF Direction;
  END_ENTITY;
 
- ENTITY Build_plate_definition
+ ENTITY Build_platform_definition
      SUBTYPE OF (Product_view_definition);
-     build_volume_representation  : Build_volume_representation_select;
-     build_plate_representation: OPTIONAL Geometric_model;
+     build_volume_representation  : Build_volume;
+     build_platform_representation: OPTIONAL Geometric_model;
  END_ENTITY;
 
  ENTITY Build_volume
@@ -109,24 +104,21 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
          ONEOF ( 
              Rectangular_build_volume,
              Circular_build_volume))
-     SUBTYPE OF (Representation_item);
-     height : OPTIONAL Length_data_element;
+     SUBTYPE OF (Geometric_model);
+     its_origin: Axis_placement_3d; 
  END_ENTITY;
 
  ENTITY Circular_build_volume
      SUBTYPE OF (Build_volume);
-     plate_radius :Length_data_element;
- END_ENTITY;
-
- ENTITY Build_volume_representation
-     SUBTYPE OF (Representation);
-     SELF\Representation.items  : SET [1:1] OF Build_volume;
+     diameter :Length_data_element;
+     z : OPTIONAL Length_data_element;
  END_ENTITY;
 
  ENTITY Rectangular_build_volume
      SUBTYPE OF (Build_volume);
-     plate_length : Length_data_element;
-     plate_width  : Length_data_element;
+     x : Length_data_element;
+     y : Length_data_element;
+     z : OPTIONAL Length_data_element;
  END_ENTITY;
 
 END_SCHEMA;

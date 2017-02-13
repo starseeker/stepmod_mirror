@@ -1,7 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm.xml,v 1.3 2016/06/14 14:25:43 duchierp Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="additive_manufacturing_part_and_build_information_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Additive_manufacturing_part_and_build_information_arm">
@@ -13,9 +11,6 @@
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="additive_manufacturing_orientation_representation_select">
          <select selectitems="Build_direction_representation Additive_manufacturing_x_direction_representation"/>
-      </type>
-      <type name="build_volume_representation_select">
-         <select selectitems="Build_volume_representation Geometric_model"/>
       </type>
       <entity name="Additive_manufacturing_orientation_property" supertypes="Property_representation">
          <explicit name="definition">
@@ -53,7 +48,7 @@
       </entity>
       <entity name="Additive_manufacturing_setup_build_plate" supertypes="Product_occurrence_definition_relationship">
          <explicit name="its_build_plate">
-            <typename name="Build_plate_definition"/>
+            <typename name="Build_platform_definition"/>
             <redeclaration entity-ref="Product_occurrence_definition_relationship" old_name="related_view"/>
          </explicit>
          <explicit name="relating_view">
@@ -126,36 +121,35 @@
             <redeclaration entity-ref="Representation" old_name="items"/>
          </explicit>
       </entity>
-      <entity name="Build_plate_definition" supertypes="Product_view_definition">
+      <entity name="Build_platform_definition" supertypes="Product_view_definition">
          <explicit name="build_volume_representation">
-            <typename name="build_volume_representation_select"/>
+            <typename name="Build_volume"/>
          </explicit>
-         <explicit name="build_plate_representation" optional="YES">
+         <explicit name="build_platform_representation" optional="YES">
             <typename name="Geometric_model"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="Build_volume" super.expression="ONEOF (Rectangular_build_volume, Circular_build_volume)" supertypes="Representation_item">
-         <explicit name="height" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-      </entity>
-      <entity name="Build_volume_representation" supertypes="Representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Build_volume"/>
-            <redeclaration entity-ref="Representation"/>
+      <entity abstract.supertype="YES" name="Build_volume" super.expression="ONEOF (Rectangular_build_volume, Circular_build_volume)" supertypes="Geometric_model">
+         <explicit name="its_origin">
+            <typename name="Axis_placement_3d"/>
          </explicit>
       </entity>
       <entity name="Circular_build_volume" supertypes="Build_volume">
-         <explicit name="plate_radius">
+         <explicit name="diameter">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="z" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Rectangular_build_volume" supertypes="Build_volume">
-         <explicit name="plate_length">
+         <explicit name="x">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="plate_width">
+         <explicit name="y">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="z" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
       </entity>

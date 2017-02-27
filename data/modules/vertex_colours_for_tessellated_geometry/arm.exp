@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2016/12/13 10:37:18 kevletu Exp $
+   $Id: arm.exp,v 1.5 2017/02/20 15:36:28 kevletu Exp $
    N - ISO/CD-TS - 10303- vertex_colours_for_tessellated_geometry - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Vertex_colours_for_tessellated_geometry_arm;
@@ -38,18 +38,19 @@ ENTITY Styled_tessellated_item -- in the new P46 entity, styled_tessellated_item
            ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 4)))= 0));
     WR2 : SIZEOF(colour_values) = coloured_coordinate_values.npoints;
     WR3 : NOT EXISTS(SELF\styled_element.appearance);
-	WR4 : NOT EXISTS(SELF\styled_element.invisible);
+	WR4 : SELF\styled_element.invisible = FALSE;
   END_ENTITY;
  
- (* The descriptions of the above new WHERE rules are 
- Styled_item WR4: The styles attribute shall contain one or more presentation_style_assignments unless styled_item is the SUBYTYPE
- tessellated_styled_item
+ (*
+ WR1: If colour_type = RGB8 then colour_values shall be a List of 3 unsigned 8 bit intergers, or, if colour_type = RGBT8 then colour_values shall be
+      a list of 4 unsigned 8 bit integers;  
+ 
+ WR2: The number of colour_values shall be equal to the number of points in the associated coordinates_list; 
 
- WR1: styles shall be an empty set;
- WR2: IF colouur_type = RGB8 then colour_values shall be LIST[1:?] OF LIST[3;3] OF unsigned_8_bit_integer, 
-       IF colouur_type = RGBT8 then colour_values shall be LIST[1:?] OF LIST[4;4] OF unsigned_8_bit_integer;
- WR3: The number of colour_values shall be equal to the number of points in the associated coordinates_list;   
- *)
+ WR3: The inherited appearance attribute shall not exist;
+ 
+ WR4: The inherited invisible attribute shall have a value of FALSE.
+*)
  
 
 END_SCHEMA;

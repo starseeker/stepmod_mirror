@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.20 2013/10/25 19:22:23 Exp $
+$Id: product_structure_schema.exp,v 1.21 2014/03/04 00:30:40 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N8371
 
 EXPRESS Source:
@@ -37,13 +37,52 @@ SCHEMA product_structure_schema '{iso standard 10303 part(44) version(3) object(
      product_definition_reference,
      product_definition_relationship,
      acyclic_product_definition_relationship,
-     product_definition_or_reference);
+     product_definition_or_reference,
+     generic_product_definition_reference);
 
   REFERENCE FROM measure_schema
      (measure_with_unit);
 
   REFERENCE FROM support_resource_schema
      (identifier, label, text);
+
+TYPE product_definition_or_occurrence_or_reference = SELECT BASED_ON product_definition_or_reference WITH (
+  product_definition_occurrence);
+END_TYPE;
+
+TYPE product_definition_occurrence_or_reference = SELECT (
+  product_definition_occurrence,
+  product_definition_occurrence_reference);
+END_TYPE;
+
+ENTITY product_definition_occurrence
+  SUPERTYPE OF (product_definition_specified_occurrence ANDOR product_definition_occurrence_reference_with_local_representation);
+  id : identifier;
+  name : OPTIONAL label;
+  description : OPTIONAL text;
+  definition : product_definition_or_occurrence_or_reference;
+WHERE
+  WR1: ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR
+       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE' IN TYPEOF(definition)) OR
+             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE_REFERENCE' IN TYPEOF(definition)))); 
+END_ENTITY;
+
+ENTITY product_definition_specified_occurrence
+  SUBTYPE OF (product_definition_occurrence);
+  SELF\product_definition_occurrence.definition : product_definition_occurrence_or_reference; 
+  occurrence_usage : assembly_component_usage;
+END_ENTITY;
+
+ENTITY product_definition_occurrence_reference
+  SUBTYPE OF (product_definition_reference);
+  product_occurrence_id : identifier;
+END_ENTITY;
+
+ENTITY product_definition_occurrence_reference_with_local_representation
+  SUBTYPE OF (product_definition_occurrence, generic_product_definition_reference);
+END_ENTITY;
+
+
 
 ENTITY alternate_product_relationship;
   name        : label;

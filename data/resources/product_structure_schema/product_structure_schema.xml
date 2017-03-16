@@ -13,6 +13,7 @@
          <interfaced.item name="product_definition_relationship"/>
          <interfaced.item name="acyclic_product_definition_relationship"/>
          <interfaced.item name="product_definition_or_reference"/>
+         <interfaced.item name="generic_product_definition_reference"/>
       </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="measure_with_unit"/>
@@ -22,6 +23,12 @@
          <interfaced.item name="label"/>
          <interfaced.item name="text"/>
       </interface>
+      <type name="product_definition_occurrence_or_reference">
+         <select selectitems="product_definition_occurrence product_definition_occurrence_reference"/>
+      </type>
+      <type name="product_definition_or_occurrence_or_reference">
+         <select basedon="product_definition_or_reference" selectitems="product_definition_occurrence"/>
+      </type>
       <entity name="alternate_product_relationship">
          <explicit name="name">
             <typename name="label"/>
@@ -121,6 +128,27 @@
             <unique.attribute attribute="SELF\product_definition_relationship.relating_product_definition"/>
          </unique>
       </entity>
+      <entity name="product_definition_occurrence" super.expression="product_definition_specified_occurrence ANDOR product_definition_occurrence_reference_with_local_representation">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="product_definition_or_occurrence_or_reference"/>
+         </explicit>
+         <where expression="('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(definition)) XOR ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF))" label="WR1"/>
+      </entity>
+      <entity name="product_definition_occurrence_reference" supertypes="product_definition_reference">
+         <explicit name="product_occurrence_id">
+            <typename name="identifier"/>
+         </explicit>
+      </entity>
+      <entity name="product_definition_occurrence_reference_with_local_representation" supertypes="product_definition_occurrence generic_product_definition_reference"/>
       <entity name="product_definition_occurrence_relationship">
          <explicit name="name">
             <typename name="label"/>
@@ -137,6 +165,15 @@
          <where expression="occurrence_usage.relating_product_definition :&lt;&gt;: &#10;       occurrence" label="WR1"/>
          <where expression="occurrence_usage.related_product_definition :&lt;&gt;: &#10;       occurrence" label="WR2"/>
          <where expression="occurrence.formation :=:&#10;       occurrence_usage.related_product_definition.formation" label="WR3"/>
+      </entity>
+      <entity name="product_definition_specified_occurrence" supertypes="product_definition_occurrence">
+         <explicit name="definition">
+            <typename name="product_definition_occurrence_or_reference"/>
+            <redeclaration entity-ref="product_definition_occurrence"/>
+         </explicit>
+         <explicit name="occurrence_usage">
+            <typename name="assembly_component_usage"/>
+         </explicit>
       </entity>
       <entity name="product_definition_usage" super.expression="ONEOF (make_from_usage_option, assembly_component_usage)" supertypes="product_definition_relationship">
          <unique label="UR1">

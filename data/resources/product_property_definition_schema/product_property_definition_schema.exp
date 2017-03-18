@@ -1,5 +1,5 @@
 (*
-$Id: product_property_definition_schema.exp,v 1.18 2016/11/22 17:48:08 thomasrthurman Exp $
+$Id: product_property_definition_schema.exp,v 1.19 2017/03/18 14:53:47 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
@@ -76,6 +76,11 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     shape_aspect, 
     shape_aspect_relationship);
   END_TYPE;
+  
+  TYPE product_definition_shape_or_shape_aspect = SELECT (
+    product_definition_shape,
+    shape_aspect);
+  END_TYPE;
 
   TYPE characterized_product_definition = SELECT (
     product_definition, 
@@ -86,6 +91,9 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
   TYPE derived_property_select = SELECT (property_definition, action_property, resource_property);
   END_TYPE;
 
+  TYPE shape_aspect_or_characterized_object = SELECT (shape_aspect, characterized_object);
+  END_TYPE;
+  
   TYPE shape_definition = SELECT (product_definition_shape, shape_aspect, shape_aspect_relationship);
   END_TYPE;
 
@@ -160,10 +168,11 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
   END_ENTITY;
 
-  ENTITY shape_aspect;
+  ENTITY shape_aspect
+    SUPERTYPE OF (ONEOF (shape_aspect_occurrence, component_path_shape_aspect));
     name : label;
     description : OPTIONAL text;
-    of_shape : product_definition_shape;
+    of_shape : product_definition_shape_or_shape_aspect;
     product_definitional : LOGICAL;
   DERIVE
     id : identifier := get_id_value(SELF);
@@ -171,6 +180,13 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     UR1: id, of_shape;    
   WHERE
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+  END_ENTITY;
+
+  ENTITY shape_aspect_occurrence
+    SUBTYPE OF (shape_aspect);
+    definition : shape_aspect_or_characterized_object;
+  WHERE
+    WR1: acyclic_shape_aspect_occurrence(SELF,definition);
   END_ENTITY;
 
   ENTITY shape_aspect_relationship;
@@ -217,6 +233,28 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     END_REPEAT;
     RETURN (TRUE);
   END_FUNCTION;
+
+  FUNCTION acyclic_shape_aspect_occurrence
+          (sao : shape_aspect_occurrence; definition : shape_aspect_or_characterized_object) : BOOLEAN;
+    IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (definition :=: sao) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_shape_aspect_occurrence(sao, definition\shape_aspect_occurrence.definition));
+    END_IF;
+  END_FUNCTION; 
+
+  FUNCTION acyclic_shape_aspect
+          (sa : shape_aspect; of_shape : shape_aspect_or_characterized_object) : BOOLEAN;
+    IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (of_shape :=: sa) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
+    END_IF;
+  END_FUNCTION; 
 
   FUNCTION acyclic_shape_aspect_relationship (relation : shape_aspect_relationship; relatives : SET [1:?] OF shape_aspect; specific_relation : STRING):BOOLEAN;
     LOCAL

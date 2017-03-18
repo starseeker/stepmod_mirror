@@ -60,6 +60,12 @@
       <type name="ppds_id_attribute_select">
          <select basedon="id_attribute_select" selectitems="property_definition shape_aspect shape_aspect_relationship"/>
       </type>
+      <type name="product_definition_shape_or_shape_aspect">
+         <select selectitems="product_definition_shape shape_aspect"/>
+      </type>
+      <type name="shape_aspect_or_characterized_object">
+         <select selectitems="shape_aspect characterized_object"/>
+      </type>
       <type name="shape_definition">
          <select selectitems="product_definition_shape shape_aspect shape_aspect_relationship"/>
       </type>
@@ -159,7 +165,7 @@
          </derived>
          <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
       </entity>
-      <entity name="shape_aspect">
+      <entity name="shape_aspect" super.expression="ONEOF (shape_aspect_occurrence, component_path_shape_aspect)">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -167,7 +173,7 @@
             <typename name="text"/>
          </explicit>
          <explicit name="of_shape">
-            <typename name="product_definition_shape"/>
+            <typename name="product_definition_shape_or_shape_aspect"/>
          </explicit>
          <explicit name="product_definitional">
             <builtintype type="LOGICAL"/>
@@ -180,6 +186,12 @@
             <unique.attribute attribute="of_shape"/>
          </unique>
          <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
+      </entity>
+      <entity name="shape_aspect_occurrence" supertypes="shape_aspect">
+         <explicit name="definition">
+            <typename name="shape_aspect_or_characterized_object"/>
+         </explicit>
+         <where expression="acyclic_shape_aspect_occurrence(SELF,definition)" label="WR1"/>
       </entity>
       <entity name="shape_aspect_relationship">
          <explicit name="name">
@@ -252,6 +264,38 @@
       END_IF;
     END_REPEAT;
     RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_shape_aspect">
+         <parameter name="sa">
+            <typename name="shape_aspect"/>
+         </parameter>
+         <parameter name="of_shape">
+            <typename name="shape_aspect_or_characterized_object"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (of_shape :=: sa) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
+    END_IF;</algorithm>
+      </function>
+      <function name="acyclic_shape_aspect_occurrence">
+         <parameter name="sao">
+            <typename name="shape_aspect_occurrence"/>
+         </parameter>
+         <parameter name="definition">
+            <typename name="shape_aspect_or_characterized_object"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (definition :=: sao) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_shape_aspect_occurrence(sao, definition\shape_aspect_occurrence.definition));
+    END_IF;</algorithm>
       </function>
       <function name="acyclic_shape_aspect_relationship">
          <parameter name="relation">

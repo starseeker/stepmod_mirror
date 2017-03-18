@@ -1,5 +1,5 @@
 (*
-$Id: shape_aspect_definition_schema.exp,v 1.49 2013/01/31 22:50:42 Exp $
+$Id: shape_aspect_definition_schema.exp,v 1.50 2014/03/04 00:30:41 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N7297
 
 EXPRESS Source:
@@ -59,6 +59,7 @@ REFERENCE FROM qualified_measure_schema   -- ISO 10303-45
 REFERENCE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_object,
    shape_aspect,
+   shape_aspect_occurrence,
    shape_aspect_relationship); 
 
 REFERENCE FROM product_property_representation_schema   -- ISO 10303-41
@@ -97,6 +98,11 @@ TYPE limit_condition = ENUMERATION OF
     regardless_of_feature_size);
 END_TYPE; 
 
+TYPE shape_aspect_or_feature_definition = SELECT 
+   (feature_definition,
+    shape_aspect);
+END_TYPE;
+  
 TYPE shape_representation_with_parameters_items = EXTENSIBLE GENERIC_ENTITY SELECT
    (descriptive_representation_item, 
     direction, 
@@ -285,6 +291,11 @@ END_ENTITY;
 
 ENTITY feature_definition
   SUBTYPE OF (characterized_object);
+END_ENTITY;
+
+ENTITY feature_occurrence
+    SUBTYPE OF (shape_aspect_occurrence);
+    SELF\shape_aspect_occurrence.definition : shape_aspect_or_feature_definition;
 END_ENTITY;
 
 ENTITY general_datum_reference

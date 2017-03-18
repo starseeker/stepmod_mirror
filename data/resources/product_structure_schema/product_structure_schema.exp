@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.21 2014/03/04 00:30:40 thomasrthurman Exp $
+$Id: product_structure_schema.exp,v 1.22 2017/03/16 18:45:46 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 N8371
 
 EXPRESS Source:
@@ -36,6 +36,7 @@ SCHEMA product_structure_schema '{iso standard 10303 part(44) version(3) object(
      product_definition_formation,
      product_definition_reference,
      product_definition_relationship,
+     product_definition_relationship_relationship,
      acyclic_product_definition_relationship,
      product_definition_or_reference,
      generic_product_definition_reference);
@@ -190,6 +191,14 @@ WHERE
          (SELF,
          [SELF\product_definition_relationship.related_product_definition],
          'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_USAGE');
+END_ENTITY;
+
+ENTITY product_definition_usage_relationship
+  SUBTYPE OF (product_definition_relationship_relationship);
+  SELF\product_definition_relationship_relationship.relating : product_definition_usage;
+  SELF\product_definition_relationship_relationship.related : product_definition_usage;
+WHERE
+  WR1: relating.relating_product_definition :=: related.relating_product_definition;
 END_ENTITY;
 
 ENTITY promissory_usage_occurrence

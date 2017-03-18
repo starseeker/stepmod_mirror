@@ -11,6 +11,7 @@
          <interfaced.item name="product_definition_formation"/>
          <interfaced.item name="product_definition_reference"/>
          <interfaced.item name="product_definition_relationship"/>
+         <interfaced.item name="product_definition_relationship_relationship"/>
          <interfaced.item name="acyclic_product_definition_relationship"/>
          <interfaced.item name="product_definition_or_reference"/>
          <interfaced.item name="generic_product_definition_reference"/>
@@ -141,7 +142,7 @@
          <explicit name="definition">
             <typename name="product_definition_or_occurrence_or_reference"/>
          </explicit>
-         <where expression="('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(definition)) XOR ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF))" label="WR1"/>
+         <where expression="('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR&#10;       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE' IN TYPEOF(definition)) OR&#10;             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE_REFERENCE' IN TYPEOF(definition))))" label="WR1"/>
       </entity>
       <entity name="product_definition_occurrence_reference" supertypes="product_definition_reference">
          <explicit name="product_occurrence_id">
@@ -182,6 +183,17 @@
             <unique.attribute attribute="SELF\product_definition_relationship.related_product_definition"/>
          </unique>
          <where expression="acyclic_product_definition_relationship&#10;         (SELF,&#10;         [SELF\product_definition_relationship.related_product_definition],&#10;         'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_USAGE')" label="WR1"/>
+      </entity>
+      <entity name="product_definition_usage_relationship" supertypes="product_definition_relationship_relationship">
+         <explicit name="relating">
+            <typename name="product_definition_usage"/>
+            <redeclaration entity-ref="product_definition_relationship_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="product_definition_usage"/>
+            <redeclaration entity-ref="product_definition_relationship_relationship"/>
+         </explicit>
+         <where expression="relating.relating_product_definition :=: related.relating_product_definition" label="WR1"/>
       </entity>
       <entity name="promissory_usage_occurrence" supertypes="assembly_component_usage"/>
       <entity name="quantified_assembly_component_usage" supertypes="assembly_component_usage">

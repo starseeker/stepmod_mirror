@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
+$Id: sect_5_mapping_check.xsl,v 1.28 2015/08/28 10:54:31 mikeward Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -285,7 +285,20 @@ $Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
 </xsl:template>
 
 <xsl:template match="refpath|refpath_extend" mode="check_ref_path">
-  <xsl:variable name="ent" select="../../@entity"/><!-- MWD path changed and taken out of refpath var --> 
+  <xsl:variable name="ent"><!-- MWD find paretn entity name with differetn depths of refpath and refpath_extend in entity-attribute trees -->
+    <xsl:choose>
+      <xsl:when test="local-name(.)='refpath_extend'"><!-- if it's a refpath_extend - ie for an attribute -->
+        <xsl:value-of select="../../@entity"/>
+      </xsl:when>
+      <xsl:when test="../@attribute"><!-- if it's a refpath for an attribute -->
+        <xsl:value-of select="../../@entity"/>
+      </xsl:when>
+      <xsl:otherwise><!-- if it's a refpath for an entity -->
+        <xsl:value-of select="../@entity"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <!--<xsl:variable name="ent" select="../../@entity"/>--><!-- MWD path changed and taken out of refpath var --> 
   <xsl:variable name="refpath">
       <refpath >
         <xsl:attribute name="entity" >
@@ -306,6 +319,7 @@ $Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
         </NEW>
       </refpath>
     </xsl:variable>
+  
     <xsl:variable name="refpath_nodes">
       <xsl:choose>
         <xsl:when test="function-available('msxsl:node-set')">
@@ -317,21 +331,69 @@ $Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
       </xsl:choose>
     </xsl:variable>  
   
-  <xsl:apply-templates select="exslt:node-set($refpath)//word" mode="test" ><!-- MWD added --> 
-    <xsl:with-param name="schemas" select="$dep-schemas" /><!-- MWD added -->
-  </xsl:apply-templates><!-- MWD added -->
+ 
   
-  <xsl:apply-templates select="exslt:node-set($refpath)//is-extended-by | exslt:node-set($refpath)//extends" mode="test" ><!-- MWD added -->
-    <xsl:with-param name="schemas" select="$dep-schemas" /><!-- MWD added -->
-  </xsl:apply-templates><!-- MWD added -->
+  <xsl:choose><!-- MWD test for avaiablility of xsl processor added 2017-03-28 --> 
+    <xsl:when test="function-available('msxsl:node-set')">
+      
+      <xsl:apply-templates select="msxsl:node-set($refpath)//word" mode="test" > 
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="msxsl:node-set($refpath)//is-extended-by | msxsl:node-set($refpath)//extends" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="msxsl:node-set($refpath)//equals" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="msxsl:node-set($refpath)//is-subtype-of | exslt:node-set($refpath)//is-supertype-of" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">
+      
+      <xsl:apply-templates select="exslt:node-set($refpath)//word" mode="test" > 
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="exslt:node-set($refpath)//is-extended-by | exslt:node-set($refpath)//extends" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="exslt:node-set($refpath)//equals" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+      <xsl:apply-templates select="exslt:node-set($refpath)//is-subtype-of | exslt:node-set($refpath)//is-supertype-of" mode="test" >
+        <xsl:with-param name="schemas" select="$dep-schemas" />
+      </xsl:apply-templates>
+      
+    </xsl:when>
+    
+  </xsl:choose>
   
-  <xsl:apply-templates select="exslt:node-set($refpath)//equals" mode="test" ><!-- MWD added -->
-    <xsl:with-param name="schemas" select="$dep-schemas" /><!-- MWD added -->
-  </xsl:apply-templates><!-- MWD added -->
   
-  <xsl:apply-templates select="exslt:node-set($refpath)//is-subtype-of | exslt:node-set($refpath)//is-supertype-of" mode="test" ><!-- MWD added -->
-    <xsl:with-param name="schemas" select="$dep-schemas" /><!-- MWD added -->
-  </xsl:apply-templates><!-- MWD added -->
+  <!--<xsl:apply-templates select="exslt:node-set($refpath)//word" mode="test" ><!-\- MWD added -\-> 
+    <xsl:with-param name="schemas" select="$dep-schemas" /><!-\- MWD added -\->
+  </xsl:apply-templates><!-\- MWD added -\->-->
+  
+  
+  <!--<xsl:apply-templates select="exslt:node-set($refpath)//is-extended-by | exslt:node-set($refpath)//extends" mode="test" ><!-\- MWD added -\->
+    <xsl:with-param name="schemas" select="$dep-schemas" /><!-\- MWD added -\->
+  </xsl:apply-templates><!-\- MWD added -\->-->
+  
+  <!--<xsl:apply-templates select="exslt:node-set($refpath)//equals" mode="test" ><!-\- MWD added -\->
+    <xsl:with-param name="schemas" select="$dep-schemas" /><!-\- MWD added -\->
+  </xsl:apply-templates><!-\- MWD added -\->-->
+  
+  <!--<xsl:apply-templates select="exslt:node-set($refpath)//is-subtype-of | exslt:node-set($refpath)//is-supertype-of" mode="test" ><!-\- MWD added -\->
+    <xsl:with-param name="schemas" select="$dep-schemas" /><!-\- MWD added -\->
+  </xsl:apply-templates><!-\- MWD added -\->-->
+  
+  
   
 </xsl:template>
 
@@ -637,12 +699,13 @@ $Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
     <xsl:param name="schemas" />
     <xsl:if test="string-length(.) != string-length(translate(.,$UPPER,'')) 
       and not(string(.) ='BOOLEAN' ) 
-      and not(starts-with(string(.),'ISO ')) and 
-      not(string(.) ='.TRUE.' )  and 
-      not(name(preceding-sibling::*[2]) ='subtype-template' or  
+      and not(starts-with(string(.),'ISO ')) 
+      and not(string(.) ='.TRUE.' )
+      and not(string(.) ='.FALSE.' ) 
+      and not(name(preceding-sibling::*[2]) ='subtype-template' or  
       name(preceding-sibling::*[2]) ='supertype-template' or
       name(preceding-sibling::*[2]) ='mapping-of') ">
-      !! UPPERCASE Not expected: <xsl:value-of select="." /> !!<br/>
+      !! UPPERCASE Not expected: <xsl:value-of select="." /> !!<br/><!-- MWD and not(string(.) ='.FALSE.' ) added 2017-03-28 -->
     </xsl:if>    
     <xsl:choose>
       <xsl:when test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
@@ -694,7 +757,7 @@ $Id: sect_5_mapping_check.xsl,v 1.27 2015/08/20 11:13:51 mikeward Exp $
           <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
           <xsl:with-param 
             name="message" 
-            select="concat('Error Map24FOO: Possible syntax ERROR: ',.)"/>
+            select="concat('Error Map24: Possible syntax ERROR: ',.)"/>
         </xsl:call-template>    
       </xsl:when>
       <xsl:when test="contains($LOWER,substring(.,1,1)) and contains(.,'.')" >

@@ -11,13 +11,18 @@
 		omit-xml-declaration="yes" />
 	<!-- INPUT: CR publication_index.xml.
 		 OUTPUT: WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
-		 (next update: consider resources and resource docs) -->
+		 (next update: consider resources and resource docs) 
+		 
+		 
+		 ##### IMPORTANT NOTE: FOR NEW MODULE (ED1) arm and mim are set as "n" for their changes - so it will not create a line to get a WG numbers !! 
+		 
+		 -->
 
 	<xsl:template match="/">
 	<xsl:for-each select="/part1000.publication_index/modules/module">
-		<!-- use this to only get the modules names in a single line: <xsl:value-of 
+	<!--	<xsl:value-of 
 			select="concat(@name, ' ')" /> -->
-		<xsl:value-of
+		 <xsl:value-of
 			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:if test="@arm.change = 'y'">
@@ -29,7 +34,7 @@
 			<xsl:value-of
 				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
 			<xsl:text>&#xa;</xsl:text>
-		</xsl:if>
+		</xsl:if> 
 	</xsl:for-each>
 
 </xsl:template>

@@ -1,17 +1,12 @@
 #!/usr/bin/perl -w
 
-
-##### PURPOSE: Update WG N-Numbers of modules.xml, arm.exp and mim.exp files of modules included in a CR based on WG number table provided by WG12 Convener.
-##### IMPORTANT NOTE1: this script version APPLY ONLY TO CR11 MODULES WHICH HAVE BEEN CANCELLED SO NOT PUBLISHED (eg supersdes N# not replaced by new ones)
-
-##### The script file needs to be put in /stepmod/utils/
-
+##### The file needs to be put in /stepmod/utils/
 ##### To launch the script:
-#####	0) For input (excel file columns): A = N number, B = name, C and D = nothing, E = name of the document, F = date
+#####	0) For input: A = N number, B = name, C and D = nothing, E = name of the document, F = date
 #####	1) make sure that perl is installed on your computer
 #####	2) make sure that perl modules (Spreadsheet::ParseXLSX, XML::Twig, and File::Copy are installed)
 #####	3) using your command line tool, set your working directory to stepmod/utils
-#####	4) launch the script 'perl update_module.pl' after updating the PUBLICATION DATE and verifying the EXCEL FILE path
+#####	4) launch the script 'perl update_module.pl'
 
 use strict;
 use warnings;
@@ -26,7 +21,7 @@ use File::Copy qw(move);
 
 my $parser= Spreadsheet::ParseXLSX->new();
 #my $workbook= $parser->parse("/Users/aminatambengue/Documents/ISO/WG12/STEP-ISO10303/stepmod/CR_Geometry_WG_Numbers_table_example.xlsx");
-my $workbook= $parser->parse("../publication/part1000/CR_210_2/WG_Number_excel_table.xlsx");
+my $workbook= $parser->parse("../publication/part1000/CR_itemshape_1/WG_Number_excel_table.xlsx");
 
 if (!defined $workbook) {
 	die $parser->error(), ".\n";
@@ -67,9 +62,9 @@ for my $worksheet ($workbook->worksheets()) {
         			$table[2] = $elt;
         		}
         	}
-        	if ($table[2] ne 'Document') {
-				update($table[0], $table[1], $table[2]);
-		 	}	
+        	#if ($table[2] ne 'Document') {
+			#	update($table[0], $table[1], $table[2]);
+		 	#}	
 		 	if ($table[2] eq 'Document') {
 					my $WGnbarm;
 					my $WGnbmim;
@@ -163,8 +158,8 @@ sub updatemodule {
 	open ($fh,'<', $filename) or die "Impossible d'ouvrir le fichier $filename en lecture\n";
 	open ($fh2, '>>', $newfile) or die "Impossible d'ouvrir le fichier $newfile en écriture \n";
 	my $line;
-	my $pubyear = '2017-06';
-	my $pubdate = '2017-06-15';
+	my $pubyear = '2017-02';
+	my $pubdate = '2017-02-15';
 	while (defined ($line = <$fh>)){
 ####### replace the wg number
 		my @wg;
@@ -180,24 +175,24 @@ sub updatemodule {
 				my $offset = $result + $lg;
 				my $limit = index($line, '"', $offset);
 				my $length = $limit - $offset;
-				if (defined $mod && $elt eq $wg[0]){
-					my $old = substr($line, $offset, $length);
-					my $Nindex= index($mod, 'N') +1;
-					my $wgnb= substr($mod, $Nindex, 4);
-					$line =~ s/$old/$wgnb/g;
-				}
-				if (defined $arm && $elt eq $wg[1]){
-					my $old = substr($line, $offset, $length);
-					my $Nindex= index($arm, 'N') +1;
-					my $wgnb= substr($arm, $Nindex, 4);
-					$line =~ s/$old/$wgnb/g;
-				}	
-				if (defined $mim && $elt eq $wg[2]){
-					my $old = substr($line, $offset, $length);
-					my $Nindex= index($mim, 'N') +1;
-					my $wgnb= substr($mim, $Nindex, 4);
-					$line =~ s/$old/$wgnb/g;
-				}	
+				#if (defined $mod && $elt eq $wg[0]){
+				#	my $old = substr($line, $offset, $length);
+				#	my $Nindex= index($mod, 'N') +1;
+				#	my $wgnb= substr($mod, $Nindex, 4);
+				#	$line =~ s/$old/$wgnb/g;
+				#}
+				#if (defined $arm && $elt eq $wg[1]){
+				#	my $old = substr($line, $offset, $length);
+				#	my $Nindex= index($arm, 'N') +1;
+				#	my $wgnb= substr($arm, $Nindex, 4);
+				#	$line =~ s/$old/$wgnb/g;
+				#}	
+				#if (defined $mim && $elt eq $wg[2]){
+				#	my $old = substr($line, $offset, $length);
+				#	my $Nindex= index($mim, 'N') +1;
+				#	my $wgnb= substr($mim, $Nindex, 4);
+				#	$line =~ s/$old/$wgnb/g;
+				#}	
 				if ($elt eq $wg[3]){
 					my $old = substr($line, $offset, $length);
 					$line =~ s/$old/$pubyear/g;

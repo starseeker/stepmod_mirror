@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.195 2016/08/22 14:00:38 mikeward Exp $
+$Id: common.xsl,v 1.196 2016/08/22 14:31:39 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -2099,8 +2099,21 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 <xsl:template match="a">
 
-  <!-- <a href="{@href}" target="_blank"> MWD 2016-08-22 -->
-  <a href="{@href}" target="_self">
+  
+  
+  <xsl:variable name="href"><!-- added MWD 2017-04-05 -->
+    <xsl:choose>
+      <xsl:when test="contains(./@href, '.xml')">
+        <xsl:value-of select="concat(substring-before(./@href, '.xml'), '.htm', substring-after(./@href, '.xml'))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="./@href"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
+  
+  <a href="{$href}" target="_self"><!-- @href replaced with $href here and throughout rest of template MWD 2017-04-05 -->
   <xsl:variable name="link_name">
     <xsl:apply-templates/>
   </xsl:variable>
@@ -2112,15 +2125,11 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:when>
         
 
-      <xsl:when test="string-length(text()) > 0" >
-
-      (<xsl:value-of select="@href"/>)
-
-    </xsl:when>
+      <xsl:when test="string-length(text()) > 0" >(<xsl:value-of select="$href"/>)</xsl:when>
 
     <xsl:otherwise>
 
-            <xsl:value-of select="@href"/>
+      <xsl:value-of select="$href"/>
 
     </xsl:otherwise>
 

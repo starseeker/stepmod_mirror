@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2015/08/31 14:11:02 $" rcs.revision="$Revision: 1.20 $" reference="ISO 10303-43">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/01/21 22:04:07 $" rcs.revision="$Revision: 1.21 $" reference="ISO 10303-43">
    <application name="JSDAI" owner="LKSoft" source="representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="representation_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -298,6 +298,23 @@
     END_REPEAT;
     RETURN (TRUE);</algorithm>
       </function>
+      <function name="get_representation_for_items">
+         <parameter name="input">
+            <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+            <typename name="founded_item_select"/>
+         </parameter>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
+         <typename name="representation"/>
+         <algorithm> LOCAL
+            r_set : SET OF representation := [];
+            END_LOCAL;
+            REPEAT i := LOINDEX(input) TO HIINDEX(input);
+            r_set := r_set + using_representations(input[i]);
+            END_REPEAT;
+            RETURN (r_set);
+         </algorithm>
+      </function>                
+         
       <function name="item_in_context">
          <parameter name="item">
             <typename name="representation_item"/>

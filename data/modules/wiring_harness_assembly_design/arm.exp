@@ -5,10 +5,10 @@
 
 SCHEMA Wiring_harness_assembly_design_arm;
 
-USE FROM Assembly_module_design_arm;   -- ISO/TS 10303-1636
-USE FROM Cable_arm;   -- ISO/TS 10303-1653
 USE FROM Edge_based_topological_representation_with_length_arm;   -- ISO/TS 10303-1830
 USE FROM Extruded_structure_cross_section_arm;   -- ISO/TS 10303-1827
+USE FROM Wire_and_cable_design_connectivity_arm;   -- ISO/TS 10303-1845
+
 REFERENCE FROM Foundation_representation_arm(using_representations);   -- ISO/TS 10303-1006
 
 TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON 
@@ -20,7 +20,7 @@ TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON
   wiring_harness_segment_topology);
 END_TYPE;
 
-TYPE whad_assembly_joint_type = ENUMERATION BASED_ON assembly_joint_type WITH (
+TYPE whad_assembly_joint_type = ENUMERATION BASED_ON general_assembly_joint_type WITH (
   bolted_connection,                       -- IEV ref 461-19-05 bolted connection
   deep_indented_crimped_connection,        -- IEV ref 461-19-04 deep indented connection
   circular_compressed_crimped_connection,  -- IEV ref 461-19-02 circular compressed connection
@@ -87,7 +87,7 @@ TYPE whad_axis_placement_mapping_target = SELECT BASED_ON axis_placement_mapping
   Cartesian_point);
 END_TYPE; 
 
-TYPE whad_terminal_joint_type = ENUMERATION BASED_ON terminal_joint_type WITH ( 
+TYPE whad_terminal_joint_type = ENUMERATION BASED_ON general_terminal_joint_type WITH ( 
   crimp_terminal,               -- IEV ref 581-22-05 crimp contact
   fusion_fibre_splice,          -- IEV ref    731-05-06 fusion splice
   insulation_displacement_terminal, -- IEV ref 581-23-39 insulation displacement termination
@@ -111,7 +111,7 @@ TYPE whad_terminal_joint_type = ENUMERATION BASED_ON terminal_joint_type WITH (
 END_TYPE;
 
 ENTITY Wiring_harness_assembly_design
-  SUBTYPE OF (Assembly_module_design_view); 
+  SUBTYPE OF (Assembly_definition); 
   topology : OPTIONAL Connected_edge_with_length_set_representation;
 END_ENTITY;
 
@@ -129,7 +129,7 @@ ENTITY Harness_node
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
   SELF\Shape_element.identified_item : Vertex;
-  attached_feature : OPTIONAL Component_feature; 
+  attached_feature : OPTIONAL Occurrence_shape_feature; 
 WHERE
   WR1: associated_definition.topology IN using_representations(identified_item);
 END_ENTITY;

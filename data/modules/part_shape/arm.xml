@@ -2,11 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1807">
    <application name="JSDAI" owner="LKSoft" source="part_shape_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Part_shape_arm">
       <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Shape_feature_arm"/>
+      <type name="part_shape_element_definition_select">
+         <select selectitems="Shape_feature_definition Part_shape_element"/>
+      </type>
+      <type name="part_view_definition_or_part_shape_element_select">
+         <select selectitems="Part_shape_element Part_view_definition"/>
+      </type>
       <type name="ps_additional_application_domain_enumeration">
          <enumeration basedon="additional_application_domain_enumeration" items="electrical thermal"/>
       </type>
@@ -21,8 +28,21 @@
       </entity>
       <entity name="Part_shape_element" supertypes="Shape_element">
          <explicit name="associated_definition">
-            <typename name="Part_view_definition"/>
+            <typename name="part_view_definition_or_part_shape_element_select"/>
             <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="part_shape_element_definition_select"/>
+         </explicit>
+      </entity>
+      <entity name="Part_shape_element_relationship" supertypes="Shape_element_relationship">
+         <explicit name="related">
+            <typename name="Part_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Part_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
       </entity>
    </schema>

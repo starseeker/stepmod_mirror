@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="wire_and_cable_design_connectivity_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Wire_and_cable_design_connectivity_arm">
+      <interface kind="use" schema="General_design_connectivity_arm"/>
+      <type name="wacdc_part_category">
+         <enumeration basedon="part_category" items="wire cable flat_cable"/>
+      </type>
+      <entity name="Cable_occurrence" supertypes="Product_occurrence_with_quantity">
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name = 'end a')" name="ends_a">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name = 'end b')" name="ends_b">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name[1:13] = 'intermediate')" name="intermediates">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <inverse attribute="associated_definition" entity="Cable_occurrence_terminal_location_group_identification" name="terminal_location_groups">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
+         <where expression="EXISTS(ends_a)" label="WR1"/>
+         <where expression="EXISTS(ends_b)" label="WR2"/>
+         <where expression="SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group_identification.terminals)" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
+      </entity>
+      <entity name="Cable_occurrence_terminal" supertypes="Derived_occurrence_terminal">
+         <explicit name="associated_definition">
+            <typename name="Cable_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="Wire_identification"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+         <explicit name="location_group">
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </explicit>
+      </entity>
+      <entity name="Cable_occurrence_terminal_location_group_identification" supertypes="Occurrence_shape_feature">
+         <explicit name="associated_definition">
+            <typename name="Cable_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <inverse attribute="location_group" entity="Cable_occurrence_terminal" name="terminals">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Wire_color_based_identification_code" supertypes="Independent_property"/>
+      <entity name="Wire_identification" supertypes="Occurrence_transport_feature">
+         <explicit name="code" optional="YES">
+            <typename name="Wire_color_based_identification_code"/>
+         </explicit>
+      </entity>
+      <entity name="Wire_occurrence" supertypes="Product_occurrence_with_quantity">
+         <derived expression="QUERY(t &lt;* terminals | t.name = 'end a')" name="ends_a">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <derived expression="QUERY(t &lt;* terminals | t.name = 'end b')" name="ends_b">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <derived expression="QUERY(t &lt;* terminals | t.name[1:13] = 'intermediate ')" name="intermediates">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <inverse attribute="associated_definition" entity="Wire_occurrence_terminal" name="terminals">
+            <inverse.aggregate lower="2" type="SET" upper="?"/>
+         </inverse>
+         <where expression="SIZEOF(ends_a) = 1" label="WR1"/>
+         <where expression="SIZEOF(ends_b) = 1" label="WR2"/>
+         <where expression="SIZEOF(QUERY(ct &lt;* USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_DEFINITION') | &#10;    NOT ('COMPONENT_FEATURE_ARM.Wire_occurrence_terminal' IN TYPEOF(ct)) )) = 0" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
+      </entity>
+      <entity name="Wire_occurrence_terminal" supertypes="Derived_occurrence_terminal">
+         <explicit name="associated_definition">
+            <typename name="Wire_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="Wire_identification"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Derived_occurrence_terminal" name="wacdc_derived_occurrence_terminal" super.expression="ONEOF (Cable_occurrence_terminal, Wire_occurrence_terminal)"/>
+      <subtype.constraint entity="Product_occurrence_with_quantity" name="wacdc_definition_based_product_occurrence" super.expression="ONEOF (Cable_occurrence, Wire_occurrence)"/>
+   </schema>
+</express>

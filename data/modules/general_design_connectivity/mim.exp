@@ -1,0 +1,60 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS MIM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA General_design_connectivity_mim;
+
+USE FROM Design_product_data_management_mim; -- ISO/TS 10303-1628
+(* Part_with_additional_categories *)
+
+USE FROM Item_definition_structure_mim; -- ISO/TS 10303-1345
+
+USE FROM Part_shape_mim; -- ISO/TS 10303-1807
+(* Part_shape_element, General_part_feature *) 
+
+USE FROM Configuration_item_mim; -- ISO/TS 10303-1056
+
+USE FROM Shape_feature_mim; -- ISO/TS 10303-1764
+(* Shape_element, shapeable_item *)
+
+
+ENTITY assembly_shape_joint
+  SUBTYPE OF (shape_aspect);
+DERIVE
+  items : SET[0:?] OF shape_aspect := collect_assembly_joint_items(SELF);
+WHERE
+  WR1: TRUE; -- all items must belong to the same product_definition(assembly) to 
+             -- which this assembly_shape_joint belongs to
+END_ENTITY;
+
+ENTITY assembly_shape_joint_item_relationship
+  SUBTYPE OF (shape_aspect_relationship);
+  SELF\shape_aspect_relationship.relating_shape_aspect : assembly_shape_joint;
+  -- ...relating_shape_aspect -- this is ONE item for the assembly_shape_joint
+END_ENTITY;
+
+FUNCTION collect_assembly_joint_items(asj : assembly_shape_joint) : SET OF shape_aspect;
+  RETURN(?);
+END_FUNCTION;
+
+ENTITY assembly_shape_constraint
+  SUBTYPE OF (shape_aspect);
+DERIVE
+  items : SET[0:?] OF shape_aspect := collect_assembly_constraint_items(SELF);
+WHERE
+  WR1: TRUE; -- all items must belong to the same product_definition(assembly) to 
+             -- which this assembly_shape_joint belongs to
+END_ENTITY;
+
+ENTITY assembly_shape_constraint_item_relationship
+  SUBTYPE OF (shape_aspect_relationship);
+  SELF\shape_aspect_relationship.relating_shape_aspect : assembly_shape_constraint;
+  -- ...relating_shape_aspect -- this is ONE item for the assembly_shape_constraint
+END_ENTITY;
+
+FUNCTION collect_assembly_constraint_items(asc : assembly_shape_constraint) : SET OF shape_aspect;
+  RETURN(?);
+END_FUNCTION;
+  
+
+END_SCHEMA;

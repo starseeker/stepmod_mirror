@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="physical_design_connectivity_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Physical_design_connectivity_arm">
+      <interface kind="use" schema="Design_product_data_management_arm"/>
+      <interface kind="use" schema="Item_definition_structure_arm"/>
+      <interface kind="use" schema="Part_shape_arm"/>
+      <interface kind="use" schema="Configuration_item_arm"/>
+      <interface kind="use" schema="Shape_feature_arm"/>
+      <type name="cc_part_category">
+         <enumeration basedon="part_category" items="wire cable flat_cable"/>
+      </type>
+      <type name="fatp_part_connected_terminals_definition_domain_enumeration">
+         <enumeration extensible="YES" items="electrical thermal optical magnetic"/>
+      </type>
+      <type name="part_contact_shape_or_shape_feature_definition">
+         <select selectitems="Part_contact_shape Shape_feature_definition"/>
+      </type>
+      <type name="part_feature_or_shape_feature_definition">
+         <select selectitems="General_part_feature Shape_feature_definition"/>
+      </type>
+      <type name="part_shape_element_or_shape_feature_definition">
+         <select selectitems="Part_shape_element Shape_feature_definition"/>
+      </type>
+      <type name="part_terminal_or_occurrence_terminal">
+         <select selectitems="General_part_terminal Occurrence_terminal"/>
+      </type>
+      <type name="pdc_shapeable_item">
+         <select basedon="shapeable_item" selectitems="Product_configuration Shape_element"/>
+      </type>
+      <type name="shape_feature_definition_or_part_contact_shape_select">
+         <select selectitems="Shape_feature_definition Part_contact_shape"/>
+      </type>
+      <entity name="Cable_occurrence" supertypes="Definition_based_product_occurrence Product_occurrence_with_quantity">
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name = 'end a')" name="ends_a">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name = 'end b')" name="ends_b">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.name[1:13] = 'intermediate')" name="intermediates">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+         </derived>
+         <inverse attribute="associated_definition" entity="Cable_occurrence_terminal_location_group_identification" name="terminal_location_groups">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
+         </inverse>
+         <where expression="EXISTS(ends_a)" label="WR1"/>
+         <where expression="EXISTS(ends_b)" label="WR2"/>
+         <where expression="SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group_identification.elements) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group_identification.elements)" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
+      </entity>
+      <entity name="Cable_occurrence_terminal" supertypes="Derived_occurrence_terminal">
+         <explicit name="associated_definition">
+            <typename name="Cable_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="Wire_identification"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Cable_occurrence_terminal_location_group_identification" supertypes="Occurrence_shape_feature_group_identification">
+         <explicit name="associated_definition">
+            <typename name="Cable_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Cable_occurrence_terminal"/>
+            <redeclaration entity-ref="Occurrence_shape_feature_group_identification"/>
+         </explicit>
+      </entity>
+      <entity name="Composed_part_contact_shape" supertypes="Part_contact_shape">
+         <inverse attribute="associated_definition" entity="Part_contact_shape" name="elements">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Derived_occurrence_terminal" super.expression="ONEOF (Cable_occurrence_terminal, Wire_occurrence_terminal)" supertypes="Occurrence_contact_shape">
+         <explicit name="definition">
+            <typename name="General_part_feature"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="General_assembly_joint" supertypes="Part_shape_element">
+         <explicit name="related">
+            <typename name="Occurrence_shape_feature"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Occurrence_shape_feature"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Assembly_definition"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="relationshp_definition" optional="YES">
+            <typename name="Part_contact_shape_mating_relationship"/>
+         </explicit>
+         <where expression="related :&lt;&gt;: relating" label="WR1"/>
+      </entity>
+      <entity name="General_part_connectivity_definition" supertypes="Part_shape_element">
+         <explicit name="associated_terminals">
+            <aggregate lower="2" type="SET" upper="?"/>
+            <typename name="part_terminal_or_occurrence_terminal"/>
+         </explicit>
+      </entity>
+      <entity name="General_part_terminal" supertypes="Individual_part_contact_shape"/>
+      <entity name="Hierarchical_part_contact_shape_mating_relationship" supertypes="Part_contact_shape_mating_relationship">
+         <explicit name="relating">
+            <typename name="Composed_part_contact_shape"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Composed_part_contact_shape"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="element">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Part_contact_shape_mating_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Individual_part_contact_shape" supertypes="Part_contact_shape"/>
+      <entity name="Occurrence_contact_shape" super.expression="ONEOF (Occurrence_terminal, Derived_occurrence_terminal)" supertypes="Occurrence_shape_feature">
+         <explicit name="definition" optional="YES">
+            <typename name="part_contact_shape_or_shape_feature_definition"/>
+            <redeclaration entity-ref="Occurrence_shape_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Occurrence_shape_element" supertypes="Shape_element">
+         <explicit name="associated_definition">
+            <typename name="Product_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="part_shape_element_or_shape_feature_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="definition"/>
+            <unique.attribute attribute="associated_definition"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute attribute="SELF\Shape_element.element_name"/>
+            <unique.attribute attribute="associated_definition"/>
+         </unique>
+      </entity>
+      <entity name="Occurrence_shape_feature" super.expression="ONEOF (Occurrence_contact_shape, Occurrence_shape_feature_group_identification)" supertypes="Occurrence_shape_element">
+         <explicit name="definition" optional="YES">
+            <typename name="part_feature_or_shape_feature_definition"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+         <derived expression="TRUE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
+      <entity name="Occurrence_shape_feature_group_identification" supertypes="Occurrence_shape_feature">
+         <explicit name="elements">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Occurrence_shape_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Occurrence_terminal" supertypes="Occurrence_contact_shape">
+         <explicit name="definition">
+            <typename name="General_part_terminal"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Part_contact_shape" super.expression="ONEOF (Composed_part_contact_shape, Individual_part_contact_shape)" supertypes="General_part_feature">
+         <explicit name="associated_definition" optional="YES">
+            <typename name="shape_feature_definition_or_part_contact_shape_select"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Part_contact_shape_mating_relationship" supertypes="Shape_element_relationship">
+         <explicit name="relating">
+            <typename name="Part_contact_shape"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Part_contact_shape"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="defintion" optional="YES">
+            <typename name="Shape_feature_definition_mating_relationship"/>
+         </explicit>
+         <where expression="relating.associated_definition :&lt;&gt;: related.associated_definition" label="WR1"/>
+      </entity>
+      <entity name="Shape_feature_definition_mating_relationship" supertypes="Shape_feature_definition_relationship"/>
+      <entity name="Shape_feature_definition_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Shape_feature_definition"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Shape_feature_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Wire_color_based_identification_code" supertypes="Independent_property"/>
+      <entity name="Wire_identification" supertypes="General_part_feature">
+         <explicit name="code">
+            <typename name="Wire_color_based_identification_code"/>
+         </explicit>
+         <explicit name="conductivity_type" optional="YES">
+            <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
+         </explicit>
+      </entity>
+      <entity name="Wire_occurrence" supertypes="Definition_based_product_occurrence Product_occurrence_with_quantity">
+         <derived expression="QUERY(t &lt;* terminals | t.name = 'end a')" name="ends_a">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <derived expression="QUERY(t &lt;* terminals | t.name = 'end b')" name="ends_b">
+            <aggregate lower="1" type="SET" upper="1"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <derived expression="QUERY(t &lt;* terminals | t.name[1:13] = 'intermediate ')" name="intermediates">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Wire_occurrence_terminal"/>
+         </derived>
+         <inverse attribute="associated_definition" entity="Wire_occurrence_terminal" name="terminals">
+            <inverse.aggregate lower="2" type="SET" upper="?"/>
+         </inverse>
+         <where expression="SIZEOF(ends_a) = 1" label="WR1"/>
+         <where expression="SIZEOF(ends_b) = 1" label="WR2"/>
+         <where expression="SIZEOF(QUERY(ct &lt;* USEDIN(SELF, 'COMPONENT_FEATURE_ARM.COMPONET_TERMINAL.ASSOCIATED_DEFINITION') | &#10;    NOT ('COMPONENT_FEATURE_ARM.Wire_occurrence_terminal' IN TYPEOF(ct)) )) = 0" label="WR3"/>
+         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
+         <where expression="wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
+      </entity>
+      <entity name="Wire_occurrence_terminal" supertypes="Derived_occurrence_terminal">
+         <explicit name="associated_definition">
+            <typename name="Wire_occurrence"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="Wire_identification"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Definition_based_product_occurrence" name="pdc_definition_based_product_occurrence" super.expression="ONEOF (Cable_occurrence, Wire_occurrence)"/>
+      <subtype.constraint entity="Shape_element" name="pdc_shape_element" super.expression="ONEOF (Part_shape_element, Occurrence_shape_element)"/>
+      <subtype.constraint entity="General_part_feature" name="pdc_general_part_feature" super.expression="ONEOF (Wire_identification, Part_contact_shape)"/>
+   </schema>
+</express>

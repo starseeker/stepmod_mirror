@@ -1,30 +1,26 @@
 (*
-   $Id: arm.exp,v 1.31 2016/09/27 12:29:02 lothartklein Exp $
-   ISO TC184/SC4/WG12 N9043 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7717
+   $Id: arm.exp,v 1.25 2012/10/06 20:09:56 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7717 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6971
 *)
 
 SCHEMA Functional_usage_view_arm;
 
-USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
-USE FROM Group_arm; -- ISO/TS 10303-1113
-USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
+ USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
  
-REFERENCE FROM Support_resource_arm(bag_to_set);   -- ISO/TS 10303-1800
+ USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
+ 
+REFERENCE FROM Support_resource_arm(bag_to_set); 
 
   
   TYPE fuuv_am_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_port_assignment_select WITH  
 	(Functional_unit_usage_view_terminal_definition);
   END_TYPE;
 
-  TYPE fuv_classification_item = SELECT BASED_ON classification_item WITH
+  TYPE fuuv_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
      (Functional_unit_usage_view_terminal_definition);
   END_TYPE;
 
-  TYPE fuv_groupable_item = SELECT BASED_ON groupable_item WITH (
-          Scalar_terminal_definition);
-  END_TYPE;
-  
   ENTITY Equivalent_functional_terminals_assignment;
       name                 : STRING;   
       equivalent_terminals : SET[2:?] OF Functional_unit_usage_view_terminal_definition;
@@ -41,18 +37,25 @@ REFERENCE FROM Support_resource_arm(bag_to_set);   -- ISO/TS 10303-1800
       UR1: SELF\Product.id;
   END_ENTITY;
   
-  ENTITY Functional_terminal_group
-  	SUBTYPE OF (Group);
-      SELF\Group.id RENAMED group_type : STRING;
-      SELF\Group.elements : SET [0:?] OF Scalar_terminal_definition;
+  ENTITY Functional_terminal_group;
+      name              : STRING; 
+      group_description : STRING;
+      group_type        : STRING;
     UNIQUE
       UR1 : name;
   END_ENTITY;
 
+  ENTITY Functional_terminal_group_assignment;
+      composed_group                 : Functional_terminal_group;
+      functional_usage_view_terminal : Scalar_terminal_definition;
+  END_ENTITY;
+ 
   ENTITY Functional_unit_definition
     ABSTRACT SUPERTYPE 
-    SUBTYPE OF (Information_definition);
+    SUBTYPE OF (Information_definition, Item_shape);
       SELF\Product_view_definition.defined_version : Functional_version;
+    DERIVE
+      SELF\Item_shape.described_element : shapeable_item := SELF;
   END_ENTITY;
 
 	ENTITY Functional_unit_make_from_relationship
@@ -66,11 +69,10 @@ REFERENCE FROM Support_resource_arm(bag_to_set);   -- ISO/TS 10303-1800
 
   ENTITY Functional_unit_usage_view
     SUBTYPE OF (Functional_unit_definition);
-    DERIVE 
-      analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
-    INVERSE
+     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
+     INVERSE
       access_mechanism : SET[0:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
-    WHERE
+     WHERE
       WR1: SIZEOF(analytical_model_application_reference) <= 1;
       WR2: NOT(SIZEOF(analytical_model_application_reference) = 1) OR
         (SIZEOF(QUERY( am <* access_mechanism |

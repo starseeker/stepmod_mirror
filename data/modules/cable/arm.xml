@@ -2,112 +2,29 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1653">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2011/02/11 10:13:39 $" rcs.revision="$Revision: 1.53 $" reference="ISO/TS 10303-1653">
    <application name="JSDAI" owner="LKSoft" source="cable_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Cable_arm">
-      <interface kind="use" schema="Assembly_component_arm"/>
-      <interface kind="use" schema="Component_feature_arm"/>
-      <interface kind="use" schema="Design_product_data_management_arm"/>
-      <interface kind="use" schema="Functional_assignment_to_part_arm"/>
-      <type name="cc_part_category">
-         <enumeration basedon="part_category" items="wire cable flat_cable"/>
-      </type>
-      <entity name="Cable_component" supertypes="Assembly_component Product_occurrence_with_quantity">
-         <explicit name="derived_from">
-            <typename name="Cable_usage_view"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
-         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name = 'end a')" name="ends_a">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Cable_component_terminal_location_group_identification"/>
-         </derived>
-         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name = 'end b')" name="ends_b">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Cable_component_terminal_location_group_identification"/>
-         </derived>
-         <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name[1:13] = 'intermediate')" name="intermediates">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Cable_component_terminal_location_group_identification"/>
-         </derived>
-         <inverse attribute="associated_definition" entity="Cable_component_terminal_location_group_identification" name="terminal_location_groups">
-            <inverse.aggregate lower="0" type="SET" upper="?"/>
-         </inverse>
-         <where expression="EXISTS(ends_a)" label="WR1"/>
-         <where expression="EXISTS(ends_b)" label="WR2"/>
-         <where expression="SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.elements) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.elements)" label="WR3"/>
-         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
-         <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
-      </entity>
-      <entity name="Cable_component_terminal" supertypes="Derived_component_terminal">
-         <explicit name="derived_from">
-            <typename name="Wire_identification"/>
-            <redeclaration entity-ref="Derived_component_terminal"/>
-         </explicit>
-         <inverse attribute="elements" entity="Cable_component_terminal_location_group_identification" name="location_group"/>
-         <where expression="EXISTS(location_group)" label="WR1"/>
-      </entity>
-      <entity name="Cable_component_terminal_location_group_identification" supertypes="Component_feature_group_identification">
+      <interface kind="use" schema="Assembly_module_with_packaged_connector_component_arm"/>
+      <entity name="Cable_terminal" supertypes="Part_terminal">
          <explicit name="associated_definition">
-            <typename name="Cable_component"/>
-            <redeclaration entity-ref="Component_feature"/>
+            <typename name="Cable_usage_view"/>
+            <redeclaration entity-ref="Part_feature"/>
          </explicit>
-         <explicit name="elements">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Cable_component_terminal"/>
-            <redeclaration entity-ref="Component_feature_group_identification"/>
+         <explicit name="mapped_terminal" optional="YES">
+            <typename name="Packaged_connector_component_interface_terminal"/>
          </explicit>
+         <explicit name="connection_area" optional="YES">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Connection_zone_in_usage_view"/>
+            <redeclaration entity-ref="Definitional_shape_element"/>
+         </explicit>
+         <where expression="SELF\Part_feature.associated_definition :=: &#10;      mapped_terminal\Component_feature.associated_component\Assembly_component.occurrence_contexts[1].relating_view" label="WR1"/>
       </entity>
       <entity name="Cable_usage_view" supertypes="Part_usage_view">
-         <inverse attribute="associated_definition" entity="Wire_identification" name="conductors">
+         <inverse attribute="associated_definition" entity="Cable_terminal" name="access_mechanisms">
             <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Wire_color_based_identification_code" supertypes="Independent_property"/>
-      <entity name="Wire_component" supertypes="Assembly_component Product_occurrence_with_quantity">
-         <explicit name="derived_from">
-            <typename name="Cable_usage_view"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
-         <derived expression="QUERY(t &lt;* terminals | t.element_name = 'end a')" name="ends_a">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Wire_component_terminal"/>
-         </derived>
-         <derived expression="QUERY(t &lt;* terminals | t.element_name = 'end b')" name="ends_b">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Wire_component_terminal"/>
-         </derived>
-         <derived expression="QUERY(t &lt;* terminals | t.element_name[1:13] = 'intermediate ')" name="intermediates">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Wire_component_terminal"/>
-         </derived>
-         <inverse attribute="associated_definition" entity="Wire_component_terminal" name="terminals">
-            <inverse.aggregate lower="2" type="SET" upper="?"/>
-         </inverse>
-         <where expression="SIZEOF(ends_a) = 1" label="WR1"/>
-         <where expression="SIZEOF(ends_b) = 1" label="WR2"/>
-         <where expression="SIZEOF(QUERY(ct &lt;* USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.ASSOCIATED_DEFINITION') | &#10;             NOT ('COMPONENT_FEATURE_ARM.WIRE_COMPONENT_TERMINAL' IN TYPEOF(ct)) )) = 0" label="WR3"/>
-         <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
-         <where expression="wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
-      </entity>
-      <entity name="Wire_component_terminal" supertypes="Derived_component_terminal">
-         <explicit name="associated_definition">
-            <typename name="Wire_component"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
-         <explicit name="derived_from">
-            <typename name="Wire_identification"/>
-            <redeclaration entity-ref="Derived_component_terminal"/>
-         </explicit>
-      </entity>
-      <entity name="Wire_identification" supertypes="General_part_feature">
-         <explicit name="code">
-            <typename name="Wire_color_based_identification_code"/>
-         </explicit>
-         <explicit name="conductivity_type" optional="YES">
-            <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
-         </explicit>
-      </entity>
-      <subtype.constraint entity="Assembly_component" name="wacc_assembly_component_subtypes" super.expression="ONEOF (Wire_component, Cable_component)"/>
-      <subtype.constraint entity="Derived_component_terminal" name="wacc_derived_component_terminal_subtypes" super.expression="ONEOF (Cable_component_terminal, Wire_component_terminal)"/>
    </schema>
 </express>

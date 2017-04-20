@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.45 2015/08/30 09:56:57 lothartklein Exp $
+   $Id: mim.exp,v 1.46 2015/09/07 12:25:19 kevletu Exp $
    ISO TC184/SC4/WG12 N8591 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N8323
 *)
@@ -713,7 +713,16 @@ END_TYPE;
   ENTITY supplied_part_relationship
     SUBTYPE OF (product_definition_relationship);
   END_ENTITY;
-  
+
+ENTITY mated_part_relationship
+  SUBTYPE OF (group, group_assignment, product_definition_shape, product_definition_relationship, shape_aspect);
+  items : SET [0:?] OF product_definition;
+DERIVE
+  SELF\group_assignment.assigned_group : mated_part_relationship := SELF;
+  SELF\property_definition.definition : mated_part_relationship := SELF;
+  SELF\shape_aspect.of_shape : mated_part_relationship := SELF;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT ap242_founded_item_subtypes FOR founded_item;
   ABSTRACT SUPERTYPE;
   ONEOF (b_spline_curve_knot_locator,

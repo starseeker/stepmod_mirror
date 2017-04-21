@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="product_property_representation_schema" schema_file="product_property_representation_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2012/10/13 17:43:34 $" rcs.revision="$Revision: 1.9 $">
+<ext_descriptions module_directory="product_property_representation_schema" schema_file="product_property_representation_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2013/12/12 16:16:03 $" rcs.revision="$Revision: 1.10 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: product_property_representation_schema
    <express_ref linkend="product_property_representation_schema::product_property_representation_schema"/>
@@ -425,7 +425,13 @@
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/> 
 	as being the element(s) that describes a particular component or part of the property that is described by the
 	<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>.
-	<example>
+	More than one <express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>.
+	may be bound to a product data item by members of <b>item_identified_representation_usage</b> and more than one
+	member of <express_ref linkend="representation_schema:ir_express:representation_schema.representation_item"/>(s) 
+	may be bound to a product data item by members of <b>item_identified_representation_usage</b>. The same item of
+	product data shall not be bound to more than one member of <express_ref linkend="representation_schema:ir_express:representation_schema.representation_item"/>
+	within a member of <express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>.
+	<example number="1">
 		In an application protocol, an instance of representation describes the shape of a product.
 		One element of the 
 		<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/> - 
@@ -433,6 +439,17 @@
 		<b>Item_identification_representation_usage</b> is used to state that the curve referenced by 'identified_item'
 		is a representation item for the <b>shape_aspect</b> referenced by 'definition' and that the whole representation is referenced by
 		'used_representation' to indicate the structural context for the curve. <b>Geometric_representation_context</b> plays no role in this example.
+	</example>
+	<example number="2">
+		In an application protocol, an instance of representation describes the shape of a product.
+		One element of the 
+		<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/> - 
+		a curve - represents the boundary of a <b>shape_aspect</b>, a hole, in the product.
+		A member of <b>Item_identification_representation_usage</b> is used to state that the curve referenced by 'identified_item'
+		is a representation item for the <b>shape_aspect#1</b> referenced by 'definition' and that the whole representation is referenced by
+		'used_representation' to indicate the structural context for the curve.
+		A second member of <b>Item_identification_representation_usage</b> references a different curve in that same <express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>
+		and references the same <b>shape_aspect#1</b>. The data population is invalid because only one item within a representation can be bound to a <b>shape_aspect</b>.
 	</example>
 </ext_description>
 <!-- 
@@ -501,7 +518,20 @@
 	<express_ref linkend="representation_schema:ir_express:representation_schema.set_representation_item"/> 
 	that describes the identified property or aspect.
 </ext_description>
-<!-- 
+	<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_property_representation_schema  Entity: item_identified_representation_usage  Unique: UR1 
+   <express_ref linkend="product_property_representation_schema::product_property_representation_schema.item_identified_representation_usage.ur:UR1"/>
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+	<ext_description linkend="product_property_representation_schema.item_identified_representation_usage.ur:UR1">
+		The combination of the <b>used_representation</b> and the <b>identified_item</b> shall be unique.
+	</ext_description>
+	<ext_description linkend="product_property_representation_schema.item_identified_representation_usage.ur:UR2">
+		The combination of the <b>used_representation</b> and the <b>definition</b> shall be unique.
+	</ext_description>
+	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_property_representation_schema  Entity: item_identified_representation_usage  Where: WR1 
    <express_ref linkend="product_property_representation_schema::product_property_representation_schema.item_identified_representation_usage.wr:WR1"/>
@@ -509,13 +539,23 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="product_property_representation_schema.item_identified_representation_usage.wr:WR1">
-	The 
-	<express_ref linkend="representation_schema:ir_express:representation_schema.representation_item"/> 
-	that is identified shall belong to the set of items of the 
-	<express_ref linkend="representation_schema:ir_express:representation_schema.representation"/>
-	referred to by the attribute <b>used_representation</b>, or shall participate in the definition of one of the items.
+	If the size of <express_ref linkend="product_property_representation_schema:ir_express:product_property_representation_schema.item_identified_representation_usage.identified_item"></express_ref> is one then
+		the <express_ref linkend="product_property_representation_schema:ir_express:product_property_representation_schema.item_identified_representation_usage.used_representation"></express_ref> shall reference
+	the item directly or indirectly.
 </ext_description>
-<!-- 
+	<!-- 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Schema: product_property_representation_schema  Entity: item_identified_representation_usage  Where: WR2 
+   <express_ref linkend="product_property_representation_schema::product_property_representation_schema.item_identified_representation_usage.wr:WR2"/>
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  -->
+	<ext_description linkend="product_property_representation_schema.item_identified_representation_usage.wr:WR2">
+		If the size of <express_ref linkend="product_property_representation_schema:ir_express:product_property_representation_schema.item_identified_representation_usage.identified_item"></express_ref> is greater than one then
+		the <express_ref linkend="product_property_representation_schema:ir_express:product_property_representation_schema.item_identified_representation_usage.used_representation"></express_ref> shall be one
+		of the <express_ref linkend="representation_schema:ir_express:representation_schema.representation"/> that reference the item directly or indirectly.
+	</ext_description>
+	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: product_property_representation_schema  Entity: property_definition_representation  
    <express_ref linkend="product_property_representation_schema::product_property_representation_schema.property_definition_representation"/>

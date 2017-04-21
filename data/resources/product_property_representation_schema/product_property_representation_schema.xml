@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2015/04/28 10:42:44 $" rcs.revision="$Revision: 1.32 $" reference="ISO 10303-41">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/04/03 19:08:51 $" rcs.revision="$Revision: 1.33 $" reference="ISO 10303-41">
    <application name="JSDAI" owner="LKSoft" source="product_property_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="product_property_representation_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -156,7 +156,16 @@
          <explicit name="identified_item">
             <typename name="item_identified_representation_usage_select"/>
          </explicit>
-         <where expression="SELF.used_representation IN using_representations(SELF.identified_item)" label="WR1"/>
+         <unique label="UR1">
+            <unique.attribute attribute="used_representation"/>
+            <unique.attribute attribute="identified_item"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute attribute="used_representation"/>
+            <unique.attribute attribute="definition"/>
+         </unique>
+         <where expression="NOT (SIZEOF(identified_item) = 1) OR (used_representation IN using_representations(identified_item))" label="WR1"/>
+         <where expression="NOT (SIZEOF(identified_item) > 1) OR (used_representation IN get_representations_for_items(identified_item))" label="WR2"/>
       </entity>
       <entity name="property_definition_denotation">
          <explicit name="name" optional="YES">

@@ -17,8 +17,8 @@
       <type name="assembly_definition_or_assembly_shape_joint">
          <select selectitems="Assembly_definition Assembly_shape_joint"/>
       </type>
-      <type name="contact_feature_definition_or_part_contact_shape_select">
-         <select selectitems="Contact_feature_definition Part_contact_shape"/>
+      <type name="connected_terminal_select">
+         <select selectitems="Derived_occurrence_terminal General_part_terminal Occurrence_terminal"/>
       </type>
       <type name="gdc_shapeable_item">
          <select basedon="shapeable_item" selectitems="Product_configuration Shape_element"/>
@@ -29,23 +29,23 @@
       <type name="general_terminal_joint_type">
          <enumeration extensible="YES"/>
       </type>
-      <type name="interface_or_joint_terminal_enum">
+      <type name="interface_or_join_terminal_enum">
          <enumeration items="interface_terminal join_terminal"/>
+      </type>
+      <type name="occurrence_contact_shape_definition_select">
+         <select selectitems="Occurrence_contact_shape Part_contact_shape Shape_feature_definition"/>
       </type>
       <type name="occurrence_shape_element_definition_select">
          <select selectitems="Occurrence_shape_element Part_shape_element Shape_feature_definition"/>
       </type>
+      <type name="occurrence_shape_feature_definition_select">
+         <select selectitems="General_part_feature Occurrence_shape_feature Shape_feature_definition"/>
+      </type>
       <type name="occurrence_terminal_definition_select">
          <select selectitems="General_part_terminal Occurrence_terminal Derived_occurrence_terminal"/>
       </type>
-      <type name="part_contact_shape_or_shape_feature_definition">
-         <select selectitems="Part_contact_shape Shape_feature_definition"/>
-      </type>
-      <type name="part_feature_or_shape_feature_definition">
-         <select selectitems="General_part_feature Shape_feature_definition"/>
-      </type>
-      <type name="part_terminal_or_occurrence_terminal">
-         <select selectitems="General_part_terminal Occurrence_terminal"/>
+      <type name="part_contact_shape_associated_definition_select">
+         <select selectitems="Part_view_definition Composed_part_contact_shape"/>
       </type>
       <type name="shape_feature_definition_or_relationship_select">
          <select selectitems="Contact_feature_definition_fit_relationship Shape_feature_definition"/>
@@ -129,14 +129,8 @@
       </entity>
       <entity name="Derived_occurrence_terminal" supertypes="Occurrence_contact_shape">
          <explicit name="definition">
-            <typename name="General_part_feature"/>
+            <typename name="Occurrence_transport_feature"/>
             <redeclaration entity-ref="Occurrence_shape_element"/>
-         </explicit>
-      </entity>
-      <entity name="General_part_connectivity_definition" supertypes="Part_shape_element">
-         <explicit name="connected_terminals">
-            <aggregate lower="2" type="SET" upper="?"/>
-            <typename name="part_terminal_or_occurrence_terminal"/>
          </explicit>
       </entity>
       <entity name="General_part_terminal" supertypes="Individual_part_contact_shape">
@@ -147,16 +141,12 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="general_terminal_joint_type"/>
          </explicit>
-         <explicit name="join_or_interface_terminal" optional="YES">
-            <typename name="interface_or_joint_terminal_enum"/>
+         <explicit name="interface_or_join_terminal" optional="YES">
+            <typename name="interface_or_join_terminal_enum"/>
          </explicit>
       </entity>
       <entity name="Hierarchical_part_contact_shape_fit_relationship" supertypes="Part_contact_shape_fit_relationship">
          <explicit name="relating">
-            <typename name="Composed_part_contact_shape"/>
-            <redeclaration entity-ref="Shape_element_relationship"/>
-         </explicit>
-         <explicit name="related">
             <typename name="Composed_part_contact_shape"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
@@ -168,7 +158,7 @@
       <entity name="Individual_part_contact_shape" supertypes="Part_contact_shape"/>
       <entity name="Occurrence_contact_shape" super.expression="ONEOF (Occurrence_terminal, Derived_occurrence_terminal)" supertypes="Occurrence_shape_feature">
          <explicit name="definition" optional="YES">
-            <typename name="part_contact_shape_or_shape_feature_definition"/>
+            <typename name="occurrence_contact_shape_definition_select"/>
             <redeclaration entity-ref="Occurrence_shape_feature"/>
          </explicit>
       </entity>
@@ -191,7 +181,7 @@
       </entity>
       <entity name="Occurrence_shape_feature" super.expression="ONEOF (Occurrence_contact_shape, Occurrence_transport_feature)" supertypes="Occurrence_shape_element">
          <explicit name="definition" optional="YES">
-            <typename name="part_feature_or_shape_feature_definition"/>
+            <typename name="occurrence_shape_feature_definition_select"/>
             <redeclaration entity-ref="Occurrence_shape_element"/>
          </explicit>
          <derived expression="TRUE" name="product_definitional">
@@ -206,7 +196,7 @@
          </explicit>
       </entity>
       <entity name="Occurrence_transport_feature" supertypes="Occurrence_shape_feature">
-         <explicit name="definition">
+         <explicit name="definition" optional="YES">
             <typename name="Part_transport_feature"/>
             <redeclaration entity-ref="Occurrence_shape_element"/>
          </explicit>
@@ -214,10 +204,20 @@
             <typename name="transport_feature_type_enumeration"/>
          </explicit>
       </entity>
+      <entity name="Part_connectivity_definition" supertypes="Part_shape_element">
+         <explicit name="connected_terminals">
+            <aggregate lower="2" type="SET" upper="?"/>
+            <typename name="connected_terminal_select"/>
+         </explicit>
+      </entity>
       <entity name="Part_contact_shape" supertypes="General_part_feature">
          <explicit name="associated_definition" optional="YES">
-            <typename name="contact_feature_definition_or_part_contact_shape_select"/>
+            <typename name="part_contact_shape_associated_definition_select"/>
             <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <explicit name="definition" optional="YES">
+            <typename name="Contact_feature_definition"/>
+            <redeclaration entity-ref="Part_shape_element"/>
          </explicit>
       </entity>
       <entity name="Part_contact_shape_fit_relationship" supertypes="Part_shape_element_relationship">
@@ -254,7 +254,7 @@
          </explicit>
       </entity>
       <subtype.constraint entity="General_part_feature" name="gdc_general_part_feature" super.expression="ONEOF (Part_transport_feature, Part_contact_shape)"/>
-      <subtype.constraint entity="Part_shape_element" name="gdc_part_shape_element" super.expression="ONEOF (Assembly_shape_constraint, Assembly_shape_joint, General_part_connectivity_definition)"/>
+      <subtype.constraint entity="Part_shape_element" name="gdc_part_shape_element" super.expression="ONEOF (Assembly_shape_constraint, Assembly_shape_joint, Part_connectivity_definition)"/>
       <subtype.constraint entity="Shape_element" name="gdc_shape_element" super.expression="ONEOF (Part_shape_element, Occurrence_shape_element)"/>
       <function name="get_assembly_shape_joint_items">
          <parameter name="input">

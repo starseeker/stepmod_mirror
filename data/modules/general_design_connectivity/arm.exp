@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   $Id: arm.exp,v 1.1 2017/04/20 19:53:24 lothartklein Exp $
    N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -22,9 +22,9 @@ USE FROM Configuration_item_arm;    -- ISO/TS 10303-1056
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 
 
-TYPE contact_feature_definition_or_part_contact_shape_select = SELECT
-   (Contact_feature_definition, 
-    Part_contact_shape);
+TYPE part_contact_shape_associated_definition_select = SELECT
+   (Part_view_definition, 
+    Composed_part_contact_shape);
 END_TYPE; 
 
 TYPE gdc_shapeable_item = SELECT BASED_ON shapeable_item WITH 
@@ -50,18 +50,21 @@ TYPE occurrence_terminal_definition_select = SELECT
     Derived_occurrence_terminal);
 END_TYPE; 
 
-TYPE part_contact_shape_or_shape_feature_definition = SELECT
-   (Part_contact_shape, 
+TYPE occurrence_contact_shape_definition_select = SELECT
+   (Occurrence_contact_shape,
+    Part_contact_shape, 
     Shape_feature_definition);
 END_TYPE; 
 
-TYPE part_feature_or_shape_feature_definition = SELECT
-   (General_part_feature, 
+TYPE occurrence_shape_feature_definition_select = SELECT
+   (General_part_feature,
+    Occurrence_shape_feature, 
     Shape_feature_definition);
 END_TYPE; 
 
-TYPE part_terminal_or_occurrence_terminal = SELECT
-   (General_part_terminal, 
+TYPE connected_terminal_select = SELECT
+   (Derived_occurrence_terminal,
+    General_part_terminal, 
     Occurrence_terminal);
 END_TYPE; 
 
@@ -98,7 +101,7 @@ END_ENTITY;
 
 ENTITY Derived_occurrence_terminal
   SUBTYPE OF (Occurrence_contact_shape);
-  SELF\Occurrence_shape_element.definition : General_part_feature;
+  SELF\Occurrence_shape_element.definition : Occurrence_transport_feature;
 END_ENTITY;
 
 TYPE assembly_definition_or_assembly_shape_joint = SELECT (
@@ -141,19 +144,19 @@ ENTITY Assembly_shape_constraint_item_relationship
   SELF\Shape_element_relationship.related : Occurrence_shape_feature;
 END_ENTITY;
 
-ENTITY General_part_connectivity_definition
+ENTITY Part_connectivity_definition
   SUBTYPE OF (Part_shape_element);
-  connected_terminals : SET[2:?] OF part_terminal_or_occurrence_terminal;
+  connected_terminals : SET[2:?] OF connected_terminal_select;
 END_ENTITY;
 
 ENTITY General_part_terminal
   SUBTYPE OF (Individual_part_contact_shape);
   internal_shape : OPTIONAL Part_transport_feature;
   intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type;
-  join_or_interface_terminal : OPTIONAL interface_or_joint_terminal_enum;
+  interface_or_join_terminal : OPTIONAL interface_or_join_terminal_enum;
 END_ENTITY;
 
-TYPE interface_or_joint_terminal_enum = ENUMERATION OF (
+TYPE interface_or_join_terminal_enum = ENUMERATION OF (
   interface_terminal,
   join_terminal);
 END_TYPE;
@@ -172,7 +175,7 @@ ENTITY Occurrence_contact_shape
   SUPERTYPE OF (ONEOF (Occurrence_terminal,
                        Derived_occurrence_terminal))
   SUBTYPE OF (Occurrence_shape_feature);
-  SELF\Occurrence_shape_feature.definition : OPTIONAL part_contact_shape_or_shape_feature_definition;
+  SELF\Occurrence_shape_feature.definition : OPTIONAL occurrence_contact_shape_definition_select;
 END_ENTITY;
 
 ENTITY Occurrence_shape_element
@@ -188,7 +191,7 @@ ENTITY Occurrence_shape_feature
   SUPERTYPE OF (ONEOF (Occurrence_contact_shape,
                        Occurrence_transport_feature))
   SUBTYPE OF (Occurrence_shape_element);
-  SELF\Occurrence_shape_element.definition : OPTIONAL part_feature_or_shape_feature_definition;
+  SELF\Occurrence_shape_element.definition : OPTIONAL occurrence_shape_feature_definition_select;
 DERIVE
   SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
 END_ENTITY;
@@ -200,15 +203,16 @@ END_ENTITY;
 
 ENTITY Occurrence_transport_feature
   SUBTYPE OF (Occurrence_shape_feature);
-  SELF\Occurrence_shape_element.definition : Part_transport_feature;
+  SELF\Occurrence_shape_element.definition : OPTIONAL Part_transport_feature;
   transport_feature_type : OPTIONAL transport_feature_type_enumeration;
 END_ENTITY;
 
 ENTITY Part_contact_shape
---  ABSTRACT SUPERTYPE OF (ONEOF (Composed_part_contact_shape,
+--  SUPERTYPE OF (ONEOF (Composed_part_contact_shape,
 --                                Individual_part_contact_shape))
   SUBTYPE OF (General_part_feature);
-  SELF\Shape_element.associated_definition : OPTIONAL contact_feature_definition_or_part_contact_shape_select;
+  SELF\Shape_element.associated_definition : OPTIONAL part_contact_shape_associated_definition_select;
+  SELF\Part_shape_element.definition : OPTIONAL Contact_feature_definition;
 END_ENTITY;
 
 ENTITY Part_contact_shape_fit_relationship
@@ -246,7 +250,7 @@ END_SUBTYPE_CONSTRAINT;
 SUBTYPE_CONSTRAINT gdc_part_shape_element FOR Part_shape_element;
   ONEOF (Assembly_shape_constraint,
          Assembly_shape_joint,
-         General_part_connectivity_definition);
+         Part_connectivity_definition);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT gdc_shape_element FOR Shape_element;

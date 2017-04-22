@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2015/09/24 11:01:19 lothartklein Exp $
+   $Id: mim.exp,v 1.6 2017/04/20 19:44:57 lothartklein Exp $
    ISO TC184/SC4/WG12 N7919 - ISO/TS 10303-1815 Mating structure - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7356
 *)
@@ -10,5 +10,21 @@ USE FROM General_design_connectivity_mim;
 USE FROM Item_definition_structure_mim;
 
 USE FROM product_structure_schema(product_definition_usage_relationship);
+USE FROM group_schema(group);
+USE FROM management_resources_schema(group_assignment);
+
+ENTITY mating_material
+  SUBTYPE OF (property_definition, group);
+  SELF\property_definition.definition : product_definition_usage_relationship;
+UNIQUE
+  UR1: SELF\property_definition.definition;
+END_ENTITY;
+
+ENTITY mating_material_items
+  SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : mating_material;
+  items : SET [1:?] OF product_definition;
+END_ENTITY;
 
 END_SCHEMA;
+

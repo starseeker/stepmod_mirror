@@ -5,52 +5,87 @@
 <express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="general_design_connectivity_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="General_design_connectivity_mim">
+      <interface kind="use" schema="Assembly_constraints_mim"/>
       <interface kind="use" schema="Design_product_data_management_mim"/>
       <interface kind="use" schema="Item_definition_structure_mim"/>
       <interface kind="use" schema="Part_shape_mim"/>
       <interface kind="use" schema="Configuration_item_mim"/>
       <interface kind="use" schema="Shape_feature_mim"/>
-      <entity name="assembly_shape_constraint" supertypes="shape_aspect">
-         <derived expression="collect_assembly_constraint_items(SELF)" name="items">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="shape_aspect"/>
-         </derived>
-         <where expression="TRUE" label="WR1"/>
-      </entity>
+      <interface kind="use" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_object_relationship"/>
+      </interface>
+      <entity name="assembly_shape_constraint" supertypes="shape_aspect"/>
       <entity name="assembly_shape_constraint_item_relationship" supertypes="shape_aspect_relationship">
          <explicit name="relating_shape_aspect">
             <typename name="assembly_shape_constraint"/>
             <redeclaration entity-ref="shape_aspect_relationship"/>
          </explicit>
       </entity>
-      <entity name="assembly_shape_joint" supertypes="shape_aspect">
-         <derived expression="collect_assembly_joint_items(SELF)" name="items">
-            <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="shape_aspect"/>
-         </derived>
-         <where expression="TRUE" label="WR1"/>
-      </entity>
+      <entity name="assembly_shape_joint" supertypes="shape_aspect"/>
       <entity name="assembly_shape_joint_item_relationship" supertypes="shape_aspect_relationship">
          <explicit name="relating_shape_aspect">
             <typename name="assembly_shape_joint"/>
             <redeclaration entity-ref="shape_aspect_relationship"/>
          </explicit>
       </entity>
-      <function name="collect_assembly_constraint_items">
-         <parameter name="asc">
-            <typename name="assembly_shape_constraint"/>
-         </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
-         <typename name="shape_aspect"/>
-         <algorithm>RETURN(?);</algorithm>
-      </function>
-      <function name="collect_assembly_joint_items">
-         <parameter name="asj">
-            <typename name="assembly_shape_joint"/>
-         </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
-         <typename name="shape_aspect"/>
-         <algorithm>RETURN(?);</algorithm>
-      </function>
+      <entity name="connectivity_definition" supertypes="shape_aspect"/>
+      <entity name="connectivity_definition_item_relationship" supertypes="shape_aspect_relationship">
+         <explicit name="relating_shape_aspect">
+            <typename name="connectivity_definition"/>
+            <redeclaration entity-ref="shape_aspect_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="contact_feature" supertypes="shape_aspect"/>
+      <entity name="contact_feature_definition" supertypes="shape_feature_definition"/>
+      <entity name="contact_feature_definition_fit_relationship" supertypes="shape_feature_definition_relationship">
+         <explicit name="relating_object">
+            <typename name="contact_feature_definition"/>
+            <redeclaration entity-ref="characterized_object_relationship"/>
+         </explicit>
+         <explicit name="related_object">
+            <typename name="contact_feature_definition"/>
+            <redeclaration entity-ref="characterized_object_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="contact_feature_fit_relationship" supertypes="shape_aspect_relationship characterized_object">
+         <explicit name="relating_shape_aspect">
+            <typename name="contact_feature"/>
+            <redeclaration entity-ref="shape_aspect_relationship"/>
+         </explicit>
+         <explicit name="related_shape_aspect">
+            <typename name="contact_feature"/>
+            <redeclaration entity-ref="shape_aspect_relationship"/>
+         </explicit>
+         <derived expression="shape_aspect_relationship.name" name="name">
+            <typename name="label"/>
+            <redeclaration entity-ref="characterized_object"/>
+         </derived>
+         <derived expression="shape_aspect_relationship.description" name="description">
+            <typename name="text"/>
+            <redeclaration entity-ref="characterized_object"/>
+         </derived>
+      </entity>
+      <entity name="shape_feature_definition_relationship" supertypes="characterized_object_relationship characterized_object">
+         <explicit name="relating_object">
+            <typename name="shape_feature_definition"/>
+            <redeclaration entity-ref="characterized_object_relationship"/>
+         </explicit>
+         <explicit name="related_object">
+            <typename name="shape_feature_definition"/>
+            <redeclaration entity-ref="characterized_object_relationship"/>
+         </explicit>
+         <derived expression="characterized_object_relationship.name" name="name">
+            <typename name="label"/>
+            <redeclaration entity-ref="characterized_object"/>
+         </derived>
+         <derived expression="characterized_object_relationship.description" name="description">
+            <typename name="text"/>
+            <redeclaration entity-ref="characterized_object"/>
+         </derived>
+      </entity>
+      <entity name="terminal_feature" supertypes="contact_feature"/>
+      <entity name="transport_feature" supertypes="shape_aspect"/>
+      <subtype.constraint entity="shape_aspect" name="gdc_shape_aspect_subtypes" super.expression="ONEOF (assembly_shape_constraint, assembly_shape_joint, connectivity_definition, contact_feature, transport_feature)"/>
+      <subtype.constraint entity="shape_aspect_relationship" name="gdc_shape_aspect_relationship_subtypes" super.expression="ONEOF (assembly_shape_joint_item_relationship, assembly_shape_constraint_item_relationship, connectivity_definition_item_relationship, contact_feature_fit_relationship)"/>
    </schema>
 </express>

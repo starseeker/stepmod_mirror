@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2017/04/21 18:10:41 lothartklein Exp $
+   $Id: arm.exp,v 1.3 2017/04/23 12:08:03 lothartklein Exp $
    N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -10,10 +10,10 @@ ISO/TC 184/SC 4/WG 12 N - ISO/CD-TS 10303-xxxx General design connectivity - EXP
 SCHEMA General_design_connectivity_arm;
 
 USE FROM Assembly_constraints_arm;    -- ISO/TS 10303-1794
+USE FROM Configuration_item_arm;    -- ISO/TS 10303-1056
 USE FROM Design_product_data_management_arm;    -- ISO/TS 10303-1628
 USE FROM Item_definition_structure_arm;    -- ISO/TS 10303-1345
 USE FROM Part_shape_arm;    -- ISO/TS 10303-1807
-USE FROM Configuration_item_arm;    -- ISO/TS 10303-1056
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 
 TYPE part_contact_feature_associated_definition_select = SELECT
@@ -113,8 +113,6 @@ ENTITY Assembly_shape_joint
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_joint;
   SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
   joint_type : OPTIONAL general_assembly_joint_type;
- DERIVE
-  items : SET[2:?] OF Occurrence_shape_feature := get_assembly_shape_joint_items(SELF);
 END_ENTITY;
 
 ENTITY Assembly_shape_joint_item_relationship
@@ -128,8 +126,6 @@ ENTITY Assembly_shape_constraint
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_constraint;
   SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
   SELF\Shape_element.identified_item : OPTIONAL Binary_assembly_constraint;
- DERIVE
-  items : SET[2:?] OF Occurrence_shape_feature := get_assembly_shape_joint_items(SELF);
 END_ENTITY;
 
 ENTITY Assembly_shape_constraint_item_relationship
@@ -224,12 +220,6 @@ ENTITY Shape_feature_definition_relationship;
   relating : Shape_feature_definition;
   related : Shape_feature_definition;
 END_ENTITY;
-
-FUNCTION get_assembly_shape_joint_items
-          (input : Assembly_shape_joint) : SET [0:?] OF Occurrence_shape_feature;
-    RETURN (?);
-END_FUNCTION; 
-
 
 SUBTYPE_CONSTRAINT gdc_general_part_feature_subtypes FOR General_part_feature;
   ONEOF (Part_transport_feature,

@@ -1,60 +1,91 @@
 (*
-   $Id: mim.exp,v 1.1 2017/04/20 19:53:23 lothartklein Exp $
+   $Id: mim.exp,v 1.2 2017/04/21 18:10:41 lothartklein Exp $
    N - ISO/CD-TS - 10303-1844 general_design_connectivity - EXPRESS MIM*)
 
 SCHEMA General_design_connectivity_mim;
 
+USE FROM Assembly_constraints_mim;    -- ISO/TS 10303-1794
 USE FROM Design_product_data_management_mim; -- ISO/TS 10303-1628
-(* Part_with_additional_categories *)
-
 USE FROM Item_definition_structure_mim; -- ISO/TS 10303-1345
-
 USE FROM Part_shape_mim; -- ISO/TS 10303-1807
-(* Part_shape_element, General_part_feature *) 
-
 USE FROM Configuration_item_mim; -- ISO/TS 10303-1056
-
 USE FROM Shape_feature_mim; -- ISO/TS 10303-1764
-(* Shape_element, shapeable_item *)
 
-
-ENTITY assembly_shape_joint
-  SUBTYPE OF (shape_aspect);
-DERIVE
-  items : SET[0:?] OF shape_aspect := collect_assembly_joint_items(SELF);
-WHERE
-  WR1: TRUE; -- all items must belong to the same product_definition(assembly) to 
-             -- which this assembly_shape_joint belongs to
-END_ENTITY;
-
-ENTITY assembly_shape_joint_item_relationship
-  SUBTYPE OF (shape_aspect_relationship);
-  SELF\shape_aspect_relationship.relating_shape_aspect : assembly_shape_joint;
-  -- ...relating_shape_aspect -- this is ONE item for the assembly_shape_joint
-END_ENTITY;
-
-FUNCTION collect_assembly_joint_items(asj : assembly_shape_joint) : SET OF shape_aspect;
-  RETURN(?);
-END_FUNCTION;
+USE FROM product_property_definition_schema(characterized_object_relationship); -- ISO 10303-41
 
 ENTITY assembly_shape_constraint
   SUBTYPE OF (shape_aspect);
-DERIVE
-  items : SET[0:?] OF shape_aspect := collect_assembly_constraint_items(SELF);
-WHERE
-  WR1: TRUE; -- all items must belong to the same product_definition(assembly) to 
-             -- which this assembly_shape_joint belongs to
 END_ENTITY;
 
 ENTITY assembly_shape_constraint_item_relationship
   SUBTYPE OF (shape_aspect_relationship);
   SELF\shape_aspect_relationship.relating_shape_aspect : assembly_shape_constraint;
-  -- ...relating_shape_aspect -- this is ONE item for the assembly_shape_constraint
 END_ENTITY;
 
-FUNCTION collect_assembly_constraint_items(asc : assembly_shape_constraint) : SET OF shape_aspect;
-  RETURN(?);
-END_FUNCTION;
-  
+ENTITY assembly_shape_joint
+  SUBTYPE OF (shape_aspect);
+END_ENTITY;
+
+ENTITY assembly_shape_joint_item_relationship
+  SUBTYPE OF (shape_aspect_relationship);
+  SELF\shape_aspect_relationship.relating_shape_aspect : assembly_shape_joint;
+END_ENTITY;
+
+ENTITY connectivity_definition
+  SUBTYPE OF (shape_aspect);
+END_ENTITY;
+
+ENTITY connectivity_definition_item_relationship
+  SUBTYPE OF (shape_aspect_relationship);
+  SELF\shape_aspect_relationship.relating_shape_aspect : connectivity_definition;
+END_ENTITY;
+
+ENTITY contact_feature
+  SUBTYPE OF (shape_aspect);
+END_ENTITY;
+
+ENTITY contact_feature_definition
+  SUBTYPE OF (shape_feature_definition);
+END_ENTITY;  
+
+ENTITY contact_feature_definition_fit_relationship
+  SUBTYPE OF (shape_feature_definition_relationship);
+  SELF\characterized_object_relationship.relating_object : contact_feature_definition;
+  SELF\characterized_object_relationship.related_object : contact_feature_definition;
+END_ENTITY;
+
+ENTITY contact_feature_fit_relationship
+  SUBTYPE OF (shape_aspect_relationship, characterized_object);
+  SELF\shape_aspect_relationship.relating_shape_aspect : contact_feature;
+  SELF\shape_aspect_relationship.related_shape_aspect : contact_feature;
+DERIVE
+  SELF\characterized_object.name : label := shape_aspect_relationship.name;
+  SELF\characterized_object.description : text := shape_aspect_relationship.description;
+END_ENTITY;
+
+ENTITY shape_feature_definition_relationship
+  SUBTYPE OF (characterized_object_relationship, characterized_object);
+  SELF\characterized_object_relationship.relating_object : shape_feature_definition;
+  SELF\characterized_object_relationship.related_object : shape_feature_definition;
+DERIVE
+  SELF\characterized_object.name : label := characterized_object_relationship.name;
+  SELF\characterized_object.description : text := characterized_object_relationship.description;
+END_ENTITY;
+
+ENTITY terminal_feature
+  SUBTYPE OF (contact_feature);
+END_ENTITY;
+
+ENTITY transport_feature
+  SUBTYPE OF (shape_aspect);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT gdc_shape_aspect_subtypes FOR shape_aspect;
+  ONEOF (assembly_shape_constraint, assembly_shape_joint, connectivity_definition, contact_feature, transport_feature);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT gdc_shape_aspect_relationship_subtypes FOR shape_aspect_relationship;
+  ONEOF (assembly_shape_joint_item_relationship, assembly_shape_constraint_item_relationship, connectivity_definition_item_relationship, contact_feature_fit_relationship);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

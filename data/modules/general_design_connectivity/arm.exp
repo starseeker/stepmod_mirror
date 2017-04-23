@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2017/04/20 19:53:24 lothartklein Exp $
+   $Id: arm.exp,v 1.2 2017/04/21 18:10:41 lothartklein Exp $
    N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -10,21 +10,15 @@ ISO/TC 184/SC 4/WG 12 N - ISO/CD-TS 10303-xxxx General design connectivity - EXP
 SCHEMA General_design_connectivity_arm;
 
 USE FROM Assembly_constraints_arm;    -- ISO/TS 10303-1794
-
 USE FROM Design_product_data_management_arm;    -- ISO/TS 10303-1628
-
 USE FROM Item_definition_structure_arm;    -- ISO/TS 10303-1345
-
 USE FROM Part_shape_arm;    -- ISO/TS 10303-1807
-
 USE FROM Configuration_item_arm;    -- ISO/TS 10303-1056
-
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 
-
-TYPE part_contact_shape_associated_definition_select = SELECT
+TYPE part_contact_feature_associated_definition_select = SELECT
    (Part_view_definition, 
-    Composed_part_contact_shape);
+    Composed_part_contact_feature);
 END_TYPE; 
 
 TYPE gdc_shapeable_item = SELECT BASED_ON shapeable_item WITH 
@@ -50,9 +44,9 @@ TYPE occurrence_terminal_definition_select = SELECT
     Derived_occurrence_terminal);
 END_TYPE; 
 
-TYPE occurrence_contact_shape_definition_select = SELECT
-   (Occurrence_contact_shape,
-    Part_contact_shape, 
+TYPE occurrence_contact_feature_definition_select = SELECT
+   (Occurrence_contact_feature,
+    Part_contact_feature, 
     Shape_feature_definition);
 END_TYPE; 
 
@@ -82,10 +76,10 @@ TYPE transport_feature_type_enumeration = EXTENSIBLE ENUMERATION OF
     -- mechnical/vibration (Loudspeaker, damping - take vibrations
 END_TYPE; 
 
-ENTITY Composed_part_contact_shape
-  SUBTYPE OF (Part_contact_shape);
+ENTITY Composed_part_contact_feature
+  SUBTYPE OF (Part_contact_feature);
 INVERSE
-  elements : SET[1:?] OF Part_contact_shape FOR associated_definition;
+  elements : SET[1:?] OF Part_contact_feature FOR associated_definition;
 END_ENTITY;
 
 ENTITY Contact_feature_definition
@@ -100,7 +94,7 @@ ENTITY Contact_feature_definition_fit_relationship
 END_ENTITY;
 
 ENTITY Derived_occurrence_terminal
-  SUBTYPE OF (Occurrence_contact_shape);
+  SUBTYPE OF (Occurrence_contact_feature);
   SELF\Occurrence_shape_element.definition : Occurrence_transport_feature;
 END_ENTITY;
 
@@ -150,7 +144,7 @@ ENTITY Part_connectivity_definition
 END_ENTITY;
 
 ENTITY General_part_terminal
-  SUBTYPE OF (Individual_part_contact_shape);
+  SUBTYPE OF (Part_contact_feature);
   internal_shape : OPTIONAL Part_transport_feature;
   intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type;
   interface_or_join_terminal : OPTIONAL interface_or_join_terminal_enum;
@@ -161,21 +155,18 @@ TYPE interface_or_join_terminal_enum = ENUMERATION OF (
   join_terminal);
 END_TYPE;
 
-ENTITY Hierarchical_part_contact_shape_fit_relationship
-  SUBTYPE OF (Part_contact_shape_fit_relationship);
-  SELF\Shape_element_relationship.relating : Composed_part_contact_shape;
-  element : SET[1:?] OF Part_contact_shape_fit_relationship;
+ENTITY Hierarchical_part_contact_feature_fit_relationship
+  SUBTYPE OF (Part_contact_feature_fit_relationship);
+  SELF\Shape_element_relationship.relating : Composed_part_contact_feature;
+  SELF\Shape_element_relationship.related : Composed_part_contact_feature;
+  element : SET[1:?] OF Part_contact_feature_fit_relationship;
 END_ENTITY;
 
-ENTITY Individual_part_contact_shape
-  SUBTYPE OF (Part_contact_shape);
-END_ENTITY;
-
-ENTITY Occurrence_contact_shape
+ENTITY Occurrence_contact_feature
   SUPERTYPE OF (ONEOF (Occurrence_terminal,
                        Derived_occurrence_terminal))
   SUBTYPE OF (Occurrence_shape_feature);
-  SELF\Occurrence_shape_feature.definition : OPTIONAL occurrence_contact_shape_definition_select;
+  SELF\Occurrence_shape_feature.definition : OPTIONAL occurrence_contact_feature_definition_select;
 END_ENTITY;
 
 ENTITY Occurrence_shape_element
@@ -188,7 +179,7 @@ UNIQUE
 END_ENTITY;
 
 ENTITY Occurrence_shape_feature
-  SUPERTYPE OF (ONEOF (Occurrence_contact_shape,
+  SUPERTYPE OF (ONEOF (Occurrence_contact_feature,
                        Occurrence_transport_feature))
   SUBTYPE OF (Occurrence_shape_element);
   SELF\Occurrence_shape_element.definition : OPTIONAL occurrence_shape_feature_definition_select;
@@ -197,7 +188,7 @@ DERIVE
 END_ENTITY;
 
 ENTITY Occurrence_terminal
-  SUBTYPE OF (Occurrence_contact_shape);
+  SUBTYPE OF (Occurrence_contact_feature);
   SELF\Occurrence_shape_element.definition : occurrence_terminal_definition_select;
 END_ENTITY;
 
@@ -207,18 +198,16 @@ ENTITY Occurrence_transport_feature
   transport_feature_type : OPTIONAL transport_feature_type_enumeration;
 END_ENTITY;
 
-ENTITY Part_contact_shape
---  SUPERTYPE OF (ONEOF (Composed_part_contact_shape,
---                                Individual_part_contact_shape))
+ENTITY Part_contact_feature
   SUBTYPE OF (General_part_feature);
-  SELF\Shape_element.associated_definition : OPTIONAL part_contact_shape_associated_definition_select;
+  SELF\Shape_element.associated_definition : OPTIONAL part_contact_feature_associated_definition_select;
   SELF\Part_shape_element.definition : OPTIONAL Contact_feature_definition;
 END_ENTITY;
 
-ENTITY Part_contact_shape_fit_relationship
+ENTITY Part_contact_feature_fit_relationship
   SUBTYPE OF (Part_shape_element_relationship);
-  SELF\Shape_element_relationship.relating : Part_contact_shape;
-  SELF\Shape_element_relationship.related : Part_contact_shape;
+  SELF\Shape_element_relationship.relating : Part_contact_feature;
+  SELF\Shape_element_relationship.related : Part_contact_feature;
   definition : OPTIONAL Contact_feature_definition_fit_relationship;
 WHERE
   WR1: relating.associated_definition :<>: related.associated_definition;
@@ -242,18 +231,18 @@ FUNCTION get_assembly_shape_joint_items
 END_FUNCTION; 
 
 
-SUBTYPE_CONSTRAINT gdc_general_part_feature FOR General_part_feature;
+SUBTYPE_CONSTRAINT gdc_general_part_feature_subtypes FOR General_part_feature;
   ONEOF (Part_transport_feature,
-         Part_contact_shape);
+         Part_contact_feature);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT gdc_part_shape_element FOR Part_shape_element;
+SUBTYPE_CONSTRAINT gdc_part_shape_element_subtypes FOR Part_shape_element;
   ONEOF (Assembly_shape_constraint,
          Assembly_shape_joint,
          Part_connectivity_definition);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT gdc_shape_element FOR Shape_element;
+SUBTYPE_CONSTRAINT gdc_shape_element_subtypes FOR Shape_element;
   ONEOF (Part_shape_element,
          Occurrence_shape_element);
 END_SUBTYPE_CONSTRAINT;

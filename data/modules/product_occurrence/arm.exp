@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2015/09/08 15:36:43 sophieherail Exp $
+   $Id: arm.exp,v 1.26 2017/01/23 13:58:17 kevletu Exp $
    ISO TC184/SC4/WG12 N9337 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7750
 *) 
@@ -26,9 +26,14 @@ SCHEMA Product_occurrence_arm;
   END_ENTITY;
 
   ENTITY Product_occurrence
-    ABSTRACT SUPERTYPE OF ((ONEOF (Definition_based_product_occurrence,
-         Specification_based_product_occurrence)) AND 
-         ONEOF (Product_occurrence_with_quantity, 
+    ABSTRACT SUPERTYPE OF (
+      ONEOF (
+        Definition_based_product_occurrence,
+        Specification_based_product_occurrence,
+        Specified_occurrence) 
+      AND 
+      ONEOF (
+         Product_occurrence_with_quantity, 
          Single_instance))
     SUBTYPE OF (Product_view_definition);
       SELF\Product_view_definition.defined_version : Part_version;
@@ -69,6 +74,12 @@ SCHEMA Product_occurrence_arm;
   ENTITY Specification_based_product_occurrence
     SUBTYPE OF (Product_occurrence);
       SELF\Product_view_definition.defined_version : Specification_based_part_version;
+  END_ENTITY;
+
+  ENTITY Specified_occurrence
+    SUBTYPE OF (Product_occurrence);
+      definition : Product_occurrence;
+      upper_usage : Product_occurrence;
   END_ENTITY;
 
   ENTITY Specification_based_part_version

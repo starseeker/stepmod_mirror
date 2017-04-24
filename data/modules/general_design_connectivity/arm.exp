@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2017/04/23 12:08:03 lothartklein Exp $
+   $Id: arm.exp,v 1.4 2017/04/23 16:12:14 lothartklein Exp $
    N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -40,14 +40,13 @@ END_TYPE;
 
 TYPE occurrence_terminal_definition_select = SELECT
    (General_part_terminal, 
-    Occurrence_terminal, 
-    Derived_occurrence_terminal);
+    Occurrence_terminal);
 END_TYPE; 
 
 TYPE occurrence_contact_feature_definition_select = SELECT
    (Occurrence_contact_feature,
     Part_contact_feature, 
-    Shape_feature_definition);
+    Contact_feature_definition);
 END_TYPE; 
 
 TYPE occurrence_shape_feature_definition_select = SELECT
@@ -57,8 +56,7 @@ TYPE occurrence_shape_feature_definition_select = SELECT
 END_TYPE; 
 
 TYPE connected_terminal_select = SELECT
-   (Derived_occurrence_terminal,
-    General_part_terminal, 
+   (General_part_terminal, 
     Occurrence_terminal);
 END_TYPE; 
 
@@ -91,11 +89,6 @@ ENTITY Contact_feature_definition_fit_relationship
   SELF\Shape_feature_definition_relationship.relating : Contact_feature_definition;
   SELF\Shape_feature_definition_relationship.related : Contact_feature_definition;
   joint_type : OPTIONAL general_assembly_joint_type;
-END_ENTITY;
-
-ENTITY Derived_occurrence_terminal
-  SUBTYPE OF (Occurrence_contact_feature);
-  SELF\Occurrence_shape_element.definition : Occurrence_transport_feature;
 END_ENTITY;
 
 TYPE assembly_definition_or_assembly_shape_joint = SELECT (
@@ -141,7 +134,7 @@ END_ENTITY;
 
 ENTITY General_part_terminal
   SUBTYPE OF (Part_contact_feature);
-  internal_shape : OPTIONAL Part_transport_feature;
+  associated_transport_feature : OPTIONAL Part_transport_feature;
   intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type;
   interface_or_join_terminal : OPTIONAL interface_or_join_terminal_enum;
 END_ENTITY;
@@ -159,8 +152,7 @@ ENTITY Hierarchical_part_contact_feature_fit_relationship
 END_ENTITY;
 
 ENTITY Occurrence_contact_feature
-  SUPERTYPE OF (ONEOF (Occurrence_terminal,
-                       Derived_occurrence_terminal))
+  SUPERTYPE OF (Occurrence_terminal)
   SUBTYPE OF (Occurrence_shape_feature);
   SELF\Occurrence_shape_feature.definition : OPTIONAL occurrence_contact_feature_definition_select;
 END_ENTITY;
@@ -186,6 +178,9 @@ END_ENTITY;
 ENTITY Occurrence_terminal
   SUBTYPE OF (Occurrence_contact_feature);
   SELF\Occurrence_shape_element.definition : occurrence_terminal_definition_select;
+  associated_transport_feature : OPTIONAL Occurrence_transport_feature;
+-- WHERE
+--  WR1: associated_transport_feature.associated_definition :=: SELF\associated_definition; -- same part
 END_ENTITY;
 
 ENTITY Occurrence_transport_feature

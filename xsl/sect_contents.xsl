@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.48 2010/02/22 10:25:35 robbod Exp $
+$Id: sect_contents.xsl,v 1.49 2011/03/11 13:51:20 lothartklein Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -1094,7 +1094,9 @@ $Id: sect_contents.xsl,v 1.48 2010/02/22 10:25:35 robbod Exp $
   <xsl:apply-templates select="./refdata//figure" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
-      <xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc"/>
+	    <xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc">
+		    <xsl:sort select="@number" data-type="number" /><!-- added 2017-04-24 NSW -->
+      </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates select="document($arm_xml)//figure" mode="toc"/>
@@ -1102,7 +1104,9 @@ $Id: sect_contents.xsl,v 1.48 2010/02/22 10:25:35 robbod Exp $
   </xsl:choose>
   <xsl:choose>
     <xsl:when test="$mim_desc_xml">
-      <xsl:apply-templates select="document($mim_desc_xml)//figure" mode="toc"/>
+      <xsl:apply-templates select="document($mim_desc_xml)//figure" mode="toc">
+		    <xsl:sort select="@number" data-type="number" /><!-- added 2017-04-24 NSW -->
+      </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates select="document($mim_xml)//figure" mode="toc"/>

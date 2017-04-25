@@ -13,7 +13,7 @@
    publication.year="2015-12"
    publication.date="2015-12-15"
 	published="y" 
-	previous.revision.year="2014-02" rcs.date="$Date: 2015/09/24 09:59:51 $" rcs.revision="$Revision: 1.80 $" development.folder="dvlp">
+	previous.revision.year="2014-02" rcs.date="$Date: 2017/04/24 13:38:38 $" rcs.revision="$Revision: 1.81 $" development.folder="dvlp">
     <keywords>
     module, product data management, approval, identification, test select
  </keywords>
@@ -268,7 +268,41 @@
     </arm>
     <mapping_table>
     	
-    	
+    	<ae entity="Affected_items_assignment" original_module="work_request" extensible="NO">
+			<aa attribute="items" assertion_to="Work_request">
+				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
+				action_request_item *&gt; pdm_action_request_item
+				pdm_action_request_item = versioned_action_request
+				</refpath_extend>
+			</aa>			
+		</ae>
+		
+		<ae entity="Applied_activity_assignment" original_module="activity" extensible="NO">
+			<aa attribute="items" assertion_to="Item_usage_effectivity">
+				<refpath_extend extended_select="activity_item" xml:space="preserve">
+				action_items *&gt; pdm_action_items
+				pdm_action_items = configuration_effectivity
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="Product_version">
+				<refpath_extend extended_select="activity_item" xml:space="preserve">
+				action_items *&gt; pdm_action_items
+				pdm_action_items = product_definition_formation
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="Product_view_definition">
+				<refpath_extend extended_select="activity_item" xml:space="preserve">
+				action_items *&gt; pdm_action_items
+				pdm_action_items = product_definition
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="View_definition_relationship">
+				<refpath_extend extended_select="activity_item" xml:space="preserve">
+				action_items *&gt; pdm_action_items
+				pdm_action_items = product_definition_relationship
+				</refpath_extend>
+			</aa>
+		</ae>
     	
 		<ae entity="Applied_activity_method_assignment" original_module="activity_method_assignment" extensible="NO"> 
 			<aa attribute="items" 
@@ -455,6 +489,7 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Applied_information_usage_right" original_module="information_rights" extensible="NO">
 			<aa attribute="item" assertion_to="Alternate_part_relationship">
 				<aimelt xml:space="preserve">PATH</aimelt>
@@ -697,42 +732,6 @@
 				</refpath_extend>
 			</aa>
  		</ae> 
-
-		<ae entity="Affected_items_assignment" original_module="work_request" extensible="NO">
-			<aa attribute="items" assertion_to="Work_request">
-				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
-				action_request_item *&gt; pdm_action_request_item
-				pdm_action_request_item = versioned_action_request
-				</refpath_extend>
-			</aa>			
-		</ae>
-		
-		<ae entity="Applied_activity_assignment" original_module="activity" extensible="NO">
-			<aa attribute="items" assertion_to="Item_usage_effectivity">
-				<refpath_extend extended_select="activity_item" xml:space="preserve">
-				action_items *&gt; pdm_action_items
-				pdm_action_items = configuration_effectivity
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_version">
-				<refpath_extend extended_select="activity_item" xml:space="preserve">
-				action_items *&gt; pdm_action_items
-				pdm_action_items = product_definition_formation
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_view_definition">
-				<refpath_extend extended_select="activity_item" xml:space="preserve">
-				action_items *&gt; pdm_action_items
-				pdm_action_items = product_definition
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="View_definition_relationship">
-				<refpath_extend extended_select="activity_item" xml:space="preserve">
-				action_items *&gt; pdm_action_items
-				pdm_action_items = product_definition_relationship
-				</refpath_extend>
-			</aa>
-		</ae>
 
 		<ae entity="Approval_assignment" original_module="approval" extensible="NO">
 			<aa attribute="items" assertion_to="Certification">
@@ -1974,6 +1973,23 @@
 			</aa>
 		</ae>
 		
+		<ae entity="Document_with_additional_categories">
+			<aimelt>product</aimelt>
+			<source>ISO 10303-41</source>
+			<aa attribute="categories">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-</source>
+			<refpath>
+				product &lt;-
+				product_related_product_category &lt;=
+				product_category
+				{(product_category.name='catalogue')
+				(product_category.name='manual')
+				(product_category.name='specification')}
+			</refpath>
+			</aa>
+		</ae>
+		
 		<ae entity="Effectivity_assignment" original_module="effectivity_application" extensible="NO">
 			<aa attribute="items" assertion_to="Product_version">
 				<refpath_extend extended_select="effectivity_item" xml:space="preserve">
@@ -2388,6 +2404,40 @@
 					</alt_map>
 			</aa>
 		</ae>
+		
+		<ae entity="Part_with_additional_categories">
+			<aimelt>product</aimelt>
+			<source>ISO 10303-41</source>
+			<aa attribute="categories">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-</source>
+			<refpath>
+				product &lt;-
+				product_related_product_category &lt;=
+				product_category
+				{(product_category.name='application control')
+				(product_category.name='assembly')
+				(product_category.name='boxed')
+				(product_category.name='collection')
+				(product_category.name='completely knocked down')
+				(product_category.name='continuous')
+				(product_category.name='detail')
+				(product_category.name='discrete')
+				(product_category.name='in process')
+				(product_category.name='inseparable assembly')
+				(product_category.name='prototype')
+				(product_category.name='raw material')
+				(product_category.name='raw material by area')
+				(product_category.name='raw material by length')
+				(product_category.name='raw material by volume')
+				(product_category.name='regulated')
+				(product_category.name='safety')
+				(product_category.name='service')
+				(product_category.name='tool')}
+			</refpath>
+			</aa>
+		</ae>
+		
 		<ae entity="Project_assignment" original_module="project" extensible="NO">
 			<aa attribute="items" assertion_to="Activity">
 				<refpath_extend extended_select="project_item" xml:space="preserve">
@@ -2402,6 +2452,7 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Requirement_assignment" original_module="requirement_assignment" extensible="NO">
 			<aa attribute="assigned_to" assertion_to="Product_configuration">
 				<refpath_extend extended_select="requirement_assignment_item" xml:space="preserve">
@@ -2441,6 +2492,7 @@
 			</aa>
 			
 		</ae>
+		
 		<ae entity="Requirement_source" original_module="requirement_assignment" extensible="NO">
 			<aa attribute="source" assertion_to="Group">
 					<refpath_extend extended_select="requirement_source_item" xml:space="preserve">
@@ -2492,52 +2544,7 @@
 			</aa>
 		</ae>
 		
-		<ae entity="Security_classification_assignment" original_module="security_classification" extensible="NO">
-			<aa attribute="items" assertion_to="Document_definition">
-				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-					security_classification_item *&gt; 
-					design_pdm_security_classification_item = 
-					product_definition
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_version">
-				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-					security_classification_item *&gt; 
-					design_pdm_security_classification_item = 
-					product_definition_formation
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_view_definition">
-				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-					security_classification_item *&gt; 
-					design_pdm_security_classification_item = 
-					product_definition
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Promissory_usage">
-				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-					security_classification_item *&gt; 
-					pdm_security_classification_item =
-					assembly_component_usage =&gt; 
-					promissory_usage_occurrence
-				</refpath_extend>
-			</aa>
-		</ae>
-<!-- removed		
-		<sc constraint="group_abstract" entity="Group">
-			<description>
-				this is special subtype constraint, which do not allow to populate directly ARM <express_ref linkend="Group:arm:Group_arm.Group"/> concept, only its subtype within Design_product_data_management_arm.
-			</description>
-			<constraint/>
-			<source xml:space="preserve"/>
-		</sc>
-		<sc constraint="group_relationship_abstract" entity="Group_relationship">
-			<description>
-				this is special subtype constraint, which do not allow to populate directly ARM <express_ref linkend="Group:arm:Group_arm.Group_relationship"/> concept, only its subtype within Design_product_data_management_arm.
-			</description>
-			<constraint/>
-			<source xml:space="preserve"/>
-		</sc> -->
+		
 		
 		<!--  ++  RETENTION_PERIOD  ++ -->
 		<ae entity="Retention_period">
@@ -2775,6 +2782,54 @@
 				</refpath>
 			</aa>
 		</ae>
+		
+		<ae entity="Security_classification_assignment" original_module="security_classification" extensible="NO">
+			<aa attribute="items" assertion_to="Document_definition">
+				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
+					security_classification_item *&gt; 
+					design_pdm_security_classification_item = 
+					product_definition
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="Product_version">
+				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
+					security_classification_item *&gt; 
+					design_pdm_security_classification_item = 
+					product_definition_formation
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="Product_view_definition">
+				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
+					security_classification_item *&gt; 
+					design_pdm_security_classification_item = 
+					product_definition
+				</refpath_extend>
+			</aa>
+			<aa attribute="items" assertion_to="Promissory_usage">
+				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
+					security_classification_item *&gt; 
+					pdm_security_classification_item =
+					assembly_component_usage =&gt; 
+					promissory_usage_occurrence
+				</refpath_extend>
+			</aa>
+		</ae>
+<!-- removed		
+		<sc constraint="group_abstract" entity="Group">
+			<description>
+				this is special subtype constraint, which do not allow to populate directly ARM <express_ref linkend="Group:arm:Group_arm.Group"/> concept, only its subtype within Design_product_data_management_arm.
+			</description>
+			<constraint/>
+			<source xml:space="preserve"/>
+		</sc>
+		<sc constraint="group_relationship_abstract" entity="Group_relationship">
+			<description>
+				this is special subtype constraint, which do not allow to populate directly ARM <express_ref linkend="Group:arm:Group_arm.Group_relationship"/> concept, only its subtype within Design_product_data_management_arm.
+			</description>
+			<constraint/>
+			<source xml:space="preserve"/>
+		</sc> -->
+		
     	<ae entity="Time_interval_assignment" original_module="time_interval_assignment" extensible="NO">
     		<aa attribute="items" assertion_to="Activity"> 
     			<aimelt xml:space="preserve">PATH</aimelt> 
@@ -2784,55 +2839,6 @@
 		    </refpath_extend>
     		</aa> 
     	</ae>
-		<ae entity="Part_with_additional_categories">
-			<aimelt>product</aimelt>
-			<source>ISO 10303-41</source>
-			<aa attribute="categories">
-				<aimelt>PATH</aimelt>
-				<source>ISO 10303-</source>
-			<refpath>
-				product &lt;-
-				product_related_product_category &lt;=
-				product_category
-				{(product_category.name='application control')
-				(product_category.name='assembly')
-				(product_category.name='boxed')
-				(product_category.name='collection')
-				(product_category.name='completely knocked down')
-				(product_category.name='continuous')
-				(product_category.name='detail')
-				(product_category.name='discrete')
-				(product_category.name='in process')
-				(product_category.name='inseparable assembly')
-				(product_category.name='prototype')
-				(product_category.name='raw material')
-				(product_category.name='raw material by area')
-				(product_category.name='raw material by length')
-				(product_category.name='raw material by volume')
-				(product_category.name='regulated')
-				(product_category.name='safety')
-				(product_category.name='service')
-				(product_category.name='tool')}
-			</refpath>
-			</aa>
-		</ae>
-
-		<ae entity="Document_with_additional_categories">
-			<aimelt>product</aimelt>
-			<source>ISO 10303-41</source>
-			<aa attribute="categories">
-				<aimelt>PATH</aimelt>
-				<source>ISO 10303-</source>
-			<refpath>
-				product &lt;-
-				product_related_product_category &lt;=
-				product_category
-				{(product_category.name='catalogue')
-				(product_category.name='manual')
-				(product_category.name='specification')}
-			</refpath>
-			</aa>
-		</ae>
 
     </mapping_table>
     <mim>

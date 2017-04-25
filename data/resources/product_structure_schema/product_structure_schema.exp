@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.22 2017/03/16 18:45:46 lothartklein Exp $
+$Id: product_structure_schema.exp,v 1.23 2017/03/18 14:53:46 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 N8371
 
 EXPRESS Source:
@@ -62,16 +62,28 @@ ENTITY product_definition_occurrence
   name : OPTIONAL label;
   description : OPTIONAL text;
   definition : product_definition_or_occurrence_or_reference;
+-- DERIVE
+--  usages : 
 WHERE
   WR1: ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR
-       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE' IN TYPEOF(definition)) OR
-             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURENCE_REFERENCE' IN TYPEOF(definition)))); 
+       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(definition)) OR
+             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(definition)))); 
+-- WR1: If the product_definition_occurrence is not a product_definition_specified_occurrence, then the definition
+--      shall either be a product_defintion or a product_definition_reference
+-- WR2: If the product_definition_occurrence is not a product_definition_specified_occurrence, then the definition
+    -- shall be unique within all assembly_component_usage.related
+-- WR4: A product_definition_occurrence shall not be used by a assembly_component_usage.relating
 END_ENTITY;
 
 ENTITY product_definition_specified_occurrence
   SUBTYPE OF (product_definition_occurrence);
   SELF\product_definition_occurrence.definition : product_definition_occurrence_or_reference; 
-  occurrence_usage : assembly_component_usage;
+  occurrence_usage : product_definition_occurrence_or_reference; 
+-- WHERE
+-- WR1: A product_definition_specified_occurrence shall not be used by a assembly_component_usage.related
+-- WR2: The id shall be unique among all product_definition_or_occurrence_or_reference that are used within an assembly of the occurrance_usages  
+-- WR3: The definition shall not be cyclic
+-- WR4: The definition shall be used by a assembly_component_usage in the definition of the occurrence_usage
 END_ENTITY;
 
 ENTITY product_definition_occurrence_reference

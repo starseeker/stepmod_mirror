@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2017/04/23 16:12:14 lothartklein Exp $
+   $Id: arm.exp,v 1.5 2017/04/24 20:49:53 lothartklein Exp $
    N - ISO/CD-TS - 10303- general_design_connectivity - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 (*
@@ -10,26 +10,42 @@ ISO/TC 184/SC 4/WG 12 N - ISO/CD-TS 10303-xxxx General design connectivity - EXP
 SCHEMA General_design_connectivity_arm;
 
 USE FROM Assembly_constraints_arm;    -- ISO/TS 10303-1794
-USE FROM Configuration_item_arm;    -- ISO/TS 10303-1056
 USE FROM Design_product_data_management_arm;    -- ISO/TS 10303-1628
 USE FROM Item_definition_structure_arm;    -- ISO/TS 10303-1345
 USE FROM Part_shape_arm;    -- ISO/TS 10303-1807
 USE FROM Shape_feature_arm;    -- ISO/TS 10303-1764
 
+TYPE assembly_constraint_select = SELECT (
+	Binary_assembly_constraint,
+	Fixed_constituent_assembly_constraint);
+END_TYPE;
+
+TYPE assembly_constraint_type_enumeration = EXTENSIBLE ENUMERATION OF (
+	coaxial_assembly_constraint,
+	complex,
+	dimensioned_angle_assembly_constraint,
+	dimensioned_parallel_assembly_constraint,
+    dimensioned_surface_distance_assembly_constraint,
+	fixed_constituent_assembly_constraint,
+	incidence_assembly_constraint,
+	parallel_assembly_constraint,
+	perpendicular_assembly_constraint,
+	tangent_assembly_constraint);
+END_TYPE;
+
 TYPE part_contact_feature_associated_definition_select = SELECT
    (Part_view_definition, 
-    Composed_part_contact_feature);
+    Part_contact_feature);
 END_TYPE; 
 
 TYPE gdc_shapeable_item = SELECT BASED_ON shapeable_item WITH 
-   (Product_configuration, 
-    Shape_element);
+   (Shape_element);
 END_TYPE; 
 
-TYPE general_assembly_joint_type = EXTENSIBLE ENUMERATION ;
+TYPE general_assembly_joint_type_enumeration = EXTENSIBLE ENUMERATION ;
 END_TYPE; 
 
-TYPE general_terminal_joint_type = EXTENSIBLE ENUMERATION; 
+TYPE general_terminal_joint_type_enumeration = EXTENSIBLE ENUMERATION; 
 END_TYPE;
 
 TYPE occurrence_shape_element_definition_select = SELECT
@@ -69,16 +85,9 @@ TYPE transport_feature_type_enumeration = EXTENSIBLE ENUMERATION OF
    (electrical,
     thermal,
     optical,
-    magnetic);
-    -- liquid, gas
-    -- mechnical/vibration (Loudspeaker, damping - take vibrations
+    magnetic,
+    matter);
 END_TYPE; 
-
-ENTITY Composed_part_contact_feature
-  SUBTYPE OF (Part_contact_feature);
-INVERSE
-  elements : SET[1:?] OF Part_contact_feature FOR associated_definition;
-END_ENTITY;
 
 ENTITY Contact_feature_definition
   SUBTYPE OF (Shape_feature_definition);
@@ -88,7 +97,7 @@ ENTITY Contact_feature_definition_fit_relationship
   SUBTYPE OF (Shape_feature_definition_relationship);
   SELF\Shape_feature_definition_relationship.relating : Contact_feature_definition;
   SELF\Shape_feature_definition_relationship.related : Contact_feature_definition;
-  joint_type : OPTIONAL general_assembly_joint_type;
+  joint_type : OPTIONAL general_assembly_joint_type_enumeration;
 END_ENTITY;
 
 TYPE assembly_definition_or_assembly_shape_joint = SELECT (
@@ -105,7 +114,7 @@ ENTITY Assembly_shape_joint
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_joint;
   SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
-  joint_type : OPTIONAL general_assembly_joint_type;
+  joint_type : OPTIONAL general_assembly_joint_type_enumeration;
 END_ENTITY;
 
 ENTITY Assembly_shape_joint_item_relationship
@@ -118,7 +127,8 @@ ENTITY Assembly_shape_constraint
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_constraint;
   SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
-  SELF\Shape_element.identified_item : OPTIONAL Binary_assembly_constraint;
+  SELF\Shape_element.identified_item : OPTIONAL assembly_constraint_select;
+  constraint_type : OPTIONAL assembly_constraint_type_enumeration;
 END_ENTITY;
 
 ENTITY Assembly_shape_constraint_item_relationship
@@ -132,59 +142,87 @@ ENTITY Part_connectivity_definition
   connected_terminals : SET[2:?] OF connected_terminal_select;
 END_ENTITY;
 
+TYPE general_part_terminal_associated_definition_select = SELECT (
+	General_part_terminal, -- hierarchical
+	Part_view_definition); -- terminus
+END_TYPE;
+
 ENTITY General_part_terminal
   SUBTYPE OF (Part_contact_feature);
+  SELF\Shape_element.associated_definition : general_part_terminal_associated_definition_select;
   associated_transport_feature : OPTIONAL Part_transport_feature;
-  intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type;
-  interface_or_join_terminal : OPTIONAL interface_or_join_terminal_enum;
+  intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type_enumeration;
+  join_or_interface_terminal : OPTIONAL join_or_interface_terminal_enumeration;
 END_ENTITY;
 
-TYPE interface_or_join_terminal_enum = ENUMERATION OF (
+TYPE join_or_interface_terminal_enumeration = ENUMERATION OF (
   interface_terminal,
   join_terminal);
 END_TYPE;
 
-ENTITY Hierarchical_part_contact_feature_fit_relationship
-  SUBTYPE OF (Part_contact_feature_fit_relationship);
-  SELF\Shape_element_relationship.relating : Composed_part_contact_feature;
-  SELF\Shape_element_relationship.related : Composed_part_contact_feature;
-  element : SET[1:?] OF Part_contact_feature_fit_relationship;
-END_ENTITY;
+TYPE occurrence_contact_feature_associated_definition_select = SELECT (
+	Occurrence_contact_feature, -- hierarchical
+	Product_occurrence); -- terminus
+END_TYPE;
 
 ENTITY Occurrence_contact_feature
   SUPERTYPE OF (Occurrence_terminal)
   SUBTYPE OF (Occurrence_shape_feature);
+  SELF\Shape_element.associated_definition : occurrence_contact_feature_associated_definition_select;
   SELF\Occurrence_shape_feature.definition : OPTIONAL occurrence_contact_feature_definition_select;
 END_ENTITY;
 
+TYPE occurrence_shape_element_associated_definition_select = SELECT (
+	Occurrence_shape_element, -- hierarchical
+	Product_occurrence); -- terminus
+END_TYPE;
+
 ENTITY Occurrence_shape_element
   SUBTYPE OF (Shape_element);
-  SELF\Shape_element.associated_definition : Product_occurrence;
+  SELF\Shape_element.associated_definition : occurrence_shape_element_associated_definition_select;
   definition : OPTIONAL occurrence_shape_element_definition_select;
 UNIQUE
   UR1: definition, associated_definition;
   UR2: SELF\Shape_element.element_name, associated_definition;
 END_ENTITY;
 
+TYPE occurrence_shape_feature_associated_definition_select = SELECT (
+	Occurrence_shape_feature, -- hierarchical
+	Product_occurrence); -- terminus
+END_TYPE;
+
 ENTITY Occurrence_shape_feature
   SUPERTYPE OF (ONEOF (Occurrence_contact_feature,
                        Occurrence_transport_feature))
   SUBTYPE OF (Occurrence_shape_element);
+  SELF\Shape_element.associated_definition : occurrence_shape_feature_associated_definition_select;
   SELF\Occurrence_shape_element.definition : OPTIONAL occurrence_shape_feature_definition_select;
 DERIVE
   SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
 END_ENTITY;
 
+TYPE occurrence_terminal_associated_definition_select = SELECT (
+	Occurrence_terminal, -- hierarchical
+	Product_occurrence); -- terminus
+END_TYPE;
+
 ENTITY Occurrence_terminal
   SUBTYPE OF (Occurrence_contact_feature);
+  SELF\Shape_element.associated_definition : occurrence_terminal_associated_definition_select;
   SELF\Occurrence_shape_element.definition : occurrence_terminal_definition_select;
   associated_transport_feature : OPTIONAL Occurrence_transport_feature;
 -- WHERE
 --  WR1: associated_transport_feature.associated_definition :=: SELF\associated_definition; -- same part
 END_ENTITY;
 
+TYPE occurrence_transport_feature_associated_definition_select = SELECT (
+	Occurrence_transport_feature, -- hierarchical
+	Product_occurrence); -- terminus
+END_TYPE;
+
 ENTITY Occurrence_transport_feature
   SUBTYPE OF (Occurrence_shape_feature);
+  SELF\Shape_element.associated_definition : occurrence_transport_feature_associated_definition_select;
   SELF\Occurrence_shape_element.definition : OPTIONAL Part_transport_feature;
   transport_feature_type : OPTIONAL transport_feature_type_enumeration;
 END_ENTITY;
@@ -200,12 +238,19 @@ ENTITY Part_contact_feature_fit_relationship
   SELF\Shape_element_relationship.relating : Part_contact_feature;
   SELF\Shape_element_relationship.related : Part_contact_feature;
   definition : OPTIONAL Contact_feature_definition_fit_relationship;
+  sub_relationships : OPTIONAL SET[1:?] OF Part_contact_feature_fit_relationship;
 WHERE
   WR1: relating.associated_definition :<>: related.associated_definition;
 END_ENTITY;
 
+TYPE part_transport_feature_associated_definition_select = SELECT (
+	Part_transport_feature, -- hierarchical
+	Part_view_definition); -- terminus
+END_TYPE;
+
 ENTITY Part_transport_feature
   SUBTYPE OF (General_part_feature);
+  SELF\Shape_element.associated_definition : OPTIONAL part_transport_feature_associated_definition_select;
   transport_feature_type : OPTIONAL transport_feature_type_enumeration;
 END_ENTITY;
 

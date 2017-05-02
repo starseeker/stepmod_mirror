@@ -53,7 +53,7 @@ SCHEMA product_data_equivalence_inspection_result_schema '{iso standard 10303 pa
   TYPE inspected_equivalence_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
   
-  ENTITY criterion_report_item_with_number_of_data
+  ENTITY criterion_report_item_with_number_of_instances
     SUBTYPE OF(data_equivalence_inspection_criterion_report_item);
       statistical_value : count_measure;
       value_type        : summary_report_style_type;
@@ -71,10 +71,14 @@ SCHEMA product_data_equivalence_inspection_result_schema '{iso standard 10303 pa
 
   ENTITY data_equivalence_inspected_element_pair
     SUBTYPE OF(representation_item);
-     comparing_elements : SET [0:?] OF inspected_equivalence_element_select;
-     compared_elements : SET [0:?] OF inspected_equivalence_element_select;
+     comparing_elements : SET [1:?] OF inspected_equivalence_element_select;
+     compared_elements : SET [1:?] OF inspected_equivalence_element_select;
     WHERE
-     WR1: (SIZEOF(comparing_elements) <> 0) OR (SIZEOF(compared_elements) <> 0);
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))
+                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+
+                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'
+                           IN TYPEOF(q)))=0;
   END_ENTITY;
 
   ENTITY data_equivalence_inspection_criterion_report
@@ -83,7 +87,7 @@ SCHEMA product_data_equivalence_inspection_result_schema '{iso standard 10303 pa
   END_ENTITY;
 
   ENTITY data_equivalence_inspection_criterion_report_item
-    SUPERTYPE OF (ONEOF(criterion_report_item_with_number_of_data,
+    ABSTRACT SUPERTYPE OF (ONEOF(criterion_report_item_with_number_of_instances,
                                  criterion_report_item_with_value))
     SUBTYPE OF(representation_item);
     INVERSE

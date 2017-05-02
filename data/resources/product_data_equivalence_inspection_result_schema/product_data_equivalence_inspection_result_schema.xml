@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/CD 10303-62">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/DIS 10303-62">
    <application name="JSDAI" owner="LKSoft" source="product_data_equivalence_inspection_result_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="product_data_equivalence_inspection_result_schema">
       <interface kind="reference" schema="measure_schema">
@@ -26,7 +26,7 @@
       <type name="inspected_equivalence_element_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <entity name="criterion_report_item_with_number_of_data" supertypes="data_equivalence_inspection_criterion_report_item">
+      <entity name="criterion_report_item_with_number_of_instances" supertypes="data_equivalence_inspection_criterion_report_item">
          <explicit name="statistical_value">
             <typename name="count_measure"/>
          </explicit>
@@ -52,14 +52,14 @@
       </entity>
       <entity name="data_equivalence_inspected_element_pair" supertypes="representation_item">
          <explicit name="comparing_elements">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="inspected_equivalence_element_select"/>
          </explicit>
          <explicit name="compared_elements">
-            <aggregate lower="0" type="SET" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="inspected_equivalence_element_select"/>
          </explicit>
-         <where expression="(SIZEOF(comparing_elements) &lt;&gt; 0) OR (SIZEOF(compared_elements) &lt;&gt; 0)" label="WR1"/>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
       </entity>
       <entity name="data_equivalence_inspection_criterion_report" supertypes="data_equivalence_inspection_report">
          <explicit name="statistical_values">
@@ -67,7 +67,7 @@
             <typename name="data_equivalence_inspection_criterion_report_item"/>
          </explicit>
       </entity>
-      <entity name="data_equivalence_inspection_criterion_report_item" super.expression="ONEOF (criterion_report_item_with_number_of_data, criterion_report_item_with_value)" supertypes="representation_item">
+      <entity abstract.supertype="YES" name="data_equivalence_inspection_criterion_report_item" super.expression="ONEOF (criterion_report_item_with_number_of_instances, criterion_report_item_with_value)" supertypes="representation_item">
          <inverse attribute="statistical_values" entity="data_equivalence_inspection_criterion_report" name="criterion_report"/>
          <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                            'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS'))&#10;                          |'PRODUCT_DATA_EQUIVALENCE_CRITERIA_SCHEMA.'+&#10;                           'DATA_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;                           IN TYPEOF(q)))=0" label="WR1"/>
       </entity>

@@ -1,0 +1,177 @@
+(*
+$Id$
+ISO 10303 TC184/SC4/WG12 Ntbd
+
+EXPRESS Source:
+ISO 10303-113 ed1 Mechanical design - Mechanical design schema
+
+The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
+and derivations of the Schema:
+
+Copyright ISO 2017  All rights reserved
+Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
+to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
+implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
+subject to the following conditions:
+
+THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
+USE OR OTHER DEALINGS IN THE SCHEMA.
+
+In addition, any modified copy of the Schema shall include the following notice:
+
+THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+ISO 10303-113 ed1 Mechanical design - Mechanical design schema
+AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
+*)
+SCHEMA mechanical_design_schema '{iso standard 10303 part(113) version(1) object(1) mechanical_design_schema(1)}';
+       REFERENCE FROM draughting_element_schema;   --ISO 10303-101
+       REFERENCE FROM geometry_schema;    -- ISO 10303-42
+
+       REFERENCE FROM measure_schema   -- ISO 10303-41
+         (global_unit_assigned_context,
+          length_measure,
+          parameter_value,
+          plane_angle_measure,
+          plane_angle_unit,
+          positive_length_measure,
+          positive_plane_angle_measure,
+          ratio_measure); 
+
+       REFERENCE FROM presentation_definition_schema;   --ISO 10303-46
+       REFERENCE FROM product_definition_schema (product_definition);
+       REFERENCE FROM product_property_definition_schema (characterized_object, 
+                                                           property_definition, 
+                                                           product_definition_shape, 
+                                                           shape_aspect);
+       REFERENCE FROM product_property_representation_schema (property_definition_representation);
+       REFERENCE FROM representation_schema (get_representations_for_items, representation);
+       REFERENCE FROM support_resource_schema (bag_to_set, identifier);
+       REFERENCE FROM topology_schema (topological_representation_item, 
+                                       get_tri_in_representations,
+                                       valid_tri_ids);
+
+ENTITY annotation_placeholder_occurrence
+  SUBTYPE OF (annotation_occurrence, geometric_representation_item);
+  SELF\styled_item.item : geometric_set;
+  role                  : annotation_placeholder_occurrence_role;
+  character_height      : positive_length_measure;
+INVERSE
+  the_callout                                             : draughting_callout FOR contents;
+  the_draughting_model_item_association_with_placeholders : SET [0:1]OF draughting_model_item_association_with_placeholder FOR annotation_placeholder;
+WHERE
+  WR1: md_valid_content_in_geometric_set_for_placeholder(item);
+  WR2: NOT (role = annotation_placeholder_occurrence_role.gps_data) OR
+           ((SIZEOF(the_draughting_model_item_association_with_placeholders) = 1) AND
+            md_pmi_name_and_type_correlation(SELF));
+END_ENTITY;
+
+RULE tri_identification_within_product_definition FOR (product_definition, topological_representation_item, representation);
+  LOCAL
+   associated_representations : SET [1:?] OF representation := [];
+   items          : SET [1:?] OF topological_representation_item := [];
+   pd_items       : SET [1:?] OF topological_representation_item := [];
+   pass : BOOLEAN := TRUE;
+  END_LOCAL;
+
+REPEAT i := LOINDEX(product_definition) TO HIINDEX(product_definition) WHILE pass;
+  pd_items := get_tri_for_pd(product_definition[i]);
+  associated_representations := get_representations_for_items(pd_items);
+  items := get_tri_in_representations(associated_representations) + pd_items;
+
+  IF (SIZEOF(items) > 0) THEN
+        IF (SIZEOF(QUERY(ai <* items | 
+         NOT(EXISTS(ai\topological_representation_item.id) OR
+          EXISTS(ai\topological_representation_item.aggregate_id)) 
+              )) > 0 )
+        THEN
+         pass := valid_tri_ids(items);
+        END_IF;
+  END_IF;  
+END_REPEAT;
+
+WHERE
+  WR1 : pass;
+END_RULE;
+(*
+The rule iterates over all product_definitions.
+For each product_definition, if there is any id in the tri associated with that product_definition, all tris are checked for
+valid ids.
+
+--  pd_items are all the tri related to a product_definition.
+--  associated_representations provides the set of representations that directly or indirectly reference each member of pd_items.
+
+get_tri_in_representations provides all tri in those representations that reference each member of items, directly or indirectly,
+collecting tri that are potentially not explicitly specified in items.  
+
+get_tri_for_pd provides the tri that are reached from the product_definition via (product_definition, property_definition) path  and the tri that are reached from the product_definition via the shape_aspect path.
+
+WR1 is TRUE if each tri in items has an id or aggregated_id and if each (id, aggregate_id) value is used only once in items.
+
+*)
+
+FUNCTION get_tri_for_pd (def_instance : product_definition): SET OF topological_representation_item;
+(* includes shape_aspect path *)
+    LOCAL
+      pd1_set  : SET OF property_definition := bag_to_set(USEDIN(def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+      pd2_set  : SET OF property_definition := [];
+      pdr_set : SET OF property_definition_representation := [];
+      pds_set  : SET OF product_definition_shape := [];
+       r_set   : SET OF representation := [];
+        sa_set : SET OF shape_aspect := [];
+       tri_set : SET OF topological_representation_item := [];
+    END_LOCAL;
+
+    IF (SIZEOF(pd1_set) < 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(pd1_set) TO HIINDEX(pd1_set);
+      pdr_set := pdr_set + bag_to_set(USEDIN(pd1_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+      IF 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd1_set[i]) THEN
+        pds_set := pds_set + pd1_set[i];
+      END_IF;
+    END_REPEAT;
+
+    REPEAT i := LOINDEX(pds_set) TO HIINDEX(pds_set);
+      sa_set := sa_set + bag_to_set(USEDIN(pds_set[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT.OF_SHAPE'));
+    END_REPEAT;
+
+    REPEAT i := LOINDEX(sa_set) TO HIINDEX(sa_set);
+      pd2_set := pd2_set + bag_to_set(USEDIN(sa_set[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+    END_REPEAT;
+
+   IF (SIZEOF(pd2_set) > 0) THEN
+     BEGIN
+      REPEAT i := LOINDEX(pd2_set) TO HIINDEX(pd2_set);
+        pdr_set := pdr_set + bag_to_set(USEDIN(pd2_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+      END_REPEAT;
+     END;
+   END_IF;
+    
+    IF (SIZEOF(pdr_set) < 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(pdr_set) TO HIINDEX(pdr_set);
+      r_set := r_set + pdr_set[i]\property_definition_representation.used_representation;
+    END_REPEAT;
+    IF (SIZEOF(r_set) < 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(r_set) TO HIINDEX(r_set);
+      REPEAT j := LOINDEX(r_set[i]\representation.items) to HIINDEX(r_set[i]\representation.items);
+       IF('TOPOLOGY_SCHEMA.TOPOLOGICAL_REPRESENTATION_ITEM' IN TYPEOF (r_set[i]\representation.items[j])) THEN
+         tri_set := tri_set + r_set[i]\representation.items[j];
+       END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    
+  RETURN (tri_set);
+    
+ END_FUNCTION;
+ END_SCHEMA;

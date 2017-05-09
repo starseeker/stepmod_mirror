@@ -225,236 +225,6 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.66 2014/02/08 18:01:09 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N8418 - ISO/TS 10303-1603 Analytical model - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8301
-*)
-
-SCHEMA Analytical_model_arm;
-
-USE FROM Model_parameter_arm;	-- ISO/TS 10303-1703
-USE FROM Software_arm;	-- ISO/TS 10303-1746
-USE FROM Document_structure_arm;	-- ISO/TS 10303-1124
-USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
-REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
-
-  TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
-    (Digital_analytical_model_vector_port);
-  END_TYPE;
-
-  TYPE am_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
-    (Analytical_model_definition);
-  END_TYPE;
-
-  TYPE am_parameter_assignment_select = SELECT BASED_ON parameter_assignment_select WITH
-    (Analytical_model_parameter);
-  END_TYPE;
-
-  TYPE am_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
-    (Analytical_model_definition);
-  END_TYPE;
-
-  TYPE analytical_model_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE port_property_type = ENUMERATION OF
-    (string_property_type,
-     boolean_property_type,
-     logical_property_type,
-     numeric_property_type,
-     physical_property_type);
-  END_TYPE;
-
-  TYPE signal_flow_direction = ENUMERATION OF
-    (unknown_direction,
-     not_applicable,
-     output_direction,
-     input_direction,
-     bidirectional);
-  END_TYPE;
-
-  ENTITY Across_port_variable
-    SUBTYPE OF (Port_variable);
-    WHERE
-      WR1 : EXISTS(SELF\Port_variable.unit_of_measure);
-  END_ENTITY;
-
-  ENTITY Analog_analytical_model_port
-    SUBTYPE OF (Analytical_model_port);
-    INVERSE
-      signal_variable : SET[1:?] OF Port_variable FOR associated_port;
-  END_ENTITY;
-
-  ENTITY Port_variable
-    SUPERTYPE OF (ONEOF (Through_port_variable,
- Across_port_variable,
- Transform_port_variable));
-      associated_port : Analog_analytical_model_port;
-      variable_name   : STRING;
-      unit_of_measure : OPTIONAL Unit; --STRING;
-    UNIQUE
-      UR1 : variable_name,
- associated_port;
-  END_ENTITY;
-
-  ENTITY Analytical_model
-  	SUBTYPE OF (Information_product);
-    UNIQUE
-      UR1: SELF\Product.id;
-  END_ENTITY;
-
-  ENTITY Analytical_model_application
-    SUBTYPE OF (Representation);
-      model_parameter_assignment     : OPTIONAL SET[1:?] OF Parameter_assignment;
-      model_representation           : Analytical_model_definition;
-    UNIQUE
-      UR1 : SELF\Representation.name;
-  END_ENTITY;
-
-  ENTITY Analytical_model_definition
-    SUBTYPE OF (Information_definition);
-      SELF\Product_view_definition.defined_version 	: Analytical_model_version;
-      source_code : SET [1:1] OF Digital_file;
-    DERIVE
-		representation_language: SET[1:1] OF Document_definition :=
-  			get_document_definition(SELF, 'representation language',
-  			'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL');
-    INVERSE
-      access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
-      parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
-	  reference_document : document_assignment FOR is_assigned_to;
-  END_ENTITY;
-
-  ENTITY Analytical_model_make_from_relationship
-  	SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.relating_view RENAMED reusable_model : Analytical_model_definition;
-      SELF\View_definition_relationship.related_view RENAMED resultant_model : Analytical_model_definition;
-    UNIQUE
-      UR1 : reusable_model, resultant_model;
-    WHERE
-      WR1 : reusable_model :<>: resultant_model;
-  END_ENTITY;
-
-  ENTITY Analytical_model_parameter
-    SUBTYPE OF (Applied_independent_property);
-      SELF\Assigned_property.described_element RENAMED accessed_analytical_model : Analytical_model_definition;
-    UNIQUE
-      UR1 : SELF\Assigned_property.id,  accessed_analytical_model;
-  END_ENTITY;
-
-  ENTITY Analytical_model_port
-    SUPERTYPE OF (analytical_model_vector_port ANDOR
- (ONEOF (Analog_analytical_model_port,
- Digital_analytical_model_port)));
-      accessed_analytical_model : Analytical_model_definition;
-      port_name                 : STRING;
-    UNIQUE
-      UR1 : port_name,
- accessed_analytical_model;
-  END_ENTITY;
-
-  ENTITY Analytical_model_port_assignment;
-	assigned_analytical_model_port	: Analytical_model_port;
-	assigned_item					: analytical_model_port_assignment_select;
-	associated_analytical_model_application :Analytical_model_application;
-   UNIQUE
-    UR1 : assigned_analytical_model_port,assigned_item,associated_analytical_model_application;
-   WHERE
-    WR1 : assigned_analytical_model_port.accessed_analytical_model =
-   associated_analytical_model_application.model_representation;
-  END_ENTITY;
-
-  ENTITY Analytical_model_port_make_from_relationship;
-      associated_make_from : Analytical_model_make_from_relationship;
-      reusable_feature     : Analytical_model_port;
-      resultant_feature    : Analytical_model_port;
-    UNIQUE
-      UR1 : reusable_feature,
- resultant_feature;
-    WHERE
-      WR1 : reusable_feature :<>: resultant_feature;
-      WR2 : reusable_feature.accessed_analytical_model :<>: resultant_feature.accessed_analytical_model;
-  END_ENTITY;
-
-  ENTITY Analytical_model_scalar_port
-    SUBTYPE OF (Analytical_model_vector_port);
-    WHERE
-      WR1 : SIZEOF(SELF\Analytical_model_vector_port.element_port) = 1;
-      WR2 : SELF = SELF\Analytical_model_vector_port.element_port[1];
-  END_ENTITY;
-
-  ENTITY Analytical_model_vector_port
-    SUPERTYPE OF (Analytical_model_scalar_port)
-    SUBTYPE OF (Analytical_model_port);
-    element_port : LIST [1:?] OF Analytical_model_scalar_port;
-  DERIVE
-      size : INTEGER := SIZEOF(element_port); -- positive_integer;
-  END_ENTITY;
-
-  ENTITY Analytical_model_version
-  	SUBTYPE OF (Information_version);
-  		SELF\Product_version.of_product : Analytical_model;
-  END_ENTITY;
-
-  ENTITY Digital_analytical_model_port
-  	ABSTRACT SUPERTYPE OF (Digital_analytical_model_vector_port)
-    SUBTYPE OF (Analytical_model_port);
-      nominal_signal_flow_direction : signal_flow_direction;
-      port_type                     : port_property_type;
-    WHERE
-      WR1 : not_applicable <> nominal_signal_flow_direction;
-      WR2 : numeric_property_type <> port_type;
-      WR3 : physical_property_type <> port_type;
-      WR4 : unknown_direction <> nominal_signal_flow_direction;
-  END_ENTITY;
-
-  ENTITY Digital_analytical_model_scalar_port
-    SUBTYPE OF (Digital_analytical_model_vector_port, Analytical_model_scalar_port);
-  END_ENTITY;
-
-  ENTITY Digital_analytical_model_vector_port
-    SUBTYPE OF (Digital_analytical_model_port,Analytical_model_vector_port);
-    INVERSE
-      data_encoding_method 	: External_source_identification FOR item;
-    WHERE
-     WR1 : SELF\Digital_analytical_model_port.port_type = port_property_type.string_property_type;
-  END_ENTITY;
-
-	ENTITY Terminal_pair_port_equivalence_relationship;
-      equivalent_port : Analytical_model_port;
-      scalar_ports    : Analytical_model_vector_port;
-	 WHERE
-	  WR1: (SIZEOF (scalar_ports.element_port) = 2);
-  	END_ENTITY;
-
-  ENTITY Through_port_variable
-    SUBTYPE OF (Port_variable);
-    WHERE
-      WR1 : EXISTS(SELF\Port_variable.unit_of_measure);
-  END_ENTITY;
-
-  ENTITY Transform_port_variable
-    SUBTYPE OF (Port_variable);
-      nominal_signal_flow_direction : signal_flow_direction;
-    WHERE
-      WR1 : signal_flow_direction.not_applicable <> nominal_signal_flow_direction;
-      WR2 : signal_flow_direction.bidirectional <> nominal_signal_flow_direction;
-  END_ENTITY;
-
-RULE analytical_model_version_constraint FOR
-(Product_version);
-WHERE
-  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-END_RULE;
-
-RULE analytical_model_definition_constraint FOR
-(Product_view_definition);
-WHERE
-  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
-END_RULE;
-
-END_SCHEMA;
-(*
    $Id: arm.exp,v 1.47 2015/09/25 09:01:17 lothartklein Exp $
    ISO TC184/SC4/WG12 N8590 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8321
@@ -886,7 +656,7 @@ END_TYPE;
 
 END_SCHEMA;
 (*
- $Id: arm.exp,v 1.20 2017/02/21 18:37:30 thomasrthurman Exp $
+ $Id: arm.exp,v 1.19 2012/11/09 21:40:58 thomasrthurman Exp $
  ISO TC184/SC4/WG12 N8250 - ISO/TS 10303-1001 Appearance assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6860
 *)
@@ -955,9 +725,9 @@ REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Styled_element
     SUBTYPE OF (Representation_item);
-      appearance : OPTIONAL styled_element_appearance;
-      element    : Detailed_geometric_model_element;
-      invisible  : BOOLEAN;
+      appearance : styled_element_appearance;
+      element : Detailed_geometric_model_element;
+      invisible : BOOLEAN;
   END_ENTITY;
 
   ENTITY Styled_model
@@ -1378,109 +1148,6 @@ END_SCHEMA;  -- Assembly_feature_relationship_arm
 
 
 (*
-   $Id: arm.exp,v 1.67 2015/09/07 15:24:00 kevletu Exp $
-   ISO TC184/SC4/WG12 N8607 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8420
-*)
-
-SCHEMA Assembly_module_design_arm;
-
-USE FROM Assembly_module_usage_view_arm;	-- ISO/TS 10303-1642
-USE FROM Assembly_technology_arm;           -- ISO/TS 10303-1649
-USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
-USE FROM Physical_unit_design_view_arm; -- ISO/TS 10303-1728
-USE FROM Physical_connectivity_layout_topology_requirement_arm; 
-USE FROM Physical_connectivity_definition_arm; -- ISO/TS 10303-1755
-
-  TYPE assembly_module_or_assembly_group_component = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Assembly_module_design_view);
-  END_TYPE;
-
-  ENTITY Assembly_module_design_view
-    SUBTYPE OF (Assembly_definition, Part_design_view);
-  WHERE
-    WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
-  END_ENTITY;
-
-  ENTITY Component_external_reference;
-      design_owner          : STRING;
-      part_number           : STRING;
-      revision_code         : STRING;
-      product_definition_id : STRING;
-      reference_designation : STRING;
-  END_ENTITY;
-
-  ENTITY Component_feature_external_reference;
-      name                 : STRING;
-      associated_component : Component_external_reference;
-    UNIQUE
-      UR1 : associated_component,
- name;
-  END_ENTITY;
-
-  ENTITY Component_mounting_clearance_relationship;
-      feature_relationship : Component_feature_relationship;
-      mounting_clearance   : Length_tolerance_characteristic;
-  END_ENTITY;
-
-  ENTITY Component_mounting_feature
-    SUBTYPE OF (Physical_component_feature);
-      SELF\Component_feature.definition : Part_mounting_feature;
-  END_ENTITY;
-
-  ENTITY Minimally_defined_component_terminal
-    SUBTYPE OF (Physical_component_terminal);
-      SELF\Component_feature.definition : Part_terminal_external_reference;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-END_SCHEMA;
-
-(*
-   $Id: arm.exp,v 1.44 2016/09/27 10:51:47 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8610 - ISO/TS 10303-1642 Assembly module usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8422
-*)
-
-SCHEMA Assembly_module_usage_view_arm;
-
-USE FROM Functional_assignment_to_part_arm; -- ISO/TS 10303-1674
-USE FROM Part_feature_function_arm; -- ISO/TS 10303-1712
-USE FROM Part_external_reference_arm; -- ISO/TS 10303-1711
-
-
-  ENTITY Assembly_module_interface_terminal
-    SUBTYPE OF (Assembly_module_terminal);
-  DERIVE
-    SELF\Part_terminal.interface_or_join_terminal : interface_or_join_terminal_enumeration := interface_terminal;
-  END_ENTITY;
-
-  ENTITY Assembly_module_terminal
-    SUBTYPE OF (Part_terminal);
-      SELF\Part_feature.associated_definition : Assembly_module_usage_view;
-      reference_terminal                      : OPTIONAL Part_terminal; 
-      related_connector                       : OPTIONAL Next_assembly_usage;
-    WHERE
-      WR1 : NOT EXISTS(related_connector) OR
-            (SELF\Shape_element.associated_definition =
-             related_connector\Product_occurrence_definition_relationship.related_view);
-      WR2 : NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator);
-      WR3 : NOT EXISTS(reference_terminal) OR 
-        reference_terminal\Part_terminal.interface_or_join_terminal :=: interface_terminal;
-  END_ENTITY;
-
-  ENTITY Assembly_module_usage_view
-    SUBTYPE OF (Part_usage_view);
-      implemented_function              : OPTIONAL Functional_unit_usage_view;
-    INVERSE
-      access_mechanisms : SET[0:?] OF assembly_module_terminal FOR associated_definition;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
-  END_ENTITY;
-
-END_SCHEMA;
-(*
    $Id: arm.exp,v 1.13 2016/10/20 12:13:26 kevletu Exp $
    ISO TC184/SC4/WG12 N9298 - ISO/TS 10303-1808 Assembly shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7897
@@ -1605,40 +1272,47 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Assembly_structure_arm
 (*
-   $Id: arm.exp,v 1.69 2015/09/11 15:24:38 kevletu Exp $
-   ISO TC184/SC4/WG12 N8633 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7942
+   $Id: arm.exp,v 1.63 2012/10/28 17:41:23 lothartklein Exp $
+   ISO TC184/SC4/WG12 N7942 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7379
 *)
 
 
 SCHEMA Assembly_technology_arm;
-	USE FROM Requirement_assignment_arm; --  ISO/TS 10303-1233
-	USE FROM Physical_component_feature_arm; -- ISO/TS 10303-1721
-    USE FROM Generic_material_aspects_arm; --  ISO/TS 10303-1681
+--	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+	USE FROM Component_feature_arm;
+	USE FROM Requirement_assignment_arm;
+	USE FROM Physical_component_feature_arm;
+	
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 	USE FROM Product_view_definition_reference_arm;	-- ISO/TS 10303-1738
 
- 	TYPE at_external_identification_item = SELECT BASED_ON external_identification_item WITH
+ 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Assembly_bond_definition);
 	END_TYPE;
 
-
-	TYPE at_material_item_select = SELECT BASED_ON material_item_select WITH
+	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Assembly_bond_definition);
 	END_TYPE;
 
-  TYPE at_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
+  TYPE at_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
     (Assembly_bond_definition);
-  END_TYPE;
+  END_TYPE; 
 
-	TYPE at_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH
+	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Assembly_joint);
-	END_TYPE;
+	END_TYPE; 
 
-  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT
-     (General_part_feature);
-  END_TYPE;
+  TYPE bond_feature = EXTENSIBLE GENERIC_ENTITY SELECT (
+    Physical_component_feature); -- added anew
+    -- Connection_zone_in_layout_template,
+    -- Connection_zone_in_usage_view,
+    -- Default_attachment_size_based_land_physical_template,
+    -- Feature_definition_with_connection_area,
+    -- Part_feature);
+  END_TYPE;     
 
-
+	
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
      y,
@@ -1647,10 +1321,12 @@ SCHEMA Assembly_technology_arm;
      v,
      w);
   END_TYPE;
-
-  TYPE assembly_joint_type = EXTENSIBLE ENUMERATION;
-  END_TYPE;
-
+(*
+	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
+		(ONEOF (Assembly_technology_specification,
+		Fabrication_technology_specification));
+	END_SUBTYPE_CONSTRAINT; 
+*)
   ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
       default_bond_definition : Assembly_bond_definition;
@@ -1661,41 +1337,69 @@ SCHEMA Assembly_technology_arm;
 
   ENTITY Assembled_with_fasteners
     SUBTYPE OF (Assembly_joint);
+--      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
   END_ENTITY;
 
   ENTITY Assembly_bond_definition;
-      name                                    : STRING;
+      name                                    : STRING;   
+--      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
       associated_definition                   : Product_view_definition_reference_with_local_representation;
-      bonded_feature_1                        : OPTIONAL bond_feature;
-      bonded_feature_2                        : OPTIONAL bond_feature;
+      bonded_feature_1                        : bond_feature;
+      bonded_feature_2                        : bond_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
 	  bond_category	: External_source_identification FOR item;
-	  bond_material : material_identification FOR items;
+	  bond_material : material_identification FOR items;      
     UNIQUE
       UR1 : name;
       UR2 : associated_definition;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
+      WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
+      WR3 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)));
+      WR4 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR 
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)));
+      WR5 : NOT((('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN
+        TYPEOF (bonded_feature_1)) OR
+        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))
+        XOR 
+        (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR
+        ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));      
   END_ENTITY;
 
   ENTITY Assembly_joint
     SUPERTYPE OF (Assembled_with_fasteners ANDOR
  Assembled_with_bonding)
     SUBTYPE OF (Component_feature_joint);
-      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : Physical_component_feature; 
-      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : Physical_component_feature; 
-      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_definition; 
-      joint_type : OPTIONAL assembly_joint_type;
+      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : Physical_component_feature; -- assembled_feature_select;
+      SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : Assembly_shape; -- assembly_module_or_assembly_group_component;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
         associated_assembly;
     WHERE
       WR1 : assembly_feature_1 :<>: assembly_feature_2;
+      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <> 
+             associated_assembly\Item_shape.described_element)) = 0));
+      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Assembly_component.occurrence_contexts | ay\Product_occurrence_definition_relationship.related_view <> 
+             associated_assembly\Item_shape.described_element)) = 0));
   END_ENTITY;
-
+(*
+  ENTITY Assembly_technology_specification
+    SUBTYPE OF (Process_specification);
+  END_ENTITY;
+*)
   ENTITY Component_mating_constraint_condition;
-      name                          : STRING;
+      name                          : STRING;  
       constraining_joint            : SET[1:3] OF Assembly_joint;
       constrained_degree_of_freedom : SET[1:6] OF degree_of_freedom;
       of_context                    : Part_view_definition; -- Part_design_view;
@@ -1717,7 +1421,7 @@ SCHEMA Assembly_technology_arm;
       shape_characterized_definition : Assembly_bond_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Representation.description);
-      WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION'))=0;
+      WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.USED_REPRESENTATION'))=0;      
   END_ENTITY;
 
 END_SCHEMA;
@@ -2369,108 +2073,6 @@ USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
 END_SCHEMA; 
 
 (*
-   $Id: arm.exp,v 1.42 2016/09/27 11:37:11 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8646 - ISO/TS 10303-1653 Cable - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8119
-*)
-
-SCHEMA Cable_arm;
-
-USE FROM Assembly_component_arm;
-USE FROM Component_feature_arm;
-USE FROM Design_product_data_management_arm; -- Only for Part_with_additional_categories
-USE FROM Functional_assignment_to_part_arm; -- only for fatp_part_connected_terminals_definition_domain_enumeration 
-
-TYPE cc_part_category = ENUMERATION BASED_ON part_category WITH ( 
-  wire, 
-  cable,
-  flat_cable -- ! but for Cable IEV ref 461-06-05 flat (multicore) cable
-  ); 
-END_TYPE;
-
-
-ENTITY Cable_usage_view
-  SUBTYPE OF (Part_usage_view);
-INVERSE  
-  conductors : SET[1:?] OF Wire_identification FOR associated_definition;
-END_ENTITY;
-
-ENTITY Cable_component_terminal
-  SUBTYPE OF (Derived_component_terminal);
-  SELF\Derived_component_terminal.derived_from : Wire_identification;
-INVERSE
-  location_group : Cable_component_terminal_location_group_identification FOR elements; 
-WHERE
-  WR1: EXISTS(location_group);
-END_ENTITY;
-
-ENTITY Cable_component_terminal_location_group_identification
-  SUBTYPE OF (Component_feature_group_identification);
-  SELF\Component_feature.associated_definition : Cable_component;
-  SELF\Component_feature_group_identification.elements : SET[0:?] OF Cable_component_terminal;
-END_ENTITY;
-
-ENTITY Cable_component
-  SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
-  SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
-DERIVE 
-  ends_a : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end a');
-  ends_b : SET[1:1] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end b');
-  intermediates : SET[0:?] OF Cable_component_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name[1:13] = 'intermediate');
-INVERSE
-  terminal_location_groups : SET OF Cable_component_terminal_location_group_identification FOR associated_definition;
-WHERE
-  WR1: EXISTS(ends_a);
-  WR2: EXISTS(ends_b);
-  WR3: SIZEOF(ends_a[1]\Cable_component_terminal_location_group_identification.elements) = SIZEOF(ends_b[1]\Cable_component_terminal_location_group_identification.elements); -- the number of terminals on both ends are the same
-  WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-  WR5: cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; -- underlying Part must have the category raw_material_by_length
-END_ENTITY;
-
-ENTITY Wire_color_based_identification_code 
-  SUBTYPE OF (Independent_property);
-END_ENTITY;
-
-ENTITY Wire_identification
-  SUBTYPE OF (General_part_feature);
-  code: Wire_color_based_identification_code;
-  conductivity_type : OPTIONAL fatp_part_connected_terminals_definition_domain_enumeration; 
-END_ENTITY;
-
-ENTITY Wire_component_terminal
-  SUBTYPE OF (Derived_component_terminal);
-  SELF\Component_feature.associated_definition : Wire_component;
-  SELF\Derived_component_terminal.derived_from : Wire_identification;
-END_ENTITY;
-
-ENTITY Wire_component
-  SUBTYPE OF (Assembly_component, Product_occurrence_with_quantity);
-  SELF\Definition_based_product_occurrence.derived_from : Cable_usage_view;
-DERIVE 
-  ends_a : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name = 'end a');
-  ends_b : SET[1:1] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name = 'end b');
-  intermediates : SET[0:?] OF Wire_component_terminal := QUERY(t <* terminals | t.element_name[1:13] = 'intermediate ');
-INVERSE
-  terminals : SET[2:?] OF Wire_component_terminal FOR associated_definition;
-WHERE
-  WR1: SIZEOF(ends_a) = 1; 
-  WR2: SIZEOF(ends_b) = 1; 
-  WR3: SIZEOF(QUERY(ct <* USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.ASSOCIATED_DEFINITION') | 
-             NOT ('COMPONENT_FEATURE_ARM.WIRE_COMPONENT_TERMINAL' IN TYPEOF(ct)) )) = 0;
-  WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories; 
-  WR5: wire IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories;
-END_ENTITY;
-
-SUBTYPE_CONSTRAINT wacc_assembly_component_subtypes FOR Assembly_component;
-  ONEOF (Wire_component, Cable_component);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT wacc_derived_component_terminal_subtypes FOR Derived_component_terminal;
-  ONEOF (Cable_component_terminal, Wire_component_terminal);
-END_SUBTYPE_CONSTRAINT;
-
-END_SCHEMA;
-(*
  $Id$
  ISO TC184/SC4/WG12 N7699 - ISO/TS 10303-1316 Camera view 3d - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6622
@@ -2644,9 +2246,9 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.71 2015/09/24 09:59:51 kevletu Exp $
-   ISO TC184/SC4/WG12 N8650 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7957
+   $Id: arm.exp,v 1.67 2012/10/11 05:49:06 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7957 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7394
 *)
 
 SCHEMA Characteristic_arm;
@@ -2677,7 +2279,7 @@ SCHEMA Characteristic_arm;
     Value_set); 
   END_TYPE; 
 
-  TYPE c_documented_element_select = SELECT BASED_ON documented_element_select WITH 
+  TYPE c_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
     (Property_value_representation);
   END_TYPE; 
   
@@ -2750,13 +2352,6 @@ SCHEMA Characteristic_arm;
       SELF\Independent_property_relationship.related : Characteristic_data_column_header;
     DERIVE
       SELF\Independent_property_relationship.relation_type : STRING := 'decomposition';
-  END_ENTITY;
-
-  ENTITY Correlated_property
-    SUBTYPE OF (Assigned_property);
-      correlated_properties : SET [1:?] OF Assigned_property;
-  WHERE
-    WR1 : SIZEOF(QUERY(cp <* correlated_properties | cp\Assigned_property.described_element <> SELF\Assigned_property.described_element)) = 0;
   END_ENTITY;
 
   ENTITY Externally_defined_type_qualifier
@@ -2891,7 +2486,7 @@ SCHEMA Characteristic_arm;
  --Type_qualifier.name shall be drawn only from 'nominal', 'typical' , 'maximium', 'minimum'
   LOCAL
      bag_data : BAG OF STRING := [];
-     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximum', 'minimum'];
+     valid_set : SET OF STRING := ['nominal', 'typical' , 'maximium', 'minimum'];
   END_LOCAL;
   REPEAT i := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items);
     REPEAT j := 1 TO SIZEOF(input\Qualified_tolerance_characteristic.items[i]\Qualified_representation_item.qualifiers);
@@ -2961,8 +2556,8 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7885 - ISO/TS 10303-1805 Characterized representation - EXPRESS ARM
+   $Id: arm.exp,v 1.5 2012/10/11 05:49:06 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7885 - ISO/CD-TS - 10303-1805 Characterized representation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7322
 *)
 
@@ -3398,7 +2993,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Colour_arm
 (*
-   $Id: arm.exp,v 1.49 2016/09/27 11:37:12 lothartklein Exp $
+   $Id: arm.exp,v 1.40 2012/10/11 05:49:04 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7963 - ISO/TS 10303-1657 Component feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7400
 *)
@@ -3413,15 +3008,13 @@ SCHEMA Component_feature_arm;
 	END_TYPE; 
 
   ENTITY Component_feature
-    ABSTRACT SUPERTYPE  OF ( ONEOF(Component_feature_group_identification, Component_terminal))
-    SUBTYPE OF (Shape_element);
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Definitional_shape_element);
       definition           : OPTIONAL General_part_feature;
-      SELF\Shape_element.associated_definition : Assembly_component;
-    DERIVE
-      SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
+      SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
     UNIQUE
-      UR1 : definition, associated_definition;
-      UR2 : SELF\Shape_element.element_name, associated_definition;
+      UR1 : definition,associated_component;
+      UR2 : SELF\Shape_element.element_name, associated_component;
   END_ENTITY;
 
   ENTITY Component_feature_joint
@@ -3429,24 +3022,12 @@ SCHEMA Component_feature_arm;
   SUBTYPE OF (Component_feature_relationship, Shape_element);
     SELF\Component_feature_relationship.relating RENAMED feature_1 : Component_feature;
     SELF\Component_feature_relationship.related  RENAMED feature_2 : Component_feature;
-    SELF\Shape_element.associated_definition : Assembly_definition;
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Item_shape;
     WHERE
       WR1 : feature_1 <> feature_2;
-      -- WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
-      -- WR3 : associated_definition :=: feature_1\Shape_element.associated_definition;      
-      -- WR4 : associated_definition :=: feature_2\Shape_element.associated_definition;   
-      
-      WR2 : associated_definition IN 
-        feature_1\Shape_element.associated_definition\Assembly_component.assemblies;    
-      WR3 : associated_definition IN 
-        feature_2\Shape_element.associated_definition\Assembly_component.assemblies;     
-  END_ENTITY;
-
-  ENTITY Component_feature_group_identification
-    SUBTYPE OF (Component_feature);
-    elements : SET[0:?] OF Component_feature;
-    WHERE
-      WR1: SIZEOF(QUERY(e <* elements | SELF\Shape_element.associated_definition :<>: e\Shape_element.associated_definition)) = 0;
+      WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
+      WR3 : associated_definition :=: feature_1\Shape_element.containing_shape;      
+      WR4 : associated_definition :=: feature_2\Shape_element.containing_shape;      
   END_ENTITY;
 
   ENTITY Component_feature_make_from_relationship
@@ -3469,14 +3050,6 @@ SCHEMA Component_feature_arm;
       local_swappable  : OPTIONAL BOOLEAN;
       global_swappable : OPTIONAL BOOLEAN;
       swap_code        : OPTIONAL STRING;
-  END_ENTITY;
-  
-  ENTITY Derived_component_terminal
-    SUBTYPE OF (Component_terminal);
-    SELF\Component_feature.definition renamed derived_from : General_part_feature; 
-  WHERE
-    WR1: NOT EXISTS(SELF\Component_feature.definition);
-    WR2: SELF\Shape_element.associated_definition.derived_from = derived_from\Shape_element.associated_definition; 
   END_ENTITY;
 
 END_SCHEMA;
@@ -3891,132 +3464,6 @@ USE FROM Non_manifold_surface_arm; -- ISO/CD-TS 10303-1324
   END_ENTITY;
 
 END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.29 2009/12/23 13:26:11 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N6956 - ISO/TS 10303-1756 Conductivity material aspects - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N4215
-*)
-
-SCHEMA Conductivity_material_aspects_arm;
-
-	USE FROM Classification_assignment_arm;	-- ISO/TS 10303-1114
-	USE FROM Generic_material_aspects_arm;	-- ISO/TS 10303-1681
-	USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
-	REFERENCE FROM Support_resource_arm(bag_to_set); 
-
-	TYPE cma_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
-		(Material_identification_with_conductivity_classification);
-	END_TYPE;
-
-	TYPE cma_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-		(Part_view_definition);
-	END_TYPE;
-
-	SUBTYPE_CONSTRAINT cma_class_subtypes FOR Class; 
-	    (ONEOF (Conductivity_material_property_class,
-		 Relative_permeability_material_property_class,
-		 Relative_optical_insertion_loss_material_property_class,
-		 Relative_permittivity_material_property_class));
-	END_SUBTYPE_CONSTRAINT;
-
-	
- ENTITY Conductivity_material_property_class
-	ABSTRACT SUPERTYPE OF (ONEOF (Material_electrical_conductivity_class, 
-		Material_thermal_conductivity_class))
-  SUBTYPE OF (Class);
-  WHERE
-	WR1: SELF\Class.name IN 
-       ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive'];
-    WR2: NOT EXISTS(SELF\Class.description);
- END_ENTITY;
-
- ENTITY Relative_permeability_material_property_class
-  SUBTYPE OF (Class);
-  WHERE
-	WR1: SELF\Class.name IN 
-       ['free space permeabilty', 'low permeability', 'medium permeability', 'highly permeable'];
-    WR2: NOT EXISTS(SELF\Class.description);
- END_ENTITY;
-
- ENTITY Relative_optical_insertion_loss_material_property_class
-  SUBTYPE OF (Class);
-  WHERE
-	WR1: SELF\Class.name IN 
-       ['vacuum', 'very low loss', 'low loss', 'medium loss', 'high loss'];
-    WR2: NOT EXISTS(SELF\Class.description);
- END_ENTITY;
-
- ENTITY Relative_permittivity_material_property_class
-  SUBTYPE OF (Class);
-  WHERE
-	WR1: SELF\Class.name IN 
-       ['vacuum permittivity', 'low permittivity', 'medium permittivity', 'high permittivity'];
-    WR2: NOT EXISTS(SELF\Class.description);
- END_ENTITY;
-
-ENTITY Material_electrical_conductivity_class
-  SUBTYPE OF (Conductivity_material_property_class);
-END_ENTITY;
-
-ENTITY Material_thermal_conductivity_class
-  SUBTYPE OF (Conductivity_material_property_class);
-END_ENTITY;
-
- ENTITY Material_identification_with_conductivity_classification
-  SUBTYPE OF (Material_identification);
-  DERIVE
-    electrical_conductivity_classification : STRING := get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS');
-    magnetic_permeability_classification   : STRING := get_cond_class(SELF,'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS');
-    optical_insertion_loss_classification  : STRING := get_cond_class(SELF,'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS');
-    thermal_conductivity_classification    : STRING := get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS');
-    dielectric_permittivity_classification : STRING := get_cond_class(SELF,'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS');
-  WHERE 	
-  	WR1: (SIZEOF(QUERY(ca <* USEDIN(SELF,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) = 1);
-  	WR2: (SIZEOF(QUERY(ca <* USEDIN(SELF,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
-  	WR3: (SIZEOF(QUERY(ca <* USEDIN(SELF,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
-  	WR4: (SIZEOF(QUERY(ca <* USEDIN(SELF,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
-  	WR5: (SIZEOF(QUERY(ca <* USEDIN(SELF,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
- END_ENTITY;
- 
- FUNCTION get_cond_class(input1 : Material_identification_with_conductivity_classification;
-                         input2 : STRING) : STRING;
- LOCAL
-  car : SET OF Classification_assignment := [];
- END_LOCAL;
-  car := QUERY(ca <* bag_to_set(USEDIN(input1,
-	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')) |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	input2 IN TYPEOF (ca.assigned_class)));
- IF SIZEOF(car) = 1
-  THEN
-    RETURN(car[1].assigned_class\class.name);
-  ELSE
-    RETURN('?');
- END_IF;
- END_FUNCTION;
- 
- END_SCHEMA;
 (*
  $Id: arm.exp,v 1.17 2009/12/18 15:07:47 robbod Exp $
  ISO TC184/SC4/WG12 N6117 - ISO/TS 10303-1058 Configuration effectivity - EXPRESS ARM
@@ -4862,9 +4309,9 @@ END_TYPE;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.40 2015/09/24 09:59:50 kevletu Exp $
-   ISO TC184/SC4/WG12 N8675 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7987
+   $Id: arm.exp,v 1.36 2012/10/11 05:49:05 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7987 - ISO/TS 10303-1628 Design product data management - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7421
 *)
 
 SCHEMA Design_product_data_management_arm;
@@ -4882,9 +4329,8 @@ USE FROM Specification_control_arm; -- ISO/CD-TS 10303-1112
 USE FROM Test_select_product_arm;	-- ISO/TS 10303-1757
 USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
 USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
-USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
 	
-  TYPE design_activity_method_item = SELECT BASED_ON activity_method_item WITH 
+  TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
     (Activity, 
      Activity_method, 
      Activity_property, 
@@ -4912,7 +4358,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
     Product_configuration);
   END_TYPE;
 
-  TYPE design_pdm_approval_item = SELECT BASED_ON approval_item WITH 
+  TYPE design_pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
     (Certification,
      Document_definition,
      Effectivity,
@@ -4928,23 +4374,23 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Work_order);
   END_TYPE;
 
-  TYPE design_pdm_affected_item_select = SELECT BASED_ON affected_item_select WITH 
+  TYPE design_pdm_affected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_affected_item_select WITH 
     (Work_request);
   END_TYPE; 
 
-  TYPE design_pdm_assigned_name_select = SELECT BASED_ON assigned_name_select WITH 
+  TYPE design_pdm_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH 
     (Group,
      Group_relationship,
      Product,
      Product_view_definition);
   END_TYPE; 
 
-  TYPE design_pdm_certification_item = SELECT BASED_ON certification_item WITH 
+  TYPE design_pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_certification_item WITH 
     (Alternate_product_relationship,
      Product_version);
   END_TYPE; 
 
-  TYPE design_pdm_classification_item = SELECT BASED_ON classification_item WITH 
+  TYPE design_pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
     (classified_element_select,
      Characterizable_object,
      Information_right, 
@@ -4952,7 +4398,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Information_usage_right_relationship);
   END_TYPE; 
 
-  TYPE design_pdm_classified_attribute_select = SELECT BASED_ON classified_attribute_select WITH (
+  TYPE design_pdm_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH (
 	Activity,
 	Activity_method,
 	Activity_method_assignment,
@@ -5019,13 +4465,13 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
 	Work_request_status);
   END_TYPE;
 
-  TYPE design_pdm_contract_item = SELECT BASED_ON contract_item WITH 
+  TYPE design_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
     (organization_or_person_in_organization_select,
      Product_version,
      Work_order);
   END_TYPE;
 
-  TYPE design_pdm_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH 
+  TYPE design_pdm_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_or_date_time_item WITH 
     (Contract,
      Document_definition,
      Product_view_definition,
@@ -5033,7 +4479,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Work_order);
   END_TYPE; 
 
-  TYPE design_pdm_documented_element_select = SELECT BASED_ON documented_element_select WITH 
+  TYPE design_pdm_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_documented_element_select WITH 
     (Class_with_attributes,
      External_item_identification,
      Information_right, 
@@ -5052,7 +4498,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Name_assignment);
   END_TYPE; 
 
-  TYPE design_pdm_identification_item = SELECT BASED_ON identification_item WITH 
+  TYPE design_pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_identification_item WITH 
     (Group,
      Group_relationship,
      Information_right, 
@@ -5066,70 +4512,20 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Product_version);
   END_TYPE; 
 
-  TYPE design_pdm_information_usage_right_item = SELECT BASED_ON information_usage_right_item WITH 
-    (Alternate_part_relationship, 
---    Analysis_assignment, 
-    Applied_information_usage_right, 
-    Assembly_component_relationship, 
-    Assembly_relationship_substitution, 
---    Attachment_slot_definition, 
---    Attachment_slot_design_to_planned, 
---    Attachment_slot_design_to_realized, 
---    Attachment_slot_on_product, 
---    Attachment_slot_version, 
-    Breakdown, 
-    Breakdown_element, 
-    Breakdown_element_realization, 
-    Breakdown_element_usage, 
-    Breakdown_version, 
-    Certification, 
-    Certification_assignment, 
---    Description_text_assignment, 
-    Digital_document_definition, 
-    Digital_file, 
-    Document, 
-    Document_definition_relationship, 
-    Document_version, 
---    Evidence, 
-    File_relationship, 
-    Hardcopy, 
---    Interface_connection, 
---    Interface_connector, 
---    Interface_connector_definition, 
---    Interface_connector_occurrence, 
---    Interface_connector_version, 
---    Interface_definition_connection, 
---    Interface_definition_for, 
---    Interface_specification, 
---    Interface_specification_definition, 
---    Interface_specification_version, 
---    Message, 
-    Part, 
-    Part_version, 
-    Part_view_definition, 
-    Physical_document_definition, 
---    Product_as_individual, 
---    Product_as_individual_view, 
---    Product_as_planned, 
---    Product_as_realized, 
-    Product_configuration, 
-    Requirement, 
-    Requirement_assignment, 
-    Requirement_version, 
-    Requirement_view_definition, 
-    Security_classification, 
-    Security_classification_assignment, 
-    Supplied_part_relationship
---    Task_element, 
---    Task_method, 
---    Task_method_version, 
---    Task_objective, 
---    Validation, 
---    Verification
-  );
+  TYPE design_pdm_information_usage_right_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON information_usage_right_item WITH 
+    (identification_item, 
+     requirement_assignment_item, 
+     documented_element_select,  
+     classification_item, 
+     certification_item, 
+     Characterizable_object,
+     Organization, 
+     Person_in_organization,
+     Product_version,
+     Work_order);
   END_TYPE; 
 
-  TYPE design_pdm_material_item_select = SELECT BASED_ON material_item_select WITH
+  TYPE design_pdm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
     (Part_view_definition);
   END_TYPE;
 
@@ -5142,7 +4538,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      Work_order);
   END_TYPE; 
 
-  TYPE design_pdm_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH 
+  TYPE design_pdm_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Product_configuration,
      Product_class,
      Product_view_definition,
@@ -5151,7 +4547,7 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      View_definition_relationship);
   END_TYPE; 
 
-  TYPE design_pdm_requirement_source_item = SELECT BASED_ON requirement_source_item WITH 
+  TYPE design_pdm_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH 
     (Group,
      Group_relationship,
      Product_view_definition,
@@ -5162,14 +4558,14 @@ USE FROM Manufacturing_configuration_effectivity_arm; -- ISO/TS 10303-1147
      View_definition_relationship);
   END_TYPE; 
 
-  TYPE design_pdm_security_classification_item = SELECT BASED_ON security_classification_item WITH 
+  TYPE design_pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_security_classification_item WITH 
     (Document_definition,
      Product_version,
      Product_view_definition,
      Promissory_usage);
   END_TYPE; 
 
-  TYPE design_pdm_string_select = SELECT BASED_ON string_select WITH 
+  TYPE design_pdm_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select WITH 
     (Information_right, 
      Information_usage_right,
      Information_usage_right_relationship);
@@ -6014,9 +5410,9 @@ USE FROM Curve_appearance_arm; -- ISO/CD-TS 10303-1003
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.9 2015/09/24 09:59:51 kevletu Exp $
-   ISO TC184/SC4/WG12 N8682 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7675
+   $Id: arm.exp,v 1.7 2012/10/06 20:09:56 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7675 - ISO/TS 10303-1312 Draughting element specialisations - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7074
 *)
 
 SCHEMA Draughting_element_specialisations_arm;
@@ -6084,7 +5480,7 @@ USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
   END_ENTITY;    
 
   ENTITY Dimension_sequence_pair; 
-    alignment  : chained_or_parallel;
+    allignment  : chained_or_parallel;
 	predecessor : Dimension_callout;
 	successor   : Dimension_callout;
   END_ENTITY;
@@ -6224,46 +5620,6 @@ USE FROM Presentation_hierarchy_arm;
       Camera_image_2d_with_scale);
   END_SUBTYPE_CONSTRAINT;
 
-END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.8 2016/08/03 14:57:45 kevletu Exp $
-    ISO TC184/SC4/WG12 N9198 - ISO/TS 10303-1830 edge_based_topological_representation_with_length - EXPRESS ARM*)
-
-SCHEMA Edge_based_topological_representation_with_length_arm;
-
-USE FROM Elemental_topology_arm; -- ISO/TS 10303-1005
-
-TYPE connected_edge_with_length_set_items = SELECT (
-  Connected_edge_set,
-  Path,
-  Vertex_on_edge);
-END_TYPE;
-
-ENTITY Edge_with_length
-  SUBTYPE OF (Edge);
-  edge_length : positive_length_measure ;
-END_ENTITY;
-
-ENTITY Vertex_on_edge
-  SUBTYPE OF (Vertex);
-  parent_edge : Edge_with_length;
-  distance_from_start: positive_length_measure ;
-WHERE
-    WR1: distance_from_start < parent_edge.edge_length;
-END_ENTITY;
-
-ENTITY Connected_edge_with_length_set_representation
-  SUBTYPE OF (Representation);
-  SELF\Representation.items : SET [1:?] OF connected_edge_with_length_set_items;
-WHERE
-  WR1: SIZEOF(QUERY ( it <* SELF.items | 'ELEMENTAL_TOPOLOGY_ARM.CONNECTED_EDGE_SET' IN  TYPEOF(it)) ) = 1; 
-END_ENTITY;
-  
-ENTITY Connected_edge_sub_set
-	SUBTYPE OF (Connected_edge_set);
-	parent_edge_set : Connected_edge_set;
-END_ENTITY;
- 
 END_SCHEMA;
 (*
  $Id: arm.exp,v 1.8 2004/10/21 17:28:28 darla Exp $
@@ -7845,67 +7201,6 @@ SCHEMA Externally_conditioned_data_quality_inspection_result_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.5 2016/08/02 09:03:13 kevletu Exp $
-   N - ISO/TS 10303-1827 extruded_structure_cross_section - EXPRESS ARM*)
-
-SCHEMA Extruded_structure_cross_section_arm;
-
-USE FROM Component_feature_arm; -- ISO/TS 10303-1657
-USE FROM Physical_unit_usage_view_arm; -- ISO/TS 10303-1732
-
-TYPE twist_direction_enum = ENUMERATION OF (
-  clockwise, 
-  counter_clockwise); 
-END_TYPE;
-
-TYPE cross_sectional_constituent_element = SELECT (
-  Cross_sectional_outer_component_feature,
-  Cross_sectional_group_shape_element);
-END_TYPE;
-
-ENTITY Cross_sectional_part_shape_element
-  ABSTRACT SUPERTYPE OF (Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element)
-  SUBTYPE OF (Part_shape_element); -- or General_part_feature
-  max_cross_section_diameter : OPTIONAL Length_data_element;
-  min_cross_section_diameter : OPTIONAL Length_data_element;
-  minimum_bend_radius : OPTIONAL Length_data_element;
-END_ENTITY;
-
-ENTITY Cross_sectional_outer_part_shape_element
-  SUBTYPE OF (Cross_sectional_part_shape_element, General_part_feature); 
-UNIQUE
-  UR1: SELF\Shape_element.associated_definition;
-END_ENTITY;
-
-ENTITY Cross_sectional_outer_component_feature
-  SUBTYPE OF (Component_feature);
-  SELF\Component_feature.definition : Cross_sectional_outer_part_shape_element;
-END_ENTITY;
-
-ENTITY Cross_sectional_group_shape_element
-  SUPERTYPE OF ( ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element) )
-  SUBTYPE OF (Cross_sectional_part_shape_element); 
-  items : SET[1:?] OF cross_sectional_constituent_element; 
-END_ENTITY;
-
-ENTITY Cross_sectional_group_shape_element_with_tubular_cover 
-  SUBTYPE OF (Cross_sectional_group_shape_element);
-  cover : Component_feature; -- of the covering component;
-END_ENTITY;
-
-ENTITY Cross_sectional_group_shape_element_with_lacing
-  SUBTYPE OF (Cross_sectional_group_shape_element);
-  lacing_material : OPTIONAL Product_occurrence;
-END_ENTITY;
-
-ENTITY Twisted_cross_sectional_group_shape_element
-  SUBTYPE OF (Cross_sectional_group_shape_element);
-  twist_period : OPTIONAL Length_data_element;
-  twist_direction : OPTIONAL twist_direction_enum;
-END_ENTITY;
-
-END_SCHEMA;
-(*
  $Id: arm.exp,v 1.8 2004/10/21 18:05:39 darla Exp $
  ISO TC184/SC4/WG12 N1285 - ISO/TS 10303-1512 Faceted boundary representation - EXPRESS ARM
 *)
@@ -8049,8 +7344,8 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.5 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7891 - ISO/TS 10303-1806 Form feature in panel - EXPRESS ARM
+   $Id: arm.exp,v 1.4 2012/10/11 19:09:51 thomasrthurman Exp $
+   ISO TC184/SC4/WG12 N7891 - ISO/CD-TS - 10303-1806 Form feature in panel - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7328
 *)
 SCHEMA Form_feature_in_panel_arm;
@@ -8366,155 +7661,6 @@ END_ENTITY;
 
 END_SCHEMA;  -- Foundation_representation_arm
 (*
-   $Id: arm.exp,v 1.25 2015/09/24 09:59:56 kevletu Exp $
-   ISO TC184/SC4/WG12 N9049 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6381
-*)
-
-SCHEMA Functional_assignment_to_part_arm;
-
-	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
-	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
-	USE FROM Physical_connectivity_layout_topology_requirement_arm;
-
-	TYPE fatp_groupable_item = SELECT BASED_ON groupable_item WITH 
-	   (Part_connected_terminals_definition);
-	END_TYPE; 
-
-	TYPE fatp_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH 
-	 (Part_connected_terminals_element,
-   	  Part_connected_terminals_definition);
-    END_TYPE; 
-
-	TYPE fatp_termination_or_junction = SELECT
-	(Part_terminal,
-	 Part_connected_terminals_topological_junction);
-   END_TYPE;
-
-	TYPE fatp_part_connected_terminals_definition_domain_enumeration = EXTENSIBLE ENUMERATION OF
-		(electrical,
-		 thermal,
-		 optical,
-		 magnetic);
-    END_TYPE;
-     	
-  TYPE interface_or_join_terminal_enumeration = ENUMERATION OF
-    (join_terminal, interface_terminal);
-  END_TYPE;
-  
-  TYPE terminal_joint_type = EXTENSIBLE ENUMERATION;
-  END_TYPE;
-
-  ENTITY Functional_usage_view_to_part_terminal_assignment;
-      physical_usage_view_terminal   : Part_terminal;
-      functional_usage_view_terminal : Scalar_terminal_definition;
-    UNIQUE
-      UR1 : functional_usage_view_terminal, physical_usage_view_terminal;
-  END_ENTITY;
-
-  ENTITY Part_connected_terminals_definition;
-      name                  : STRING;   
-      associated_definition : Part_view_definition;
-      connected_terminals   : SET[2:?] OF Part_terminal;
---    INVERSE
---      domain : SET [0:1] OF Part_connected_terminals_definition_domain for associated_definition;
-    UNIQUE
-      UR1 : name, associated_definition;
-    WHERE
-      WR1 : SIZEOF(QUERY(ct <* connected_terminals | NOT (associated_definition = ct\Shape_element.associated_definition))) = 0;
-      WR2 : SIZEOF(QUERY(ct <* connected_terminals | NOT (connected_terminals[1].domain_type = ct.domain_type))) = 0;
-  END_ENTITY;
-
-(*
-  ENTITY Part_connected_terminals_definition_domain;
-      domain_type : fatp_part_connected_terminals_definition_domain_enumeration;
-      associated_definition : Part_connected_terminals_definition;
-  END_ENTITY;
-*)
-
-  ENTITY Part_connected_terminals_element;
-    name                 : STRING; 
-    start_terminus       : fatp_termination_or_junction;
-    end_terminus         : fatp_termination_or_junction;
-    connectivity_context : Part_connected_terminals_structure_definition;
-  UNIQUE
-    UR1 : name, connectivity_context;
-  WHERE
-    WR1 : start_terminus <> end_terminus;
- END_ENTITY;
-
- ENTITY Part_connected_terminals_layout_topology_requirement_assignment
-   SUBTYPE OF(Requirement_assignment);
-   SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
-   SELF\Requirement_assignment.assigned_to          : Part_connected_terminals_definition;
- END_ENTITY;
-
- ENTITY Part_connected_terminals_structure_definition
- SUBTYPE OF (Part_connected_terminals_definition);
- DERIVE
-   structural_terminal_nodes : SET OF Part_terminal := fatp_get_pt(structural_element);
-   structural_junction_nodes : SET OF Part_connected_terminals_topological_junction := fatp_get_tj(structural_element);
-   tree_structure : LOGICAL := ((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1));
- INVERSE
-   structural_element : SET[1:?] OF Part_connected_terminals_element FOR connectivity_context;
- WHERE
-   WR1 : SIZEOF(QUERY(stn <* structural_terminal_nodes |
-				NOT(stn IN SELF\Part_connected_terminals_definition.connected_terminals)
-				)) = 0;
-   WR2 : SIZEOF(structural_terminal_nodes) = SIZEOF(SELF\Part_connected_terminals_definition.connected_terminals);
-END_ENTITY;
-
-ENTITY Part_connected_terminals_topological_junction;
-    name  : STRING;   
-    scope : Part_connected_terminals_structure_definition;
-  UNIQUE
-    UR1 : name, scope;
-END_ENTITY; 
-
-  ENTITY Part_terminal
-    SUBTYPE OF (Part_feature);
-      domain_type : OPTIONAL fatp_part_connected_terminals_definition_domain_enumeration;
-      interface_or_join_terminal : interface_or_join_terminal_enumeration;
-      joint_type : OPTIONAL SET[1:?] OF terminal_joint_type;
-    INVERSE
-      connection_requirement         : SET[0:1] OF Part_connected_terminals_definition FOR connected_terminals;
-      functional_usage_view_terminal : SET[0:1] OF Functional_usage_view_to_part_terminal_assignment FOR physical_usage_view_terminal;
-  END_ENTITY;
-
-  FUNCTION fatp_get_pt(input : SET OF Part_connected_terminals_element) : SET OF Part_terminal;
-  LOCAL
-   pct : SET OF Part_terminal := [];
-	i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(input[i].start_terminus)) THEN
-   pct := pct + input[i].start_terminus;
-   END_IF;
-   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(input[i].end_terminus)) THEN
-   pct := pct + input[i].end_terminus;
-   END_IF;
-  END_REPEAT;
-  RETURN(pct);
-  END_FUNCTION;
-
-  FUNCTION fatp_get_tj(input : SET OF Part_connected_terminals_element) : SET OF Part_connected_terminals_topological_junction;
-  LOCAL
-   tj : SET OF Part_connected_terminals_topological_junction := [];
-	i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_CONNECTED_TERMINALS_TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].start_terminus)) THEN
-   tj := tj + input[i].start_terminus;
-   END_IF;
-   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_CONNECTED_TERMINALS_TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus)) THEN
-   tj := tj + input[i].end_terminus;
-   END_IF;
-  END_REPEAT;
-  RETURN(tj);
-  END_FUNCTION;
-  
-END_SCHEMA;
-(*
  $Id: arm.exp,v 1.11 2008/09/12 12:36:40 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5395 - ISO/TS 10303-1216 Functional breakdown - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4937
@@ -8561,285 +7707,6 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 
 END_SCHEMA;
 
-(*
-   $Id: arm.exp,v 1.16 2015/09/24 09:59:57 kevletu Exp $
-   ISO TC184/SC4/WG12 N9046 - ISO/TS 10303-1679 Functional specification - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6384
-*)
-
-SCHEMA Functional_specification_arm;
-
-	USE FROM Signal_arm;	-- ISO/TS 10303-1745
-	USE FROM Network_functional_design_view_arm;	-- ISO/TS 10303-1704	
-
-	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
-
-	TYPE fs_documented_element_select = SELECT BASED_ON documented_element_select WITH 
-	   (Signal_specification);
-	END_TYPE; 
-
- 	TYPE fs_external_identification_item = SELECT BASED_ON external_identification_item WITH  
-		(Functional_specification);
-	END_TYPE;
-
-    TYPE fs_node_or_terminal = SELECT
-        (Functional_unit_network_node_definition,
-         Functional_unit_terminal);
-    END_TYPE;
-
-  ENTITY Functional_specification;
-      associated_definition          	: Functional_specification_definition;
-      reference_signal               	: SET [1:?] OF Signal_specification;
-      characterizing_functional_unit 	: Functional_unit;
-      characterizing_signal          	: SET [1:?] OF Signal_specification;
-    INVERSE
-      characteristic_category		    : External_source_identification FOR item;
-    WHERE
-      WR1 : characterizing_functional_unit.composed_network = associated_definition;
-  END_ENTITY;
-
-  ENTITY Functional_specification_definition
-    SUBTYPE OF (Functional_unit_network_definition);
-    INVERSE
-      composing_specification : SET[1:?] OF functional_specification FOR associated_definition;
-  END_ENTITY;
-
-  ENTITY Signal_specification;
-      signal_access_mechanism      : fs_node_or_terminal;
-      reference_access_mechanism   : OPTIONAL fs_node_or_terminal;
-      minimum_characteristic       : OPTIONAL Signal_property;
-      maximum_characteristic       : OPTIONAL Signal_property;
-      characterization_network     : Functional_unit_network_definition;
-      nominal_characteristic       : OPTIONAL Signal_property;
-	DERIVE
-	  measurement_condition: SET[1:1] OF Document_definition :=
-  			get_document_definition(SELF, 'measurement condition', 
-  			'SPECIFICATION_DOCUMENT_ARM.TEST_SPECIFICATION');
-   WHERE
-    WR1 : EXISTS (minimum_characteristic) OR
-          EXISTS (maximum_characteristic) OR
-          EXISTS (nominal_characteristic);
-  END_ENTITY;
-
-END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.31 2016/09/27 12:29:02 lothartklein Exp $
-   ISO TC184/SC4/WG12 N9043 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7717
-*)
-
-SCHEMA Functional_usage_view_arm;
-
-USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
-USE FROM Group_arm; -- ISO/TS 10303-1113
-USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
- 
-REFERENCE FROM Support_resource_arm(bag_to_set); 
-
-  
-  TYPE fuuv_am_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_port_assignment_select WITH  
-	(Functional_unit_usage_view_terminal_definition);
-  END_TYPE;
-
-  TYPE fuv_classification_item = SELECT BASED_ON classification_item WITH
-     (Functional_unit_usage_view_terminal_definition);
-  END_TYPE;
-
-  TYPE fuv_groupable_item = SELECT BASED_ON groupable_item WITH (
-          Scalar_terminal_definition);
-  END_TYPE;
-  
-  ENTITY Equivalent_functional_terminals_assignment;
-      name                 : STRING;   
-      equivalent_terminals : SET[2:?] OF Functional_unit_usage_view_terminal_definition;
-  END_ENTITY;
- 
-  ENTITY Equivalent_functional_unit_definition_assignment;
-      name                                   : STRING;   
-      equivalent_functional_unit_definitions : SET[2:?] OF Functional_unit_definition;
-  END_ENTITY;
-
-  ENTITY Functional_product
-  	SUBTYPE OF (Information_product);
-    UNIQUE 
-      UR1: SELF\Product.id;
-  END_ENTITY;
-  
-  ENTITY Functional_terminal_group
-  	SUBTYPE OF (Group);
-      SELF\Group.id RENAMED group_type : STRING;
-      SELF\Group.elements : SET [0:?] OF Scalar_terminal_definition;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
-
-  ENTITY Functional_unit_definition
-    ABSTRACT SUPERTYPE 
-    SUBTYPE OF (Information_definition);
-      SELF\Product_view_definition.defined_version : Functional_version;
-  END_ENTITY;
-
-	ENTITY Functional_unit_make_from_relationship
-		SUBTYPE OF (View_definition_relationship);
-		  SELF\View_definition_relationship.relating_view : Functional_unit_usage_view;		
-		  SELF\View_definition_relationship.related_view 	: Functional_unit_usage_view;
-		WHERE
-          WR1 : acyclic_functional_unit_make_from_relationship (SELF, [related_view], 
-            'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP');
-	END_ENTITY;
-
-  ENTITY Functional_unit_usage_view
-    SUBTYPE OF (Functional_unit_definition);
-    DERIVE 
-      analytical_model_application_reference : SET[0:?] OF Analytical_model_application := get_ama(access_mechanism[1]);
-    INVERSE
-      access_mechanism : SET[0:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
-    WHERE
-      WR1: SIZEOF(analytical_model_application_reference) <= 1;
-      WR2: NOT(SIZEOF(analytical_model_application_reference) = 1) OR
-        (SIZEOF(QUERY( am <* access_mechanism |
-           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR
-              (SIZEOF(QUERY( ampa <* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |
-                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) 
-                 )) = 0))
-        )) = 0);
-  END_ENTITY;
-
-  ENTITY Functional_unit_usage_view_terminal_definition
-    SUPERTYPE OF (Scalar_terminal_definition);
-      associated_functional_unit_definition : Functional_unit_usage_view;
-      signal_name                           : STRING; 
-    UNIQUE
-      UR1 : signal_name,
- associated_functional_unit_definition;
-  END_ENTITY;
-
-  ENTITY Functional_unit_usage_view_terminal_definition_make_from_relationship;
-      associated_make_from : Functional_unit_make_from_relationship;
-      reusable_feature     : Functional_unit_usage_view_terminal_definition;
-      resultant_feature    : Functional_unit_usage_view_terminal_definition;
-    UNIQUE
-      UR1 : reusable_feature,
- resultant_feature;
-    WHERE
-      WR1 : reusable_feature :<>: resultant_feature;
-      WR2 : reusable_feature.associated_functional_unit_definition :<>: resultant_feature.associated_functional_unit_definition;
-      WR3 : reusable_feature.associated_functional_unit_definition :=: 
-      		associated_make_from\Functional_unit_make_from_relationship.relating_view;
-      WR4 : resultant_feature.associated_functional_unit_definition :=: 
-      		associated_make_from\Functional_unit_make_from_relationship.related_view;
-      WR5 : acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship
-        (SELF, [resultant_feature], 
-        'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP');
-  END_ENTITY;
-
-  ENTITY Functional_version
-  	SUBTYPE OF (Information_version);
-	  SELF\Product_version.of_product : Functional_product;
-  END_ENTITY;
-
-  ENTITY Scalar_terminal_definition
-    SUBTYPE OF (Functional_unit_usage_view_terminal_definition);
-  END_ENTITY;
-
-  ENTITY Scalar_terminal_definition_link;
-      precedent_terminal_definition  : Scalar_terminal_definition;
-      subsequent_terminal_definition : Scalar_terminal_definition;
-    UNIQUE
-      UR1 : precedent_terminal_definition,
- subsequent_terminal_definition;
-    WHERE
-      WR1 : precedent_terminal_definition :<>: subsequent_terminal_definition;
-      WR2 : acyclic_scalar_terminal_definition_link (SELF,
-        [subsequent_terminal_definition],
-        'FUNCTIONAL_USAGE_VIEW_ARM.SCALAR_TERMINAL_DEFINITION_LINK');
-  END_ENTITY;
-
-  FUNCTION acyclic_functional_unit_make_from_relationship
-    (relation : Functional_unit_make_from_relationship; relatives : SET[1:?] OF 
-    Functional_unit_usage_view; specific_relation : STRING) : BOOLEAN; 
-  LOCAL
-     x : SET OF Functional_unit_make_from_relationship;
-  END_LOCAL;
-
-    IF relation.relating_view IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_view,
-      'FUNCTIONAL_USAGE_VIEW_ARM.' + 'FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP.' +
-      'RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_functional_unit_make_from_relationship(x[i], relatives +
-        relation.relating_view, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION; 
-
-  FUNCTION acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship
-     (relation : Functional_unit_usage_view_terminal_definition_make_from_relationship; 
-     relatives : SET[1:?] OF Functional_unit_usage_view_terminal_definition; 
-     specific_relation: STRING) : BOOLEAN; 
-     LOCAL
-       x : SET OF Functional_unit_usage_view_terminal_definition_make_from_relationship;
-     END_LOCAL;
-    
-     IF relation.reusable_feature IN relatives THEN
-       RETURN (FALSE);
-     END_IF;
-     x := QUERY(pd <* bag_to_set(USEDIN(relation.reusable_feature,
-      'FUNCTIONAL_USAGE_VIEW_ARM.' +
-      'FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP.' +
-      'RESULTANT_FEATURE')) | specific_relation IN TYPEOF(pd));
-     REPEAT i := 1 TO HIINDEX(x);
-       IF NOT
-         acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship(x[i],
-         relatives + relation.reusable_feature, specific_relation) THEN
-           RETURN (FALSE);
-       END_IF;
-     END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION; 
-
-  FUNCTION acyclic_scalar_terminal_definition_link
-    (relation : Scalar_terminal_definition_link; relatives : SET[1:?] OF
-    Scalar_terminal_definition; specific_relation : STRING) : BOOLEAN; 
-    LOCAL
-      x : SET OF Scalar_terminal_definition_link;
-    END_LOCAL;
-
-    IF relation.precedent_terminal_definition IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_terminal_definition,
-      'FUNCTIONAL_USAGE_VIEW_ARM.' + 'SCALAR_TERMINAL_DEFINITION_LINK.' +
-      'SUBSEQUENT_TERMINAL_DEFINITION')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_scalar_terminal_definition_link(x[i], relatives +
-        relation.precedent_terminal_definition, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-   RETURN (TRUE);
-  END_FUNCTION;
-
-  FUNCTION get_ama(
-	input : analytical_model_port_assignment_select) : SET OF Analytical_model_application;
-   LOCAL
-	ama : SET[0:?] OF Analytical_model_application := [];  --this gives us access to the information base
-	ampa : SET[0:?] OF Analytical_model_port_assignment :=[];
-   END_LOCAL;
-	ampa := bag_to_set(USEDIN (input, 'ANALYTICAL_MODEL_ARM.'+'ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'));
-	-- iterate over ampa
-	REPEAT i := 1 to SIZEOF(ampa) by 1;
-		ama := ama + ampa[i].associated_analytical_model_application;
-	END_REPEAT;
-
-	RETURN(ama);
-  END_FUNCTION;
-
-END_SCHEMA;
 (*
 $Id: arm.exp,v 1.9 2010/01/05 09:07:35 liutkuviene Exp $
 ISO TC184/SC4/WG12 N7067 - ISO/TS 10303-1007 General surface appearance - EXPRESS ARM
@@ -9078,19 +7945,14 @@ END_FUNCTION;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.22 2015/09/24 09:59:49 kevletu Exp $
-   ISO TC184/SC4/WG12 N9022 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7720
+   $Id: arm.exp,v 1.20 2012/10/06 20:09:56 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7720 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5401
 *)
 
 SCHEMA Generic_material_aspects_arm;
 
 USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
-USE FROM Product_view_definition_arm; -- ISO/TS 10303-1019
-
-TYPE gma_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
-  material_specification);
-END_TYPE;
 
   TYPE material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
@@ -10302,9 +9164,9 @@ END_ENTITY;
 
 END_SCHEMA;  -- Identification_assignment_arm
 (*  
-   $Id: arm.exp,v 1.19 2015/09/24 09:59:56 kevletu Exp $
-   ISO TC184/SC4/WG12 N9016 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8232
+   $Id: arm.exp,v 1.17 2012/10/30 08:36:01 lothartklein Exp $
+   ISO TC184/SC4/WG12 N8232 - ISO/TS 10303-1349 Incomplete data reference mechanism - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5407
 *)
 SCHEMA Incomplete_data_reference_mechanism_arm;
 
@@ -10314,7 +9176,7 @@ USE FROM Document_definition_arm;
 
 USE FROM Part_view_definition_arm;
 
-  TYPE idrm_marked_item = SELECT BASED_ON classification_item WITH
+  TYPE idrm_marked_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
     (Digital_document_definition,
      Digital_file,
      Part_view_definition);
@@ -10508,35 +9370,6 @@ END_ENTITY;
 END_SCHEMA;  -- Information_rights_arm
 
 (*
-   $Id: arm.exp,v 1.19 2015/09/24 09:59:56 kevletu Exp $
-   ISO TC184/SC4/WG12 N8998 - ISO/TS 10303-1691 Interface component - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8164
-*)
-
-SCHEMA Interface_component_arm;
-
-	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
-
-	SUBTYPE_CONSTRAINT physical_component_feature_subtypes FOR Physical_component_feature;
-		(ONEOF (Physical_component_terminal,
-	 	Physical_component_interface_terminal));
-	END_SUBTYPE_CONSTRAINT;
-
-  ENTITY Physical_component_interface_terminal
-    ABSTRACT SUPERTYPE 
-    SUBTYPE OF (Physical_component_feature);
-      SELF\Component_feature.associated_definition : Interface_component;
-  END_ENTITY;
-
-  ENTITY Interface_component
-    SUBTYPE OF (Physical_component, Single_instance);
-    INVERSE
-      access_mechanism : SET[1:?] OF physical_component_interface_terminal FOR associated_definition;
-  END_ENTITY;
-
-END_SCHEMA;
-
-(*
  $Id: arm.exp,v 1.27 2012/10/06 20:09:56 liutkuviene Exp $
  ISO TC184/SC4/WG12 N7732 - ISO/TS 10303-1345 Item definition structure - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N6911
@@ -10598,11 +9431,11 @@ USE FROM Product_structure_arm; -- ISO/TS 10303-1134
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.3 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7900 - ISO/TS 10303-1817 Kinematic analysis control and result - EXPRESS ARM
+   $Id: arm.exp,v 1.2 2012/10/11 05:49:04 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7900 - ISO/CD-TS - 10303-1817 Kinematic analysis control and result - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7337
 *)
-
+(* UNDER DEVELOPMENT *)
 SCHEMA Kinematic_analysis_control_and_result_arm;
 
 USE FROM Kinematic_motion_representation_arm;
@@ -11858,8 +10691,8 @@ END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.9 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7912 - ISO/TS 10303-1799 Kinematic topology - EXPRESS ARM
+   $Id: arm.exp,v 1.8 2013/10/18 00:08:37 thomasrthurman Exp $
+   ISO TC184/SC4/WG12 N7912 - ISO/CD-TS - 10303-1799 Kinematic topology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7349
 *)
 
@@ -12057,23 +10890,18 @@ SCHEMA Layered_2d_shape_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.24 2015/09/24 09:59:50 kevletu Exp $
-   ISO TC184/SC4/WG12 N8697 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7915
+   $Id: arm.exp,v 1.15 2012/10/11 05:49:04 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7915 - ISO/TS 10303-1814 - Machining features - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7352
 *)
 
 SCHEMA Machining_features_arm;
-
+         
 USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
-USE FROM Feature_and_connection_zone_arm;
-USE FROM Group_arm;
+USE FROM Feature_and_connection_zone_arm; 
 USE FROM Measure_representation_arm;
 USE FROM Specification_document_arm;
 USE FROM Value_with_unit_arm;
-
-TYPE mf_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
-  machining_feature);
-END_TYPE;
 
 TYPE angle_or_directed_taper = SELECT( Angle_taper, Directed_taper);
 END_TYPE;
@@ -12092,11 +10920,6 @@ END_TYPE;
 TYPE manufacturing_group_select = SELECT(Manufacturing_feature, Manufacturing_feature_group);
 END_TYPE;
 
-TYPE mf_groupable_item = SELECT BASED_ON groupable_item WITH (
-  Manufacturing_feature, 
-  Manufacturing_feature_group);
-END_TYPE;
-
 TYPE pocket_bottom_condition_select = SELECT (
   Pocket_bottom_condition,
   Through_pocket_bottom_condition);
@@ -12111,16 +10934,6 @@ END_TYPE;
 TYPE taper_select = SELECT( Angle_taper, Diameter_taper, Directed_taper);
 END_TYPE;
 
-  TYPE thread_hand = ENUMERATION OF
-    (left,
-     right);
-  END_TYPE;
-
-  TYPE thread_side = ENUMERATION OF
-    (internal,
-     external);
-  END_TYPE;
-
 TYPE volume_select = SELECT(Protrusion, Boss);
 END_TYPE;
 
@@ -12133,7 +10946,7 @@ ENTITY Bevel_gear
   SUBTYPE OF (Defined_gear);
   tip_angle : Numerical_item_with_unit;
   root_angle : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Blind_bottom_condition
   ABSTRACT SUPERTYPE OF (ONEOF(
@@ -12154,8 +10967,8 @@ ENTITY Boss
   boss_height : Linear_path_feature_component;
   fillet_radius : OPTIONAL Numerical_item_with_unit;
   top_condition : Boss_top_condition;
-END_ENTITY;
-
+END_ENTITY;  
+  
 ENTITY Boss_top_condition
   ABSTRACT SUPERTYPE OF (ONEOF (General_top_condition, Planar_top_condition));
   top_radius : OPTIONAL Numerical_item_with_unit;
@@ -12175,13 +10988,13 @@ END_ENTITY;
 ENTITY Catalogue_marking
   SUBTYPE OF (Marking_feature);
   documentation : Specification_definition;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Catalogue_thread
   SUBTYPE OF (Thread);
   documentation : Specification_definition;
   major_diameter : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Chamfer
   SUBTYPE OF (Transition_feature);
@@ -12194,7 +11007,7 @@ ENTITY Chamfer_angle
   SUBTYPE OF (Second_chamfer_parameter);
   angle_amount : Numerical_item_with_unit;
 END_ENTITY;
-
+  
 ENTITY Circular_boss
   SUBTYPE OF (Boss);
   circular_profile : Circular_closed_profile;
@@ -12204,75 +11017,75 @@ END_ENTITY;
 ENTITY Circular_closed_profile
   SUBTYPE OF (Closed_profile);
   diameter : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Circular_closed_shape_profile
   SUBTYPE OF (Shape_profile);
   closed_boundary : Circular_closed_profile;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Circular_cutout
   SUBTYPE OF (Cutout_feature);
   circular_boundary : Circular_closed_profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Circular_offset_pattern;
   index_number : INTEGER;
   angular_offset : Numerical_item_with_unit;
 INVERSE
   relocated_base_feature_for : SET [1:?] OF Circular_pattern FOR relocated_base_feature;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Circular_omit_pattern;
   omit_index : INTEGER;
 INVERSE
   missing_base_feature_for : SET [1:?] OF Circular_pattern FOR missing_base_feature;
-END_ENTITY;
+END_ENTITY;    
 
 ENTITY Circular_path_feature_component
   ABSTRACT SUPERTYPE OF (ONEOF (Complete_circular_path_feature_component, Partial_circular_path_feature_component))
   SUBTYPE OF (Path_feature_component);
   radius : length_measure;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Circular_pattern
-  SUBTYPE OF (Replicate_feature);
+  SUBTYPE OF (Replicate_feature); 
   relocated_base_feature : SET[0:?] of Circular_offset_pattern;
   missing_base_feature : SET[0:?] of Circular_omit_pattern;
   base_feature_rotation : Numerical_item_with_unit;
   number_of_features : INTEGER;
   base_feature_diameter : OPTIONAL Numerical_item_with_unit;
   angular_spacing : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Closed_profile
-  ABSTRACT SUPERTYPE OF ( ONEOF(
-    Circular_closed_profile,
-    General_closed_profile,
+  ABSTRACT SUPERTYPE OF ( ONEOF( 
+    Circular_closed_profile, 
+    General_closed_profile, 
     Ngon_profile,
     Rectangular_closed_profile))
   SUBTYPE OF (Profile);
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Closed_slot
   SUBTYPE OF (Slot);
   end_condition : Loop_slot_end_type;
-  cource_of_travel : end_type_select;
-END_ENTITY;
+  cource_of_travel : end_type_select;  
+END_ENTITY; 
 
 ENTITY Compound_feature
   SUBTYPE OF (Machining_feature);
   element : SET[2:?] OF Compound_feature_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Compound_feature_element;
   element : compound_feature_select;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Compound_feature_relationship;
-  predecessor : Compound_feature_element;
+  predecssor : Compound_feature_element;
   successor : Compound_feature_element;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Conical_hole_bottom
   SUBTYPE OF (Blind_bottom_condition);
@@ -12285,7 +11098,7 @@ ENTITY Constant_radius_fillet
   first_face_offset : OPTIONAL Numerical_item_with_unit;
   second_face_offset : OPTIONAL Numerical_item_with_unit;
   radius : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Constant_radius_edge_round
   SUBTYPE OF (Edge_round);
@@ -12296,25 +11109,25 @@ END_ENTITY;
 
 ENTITY Complete_circular_path_feature_component
   SUBTYPE OF (Circular_path_feature_component);
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Countersunk_hole
   SUBTYPE OF (Hole);
   constant_diameter_hole : Round_hole;
   tapered_hole : Round_hole;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Counterbore_hole
   SUBTYPE OF (Hole);
   smaller_hole : Round_hole;
   larger_hole : Round_hole;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Cutout_feature
   ABSTRACT SUPERTYPE OF (ONEOF( Circular_cutout, General_cutout))
   SUBTYPE OF (Pocket);
   SELF\Pocket.bottom_condition : Through_pocket_bottom_condition;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Defined_gear
   ABSTRACT SUPERTYPE OF (ONEOF (Bevel_gear, Helical_gear, Spur_gear))
@@ -12335,7 +11148,7 @@ ENTITY Defined_thread
   minor_diameter : OPTIONAL Numerical_item_with_unit;
   pitch_diameter : OPTIONAL Numerical_item_with_unit;
   major_diameter : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Diagonal_knurl
   SUBTYPE OF (Turned_knurl);
@@ -12353,8 +11166,8 @@ ENTITY Diamond_knurl
 END_ENTITY;
 
 ENTITY Direction_element
-  SUBTYPE OF (Shape_element);
-END_ENTITY;
+  SUBTYPE OF (Definitional_shape_element);
+END_ENTITY;  
 
 ENTITY Directed_taper;
   direction : Direction_element;
@@ -12369,23 +11182,21 @@ ENTITY Edge_round
 END_ENTITY;
 
 ENTITY Face_shape_element
-  SUBTYPE OF (Shape_element);
-DERIVE
-  SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
+  SUBTYPE OF (Definitional_shape_element);
 END_ENTITY;
 
 ENTITY Face_shape_element_relationship
   SUBTYPE OF (Shape_element_relationship);
   SELF\Shape_element_relationship.relating : Face_shape_element;
   SELF\Shape_element_relationship.related : Face_shape_element;
-END_ENTITY;
+END_ENTITY;   
 
 ENTITY Fillet
   SUBTYPE OF (Transition_feature);
   fillet_face : Face_shape_element;
   first_face_shape : Face_shape_element;
   second_face_shape : Face_shape_element;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY First_chamfer_offset;
   face_shape : Face_shape_element;
@@ -12417,19 +11228,17 @@ ENTITY Gear
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_gear, Defined_gear))
   SUBTYPE OF (Machining_feature);
   nominal_tooth_depth : Numerical_item_with_unit;
-  reference_pressure_angle : Numerical_item_with_unit;
+  reference_preassure_angle : Numerical_item_with_unit;
   profile_shift : Numerical_item_with_unit;
   number_of_teeth : Numerical_item_with_unit;
   face_width : Numerical_item_with_unit;
   tip_diameter : Numerical_item_with_unit;
   normal_attribute : Numerical_item_with_unit;
-  applied_shape : Shape_element;
+  applied_shape : Definitional_shape_element;
   internal_or_external_gear : BOOLEAN;
   module_or_diametrical_pitch : BOOLEAN;
   root_fillet_radius : OPTIONAL Numerical_item_with_unit;
-WHERE
-  WR1: applied_shape.product_definitional = TRUE;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_boss
   SUBTYPE OF (Boss);
@@ -12440,32 +11249,32 @@ END_ENTITY;
 ENTITY General_closed_profile
   SUBTYPE OF (Closed_profile);
   closed_profile_shape : Path_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_cutout
   SUBTYPE OF (Cutout_feature);
   boundary : Profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_open_profile
   SUBTYPE OF (Open_profile);
   enclosed_boundary : Path_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_outside_profile
   SUBTYPE OF (Profile_feature);
   boundary : Profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_pattern
-  SUBTYPE OF (Replicate_feature);
+  SUBTYPE OF (Replicate_feature); 
   feature_placement : SET[1:?] OF Axis_placement;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY General_path_feature_component
   SUBTYPE OF (Path_feature_component);
   sweep_path : Path_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_pocket
   SUBTYPE OF (Pocket);
@@ -12477,7 +11286,7 @@ ENTITY General_pocket_bottom_condition
   SUBTYPE OF (Pocket_bottom_condition);
   floor : Face_shape_element;
   floor_radius : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_profile_floor
   SUBTYPE OF (Profile_floor);
@@ -12486,8 +11295,8 @@ END_ENTITY;
 
 ENTITY General_removal_volume
   SUBTYPE OF (Multi_axis_feature);
-  removal_volume : SET[1:?] OF Shape_element;
-END_ENTITY;
+  removal_volume : SET[1:?] OF Definitional_shape_element;
+END_ENTITY; 
 
 ENTITY General_revolution
   SUBTYPE OF (Revolved_feature);
@@ -12497,13 +11306,13 @@ END_ENTITY;
 ENTITY General_rib_top_floor
   SUBTYPE OF (Rib_top_floor);
   rib_top_face : SET[1:?] OF Face_shape_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY General_shape_profile
   SUBTYPE OF (Shape_profile);
   profile_boundary : Profile;
-END_ENTITY;
-
+END_ENTITY; 
+  
 ENTITY General_top_condition
   SUBTYPE OF (Boss_top_condition);
   top_face : Face_shape_element;
@@ -12518,7 +11327,7 @@ ENTITY Helical_bevel_gear
   SUBTYPE OF (Bevel_gear);
   reference_helix_agle : Numerical_item_with_unit;
   left_or_right_hand_tooth : BOOLEAN;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Helical_gear
   SUBTYPE OF (Defined_gear);
@@ -12530,7 +11339,7 @@ ENTITY Hole
   ABSTRACT SUPERTYPE OF (ONEOF(
     Counterbore_hole,
     Countersunk_hole,
-    Round_hole))
+    Round_hole)) 
   SUBTYPE OF (Multi_axis_feature);
 END_ENTITY;
 
@@ -12538,25 +11347,23 @@ ENTITY Knurl
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_knurl, Turned_knurl))
   SUBTYPE OF (Machining_feature);
   partial_profile : OPTIONAL Partial_area_definition;
-  applied_shape : Shape_element;
-WHERE
-  WR1: applied_shape.product_definitional = TRUE;
-END_ENTITY;
+  applied_shape : Definitional_shape_element;
+END_ENTITY; 
 
 ENTITY Linear_path_feature_component
   SUBTYPE OF (Path_feature_component);
   distance : length_measure;
   direction : Direction_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Linear_profile
   SUBTYPE OF (Open_profile);
   profile_length : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Location_element
-  SUBTYPE OF (Shape_element);
-END_ENTITY;
+  SUBTYPE OF (Definitional_shape_element);
+END_ENTITY;  
 
 ENTITY Loop_slot_end_type;
 END_ENTITY;
@@ -12572,7 +11379,7 @@ ENTITY Machining_feature
     Gear,
     Knurl,
     Marking_feature,
-    Multi_axis_feature,
+    Multi_axis_feature,  
     Outer_round,
     Revolved_feature,
     Spherical_cap,
@@ -12585,25 +11392,26 @@ ENTITY Path_feature_component
   ABSTRACT SUPERTYPE OF (ONEOF (Circular_path_feature_component, General_path_feature_component, Linear_path_feature_component))
   SUBTYPE OF (Shape_element);
   placement : Axis_placement;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Manufacturing_feature
   ABSTRACT SUPERTYPE OF (ONEOF (Machining_feature, Replicate_feature, Transition_feature))
   SUBTYPE OF (Shape_feature_definition);
 END_ENTITY;
 
-ENTITY Manufacturing_feature_group
-  SUBTYPE OF (Group);
-  SELF\Group.elements : SET[1:?] OF manufacturing_group_select;
+ENTITY Manufacturing_feature_group;
+  group_name : label;
+  group_description : text;
+  feature_groups : SET[1:?] OF manufacturing_group_select;
 END_ENTITY;
-
+  
 ENTITY Marking_feature
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_marking, Defined_marking))
   SUBTYPE OF (Machining_feature);
   text : text;
   applied_to_shape : Shape_element;
 END_ENTITY;
-
+  
 ENTITY Multi_axis_feature
   SUPERTYPE OF ( ONEOF(
     Boss,
@@ -12619,34 +11427,34 @@ ENTITY Multi_axis_feature
     Step))
   SUBTYPE OF (Machining_feature);
   maximum_feature_limit : OPTIONAL Planar_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Ngon_profile
   SUBTYPE OF (Closed_profile);
   diameter : Numerical_item_with_unit;
   number_of_sides : Numerical_item_with_unit;
   corner_radius : OPTIONAL Numerical_item_with_unit;
-  circumscribed_or_across_flat : BOOLEAN;
-END_ENTITY;
+  circumscribed_or_across_flat : BOOLEAN;  
+END_ENTITY;  
 
 ENTITY Open_profile
-  ABSTRACT SUPERTYPE OF (ONEOF (
+  ABSTRACT SUPERTYPE OF (ONEOF ( 
     General_open_profile,
     Linear_profile,
     Partial_circular_profile,
     Rounded_u_profile,
-    Square_u_profile,
+    Square_u_profile, 
     Tee_profile,
     Vee_profile))
   SUBTYPE OF (Profile);
   profile_limit : OPTIONAL Planar_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Open_slot
   SUBTYPE OF (Slot);
   course_of_travel : Path_feature_component;
-  end_conditions : SET[2:2] OF Slot_end_type;
-END_ENTITY;
+  end_conditions : SET[2:2] OF Slot_end_type; 
+END_ENTITY;  
 
 ENTITY Open_slot_end_type
   SUBTYPE OF (Slot_end_type);
@@ -12658,14 +11466,14 @@ ENTITY Outer_diameter
   diameter : Numerical_item_with_unit;
   reduced_size : taper_select;
 END_ENTITY;
-
+  
 ENTITY Outer_diameter_to_shoulder
   SUBTYPE OF (Outer_round);
   feature_length : Numerical_item_with_unit;
   diameter : Numerical_item_with_unit;
   v_shape_boundary : Vee_profile;
 END_ENTITY;
-
+ 
 ENTITY Outer_round
   ABSTRACT SUPERTYPE OF (ONEOF (Outer_diameter, Outer_diameter_to_shoulder))
   SUBTYPE OF (Machining_feature);
@@ -12675,33 +11483,33 @@ ENTITY Partial_area_definition;
   maximum_length : OPTIONAL Numerical_item_with_unit;
   effective_length : Numerical_item_with_unit;
   placement : Axis_placement;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Partial_circular_path_feature_component
   SUBTYPE OF (Circular_path_feature_component);
   sweep_angle : length_measure;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Partial_circular_profile
   SUBTYPE OF (Open_profile);
   sweep_angle : Numerical_item_with_unit;
   radius : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Partial_circular_shape_profile
   SUBTYPE OF (Shape_profile);
   open_boundary : Partial_circular_profile;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Path_element
-  SUBTYPE OF (Shape_element);
-END_ENTITY;
+  SUBTYPE OF (Definitional_shape_element);
+END_ENTITY; 
 
 ENTITY Planar_element
-  SUBTYPE OF (Shape_element);
+  SUBTYPE OF (Definitional_shape_element);
   normal : Direction_element;
   location : Location_element;
-END_ENTITY;
+END_ENTITY;   
 
 ENTITY Planar_face
   SUBTYPE OF (Multi_axis_feature);
@@ -12711,26 +11519,26 @@ ENTITY Planar_face
   removal_direction : Direction_element;
   volume_not_removed : SET[0:?] OF volume_select;
   removal_depth : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Planar_pocket_bottom_condition
   SUBTYPE OF (Pocket_bottom_condition);
   floor_normal : Direction_element;
   floor_location : Location_element;
   floor_radius : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Planar_profile_floor
   SUBTYPE OF (Profile_floor);
   floor : Planar_element;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Planar_rib_top_floor
   SUBTYPE OF (Rib_top_floor);
   floor_face : Planar_element;
   boundary : Closed_profile;
-END_ENTITY;
-
+END_ENTITY; 
+  
 ENTITY Planar_top_condition
   SUBTYPE OF (Boss_top_condition);
   top_normal : Direction_element;
@@ -12746,10 +11554,10 @@ ENTITY Pocket
     Rectangular_open_pocket))
   SUBTYPE OF (Multi_axis_feature);
   base_radius : Numerical_item_with_unit;
-  change_in_boundary : OPTIONAL LIST[1:?] OF angle_or_directed_taper;
+  change_in_boundardy : OPTIONAL LIST[1:?] OF angle_or_directed_taper;
   bottom_condition : pocket_bottom_condition_select;
   pocket_depth : Linear_path_feature_component;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Pocket_bottom_condition
   ABSTRACT SUPERTYPE OF (ONEOF (General_pocket_bottom_condition, Planar_pocket_bottom_condition));
@@ -12770,14 +11578,12 @@ ENTITY Profile_floor
   ABSTRACT SUPERTYPE OF (ONEOF(General_profile_floor, Planar_profile_floor));
   floor_radius : OPTIONAL Numerical_item_with_unit;
   start_or_end : BOOLEAN;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Protrusion
   SUBTYPE OF (Multi_axis_feature);
-  shape_volume : SET[1:?] OF Shape_element;
-WHERE
-   WR1 : SIZEOF(QUERY(sv <* shape_volume | NOT (sv.product_definitional = TRUE))) = 0;
-END_ENTITY;
+  shape_volume : SET[1:?] OF Definitional_shape_element;
+END_ENTITY; 
 
 ENTITY Radiused_slot_end_type
   SUBTYPE OF (Slot_end_type);
@@ -12788,8 +11594,8 @@ ENTITY Recess
   SELF\Pocket.bottom_condition : Pocket_bottom_condition;
   volume_not_removed : SET[0:?] OF volume_select;
   fillet_boundary : Profile;
-END_ENTITY;
-
+END_ENTITY;  
+  
 ENTITY Rectangular_boss
   SUBTYPE OF (Boss);
   rectangular_profile : Rectangular_closed_profile;
@@ -12800,19 +11606,19 @@ ENTITY Rectangular_closed_pocket
   SUBTYPE OF (Pocket);
   volume_not_removed : SET[0:?] OF volume_select;
   closed_boundary : Rectangular_closed_profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rectangular_closed_profile
   SUBTYPE OF (Closed_profile);
   profile_width : Numerical_item_with_unit;
   profile_length : Numerical_item_with_unit;
   corner_radius : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rectangular_closed_shape_profile
   SUBTYPE OF (Shape_profile);
   closed_boundary : Rectangular_closed_profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rectangular_offset_pattern;
   offset_direction : Direction_element;
@@ -12821,25 +11627,25 @@ ENTITY Rectangular_offset_pattern;
   row_index : INTEGER;
 INVERSE
   relocated_base_feature_for : SET [1:?] OF Rectangular_pattern FOR relocated_base_feature;
-END_ENTITY;
+END_ENTITY;   
 
 ENTITY Rectangular_omit_pattern;
   row_index : INTEGER;
   column_index : INTEGER;
 INVERSE
   missing_base_feature_for : SET [1:?] OF Rectangular_pattern FOR missing_base_feature;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rectangular_open_pocket
   SUBTYPE OF (Pocket);
   volume_not_removed : SET[0:?] OF volume_select;
   open_boundary : Square_u_profile;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rectangular_open_shape_profile
   SUBTYPE OF (Shape_profile);
   open_boundary : Square_u_profile;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Rectangular_pattern
   SUBTYPE OF (Replicate_feature);
@@ -12851,7 +11657,7 @@ ENTITY Rectangular_pattern
   row_layout_direction : Direction_element;
   columns : INTEGER;
   column_spacing : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Replicate_base;
   base_feature : replicate_base_select;
@@ -12865,7 +11671,7 @@ ENTITY Replicate_feature
   SUBTYPE OF (Manufacturing_feature);
   placement : Axis_placement;
   replicate_feature_base : Replicate_base;
-END_ENTITY;
+END_ENTITY;    
 
 ENTITY Revolved_feature
   ABSTRACT SUPERTYPE OF (ONEOF(
@@ -12876,23 +11682,23 @@ ENTITY Revolved_feature
   SUBTYPE OF (Machining_feature);
   radius : Numerical_item_with_unit;
   material_side : Direction_element;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Revolved_flat
   SUBTYPE OF (Revolved_feature);
   flat_edge_shape : Linear_profile;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Revolved_round
   SUBTYPE OF (Revolved_feature);
   rounded_edge_shape : Partial_circular_profile;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Rib_top
   SUBTYPE OF (Multi_axis_feature);
   removal_direction : Direction;
   floor_condition : Rib_top_floor;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rib_top_floor
   ABSTRACT SUPERTYPE OF (ONEOF ( General_rib_top_floor, Planar_rib_top_floor));
@@ -12904,19 +11710,19 @@ ENTITY Round_hole
   diameter : Circular_closed_profile;
   change_in_diameter : OPTIONAL taper_select;
   bottom_condition : hole_bottom_condition_select;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Rounded_end
   SUBTYPE OF (Multi_axis_feature);
   partial_circular_boundary : Partial_circular_profile;
   course_of_travel : Linear_path_feature_component;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Rounded_u_profile
   SUBTYPE OF (Open_profile);
   width : Numerical_item_with_unit;
   depth : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Second_chamfer_offset
   SUBTYPE OF (Second_chamfer_parameter);
@@ -12929,7 +11735,7 @@ ENTITY Second_chamfer_parameter
 END_ENTITY;
 
 ENTITY Shape_profile
-  ABSTRACT SUPERTYPE OF (ONEOF(
+  ABSTRACT SUPERTYPE OF (ONEOF( 
     Circular_closed_shape_profile,
     General_shape_profile,
     Partial_circular_shape_profile,
@@ -12938,27 +11744,27 @@ ENTITY Shape_profile
   SUBTYPE OF (Profile_feature);
   floor_condition : profile_select;
   removal_direction : Direction_element;
-END_ENTITY;
-
+END_ENTITY;  
+  
 ENTITY Slot
   ABSTRACT SUPERTYPE OF (ONEOF (Closed_slot, Open_slot))
   SUBTYPE OF (Multi_axis_feature);
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Slot_end_type
   ABSTRACT SUPERTYPE OF (ONEOF (
-    Flat_slot_end_type,
+    Flat_slot_end_type, 
     Open_slot_end_type,
-    Radiused_slot_end_type,
+    Radiused_slot_end_type, 
     Woodruff_slot_end_type));
   first_or_second : BOOLEAN;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Spherical_cap
   SUBTYPE OF (Machining_feature);
   internal_angle : Numerical_item_with_unit;
   radius : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Spherical_hole_bottom
   SUBTYPE OF (Blind_bottom_condition);
@@ -12977,14 +11783,14 @@ ENTITY Square_u_profile
   second_radius : OPTIONAL Numerical_item_with_unit;
   depth : Numerical_item_with_unit;
   width : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Step
   SUBTYPE OF (Multi_axis_feature);
   removal_boundary : Vee_profile;
   course_of_travel : Linear_path_feature_component;
   volume_not_removed : SET[0:?] OF Volume_select;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Straight_bevel_gear
   SUBTYPE OF (Bevel_gear);
@@ -13005,7 +11811,7 @@ ENTITY Tee_profile
   width : Numerical_item_with_unit;
   cross_bar_width : Numerical_item_with_unit;
   cross_bar_depth : Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Thread
   ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_thread, Defined_thread)) 
@@ -13015,21 +11821,19 @@ ENTITY Thread
   fit_class : text;
   form : text;
   number_of_threads : OPTIONAL Numerical_item_with_unit;
-  hand : thread_hand;
-  side : thread_side;
+  thread_hand : text;
+  inner_or_outer_thread : BOOLEAN;
   qualifier : text;
   nominal_size : OPTIONAL Numerical_item_with_unit;
-  applied_shape : Shape_element;
+  applied_shape : Definitional_shape_element;
   fit_class_2 : OPTIONAL text;
-WHERE
-  WR1: applied_shape.product_definitional = TRUE;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Thread_runout;
   length_of_runout : Numerical_item_with_unit;
   pitch_or_dimension : BOOLEAN;
   included_or_extra : BOOLEAN;
-END_ENTITY;
+END_ENTITY;  
 
 ENTITY Through_bottom_condition;
 END_ENTITY;
@@ -13038,7 +11842,7 @@ ENTITY Through_pocket_bottom_condition;
 END_ENTITY;
 
 ENTITY Through_profile_floor;
-END_ENTITY;
+END_ENTITY; 
 
 ENTITY Transition_feature
   SUPERTYPE OF ( ONEOF(
@@ -13057,8 +11861,8 @@ ENTITY Turned_knurl
   number_of_teeth : OPTIONAL Numerical_item_with_unit;
   tooth_depth : OPTIONAL Numerical_item_with_unit;
   major_diameter : Numerical_item_with_unit;
-END_ENTITY;
-
+END_ENTITY;   
+  
 ENTITY Vee_profile
   SUBTYPE OF (Open_profile);
   profile_radius : OPTIONAL Numerical_item_with_unit;
@@ -13066,14 +11870,14 @@ ENTITY Vee_profile
   tilt_angle : Numerical_item_with_unit;
   first_length : OPTIONAL Numerical_item_with_unit;
   second_length : OPTIONAL Numerical_item_with_unit;
-END_ENTITY;
+END_ENTITY;    
 
 ENTITY Woodruff_slot_end_type
   SUBTYPE OF (Slot_end_type);
   radius : Numerical_item_with_unit;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT mf_shape_element_subtypes FOR Shape_element;
+  
+SUBTYPE_CONSTRAINT mf_shape_element_subtypes FOR Definitional_shape_element;
   ONEOF (Path_element, Planar_element, Direction_element, Location_element, Face_shape_element);
 END_SUBTYPE_CONSTRAINT;
 
@@ -13229,50 +12033,6 @@ USE FROM Topologically_bounded_surface_arm; --ISO/TS 10303-1511:2004
   END_ENTITY;
   
   
-
-END_SCHEMA;
-(*
- $Id: arm.exp,v 1.10 2012/10/06 20:09:56 liutkuviene Exp $
- ISO TC184/SC4/WG12 N7738 - ISO/TS 10303-1147 Manufacturing configuration effectivity - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2628
-*)
-
-SCHEMA Manufacturing_configuration_effectivity_arm;
-
-USE FROM Configuration_effectivity_arm;
-
-USE FROM Person_organization_arm;
-
-USE FROM Product_occurrence_arm;
-
-USE FROM Specified_product_arm;
-
-
-ENTITY Dated_configuration
-SUBTYPE OF (Manufacturing_configuration);
-  SELF\Item_usage_effectivity.effectivity_domain: Dated_effectivity;
-END_ENTITY;
-
-ENTITY Lot_configuration
-SUBTYPE OF (Manufacturing_configuration);
-  SELF\Item_usage_effectivity.effectivity_domain: Lot_effectivity;
-END_ENTITY;
-
-ENTITY Manufacturing_configuration
-ABSTRACT SUPERTYPE OF (ONEOF(Serial_configuration,Dated_configuration,
-                         Lot_configuration))
-SUBTYPE OF (Item_usage_effectivity);
-  concerned_organization : SET[0:?] OF Organization;
-WHERE
-WR1: ('MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM' + '.PRODUCT_SPECIFICATION') IN TYPEOF(resolved_configuration.configuration);
-WR2: ('PRODUCT_OCCURRENCE_ARM' + '.PRODUCT_OCCURRENCE') IN
-TYPEOF(item_usage_relationship\View_definition_relationship.related_view); 
-END_ENTITY;
-
-ENTITY Serial_configuration
- SUBTYPE OF (Manufacturing_configuration);
-  SELF\Item_usage_effectivity.effectivity_domain: Serial_effectivity;
-END_ENTITY;
 
 END_SCHEMA;
 (*
@@ -13600,102 +12360,6 @@ END_RULE;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.40 2015/09/24 09:59:56 kevletu Exp $
-   ISO TC184/SC4/WG12 N8962 - ISO/TS 10303-1703 Model parameter - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8271
-*)
-
-SCHEMA Model_parameter_arm;
-USE FROM Activity_method_assignment_arm;	-- ISO/TS 10303-1249
-USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
-USE FROM Classification_with_attributes_arm;	-- ISO/TS 10303-1111
-USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
-USE FROM Group_arm;	-- ISO/TS 10303-1113
-
-REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
-
-  TYPE mp_activity_method_item_select = SELECT BASED_ON activity_method_item WITH 
-    (Test_method_based_parameter_assignment);
-  END_TYPE; 
-
-  TYPE mp_groupable_item = SELECT BASED_ON groupable_item WITH 
-    (Group_relationship);
-  END_TYPE; 
-
-  TYPE mp_documented_element_select = SELECT BASED_ON documented_element_select WITH 
-    (Model_parameter);
-  END_TYPE; 
-
-  TYPE parameter_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT
-    (Model_parameter);
-  END_TYPE;
-
-  ENTITY Category_model_parameter
-    SUBTYPE OF (Model_parameter);
-    INVERSE 
-      associated_attribute : SET[1:1] OF Classification_attribute FOR attribute_definition;
-  END_ENTITY;
-
-  ENTITY Independent_property_with_unit 
-    SUBTYPE OF (Independent_property);
-      unit_of_measure: SET [1:?] OF Unit;
-  END_ENTITY;
-
-  ENTITY Model_parameter
-    SUBTYPE OF (Independent_property);
-      valid_range        : OPTIONAL SET[1:?] OF Value_range;
-      default_value      : OPTIONAL scalar_or_coordinated_characteristics;
-	DERIVE
-      reference_document: SET[0:?] OF Document_definition :=
-        get_document_definition(SELF, 'reference document', 
-        'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION');
-	WHERE
-      WR1 : EXISTS (reference_document) AND (SIZEOF(reference_document) = 1);
-  END_ENTITY;
-
-  ENTITY Model_parameter_with_unit 
-    SUBTYPE OF (Independent_property_with_unit,Model_parameter);
-     WHERE
-      WR1: NOT('MODEL_PARAMETER_ARM.SCHEMA_BASED_MODEL_PARAMETER' IN TYPEOF(SELF));
-  END_ENTITY;
-
-  ENTITY Parameter_assignment
-    SUBTYPE OF (Property_definition_representation);
-      SELF\Property_definition_representation.definition: parameter_assignment_select;
-  END_ENTITY;
-
-  ENTITY Parameter_assignment_override;
-    overridden_parameter_assignment : Parameter_assignment;
-    overriding_parameter_assignment : Parameter_assignment;
-  END_ENTITY;
-
-  ENTITY Schema_based_model_parameter
-    SUBTYPE OF (Model_parameter);
-      entity_name    : Independent_property;
-      attribute_name : OPTIONAL Independent_property;
-      schema_identifier : Independent_property;
-    UNIQUE
-      UR1 : entity_name, attribute_name, schema_identifier;
-  END_ENTITY;
-
-  ENTITY Product_specific_parameter_value_assignment;
-      of_product         : Product;
-      assigned_parameter : Parameter_assignment;
-    DERIVE
-      the_model_parameter : model_parameter := assigned_parameter\Property_definition_representation.definition;
-    UNIQUE
-      UR1 : the_model_parameter, of_product;
-  END_ENTITY;
-
-  ENTITY Test_method_based_parameter_assignment
-    SUBTYPE OF (Parameter_assignment);
-    WHERE
-      WR1 : SIZEOF(USEDIN(SELF,'ACTIVITY_METHOD_ASSIGNMENT_ARM.APPLIED_ACTIVITY_METHOD_ASSIGNMENT.ITEMS')) = 1;
-  END_ENTITY;
-
-END_SCHEMA;
-
-(*
  $Id: arm.exp,v 1.6 2008/09/13 12:25:15 liutkuviene Exp $
  ISO TC184/SC4/WG12 N5431 - ISO/TS 10303-1322 Modified swept solid - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4765
@@ -13809,169 +12473,6 @@ END_SCHEMA;  -- Name_assignment_arm
 
 
 (*
-   $Id: arm.exp,v 1.54 2015/09/24 09:59:51 kevletu Exp $
-   ISO TC184/SC4/WG12 N8959 - ISO/TS 10303-1704 Network functional design view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7741
-*)
-
-SCHEMA Network_functional_design_view_arm;
-
-	USE FROM Assembly_structure_arm;	 -- ISO/TS 10303-1026
-	USE FROM Functional_usage_view_arm;	 -- ISO/TS 10303-1705
-	USE FROM Model_parameter_arm;        -- ISO/TS 10303-1703
-	USE FROM Requirement_assignment_arm; -- ISO/TS 10303-1233
-
-	SUBTYPE_CONSTRAINT functional_unit_definition_subtypes FOR Functional_unit_definition;     
-		(ONEOF (Functional_unit_network_definition,
-		Functional_unit_usage_view));
-	END_SUBTYPE_CONSTRAINT; 
-
-  TYPE bus_structural_definition_or_node = SELECT
-    (Functional_unit_network_node_definition,
-     Bus_structural_definition);
-  END_TYPE;
-
-TYPE nfdv_pa_or_parameter_assignment_override = SELECT
-  (Parameter_assignment,
-   Parameter_assignment_override);
-END_TYPE;
-
-TYPE nfdw_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH 
-    (Functional_unit);
-END_TYPE; 
-
-  ENTITY Bus_element_link;
-      precedent_element  : bus_structural_definition_or_node;
-      subsequent_element : bus_structural_definition_or_node;
-    INVERSE
-     composed_bus : Bus_structural_definition FOR composition;
-    UNIQUE
-      UR1 : precedent_element, subsequent_element;
-    WHERE
-      WR1 : precedent_element <> subsequent_element;
-  END_ENTITY;
-
-  ENTITY Bus_structural_definition;
-      bus_name    : STRING; 
-      composition : SET[1:?] OF Bus_element_link;
-    INVERSE
-      external_bus_access : SET[0:1] OF Functional_unit_network_terminal_definition_bus_assignment FOR connected_bus;
-    UNIQUE
-      UR1 : bus_name;
-    WHERE
-      WR1 : consistent_bus_structural_definition(composition);
-  END_ENTITY;
-
-  ENTITY Functional_unit
-  	SUBTYPE OF (Product_view_definition);
-	composed_network    : Functional_unit_network_definition;    
-    definition          : Functional_unit_definition;
-    SELF\Product_view_definition.id RENAMED reference_designation : STRING; 
-    functional_property : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
-  DERIVE  
-	SELF\Product_view_definition.defined_version : Functional_version := definition\Functional_unit_definition.defined_version;
-  INVERSE
-    access_mechanisms  : SET[1:?] OF functional_unit_terminal FOR accessed_functional_unit;
-  UNIQUE
-    UR1 : reference_designation, composed_network;
-  END_ENTITY;
-
-  ENTITY Functional_unit_network_definition
-    SUBTYPE OF (Functional_unit_definition);
-      usage_view : Functional_unit_usage_view;
-  END_ENTITY;
-
-  ENTITY Functional_unit_network_node_definition
-    SUBTYPE OF (Product_view_definition);
-      associated_functional_unit_definition                                                              : Functional_unit_network_definition;
-      SELF\Product_view_definition.additional_characterization RENAMED functional_unit_network_node_name : STRING; 
-    DERIVE
-      SELF\Product_view_definition.defined_version : Functional_version := associated_functional_unit_definition.defined_version;
-      valid_conservative_node : LOGICAL := 
-      (( SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' )) +
-         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )) +
-         SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE')) +
-         SIZEOF ( external_node_access ) ) > 1 );
-    INVERSE
-      external_node_access : SET[0:1] OF functional_unit_network_terminal_definition_node_assignment FOR composed_node;
-    UNIQUE
-      UR1 : functional_unit_network_node_name,
- associated_functional_unit_definition;
-    WHERE
-      WR1 : EXISTS(valid_conservative_node);
-  END_ENTITY;
-
-  ENTITY Functional_unit_network_terminal_definition_bus_assignment;
-      connected_bus      : Bus_structural_definition;
-      connected_terminal : Functional_unit_usage_view_terminal_definition;
-    UNIQUE
-      UR1 : connected_bus, connected_terminal;
-  END_ENTITY;
-
-  ENTITY Functional_unit_network_terminal_definition_node_assignment;
-      composed_node      : Functional_unit_network_node_definition;
-      connected_terminal : Functional_unit_usage_view_terminal_definition;
-    UNIQUE
-      UR1 : composed_node, connected_terminal;
-  END_ENTITY;
-
-  ENTITY Functional_unit_terminal;
-      accessed_functional_unit : Functional_unit;
-      definition               : Functional_unit_usage_view_terminal_definition;
-    INVERSE
-      bus_assignment  : SET[0:1] OF functional_unit_terminal_bus_assignment FOR connected_terminal;
-      node_assignment : SET[0:1] OF functional_unit_terminal_node_assignment FOR connected_terminal;
-  END_ENTITY;
-
-  ENTITY Functional_unit_terminal_bus_assignment;
-      connected_bus      : Bus_structural_definition;
-      connected_terminal : Functional_unit_terminal;
-  END_ENTITY;
-
-  ENTITY Functional_unit_terminal_node_assignment;
-      composed_node      : Functional_unit_network_node_definition;
-      connected_terminal : Functional_unit_terminal;
-  END_ENTITY;
-
-  FUNCTION consistent_bus_structural_definition(
-    input : SET OF Bus_element_link
-  ) : BOOLEAN;
-
-    LOCAL
-      vertex        : SET OF bus_structural_definition_or_node := [];
-      edge          : INTEGER := SIZEOF(input);
-      vc            : INTEGER := 0;
-      vertex_degree : INTEGER := 0;
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input) BY 1;
-      vertex := vertex + input[i].precedent_element;
-      vertex := vertex + input[i].subsequent_element;
-    END_REPEAT;
-    vc := SIZEOF(vertex);
-    IF (vc <> (edge + 1)) THEN
-      RETURN(FALSE);
-    END_IF;
-    REPEAT i := 1 TO vc BY 1;
-      vertex_degree := 0;
-      REPEAT j := 1 TO SIZEOF(input) BY 1;
-        IF input[j].precedent_element = vertex[i] THEN
-          vertex_degree := vertex_degree + 1;
-        END_IF;
-        IF input[j].subsequent_element = vertex[i] THEN
-          vertex_degree := vertex_degree + 1;
-        END_IF;
-      END_REPEAT;
-      IF (vertex_degree > 2) THEN
-        RETURN(FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN(TRUE);
-  END_FUNCTION;
-
-
-END_SCHEMA;
-(*
    $Id: arm.exp,v 1.5 2008/09/13 12:25:15 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5434 - ISO/TS 10303-1324 Non manifold surface - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4768
@@ -13987,7 +12488,7 @@ USE FROM Elemental_geometric_shape_arm; -- ISO/CD-TS 10303-1004
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.6 2015/09/18 11:54:26 lothartklein Exp $
+   $Id: arm.exp,v 1.5 2012/10/11 05:49:08 liutkuviene Exp $
    ISO TC184/SC4/WG12 N7867 - ISO/TS 10303-1526 Numeric expression - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7220
 *)
@@ -14433,7 +12934,7 @@ IF 'ELEMENTARY_FUNCTION_ARM.ABS_FUNCTION' IN TYPEOF(arg)
 THEN 
 	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
 END_IF;
-IF 'ELEMENTARY_FUNCTION_ARM.MINUS_FUNCTION' IN TYPEOF(arg) 
+IF 'NUMERIC_FUNCTION.MINUS_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand)); 
 END_IF;
@@ -14521,9 +13022,9 @@ END_FUNCTION;
 	END_SCHEMA;         
       
 (*
- $Id: arm.exp,v 1.23 2015/09/24 09:59:56 kevletu Exp $
- ISO TC184/SC4/WG12 N9085 - ISO/TS 10303-1346 Numeric function - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7870
+ $Id: arm.exp,v 1.22 2012/10/11 05:49:06 liutkuviene Exp $
+ ISO TC184/SC4/WG12 N7870 - ISO/TS 10303-1346 Numeric function - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N7226
 *)
 
 	SCHEMA Numeric_function_arm;
@@ -14931,9 +13432,9 @@ END_ENTITY;
 
 END_SCHEMA;  -- Part_and_version_identification_arm
 (*
-   $Id: arm.exp,v 1.24 2016/09/14 21:56:29 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N8941 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7783
+   $Id: arm.exp,v 1.14 2013/10/01 19:00:19 thomasrthurman Exp $
+   ISO TC184/SC4/WG12 N7783 - ISO/TS 10303-1770 Part and zone laminate tables - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6249
 *)
 
 SCHEMA Part_and_zone_laminate_tables_arm;
@@ -14945,6 +13446,7 @@ USE FROM Ply_orientation_specification_arm; -- ISO/TS 10303-1772
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
 USE FROM Stock_material_arm; -- ISO/TS 10303-1771
+
 
   TYPE component_class_for_assembly = SELECT 
     (Composite_assembly,
@@ -14961,6 +13463,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
      Woven_assembly);
   END_TYPE;
 
+
   TYPE thickness_laminate_table_component = SELECT 
     (Filament_laminate,
      Ply,
@@ -14970,7 +13473,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Composite_assembly
     SUBTYPE OF (Constituent_part);
       layup_part : Composite_assembly_table;
-      shape : OPTIONAL composite_assembly_shape;
+      shape      : OPTIONAL composite_assembly_shape;
   END_ENTITY;
 
   ENTITY Composite_assembly_sequence_definition;
@@ -14997,7 +13500,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Filament_laminate
     SUBTYPE OF (Constituent_part);
       made_from : filament_assembly_material;
-     shape : OPTIONAL Filament_laminate_shape;
+      shape     : OPTIONAL Filament_laminate_shape;
   END_ENTITY;
 
   ENTITY Filament_laminate_shape;
@@ -15034,15 +13537,16 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
     SUBTYPE OF (Constituent_part);
       constituents         : OPTIONAL LIST [1:?] OF Ply_piece;
       ply_thickness        : Length_data_element;
-      material_orientation : Ply_orientation_angle;
+      material_orientation : Direction_of_fiber_orientation_within_a_ply;
       material_type        : ply_stock_material;
-      shape : OPTIONAL Ply_shape;
-   END_ENTITY;
+      shape                : OPTIONAL Ply_shape;
+    DERIVE
+      material_orientation_angle : Ply_orientation_angle := material_orientation.orientations[1]; 
+  END_ENTITY;
 
   ENTITY Ply_laminate
     SUBTYPE OF (Constituent_part);
- --tt next line modified
-          shape : OPTIONAL ply_laminate_shape;
+      shape     : OPTIONAL ply_laminate_shape;
       ply_table : Ply_laminate_table;
   END_ENTITY;
 
@@ -15057,7 +13561,7 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
 
   ENTITY Ply_piece
     SUBTYPE OF (Constituent_part);
-      shape : OPTIONAL ply_piece_shape;
+      shape        : OPTIONAL ply_piece_shape;
       warp_surface : LOGICAL;
   END_ENTITY;
 
@@ -15069,11 +13573,13 @@ USE FROM Stock_material_arm; -- ISO/TS 10303-1771
   ENTITY Processed_core
     SUBTYPE OF (Constituent_part);
       added_material           : OPTIONAL LIST [0:?] OF Ply;
-      cell_direction           : Ply_orientation_angle;
+      cell_direction           : Direction_of_fiber_orientation_within_a_ply;
       made_from_stock          : Stock_core;
       made_from_processed_core : OPTIONAL SET [1:?] OF Processed_core;
-      shape : OPTIONAL core_shape;
-   END_ENTITY;
+      shape                    : OPTIONAL core_shape;
+    DERIVE
+      cell_orientation_angle   : Ply_orientation_angle := cell_direction.orientations[1]; 
+  END_ENTITY;
 
   ENTITY Smeared_material
     SUBTYPE OF (Zone_structural_makeup);
@@ -15149,107 +13655,6 @@ END_ENTITY;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.26 2017/01/23 13:58:18 kevletu Exp $
-   ISO TC184/SC4/WG12 N9354 - ISO/TS 10303-1711 Part external reference - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7687
-*)
-
-SCHEMA Part_external_reference_arm;
-
-	USE FROM Part_template_arm;	-- ISO/TS 10303-1722
-
-  ENTITY Package_external_reference;
-      design_owner          : STRING;
-      part_number           : STRING;
-      revision_code         : STRING;
-      product_definition_id : STRING;
-  END_ENTITY;
-  
-  ENTITY Package_terminal_external_reference;
-      name                  : STRING;  
-      associated_definition : Package_external_reference;
-    UNIQUE
-      UR1 : associated_definition,
- name;
-  END_ENTITY;
-
-  ENTITY Part_terminal_external_reference
-    SUBTYPE OF (General_part_feature);
-    UNIQUE
-      UR1: SELF\Shape_element.associated_definition, SELF\Shape_element.element_name;
-    WHERE
-      WR1: SIZEOF(['PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION', 'PART_TEMPLATE_ARM.TEMPLATE_DEFINITION'] 
-            * TYPEOF(SELF\Shape_element.associated_definition)) <> 0;
-  END_ENTITY;
-
-END_SCHEMA;  
-(*
-   $Id: arm.exp,v 1.26 2017/01/23 13:58:17 kevletu Exp $
-   ISO TC184/SC4/WG12 N9356 - ISO/TS 10303-1712 Part feature function - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8188
-*)
-
-SCHEMA Part_feature_function_arm;
-
-	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
-
-  ENTITY Fiducial_part_feature
-    SUBTYPE OF (Part_tooling_feature);
-  END_ENTITY;
-
-  ENTITY Part_interface_access_feature
-    SUBTYPE OF (Part_feature);
-      accessed_interface                 : Part_feature;
-    WHERE
-      WR1 : SELF\Part_feature.material_state_change = material_removal;
-      WR2 : SELF <> accessed_interface;
-      WR3 : NOT ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(SELF));
-      WR4 : NOT ('PACKAGE_ARM.PACKAGE_BODY' IN TYPEOF(SELF));
-      WR5 : NOT ('PART_FEATURE_FUNCTION_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-      WR6 : NOT ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-      WR7 : NOT ('PACKAGE_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-      WR8 : NOT ('PACKAGE_ARM.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF));
-      WR9 : NOT ('PACKAGE_ARM.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF));
-  END_ENTITY;
-
-  ENTITY Part_mating_feature
-    SUBTYPE OF (Part_feature);
-    connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;                  
-    WHERE
-      WR1 : NOT ('PART_FEATURE_FUNCTION_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-      WR2 : NOT ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-      WR3 : NOT ('PACKAGE_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-      WR4 : NOT ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(SELF));
-  END_ENTITY;
-
-  ENTITY Part_mounting_feature
-    SUBTYPE OF (Part_feature);
-      connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
-  END_ENTITY;
-
-  ENTITY Part_tooling_feature
-    SUPERTYPE OF (ONEOF (Fiducial_part_feature,
- Tool_registration_mark) ANDOR
- Test_point_part_feature)
-    SUBTYPE OF (Part_feature);
-  END_ENTITY;
-
-  ENTITY Test_point_part_feature
-    SUBTYPE OF (Part_tooling_feature);
-  WHERE
-   WR1: 'FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(SELF);
-  END_ENTITY;
-
-  ENTITY Thermal_feature
-    SUBTYPE OF (Part_feature);
-  END_ENTITY;
-
-  ENTITY Tool_registration_mark
-    SUBTYPE OF (Part_tooling_feature);
-  END_ENTITY;
-
-END_SCHEMA;
-(*
    $Id: arm.exp,v 1.10 2017/01/23 13:58:18 kevletu Exp $
    ISO TC184/SC4/WG12 N9368 - ISO/TS 10303-1807 General part feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7894
@@ -15282,52 +13687,6 @@ DERIVE
 END_ENTITY;  
 
 END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.15 2017/01/23 13:58:18 kevletu Exp $
-   ISO TC184/SC4/WG12 N9360 - ISO/TS 10303-1722 Part template - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8274
-*)
-
-SCHEMA Part_template_arm;
-
-USE FROM Feature_and_connection_zone_arm;	-- ISO/TS 10303-1671
-USE FROM Part_shape_arm;
-
-  TYPE plp_material_item_select = SELECT BASED_ON
-     material_item_select  WITH
-   		(Template_definition);
-  END_TYPE;
-
-  ENTITY Template
-  	SUBTYPE OF (Part);
-    UNIQUE 
-      UR1: SELF\Product.id;
-  END_ENTITY;
-
-  ENTITY Template_definition
-    SUBTYPE OF (Part_view_definition);
-      SELF\Product_view_definition.defined_version : Template_version;
-  END_ENTITY;
-
-  ENTITY Template_version
- 	SUBTYPE OF (Part_version);
-      SELF\Product_version.of_product : Template;
-  END_ENTITY;
-
-  RULE template_version_constraint FOR (Product_version);
-    WHERE
-      WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'PART_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PART_TEMPLATE_ARM.' + 'TEMPLATE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-  END_RULE; 
-
-  RULE template_definition_constraint FOR (Product_view_definition);
-    WHERE
-      WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'PART_TEMPLATE_ARM.' + 'TEMPLATE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PART_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
-  END_RULE; 
-
-END_SCHEMA;
-
-
-
 (*
  $Id: arm.exp,v 1.18 2017/01/23 13:58:18 kevletu Exp $
  ISO TC184/SC4/WG12 N9333 - ISO/TS 10303-1023 Part view definition - EXPRESS ARM
@@ -15507,14 +13866,14 @@ USE FROM Product_breakdown_arm;    -- ISO/TS 10303-1248
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.15 2015/09/24 09:59:57 kevletu Exp $
-   ISO TC184/SC4/WG12 N8920 - ISO/TS 10303-1721 Physical component feature - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7765
+   $Id: arm.exp,v 1.13 2012/10/06 20:09:56 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7765 - ISO/TS 10303-1721 Physical component feature - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N6492
 *)
 
 SCHEMA Physical_component_feature_arm; 
 
-  USE FROM Component_feature_arm;	-- ISO/TS 10303-1657
+	USE FROM Component_feature_arm;	-- ISO/TS 10303-1657
 
   ENTITY Physical_component_feature
     SUBTYPE OF (Component_feature);
@@ -15523,601 +13882,10 @@ SCHEMA Physical_component_feature_arm;
   ENTITY Physical_component_terminal
     SUBTYPE OF (Component_terminal,
  			Physical_component_feature);
+      SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
   END_ENTITY;
 
 END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.47 2015/09/24 09:59:57 kevletu Exp $
-   ISO TC184/SC4/WG12 N8917 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8194
-*)
-
-SCHEMA Physical_connectivity_definition_arm;
-
-	USE FROM Part_external_reference_arm;	-- ISO/TS 10303-1711
-	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721#
-	USE FROM Physical_connectivity_layout_topology_requirement_arm;
-	USE FROM Physical_unit_design_view_arm;
-	USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
-
-REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740		
-REFERENCE FROM Support_resource_arm(bag_to_set);
-
-	TYPE pcd_groupable_item = SELECT BASED_ON groupable_item WITH 
-	   (Physical_connectivity_definition,
-	    Group_relationship);
-	END_TYPE; 
-
-	TYPE pcd_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH 
-	    (Physical_connectivity_element,
-	    Physical_connectivity_definition,
-	    Physical_connectivity_definition_relationship);
-	END_TYPE; 
-
-	TYPE pcd_documented_element_select = SELECT BASED_ON documented_element_select WITH 
-		(Physical_connectivity_element,
-		 Physical_connectivity_definition);
-	END_TYPE;
-        
-	TYPE physical_connectivity_definition_domain_enumeration = EXTENSIBLE ENUMERATION OF
-		(electrical,
-		 thermal,
-		 optical,
-		 magnetic);
-    END_TYPE;
-     
-	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
-    	(Component_terminal,
-    	 Topological_junction);
-  	END_TYPE;
-
-  ENTITY Physical_connectivity_definition
-    SUPERTYPE OF (Physical_connectivity_structure_definition)
-    SUBTYPE OF (Shape_element);
-      associated_terminals  : SET[2:?] OF Physical_component_terminal;
-      SELF\Shape_element.associated_definition : Physical_unit_network_definition;
-    INVERSE
-      domain : SET [0:1] OF Physical_connectivity_definition_domain for associated_definition;
-    UNIQUE
-      UR1 : SELF\Shape_element.element_name, associated_definition;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_definition_domain;
-      domain_type : physical_connectivity_definition_domain_enumeration;
-      associated_definition : Physical_connectivity_definition;
-  END_ENTITY;
-  
-  ENTITY Physical_connectivity_definition_relationship;
-      first_definition  : Physical_connectivity_definition;
-      second_definition : Physical_connectivity_definition;
-      purpose           : STRING;
-    INVERSE
-      requirement : SET[1:1] OF Requirement_assignment FOR assigned_to;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_element;
-      name                 : STRING; 
-      start_terminus       : termination_or_junction;
-      end_terminus         : termination_or_junction;
-      connectivity_context : Physical_connectivity_structure_definition;
-    UNIQUE
-      UR1 : name, connectivity_context;
-    WHERE
-      WR1 : start_terminus <> end_terminus;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_layout_topology_requirement_assignment
-    SUBTYPE OF(Requirement_assignment);
-    SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
-    SELF\Requirement_assignment.assigned_to          : Physical_connectivity_definition;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_make_from_relationship;
-      reusable_definition  : Physical_connectivity_definition;
-      resultant_definition : Physical_connectivity_definition;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_structure_definition
-    SUBTYPE OF (Physical_connectivity_definition);
-    DERIVE
-      structural_terminal_nodes : SET OF Physical_component_terminal := get_pct(structural_element);
-      structural_junction_nodes : SET OF Topological_junction := get_tj(structural_element);
-      tree_structure : LOGICAL := ((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1));
-    INVERSE
-      structural_element : SET[1:?] OF Physical_connectivity_element FOR connectivity_context;
-    WHERE
-      WR1 : SIZEOF(QUERY(stn <* structural_terminal_nodes |
-                   NOT(stn IN SELF\Physical_connectivity_definition.associated_terminals)
-                   )) = 0;
-      WR2 : SIZEOF(structural_terminal_nodes) = 
-            SIZEOF(SELF\Physical_connectivity_definition.associated_terminals);
-  END_ENTITY;
-
-  ENTITY Physical_unit_network_definition
-    SUBTYPE OF (Part_design_view);
-    DERIVE
-      terminals : SET [0:?] OF Component_terminal := 
-      get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')));
-       assembly : SET[0:?] of Product_view_definition := pcd_get_assemblies(terminals);
-    WHERE
-      WR1 : NOT (SIZEOF(terminals) > 1) OR
-           (SIZEOF(QUERY(t <* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 
-                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0);
-      WR2: SIZEOF(QUERY( ass <* assembly |
-      (ass\Product_view_definition.defined_version = SELF\Product_view_definition.defined_version)
-           )) > 0;                          
-  END_ENTITY;
-
-  ENTITY Topological_junction;
-      name  : STRING;   
-      scope : Physical_connectivity_structure_definition;
-    UNIQUE
-      UR1 : name, scope;
-  END_ENTITY; 
-
-  FUNCTION pcd_get_assemblies(input : SET OF Component_terminal) : SET OF Product_view_definition;
-    LOCAL
-      ac : SET OF Assembly_component := [];
-     pvd : SET OF Product_view_definition := [];
-    END_LOCAL;
-   REPEAT i := 1 TO HIINDEX(input) BY 1;
-      ac := ac + input[i]\Component_feature.associated_definition;
-   END_REPEAT;
-   REPEAT i := 1 to HIINDEX(ac) BY 1;
-     pvd  := pvd + ac[i]\Assembly_component.assemblies;
-   END_REPEAT;
-   RETURN(pvd);
-  END_FUNCTION; 
-   
-  FUNCTION get_terminals(input : SET OF Physical_connectivity_definition) : SET OF Component_terminal;
-  LOCAL
-   ct : SET OF Component_terminal := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   ct := ct + input[i].associated_terminals;
-  END_REPEAT;
-  RETURN(ct);
-  END_FUNCTION;
-  
-  FUNCTION get_pct(input : SET OF Physical_connectivity_element) : SET OF Physical_component_terminal;
-  LOCAL
-   pct : SET OF Physical_component_terminal := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   IF ('PHYSICAL_COMPONENT_FEATURE_ARM.PHYSICAL_COMPONENT_TERMINAL' IN TYPEOF(input[i].start_terminus)) THEN
-   pct := pct + input[i].start_terminus;
-   END_IF;
-   IF ('PHYSICAL_COMPONENT_FEATURE_ARM.PHYSICAL_COMPONENT_TERMINAL' IN TYPEOF(input[i].end_terminus)) THEN
-   pct := pct + input[i].end_terminus;
-   END_IF;
-  END_REPEAT;
-  RETURN(pct);
-  END_FUNCTION;
-
-
-  FUNCTION get_tj(input : SET OF Physical_connectivity_element) : SET OF Topological_junction;
-  LOCAL
-   tj : SET OF Topological_junction := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   IF ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].start_terminus)) THEN
-   tj := tj + input[i].start_terminus;
-   END_IF;
-   IF ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus)) THEN
-   tj := tj + input[i].end_terminus;
-   END_IF;
-  END_REPEAT;
-  RETURN(tj);
-  END_FUNCTION;
-
-END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.3 2015/08/26 08:04:21 lothartklein Exp $
-   N - ISO/TS 10303-1826 physical_connectivity_layout_topology_requirement - EXPRESS ARM*)
-
-SCHEMA Physical_connectivity_layout_topology_requirement_arm;
-
-USE FROM Requirement_decomposition_arm; -- ISO/TS 10303-1740
-REFERENCE FROM Support_resource_arm(bag_to_set);
-
-ENTITY Physical_connectivity_layout_topology_link;
-  subsequent_node : Physical_connectivity_layout_topology_node;
-  precedent_node  : Physical_connectivity_layout_topology_node;
-WHERE  
-  WR1 : acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], 
-       'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK');
-END_ENTITY;
-
-ENTITY Physical_connectivity_layout_topology_node;
-  terminal_type : STRING;
-END_ENTITY;
-
-ENTITY Physical_connectivity_layout_topology_requirement
-  SUBTYPE OF(Predefined_requirement_view_definition);
-  elements : SET [1:?] OF Physical_connectivity_layout_topology_link;
-DERIVE
-  nodes : SET [1:?] OF Physical_connectivity_layout_topology_node := pcd_get_pcltn(elements);
-  tree_structure : LOGICAL := (SIZEOF(nodes) = (SIZEOF(elements) + 1));
-WHERE
-   WR1 : (tree_structure = TRUE);
-END_ENTITY;
-
-FUNCTION pcd_get_pcltn(input : SET OF Physical_connectivity_layout_topology_link) : SET OF Physical_connectivity_layout_topology_node;
-  LOCAL
-   pcltn : SET OF Physical_connectivity_layout_topology_node := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   pcltn := pcltn + input[i].precedent_node + input[i].subsequent_node;
-  END_REPEAT;
-  RETURN(pcltn);
-END_FUNCTION;
-  
-FUNCTION acyclic_physical_connectivity_layout_topology_link
-    (relation : Physical_connectivity_layout_topology_link; 
-    relatives : SET[1:?] OF Physical_connectivity_layout_topology_node; 
-    specific_relation : STRING) : BOOLEAN; 
-  LOCAL
-      x : SET OF Physical_connectivity_layout_topology_link := [];
-  END_LOCAL;
-  IF relation.precedent_node IN relatives THEN
-      RETURN (FALSE);
-  END_IF;
-  x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_node,
-      'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' +
-      'PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK.' +
-      'SUBSEQUENT_NODE')) | specific_relation IN TYPEOF(pd));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_physical_connectivity_layout_topology_link(x[i], relatives +
-      relation.precedent_node, specific_relation) THEN
-      RETURN (FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN (TRUE);
-END_FUNCTION;    
-
-END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.92 2017/03/23 13:49:43 kevletu Exp $
-   ISO TC184/SC4/WG12 N9464 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8206
-*)
-
-SCHEMA Physical_unit_design_view_arm;
-
-USE FROM Assembly_component_arm;
-USE FROM Interface_component_arm;	-- ISO/TS 10303-1691
-USE FROM Part_template_arm; -- ISO/TS 10303-1722
-USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
-USE FROM Specification_document_arm;	-- ISO/TS 10303-1747
-	
-REFERENCE FROM Support_resource_arm(bag_to_set);  
-
-  TYPE assembly_component_or_item_number = SELECT
-    (Assembly_item_number,
-     Assembly_component_relationship);
-  END_TYPE;
-	
-  TYPE assembly_item_number_or_process_specification = SELECT
-    (Assembly_item_number,
-     Process_specification);
-  END_TYPE;
-	
-  TYPE bonding_or_coating = ENUMERATION OF
-    (bonding, coating);
-  END_TYPE;    
-	
-  TYPE pudv_groupable_item = SELECT BASED_ON groupable_item WITH 
-    (Assembly_component,
-    Assembly_component_relationship);
-  END_TYPE; 
-
-  TYPE pudv_physical_unit = SELECT BASED_ON physical_unit WITH 
-    (Part_design_view);
-  END_TYPE; 
-
-  SUBTYPE_CONSTRAINT pudv_part_view_definition_subtypes FOR Part_view_definition; 
-    (ONEOF (Part_usage_view,
-    Part_design_view));
-  END_SUBTYPE_CONSTRAINT; 
-
-  TYPE pudv_extended_value_with_unit = EXTENSIBLE SELECT BASED_ON extended_value_with_unit WITH 
-    (textual_quantity_specification);
-  END_TYPE; 
-
-  TYPE pudv_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-    (Assembly_item_number,
-     Assembly_component_relationship,
-     Component_material_relationship);
-  END_TYPE;
-	
-  TYPE textual_quantity_specification = STRING;
-  END_TYPE;
-	
-  ENTITY Assembly_alternate_product
-    SUBTYPE OF (Alternate_product_relationship);
-      basis_context : Part_design_view;
-    WHERE
-      WR1: NOT EXISTS (SELF\Alternate_product_relationship.criteria);
-  END_ENTITY;
-
-  ENTITY Assembly_item_number;
-      assembly_usage : SET[1:?] OF Assembly_component_relationship;
-      item_number    : STRING;
-    DERIVE
-      assembly : Product_view_definition := assembly_usage[1].relating_view;
-      part     : Product := assembly_usage[1].related_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product;
-    UNIQUE
-      UR1 : assembly, item_number;
-    WHERE
-      WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
-      WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view = assembly))) = 0;
-  END_ENTITY;
-
-  ENTITY Component_material_relationship;
-      associated_design : Part_design_view;  
-      component_1   : assembly_component_or_item_number;
-      component_2   : OPTIONAL assembly_component_or_item_number;
-      material : OPTIONAL assembly_component_or_item_number;
-      role          : bonding_or_coating;
-      specification : OPTIONAL assembly_item_number_or_process_specification;
-    WHERE
-      WR1 : component_1 <> component_2;
-      WR2 : component_1 <> material;
-      WR3 : component_1 <> specification;
-      WR4 : component_2 <> material;
-      WR5 : component_2 <> specification;
-      WR6 : material <> specification;
-      WR7 : valid_assembly_context_for_bond(associated_design, component_1);
-      WR8 : valid_assembly_context_for_bond(associated_design, component_2);
-      WR9 : valid_assembly_context_for_bond(associated_design, material);
-     WR10 : valid_assembly_context_for_bond(associated_design, specification);
-  END_ENTITY;
-
-  ENTITY Component_to_physical_usage_view_assignment
-  	SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.relating_view RENAMED design_view_component : Assembly_component;  	
-      SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: Assembly_component;
-    WHERE
-      WR1 : design_view_component <> usage_view_component;
-      WR2 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-  END_ENTITY;
-
-  ENTITY Component_feature_to_physical_usage_view_assignment;
-      defined_part_feature   : Part_feature;
-      assigned_design_object : Component_feature;
-    UNIQUE 
-    	UR1 : assigned_design_object;
-    	UR2 : defined_part_feature;
-  END_ENTITY;
-
-  ENTITY Connection_zone_in_design_view
-  	SUBTYPE OF (Connection_zone);
-      SELF\Shape_element.associated_definition : Part_design_view;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.element_name);
-  END_ENTITY; 
-
-  ENTITY Next_assembly_usage_occurrence_relationship
-    SUBTYPE OF (Next_assembly_usage);
-    UNIQUE
-      UR1 : SELF\Product_occurrence_definition_relationship.relating_view, 
-            SELF\Assembly_component_relationship.location_indicator;
-  END_ENTITY;
-
-  ENTITY Part_design_view
-    SUBTYPE OF (Part_view_definition);
-      usage_view : OPTIONAL Part_usage_view;
-    WHERE
-      WR1 : SIZEOF(QUERY(nauo <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATING_VIEW') |
-                 (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.NEXT_ASSEMBLY_USAGE_OCCURRENCE_RELATIONSHIP' IN TYPEOF(nauo)) XOR
-                  ('ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE' IN TYPEOF(nauo)))                 
-                 )) = 0;
-  END_ENTITY;
-
-  RULE unique_assembly_item_number FOR (Assembly_item_number);
-    LOCAL
-      acr : BAG OF Assembly_component_relationship := [];
-    END_LOCAL;
-    REPEAT i := 1 to SIZEOF(Assembly_item_number) by 1;
-      acr  := acr + Assembly_item_number[i].assembly_usage;
-    END_REPEAT;  
-    WHERE
-      WR1 : SIZEOF(acr) = SIZEOF(bag_to_set(acr));
-  END_RULE;
-
-  FUNCTION valid_assembly_context_for_bond(input1 : Part_design_view;
-                                           input2 : GENERIC_ENTITY) : BOOLEAN;
-    RETURN(TRUE);
-  END_FUNCTION;                                         
-
-  SUBTYPE_CONSTRAINT pudv_connection_zone_subtypes FOR Connection_zone;     
-    ONEOF (Connection_zone_in_usage_view,
-           Connection_zone_in_design_view);
-  END_SUBTYPE_CONSTRAINT;
-
-END_SCHEMA;
-
-(*
-   $Id: arm.exp,v 1.90 2015/09/29 14:08:57 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8899 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N8215
-*)
-
-SCHEMA Physical_unit_usage_view_arm;
-
-USE FROM Feature_and_connection_zone_arm;	-- ISO/TS 10303-1671
-USE FROM Item_definition_structure_arm;	-- ISO/TS 10303-1345
--- USE FROM Part_feature_location_arm;	-- ISO/TS 10303-1714
-USE FROM Requirement_assignment_arm;	-- ISO/TS 10303-1233
-USE FROM Shape_composition_arm;	-- ISO/TS 10303-1742
-USE FROM Part_shape_arm;
-
-REFERENCE FROM Support_resource_arm(bag_to_set);  
-
-  TYPE material_state_change_enumeration = ENUMERATION OF
-    (material_addition,
-     material_removal);
-  END_TYPE;
-
-  TYPE physical_unit = EXTENSIBLE GENERIC_ENTITY SELECT (
-    Part_usage_view);
-  END_TYPE;   
-
-  TYPE puuv_groupable_item = SELECT BASED_ON groupable_item WITH 
-    (Part_feature);
-  END_TYPE; 
-
-  TYPE puuv_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH 
-    (Part_feature,
-     Part_view_definition);
-  END_TYPE; 
-
-  TYPE puuv_documented_element_select = SELECT BASED_ON documented_element_select WITH 
-    (Part_feature);
-  END_TYPE;
-
-  ENTITY Derived_part_view_definition_relationship
-    SUBTYPE OF(View_definition_relationship);
-      SELF\View_definition_relationship.relating_view : Part_view_definition;
-      SELF\View_definition_relationship.related_view  : Part_view_definition;
-    WHERE
-      WR1: SIZEOF(get_derived_shape_element(related_view)) > 0;
-      WR2: SIZEOF(QUERY(gdrse <* get_derived_shape_element(related_view) |
-             (SIZEOF(QUERY(se <* gdrse.derived_from |
-                relating_view <> se.associated_definition 
-              )) = 0)
-             )) = SIZEOF(get_derived_shape_element(related_view));
-      WR3 : NOT EXISTS(SELF\View_definition_relationship.relation_type);             
-  END_ENTITY;
-
-  ENTITY Connection_zone_in_usage_view
-  	SUBTYPE OF (Connection_zone);
-  	  SELF\Shape_element.associated_definition : Part_usage_view;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.element_name);
-  END_ENTITY; 
-
-  ENTITY Connection_zone_map_identification;
-      reference_connection_zone_shape : Usage_view_connection_zone_terminal_shape_relationship;
-      mapped_connection_zone_shape    : Usage_view_connection_zone_terminal_shape_relationship;
-    UNIQUE
-      UR1 : reference_connection_zone_shape, mapped_connection_zone_shape;
-    WHERE
-      WR1 : reference_connection_zone_shape <> mapped_connection_zone_shape;
-      WR2 : reference_connection_zone_shape.associated_connection_zone_shape_definition <> mapped_connection_zone_shape.associated_connection_zone_shape_definition;
-  END_ENTITY;
-
-  ENTITY Part_feature
-    SUBTYPE OF (General_part_feature);
-      SELF\Shape_element.associated_definition : Part_usage_view;
-      material_state_change   : OPTIONAL material_state_change_enumeration;
-      precedent_feature       : OPTIONAL Part_feature;
-    INVERSE
-      subsequent_feature      : SET [0:1] OF Part_feature for precedent_feature;
-    WHERE
-      WR1:  NOT EXISTS(precedent_feature) OR
-            (NOT (SIZEOF(subsequent_feature) = 1) OR
-            (acyclic_part_feature_precedence_relationship(SELF,
-             [subsequent_feature[1]],
-             'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE')));
-      WR2 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Part_feature_make_from_relationship
-  	SUBTYPE OF (Shape_element_relationship);
-      associated_make_from : View_definition_relationship;
-      SELF\Shape_element_relationship.relating RENAMED reusable_feature	: Part_feature;
-      SELF\Shape_element_relationship.related RENAMED resultant_feature	: Part_feature;
-    UNIQUE
-      UR1 : reusable_feature, resultant_feature;
-    WHERE
-      WR1 : reusable_feature :<>: resultant_feature;
-      WR2 : reusable_feature.associated_definition :<>: resultant_feature.associated_definition;
-  END_ENTITY;
-
-  ENTITY Part_feature_template_definition
-    SUBTYPE OF (Feature_definition_with_connection_area);
-      id : STRING;
-    UNIQUE
-      UR1 : id; 
-  END_ENTITY;
-
-  ENTITY Part_feature_template_shape_model
-    SUBTYPE OF (Geometric_model);
-    WHERE
-      WR1 : NOT (SIZEOF(USEDIN(SELF, '')) > 1) OR 
-       (SIZEOF(QUERY(foo <* USEDIN(SELF,'') | 
-       NOT(SIZEOF(['PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
-        'PHYSICAL_UNIT_USAGE_VIEW_ARM.SHAPE_DESCRIPTION_ASSOCIATION'] * TYPEOF(foo))= 1)
-        )) 
-        = 0);
-      WR2 : NOT EXISTS(SELF\Representation.description);
-      WR3: ((SIZEOF(USEDIN(SELF,
-       'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'))=0) );
-  END_ENTITY;
-
-  ENTITY Part_usage_view
-    SUBTYPE OF (Part_view_definition);
-  END_ENTITY;
-
-  ENTITY Usage_view_connection_zone_terminal_shape_relationship;
-      associating_terminal_shape                  : Part_feature_template_shape_model;
-      associated_usage                            : Connection_zone_in_usage_view;
-      associated_connection_zone_shape_definition : Geometric_model;
-      associated_usage_placement                  : Axis_placement;
-    WHERE
-      WR1 : associating_terminal_shape :<>: associated_connection_zone_shape_definition;
-  END_ENTITY;
-
-  RULE unique_assembly_component_relationship FOR (Assembly_component_relationship);
-   LOCAL
-     gee : SET OF Product_view_definition := [];
-     gei : SET OF Product_view_definition := [];
-   END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_component_relationship) by 1;
-     gee  := gee + Assembly_component_relationship[i]\Product_occurrence_definition_relationship.related_view;
-     gei  := gei + Assembly_component_relationship[i]\Product_occurrence_definition_relationship.relating_view;
-   END_REPEAT;  
-  WHERE
-   WR1 : SIZEOF(gee) = SIZEOF(gei);
-  END_RULE;
-
-  FUNCTION acyclic_part_feature_precedence_relationship
-      (relation : Part_feature; relatives : SET[1:?] OF
-      Part_feature; specific_relation : STRING) : BOOLEAN; 
-    LOCAL
-      x : SET OF Part_feature;
-    END_LOCAL;
-
-    IF relation.precedent_feature IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-      x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_feature,
-        'PHYSICAL_UNIT_USAGE_VIEW_ARM.' + 'PART_FEATURE.' +
-        'SUBSEQUENT_FEATURE')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_part_feature_precedence_relationship(x[i], relatives +
-        relation.precedent_feature, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION; 
-
-  FUNCTION get_derived_shape_element( input : Part_view_definition) : SET OF Derived_shape_element;
-    LOCAL
-      se : SET OF Shape_element := [];
-    END_LOCAL; 
-    se  := se + bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.ASSOCIATED_DEFINITION'));
-    RETURN(QUERY(dse <* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));
-  END_FUNCTION;
-
-END_SCHEMA;
-
 (*
    $Id$
    ISO TC184/SC4/WG12 N6252 - ISO/TS 10303-1308 Picture representation - EXPRESS ARM
@@ -16273,43 +14041,30 @@ END_SCHEMA;
 
 
 (*
- $Id: arm.exp,v 1.26 2016/09/15 23:57:05 kahunten Exp $
- ISO TC184/SC4/WG12 N9238 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7753
+ $Id: arm.exp,v 1.12 2013/11/24 15:11:34 thomasrthurman Exp $
+ ISO TC184/SC4/WG12 N7753 - ISO/TS 10303-1772 Ply orientation specification - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5458
 *)
 
 SCHEMA Ply_orientation_specification_arm;
 
-USE FROM Part_and_zone_laminate_tables_arm; -- ISO/TS 10303-1770
-USE FROM Value_with_unit_arm; -- ISO TS 10303-1054
-USE FROM Measure_representation_arm; -- ISO TS 10303-1118
+USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
 
-  TYPE direction_select = SELECT
-    (Cartesian_11,
-     Curve_11,
-     Cylindrical_11,
+  TYPE angle_select = SELECT 
+    (Axis_placement_3d,
+     Curve,
      Direction,
-     Point_array,
-     Polar_11,
-     User_defined_11);
+     Point_path);
   END_TYPE;
 
-  ENTITY Cartesian_11
-    SUBTYPE OF (Detailed_geometric_model_element);
-      placement:  Axis_placement_3d;
- END_ENTITY;
+  ENTITY Direction_of_fiber_orientation_within_a_ply
+    SUBTYPE OF (Representation);
+      SELF\Representation.context_of_items : Geometric_coordinate_space; 
+      SELF\Representation.items            : SET[1:?] OF angle_select;
+    INVERSE 
+      orientations : SET[1:1] OF Ply_orientation_angle FOR rep_1;
+  END_ENTITY;
 
-  ENTITY Curve_11
-    SUBTYPE OF (Detailed_geometric_model_element);
-      guide_curves       : LIST [1:?] OF Curve;
-      fiber_11_offset    : Value_with_unit;
-  END_ENTITY;
- 
-  ENTITY Cylindrical_11
-    SUBTYPE OF (Detailed_geometric_model_element);
-      guide_curves       : LIST [1:?] OF Curve;
-  END_ENTITY;
- 
   ENTITY Draped_orientation_angle
     SUBTYPE OF (Ply_orientation_angle);
   END_ENTITY;
@@ -16317,62 +14072,42 @@ USE FROM Measure_representation_arm; -- ISO TS 10303-1118
   ENTITY Laid_orientation_angle
     SUBTYPE OF (Ply_orientation_angle);
   END_ENTITY;
- 
-  ENTITY Ply_angle_representation
-    SUBTYPE OF (Representation);
-      self\Representation.items : SET [1:1] OF Measure_item;
-  END_ENTITY;
- 
-  ENTITY Ply_orientation_angle
+
+  ENTITY Ply_orientation_angle 
     SUPERTYPE OF (ONEOF (Draped_orientation_angle, 
                          Laid_orientation_angle)) 
     SUBTYPE OF (Representation_relationship);  
-      SELF\Representation_relationship.rep_1 : Ply_angle_representation;
+      angle_reference                        : angle_select; 
+      SELF\Representation_relationship.rep_1 : Direction_of_fiber_orientation_within_a_ply;
       SELF\Representation_relationship.rep_2 : Reinforcement_orientation_basis; 
   END_ENTITY;
 
   ENTITY Point_and_vector
     SUBTYPE OF (Detailed_geometric_model_element);
       location : Point;
-      vector   : LIST [1:2] OF Direction;
+      vector : LIST [1:2] OF Direction;
   END_ENTITY;
 
-  ENTITY Point_array
+  ENTITY Point_path
     SUBTYPE OF (Detailed_geometric_model_element);
       directions : LIST [1:?] OF Point_and_vector;
   END_ENTITY;
- 
-  ENTITY Polar_11
-    SUBTYPE OF(Detailed_geometric_model_element);
-      placement : Axis_placement_3d;
-  END_ENTITY;
- 
+
   ENTITY Reinforcement_orientation_basis
     SUBTYPE OF (Representation);
-      SELF\Representation.context_of_items       : Geometric_coordinate_space;
-      SELF\Representation.items                  : SET [1:1] OF Axis_placement_3d;
-      basis_11_direction                         : direction_select;
+      SELF\Representation.context_of_items : Geometric_coordinate_space; 
+      SELF\Representation.items            : SET [1:1] OF Axis_placement_3d; 
     DERIVE
-      basis_placement_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
-    INVERSE
-      table       : Laminate_table FOR basis;
-      orientation : Ply_orientation_angle FOR rep_2;
-    WHERE
-      WR1: 'PLY_ORIENTATION_SPECIFICATION_ARM.AXIS_PLACEMENT_3D' IN TYPEOF(SELF\Representation.items[1]);
-    END_ENTITY;
-
-  ENTITY User_defined_11
-    SUBTYPE OF (Representation_item);
-      definition : String_representation_item;
+      basis_location : Cartesian_point := SELF\Representation.items[1]\Axis_placement.location;
+      orientation    : Direction       := SELF\Representation.items[1]\Axis_placement.ref_direction;
+    INVERSE 
+      tables       : SET[1:?] OF Laminate_table FOR basis; 
+      orientations : SET[1:?] OF Ply_orientation_angle FOR rep_2;
   END_ENTITY;
- 
+
   SUBTYPE_CONSTRAINT pos_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
     ONEOF (Point_and_vector,
-           Point_array,
-           Cartesian_11,
-           Curve_11,
-           Cylindrical_11,
-           Polar_11);
+           Point_path);
   END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
@@ -16988,11 +14723,11 @@ USE FROM Procedural_shape_model_arm; -- ISO/CD-TS 10303-1317
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.15 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8887 - ISO/TS 10303-1803 Process plan - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7927
+   $Id: arm.exp,v 1.11 2012/10/11 05:49:08 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7927 - ISO/CD-TS - 10303-1803 Process plan - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N7364
 *)
-
+(* UNDER DEVELOPMENT *)
 SCHEMA Process_plan_arm;
 
 USE FROM Activity_method_arm; -- ISO/TS 10303-1049
@@ -17001,11 +14736,8 @@ USE FROM Support_resource_arm; -- ISO/TS 10303-1800
 USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 USE FROM Specification_control_arm; -- ISO/TS 10303-1112
 USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
-USE FROM Time_interval_assignment_arm; -- ISO/TS 10303-1365
 
-TYPE pl_additional_application_domain_enumeration = ENUMERATION BASED_ON additional_application_domain_enumeration WITH (
-  process_state);
-END_TYPE;
+
 
 TYPE process_operation_input_or_output_select = EXTENSIBLE GENERIC_ENTITY SELECT (
   Assembly_component_relationship,
@@ -17070,8 +14802,8 @@ ENTITY Process_operation_occurrence_relationship;
   description : OPTIONAL text;
   relating : Process_operation_occurrence;
   related : Process_operation_occurrence;
-  cycle_time : OPTIONAL Time_interval_with_bounds;
-  waiting_time : OPTIONAL Duration;
+  waiting_time : OPTIONAL duration;
+  cycle_time : OPTIONAL duration;
 END_ENTITY;
 
 ENTITY Process_operation_resource_assignment;
@@ -17317,8 +15049,8 @@ END_ENTITY;
 END_SCHEMA;  -- Product_as_individual_arm
 
 (*
-   $Id: arm.exp,v 1.11 2015/09/24 11:01:19 lothartklein Exp $
-   ISO TC184/SC4/WG12 N7939 - ISO/TS 10303-1804 Product as individual assembly and test - EXPRESS ARM
+   $Id: arm.exp,v 1.10 2012/10/11 05:49:08 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N7939 - ISO/CD-TS - 10303-1804 Product as individual assembly and test - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7376
 *)
 
@@ -17469,18 +15201,18 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 END_SCHEMA; 
 
 (*
- $Id: arm.exp,v 1.22 2015/09/08 15:41:59 sophieherail Exp $
- ISO TC184/SC4/WG12 N8878 - ISO/TS 10303-1103 Product class - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N7792
+ $Id: arm.exp,v 1.20 2012/10/11 05:49:16 liutkuviene Exp $
+ ISO TC184/SC4/WG12 N7792 - ISO/TS 10303-1103 Product class - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N6255
 *)
 
 SCHEMA Product_class_arm;
 
-USE FROM Classification_assignment_arm; 
-USE FROM Group_arm;
 USE FROM Identification_assignment_arm;
+
 USE FROM Product_concept_identification_arm;
-USE FROM Property_assignment_arm;
+
+USE FROM Group_arm;
 
 TYPE expression_operator = ENUMERATION OF (or_operator, and_operator, oneof_operator, not_operator);
 END_TYPE;
@@ -17489,18 +15221,11 @@ TYPE specification_operand_select = SELECT
 		(Specification_expression, Specification);
 END_TYPE;
 
-TYPE id_for_class = SELECT BASED_ON identification_item WITH 
+TYPE id_for_class = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
    (product_class);
 END_TYPE; 
 
-TYPE pc_classification_item = SELECT BASED_ON classification_item WITH (
-  Specification,
-  Specification_category);
-END_TYPE; 
-
-TYPE pc_property_assignment_select = SELECT BASED_ON property_assignment_select WITH (
-  Specification,
-  Specification_category);
+TYPE specification_for_category = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
 END_TYPE;
 
  ENTITY Class_category_association;
@@ -17608,9 +15333,9 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
- $Id: arm.exp,v 1.17 2015/09/08 15:40:31 sophieherail Exp $
- ISO TC184/SC4/WG12 N8875 - ISO/TS 10303-1231 Product data management - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N6749
+ $Id: arm.exp,v 1.15 2009/08/11 11:43:40 liutkuviene Exp $
+ ISO TC184/SC4/WG12 N6749 - ISO/TS 10303-1231 Product data management - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N5479
 *) 
 
 
@@ -17639,7 +15364,7 @@ USE FROM Time_interval_assignment_arm;    -- ISO/TS 10303-1365
 USE FROM Work_order_arm;    -- ISO/TS 10303-1043
 
 
-TYPE pdm_activity_item = SELECT BASED_ON activity_item WITH
+TYPE pdm_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_item WITH
   (Assembly_component_relationship,
    Item_usage_effectivity,
    Product_version,
@@ -17647,7 +15372,7 @@ TYPE pdm_activity_item = SELECT BASED_ON activity_item WITH
    View_definition_relationship);
 END_TYPE;
 
-TYPE pdm_affected_item_select = SELECT BASED_ON affected_item_select WITH
+TYPE pdm_affected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON affected_item_select WITH
   (Assembly_component_relationship,
    Assigned_property,
    Product_version,
@@ -17655,18 +15380,18 @@ TYPE pdm_affected_item_select = SELECT BASED_ON affected_item_select WITH
    View_definition_relationship);
 END_TYPE;
 
-TYPE pdm_approval_item = SELECT BASED_ON approval_item WITH
+TYPE pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
   (Activity,
    Applied_activity_assignment,
    Item_usage_effectivity,
    Work_request);
 END_TYPE;
 
-TYPE pdm_certification_item = SELECT BASED_ON certification_item WITH
+TYPE pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH
   (Product_version_relationship);
 END_TYPE;
 
-TYPE pdm_classification_item = SELECT BASED_ON classification_item WITH
+TYPE pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
   (Activity,
    Activity_method,
    Activity_method_assignment,
@@ -17739,13 +15464,13 @@ TYPE pdm_classification_item = SELECT BASED_ON classification_item WITH
    Work_request_status);
 END_TYPE;
 
-TYPE pdm_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
+TYPE pdm_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH
   (Activity,
    Applied_activity_assignment,
    Work_request);
 END_TYPE;
 
-TYPE pdm_documented_element_select = SELECT BASED_ON documented_element_select WITH
+TYPE pdm_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
   (Activity,
    Activity_method,
    Product_version_relationship,
@@ -17754,22 +15479,22 @@ TYPE pdm_documented_element_select = SELECT BASED_ON documented_element_select W
    Work_request);
 END_TYPE;
 
-TYPE pdm_effectivity_item = SELECT BASED_ON effectivity_item WITH
+TYPE pdm_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH
   (Assembly_component_relationship,
    Product_version,
    Product_view_definition,
    View_definition_relationship);
 END_TYPE;
 
-TYPE pdm_event_item = SELECT BASED_ON event_item WITH
+TYPE pdm_event_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_item WITH
   (Project);
 END_TYPE;
 
-TYPE pdm_external_class_assigned_name_select = SELECT BASED_ON assigned_name_select WITH
+TYPE pdm_external_class_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH
   (External_class_library);
 END_TYPE;
 
-TYPE pdm_identification_item = SELECT BASED_ON identification_item WITH
+TYPE pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
   (Shape_element_relationship);
 END_TYPE;
 
@@ -17783,16 +15508,16 @@ TYPE pdm_organization_or_person_in_organization_item = SELECT BASED_ON organizat
    Work_request);
 END_TYPE;
 
-TYPE pdm_project_item = SELECT BASED_ON project_item WITH
+TYPE pdm_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH
   (Activity,
    Product_concept);
 END_TYPE;
 
-TYPE pdm_security_classification_item = SELECT BASED_ON security_classification_item WITH
+TYPE pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH
   (Assembly_component_relationship);
 END_TYPE;
 
-TYPE pdm_string_select = SELECT BASED_ON string_select WITH
+TYPE pdm_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select WITH
   (Approval,
    Approval_relationship,
    Approval_status,
@@ -19205,167 +16930,6 @@ ENTITY Requirement_source;
 END_ENTITY;
 
 END_SCHEMA;  -- Requirement_assignment_arm
-(*
-   $Id: arm.exp,v 1.77 2015/09/08 15:30:35 sophieherail Exp $
-   ISO TC184/SC4/WG12 N8857 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N7037
-*)
-
-SCHEMA Requirement_decomposition_arm;
-
-	USE FROM Conductivity_material_aspects_arm;	-- ISO/TS 10303-1756
-	USE FROM Elemental_geometric_shape_arm;	-- ISO/TS 10303-1004
-	USE FROM Functional_specification_arm;	-- ISO/TS 10303-1679
-	USE FROM Group_arm; -- ISO/TS 10303-1113
-	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
-	USE FROM Requirement_view_definition_relationship_arm;  -- ISO/TS 10303-1142
-
-	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
-	REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1765
-
-    TYPE rd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH
-     (Group,
-      Group_relationship);
-    END_TYPE;
-
-    TYPE material_conductivity_classification = ENUMERATION OF
-     (conductive,
-      resistive,
-      semi_conductive,
-      non_conductive);
-    END_TYPE;
-
-  TYPE requirement_basis_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;  
-  
-	TYPE characteristic_select = SELECT
-      (characteristic,
-       Boolean_representation_item,
-       Date_time_representation_item,
-       Integer_representation_item,
-       Logical_representation_item,
-       Property_value_representation,
-       Rational_representation_item,
-       Real_representation_item,
-       Sequence_representation_item,
-       Set_representation_item);
-	END_TYPE; 
-
-	TYPE rd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
-	   (Predefined_requirement_view_definition);
-	END_TYPE; 
-
-	TYPE rd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-		(Predefined_requirement_view_definition);
-	END_TYPE;
-
-	TYPE rd_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
-		(Requirement_view_definition);
-	END_TYPE;
-
-	TYPE relationship_operation = ENUMERATION OF
-    	(and_operation,
-		or_operation);
-	END_TYPE;
-
-  ENTITY Constraint_occurrence
-    SUPERTYPE OF (View_based_constraint_occurrence)
-    SUBTYPE OF (Predefined_requirement_view_definition);
-      logical_relation : OPTIONAL Complex_clause;
-    WHERE
-      WR1 : (('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation);
-      WR2 : NOT EXISTS(SELF\Product_view_definition.id);
-  END_ENTITY;
-
-  ENTITY Design_characteristic_occurrence
-    SUBTYPE OF (Predefined_requirement_view_definition);
-  END_ENTITY;
-
-  ENTITY View_based_constraint_occurrence
-    SUPERTYPE OF (Shape_and_view_based_constraint_occurrence)
-    SUBTYPE OF (Constraint_occurrence);
-      constraining_part : Product_view_definition;
-  END_ENTITY;
-
-  ENTITY Material_electrical_conductivity_requirement
-    SUBTYPE OF (Predefined_requirement_view_definition);
-      electrical_conductivity_characteristic : material_conductivity_classification;
-  END_ENTITY;
-
-  ENTITY Operational_requirement_relationship
-     SUBTYPE OF (Assigned_property, View_definition_relationship);
-       SELF\View_definition_relationship.relating_view RENAMED operand_1 : Requirement_view_definition;
-       SELF\View_definition_relationship.related_view RENAMED operand_2  : Requirement_view_definition;
-       SELF\Assigned_property.described_element RENAMED result           : Requirement_view_definition;
-       relationship_type                                                 : relationship_operation;
-    WHERE
-      WR1 : operand_1 :<>: operand_2;
-  END_ENTITY;
-
-  ENTITY Predefined_requirement_view_definition
-	SUPERTYPE OF(ONEOF(Constraint_occurrence,
-		 Design_characteristic_occurrence))
-    SUBTYPE OF(Requirement_view_definition);
-      required_characteristic : OPTIONAL characteristic_select;
-      requirement_basis : OPTIONAL SET[1:?] OF requirement_basis_select;
-    DERIVE
-		requirement_specification: SET[1:?] OF Document_definition :=
-  			get_document_definition(SELF, 'requirement specification', 
-  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION');
-		reference_clause: SET[0:1] OF Document_definition :=
-  			get_document_definition(SELF, 'reference clause', 
-  			'SPECIFICATION_DOCUMENT_ARM.DOCUMENT_DEFINITION');
-   INVERSE
-	  required_material : SET [0:1] OF material_identification FOR items;      
-    WHERE  
-	  WR1 : NOT (SIZEOF(required_material) = 1) OR
-            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material));
-      WR2: SELF\Product_view_definition.initial_context.application_domain IN 
-          ['mechanical', 'thermal', 'electromechanical', 'electromagnetic compatibility', 'electrical'];
-      WR3: SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test'];
-      WR4 : NOT EXISTS(SELF\Product_view_definition.name);
-      WR5 : EXISTS(required_characteristic) XOR EXISTS(requirement_basis);
-  END_ENTITY;
-
-  ENTITY Shape_and_view_based_constraint_occurrence
-    SUBTYPE OF (View_based_constraint_occurrence);
-      constraining_shape : SET[1:?] OF Geometric_model;
-    WHERE
-      WR1 : valid_constraining_shape(constraining_shape,
- SELF\View_based_constraint_occurrence.constraining_part);
-  END_ENTITY;
-
-  FUNCTION valid_constraining_shape(
-    sd   : SET OF Geometric_model ;
-    eepd : Product_view_definition
-  ) : BOOLEAN;
-
-    RETURN(TRUE);
-  END_FUNCTION;
-
-FUNCTION get_rvd(
-	input : requirement_assignment_item;
-	id : STRING
-) : SET OF Requirement_view_definition; 
-
-LOCAL
-	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
-	ra : SET[0:?] OF Requirement_assignment :=[];
-END_LOCAL;
-	ra := bag_to_set((QUERY(rai <* USEDIN (input, 'REQUIREMENT_ASSIGNMENT_ARM.'+
-	'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') | (rai.id = id))));
-
-	-- iterate over ra
-	REPEAT i := 1 to SIZEOF(ra) by 1;
-		rvd := rvd + ra[i].assigned_requirement;
-	END_REPEAT;
-
-	RETURN(rvd);
-END_FUNCTION;
-
-
-END_SCHEMA;
-
 (*
  $Id: arm.exp,v 1.17 2008/10/06 19:13:13 philsp Exp $
  ISO TC184/SC4/WG12 N5944 - ISO/TS 10303-1140 Requirement identification and version - EXPRESS ARM
@@ -22567,52 +20131,6 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.11 2006/01/20 08:43:40 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N4182 - ISO/TS 10303-1745 Signal - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3606
-*)
-
-SCHEMA Signal_arm;
-
-	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
-
- 	TYPE s_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Composite_signal_property_relationship,
-		Signal_property,
-		Signal);
-	END_TYPE;
-
-  ENTITY Composite_signal_property
-    SUBTYPE OF (Signal_property);
-    INVERSE
-      signal_property_structure : SET[1:?] OF composite_signal_property_relationship FOR composition;
-  END_ENTITY;
-
-  ENTITY Composite_signal_property_relationship;
-      composition                        	: Composite_signal_property;
-      signal_property_structural_element 	: Signal_property;
-    INVERSE
-      aggregation_operation								: External_source_identification FOR item;
-  END_ENTITY;
-
-  ENTITY Signal;
-      name : STRING;
-    INVERSE
-      signal_category	: External_source_identification FOR item;
-    UNIQUE
-      UR1 : name;  
-  END_ENTITY;
-
-  ENTITY Signal_property
-    SUPERTYPE OF (Composite_signal_property);
-      signal_property_representation : Characteristic_data_table;
-      characterized_signal           : Signal;
-    INVERSE
-      signal_property_category				: External_source_identification FOR item;
-  END_ENTITY;
-
-END_SCHEMA;
-(*
 $Id: arm.exp,v 1.12 2010/06/09 15:41:00 philsp Exp $
 ISO TC184/SC4/WG12 N7139 - ISO/TS 10303-1133 Single part representation - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N6087
@@ -23480,9 +20998,9 @@ USE FROM Specification_based_configuration_arm; -- ISO/TS 10303-1108
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.45 2015/09/10 13:41:14 sophieherail Exp $
-   ISO TC184/SC4/WG12 N8827 - ISO/TS 10303-1747 Specification document - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N6935
+   $Id: arm.exp,v 1.42 2009/12/23 13:29:05 liutkuviene Exp $
+   ISO TC184/SC4/WG12 N6935 - ISO/TS 10303-1747 Specification document - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N5503
 *)
 
 SCHEMA Specification_document_arm;
@@ -23493,17 +21011,13 @@ USE FROM Tagged_text_representation_arm; -- ISO/TS 10303-1366
 
 REFERENCE FROM Support_resource_arm(bag_to_set);
 
-  TYPE sd_documented_element_select = SELECT BASED_ON documented_element_select WITH (
+  TYPE sd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH (
     Product_configuration,
     Product_view_definition,
     Product_version,
     Product);
   END_TYPE;
 
-  TYPE sd_organization_or_person_in_organization_item = SELECT BASED_ON organization_or_person_in_organization_item WITH  (
-    Specification_definition);
-  END_TYPE;
-  
   ENTITY Design_specification
     SUPERTYPE OF (Interface_specification_document_definition)
     SUBTYPE OF (Specification_definition);
@@ -24192,7 +21706,7 @@ END_ENTITY;
 
 END_SCHEMA;
 (* Updated March 2015 with curved triangle additions
-   $Id: arm.exp,v 1.12 2016/08/03 14:58:58 kevletu Exp $
+   $Id: arm.exp,v 1.11 2016/04/18 09:49:31 kevletu Exp $
    ISO TC184/SC4/WG12 N9194 - ISO/CD-TS 10303-1819 Tessellated geometry - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7666
 *)
@@ -24208,15 +21722,6 @@ USE FROM Elemental_geometric_shape_arm;
 USE FROM Elemental_topology_arm;
 REFERENCE FROM Foundation_representation_arm(Using_representations);
 
-TYPE angular_deviation = plane_angle_measure;
-END_TYPE;
-
-TYPE aspect_ratio =  ratio_measure;
-END_TYPE;
-
-TYPE chordal_deviation = positive_length_measure;
-END_TYPE;
-
 TYPE edge_or_curve = SELECT
   (Edge,
    Curve);
@@ -24227,12 +21732,6 @@ TYPE face_or_surface = SELECT
    Surface);
 END_TYPE;  
 
-TYPE length_to_height_ratio =  ratio_measure;
-END_TYPE;
-
-TYPE maximum_edge_length = positive_length_measure;
-END_TYPE;
-
 TYPE path_or_composite_curve = SELECT
  (Path,
   Composite_curve);
@@ -24242,14 +21741,6 @@ TYPE tessellated_edge_or_vertex = SELECT
    (Tessellated_edge,
     Tessellated_vertex);
 END_TYPE;
-
-TYPE tessellation_accuracy_parameter_item = 
-    EXTENSIBLE SELECT(angular_deviation,
-                      aspect_ratio,
-                      chordal_deviation,
-                      length_to_height_ratio,
-                      maximum_edge_length);
-END_TYPE; 
 
 TYPE tg_draughting_callout_content_select = SELECT BASED_ON draughting_callout_content_select WITH (
   Tessellated_annotation);
@@ -24268,12 +21759,6 @@ END_ENTITY;
    WR2: NOT( SIZEOF(QUERY ( it <* SELF.items|   
        'TESSELLATED_GEOMETRY_ARM.TESSELLATED_ITEM' IN TYPEOF (it))) = 0 );  
  END_ENTITY;
-
-ENTITY Tessellated_shape_representation_with_accuracy_parameters
-  SUBTYPE OF (Tessellated_shape_representation);
-     tessellation_accuracy_parameters : SET [1:?] OF
-       tessellation_accuracy_parameter_item;
-END_ENTITY;
 
   ENTITY Tessellated_item
      ABSTRACT SUPERTYPE OF (ONEOF (
@@ -25154,147 +22639,6 @@ USE FROM Elemental_geometric_shape_arm;
 ENTITY Geometrically_bounded_2d_wireframe_shape_representation
   SUBTYPE OF (Geometric_model);
 END_ENTITY;
-
-END_SCHEMA;
-(*
-   $Id: arm.exp,v 1.16 2016/08/17 21:46:16 lothartklein Exp $
-   ISO TC184/SC4/WG12 N8821 - ISO/TS 10303-1828 wiring_harness_assembly_design - EXPRESS ARM
- *)
-
-SCHEMA Wiring_harness_assembly_design_arm;
-
-USE FROM Assembly_module_design_arm;
-USE FROM Cable_arm;
-USE FROM Edge_based_topological_representation_with_length_arm; 
-USE FROM Extruded_structure_cross_section_arm; 
-REFERENCE FROM Foundation_representation_arm(using_representations);
-
-TYPE whad_additional_application_domain_enumeration = ENUMERATION BASED_ON 
- additional_application_domain_enumeration WITH (
-  wire_and_part_list_with_connectivity,
-  wiring_harness_assembly_3d_design,
-  wiring_harness_assembly_design_stick_line,
-  wiring_harness_formboard_drawing,
-  wiring_harness_segment_topology);
-END_TYPE;
-
-TYPE whad_assembly_joint_type = ENUMERATION BASED_ON assembly_joint_type WITH (
-  bolted_connection,                       -- IEV ref 461-19-05 bolted connection
-  deep_indented_crimped_connection,        -- IEV ref 461-19-04 deep indented connection
-  circular_compressed_crimped_connection,  -- IEV ref 461-19-02 circular compressed connection
-  crimped_connection,                      -- IEV ref 461-19-01 crimped connection
-  glued_connection,
-  hexagonal_compressed_crimped_connection, -- IEV ref 461-19-03 hexagonal compressed connection
-  insulation_displacement_connection,      -- IEV ref 581-23-35 insulation displacement connection
-  insulation_piercing_connection,          -- IEV ref 461-19-06 insulation piercing
-  push_connection,
-  screwed_connection, 
-  snap_connection, 
-  soldered_connection,                     -- IEV ref 581-23-04 soldered connection
-  welded_connection,                       -- IEV ref 581-23-06 welded connection
-  wrapped_connection                       -- IEV ref 581-23-07 wrapped connection
-);
-END_TYPE;
-
-TYPE whad_part_category = ENUMERATION BASED_ON part_category WITH (
-  backshell,  
-  cable_ferrule,               -- IEV ref 581-27-18 ferrule
-  cable_fixing_device, 
-  cable_support_sleeve,        -- IEV ref 581-27-23	cable support sleeve
-  cavity_plug, 
-  conduit,                     -- IEV ref 442-02-03 conduit
-  connector,                   -- IEV ref 151-12-19 connector  
-  connector_housing,           -- IEV ref 581-27-10 connector housing
-  connector_insert,            -- IEV ref 581-27-11 connector insert
-  connector_kit, 
-  connector_contact,      
-  contact_member,              -- IEV ref 151-12-16
-  corrugated_conduit,          -- IEV ref 442-02-06 corrugated conduit
-  electrified_backshell, 
-  emi_connector_housing,
-  end_cap,                     -- IEV ref 461-20-07 end cap, sealed (cable) end (USA) 
-  fixing_device,               -- IEV ref 442-02-40 fixing device
-  grommet,                     -- IEV ref 581-27-19 grommet 
-  insulation_piercing_connector, -- IEV ref 461-11-08 insulation piercing connector 
-  joint_ferrule,               -- IEV ref 461-17-04 joint ferrule
-  label, 
-  overbraid,
-  plug,                        -- IEV ref 151-12-21 plug
-  protective_covering,         -- IEV ref 461-05-03 sheath
-  seal, 
-  shielded_connector,          -- IEV ref 581-26-19 shielded connector
-  socket,                      -- IEV ref 151-12-20 socket
-  strain_relief_accessory,  
-  shield,                      -- IEV ref 461-03-04 shield (of a cable)
-  tape,                        -- IEV ref 212-15-03 tape
-  terminal_lug,                -- IEV ref 461-17-01 (terminal) lug
-  terminal_block,              -- IEV ref 581-26-26 terminal block
-  shield_connector,            -- IEV ref 461-17-12 screen connector; shield connector
-  splice,                      -- IEV ref 581-24-19 splice  + ... 
-  wiring_harness 
-);
-END_TYPE;
-
-TYPE whad_axis_placement_mapping_source = SELECT BASED_ON axis_placement_mapping_source WITH (
-  Vertex,
-  Edge);
-END_TYPE; 
-
-TYPE whad_axis_placement_mapping_target = SELECT BASED_ON axis_placement_mapping_target WITH (
-  Curve,
-  Cartesian_point);
-END_TYPE; 
-
-TYPE whad_terminal_joint_type = ENUMERATION BASED_ON terminal_joint_type WITH ( 
-  crimp_terminal,               -- IEV ref 581-22-05 crimp contact
-  fusion_fibre_splice,          -- IEV ref    731-05-06 fusion splice
-  insulation_displacement_terminal, -- IEV ref 581-23-39 insulation displacement termination
-  lug_terminal,                 -- IEV ref 442-06-16 lug terminal
-  mantle_terminal,              -- IEV ref 442-06-14 mantle terminal
-  mechanical_fibre_splice,      -- IEV ref 731-05-07  mechanical splice (for optical that connects 2 ends of fibres, they are not for T connection)
-  non_reusable_insulation_displacement_termination, -- IEV ref 581-23-41 non-reusable insulation displacement termination
-  optical_fibre_splice,          -- IEV ref 731-05-05 optical fibre splice; splice; optical splice (for optical that connects 2 ends of fibres, they are not for T connection)
-  pillar_terminal,              -- IEV ref 442-06-22 pillar terminal
-  pin_terminal,                 -- IEV ref 151-12-18 (581-22-08) pin contact; male contact
-  push_on_contact_terminal,     -- IEV ref 581-27-04 push-on contact 
-  saddle_terminal,              -- IEV ref 442-06-09 saddle terminal
-  screw_terminal,               -- IEV ref 442-06-08 screw terminal
-  snap_on_contact_terminal,     -- IEV ref 581-22-10 snap-on contact
-  socket_terminal,              -- IEV ref 151-12-17 (581-22-06) socket contact, female_contact
-  solder_terminal,              -- IEV ref 442-06-20 solder terminal     
-  stud_terminal,                -- IEV ref 442-06-23 stud terminal
-  resilient_contact_terminal,   -- IEV ref 581-22-09 resilient contact
-  tuning_fork_contact_terminal -- IEV ref 581-22-12 tuning fork contact
-);
-END_TYPE;
-
-ENTITY Wiring_harness_assembly_design
-  SUBTYPE OF (Assembly_module_design_view); 
-  topology : OPTIONAL Connected_edge_with_length_set_representation;
-END_ENTITY;
-
-ENTITY Harness_segment
-  SUBTYPE OF (Part_shape_element);
-  SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
-  SELF\Shape_element.identified_item : Edge; 
-  cross_section : OPTIONAL cross_sectional_constituent_element; 
-  forced_length : OPTIONAL Length_data_element;
-WHERE
-  WR1: associated_definition.topology IN using_representations(identified_item);
-END_ENTITY;  
-
-ENTITY Harness_node
-  SUBTYPE OF (Part_shape_element);
-  SELF\Shape_element.associated_definition : Wiring_harness_assembly_design;
-  SELF\Shape_element.identified_item : Vertex;
-  attached_feature : OPTIONAL Component_feature; 
-WHERE
-  WR1: associated_definition.topology IN using_representations(identified_item);
-END_ENTITY;
-
-SUBTYPE_CONSTRAINT whad_part_shape_element_subtypes FOR Part_shape_element;
-	ONEOF (Harness_segment, Harness_node);
-END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;
 (*

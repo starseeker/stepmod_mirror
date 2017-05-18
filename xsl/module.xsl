@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.232 2015/11/20 22:50:10 thomasrthurman Exp $
+$Id: module.xsl,v 1.233 2016/05/03 16:59:14 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -841,14 +841,23 @@ TT remove since locke is no longer available.
       casting a vote.
     </li>
   </ul>
-  <p>
+  <!--<p>
     An ISO/PAS or ISO/TS is reviewed after three years in order to decide 
     whether it will be confirmed for a further three years, revised to become
     an International Standard, or withdrawn. If the ISO/PAS or ISO/TS is
     confirmed, it is reviewed again after a further three years, at which time
     it must either be transformed into an International Standard or be
     withdrawn.
-  </p>
+  </p>-->
+  <p>
+    An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether
+    it will be confirmed for a further three years, revised to become an
+    International Standard, or withdrawn. If the ISO/PAS or ISO/TS is confirmed, it
+    is reviewed again after a further three years. At that time, an ISO/PAS must
+    either be transformed into an International Standard or be withdrawn; an ISO/TS
+    can be transformed into an International Standard or be continued as an
+    ISO/TS or be withdrawn.
+  </p> <!-- MWD 2017-05-17 -->
   <p>
     Attention is drawn to the possibility that some of the elements of
     this document may be the subject of patent rights. ISO shall not be held

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.3 2013/02/08 20:21:10 darla Exp $
+$Id: sect_foreword.xsl,v 1.4 2014/07/02 15:27:14 mikeward Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Display the foreword for a BOM document.     
@@ -75,14 +75,23 @@ $Id: sect_foreword.xsl,v 1.3 2013/02/08 20:21:10 darla Exp $
 	  casting a vote. 
 	</li>
       </ul>
-      <p>
+     <!-- <p>
 	An ISO/PAS or ISO/TS is reviewed after three years in order to decide
 	whether it will be confirmed for a further three years, revised to become
 	an International Standard, or withdrawn.  If the ISO/PAS or ISO/TS is
 	confirmed, it is reviewed again after a further three years, at which time
 	it must either be transformed into an International Standard or be
 	withdrawn. 
-      </p>
+      </p>-->
+      <p>
+        An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether
+        it will be confirmed for a further three years, revised to become an
+        International Standard, or withdrawn. If the ISO/PAS or ISO/TS is confirmed, it
+        is reviewed again after a further three years. At that time, an ISO/PAS must
+        either be transformed into an International Standard or be withdrawn; an ISO/TS
+        may be transformed into an International Standard or be continued as an
+        ISO/TS or be withdrawn.
+      </p> <!-- MWD 2017-05-17 -->
     </xsl:if>
     <p>
       Attention is drawn to the possibility that some of the elements of this

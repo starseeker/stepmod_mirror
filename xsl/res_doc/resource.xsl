@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.93 2014/06/12 18:20:11 mikeward Exp $
+$Id: resource.xsl,v 1.94 2015/11/20 22:50:10 thomasrthurman Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -798,9 +798,19 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	  </li>
 	</ul>
 
-	<p>
+	<!--<p>
 	  An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it will be confirmed for a further three years, revised to become an International Standard, or withdrawn. If the ISO/PAS or ISO/TS is confirmed, it is reviewed again after a further three years, at which time it must either be transformed into an International Standard or be withdrawn.
-	</p>
+	</p>-->
+      	
+      	<p>
+      		An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether
+      		it will be confirmed for a further three years, revised to become an
+      		International Standard, or withdrawn. If the ISO/PAS or ISO/TS is confirmed, it
+      		is reviewed again after a further three years. At that time, an ISO/PAS must
+      		either be transformed into an International Standard or be withdrawn; an ISO/TS
+      		may be transformed into an International Standard or be continued as an
+      		ISO/TS or be withdrawn.
+      	</p> <!-- MWD 2017-05-17 -->
 
       </xsl:when>
     </xsl:choose>

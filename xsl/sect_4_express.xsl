@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.130 2013/11/12 17:00:04 thomasrthurman Exp $
+     $Id: sect_4_express.xsl,v 1.131 2017/05/17 20:01:59 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2458,6 +2458,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
               </b> 
               and enforces the rule that its subtypes
               <xsl:call-template name="extract_oneof_subtypes">
+                <xsl:with-param name="schema_name" select="../@name"/>
                 <xsl:with-param name="oneof_expression" select="./@super.expression"/>
               </xsl:call-template>
               are exclusive.
@@ -4187,30 +4188,58 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 </xsl:template>
   
  <xsl:template name="extract_oneof_subtypes">
+   <xsl:param name="schema_name"/>
    <xsl:param name="oneof_expression"/>
    <xsl:param name="rest_param" select="'!'"/>
    <xsl:choose>
      <xsl:when test="$rest_param='!'">
        <xsl:variable name="first" select="substring-before(substring-after(./@super.expression, 'ONEOF (' ), ',')"/>
        <xsl:variable name="rest" select="substring-after(./@super.expression, concat($first, ','))"/>
-       <xsl:value-of select="$first"/>
+       
+       <xsl:call-template name="link_object">
+         <xsl:with-param name="object_name" select="$first"/>
+         <xsl:with-param name="object_used_in_schema_name" select="$schema_name"/>
+         <xsl:with-param name="clause" select="'section'"/>
+       </xsl:call-template>
+       
        <xsl:call-template name="extract_oneof_subtypes">
+         <xsl:with-param name="schema_name" select="$schema_name"/>
          <xsl:with-param name="rest_param" select="$rest"/>
        </xsl:call-template>
+       
      </xsl:when>
      <xsl:otherwise>
        <xsl:choose>
          <xsl:when test="contains($rest_param, ',')">
+           
            <xsl:variable name="next" select="substring-before($rest_param, ',')"/>
-           <xsl:value-of select="concat(', ', $next)"/>
+           <xsl:value-of select="', '"/>
+           
+           <xsl:call-template name="link_object">
+             <xsl:with-param name="object_name" select="$next"/>
+             <xsl:with-param name="object_used_in_schema_name" 
+               select="$schema_name"/>
+             <xsl:with-param name="clause" select="'section'"/>
+           </xsl:call-template>
+           
            <xsl:variable name="rest2" select="substring-after($rest_param, ',')"/>
+           
            <xsl:call-template name="extract_oneof_subtypes">
+             <xsl:with-param name="schema_name" select="$schema_name"/>
              <xsl:with-param name="rest_param" select="$rest2"/>
            </xsl:call-template>
+           
          </xsl:when>
          <xsl:otherwise>
            <xsl:variable name="last" select="substring-before($rest_param, ')')"/>
-           <xsl:value-of select="concat(' and ', $last)"/>
+           <xsl:value-of select="' and '"/>
+           
+           <xsl:call-template name="link_object">
+               <xsl:with-param name="object_name" select="$last"/>
+               <xsl:with-param name="object_used_in_schema_name" select="$schema_name"/>
+               <xsl:with-param name="clause" select="'section'"/>
+           </xsl:call-template>
+                      
          </xsl:otherwise>
        </xsl:choose>
      </xsl:otherwise>

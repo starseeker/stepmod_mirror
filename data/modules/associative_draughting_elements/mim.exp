@@ -14,7 +14,18 @@ USE FROM aic_associative_draughting_elements; --  ISO 10303-520
 
 USE FROM draughting_dimension_schema(dimension_callout); --  ISO 10303-101
 
-USE FROM Mechanical_design_mim; -- ISO/TS 10303-
+USE FROM geometric_model_schema (geometric_set); -- ISO 10303-42
+
+USE FROM draughting_element_schema(annotation_plane,
+         tessellated_annotation_occurrence); --ISO 10303-46
+
+USE FROM presentation_definition_schema (
+         annotation_curve_occurrence,
+         annotation_fill_area_occurrence,
+         annotation_point_occurrence,
+         annotation_symbol_occurrence,
+         annotation_text_occurrence
+         ); --ISO 10303-46
 
 USE FROM product_property_definition_schema(shape_definition); -- ISO 10303-41
 
@@ -29,6 +40,36 @@ TYPE draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
   shape_aspect_relationship);
 END_TYPE;
   
+TYPE annotation_placeholder_occurrence_role = ENUMERATION OF
+  (annotation_text,
+   gps_data);
+END_TYPE;
+
+TYPE ade_draughting_callout_element = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON draughting_callout_element WITH
+(annotation_placeholder_occurrence);
+END_TYPE;
+
+TYPE ade_geometric_set_select= EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON geometric_set_select WITH
+(planar_box,
+  annotation_text,
+  placement);
+END_TYPE;
+
+ENTITY annotation_placeholder_occurrence
+  SUBTYPE OF (annotation_occurrence, geometric_representation_item);
+  SELF\styled_item.item : geometric_set;
+  role                  : annotation_placeholder_occurrence_role;
+  character_height      : positive_length_measure;
+INVERSE
+  the_callout                                             : draughting_callout FOR contents;
+  the_draughting_model_item_association_with_placeholders : SET [0:1]OF draughting_model_item_association_with_placeholder FOR annotation_placeholder;
+WHERE
+ WR1: ade_valid_content_in_geometric_set_for_placeholder(item);
+ WR2: NOT (role = annotation_placeholder_occurrence_role.gps_data) OR
+           ((SIZEOF(the_draughting_model_item_association_with_placeholders) = 1) AND
+            ade_pmi_name_and_type_correlation(SELF));
+END_ENTITY;
+
 ENTITY draughting_model_item_association
   SUBTYPE OF(item_identified_representation_usage);
   SELF\item_identified_representation_usage.definition          : draughting_model_item_definition;
@@ -43,5 +84,159 @@ ENTITY draughting_model_item_association_with_placeholder
   SELF\item_identified_representation_usage.identified_item : draughting_callout;
   annotation_placeholder                                     : annotation_placeholder_occurrence;
 END_ENTITY;
+
+--One axis placement, one or more point subtype instance, zero or one planar box, zero or one text.
+FUNCTION ade_valid_content_in_geometric_set_for_placeholder ( input: geometric_set) : BOOLEAN;
+LOCAL
+pass : BOOLEAN := TRUE;
+boxes : BAG OF planar_box := [];
+texts : BAG OF annotation_text := [];
+placements : BAG OF placement := [];
+points : BAG OF point := [];
+END_LOCAL;
+
+--Iterate over the input, ensuring the points that are in the set are the subtypes we want.
+REPEAT i := LOINDEX(input\geometric_set.elements) TO HIINDEX(input\geometric_set.elements);
+  IF ('GEOMETRY_SCHEMA.POINT' IN TYPEOF (input\geometric_set.elements[i])) AND NOT
+          (SIZEOF(['GEOMETRY_SCHEMA.CARTESIAN_POINT',
+                   'GEOMETRY_SCHEMA.POINT_ON_CURVE',
+                   'GEOMETRY_SCHEMA.POINT_ON_SURFACE'] * TYPEOF(input\geometric_set.elements[i])) = 1) THEN
+ pass := FALSE;
+ ELSE
+  points := points + input\geometric_set.elements[i];
+END_IF;
+ IF 'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      boxes := boxes + input\geometric_set.elements[i];
+  END_IF;
+ IF 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      texts := texts + input\geometric_set.elements[i];
+  END_IF;
+ IF 'GEOMETRY_SCHEMA.PLACEMENT' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      placements := placements + input\geometric_set.elements[i];
+  END_IF;
+END_REPEAT;
+IF SIZEOF(boxes) > 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(texts) > 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(points) < 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(placements) <> 1 THEN
+ Pass := FALSE;
+ END_IF;
+
+RETURN(pass);
+END_FUNCTION;
+
+FUNCTION ade_pmi_name_and_type_correlation
+   (input : annotation_placeholder_occurrence) : BOOLEAN; 
+    LOCAL
+      pmi_role : STRING := input\annotation_placeholder_occurrence.item\representation_item.name;
+      dmiawps : SET OF draughting_model_item_association_with_placeholder := 
+                input\annotation_placeholder_occurrence.the_draughting_model_item_association_with_placeholders;
+      v : SET OF STRING := [];
+    END_LOCAL;
+      
+     IF (SIZEOF(dmiawps) = 1) THEN
+       v:= TYPEOF(dmiawps[1]\draughting_model_item_association_with_placeholder.definition);
+     ELSE
+       RETURN(FALSE);
+     END_IF;
+
+    CASE pmi_role OF
+      'angular dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.ANGULAR_LOCATION' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'angularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.ANGULARITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'circular runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.CIRCULAR_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'circularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'coaxiality'      : IF 'SHAPE_TOLERANCE_SCHEMA.COAXIALITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'concentricity'      : IF 'SHAPE_TOLERANCE_SCHEMA.CONCENTRICITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'curve dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'cylindricity'      : IF 'SHAPE_TOLERANCE_SCHEMA.CYLINDRICITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'datum'      : IF 'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'datum target'      : IF 'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'diameter dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'flatness'      : IF 'SHAPE_TOLERANCE_SCHEMA.FLATNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'linear dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'ordinate dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'parallelism'      : IF 'SHAPE_TOLERANCE_SCHEMA.PARALLELISM_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'perpendicularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.PERPENDICULARITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'position'      : IF 'SHAPE_TOLERANCE_SCHEMA.POSITION_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'profile of line'      : IF 'SHAPE_TOLERANCE_SCHEMA.LINE_PROFILE_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'profile of surface'      : IF 'SHAPE_TOLERANCE_SCHEMA.SURFACE_PROFILE_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'roundness'      : IF 'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'straightness'      : IF 'SHAPE_TOLERANCE_SCHEMA.STRAIGHTNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'surface roughness'      : IF 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'symmetry'      : IF 'SHAPE_TOLERANCE_SCHEMA.SYMMETRY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'total runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+    OTHERWISE : RETURN(FALSE);
+  END_CASE;
+END_FUNCTION; 
+
+--(Cloned From 101:)
+  SUBTYPE_CONSTRAINT ade_annotation_occurrence_subtypes FOR annotation_occurrence;
+  ONEOF (annotation_curve_occurrence,
+         annotation_fill_area_occurrence,
+         annotation_placeholder_occurrence,
+         annotation_plane,
+         annotation_point_occurrence,
+         annotation_symbol_occurrence,
+         annotation_text_occurrence,
+         tessellated_annotation_occurrence);
+  END_SUBTYPE_CONSTRAINT;
+
 
 END_SCHEMA;  

@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.45 2012/09/15 11:26:38 lothartklein Exp $
+$Id: mim.exp,v 1.46 2012/10/11 05:49:26 liutkuviene Exp $
 ISO TC184/SC4/WG12 N8027 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N7449
 *) 
@@ -114,6 +114,18 @@ WHERE
   WR2: SIZEOF (QUERY (pdr <* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1;
   WR3: valid_datum_target_parameters(SELF);
 END_ENTITY;
+
+RULE non_uniform_zone_definition_constraint FOR (tolerance_zone_definition, tolerance_zone, tolerance_zone_form);
+LOCAL
+   tzf_set  : SET OF tolerance_zone_form := QUERY( tzf <* tolerance_zone_form | tzf\tolerance_zone_form.name = 'non uniform'); 
+   nuzd_set : SET OF tolerance_zone_definition := QUERY( tzd <* tolerance_zone_definition | 'SHAPE_TOLERANCE_SCHEMA.NON_UNIFORM_ZONE_DEFINITION' IN TYPEOF(tzd)); 
+END_LOCAL;
+
+WHERE
+WR1: SIZEOF(QUERY(tzd <* nuzd_set |      
+  (tzd\tolerance_zone_definition.zone\tolerance_zone.form IN tzf_set)
+ )) = SIZEOF(nuzd_set);
+END_RULE;
 
 FUNCTION get_shape_aspect_property_definition_representations
  (s_a_instance : shape_aspect) : SET OF property_definition_representation; 

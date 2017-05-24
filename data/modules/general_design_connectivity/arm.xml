@@ -105,6 +105,7 @@
             <typename name="Occurrence_shape_feature"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
+         <where expression="main_associated_definition(relating\Assembly_shape_constraint.associated_definition) &#10;       IN &#10;       main_upper_usage( main_associated_definition(related))/Product_occurrence.occurrence_contexts" label="WR1"/>
       </entity>
       <entity name="Assembly_shape_joint" supertypes="Part_shape_element">
          <explicit name="associated_definition">
@@ -128,6 +129,7 @@
             <typename name="Occurrence_shape_feature"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
+         <where expression="main_associated_definition(relating\Assembly_shape_joint.associated_definition) &#10;       IN &#10;       main_upper_usage( main_associated_definition(related))/Product_occurrence.occurrence_contexts" label="WR1"/>
       </entity>
       <entity name="Contact_feature_definition" supertypes="Shape_feature_definition"/>
       <entity name="Contact_feature_definition_fit_relationship" supertypes="Shape_feature_definition_relationship">
@@ -158,6 +160,7 @@
          <explicit name="join_or_interface_terminal" optional="YES">
             <typename name="join_or_interface_terminal_enumeration"/>
          </explicit>
+         <where expression="main_associated_definition(SELF) :=: main_associated_definition(associated_transport_feature)" label="WR1"/>
       </entity>
       <entity name="Occurrence_contact_feature" super.expression="Occurrence_terminal" supertypes="Occurrence_shape_feature">
          <explicit name="associated_definition">
@@ -185,6 +188,7 @@
             <unique.attribute attribute="SELF\Shape_element.element_name"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
+         <where expression="acyclic_occurrence_shape_element(SELF,definition)" label="WR1"/>
       </entity>
       <entity name="Occurrence_shape_feature" super.expression="ONEOF (Occurrence_contact_feature, Occurrence_transport_feature)" supertypes="Occurrence_shape_element">
          <explicit name="associated_definition">
@@ -212,6 +216,7 @@
          <explicit name="associated_transport_feature" optional="YES">
             <typename name="Occurrence_transport_feature"/>
          </explicit>
+         <where expression="main_associated_definition(associated_transport_feature.associated_definition) :=: main_associated_definition(associated_definition)" label="WR1"/>
       </entity>
       <entity name="Occurrence_transport_feature" supertypes="Occurrence_shape_feature">
          <explicit name="associated_definition">
@@ -231,6 +236,7 @@
             <aggregate lower="2" type="SET" upper="?"/>
             <typename name="connected_terminal_select"/>
          </explicit>
+         <where expression="terminal_usage_check( main_associated_definition(associated_definition), connected_terminals)" label="WR1"/>
       </entity>
       <entity name="Part_contact_feature" supertypes="General_part_feature">
          <explicit name="associated_definition" optional="YES">
@@ -258,7 +264,6 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Part_contact_feature_fit_relationship"/>
          </explicit>
-         <where expression="relating.associated_definition :&lt;&gt;: related.associated_definition" label="WR1"/>
       </entity>
       <entity name="Part_transport_feature" supertypes="General_part_feature">
          <explicit name="associated_definition" optional="YES">
@@ -286,5 +291,90 @@
       <subtype.constraint entity="General_part_feature" name="gdc_general_part_feature_subtypes" super.expression="ONEOF (Part_transport_feature, Part_contact_feature)"/>
       <subtype.constraint entity="Part_shape_element" name="gdc_part_shape_element_subtypes" super.expression="ONEOF (Assembly_shape_constraint, Assembly_shape_joint, Part_connectivity_definition)"/>
       <subtype.constraint entity="Shape_element" name="gdc_shape_element_subtypes" super.expression="ONEOF (Part_shape_element, Occurrence_shape_element)"/>
+      <rule appliesto="Shape_element" name="shape_elements_are_acyclic">
+         <where expression="SIZEOF(QUERY(se &lt;* Shape_element | NOT acyclic_shape_element(se, se.associated_definition) )) = 0" label="WR1"/>
+      </rule>
+      <function name="acyclic_occurrence_shape_element">
+         <parameter name="sao">
+            <typename name="Occurrence_shape_element"/>
+         </parameter>
+         <parameter name="definition">
+            <typename name="occurrence_shape_element_definition_select"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF NOT (('GENERAL_DESIGN_CONNECTIVITY_ARM.OCCURRENCE_SHAPE_ELEMENT') IN TYPEOF(definition)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (definition :=: sao) THEN
+      RETURN  (FALSE);
+    ELSE 
+      RETURN(acyclic_occurrence_shape_element(sao, definition\Occurrence_shape_element.definition));
+    END_IF;</algorithm>
+      </function>
+      <function name="acyclic_shape_element">
+         <parameter name="se">
+            <typename name="Shape_element"/>
+         </parameter>
+         <parameter name="associated_definition">
+            <typename name="occurrence_shape_element_definition_select"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF NOT (('SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT') IN TYPEOF(associated_definition)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (associated_definition :=: se) THEN
+      RETURN  (FALSE);
+    ELSE 
+      RETURN(acyclic_shape_element(se, associated_definition\Shape_element.associated_definition));
+    END_IF;</algorithm>
+      </function>
+      <function name="main_associated_definition">
+         <parameter name="se">
+            <typename name="Shape_element"/>
+         </parameter>
+         <typename name="shapeable_item"/>
+         <algorithm>IF NOT  (('GENERAL_DESIGN_CONNECTIVITY_ARM.SHAPE_ELEMENT') IN TYPEOF(se.associated_definition)) THEN
+      RETURN  (se.associated_definition);
+    ELSE 
+      RETURN(main_associated_definition(se.associated_definition));
+    END_IF;</algorithm>
+      </function>
+      <function name="main_upper_usage">
+         <parameter name="po">
+            <typename name="Product_occurrence"/>
+         </parameter>
+         <typename name="shapeable_item"/>
+         <algorithm>IF NOT  (('PRODUCT_OCCURRENCE_ARM.SPECIFIED_OCCURRENCE') IN TYPEOF(po)) THEN
+      RETURN  (po);
+    ELSE 
+      RETURN(main_upper_usage(po\Specified_occurrence.upper_usage));
+    END_IF;</algorithm>
+      </function>
+      <function name="terminal_usage_check">
+         <parameter name="p">
+            <typename name="Part_view_definition"/>
+         </parameter>
+         <parameter name="terminals">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="connected_terminal_select"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>REPEAT i := 1 TO HIINDEX(terminals) BY 1;
+		IF 'GENERAL_DESIGN_CONNECTIVITY_ARM.GENERAL_PART_TERMINAL' IN TYPEOF(terminals[i]) THEN
+			IF p :&lt;&gt;: terminals[i]\General_part_terminal.associated_definition THEN
+				RETURN(FALSE);
+			END_IF;
+		ELSE 
+			IF 'GENERAL_DESIGN_CONNECTIVITY_ARM.OCCURRENCE_TERMINAL' IN TYPEOF(terminals[i]) THEN
+				IF NOT(p IN main_upper_usage( main_associated_definition(terminals[i]))/Product_occurrence.occurrence_contexts) THEN
+					RETURN(FALSE);
+				END_IF;
+			ELSE
+				RETURN (FALSE);
+			END_IF;
+		END_IF;
+	END_REPEAT;
+	RETURN(TRUE);</algorithm>
+      </function>
    </schema>
 </express>

@@ -19,7 +19,7 @@
          </explicit>
          <where expression="SELF\Product_view_definition.defined_version = derived_from.defined_version" label="WR1"/>
       </entity>
-      <entity abstract.supertype="YES" name="Product_occurrence" super.expression="ONEOF (Definition_based_product_occurrence, Specification_based_product_occurrence, Specified_occurrence) AND ONEOF (Product_occurrence_with_quantity, Single_instance)" supertypes="Product_view_definition">
+      <entity abstract.supertype="YES" name="Product_occurrence" super.expression="ONEOF (Definition_based_product_occurrence, Specification_based_product_occurrence, Specified_occurrence) AND ONEOF (Product_occurrence_with_quantity, Single_instance, Specified_occurrence)" supertypes="Product_view_definition">
          <explicit name="defined_version">
             <typename name="Part_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
@@ -34,7 +34,7 @@
          <inverse attribute="related_view" entity="View_definition_relationship" name="view_definition_contexts">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <where expression="SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) &gt;= 1" label="WR1"/>
+         <where expression="('PRODUCT_OCCURRENCE_ARM.SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) OR (SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) &gt;= 1)" label="WR1"/>
          <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR2"/>
          <where expression="SIZEOF(QUERY( oc &lt;* occurrence_contexts |&#10;            NOT( NOT('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(oc)) OR&#10;                 NOT EXISTS(oc\Assembly_component_relationship.quantity))&#10;               )) = 0" label="WR3"/>
       </entity>
@@ -69,6 +69,7 @@
          <explicit name="upper_usage">
             <typename name="Product_occurrence"/>
          </explicit>
+         <where expression="SIZEOF(occurrence_contexts) = 0" label="WR1"/>
       </entity>
    </schema>
 </express>

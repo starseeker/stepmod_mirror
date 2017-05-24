@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2017/01/23 13:58:17 kevletu Exp $
+   $Id: arm.exp,v 1.27 2017/04/24 12:02:43 lothartklein Exp $
    ISO TC184/SC4/WG12 N9337 - ISO/TS 10303-1063 Product occurrence - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N7750
 *) 
@@ -34,7 +34,8 @@ SCHEMA Product_occurrence_arm;
       AND 
       ONEOF (
          Product_occurrence_with_quantity, 
-         Single_instance))
+         Single_instance,
+         Specified_occurrence))
     SUBTYPE OF (Product_view_definition);
       SELF\Product_view_definition.defined_version : Part_version;
     DERIVE
@@ -43,7 +44,7 @@ SCHEMA Product_occurrence_arm;
       occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
       view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
     WHERE
-      WR1: SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) >= 1;
+      WR1: ('PRODUCT_OCCURRENCE_ARM.SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) OR (SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) >= 1);
       WR2: NOT EXISTS(SELF\Product_view_definition.additional_characterization);
       WR3: SIZEOF(QUERY( oc <* occurrence_contexts |
             NOT( NOT('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(oc)) OR
@@ -80,11 +81,12 @@ SCHEMA Product_occurrence_arm;
     SUBTYPE OF (Product_occurrence);
       definition : Product_occurrence;
       upper_usage : Product_occurrence;
+  WHERE
+    WR1: SIZEOF(occurrence_contexts) = 0;
   END_ENTITY;
 
   ENTITY Specification_based_part_version
     SUBTYPE OF (Specification_based_product_version, Part_version);
   END_ENTITY;
   
-
 END_SCHEMA; 

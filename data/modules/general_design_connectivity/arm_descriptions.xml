@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="general_design_connectivity" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2017/05/22 13:35:16 $" rcs.revision="$Revision: 1.5 $">
+<ext_descriptions module_directory="general_design_connectivity" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2017/05/24 11:00:35 $" rcs.revision="$Revision: 1.6 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: General_design_connectivity_arm
    <express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm"/>
@@ -543,7 +543,7 @@
 	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>.
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.Occurrence_shape_element.wr:WR1">
-	A graph of <b>Occurrence_shape_element</b> instances linked by their <b>definition</b> attribute values shall not be cyclic.
+	A list of <b>Occurrence_shape_element</b> instances linked by their <b>definition</b> attribute values shall not be cyclic.
 </ext_description>
 
 <!-- 
@@ -667,6 +667,8 @@
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.Part_connectivity_definition.wr:WR1">
 	Each terminal in the set of <b>connected_terminals</b> shall be accessible within the
+	<express_ref linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/>
+	or
 	<express_ref linkend="item_definition_structure:arm:Item_definition_structure_arm.Assembly_definition"/>
 	that can be reached by the
 	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Assembly_shape_joint.associated_definition"/>.
@@ -677,17 +679,16 @@
 	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Occurrence_shape_feature.associated_definition"/>s
 	has to be followed till a 
 	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
-	is reached.
-	And in the case this
+	is reached. If this
 	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
 	is of type
 	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence"/>
 	a potential chain of
-	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence.upper_usage"/>
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence.upper_usage"/>s
 	is to be followed to a top
 	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
-	that is related to potentially one or several
-	<express_ref linkend="item_definition_structure:arm:Item_definition_structure_arm.Assembly_definition"/>s
+	that shall be related to the same
+	<express_ref linkend="item_definition_structure:arm:Item_definition_structure_arm.Assembly_definition"/>
 	by a
 	<express_ref linkend="assembly_structure:arm:Assembly_structure_arm.Next_assembly_usage"/>.
 
@@ -886,12 +887,12 @@
 </ext_description>
 
 <ext_description linkend="General_design_connectivity_arm.main_associated_definition">
-	xxxx
-	The <b>main_associated_definition</b> function determines the end object of a graph of instances of the entity data type 
-	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>
-	established by the attribute
-	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element.associated_definition"/> 
-	contains a cycle. The function returns TRUE if no cycle has been detected. Otherwise it returns FALSE.
+	The <b>main_associated_definition</b> function determines the final 
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element.associated_definition"/>
+	of a potential list of instances of the entity data type 
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>.
+	The function returns the final object that is not of type
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>.
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.main_associated_definition.se">
 	(input) the start node of type 
@@ -899,30 +900,83 @@
 </ext_description>
 
 <ext_description linkend="General_design_connectivity_arm.main_upper_usage">
-	xxx
+	The <b>main_upper_usage</b> function determines the final instance
+	of a potential list of instances of entity data type 
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence"/>
+	that are linked by the attribute
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence.upper_usage"/>.
+	The function returns the final
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
+	that is not of type
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence"/>.
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.main_upper_usage.po">
-	xxx
+	(input) the start node of type 
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>.
 </ext_description>
 
 <ext_description linkend="General_design_connectivity_arm.terminal_usage_check">
-	xxx
+	The <b>terminal_usage_check</b> function determines if a set of terminals is accessible for a
+	<express_ref linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/>.
+
+	In the case a terminal in the set of terminals is of type
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Occurrence_terminal"/>
+	then a potential chain of 
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Occurrence_shape_feature.associated_definition"/>s
+	has to be followed till a 
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
+	is reached. If this
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
+	is of type
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence"/>
+	a potential chain of
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Specified_occurrence.upper_usage"/>s
+	is to be followed to a top
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Product_occurrence"/>
+	that shall be related to the same
+	<express_ref linkend="item_definition_structure:arm:Item_definition_structure_arm.Assembly_definition"/>
+	by a
+	<express_ref linkend="assembly_structure:arm:Assembly_structure_arm.Next_assembly_usage"/>.
+
+	In the case the terminal is of type
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.General_part_terminal"/>
+	then following a potential chain of
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Assembly_shape_joint.associated_definition"/>s
+	shall lead to the same 	
+	<express_ref linkend="item_definition_structure:arm:Item_definition_structure_arm.Assembly_definition"/>.
+
+	The function returns TRUE if all terminals are accecible to the 
+	<express_ref linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/>.
+	Otherwise it returns FALSE.
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.terminal_usage_check.p">
-	xxx
+	(input) the 
+	<express_ref linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/>
+	against which the set of terminals is checked. 
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.terminal_usage_check.terminals">
-	xxx
+	(input) the set of terminals that are either of type
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.Occurrence_terminal"/>
+	or of type	
+	<express_ref linkend="general_design_connectivity:arm:General_design_connectivity_arm.General_part_terminal"/>.
 </ext_description>
 
 <ext_description linkend="General_design_connectivity_arm.shape_elements_are_acyclic">
-	xxx
+	The <b>shape_elements_are_acyclic</b> rule constrains any instance of type
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>
+	to not participate in a cycle established by the attribute
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element.associated_definition"/>. 
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.shape_elements_are_acyclic.Shape_element">
-	xxx
+	the set of all instances of
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>.
 </ext_description>
 <ext_description linkend="General_design_connectivity_arm.shape_elements_are_acyclic.wr:WR1">
-	xxx
+	A list of 
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element"/>
+	instances linked by their 
+	<express_ref linkend="shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element.associated_definition"/>
+	attribute values shall not be cyclic.
 </ext_description>
 
 </ext_descriptions>

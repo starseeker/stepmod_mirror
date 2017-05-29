@@ -1,5 +1,5 @@
 (*
-$Id$
+$Id: draughting_element_schema.exp,v 1.18 2017/04/27 21:55:05 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N6153
 
 EXPRESS Source:
@@ -31,31 +31,68 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 SCHEMA draughting_element_schema '{iso standard 10303 part(101) version(3) object(1) draughting_element_schema(2)}';
 
 REFERENCE FROM geometry_schema
-    (plane,
+    (axis2_placement_2d,
+     axis2_placement_3d,
+     plane,
      geometric_representation_item);
      
-REFERENCE FROM geometric_model_schema(tessellated_geometric_set);     
+REFERENCE FROM geometric_model_schema
+       (geometric_set,
+       tessellated_geometric_set);     
      
 REFERENCE FROM support_resource_schema
     (label,
-     text);
+     text,
+     bag_to_set);
 
 REFERENCE FROM presentation_definition_schema
     (annotation_occurrence,
      annotation_curve_occurrence,
      annotation_fill_area_occurrence, 
-     annotation_point_occurrence, 
+     annotation_point_occurrence,
+     annotation_text, 
      annotation_text_occurrence, 
-     annotation_symbol_occurrence);
+     annotation_symbol_occurrence,
+     symbol_representation
+     );
      
 REFERENCE FROM presentation_appearance_schema
     (invisible_item,
     presentation_style_assignment,
     styled_item);
 
+REFERENCE FROM presentation_organization_schema
+    (annotation_representation_select,
+    area_dependent_annotation_representation,
+    camera_model, 
+    presentation_area,
+    presentation_view,
+    view_dependent_annotation_representation);
+    
 REFERENCE FROM presentation_resource_schema
     (planar_box);
 
+ REFERENCE FROM product_property_definition_schema        -- ISO 10303-41
+  (product_definition_shape,
+   property_definition,
+   shape_aspect, 
+   shape_aspect_relationship);
+
+REFERENCE FROM product_property_representation_schema
+     (item_identified_representation_usage,
+     shape_definition_representation);
+     
+REFERENCE FROM representation_schema
+     (representation,
+      representation_item,
+      mapped_item,
+      representation_map,
+      using_representations);
+     
+  TYPE des_annotation_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON annotation_representation_select WITH
+    (draughting_model); 
+  END_TYPE;
+  
   TYPE annotation_plane_element = SELECT 
     (draughting_callout, 
      styled_item); 
@@ -77,6 +114,26 @@ REFERENCE FROM presentation_resource_schema
   TYPE des_invisible_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON invisible_item WITH
     (draughting_callout);
   END_TYPE;
+
+TYPE draughting_model_item_association_select = SELECT (
+  annotation_occurrence,
+  draughting_callout);
+END_TYPE;
+
+TYPE draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT (
+  product_definition_shape,
+  property_definition, 
+  shape_aspect, 
+  shape_aspect_relationship);
+END_TYPE;
+
+  TYPE draughting_model_item_select = SELECT
+    (mapped_item,
+     styled_item,
+     axis2_placement,
+     camera_model,
+     draughting_callout);
+  END_TYPE;  
 
   TYPE plane_or_planar_box = SELECT 
     (plane, 
@@ -131,6 +188,42 @@ REFERENCE FROM presentation_resource_schema
                    AND (dct2\dimension_curve_terminator.role = dimension_extent_usage.target)))
          ) <= 1);
   END_ENTITY;
+
+  ENTITY draughting_model
+    SUBTYPE OF (representation);
+      SELF\representation.items : SET[1:?] OF draughting_model_item_select;
+    UNIQUE
+      UR1:  SELF\representation.name;
+    WHERE
+      WR1:  SIZEOF (QUERY (mi <* QUERY (it <* SELF.items |
+         ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it))) |
+         NOT (
+           SIZEOF (['PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION',
+                    'DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_MODEL'] *
+              TYPEOF (mi\mapped_item.mapping_source.
+                      mapped_representation)) = 1
+        ))) = 0;
+     WR2:  SIZEOF (QUERY (smi <* QUERY (si <* QUERY (it <* SELF.items |
+        ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(it))) |
+        ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN
+            TYPEOF(si\styled_item.item))) |
+        (NOT (('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN
+                 TYPEOF(smi\styled_item.item\mapped_item.
+                        mapping_source.mapped_representation))
+            AND
+             (SIZEOF (QUERY (sty <* smi\styled_item.styles |
+               (NOT (SIZEOF (QUERY (psa <* sty.styles |
+                       (NOT ('PRESENTATION_APPEARANCE_SCHEMA.CURVE_STYLE' IN TYPEOF(psa))))) = 1
+             )))) = 1)))
+        )) = 0;
+  END_ENTITY;
+
+ENTITY draughting_model_item_association
+  SUBTYPE OF(item_identified_representation_usage);
+  SELF\item_identified_representation_usage.definition          : draughting_model_item_definition;
+  SELF\item_identified_representation_usage.used_representation : annotation_representation_select;
+  SELF\item_identified_representation_usage.identified_item     : draughting_model_item_association_select;
+END_ENTITY;
 
   ENTITY leader_curve
     SUBTYPE OF (annotation_curve_occurrence);

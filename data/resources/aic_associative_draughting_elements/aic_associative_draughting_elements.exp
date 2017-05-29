@@ -1,14 +1,14 @@
 (*
 
-ISO 10303 TC184/SC4/WG12 N8489
+ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
-ISO 10303-520 ed2 Associative draughting elements - Aic associative draughting elements
+ISO 10303-520 ed3 Associative draughting elements - Aic associative draughting elements
 
 The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
 and derivations of the Schema:
 
-Copyright ISO 2014  All rights reserved
+Copyright ISO 2017  All rights reserved
 Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
 to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
 implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
@@ -24,11 +24,11 @@ USE OR OTHER DEALINGS IN THE SCHEMA.
 In addition, any modified copy of the Schema shall include the following notice:
 
 THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
-ISO 10303-520 ed2 Associative draughting elements - Aic associative draughting elements
+ISO 10303-520 ed3 Associative draughting elements - Aic associative draughting elements
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 
-SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) version(2) object(1) aic_associative_draughting_elements(1)}';
+SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) version(3) object(1) aic_associative_draughting_elements(1)}';
 
  USE FROM measure_schema                            -- ISO 10303-41
   (derived_unit,
@@ -76,7 +76,8 @@ SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) versio
 
  USE FROM presentation_organization_schema            -- ISO 10303-46
   (camera_model,
-  annotation_representation_select); 
+   presentation_view,
+   annotation_representation_select); 
 
  USE FROM shape_dimension_schema                    -- ISO 10303-47
   (dimensional_characteristic_representation,
@@ -85,82 +86,43 @@ SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) versio
  USE FROM draughting_element_schema                 -- ISO 10303-101
   (annotation_plane,
   draughting_callout,
+  draughting_model,
+  draughting_model_item_select,
   leader_curve,
   projection_curve);
 
-  TYPE aade_annotation_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON annotation_representation_select WITH
-    (draughting_model); 
-  END_TYPE;
-  
   TYPE aade_invisibility_context = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON invisibility_context WITH
     (draughting_model); 
   END_TYPE;
-
-  TYPE draughting_model_item_select = SELECT
-    (mapped_item,
-     styled_item,
-     axis2_placement,
-     camera_model,
-     draughting_callout);
-  END_TYPE;  
 
   ENTITY annotation_occurrence_associativity
     SUBTYPE OF (annotation_occurrence_relationship);
       WHERE
         WR1:  SIZEOF (TYPEOF (SELF.related_annotation_occurrence) *
-          ['AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.ANNOTATION_FILL_AREA_OCCURRENCE',
-           'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PROJECTION_CURVE',
-           'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.LEADER_CURVE']) = 1;
+          ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA_OCCURRENCE',
+           'DRAUGHTING_ELEMENT_SCHEMA.PROJECTION_CURVE',
+           'DRAUGHTING_ELEMENT_SCHEMA.LEADER_CURVE']) = 1;
   END_ENTITY;
 
   ENTITY dimension_text_associativity
     SUBTYPE OF (text_literal, mapped_item);
       WHERE
-        WR1:  ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_DIMENSION_REPRESENTATION'
+        WR1:  ('SHAPE_DIMENSION_SCHEMA.SHAPE_DIMENSION_REPRESENTATION'
           IN TYPEOF (SELF\mapped_item.
                           mapping_source.mapped_representation));
-        WR2:  ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT'
+        WR2:  ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'
           IN TYPEOF (SELF\mapped_item.mapping_target));
         WR3:  SIZEOF (QUERY (ato <* QUERY (si <* 
           USEDIN (SELF, 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |
-            ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'
+            ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'
               IN TYPEOF(si))) |
           NOT (SIZEOF( QUERY (dc <*
              USEDIN (ato, 'DRAUGHTING_ELEMENT_SCHEMA.' +
                           'DRAUGHTING_CALLOUT.CONTENTS') |
-               ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT'
+               ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'
              IN TYPEOF (dc)))
             * [SELF\mapped_item.mapping_target]) = 1)
           )) = 0;
-  END_ENTITY;
-
-  ENTITY draughting_model
-    SUBTYPE OF (representation);
-      SELF\representation.items : SET[1:?] OF draughting_model_item_select;
-    UNIQUE
-      UR1:  SELF\representation.name;
-    WHERE
-      WR1:  SIZEOF (QUERY (mi <* QUERY (it <* SELF.items |
-         ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN TYPEOF(it))) |
-         NOT (
-           SIZEOF (['AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION',
-                    'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL'] *
-              TYPEOF (mi\mapped_item.mapping_source.
-                      mapped_representation)) = 1
-        ))) = 0;
-     WR2:  SIZEOF (QUERY (smi <* QUERY (si <* QUERY (it <* SELF.items |
-        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.STYLED_ITEM' IN TYPEOF(it))) |
-        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN
-            TYPEOF(si\styled_item.item))) |
-        (NOT (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION' IN
-                 TYPEOF(smi\styled_item.item\mapped_item.
-                        mapping_source.mapped_representation))
-            AND
-             (SIZEOF (QUERY (sty <* smi\styled_item.styles |
-               (NOT (SIZEOF (QUERY (psa <* sty.styles |
-                       (NOT ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.CURVE_STYLE' IN TYPEOF(psa))))) = 1
-             )))) = 1)))
-        )) = 0;
   END_ENTITY;
 
   ENTITY shape_aspect_associativity
@@ -187,14 +149,14 @@ SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) versio
     REPEAT i := 1 TO HIINDEX(sr1);
       dm := representations_mapped_into(sr1[i]);
       REPEAT j := 1 TO HIINDEX(dm);
-        IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
         THEN
           IF (dm[j] IN sr2) THEN RETURN (TRUE);
           END_IF;
           -- Find the views that the draughting model is mapped into
           pv := representations_mapped_into(dm[j]);
           REPEAT k := 1 TO HIINDEX(pv);
-            IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
+            IF ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
             THEN
               IF (pv[k] IN sr2) THEN RETURN (TRUE);
               END_IF;
@@ -207,14 +169,14 @@ SCHEMA aic_associative_draughting_elements '{iso standard 10303 part(520) versio
     REPEAT i := 1 TO HIINDEX(sr2);
       dm := representations_mapped_into(sr2[i]);
       REPEAT j := 1 TO HIINDEX(dm);
-        IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
         THEN
           IF (dm[j] IN sr1) THEN RETURN (TRUE);
           END_IF;
           -- Find the views that the draughting model is mapped into
           pv := representations_mapped_into(dm[j]);
           REPEAT k := 1 TO HIINDEX(pv);
-            IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
+            IF ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
             THEN
               IF (pv[k] IN sr1) THEN RETURN (TRUE);
               END_IF;

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="interconnect_module_with_macros" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2017/05/18 12:56:14 $" rcs.revision="$Revision: 1.20 $">
+<ext_descriptions module_directory="interconnect_module_with_macros" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2017/05/23 08:55:05 $" rcs.revision="$Revision: 1.21 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Interconnect_module_with_macros_arm
    <express_ref linkend="interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm"/>
@@ -16,7 +16,16 @@
 	An <b>Interconnect_module_macro_component</b> is a type of 
 	<express_ref linkend="Assembly_component:arm:Assembly_component_arm.Physical_component"/>
 	and a type of
-	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Single_instance"/>.
+	<express_ref linkend="product_occurrence:arm:Product_occurrence_arm.Single_instance"/>. An <b>Interconnect_module_macro_component</b> is an instantiation in a design of a different design.
+	 The identity of individual elements of the macro are omitted from down-stream data packages, as the layout process re-numbers reference designators of all elements in a design, irregardless of how the element was injested into the design. 
+	 Because the macro instantiation is a copy operation, the layout connectivity in the macro must be merged with other layout connectivity in the new design. 
+	 Because a macro definition has unterminated traces, the <express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal">Interconnect_module_macro_component_join_terminals</express_ref> will be
+	  subsumed once the connectivity merger is complete, and down-stream applications will not have resolution
+of the macro design definition versus the new design layout.
+<example>A data bus application uses a macro layout for consistency across multiple platforms. The macro provides stubbed traces with specific locations of the stub ends. Once the macro is incorporated in the new design, the stub ends disappear as they are not part of the delivered trace.</example>
+
+<note>It was not considered necessary in the defining activity model to retain the location of the stub ends of the traces for downsteam applications. The design organization retains
+the knowledge of the stubs because the design organization retains the knowledge of the location of the macro in the new design.</note>
 </ext_description>
 
 <!-- join_access_mechanisms -->
@@ -25,7 +34,7 @@
 	is dependent on the existence of the  
 	<express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal"/> 
 	that specifies the <b>Interconnect_module_macro_component</b> as its 
-	<express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal.associated_definition"/>. 
+	<express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal.associated_component"/>. 
 	There shall be one or more 
 	<express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal">Interconnect_module_macro_component_join_terminals</express_ref> 
 	for a particular <b>Interconnect_module_macro_component</b>.
@@ -58,9 +67,18 @@
 <ext_description linkend="Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal">
 
 An <b>Interconnect_module_macro_component_join_terminal</b> is a type of 
-<express_ref linkend="Physical_component_feature:arm:Physical_component_feature_arm.Physical_component_terminal"/>.
+<express_ref linkend="Physical_component_feature:arm:Physical_component_feature_arm.Physical_component_terminal"/>. An <b>Interconnect_module_macro_component_join_terminal</b> is
+a reference to an internally accessible node of a layout component in a substrate design.
+
+<example>A <express_ref linkend="Land:arm:Land_arm.Land"/> is included in a macro definition along with a stub trace to the <express_ref linkend="Land:arm:Land_arm.Land"/>. 
+When the macro is instantiated in a new design the join of the <express_ref linkend="Land:arm:Land_arm.Land"/> to the stub trace is replaced with a join of a <express_ref linkend="Land:arm:Land_arm.Land"/> to the trace that subsumes the stub in the new design. 
+The design organization retains knowledge that the original join terminal connected the Land in the macro definition to the stub trace in the macro definition, 
+but down-stream applications only have visibility into the join of the new design Land with the new trace.</example>
 </ext_description>
-<ext_description linkend="Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal.associated_definition">
+
+
+
+<ext_description linkend="Interconnect_module_with_macros_arm.Interconnect_module_macro_component_join_terminal.associated_component">
 specifies a role of the <express_ref linkend="Interconnect_module_with_macros:arm:Interconnect_module_with_macros_arm.Interconnect_module_macro_component"/> for the
 <b>Interconnect_module_macro_component_join_terminal</b>.
 </ext_description>

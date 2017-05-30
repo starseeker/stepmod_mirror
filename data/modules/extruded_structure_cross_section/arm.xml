@@ -8,11 +8,17 @@
       <interface kind="use" schema="General_design_connectivity_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="cross_sectional_constituent_element">
-         <select selectitems="Cross_sectional_part_shape_element Cross_sectional_group_shape_element"/>
+         <select selectitems="Cross_sectional_part_shape_element Cross_sectional_occurrence_shape_element"/>
       </type>
       <type name="twist_direction_enum">
          <enumeration items="clockwise counter_clockwise"/>
       </type>
+      <entity name="Cross_sectional_alternative_part_shape_element" supertypes="Cross_sectional_part_shape_element">
+         <explicit name="items">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="cross_sectional_constituent_element"/>
+         </explicit>
+      </entity>
       <entity name="Cross_sectional_group_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element_with_tubular_cover, Cross_sectional_group_shape_element_with_lacing, Twisted_cross_sectional_group_shape_element)" supertypes="Cross_sectional_part_shape_element">
          <explicit name="items">
             <aggregate lower="1" type="SET" upper="?"/>
@@ -29,18 +35,13 @@
             <typename name="Occurrence_shape_feature"/>
          </explicit>
       </entity>
-      <entity name="Cross_sectional_outer_occurrence_feature" supertypes="Occurrence_shape_feature">
+      <entity name="Cross_sectional_occurrence_shape_element" supertypes="Occurrence_shape_element">
          <explicit name="definition">
-            <typename name="Cross_sectional_outer_part_shape_element"/>
-            <redeclaration entity-ref="Occurrence_shape_feature"/>
+            <typename name="Cross_sectional_part_shape_element"/>
+            <redeclaration entity-ref="Occurrence_shape_element"/>
          </explicit>
       </entity>
-      <entity name="Cross_sectional_outer_part_shape_element" supertypes="Cross_sectional_part_shape_element General_part_feature">
-         <unique label="UR1">
-            <unique.attribute attribute="SELF\Part_shape_element.associated_definition"/>
-         </unique>
-      </entity>
-      <entity abstract.supertype="YES" name="Cross_sectional_part_shape_element" super.expression="Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element" supertypes="Part_shape_element">
+      <entity abstract.supertype="YES" name="Cross_sectional_part_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element, Cross_sectional_alternative_part_shape_element)" supertypes="Part_shape_element">
          <explicit name="max_cross_section_diameter" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2017/04/20 22:44:44 lothartklein Exp $
+   $Id: arm.exp,v 1.7 2017/04/23 21:11:00 lothartklein Exp $
    N - ISO/TS 10303-1827 extruded_structure_cross_section - EXPRESS ARM*)
 
 SCHEMA Extruded_structure_cross_section_arm;
@@ -14,26 +14,26 @@ END_TYPE;
 
 TYPE cross_sectional_constituent_element = SELECT (
   Cross_sectional_part_shape_element,
-  Cross_sectional_group_shape_element);
+  Cross_sectional_occurrence_shape_element);
 END_TYPE;
 
 ENTITY Cross_sectional_part_shape_element
-  ABSTRACT SUPERTYPE OF (Cross_sectional_outer_part_shape_element ANDOR Cross_sectional_group_shape_element)
+  ABSTRACT SUPERTYPE OF (
+    ONEOF( Cross_sectional_group_shape_element, Cross_sectional_alternative_part_shape_element))
   SUBTYPE OF (Part_shape_element); -- or General_part_feature
   max_cross_section_diameter : OPTIONAL Length_data_element;
   min_cross_section_diameter : OPTIONAL Length_data_element;
   minimum_bend_radius : OPTIONAL Length_data_element;
 END_ENTITY;
 
-ENTITY Cross_sectional_outer_part_shape_element
-  SUBTYPE OF (Cross_sectional_part_shape_element, General_part_feature); 
-UNIQUE
-  UR1: SELF\Shape_element.associated_definition;
+ENTITY Cross_sectional_occurrence_shape_element
+  SUBTYPE OF (Occurrence_shape_element);
+  SELF\Occurrence_shape_element.definition : Cross_sectional_part_shape_element;
 END_ENTITY;
 
-ENTITY Cross_sectional_outer_occurrence_feature
-  SUBTYPE OF (Occurrence_shape_feature);
-  SELF\Occurrence_shape_feature.definition : Cross_sectional_outer_part_shape_element;
+ENTITY Cross_sectional_alternative_part_shape_element
+  SUBTYPE OF (Cross_sectional_part_shape_element); 
+  items : SET[1:?] OF cross_sectional_constituent_element; 
 END_ENTITY;
 
 ENTITY Cross_sectional_group_shape_element

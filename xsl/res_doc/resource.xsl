@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.94 2015/11/20 22:50:10 thomasrthurman Exp $
+$Id: resource.xsl,v 1.95 2017/05/18 13:34:19 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1118,12 +1118,12 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	    </xsl:otherwise>
 	  </xsl:choose>
 	  <td><b>ASCII file</b></td>
-	  <xsl:choose>
+	  <!--<xsl:choose>
 	    <xsl:when test="$FILE_EXT='.xml'"/>
 	    <xsl:otherwise>
 	      <td><b>Combined ASCII file</b></td>
 	    </xsl:otherwise>
-	  </xsl:choose>
+	  </xsl:choose> MWD 2017-05-31 -->
 	</tr>
 
 	<xsl:variable name="wgnumber" select="./@wg.number.express"/>
@@ -1162,7 +1162,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 	      <a href="../../{$express_exp}"><xsl:value-of select="$schema_file"/>.exp</a>
 	    </td>
 
-	    <xsl:if test="$FILE_EXT!='.xml'">
+	    <!--<xsl:if test="$FILE_EXT!='.xml'">
 	      <td>
 		<xsl:variable name="test_wg_number">
 		  <xsl:call-template name="test_wg_number">
@@ -1181,7 +1181,7 @@ All rights reserved. Unless otherwise specified, no part of this publication may
 		  </xsl:otherwise>
 		</xsl:choose>
 	      </td>
-	    </xsl:if>  
+	    </xsl:if>  MWD 2017-05-31 -->
 	  </tr>
 	</xsl:for-each>
       </table>

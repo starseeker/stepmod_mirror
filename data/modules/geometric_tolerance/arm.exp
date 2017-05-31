@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.60 2017/01/23 13:58:18 kevletu Exp $
+$Id: arm.exp,v 1.61 2017/05/30 15:46:43 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N9335 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N8026
 *) 
@@ -21,6 +21,7 @@ SCHEMA Geometric_tolerance_arm;
 
  USE FROM Feature_and_connection_zone_arm;    -- ISO/TS 10303-1671
 
+ USE FROM Part_view_definition_arm; -- ISO/TS 10303-1023
 
 TYPE directed_or_oriented_geometric_tolerance_select = SELECT
     (Line_profile_tolerance, 
@@ -89,7 +90,8 @@ END_TYPE;
 
 TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT
     (Dimensional_location, 
-    Dimensional_size);
+    Dimensional_size,
+    Part_view_definition);
 END_TYPE; 
 
 TYPE oriented_tolerance_zone_type = ENUMERATION OF
@@ -150,6 +152,11 @@ END_ENTITY;
 
 ENTITY All_around_shape_element
    SUBTYPE OF (Continuous_shape_element);
+END_ENTITY;
+
+ENTITY All_over_geometric_tolerance
+  SUBTYPE OF (Geometric_tolerance);
+  SELF\Geometric_tolerance.applied_to : Part_view_definition;
 END_ENTITY;
 
 ENTITY All_around_shape_element_along_collection_plane

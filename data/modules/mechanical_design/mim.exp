@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.1 2017/04/28 04:05:48 thomasrthurman Exp $
+   $Id: mim.exp,v 1.2 2017/05/29 02:23:27 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- mechanical_design - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Mechanical_design_mim;
@@ -10,15 +10,17 @@ USE FROM mechanical_design_schema;
     
    USE FROM Document_assignment_mim;
     
-  USE FROM elemental_geometric_shape_mim;
+  USE FROM Elemental_geometric_shape_mim;
    
-  USE FROM feature_and_connection_zone_mim;
+  USE FROM Feature_and_connection_zone_mim;
 
-  USE FROM measure_representation_mim;
+  USE FROM Measure_representation_mim;
    
   USE FROM Part_view_definition_mim;
    
-  USE FROM specification_document_mim;
+  USE FROM Requirement_assignment_mim;
+
+  USE FROM Specification_document_mim;
    
    USE FROM Support_resource_mim;
    
@@ -28,6 +30,10 @@ USE FROM mechanical_design_schema;
    
    USE FROM Value_with_unit_mim;
    
+  TYPE md_item_identified_representation_usage_definition = SELECT BASED_ON item_identified_representation_usage_definition WITH (
+    Requirement_assignment);
+  END_TYPE;
+
 (*
 entity length_measure_representation_item
 SUBTYPE OF (measure_representation_item, length_measure_with_unit);
@@ -50,6 +56,11 @@ SUBTYPE OF (value_representation_item);
 WHERE
   WR1 : count_measure IN TYPEOF(SELF\value_representation_item.value_component);
 end_entity;
+
+ENTITY pmi_requirement_item_association
+  SUBTYPE OF ( item_identified_representation_usage );
+    SELF\item_identified_representation_usage.definition : requirement_assignment; 
+END_ENTITY;
 
 *)
 END_SCHEMA;

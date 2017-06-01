@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.42 2016/08/04 09:27:33 mikeward Exp $
+$Id: sect_contents.xsl,v 1.43 2016/08/05 11:25:37 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -104,8 +104,7 @@ $Id: sect_contents.xsl,v 1.42 2016/08/04 09:27:33 mikeward Exp $
      <A HREF="./a_short_names{$FILE_EXT}">Annex A Short names of entities</A>
    <br/>
    <!-- use #annexb to link direct -->
-     <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information requirements object
-     registration</A>
+     <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information object registration</A> <!-- bug 6262  MWD 2017-06-01 -->
      <br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b1">B.1 Document identification</A><br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b2">B.2 Schema identification</A><br/>

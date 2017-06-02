@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.38 2013/11/12 16:58:59 thomasrthurman Exp $
+     $Id: sect_4_express.xsl,v 1.39 2014/05/02 10:17:50 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -949,7 +949,7 @@
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
 	<xsl:choose>
-	  <xsl:when test="count(../type)>1">
+	  <xsl:when test="count(../entity)>1"> <!-- MWD 2017-06-02 changed "type" to "entity" bug #6263 -->
 		<xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' entity definitions')"/>
 	  </xsl:when>
 	  <xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/04/03 19:08:51 $" rcs.revision="$Revision: 1.33 $" reference="ISO 10303-41">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/04/21 21:05:52 $" rcs.revision="$Revision: 1.34 $" reference="ISO 10303-41">
    <application name="JSDAI" owner="LKSoft" source="product_property_representation_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="product_property_representation_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -33,12 +33,14 @@
          <interfaced.item name="representation"/>
          <interfaced.item name="representation_item"/>
          <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="representation_reference"/>
          <interfaced.item name="using_representations"/>
          <interfaced.item name="mapped_item"/>
          <interfaced.item name="representation_context"/>
          <interfaced.item name="representation_map"/>
          <interfaced.item name="list_representation_item"/>
          <interfaced.item name="set_representation_item"/>
+         <interfaced.item name="get_representation_item"/>
       </interface>
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="bag_to_set"/>
@@ -209,8 +211,14 @@
          <where expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(definition)) OR&#10;         ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN TYPEOF(definition\property_definition.definition))" label="WR1"/>
       </entity>
       <entity name="shape_representation" supertypes="representation"/>
+      <entity name="shape_representation_reference" supertypes="representation_reference">
+		 <where expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' = SELF\pre_defined_item.name" label="WR1"/>
+	  </entity>
       <entity name="shape_representation_relationship" supertypes="representation_relationship">
-         <where expression="'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))" label="WR1"/>
+         <where expression="SIZEOF(['PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION',
+         'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION_REFERENCE'] * 
+         (TYPEOF( SELF\representation_relationship.rep_1 ) + TYPEOF(SELF\representation_relationship.rep_2 ) ) )
+               >= 1" label="WR1"/>
       </entity>
       <function name="get_directed_link">
          <parameter name="nodes">

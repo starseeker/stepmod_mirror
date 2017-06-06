@@ -35,6 +35,7 @@
          <interfaced.item name="item_identified_representation_usage"/>
       </interface>
       <interface kind="reference" schema="shape_dimension_schema">
+         <interfaced.item name="dimensional_location"/>
          <interfaced.item name="dimensional_size"/>
       </interface>
       <interface kind="reference" schema="shape_tolerance_schema">
@@ -50,7 +51,7 @@
          <select selectitems="product_definition product_definition_occurrence product_definition_relationship product_definition_relationship_relationship"/>
       </type>
       <type name="derived_property_select">
-         <select selectitems="property_definition action_property resource_property"/>
+         <select selectitems="property_definition action_property resource_property dimensional_location dimensional_size geometric_tolerance"/>
       </type>
       <type name="internal_or_reflected_shape_aspect">
          <select selectitems="shape_aspect identifier"/>
@@ -128,8 +129,8 @@
          <explicit name="derived_definition">
             <typename name="derived_property_select"/>
          </explicit>
-         <where expression="SIZEOF(USEDIN(derived_definition, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1" label="WR1"/>
-         <where expression="derived_definition.name = base_definition.name" label="WR2"/>
+         <where expression="(SIZEOF(['SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION', 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE', 'SHAPE_TOLERANCE_SCHEMA.GEOMETRIC_TOLERANCE'] *&#10;                TYPEOF(derived_definition)) &gt; 0)&#10;         OR (SIZEOF(USEDIN(derived_definition, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1)" label="WR1"/>
+         <where expression="(SIZEOF(['SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION', 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE', 'SHAPE_TOLERANCE_SCHEMA.GEOMETRIC_TOLERANCE'] *&#10;                TYPEOF(derived_definition)) &gt; 0)&#10;          OR (derived_definition.name = base_definition.name)" label="WR2"/>
       </entity>
       <entity name="general_property_relationship">
          <explicit name="name">
@@ -187,6 +188,7 @@
             <unique.attribute attribute="of_shape"/>
          </unique>
          <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
+         <where expression="acyclic_shape_aspect(SELF,of_shape)" label="WR2"/>
       </entity>
       <entity name="shape_aspect_occurrence" supertypes="shape_aspect">
          <explicit name="definition">
@@ -271,7 +273,7 @@
             <typename name="shape_aspect"/>
          </parameter>
          <parameter name="of_shape">
-            <typename name="shape_aspect_or_characterized_object"/>
+            <typename name="product_definition_shape_or_shape_aspect"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN

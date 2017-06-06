@@ -1,5 +1,5 @@
 (*
-$Id: product_property_definition_schema.exp,v 1.21 2017/04/23 23:58:44 lothartklein Exp $
+$Id: product_property_definition_schema.exp,v 1.22 2017/06/06 20:14:34 brandonus Exp $
 ISO 10303 TC184/SC4/WG12 9562
 
 EXPRESS Source:
@@ -55,6 +55,7 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
   REFERENCE FROM product_property_representation_schema (
     item_identified_representation_usage);
   REFERENCE FROM shape_dimension_schema (
+    dimensional_location,
     dimensional_size);
   REFERENCE FROM shape_tolerance_schema (
     geometric_tolerance);
@@ -90,7 +91,13 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     product_definition_relationship_relationship);
   END_TYPE;
 
-  TYPE derived_property_select = SELECT (property_definition, action_property, resource_property);
+  TYPE derived_property_select = SELECT (
+  	property_definition, 
+  	action_property, 
+  	resource_property,
+  	dimensional_location,
+  	dimensional_size,
+  	geometric_tolerance);
   END_TYPE;
 
   TYPE shape_aspect_or_characterized_object = SELECT (shape_aspect, characterized_object);
@@ -141,8 +148,12 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     base_definition : general_property;
     derived_definition : derived_property_select;
   WHERE
-    WR1: SIZEOF(USEDIN(derived_definition, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1;
-    WR2: derived_definition.name = base_definition.name;
+    WR1: (SIZEOF(['SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION', 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE', 'SHAPE_TOLERANCE_SCHEMA.GEOMETRIC_TOLERANCE'] *
+                TYPEOF(derived_definition)) > 0)
+         OR (SIZEOF(USEDIN(derived_definition, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1);
+    WR2: (SIZEOF(['SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_LOCATION', 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE', 'SHAPE_TOLERANCE_SCHEMA.GEOMETRIC_TOLERANCE'] *
+                TYPEOF(derived_definition)) > 0)
+          OR (derived_definition.name = base_definition.name);
   END_ENTITY;
 
   ENTITY general_property_relationship;
@@ -182,6 +193,7 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     UR1: id, of_shape;    
   WHERE
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
+    WR2: acyclic_shape_aspect(SELF,of_shape);
   END_ENTITY;
 
   ENTITY shape_aspect_occurrence
@@ -236,6 +248,17 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     RETURN (TRUE);
   END_FUNCTION;
 
+  FUNCTION acyclic_shape_aspect
+          (sa : shape_aspect; of_shape : product_definition_shape_or_shape_aspect) : BOOLEAN;
+    IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
+      RETURN  (TRUE);
+    END_IF;
+    IF  (of_shape :=: sa) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
+    END_IF;
+  END_FUNCTION; 
+
   FUNCTION acyclic_shape_aspect_occurrence
           (sao : shape_aspect_occurrence; definition : shape_aspect_or_characterized_object) : BOOLEAN;
     IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
@@ -244,17 +267,6 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     IF  (definition :=: sao) THEN
       RETURN  (FALSE);
     ELSE RETURN(acyclic_shape_aspect_occurrence(sao, definition\shape_aspect_occurrence.definition));
-    END_IF;
-  END_FUNCTION; 
-
-  FUNCTION acyclic_shape_aspect
-          (sa : shape_aspect; of_shape : shape_aspect_or_characterized_object) : BOOLEAN;
-    IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
-      RETURN  (TRUE);
-    END_IF;
-    IF  (of_shape :=: sa) THEN
-      RETURN  (FALSE);
-    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
     END_IF;
   END_FUNCTION; 
 

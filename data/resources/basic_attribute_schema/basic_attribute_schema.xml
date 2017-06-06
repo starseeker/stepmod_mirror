@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2014/04/08 08:34:23 $" rcs.revision="$Revision: 1.12 $" reference="ISO 10303-41">
    <application name="JSDAI" owner="LKSoft" source="basic_attribute_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="basic_attribute_schema">
       <interface kind="reference" schema="support_resource_schema">
@@ -22,6 +22,14 @@
       <type name="role_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
+	  <entity name="aggregate_id_attribute">
+         <explicit name="attribute_value">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="identified_item">
+            <typename name="id_attribute_select"/>
+         </explicit>   
+      </entity>     
       <entity name="description_attribute">
          <explicit name="attribute_value">
             <typename name="text"/>
@@ -62,6 +70,23 @@
             <typename name="role_select"/>
          </explicit>
       </entity>
+	  <function name="get_aggregate_id_value">
+         <parameter name="obj">
+            <typename name="id_attribute_select"/>
+         </parameter>
+         <typename name="identifier"/>
+         <algorithm>LOCAL
+      aggregate_id_bag : BAG OF aggregate_id_attribute := (USEDIN(obj, 'BASIC_ATTRIBUTE_SCHEMA.' + 'AGGREGATE_ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM'));
+    END_LOCAL;
+
+    IF SIZEOF(aggregate_id_bag) = 1 THEN
+      RETURN (aggregate_id_bag[1].attribute_value);
+    ELSE
+      RETURN (?);
+    END_IF;
+  END_FUNCTION;
+         </algorithm>
+      </function>      
       <function name="get_description_value">
          <parameter name="obj">
             <typename name="description_attribute_select"/>

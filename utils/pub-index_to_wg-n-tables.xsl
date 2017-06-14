@@ -10,8 +10,13 @@
 	<xsl:output method="text" encoding="UTF-8" indent="no"
 		omit-xml-declaration="yes" />
 	<!-- INPUT: CR publication_index.xml.
-		 OUTPUT: WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
-		 (next update: consider resources and resource docs) 
+		 OUTPUTS: 3 options
+		 1 )To be completed
+		 2) To be completed 
+		 3)WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
+		 
+		 
+		 Next update: consider resources and resource docs) 
 		 
 		 
 		 ##### IMPORTANT NOTE: FOR NEW MODULE (ED1) arm and mim are set as "n" for their changes - so it will not create a line to get a WG numbers !! 
@@ -19,10 +24,38 @@
 		 -->
 
 	<xsl:template match="/">
+
+
+<!--1) For a plain text listing of the parts in one line : 	
 	<xsl:for-each select="/part1000.publication_index/modules/module">
-	<!--	<xsl:value-of 
-			select="concat(@name, ' ')" /> -->
-		 <xsl:value-of
+		<xsl:value-of select="concat(@name, ' ')" />
+	</xsl:for-each>
+	<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
+		<xsl:value-of select="concat(@name, ' ')" />
+	</xsl:for-each>
+	<xsl:for-each select="/part1000.publication_index/resources/resource">
+		<xsl:value-of select="concat(@name, ' ')" />
+	</xsl:for-each>
+-->
+	
+<!--2)  For a plain text listing of the parts with carriage return :
+	
+	<xsl:for-each select="/part1000.publication_index/modules/module">
+		<xsl:value-of select="@name" />
+		<xsl:text>&#xa;</xsl:text>
+	</xsl:for-each>
+	<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
+		<xsl:value-of select="@name" />
+		<xsl:text>&#xa;</xsl:text>
+	</xsl:for-each>
+	<xsl:for-each select="/part1000.publication_index/resources/resource">
+		<xsl:value-of select="@name" />
+		<xsl:text>&#xa;</xsl:text>
+	</xsl:for-each>	 -->
+	
+	<!--3) For WG N number table : (AP Modules, Resources and resource docs not supported yet) --> 
+	<xsl:for-each select="/part1000.publication_index/modules/module">		
+		<xsl:value-of
 			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:if test="@arm.change = 'y'">
@@ -34,8 +67,17 @@
 			<xsl:value-of
 				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
 			<xsl:text>&#xa;</xsl:text>
+		</xsl:if>
+		<xsl:if test="@version = '1'">
+			<xsl:value-of
+				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' ARM EXPRESS')" />
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:value-of
+				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
+			<xsl:text>&#xa;</xsl:text>
 		</xsl:if> 
 	</xsl:for-each>
+	
 
 </xsl:template>
 

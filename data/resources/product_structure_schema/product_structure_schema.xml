@@ -124,8 +124,15 @@
          <where expression="SIZEOF(QUERY(cp &lt;* location | NOT (&#10;         EXISTS(cp\assembly_component_usage.reference_designator)))) = 0" label="WR2"/>
       </entity>
       <entity name="next_assembly_usage_occurrence" supertypes="assembly_component_usage">
+         <derived expression="related_product_definition\product_definition_occurrence.id" name="product_definition_occurrence_id">
+            <typename name="identifier"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute attribute="SELF\assembly_component_usage.reference_designator"/>
+            <unique.attribute attribute="SELF\product_definition_relationship.relating_product_definition"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute attribute="product_definition_occurrence_id"/>
             <unique.attribute attribute="SELF\product_definition_relationship.relating_product_definition"/>
          </unique>
       </entity>
@@ -142,7 +149,7 @@
          <explicit name="definition" optional="YES">
             <typename name="product_definition_or_reference_or_occurrence"/>
          </explicit>
-         <derived expression="get_decendent_occurrences(SELF)" name="decendent_occurrences">
+         <derived expression="get_descendant_occurrences(SELF)" name="descendant_occurrences">
             <aggregate lower="0" type="SET" upper="?"/>
             <typename name="product_definition_specified_occurrence"/>
          </derived>
@@ -152,10 +159,9 @@
          <inverse attribute="occurrence_usage" entity="product_definition_specified_occurrence" name="child_occurrences">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <where expression="('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR&#10;       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(definition)) OR&#10;             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(definition))))" label="WR1"/>
-         <where expression="TRUE" label="WR2"/>
-         <where expression="TRUE" label="WR3"/>
-         <where expression="TRUE" label="WR4"/>
+         <where expression="('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR&#10;       ( ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURRENCE' IN TYPEOF(definition)) OR&#10;         ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURRENCE_REFERENCE' IN TYPEOF(definition)))" label="WR1"/>
+         <where expression="SIZEOF(USEDIN(SELF, 'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.RELATING_PRODUCT_DEFINITION')) = 0" label="WR2"/>
+         <where expression="EXISTS(definition) OR&#10;       SIZEOF(USEDIN(SELF, 'CONFIGURATION_MANAGEMENT_SCHEMA.CONFIGURATION_DESIGN.DESIGN')) &gt; 0" label="WR3"/>
       </entity>
       <entity name="product_definition_occurrence_reference" supertypes="product_definition_reference">
          <explicit name="product_occurrence_id">
@@ -194,7 +200,6 @@
          </unique>
          <where expression="SIZEOF(assembly_usages) = 0" label="WR1"/>
          <where expression="acyclic_product_definition_specified_occurrence(SELF, SELF\product_definition_occurrence.definition)" label="WR2"/>
-         <where expression="TRUE" label="WR3"/>
       </entity>
       <entity name="product_definition_usage" super.expression="ONEOF (make_from_usage_option, assembly_component_usage)" supertypes="product_definition_relationship">
          <unique label="UR1">
@@ -240,32 +245,32 @@
          <where expression="SIZEOF (['PRODUCT_STRUCTURE_SCHEMA.NEXT_ASSEMBLY_USAGE_OCCURRENCE',&#10;       'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']&#10;       * TYPEOF(upper_usage)) = 1" label="WR5"/>
       </entity>
       <function name="acyclic_product_definition_specified_occurrence">
-         <parameter name="sao">
+         <parameter name="pdso">
             <typename name="product_definition_specified_occurrence"/>
          </parameter>
          <parameter name="definition">
             <typename name="product_definition_occurrence"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
+         <algorithm>IF NOT (('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE') IN TYPEOF(definition)) THEN
       RETURN   (TRUE);
     END_IF;
-    IF  (definition :=: sao) THEN
+    IF  (definition :=: pdso) THEN
       RETURN  (FALSE);
-    ELSE RETURN(acyclic_product_definition_specified_occurrence(sao, definition\product_definition_occurrence.definition));
+    ELSE RETURN(acyclic_product_definition_specified_occurrence(pdso, definition\product_definition_occurrence.definition));
     END_IF;</algorithm>
       </function>
-      <function name="get_decendent_occurrences">
+      <function name="get_descendant_occurrences">
          <parameter name="input">
             <typename name="product_definition_occurrence"/>
          </parameter>
          <aggregate lower="0" type="SET" upper="?"/>
          <typename name="product_definition_specified_occurrence"/>
          <algorithm>LOCAL
-    	result : SET  OF  product_definition_specified_occurrence := input.child_occurrences;
-	END_LOCAL;
+        result : SET  OF  product_definition_specified_occurrence := input.child_occurrences;
+    END_LOCAL;
     REPEAT i := 1 TO HIINDEX(input.child_occurrences) BY 1;
-    	result := result + input.child_occurrences[i].child_occurrences;
+        result := result + get_descendant_occurrences(input.child_occurrences[i]);
     END_REPEAT;
     RETURN (result);</algorithm>
       </function>

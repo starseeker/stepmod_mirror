@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.24 2017/04/25 08:13:22 lothartklein Exp $
+$Id: product_structure_schema.exp,v 1.25 2017/05/30 15:30:19 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 N8371
 
 EXPRESS Source:
@@ -47,82 +47,14 @@ SCHEMA product_structure_schema '{iso standard 10303 part(44) version(3) object(
   REFERENCE FROM support_resource_schema
      (identifier, label, text);
 
-TYPE product_definition_or_reference_or_occurrence = SELECT BASED_ON product_definition_or_reference WITH (
-  product_definition_occurrence);
-END_TYPE;
-
 TYPE product_definition_occurrence_or_reference = SELECT (
   product_definition_occurrence,
   product_definition_occurrence_reference);
 END_TYPE;
 
-ENTITY product_definition_occurrence
-  SUPERTYPE OF (product_definition_specified_occurrence ANDOR product_definition_occurrence_reference_with_local_representation);
-  id : identifier;
-  name : OPTIONAL label;
-  description : OPTIONAL text;
-  definition : OPTIONAL product_definition_or_reference_or_occurrence;
-DERIVE
-  decendent_occurrences : SET[0:?] OF product_definition_specified_occurrence := get_decendent_occurrences(SELF);
-INVERSE
-  assembly_usages : SET[0:?] OF assembly_component_usage FOR related_product_definition;
-  child_occurrences : SET[0:?] OF product_definition_specified_occurrence FOR occurrence_usage;
-WHERE
-  WR1: ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR
-       (NOT (('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(definition)) OR
-             ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_REFERENCE' IN TYPEOF(definition)))); 
--- ! WR1: If this product_definition_occurrence is not a product_definition_specified_occurrence, then the definition
---      shall not be another product_definition_occurrence 
---      Note: Only a product_definition_specified_occurrence is allowed to have another product_definition_occurrence as definition.
-	WR2: TRUE; -- A product_definition_occurrence shall not be used by a assembly_component_usage.relating
-	WR3: TRUE; -- The id shall be unique among all product_definition_or_occurrence_or_reference that are used within an assembly of the occurrance_usages  
-	WR4: TRUE; -- see Bug 6034#15/B
-END_ENTITY;
-
-FUNCTION get_decendent_occurrences(input : product_definition_occurrence) : SET [0:?] OF product_definition_specified_occurrence;
-	LOCAL
-    	result : SET  OF  product_definition_specified_occurrence := input.child_occurrences;
-	END_LOCAL;
-    REPEAT i := 1 TO HIINDEX(input.child_occurrences) BY 1;
-    	result := result + input.child_occurrences[i].child_occurrences;
-    END_REPEAT;
-    RETURN (result);
-END_FUNCTION;
-
-ENTITY product_definition_specified_occurrence
-  SUBTYPE OF (product_definition_occurrence);
-	SELF\product_definition_occurrence.definition : product_definition_occurrence_or_reference; 
-	occurrence_usage : product_definition_occurrence_or_reference; 
-UNIQUE
-	UR1 : occurrence_usage, id; -- ID must be unique among the product_definition_specified_occurrences for a product_definition_occurrence.
-WHERE
-	WR1: SIZEOF(assembly_usages) = 0;  -- A product_definition_specified_occurrence shall not be used by a assembly_component_usage.related
-	WR2: acyclic_product_definition_specified_occurrence(SELF, SELF\product_definition_occurrence.definition); -- The definition shall not be cyclic
-	WR3: TRUE; -- The definition shall be used by a assembly_component_usage in the definition of the occurrence_usage
-END_ENTITY;
-
-FUNCTION acyclic_product_definition_specified_occurrence
-          (sao : product_definition_specified_occurrence; definition : product_definition_occurrence) : BOOLEAN;
-
-IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
-      RETURN   (TRUE);
-    END_IF;
-    IF  (definition :=: sao) THEN
-      RETURN  (FALSE);
-    ELSE RETURN(acyclic_product_definition_specified_occurrence(sao, definition\product_definition_occurrence.definition));
-    END_IF;
-END_FUNCTION;
-
-ENTITY product_definition_occurrence_reference
-  SUBTYPE OF (product_definition_reference);
-  product_occurrence_id : identifier;
-END_ENTITY;
-
-ENTITY product_definition_occurrence_reference_with_local_representation
-  SUBTYPE OF (product_definition_occurrence, generic_product_definition_reference);
-END_ENTITY;
-
-
+TYPE product_definition_or_reference_or_occurrence = SELECT BASED_ON product_definition_or_reference WITH (
+  product_definition_occurrence);
+END_TYPE;
 
 ENTITY alternate_product_relationship;
   name        : label;
@@ -199,8 +131,42 @@ END_ENTITY;
 
 ENTITY next_assembly_usage_occurrence
   SUBTYPE OF (assembly_component_usage);
+DERIVE
+  product_definition_occurrence_id : identifier := related_product_definition\product_definition_occurrence.id;
+-- replicates the id of a product_definition_occurrence that is referenced by related_product_definition.
 UNIQUE
   UR1 : SELF\assembly_component_usage.reference_designator, SELF\product_definition_relationship.relating_product_definition;  
+  UR2 : product_definition_occurrence_id, SELF\product_definition_relationship.relating_product_definition;  
+--  The id of a product_definition_occurrence shall be unique among all product_definition_or_occurrence_or_reference that are used within an assembly of the occurrance_usages  
+END_ENTITY;
+
+ENTITY product_definition_occurrence
+  SUPERTYPE OF (product_definition_specified_occurrence ANDOR product_definition_occurrence_reference_with_local_representation);
+  id : identifier;
+  name : OPTIONAL label;
+  description : OPTIONAL text;
+  definition : OPTIONAL product_definition_or_reference_or_occurrence;
+DERIVE
+  descendant_occurrences : SET[0:?] OF product_definition_specified_occurrence := get_descendant_occurrences(SELF);
+INVERSE
+  assembly_usages : SET[0:?] OF assembly_component_usage FOR related_product_definition;
+  child_occurrences : SET[0:?] OF product_definition_specified_occurrence FOR occurrence_usage;
+WHERE
+  WR1: ('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE' IN TYPEOF(SELF)) XOR
+       ( ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURRENCE' IN TYPEOF(definition)) OR
+         ('PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_OCCURRENCE_REFERENCE' IN TYPEOF(definition))); 
+  WR2: SIZEOF(USEDIN(SELF, 'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.RELATING_PRODUCT_DEFINITION')) = 0; 
+  WR3: EXISTS(definition) OR
+       SIZEOF(USEDIN(SELF, 'CONFIGURATION_MANAGEMENT_SCHEMA.CONFIGURATION_DESIGN.DESIGN')) > 0;
+END_ENTITY;
+
+ENTITY product_definition_occurrence_reference
+  SUBTYPE OF (product_definition_reference);
+  product_occurrence_id : identifier;
+END_ENTITY;
+
+ENTITY product_definition_occurrence_reference_with_local_representation
+  SUBTYPE OF (product_definition_occurrence, generic_product_definition_reference);
 END_ENTITY;
 
 ENTITY product_definition_occurrence_relationship;
@@ -215,6 +181,17 @@ WHERE
        occurrence;
   WR3: occurrence.formation :=:
        occurrence_usage.related_product_definition.formation;
+END_ENTITY;
+
+ENTITY product_definition_specified_occurrence
+  SUBTYPE OF (product_definition_occurrence);
+	SELF\product_definition_occurrence.definition : product_definition_occurrence_or_reference; 
+	occurrence_usage : product_definition_occurrence_or_reference; 
+UNIQUE
+	UR1 : occurrence_usage, id; 
+WHERE
+	WR1: SIZEOF(assembly_usages) = 0; 
+	WR2: acyclic_product_definition_specified_occurrence(SELF, SELF\product_definition_occurrence.definition); 
 END_ENTITY;
 
 ENTITY product_definition_usage
@@ -275,6 +252,27 @@ WHERE
        'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']
        * TYPEOF(upper_usage)) = 1;
 END_ENTITY;
+
+FUNCTION acyclic_product_definition_specified_occurrence
+          (pdso : product_definition_specified_occurrence; definition : product_definition_occurrence) : BOOLEAN;
+    IF NOT (('PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_SPECIFIED_OCCURRENCE') IN TYPEOF(definition)) THEN
+      RETURN   (TRUE);
+    END_IF;
+    IF  (definition :=: pdso) THEN
+      RETURN  (FALSE);
+    ELSE RETURN(acyclic_product_definition_specified_occurrence(pdso, definition\product_definition_occurrence.definition));
+    END_IF;
+END_FUNCTION;
+
+FUNCTION get_descendant_occurrences(input : product_definition_occurrence) : SET [0:?] OF product_definition_specified_occurrence;
+    LOCAL
+        result : SET  OF  product_definition_specified_occurrence := input.child_occurrences;
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input.child_occurrences) BY 1;
+        result := result + get_descendant_occurrences(input.child_occurrences[i]);
+    END_REPEAT;
+    RETURN (result);
+END_FUNCTION;
 
 FUNCTION unambiguously_specified_multi_level_reference_designator (links : LIST[1:?] OF next_assembly_usage_occurrence) : BOOLEAN;
 REPEAT i := 1 to SIZEOF(links) - 1;

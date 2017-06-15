@@ -1,6 +1,6 @@
 (*
 
-ISO 10303 TC184/SC4/WG12 Nxxxx
+ISO 10303 TC184/SC4/WG12 N9631
 
 EXPRESS Source:
 ISO 10303-62 ed1 Equivalence validation of product data - Annotated 3d model equivalence inspection result schema
@@ -44,7 +44,7 @@ SCHEMA annotated_3d_model_equivalence_inspection_result_schema '{iso standard 10
   REFERENCE FROM shape_data_quality_criteria_schema
     (shape_measurement_accuracy);
 
-  TYPE equivalence_location_of_extreme_value_select = EXTENSIBLE SELECT;
+  TYPE equivalence_detected_difference_select = EXTENSIBLE SELECT;
   END_TYPE;
 
   TYPE equivalence_measured_value_select = EXTENSIBLE SELECT;
@@ -75,17 +75,17 @@ SCHEMA annotated_3d_model_equivalence_inspection_result_schema '{iso standard 10
      equivalence_result : a3m_equivalence_inspection_result_representation;
   END_ENTITY;
  
-  ENTITY equivalence_extreme_instance;
-      comparing_elements : LIST [0:?] OF equivalence_location_of_extreme_value_select;
-      compared_elements: LIST [0:?] OF equivalence_location_of_extreme_value_select;
+  ENTITY equivalence_instance_report_item_with_notable_instances
+    SUBTYPE OF(a3m_equivalence_inspection_instance_report_item);
+      notable_instances : LIST [1:?] OF equivalence_notable_instance;
+  END_ENTITY;
+ 
+  ENTITY equivalence_notable_instance;
+      comparing_elements : LIST [0:?] OF equivalence_detected_difference_select;
+      compared_elements  : LIST [0:?] OF equivalence_detected_difference_select;
       measured_value    : equivalence_measured_value_select;
     WHERE
      WR1: (SIZEOF(comparing_elements) <> 0) OR (SIZEOF(compared_elements) <> 0);
-  END_ENTITY;
-
-  ENTITY equivalence_instance_report_item_with_extreme_instances
-    SUBTYPE OF(a3m_equivalence_inspection_instance_report_item);
-      extreme_instances : LIST [1:?] OF equivalence_extreme_instance;
   END_ENTITY;
 
   SUBTYPE_CONSTRAINT a3m_criterion_report_item_subtypes 

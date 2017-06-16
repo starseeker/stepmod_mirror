@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-47">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2015/04/28 10:42:03 $" rcs.revision="$Revision: 1.44 $" reference="ISO 10303-47">
    <application name="JSDAI" owner="LKSoft" source="shape_tolerance_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="shape_tolerance_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -60,7 +60,7 @@
          <enumeration extensible="NO" items="perpendicular parallel including"/>
       </type>
       <type name="geometric_tolerance_modifier">
-         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element separate_requirement"/>
+         <enumeration extensible="YES" items="maximum_material_requirement least_material_requirement reciprocity_requirement any_cross_section free_state common_zone minor_diameter major_diameter pitch_diameter line_element not_convex statistical_tolerance tangent_plane each_radial_element separate_requirement united_feature"/>
       </type>
       <type name="geometric_tolerance_target">
          <select extensible="NO" genericentity="NO" selectitems="dimensional_location dimensional_size product_definition_shape shape_aspect"/>
@@ -86,6 +86,12 @@
       <type name="tolerance_zone_target">
          <select extensible="NO" genericentity="NO" selectitems="dimensional_location dimensional_size geometric_tolerance general_datum_reference"/>
       </type>
+      <entity name="all_over_geometric_tolerance" supertypes="geometric_tolerance">
+         <explicit name="toleranced_shape_aspect">
+            <typename name="product_definition_shape"/>
+            <redeclaration entity-ref="geometric_tolerance"/>
+         </explicit>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="angularity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="circular_runout_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="coaxiality_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
@@ -332,6 +338,12 @@
             <typename name="length_measure_with_unit"/>
          </explicit>
          <where expression="('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
+      </entity>
+      <entity name="unless_otherwise_specified_geometric_tolerance" supertypes="geometric_tolerance">
+         <explicit name="toleranced_shape_aspect">
+            <typename name="product_definition_shape"/>
+            <redeclaration entity-ref="geometric_tolerance"/>
+         </explicit>
       </entity>
       <rule appliesto="geometric_tolerance" name="subtype_exclusiveness_geometric_tolerance">
          <where expression="SIZEOF(QUERY (gt &lt;* geometric_tolerance | NOT (type_check_function(gt, ['SHAPE_TOLERANCE_SCHEMA.ANGULARITY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.CIRCULAR_RUNOUT_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.COAXIALITY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.CONCENTRICITY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.CYLINDRICITY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.FLATNESS_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.LINE_PROFILE_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.PARALLELISM_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.PERPENDICULARITY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.POSITION_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.STRAIGHTNESS_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.SURFACE_PROFILE_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.SYMMETRY_TOLERANCE', 'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE'] , 2 ) ))) = 0" label="WR1"/>

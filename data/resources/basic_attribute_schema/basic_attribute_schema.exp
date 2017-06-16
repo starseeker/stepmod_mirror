@@ -1,5 +1,5 @@
 (*
-$Id: basic_attribute_schema.exp,v 1.18 2017/06/13 09:36:41 brandonus Exp $
+$Id: basic_attribute_schema.exp,v 1.19 2017/06/15 03:58:09 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N9686
 
 EXPRESS Source:
@@ -104,7 +104,11 @@ SCHEMA basic_attribute_schema '{iso standard 10303 part(41) version(8) object(1)
       aggregate_id_bag : BAG OF aggregate_id_attribute := (USEDIN(obj, 'BASIC_ATTRIBUTE_SCHEMA.' + 'AGGREGATE_ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM'));
     END_LOCAL;
 
-      RETURN (aggregate_id_bag[LOINDEX(aggregate_id_bag)].attribute_value);
+    IF SIZEOF(aggregate_id_bag) = 1 THEN
+      RETURN (aggregate_id_bag[1].attribute_value);
+    ELSE
+      RETURN (?);
+    END_IF;
   END_FUNCTION;
 
   FUNCTION get_name_value (obj : name_attribute_select):label;

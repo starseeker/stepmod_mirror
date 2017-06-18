@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2012/10/11 05:49:13 liutkuviene Exp $
+   $Id: arm.exp,v 1.11 2012/10/11 18:59:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N7990 - ISO/TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N5350
 *)
@@ -10,12 +10,83 @@ USE FROM Associative_draughting_elements_arm; -- ISO/TS 10303-1311
 USE FROM Draughting_annotation_arm; -- ISO/TS 10303-1206
 USE FROM Draughting_element_specialisations_arm; -- ISO/TS 10303-1312
 USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
+USE FROM Elemental_geometric_shape_arm;
+USE FROM Basic_geometry_arm;
+USE FROM Appearance_assignment_arm;
+USE FROM Associative_text_arm;
+USE FROM Value_with_unit_arm;
+
+--temporary Geometric_set usage
+
+  TYPE annotation_placeholder_occurrence_role = ENUMERATION OF
+    (annotation_text,
+     gps_data);
+  END_TYPE;
+
+  TYPE geometric_placeholder_set_select = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Cartesian_point,
+    Point_on_curve,
+    Point_on_surface,
+    Planar_box,
+    Annotation_text,
+    Axis_placement);
+  END_TYPE; 
+
+  TYPE datc_draughting_callout_content_select = SELECT BASED_ON draughting_callout_content_select WITH
+    (Annotation_placeholder_occurrence);
+  END_TYPE; 
 
   TYPE datc_draughting_model_item_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON draughting_model_item_definition WITH (
     Dimensional_location,
     Dimensional_size,
     Geometric_tolerance);
   END_TYPE; 
+
+ENTITY Annotation_placeholder_occurrence
+  SUBTYPE OF (Annotation_element);
+  SELF\Styled_element.element : geometric_placeholder_set_select;
+  role                  : annotation_placeholder_occurrence_role;
+  character_height      : positive_length_measure;
+INVERSE
+  the_callout                                             : Draughting_callout FOR contents;
+  the_draughting_model_item_association_with_placeholders : SET [0:1]OF Draughting_model_item_association_with_placeholder FOR annotation_placeholder;
+(*
+Informal propositions:
+  IP1: The content of item shall be One axis placement, one or more point subtype instance, zero or one planar box, zero or one text.
+  IP2: IF the role is annotation_placeholder_occurrence_role.gps_data THEN
+       there shall be a Draughting_model_item_association_with_placeholder provided
+       and the name of the Detailed_geometric_model_element supertype of Annotation_placeholder_occurrence
+        shall be correlated
+       with the type of item specified by the definition attribute of that Draughting_model_item_association_with_placeholder
+       according to the following table:
+       NAME                          TYPE
+      'angular dimension'      :  'ANGULAR_LOCATION'  
+      'angularity'      :   ANGULARITY_TOLERANCE'  
+      'circular runout'      :   CIRCULAR_RUNOUT_TOLERANCE'  
+      'circularity'      :   ROUNDNESS_TOLERANCE'  
+      'coaxiality'      :   COAXIALITY_TOLERANCE'  
+      'concentricity'      :   CONCENTRICITY_TOLERANCE'  
+      'curve dimension'      :  'DIMENSIONAL_SIZE'  
+      'cylindricity'      :   CYLINDRICITY_TOLERANCE'  
+      'datum'      :  'DATUM'  
+      'datum target'      :  'DATUM_TARGET'  
+      'diameter dimension'      :  'DIMENSIONAL_SIZE'  
+      'flatness'      :   FLATNESS_TOLERANCE'  
+      'linear dimension'      :  'DIMENSIONAL_SIZE'  
+      'ordinate dimension'      :  'DIMENSIONAL_SIZE'  
+      'parallelism'      :   PARALLELISM_TOLERANCE'  
+      'perpendicularity'      :   PERPENDICULARITY_TOLERANCE'  
+      'position'      :   POSITION_TOLERANCE'  
+      'profile of line'      :   LINE_PROFILE_TOLERANCE'  
+      'profile of surface'      :   SURFACE_PROFILE_TOLERANCE'  
+      'roundness'      :   ROUNDNESS_TOLERANCE'  
+      'runout'      :   TOTAL_RUNOUT_TOLERANCE'  
+      'straightness'      :   STRAIGHTNESS_TOLERANCE'  
+      'surface roughness'      :  'PROPERTY_DEFINITION'  
+      'symmetry'      :   SYMMETRY_TOLERANCE'  
+      'total runout'      :   TOTAL_RUNOUT_TOLERANCE' 
+      *)
+END_ENTITY;
 
   ENTITY Associated_dimension_text
     SUBTYPE OF (Dimension_text);
@@ -28,4 +99,17 @@ USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
       SELF\Annotation_occurrence_associativity.related_element  : Projection_curve;
   END_ENTITY;
   
+  ENTITY Draughting_model_item_association_with_placeholder
+    SUBTYPE OF (Draughting_model_item_association);
+    SELF\Draughting_model_item_association.identified_item     : Draughting_callout;
+    annotation_placeholder                                     : Annotation_placeholder_occurrence;
+  END_ENTITY;
+  
+--temporary geometric_set
+  ENTITY Geometric_placeholder_set
+    SUBTYPE OF (Detailed_geometric_model_element);
+    elements : SET [1:?] OF geometric_placeholder_set_select;
+  END_ENTITY;
+
+
 END_SCHEMA;

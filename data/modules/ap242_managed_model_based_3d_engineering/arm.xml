@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2017/04/20 19:39:31 $" rcs.revision="$Revision: 1.37 $" reference="">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="ap242_managed_model_based_3d_engineering_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Ap242_managed_model_based_3d_engineering_arm">
       <interface kind="use" schema="Wiring_harness_assembly_design_arm"/>
@@ -59,6 +59,7 @@
       <interface kind="use" schema="Zonal_breakdown_arm"/>
       <interface kind="use" schema="System_breakdown_arm"/>
       <interface kind="use" schema="Physical_breakdown_arm"/>
+      <interface kind="use" schema="Conditional_effectivity_arm"/>
       <type name="alias_identification_item_242">
          <select basedon="alias_identification_item" selectitems="Approval_status Document Document_definition Document_version Geometric_model Independent_property Organization Part Part_version Part_view_definition Security_classification"/>
       </type>
@@ -154,15 +155,15 @@
       <rule appliesto="Address" name="addresses_are_assigned">
          <where expression="SIZEOF(QUERY(a &lt;* Address | SIZEOF(USEDIN(a, 'PERSON_ORGANIZATION_ARM' + '.ADDRESS_ASSIGNMENT.ASSIGNED_ADDRESS')) = 0)) = 0" label="WR1"/>
       </rule>
-      <rule name="Styled_element_constraint" appliesto="Styled_element">
-         <where expression="'VERTEX_COLOURS_FOR_TESSELLATED_GEOMETRY_ARM.STYLED_TESSELLATED_ITEM' IN TYPEOF(Styled_element) OR EXISTS(Styled_element.appearance)" label="WR1"></where>
-      </rule>
       <rule appliesto="Person" name="person_requires_person_and_organization">
          <where expression="SIZEOF(QUERY(p &lt;* Person | SIZEOF(USEDIN(p, 'PERSON_ORGANIZATION_ARM' + '.PERSON_IN_ORGANIZATION.CONCERNED_PERSON')) = 0)) = 0" label="WR1"/>
       </rule>
       <rule appliesto="Product_occurrence_definition_relationship" name="specific_product_occurrence_definition_relationship">
          <where expression="SIZEOF(QUERY(occ_rel &lt;* Product_occurrence_definition_relationship | NOT ('PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(occ_rel.relating_view)))) = 0" label="WR1"/>
          <where expression="SIZEOF(QUERY(occ_rel &lt;* Product_occurrence_definition_relationship | NOT ('PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' IN TYPEOF(occ_rel.related_view)))) = 0" label="WR2"/>
+      </rule>
+      <rule appliesto="Styled_element" name="styled_element_constraint">
+         <where expression="'VERTEX_COLOURS_FOR_TESSELLATED_GEOMETRY_ARM.STYLED_TESSELLATED_ITEM' IN TYPEOF(Styled_element) OR EXISTS(Styled_element.appearance)" label="WR1"/>
       </rule>
    </schema>
 </express>

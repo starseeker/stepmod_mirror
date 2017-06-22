@@ -1,5 +1,5 @@
 (*
-$Id: product_structure_schema.exp,v 1.25 2017/05/30 15:30:19 lothartklein Exp $
+$Id: product_structure_schema.exp,v 1.26 2017/06/15 08:49:54 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 N8371
 
 EXPRESS Source:
@@ -146,6 +146,7 @@ ENTITY product_definition_occurrence
   name : OPTIONAL label;
   description : OPTIONAL text;
   definition : OPTIONAL product_definition_or_reference_or_occurrence;
+  quantity : OPTIONAL measure_with_unit;
 DERIVE
   descendant_occurrences : SET[0:?] OF product_definition_specified_occurrence := get_descendant_occurrences(SELF);
 INVERSE
@@ -158,6 +159,7 @@ WHERE
   WR2: SIZEOF(USEDIN(SELF, 'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.RELATING_PRODUCT_DEFINITION')) = 0; 
   WR3: EXISTS(definition) OR
        SIZEOF(USEDIN(SELF, 'CONFIGURATION_MANAGEMENT_SCHEMA.CONFIGURATION_DESIGN.DESIGN')) > 0;
+  WR4: (NOT ('NUMBER' IN TYPEOF(quantity.value_component))) OR (quantity.value_component > 0);
 END_ENTITY;
 
 ENTITY product_definition_occurrence_reference

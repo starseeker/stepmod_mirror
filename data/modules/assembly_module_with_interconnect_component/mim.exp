@@ -1,15 +1,19 @@
 (*
-   $Id: mim.exp,v 1.25 2017/03/23 13:49:44 kevletu Exp $
+   $Id: mim.exp,v 1.26 2017/04/11 10:38:19 verodub Exp $
    ISO TC184/SC4/WG12 N9410 - ISO/TS 10303-1643 Assembly module with interconnect component - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N8099
 *)
-SCHEMA Assembly_module_with_interconnect_component_mim;
+SCHEMA Assembly_module_with_interconnect_component_mim; 
 
 USE FROM Assembly_module_with_packaged_component_mim;	-- ISO/TS 10303-1829
 USE FROM Bare_die_mim;	-- ISO/TS 10303-1650
 USE FROM Interconnect_module_usage_view_mim;	-- ISO/TS 10303-1686
 USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
 USE FROM Layered_interconnect_simple_template_mim;	-- ISO/TS 10303-1718
+
+ENTITY bare_die_component
+  SUBTYPE OF (physical_component);
+END_ENTITY;
 
 ENTITY interconnect_module_component
   SUBTYPE OF (physical_component);
@@ -18,6 +22,35 @@ END_ENTITY;
 ENTITY interconnect_module_component_surface_feature
   SUBTYPE OF (physical_component_feature);
 END_ENTITY;
+
+ENTITY layered_assembly_module_design_view
+ SUBTYPE OF (assembly_module_design_view);
+END_ENTITY;
+
+ENTITY layered_assembly_module_usage_view
+  SUBTYPE OF (assembly_module_usage_view);
+END_ENTITY;
+
+ENTITY layered_assembly_panel_design_view
+  SUBTYPE OF (assembly_module_design_view);
+END_ENTITY;
+
+ENTITY routed_interconnect_component
+  SUBTYPE OF (item_identified_representation_usage, physical_component);
+END_ENTITY;
+
+ENTITY routed_physical_component
+  SUBTYPE OF (item_identified_representation_usage, physical_component);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT amwic_assembly_module_design_view_subtypes FOR assembly_module_design_view;         
+  ONEOF (layered_assembly_panel_design_view, layered_assembly_module_design_view);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT amwic_physical_component_subtypes FOR physical_component;         
+    ONEOF (packaged_component,
+	routed_physical_component);    
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2017/06/12 12:43:39 lothartklein Exp $
+   $Id: arm.exp,v 1.10 2017/06/20 14:28:03 lothartklein Exp $
 ISO/TC 184/SC 4/WG 12 N - ISO/TS 10303-1844 General design connectivity - EXPRESS ARM
 *) 
 
@@ -98,6 +98,11 @@ TYPE occurrence_shape_feature_definition_select = SELECT
     Shape_feature_definition);
 END_TYPE; 
 
+TYPE occurrence_terminal_associated_definition_select = SELECT (
+	Occurrence_terminal, 
+	Product_occurrence); 
+END_TYPE;
+
 TYPE occurrence_terminal_definition_select = SELECT
    (Contact_feature_definition,
     General_part_terminal, 
@@ -129,7 +134,7 @@ TYPE shape_feature_definition_or_relationship_select = SELECT
     Shape_feature_definition);
 END_TYPE; 
 
-TYPE transport_feature_type_enumeration = EXTENSIBLE ENUMERATION OF 
+TYPE terminal_and_transport_domain_type = EXTENSIBLE ENUMERATION OF 
    (electrical,
     thermal,
     optical,
@@ -189,8 +194,10 @@ ENTITY General_part_terminal
   associated_transport_feature : OPTIONAL Part_transport_feature;
   intended_joint_type : OPTIONAL SET [1:?] OF general_terminal_joint_type_enumeration;
   join_or_interface_terminal : OPTIONAL join_or_interface_terminal_enumeration;
+  domain_type : OPTIONAL terminal_and_transport_domain_type;
 WHERE
   WR1: main_associated_definition(SELF) :=: main_associated_definition(associated_transport_feature);
+  WR2: domain_type :=: associated_transport_feature.domain_type; 
 END_ENTITY;
 
 ENTITY Occurrence_contact_feature
@@ -221,11 +228,6 @@ DERIVE
   SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
 END_ENTITY;
 
-TYPE occurrence_terminal_associated_definition_select = SELECT (
-	Occurrence_terminal, -- hierarchical
-	Product_occurrence); -- terminus
-END_TYPE;
-
 ENTITY Occurrence_terminal
   SUBTYPE OF (Occurrence_contact_feature);
   SELF\Shape_element.associated_definition : occurrence_terminal_associated_definition_select;
@@ -239,7 +241,7 @@ ENTITY Occurrence_transport_feature
   SUBTYPE OF (Occurrence_shape_feature);
   SELF\Shape_element.associated_definition : occurrence_transport_feature_associated_definition_select;
   SELF\Occurrence_shape_element.definition : OPTIONAL occurrence_transport_feature_definition_select;
-  transport_feature_type : OPTIONAL transport_feature_type_enumeration;
+  domain_type : OPTIONAL terminal_and_transport_domain_type;
 END_ENTITY;
 
 ENTITY Part_connectivity_definition
@@ -266,7 +268,7 @@ END_ENTITY;
 ENTITY Part_transport_feature
   SUBTYPE OF (General_part_feature);
   SELF\Shape_element.associated_definition : OPTIONAL part_transport_feature_associated_definition_select;
-  transport_feature_type : OPTIONAL transport_feature_type_enumeration;
+  domain_type : OPTIONAL terminal_and_transport_domain_type;
 END_ENTITY;
 
 ENTITY Shape_feature_definition_relationship;

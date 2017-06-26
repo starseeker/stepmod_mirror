@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2015/09/24 09:59:56 kevletu Exp $
+   $Id: arm.exp,v 1.26 2017/04/20 09:45:44 verodub Exp $
    ISO TC184/SC4/WG12 N9049 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N6381
 *)
@@ -49,21 +49,18 @@ SCHEMA Functional_assignment_to_part_arm;
       name                  : STRING;   
       associated_definition : Part_view_definition;
       connected_terminals   : SET[2:?] OF Part_terminal;
---    INVERSE
---      domain : SET [0:1] OF Part_connected_terminals_definition_domain for associated_definition;
+    INVERSE
+      domain : SET [0:1] OF Part_connected_terminals_definition_domain for associated_definition;
     UNIQUE
       UR1 : name, associated_definition;
     WHERE
-      WR1 : SIZEOF(QUERY(ct <* connected_terminals | NOT (associated_definition = ct\Shape_element.associated_definition))) = 0;
-      WR2 : SIZEOF(QUERY(ct <* connected_terminals | NOT (connected_terminals[1].domain_type = ct.domain_type))) = 0;
+      WR1: SIZEOF(QUERY(ct <* connected_terminals | NOT (associated_definition = ct\Shape_element.associated_definition))) = 0;
   END_ENTITY;
 
-(*
   ENTITY Part_connected_terminals_definition_domain;
       domain_type : fatp_part_connected_terminals_definition_domain_enumeration;
       associated_definition : Part_connected_terminals_definition;
   END_ENTITY;
-*)
 
   ENTITY Part_connected_terminals_element;
     name                 : STRING; 
@@ -106,7 +103,6 @@ END_ENTITY;
 
   ENTITY Part_terminal
     SUBTYPE OF (Part_feature);
-      domain_type : OPTIONAL fatp_part_connected_terminals_definition_domain_enumeration;
       interface_or_join_terminal : interface_or_join_terminal_enumeration;
       joint_type : OPTIONAL SET[1:?] OF terminal_joint_type;
     INVERSE

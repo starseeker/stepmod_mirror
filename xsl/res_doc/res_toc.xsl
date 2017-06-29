@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.32 2014/06/19 05:51:31 nigelshaw Exp $
+$Id: res_toc.xsl,v 1.33 2016/08/04 09:27:33 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -51,7 +51,20 @@ $Id: res_toc.xsl,v 1.32 2014/06/19 05:51:31 nigelshaw Exp $
       <xsl:apply-templates select="./ancestor::resource" mode="doctype"/>
     </xsl:variable>
 
-   <xsl:variable name="express_xml_ir" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))"/>
+  <xsl:variable name="file_name">
+    <xsl:choose>
+      <xsl:when test="$doctype='aic'">
+        <xsl:value-of select="concat('aic_', $resource_name)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($resource_name,'_schema.xml')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
+  <xsl:variable name="express_xml_ir" select="document(concat($resource_dir,'/',$file_name, '.xml'))"/>
+  
+   <!--<xsl:variable name="express_xml_ir" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))"/>-->
 
   <xsl:variable name="schema_name" select="@name"/>
 

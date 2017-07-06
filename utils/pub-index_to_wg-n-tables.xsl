@@ -11,17 +11,11 @@
 		omit-xml-declaration="yes" />
 	<!-- INPUT: CR publication_index.xml.
 		 OUTPUTS: 3 options
-		 1 )To be completed
-		 2) To be completed 
-		 3)WG12 N numbers of the CR part list as plain text, which can be used to produce the excel table 
-		 
-		 
-		 Next update: consider resources and resource docs) 
-		 
-		 
-		 ##### IMPORTANT NOTE: FOR NEW MODULE (ED1) arm and mim are set as "n" for their changes - so it will not create a line to get a WG numbers !! 
-		 
-		 -->
+		 1 ) For a plain text listing of the parts in one line 
+		 2)  For a plain text listing of the parts with carriage return
+		 3)  Produce the list of items in order to request WG12 N numbers of the CR part listed in the selected publication index. 
+		 	   Supports modules, resources, resources docs, check lists, and updated modules versus new modules.
+		 		 -->
 
 	<xsl:template match="/">
 
@@ -53,8 +47,21 @@
 		<xsl:text>&#xa;</xsl:text>
 	</xsl:for-each>	 -->
 	
-	<!--3) For WG N number table : (AP Modules, Resources and resource docs not supported yet) --> 
-	<xsl:for-each select="/part1000.publication_index/modules/module">		
+	<!--3) For WG N number table : 
+	 TO DO: 
+	 AP Modules, Resources and resource docs not supported yet
+	consider the case when ed = 1 and arm/mim changes = y , it can happen	 -->
+
+	<xsl:value-of
+		select="concat(/part1000.publication_index/@name, ' wg.number.publication_set')" />
+	<xsl:text>&#xa;</xsl:text>
+	<xsl:value-of
+		select="concat(/part1000.publication_index/@name, ' checklist.internal_review for updated modules')" />
+	<xsl:text>&#xa;</xsl:text>
+	<xsl:value-of
+		select="concat(/part1000.publication_index/@name, ' checklist.project_leader for updated modules')" />
+	<xsl:text>&#xa;</xsl:text>
+	<xsl:for-each select="/part1000.publication_index/modules/module">
 		<xsl:value-of
 			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
 		<xsl:text>&#xa;</xsl:text>
@@ -75,9 +82,31 @@
 			<xsl:value-of
 				select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' MIM EXPRESS')" />
 			<xsl:text>&#xa;</xsl:text>
-		</xsl:if> 
+			<xsl:value-of
+				select="concat(/part1000.publication_index/@name, ' checklist.internal_review for new module ', @number)" />
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:value-of
+				select="concat(/part1000.publication_index/@name, ' checklist.project_leader for new module ', @number)" />
+			<xsl:text>&#xa;</xsl:text>
+		</xsl:if>
 	</xsl:for-each>
-	
+	<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
+		<xsl:value-of
+			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:value-of
+			select="concat(/part1000.publication_index/@name, ' checklist.internal_review for IR ', @number)" />
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:value-of
+			select="concat(/part1000.publication_index/@name, ' checklist.project_leader for IR ', @number)" />
+		<xsl:text>&#xa;</xsl:text>
+	</xsl:for-each>
+	<xsl:for-each select="/part1000.publication_index/resources/resource">
+		<xsl:value-of
+			select="concat('ISO 10303-', @number, ' ', @name, ' version ', @version, ' EXPRESS')" />
+		<xsl:text>&#xa;</xsl:text>
+	</xsl:for-each> 
+
 
 </xsl:template>
 

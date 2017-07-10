@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2017/02/20 15:36:28 kevletu Exp $
+   $Id: arm.exp,v 1.6 2017/02/27 15:29:20 kevletu Exp $
    N - ISO/CD-TS - 10303- vertex_colours_for_tessellated_geometry - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Vertex_colours_for_tessellated_geometry_arm;
@@ -28,11 +28,14 @@ END_TYPE;
 
 ENTITY Styled_tessellated_item -- in the new P46 entity, styled_tessellated_item is a subtype of styled_item
 	SUBTYPE OF (Styled_element);
-	 element : tessellated_surface_item;
+	 SELF\Styled_element.element : tessellated_surface_item;
      colour_type : colour_type_enum;
      colour_values : LIST[1:?] OF LIST[3:4] OF unsigned_8_bit_integer;
    DERIVE
-     coloured_coordinate_values : Coordinates_list := get_coordinate_values(SELF\styled_item.item ); -- styled_item doesn't exist in the ARM
+     coloured_coordinate_values : Coordinates_list := get_coordinate_values(element);
+      -- styled_item doesn't exist in the ARM
+      -- require the function get_coordinate_values to deal with any differences in
+      -- syntax in the four types in tessellated_surface_item.
    WHERE
     WR1 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
            ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 4)))= 0));

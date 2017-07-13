@@ -8,6 +8,8 @@ SCHEMA Mechanical_design_presentation_representation_with_draughting_mim;
 
 USE FROM Associative_draughting_elements_mim; -- ISO/CD-TS 10303-1311
 
+USE FROM Characterized_representation_mim;
+
 USE FROM Mechanical_design_geometric_presentation_mim; -- ISO/CD-TS 10303-1313
 
 USE FROM Mechanical_design_shaded_presentation_mim; -- ISO/CD-TS 10303-1314
@@ -22,6 +24,25 @@ USE FROM representation_schema(
     mechanical_design_presentation_representation_with_draughting,
     shape_representation); 
   END_TYPE; 
+
+ENTITY model_geometric_view
+  SUBTYPE OF (characterized_item_within_representation);
+  SELF\characterized_item_within_representation.rep  : draughting_model;
+  SELF\characterized_item_within_representation.item : camera_model;
+END_ENTITY;
+
+ENTITY default_model_geometric_view
+ SUBTYPE OF (model_geometric_view, shape_aspect);
+   SELF\shape_aspect.of_shape : product_definition_shape;
+ DERIVE
+   Self\shape_aspect.product_definitional : LOGICAL := FALSE;
+ UNIQUE 
+   UR1:of_shape;
+ WHERE
+  WR1: SELF\characterized_object.name = SELF\shape_aspect.name;
+  WR2: NOT EXISTS(SELF\characterized_object.description);
+  WR3: NOT EXISTS(SELF\shape_aspect.description);
+END_ENTITY;
 
   ENTITY mechanical_design_presentation_representation_with_draughting
     SUBTYPE of (representation); 

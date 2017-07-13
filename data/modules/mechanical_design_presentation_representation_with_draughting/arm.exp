@@ -8,9 +8,13 @@ SCHEMA Mechanical_design_presentation_representation_with_draughting_arm;
 
 USE FROM Associative_draughting_elements_arm; -- ISO/CD-TS 10303-1311
 
+USE FROM Characterized_representation_arm;
+
 USE FROM Mechanical_design_geometric_presentation_arm; -- ISO/CD-TS 10303-1313
 
 USE FROM Mechanical_design_shaded_presentation_arm; -- ISO/CD-TS 10303-1314
+
+USE FROM Part_view_definition_arm;
 
   TYPE mdprwd_draughting_model_element_select = SELECT BASED_ON draughting_model_element_select WITH 
     (Camera_model_d3);
@@ -28,6 +32,21 @@ USE FROM Mechanical_design_shaded_presentation_arm; -- ISO/CD-TS 10303-1314
     Mechanical_design_presentation_representation_with_draughting,
     Mechanical_representation_styled_model); 
   END_TYPE; 
+
+ENTITY Default_model_geometric_view
+  SUBTYPE OF (Model_geometric_view, Shape_element);
+   SELF\Shape_element.associated_definition : Part_view_definition;
+  DERIVE
+   Self\Shape_element.product_definitional : BOOLEAN := FALSE;
+ UNIQUE 
+  UR1: associated_definition;
+ WHERE
+  WR1: SELF\Characterizable_object.name = SELF\Shape_element.element_name;
+  WR3: NOT EXISTS(SELF\Shape_element.description);
+  WR4: NOT EXISTS(SELF\Shape_element.identified_item);
+  WR5: NOT EXISTS(SELF\Shape_element.nodes);
+  WR6: NOT EXISTS(SELF\Shape_element.undirected_link);
+END_ENTITY;
 
   ENTITY Mechanical_design_and_draughting_relationship
     SUBTYPE OF(Definitional_representation_relationship); 
@@ -51,5 +70,18 @@ USE FROM Mechanical_design_shaded_presentation_arm; -- ISO/CD-TS 10303-1314
     WHERE 
       WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 3;
   END_ENTITY; 
- 
+
+ENTITY Model_geometric_view
+  SUBTYPE OF (Characterized_item_within_representation);
+
+  SELF\Characterized_item_within_representation.rep  : Draughting_model;
+  SELF\Characterized_item_within_representation.item : Camera_model_d3;
+
+ WHERE
+  WR1: NOT EXISTS(SELF\Characterizable_object.description);
+  WR2: NOT EXISTS(SELF\Characterizable_object.shape_type);
+  WR3: NOT EXISTS(SELF\Characterizable_object.primary_shape_representation);
+  WR4: NOT EXISTS(SELF\Characterizable_object.auxiliary_shape_representations);
+END_ENTITY;
+
 END_SCHEMA;

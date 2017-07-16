@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.35 2017/06/30 15:48:18 thomasrthurman Exp $
+$Id: res_toc.xsl,v 1.36 2017/06/30 18:38:45 thomasrthurman Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -57,7 +57,8 @@ $Id: res_toc.xsl,v 1.35 2017/06/30 15:48:18 thomasrthurman Exp $
         <xsl:value-of select="concat('aic_', $resource_name)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat($resource_name,'_schema.xml')"/>
+        <!--<xsl:value-of select="concat($resource_name,'_schema.xml')"/>--><!-- MWD 2017-07-16 -->
+        <xsl:value-of select="concat($resource_name,'_schema')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

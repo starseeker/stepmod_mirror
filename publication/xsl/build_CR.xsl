@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!--  $Id: build_CR.xsl,v 1.32 2016/11/08 21:38:58 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.33 2017/01/21 07:22:26 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -866,7 +866,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                     <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
                 </xsl:element>
                 
-                <xsl:element name="xslt">
+                <!--<xsl:element name="xslt">
                     <xsl:attribute name="includes">
                         <xsl:value-of
                             select="concat('${RESDOCRESOURCESSCHEMAEXPGXMLS', $part_number, '}')"/>
@@ -875,7 +875,7 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                         <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
                     </xsl:attribute>
                     <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
-                </xsl:element>
+                </xsl:element> MWD removed 2017-07-19 6297 -->
                
                 <xsl:element name="copy">
                     <xsl:attribute name="todir">
@@ -1004,7 +1004,8 @@ Purpose: To build the ANT build file from which a Change Request is produced.
                         <xsl:value-of select="'.htm'"/>
                     </xsl:attribute>
                     <xsl:attribute name="style">
-                        <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
+                        <!--<xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/> replaced with line below MWD 2017-07-19 6297 -->
+                        <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
                     </xsl:attribute>
                     <param name="output_type" expression="HTM"/>
                     <!-- MWD 2016-11-08 added -->

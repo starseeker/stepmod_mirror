@@ -1,5 +1,5 @@
 (*
-$Id: shape_tolerance_schema.exp,v 1.50 2017/05/31 23:06:01 thomasrthurman Exp $
+$Id: shape_tolerance_schema.exp,v 1.51 2017/06/18 11:01:04 lothartklein Exp $
 ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
@@ -93,6 +93,11 @@ TYPE directed_tolerance_zone_type = ENUMERATION OF
   (perpendicular, parallel, including);
 END_TYPE;
 
+TYPE geometric_tolerance_auxiliary_classification_enum = ENUMERATION OF
+ (all_over,
+ unless_otherwise_specified);
+ END_TYPE;
+ 
 TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
    (maximum_material_requirement,
     least_material_requirement,
@@ -143,11 +148,6 @@ TYPE tolerance_zone_target = SELECT (
   geometric_tolerance,
   general_datum_reference);
 END_TYPE;
-
-ENTITY all_over_geometric_tolerance
- SUBTYPE OF (geometric_tolerance);
-  SELF\geometric_tolerance.toleranced_shape_aspect : product_definition_shape;
-END_ENTITY;
 
 ENTITY angularity_tolerance
   SUBTYPE OF (geometric_tolerance_with_datum_reference);
@@ -207,6 +207,8 @@ ENTITY geometric_tolerance
 DERIVE
   controlling_shape : product_definition_shape := sts_get_product_definition_shape(toleranced_shape_aspect);
     id : identifier := get_id_value(SELF);
+INVERSE
+	auxiliary_classification : SET [0:?] OF geometric_tolerance_auxiliary_classification FOR described_item;
 UNIQUE
   UR1: id, controlling_shape;
 WHERE
@@ -217,6 +219,11 @@ WHERE
             toleranced_shape_aspect\shape_aspect_relationship.related_shape_aspect.of_shape);
   WR4: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
+
+ENTITY geometric_tolerance_auxiliary_classification;
+ attribute_value : geometric_tolerance_auxiliary_classification_enum;
+ described_item : geometric_tolerance;
+ END_ENTITY;
 
 ENTITY geometric_tolerance_relationship;
   name : label;
@@ -418,11 +425,6 @@ ENTITY unequally_disposed_geometric_tolerance
   displacement : length_measure_with_unit;
 WHERE
   WR1: ('NUMBER' IN TYPEOF (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component)) AND (SELF\geometric_tolerance_with_defined_unit.unit_size\measure_with_unit.value_component > 0.0);
-END_ENTITY;
-
-ENTITY unless_otherwise_specified_geometric_tolerance
-  SUBTYPE OF (geometric_tolerance);
-  SELF\geometric_tolerance.toleranced_shape_aspect : product_definition_shape;
 END_ENTITY;
 
 RULE subtype_exclusiveness_geometric_tolerance FOR 

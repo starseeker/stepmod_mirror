@@ -1,0 +1,165 @@
+(*
+$Id$
+ISO 10303 TC184/SC4/WG12 Ntbd
+
+EXPRESS Source:
+ISO 10303-113 ed1 Mechanical design - Counterbore countersink schema
+
+The following permission notice and disclaimer shall be included in all copies of this EXPRESS schema ("the Schema"), 
+and derivations of the Schema:
+
+Copyright ISO 2017  All rights reserved
+Permission is hereby granted, free of charge in perpetuity, to any person obtaining a copy of the Schema,
+to use, copy, modify, merge and distribute free of charge, copies of the Schema for the purposes of developing, 
+implementing, installing and using software based on the Schema, and to permit persons to whom the Schema is furnished to do so, 
+subject to the following conditions:
+
+THE SCHEMA IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SCHEMA OR THE 
+USE OR OTHER DEALINGS IN THE SCHEMA.
+
+In addition, any modified copy of the Schema shall include the following notice:
+
+THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN
+ISO 10303-113 ed1 Mechanical design - Counterbore countersink schema
+AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
+*)
+SCHEMA counterbore_countersink_schema '{iso standard 10303 part(113) version(1) object(1) counterbore_countersink_schema(2)}';
+
+
+       REFERENCE FROM measure_schema   -- ISO 10303-41
+         (length_measure_with_unit,--
+          positive_length_measure_with_unit,--
+          plane_angle_measure_with_unit,--
+          positive_plane_angle_measure_with_unit);-- 
+
+       REFERENCE FROM product_definition_schema 
+          (product_definition);--
+       
+       REFERENCE FROM product_structure_schema 
+          (multi_level_reference_designator);--
+       
+       REFERENCE FROM product_property_definition_schema
+         (characterized_object, --
+--          property_definition, 
+--          product_definition_shape, 
+          shape_aspect--
+--          shape_aspect_relationship
+          );
+       
+(*
+       REFERENCE FROM product_property_representation_schema
+          (item_identified_representation_usage,
+           property_definition_representation);
+
+       REFERENCE FROM representation_schema 
+         (get_representations_for_items,
+          representation,
+          representation_item);
+*)
+
+(*
+       REFERENCE FROM shape_aspect_definition_schema   --ISO 10303-47
+         (datum,
+          datum_target);
+*)
+      
+       REFERENCE FROM shape_tolerance_schema   --ISO 10303-47
+         (length_tolerance_value,--tbd
+          plane_angle_tolerance_value);--tbd
+
+(*
+       REFERENCE FROM support_resource_schema
+          (bag_to_set,
+           identifier);
+
+       REFERENCE FROM topology_schema
+          (topological_representation_item, 
+           get_tri_in_representations,
+           valid_tri_ids);
+*)
+
+TYPE tolerance_value_or_limits_and_fits = SELECT (length_tolerance_value,
+               limits_and_fits);
+END_TYPE;
+
+ENTITY counterbore_hole_definition
+  SUBTYPE OF (characterized_object);
+       counterbore_diameter   : hole_diameter;
+  	    drill_diameter       : hole_diameter;
+	    counterbore_depth    : hole_depth;
+END_ENTITY;
+
+ENTITY counterbore_hole_occurrence
+  SUBTYPE OF (shape_aspect);
+   definition : counterbore_hole_definition;
+  WHERE
+   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition);
+END_ENTITY;
+
+ENTITY counterbore_hole_occurrence_in_assembly
+  SUBTYPE OF (counterbore_hole_occurrence);
+  modified_components : multi_level_reference_designator;
+END_ENTITY;
+
+ENTITY countersink_hole_definition
+  SUBTYPE OF (characterized_object);
+     countersink_diameter        : hole_diameter;
+     countersink_angle           : positive_plane_angle_measure_with_unit;
+     countersink_angle_tolerance : plane_angle_tolerance_value;
+     drill_diameter              : hole_diameter;
+     drill_depth                 : hole_depth;
+END_ENTITY;
+
+ENTITY countersink_hole_occurrence
+  SUBTYPE OF (shape_aspect);
+   definition                    : countersink_hole_definition;
+  WHERE
+   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition);
+END_ENTITY;
+
+ENTITY countersink_hole_occurrence_in_assembly
+  SUBTYPE OF (countersink_hole_occurrence);
+  modified_components : multi_level_reference_designator;
+END_ENTITY;
+
+ENTITY spotface_definition
+  SUBTYPE OF (counterbore_hole_definition);
+                  spotface_radius : positive_length_measure_with_unit;
+        spotface_radius_tolerance : OPTIONAL length_tolerance_value;
+WHERE
+ WR1 : NOT EXISTS(spotface_radius_tolerance) OR EXISTS(spotface_radius);
+END_ENTITY;
+
+ENTITY spotface_occurrence
+  SUBTYPE OF (counterbore_hole_occurrence);
+   SELF\counterbore_hole_occurrence.definition   : spotface_definition;
+END_ENTITY;
+
+ENTITY spotface_occurrence_in_assembly
+  SUBTYPE OF (counterbore_hole_occurrence_in_assembly);
+   SELF\counterbore_hole_occurrence.definition   : spotface_definition;
+END_ENTITY;
+
+ENTITY hole_depth;
+       depth                     : positive_length_measure_with_unit;
+       depth_tolerance           : OPTIONAL length_tolerance_value;
+WHERE
+ WR1 : NOT EXISTS(depth_tolerance) OR EXISTS(depth);
+END_ENTITY;
+
+ENTITY hole_diameter;
+       diameter                 : positive_length_measure_with_unit;
+       diameter_tolerance       : OPTIONAL tolerance_value_or_limits_and_fits;
+WHERE
+ WR1 : NOT EXISTS(diameter_tolerance) OR EXISTS(diameter);
+(*
+Informal proposition:
+ IP1 : If a limits_and_fits is provided for the diameter_tolerance the limits_and_fits shall be for a hole.
+*)
+END_ENTITY;
+ 
+ END_SCHEMA;

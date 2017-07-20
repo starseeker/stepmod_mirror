@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-520">
    <application name="JSDAI" owner="LKSoft" source="aic_associative_draughting_elements schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="aic_associative_draughting_elements">
@@ -45,6 +43,7 @@
       </interface>
       <interface kind="use" schema="presentation_organization_schema">
          <interfaced.item name="camera_model"/>
+         <interfaced.item name="presentation_view"/>
          <interfaced.item name="annotation_representation_select"/>
       </interface>
       <interface kind="use" schema="shape_dimension_schema">
@@ -54,6 +53,8 @@
       <interface kind="use" schema="draughting_element_schema">
          <interfaced.item name="annotation_plane"/>
          <interfaced.item name="draughting_callout"/>
+         <interfaced.item name="draughting_model"/>
+         <interfaced.item name="draughting_model_item_select"/>
          <interfaced.item name="leader_curve"/>
          <interfaced.item name="projection_curve"/>
       </interface>
@@ -63,34 +64,16 @@
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="using_representations"/>
       </interface>
-      <type name="aade_annotation_representation_select">
-         <select basedon="annotation_representation_select" extensible="YES" genericentity="YES" selectitems="draughting_model"/>
-      </type>
       <type name="aade_invisibility_context">
          <select basedon="invisibility_context" extensible="YES" genericentity="YES" selectitems="draughting_model"/>
       </type>
-      <type name="draughting_model_item_select">
-         <select selectitems="mapped_item styled_item axis2_placement camera_model draughting_callout"/>
-      </type>
       <entity name="annotation_occurrence_associativity" supertypes="annotation_occurrence_relationship">
-         <where expression="SIZEOF (TYPEOF (SELF.related_annotation_occurrence) *&#10;          ['AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;           'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PROJECTION_CURVE',&#10;           'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.LEADER_CURVE']) = 1" label="WR1"/>
+         <where expression="SIZEOF (TYPEOF (SELF.related_annotation_occurrence) *&#10;          ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;           'DRAUGHTING_ELEMENT_SCHEMA.PROJECTION_CURVE',&#10;           'DRAUGHTING_ELEMENT_SCHEMA.LEADER_CURVE']) = 1" label="WR1"/>
       </entity>
       <entity name="dimension_text_associativity" supertypes="text_literal mapped_item">
-         <where expression="('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_DIMENSION_REPRESENTATION'&#10;          IN TYPEOF (SELF\mapped_item.&#10;                          mapping_source.mapped_representation))" label="WR1"/>
-         <where expression="('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT'&#10;          IN TYPEOF (SELF\mapped_item.mapping_target))" label="WR2"/>
-         <where expression="SIZEOF (QUERY (ato &lt;* QUERY (si &lt;* &#10;          USEDIN (SELF, 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |&#10;            ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'&#10;              IN TYPEOF(si))) |&#10;          NOT (SIZEOF( QUERY (dc &lt;*&#10;             USEDIN (ato, 'DRAUGHTING_ELEMENT_SCHEMA.' +&#10;                          'DRAUGHTING_CALLOUT.CONTENTS') |&#10;               ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT'&#10;             IN TYPEOF (dc)))&#10;            * [SELF\mapped_item.mapping_target]) = 1)&#10;          )) = 0" label="WR3"/>
-      </entity>
-      <entity name="draughting_model" supertypes="representation">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="draughting_model_item_select"/>
-            <redeclaration entity-ref="representation"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="SELF\representation.name"/>
-         </unique>
-         <where expression="SIZEOF (QUERY (mi &lt;* QUERY (it &lt;* SELF.items |&#10;         ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN TYPEOF(it))) |&#10;         NOT (&#10;           SIZEOF (['AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION',&#10;                    'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL'] *&#10;              TYPEOF (mi\mapped_item.mapping_source.&#10;                      mapped_representation)) = 1&#10;        ))) = 0" label="WR1"/>
-         <where expression="SIZEOF (QUERY (smi &lt;* QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.STYLED_ITEM' IN TYPEOF(it))) |&#10;        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN&#10;            TYPEOF(si\styled_item.item))) |&#10;        (NOT (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION' IN&#10;                 TYPEOF(smi\styled_item.item\mapped_item.&#10;                        mapping_source.mapped_representation))&#10;            AND&#10;             (SIZEOF (QUERY (sty &lt;* smi\styled_item.styles |&#10;               (NOT (SIZEOF (QUERY (psa &lt;* sty.styles |&#10;                       (NOT ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.CURVE_STYLE' IN TYPEOF(psa))))) = 1&#10;             )))) = 1)))&#10;        )) = 0" label="WR2"/>
+         <where expression="('SHAPE_DIMENSION_SCHEMA.SHAPE_DIMENSION_REPRESENTATION'&#10;          IN TYPEOF (SELF\mapped_item.&#10;                          mapping_source.mapped_representation))" label="WR1"/>
+         <where expression="('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'&#10;          IN TYPEOF (SELF\mapped_item.mapping_target))" label="WR2"/>
+         <where expression="SIZEOF (QUERY (ato &lt;* QUERY (si &lt;* &#10;          USEDIN (SELF, 'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |&#10;            ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'&#10;              IN TYPEOF(si))) |&#10;          NOT (SIZEOF( QUERY (dc &lt;*&#10;             USEDIN (ato, 'DRAUGHTING_ELEMENT_SCHEMA.' +&#10;                          'DRAUGHTING_CALLOUT.CONTENTS') |&#10;               ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'&#10;             IN TYPEOF (dc)))&#10;            * [SELF\mapped_item.mapping_target]) = 1)&#10;          )) = 0" label="WR3"/>
       </entity>
       <entity name="shape_aspect_associativity" supertypes="shape_aspect_relationship">
          <where expression="SELF.relating_shape_aspect.product_definitional" label="WR1"/>
@@ -116,14 +99,14 @@
     REPEAT i := 1 TO HIINDEX(sr1);
       dm := representations_mapped_into(sr1[i]);
       REPEAT j := 1 TO HIINDEX(dm);
-        IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
         THEN
           IF (dm[j] IN sr2) THEN RETURN (TRUE);
           END_IF;
           -- Find the views that the draughting model is mapped into
           pv := representations_mapped_into(dm[j]);
           REPEAT k := 1 TO HIINDEX(pv);
-            IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
+            IF ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
             THEN
               IF (pv[k] IN sr2) THEN RETURN (TRUE);
               END_IF;
@@ -136,14 +119,14 @@
     REPEAT i := 1 TO HIINDEX(sr2);
       dm := representations_mapped_into(sr2[i]);
       REPEAT j := 1 TO HIINDEX(dm);
-        IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_MODEL' IN TYPEOF(dm[j]))
         THEN
           IF (dm[j] IN sr1) THEN RETURN (TRUE);
           END_IF;
           -- Find the views that the draughting model is mapped into
           pv := representations_mapped_into(dm[j]);
           REPEAT k := 1 TO HIINDEX(pv);
-            IF ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
+            IF ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN TYPEOF(pv[k]))
             THEN
               IF (pv[k] IN sr1) THEN RETURN (TRUE);
               END_IF;

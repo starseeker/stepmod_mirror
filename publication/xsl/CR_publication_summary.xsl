@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: CR_publication_summary.xsl,v 1.3 2016/06/22 22:33:56 mikeward Exp $
+$Id: CR_publication_summary.xsl,v 1.4 2016/06/23 18:31:25 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -1010,7 +1010,8 @@ $Id: CR_publication_summary.xsl,v 1.3 2016/06/22 22:33:56 mikeward Exp $
           <!-- CVS revisions -->
           <td>
             <xsl:variable name="cvs_xref"
-              select="concat($pub_dir,'/data/modules/',@name,'/publication_record.xml')"/>
+              select="concat($pub_dir,'/data/resource_docs/',@name,'/publication_record.xml')"/>
+            <!-- MWD 2017-07-21 modules changed to resource_docs 6312 -->
             
             <a href="{$cvs_xref}">publication_record.xml</a>
           </td>

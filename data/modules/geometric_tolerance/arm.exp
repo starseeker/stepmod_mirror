@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.62 2017/05/31 16:07:30 thomasrthurman Exp $
+$Id: arm.exp,v 1.63 2017/05/31 16:44:39 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N9335 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N8026
 *) 
@@ -67,6 +67,11 @@ TYPE directed_tolerance_zone_type = ENUMERATION OF
    (perpendicular, 
     parallel, 
     including);
+END_TYPE;
+
+TYPE geometric_tolerance_auxiliary_classification_enum = ENUMERATION OF
+	(all_over,
+	unless_otherwise_specified);
 END_TYPE;
 
 TYPE geometric_tolerance_modifier = EXTENSIBLE ENUMERATION OF 
@@ -152,11 +157,6 @@ END_ENTITY;
 
 ENTITY All_around_shape_element
    SUBTYPE OF (Continuous_shape_element);
-END_ENTITY;
-
-ENTITY All_over_geometric_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  SELF\Geometric_tolerance.applied_to : Part_view_definition;
 END_ENTITY;
 
 ENTITY All_around_shape_element_along_collection_plane
@@ -337,8 +337,15 @@ ENTITY Geometric_tolerance
    second_unit_size : OPTIONAL Length_data_element;
    tolerance_value : Value_with_unit;
    unequally_disposed_tolerance_zone_displacement : OPTIONAL Length_data_element;
+INVERSE
+	auxiliary_classification : SET [0:?] OF Geometric_tolerance_auxiliary_classification FOR described_item;
 WHERE
    WR1: (NOT (EXISTS(first_unit_size))) OR ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(first_unit_size.value_component));
+END_ENTITY;
+
+ENTITY Geometric_tolerance_auxiliary_classification;
+   attribute_value : geometric_tolerance_auxiliary_classification_enum;
+   described_item : Geometric_tolerance;
 END_ENTITY;
 
 ENTITY Geometric_tolerance_relationship;
@@ -507,11 +514,6 @@ ENTITY Total_runout_tolerance
    SUBTYPE OF (Geometric_tolerance);
    angle : Angle_data_element;
    datum_system : Datum_system;
-END_ENTITY;
-
-ENTITY Unless_otherwise_specified_geometric_tolerance
-  SUBTYPE OF (Geometric_tolerance);
-  SELF\Geometric_tolerance.applied_to : Part_view_definition;
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT composite_shape_element_subtypes FOR Composite_shape_element;

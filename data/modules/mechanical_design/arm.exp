@@ -1,115 +1,118 @@
 (*
-   $Id$
-   N - ISO/CD-TS - 10303- mechanical_design - EXPRESS ARM
+   $Id: arm.exp,v 1.1 2017/04/28 04:05:47 thomasrthurman Exp $
+   N - ISO/CD-TS - 10303-1846 mechanical_design - EXPRESS ARM
 *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Mechanical_design_arm;
 
+USE FROM Associative_draughting_elements_arm;
+
+USE FROM Assembly_structure_arm;
+
    USE FROM Characterizable_object_arm
     (Characterizable_object);
 
-   USE FROM Document_assignment_arm
-    (Document_assignment,
-     documented_element_select);
-
-  USE FROM ELEMENTAL_GEOMETRIC_SHAPE_ARM
-   (Axis_placement);
-
-  USE FROM FEATURE_AND_CONNECTION_ZONE_ARM;
-
-  USE FROM MEASURE_REPRESENTATION_ARM
-   (Numerical_item_with_unit);
+   USE FROM Dimension_tolerance_arm
+    (Angle_plus_minus_bounds,
+     Length_plus_minus_bounds,
+     Limits_and_fits);
 
   USE FROM Part_view_definition_arm;
+
+--  USE FROM Requirement_assignment_arm;
    
-  USE FROM SPECIFICATION_DOCUMENT_ARM
-   (Specification_definition);
+  USE FROM Shape_property_assignment_arm;
+  
+  USE FROM Value_with_unit_extension_arm;
 
-   USE FROM Support_resource_arm
-   (identifier,
-    text,
-    label);
+TYPE md_tolerance_value_or_limits_and_fits = SELECT (Length_plus_minus_bounds,
+               Limits_and_fits);
+END_TYPE;
 
-   USE FROM Surface_conditions_arm
-    (Coating_layer,
-     Surface_texture);
+ENTITY Counterbore_hole_definition
+  SUBTYPE OF (Characterizable_object);
+       counterbore_diameter   : hole_diameter;
+  	    drill_diameter       : hole_diameter;
+	    counterbore_depth    : hole_depth;
+END_ENTITY;
 
-  USE FROM Value_with_unit_extension_arm
-    (Length_data_element,
-     Angle_data_element);
+ENTITY Counterbore_hole_occurrence
+  SUBTYPE OF (Shape_element);
+   definition : Counterbore_hole_definition;
+  WHERE
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\Shape_element.associated_definition);
+END_ENTITY;
 
-   USE FROM Value_with_unit_arm
-    (count_measure);
+ENTITY Counterbore_hole_occurrence_in_assembly
+  SUBTYPE OF (Counterbore_hole_occurrence);
+  modified_components : Multi_level_reference_designator;
+END_ENTITY;
 
-ENTITY annotation_placeholder_occurrence;
-(*tbd
-  SUBTYPE OF (annotation_occurrence, geometric_representation_item);
-  SELF\styled_item.item : geometric_set;
-  role                  : annotation_placeholder_occurrence_role;
-  character_height      : positive_length_measure;
-INVERSE
-  the_callout                                             : draughting_callout FOR contents;
-  the_draughting_model_item_association_with_placeholders : SET [0:1]OF draughting_model_item_association_with_placeholder FOR annotation_placeholder;
+ENTITY Countersink_hole_definition
+  SUBTYPE OF (Characterizable_object);
+     countersink_diameter        : Hole_diameter;
+     countersink_angle           : Positive_angle_data_element;
+     countersink_angle_tolerance : Angle_plus_minus_bounds;
+     drill_diameter              : Hole_diameter;
+     drill_depth                 : Hole_depth;
+END_ENTITY;
+
+ENTITY Countersink_hole_occurrence
+  SUBTYPE OF (Shape_element);
+   definition                    : Countersink_hole_definition;
+  WHERE
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\Shape_element.associated_definition);
+END_ENTITY;
+
+ENTITY Countersink_hole_occurrence_in_assembly
+  SUBTYPE OF (Countersink_hole_occurrence);
+  modified_components : Multi_level_reference_designator;
+END_ENTITY;
+
+ENTITY Spotface_definition
+  SUBTYPE OF (Counterbore_hole_definition);
+                  spotface_radius : Positive_length_data_element;
+        spotface_radius_tolerance : OPTIONAL Length_plus_minus_bounds;
 WHERE
-  WR1: md_valid_content_in_geometric_set_for_placeholder(item);
-  WR2: NOT (role = annotation_placeholder_occurrence_role.gps_data) OR
-           ((SIZEOF(the_draughting_model_item_association_with_placeholders) = 1) AND
-            md_pmi_name_and_type_correlation(SELF));
+ WR1 : NOT EXISTS(spotface_radius_tolerance) OR EXISTS(spotface_radius);
+END_ENTITY;
+
+ENTITY Spotface_occurrence
+  SUBTYPE OF (Counterbore_hole_occurrence);
+   SELF\counterbore_hole_occurrence.definition   : Spotface_definition;
+END_ENTITY;
+
+ENTITY Spotface_occurrence_in_assembly
+  SUBTYPE OF (Counterbore_hole_occurrence_in_assembly);
+   SELF\counterbore_hole_occurrence.definition   : Spotface_definition;
+END_ENTITY;
+
+ENTITY Hole_depth;
+       depth                     : Positive_length_data_element;
+       depth_tolerance           : OPTIONAL Length_plus_minus_bounds;
+WHERE
+ WR1 : NOT EXISTS(depth_tolerance) OR EXISTS(depth);
+END_ENTITY;
+
+ENTITY Hole_diameter;
+       diameter                 : Positive_length_data_element;
+       diameter_tolerance       : OPTIONAL md_tolerance_value_or_limits_and_fits;
+WHERE
+ WR1 : NOT EXISTS(diameter_tolerance) OR EXISTS(diameter);
+ 
+(*
+Informal proposition:
+ IP1 : If a limits_and_fits is provided for the diameter_tolerance the limits_and_fits shall be for a hole.
 *)
 END_ENTITY;
 
-ENTITY Catalogue_knurl_feature_definition
-  SUBTYPE OF (Knurl_feature_definition);
-  documentation : Specification_definition;
-END_ENTITY;
 
-ENTITY Length_numerical_item_with_unit
-  SUBTYPE OF (Length_data_element, Numerical_item_with_unit);
+(*
+ENTITY Pmi_requirement_item_association
+  SUBTYPE OF ( Item_identified_representation_usage );
+    SELF\Item_identified_representation_usage.definition : Requirement_assignment; 
 END_ENTITY;
+*)
 
-ENTITY Angle_numerical_item_with_unit
-  SUBTYPE OF (Angle_data_element, Numerical_item_with_unit);
-END_ENTITY;
-
-ENTITY Diagonal_knurl_feature_definition
-  SUBTYPE OF (Turned_knurl_feature_definition);
-  helix_hand : text;
-  helix_angle : Angle_numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Diamond_knurl_feature_definition
-  SUBTYPE OF (Turned_knurl_feature_definition);
-  helix_angle : Angle_numerical_item_with_unit;
-END_ENTITY;
-
-ENTITY Knurl_feature
-  SUBTYPE OF (Shape_element);
-  definition : Knurl_feature_definition;
-  effective_length : Length_numerical_item_with_unit;
-  maximum_length : OPTIONAL Length_numerical_item_with_unit;
-  placement : Axis_placement;
-DERIVE
-  SELF\Shape_element.product_definitional : BOOLEAN := TRUE;
-END_ENTITY;
-
-ENTITY Knurl_feature_definition
-  ABSTRACT SUPERTYPE OF (ONEOF (Catalogue_knurl_feature_definition, Turned_knurl_feature_definition))
-  SUBTYPE OF (Characterizable_object);
-END_ENTITY;
-
-ENTITY Straight_knurl_feature_definition
-  SUBTYPE OF (Turned_knurl_feature_definition);
-END_ENTITY;
-
-ENTITY Turned_knurl_feature_definition
-  ABSTRACT SUPERTYPE OF (ONEOF (Diagonal_knurl_feature_definition, Diamond_knurl_feature_definition, Straight_knurl_feature_definition))
-  SUBTYPE OF (Knurl_feature_definition);
-  nominal_diameter : Length_numerical_item_with_unit;
-  diametrical_pitch : Length_numerical_item_with_unit;
-  root_fillet : OPTIONAL Length_numerical_item_with_unit;
-  number_of_teeth : OPTIONAL count_measure;
-  tooth_depth : OPTIONAL Length_numerical_item_with_unit;
-  major_diameter : Length_numerical_item_with_unit;
-END_ENTITY;
 
 END_SCHEMA;

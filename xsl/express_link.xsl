@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.23 2015/11/25 23:24:50 mikeward Exp $
+     $Id: express_link.xsl,v 1.24 2017/07/25 10:04:54 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -749,7 +749,7 @@
 
 	<xsl:when test="$and_for_last_pair='yes' and
                         (string-length($rest) - string-length(translate($rest,',','')) = 0 )">
-          and
+	  <xsl:value-of select="', and '"/><!-- MWD 2017-07-25  -->
           <xsl:choose>
             <xsl:when test="$bold='yes'">
               <b>

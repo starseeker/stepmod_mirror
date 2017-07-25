@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.22 2012/12/13 22:16:04 mikeward Exp $
+     $Id: express_link.xsl,v 1.23 2015/11/25 23:24:50 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -719,7 +719,7 @@
             </xsl:otherwise>
           </xsl:choose>
           
-          and
+          <xsl:value-of select="', and '"/><!-- MWD 2017-07-25  -->
           
           <xsl:choose>
             <xsl:when test="$bold='yes'">

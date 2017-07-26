@@ -1,40 +1,66 @@
 (*
-   $Id: mim.exp,v 1.4 2017/06/01 14:41:13 thomasrthurman Exp $
+   $Id: mim.exp,v 1.5 2017/07/23 17:20:21 thomasrthurman Exp $
    N - ISO/CD-TS - 10303- mechanical_design - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Mechanical_design_mim;
 
-  USE FROM Assembly_structure_mim;
+  USE FROM counterbore_countersink_schema; 
 
   USE FROM mechanical_design_schema; 
 
-  USE FROM Characterizable_object_mim;
-         
-  USE FROM Dimension_tolerance_mim;
-           
-  USE FROM Part_view_definition_mim;
-   
---  USE FROM Requirement_assignment_mim;
+  USE FROM Associative_draughting_elements_mim;
 
+  USE FROM Assembly_structure_mim;
+
+  USE FROM Characterizable_object_mim;
+
+  USE FROM Dimension_tolerance_mim;
+
+  USE FROM Geometric_tolerance_mim;
+
+  USE FROM Part_view_definition_mim;
+
+  USE FROM Requirement_assignment_mim;
+   
   USE FROM Shape_property_assignment_mim;
   
   USE FROM Value_with_unit_extension_mim;
+
+TYPE md_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH
+    (characterized_object,
+     dimensional_size,
+     dimensional_location,
+     geometric_tolerance,
+     product,
+     product_definition_formation,
+     product_definition,
+     shape_aspect,
+     product_definition_relationship);
+END_TYPE;
+
+TYPE md_requirement_source_item = SELECT BASED_ON requirement_source_item WITH
+    (characterized_object,
+     dimensional_size,
+     dimensional_location,
+     geometric_tolerance,
+     product,
+     product_definition_formation,
+     product_definition,
+     shape_aspect,
+     product_definition_relationship);
+END_TYPE;
       
-(*
   TYPE md_item_identified_representation_usage_definition = SELECT BASED_ON item_identified_representation_usage_definition WITH (
-    requirement_assigned_object);
+    requirement_assignment);
   END_TYPE;
-*)
 
 TYPE md_tolerance_value_or_limits_and_fits = SELECT (length_tolerance_value,
                limits_and_fits);
 END_TYPE;
 
-(*
 ENTITY pmi_requirement_item_association
   SUBTYPE OF ( item_identified_representation_usage );
-    SELF\item_identified_representation_usage.definition : requirement_assigned_object; 
+    SELF\item_identified_representation_usage.definition : requirement_assignment; 
 END_ENTITY;
-*)
 
 END_SCHEMA;

@@ -1,29 +1,48 @@
 (*
-   $Id: arm.exp,v 1.1 2017/04/28 04:05:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.2 2017/07/23 17:02:54 thomasrthurman Exp $
    N - ISO/CD-TS - 10303-1846 mechanical_design - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
 SCHEMA Mechanical_design_arm;
 
 USE FROM Associative_draughting_elements_arm;
 
 USE FROM Assembly_structure_arm;
 
-   USE FROM Characterizable_object_arm
-    (Characterizable_object);
+   USE FROM Characterizable_object_arm;
 
-   USE FROM Dimension_tolerance_arm
-    (Angle_plus_minus_bounds,
-     Length_plus_minus_bounds,
-     Limits_and_fits);
+   USE FROM Dimension_tolerance_arm;
+
+   USE FROM Geometric_tolerance_arm;
 
   USE FROM Part_view_definition_arm;
 
---  USE FROM Requirement_assignment_arm;
+  USE FROM Requirement_assignment_arm;
    
   USE FROM Shape_property_assignment_arm;
   
   USE FROM Value_with_unit_extension_arm;
+
+TYPE md_requirement_assignment_item = SELECT BASED_ON requirement_assignment_item WITH
+    (Characterizable_object,
+     Geometric_dimension,
+     Geometric_tolerance,
+     Product,
+     Product_version,
+     Product_view_definition,
+     Shape_element,
+     View_definition_relationship);
+END_TYPE;
+
+TYPE md_requirement_source_item = SELECT BASED_ON requirement_source_item WITH
+    (Characterizable_object,
+     Geometric_dimension,
+     Geometric_tolerance,
+     Product,
+     Product_version,
+     Product_view_definition,
+     Shape_element,
+     View_definition_relationship);
+END_TYPE;
 
 TYPE md_tolerance_value_or_limits_and_fits = SELECT (Length_plus_minus_bounds,
                Limits_and_fits);
@@ -107,12 +126,12 @@ Informal proposition:
 END_ENTITY;
 
 
-(*
+
 ENTITY Pmi_requirement_item_association
   SUBTYPE OF ( Item_identified_representation_usage );
     SELF\Item_identified_representation_usage.definition : Requirement_assignment; 
 END_ENTITY;
-*)
+
 
 
 END_SCHEMA;

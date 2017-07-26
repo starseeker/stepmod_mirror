@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="mechanical_design_presentation_representation_with_draughting_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Mechanical_design_presentation_representation_with_draughting_arm">
       <interface kind="use" schema="Associative_draughting_elements_arm"/>
+      <interface kind="use" schema="Characterized_representation_arm"/>
       <interface kind="use" schema="Mechanical_design_geometric_presentation_arm"/>
       <interface kind="use" schema="Mechanical_design_shaded_presentation_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
       <type name="mdprwd_draughting_model_element_select">
          <select basedon="draughting_model_element_select" selectitems="Camera_model_d3"/>
       </type>
@@ -17,6 +17,24 @@
       <type name="mechanical_design_and_draughting_relationship_select">
          <select extensible="YES" genericentity="YES" selectitems="Draughting_model Geometric_model Mechanical_design_shaded_styled_model Mechanical_design_presentation_representation_with_draughting Mechanical_representation_styled_model"/>
       </type>
+      <entity name="Default_model_geometric_view" supertypes="Model_geometric_view Shape_element">
+         <explicit name="associated_definition">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype type="BOOLEAN"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="associated_definition"/>
+         </unique>
+         <where expression="SELF\Characterizable_object.name = SELF\Shape_element.element_name" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR3"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.identified_item)" label="WR4"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.nodes)" label="WR5"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.undirected_link)" label="WR6"/>
+      </entity>
       <entity name="Mechanical_design_and_draughting_relationship" supertypes="Definitional_representation_relationship">
          <explicit name="rep_1">
             <typename name="mechanical_design_and_draughting_relationship_select"/>
@@ -37,6 +55,20 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
          <where expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 3" label="WR1"/>
+      </entity>
+      <entity name="Model_geometric_view" supertypes="Characterized_item_within_representation">
+         <explicit name="rep">
+            <typename name="Draughting_model"/>
+            <redeclaration entity-ref="Characterized_item_within_representation"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="Camera_model_d3"/>
+            <redeclaration entity-ref="Characterized_item_within_representation"/>
+         </explicit>
+         <where expression="NOT EXISTS(SELF\Characterizable_object.description)" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Characterizable_object.shape_type)" label="WR2"/>
+         <where expression="NOT EXISTS(SELF\Characterizable_object.primary_shape_representation)" label="WR3"/>
+         <where expression="NOT EXISTS(SELF\Characterizable_object.auxiliary_shape_representations)" label="WR4"/>
       </entity>
    </schema>
 </express>

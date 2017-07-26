@@ -1,19 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="mechanical_design_presentation_representation_with_draughting_mim schema_instance"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="mechanical_design_presentation_representation_with_draughting_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Mechanical_design_presentation_representation_with_draughting_mim">
       <interface kind="use" schema="Associative_draughting_elements_mim"/>
+      <interface kind="use" schema="Characterized_representation_mim"/>
       <interface kind="use" schema="Mechanical_design_geometric_presentation_mim"/>
       <interface kind="use" schema="Mechanical_design_shaded_presentation_mim"/>
+      <interface kind="use" schema="Part_view_definition_mim"/>
       <interface kind="use" schema="representation_schema">
          <interfaced.item name="definitional_representation_relationship_with_same_context"/>
       </interface>
       <type name="mechanical_design_and_draughting_relationship_select">
          <select extensible="YES" genericentity="YES" selectitems="draughting_model mechanical_design_geometric_presentation_representation mechanical_design_shaded_presentation_representation mechanical_design_presentation_representation_with_draughting shape_representation"/>
       </type>
+      <entity name="default_model_geometric_view" supertypes="model_geometric_view shape_aspect">
+         <explicit name="of_shape">
+            <typename name="product_definition_shape"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </explicit>
+         <derived expression="FALSE" name="product_definitional">
+            <builtintype type="LOGICAL"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="of_shape"/>
+         </unique>
+         <where expression="SELF\characterized_object.name = SELF\shape_aspect.name" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\characterized_object.description)" label="WR2"/>
+         <where expression="NOT EXISTS(SELF\shape_aspect.description)" label="WR3"/>
+      </entity>
       <entity name="mechanical_design_and_draughting_relationship" supertypes="definitional_representation_relationship_with_same_context">
          <explicit name="rep_1">
             <typename name="mechanical_design_and_draughting_relationship_select"/>
@@ -23,15 +39,25 @@
             <typename name="mechanical_design_and_draughting_relationship_select"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
-         <where label="WR1" expression="NOT('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;       (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))"/>
-         <where label="WR2" expression="NOT('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.'+'MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_2)) OR &#10;       (('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.'+'MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))"/>
-         <where label="WR3" expression="NOT('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_2)) OR &#10;       (('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))"/>
+         <where expression="NOT('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;       (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))" label="WR1"/>
+         <where expression="NOT('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.'+'MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_2)) OR &#10;       (('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.'+'MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))" label="WR2"/>
+         <where expression="NOT('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_2)) OR &#10;       (('AIC_MECHANICAL_DESIGN_SHADED_PRESENTATION.'+'MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION' IN TYPEOF(rep_1)) OR&#10;        ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+'SHAPE_REPRESENTATION' IN TYPEOF(rep_1)))" label="WR3"/>
       </entity>
       <entity name="mechanical_design_presentation_representation_with_draughting" supertypes="representation">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="camera_model_d3"/>
             <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
+      <entity name="model_geometric_view" supertypes="characterized_item_within_representation">
+         <explicit name="rep">
+            <typename name="draughting_model"/>
+            <redeclaration entity-ref="characterized_item_within_representation"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="camera_model"/>
+            <redeclaration entity-ref="characterized_item_within_representation"/>
          </explicit>
       </entity>
    </schema>

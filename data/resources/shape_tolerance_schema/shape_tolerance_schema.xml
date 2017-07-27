@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/07/24 12:01:50 $" rcs.revision="$Revision: 1.48 $" reference="ISO 10303-47">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/07/26 07:36:03 $" rcs.revision="$Revision: 1.49 $" reference="ISO 10303-47">
    <application name="JSDAI" owner="LKSoft" source="shape_tolerance_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="shape_tolerance_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -50,7 +50,7 @@
          <interfaced.item name="dimensional_size"/>
       </interface>
       <type name="area_unit_type">
-         <enumeration extensible="YES" items="circular square rectangular"/>
+         <enumeration extensible="YES" items="circular square rectangular  cylindrical spherical"/>
       </type>
       <type name="datum_system_or_reference">
          <select extensible="NO" genericentity="NO" selectitems="datum_reference datum_system"/>
@@ -66,6 +66,9 @@
       </type>
       <type name="geometric_tolerance_target">
          <select extensible="NO" genericentity="NO" selectitems="dimensional_location dimensional_size product_definition_shape shape_aspect"/>
+      </type>
+      <type name="length_or_plane_angle_measure_with_unit_select">
+         <select selectitems="length_measure_with_unit plane_angle_measure_with_unit"/>
       </type>
       <type name="oriented_tolerance_zone_type">
          <enumeration extensible="NO" items="perpendicular parallel angular"/>
@@ -89,6 +92,20 @@
       <entity abstract.entity="NO" abstract.supertype="NO" name="circular_runout_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="coaxiality_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
       <entity abstract.entity="NO" abstract.supertype="NO" name="concentricity_tolerance" supertypes="geometric_tolerance_with_datum_reference"/>
+      <entity name="cylindrical_restricted_area" supertypes="geometric_tolerance_with_defined_area_unit">
+         <explicit name="unit_size">
+            <typename name="length_measure_with_unit"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_unit"/>
+         </explicit>
+         <explicit name="second_unit_size">
+            <typename name="plane_angle_measure_with_unit"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_area_unit"/>
+         </explicit>
+         <derived expression="area_unit_type.cylindrical" name="area_type">
+            <typename name="area_unit_type"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_area_unit"/>
+         </derived>
+      </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="cylindricity_tolerance" supertypes="geometric_tolerance">
          <where expression="NOT ('SHAPE_TOLERANCE_SCHEMA.' + 'GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE' IN TYPEOF (SELF))" label="WR1"/>
       </entity>
@@ -168,18 +185,20 @@
          </explicit>
          <where expression="(SIZEOF(QUERY(ds &lt;* datum_system | 'SHAPE_TOLERANCE_SCHEMA.' + 'DATUM_SYSTEM' in TYPEOF(ds)))=0) OR (SIZEOF(datum_system)=1)" label="WR1"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_defined_area_unit" supertypes="geometric_tolerance_with_defined_unit">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_defined_area_unit" super.expression="ONEOF (cylindrical_restricted_area, spherical_restricted_area)" supertypes="geometric_tolerance_with_defined_unit">
          <explicit name="area_type" optional="NO">
             <typename name="area_unit_type"/>
          </explicit>
          <explicit name="second_unit_size" optional="YES">
-            <typename name="length_measure_with_unit"/>
+            <typename name="length_or_plane_angle_measure_with_unit_select"/>
          </explicit>
-         <where expression="NOT (EXISTS(second_unit_size) XOR (area_type = area_unit_type.rectangular))" label="WR1"/>
+         <where expression="NOT (EXISTS(second_unit_size) XOR (area_type IN [area_unit_type.rectangular, area_unit_type.cylindrical, area_unit_type.spherical]))" label="WR1"/>
+         <where expression="NOT(('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(unit_size)) AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.SPHERICAL_RESTRICTED_AREA' IN TYPEOF(SELF))" label="WR2"/>
+         <where expression="NOT(('MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(unit_size)) AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.CYLINDRICAL_RESTRICTED_AREA' IN TYPEOF(SELF))" label="WR3"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_tolerance_with_defined_unit" supertypes="geometric_tolerance">
          <explicit name="unit_size" optional="NO">
-            <typename name="length_measure_with_unit"/>
+            <typename name="length_or_plane_angle_measure_with_unit_select"/>
          </explicit>
          <where expression="('NUMBER' IN TYPEOF (unit_size\measure_with_unit.value_component)) AND (unit_size\measure_with_unit.value_component &gt; 0.0)" label="WR1"/>
       </entity>
@@ -294,6 +313,21 @@
          <explicit name="orientation_defining_relationship" optional="NO">
             <typename name="shape_aspect_relationship"/>
          </explicit>
+      </entity>
+      <entity name="spherical_restricted_area" supertypes="geometric_tolerance_with_defined_area_unit">
+         <explicit name="unit_size">
+            <typename name="plane_angle_measure_with_unit"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_unit"/>
+         </explicit>
+         <explicit name="second_unit_size">
+            <typename name="plane_angle_measure_with_unit"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_area_unit"/>
+         </explicit>
+         <derived expression="area_unit_type.spherical" name="area_type">
+            <typename name="area_unit_type"/>
+            <redeclaration entity-ref="geometric_tolerance_with_defined_area_unit"/>
+         </derived>
+         <inverse attribute="defining_tolerance" entity="oriented_tolerance_zone" name="orientation_plane"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="statistical_distribution_for_tolerance" supertypes="representation">
          <where expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | NOT ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (item)))) = 0" label="WR1"/>

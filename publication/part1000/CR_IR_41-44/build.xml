@@ -73,10 +73,10 @@
       <property name="RESDOCDESCRIPTIONSXML44" value="data/resource_docs/product_structure_configuration/descriptions.xml"/>
       <property name="RESDOCSCHEMADIAGXML44" value="data/resource_docs/product_structure_configuration/schema_diagexpg*.xml"/>
       <property name="RESDOCGCHANGEXML44" value="data/resource_docs/product_structure_configuration/sys/g_change.xml"/>
-      <property name="RESSCHEMAXML41" value="data/resources/basic_attribute_schema/*schema.xml,data/resources/product_definition_schema/*schema.xml,data/resources/product_property_definition_schema/*schema.xml,data/resources/product_property_representation_schema/*schema.xml"/>
-      <property name="RESOURCESSCHEMAEXPGXMLS41" value="data/resources/basic_attribute_schema/*expg*.xml,data/resources/product_definition_schema/*expg*.xml,data/resources/product_property_definition_schema/*expg*.xml,data/resources/product_property_representation_schema/*expg*.xml"/>
-      <property name="RESOURCESEXP41" value="data/resources/basic_attribute_schema/*.exp,data/resources/product_definition_schema/*.exp,data/resources/product_property_definition_schema/*.exp,data/resources/product_property_representation_schema/*.exp"/>
-      <property name="RESOURCESSCHEMAEXPGGIFS41" value="data/resources/basic_attribute_schema/*expg*.gif,data/resources/product_definition_schema/*expg*.gif,data/resources/product_property_definition_schema/*expg*.gif,data/resources/product_property_representation_schema/*expg*.gif"/>
+      <property name="RESSCHEMAXML41" value="data/resources/basic_attribute_schema/*schema.xml,data/resources/measure_schema/*schema.xml,data/resources/product_definition_schema/*schema.xml,data/resources/product_property_definition_schema/*schema.xml,data/resources/product_property_representation_schema/*schema.xml"/>
+      <property name="RESOURCESSCHEMAEXPGXMLS41" value="data/resources/basic_attribute_schema/*expg*.xml,data/resources/measure_schema/*expg*.xml,data/resources/product_definition_schema/*expg*.xml,data/resources/product_property_definition_schema/*expg*.xml,data/resources/product_property_representation_schema/*expg*.xml"/>
+      <property name="RESOURCESEXP41" value="data/resources/basic_attribute_schema/*.exp,data/resources/measure_schema/*.exp,data/resources/product_definition_schema/*.exp,data/resources/product_property_definition_schema/*.exp,data/resources/product_property_representation_schema/*.exp"/>
+      <property name="RESOURCESSCHEMAEXPGGIFS41" value="data/resources/basic_attribute_schema/*expg*.gif,data/resources/measure_schema/*expg*.gif,data/resources/product_definition_schema/*expg*.gif,data/resources/product_property_definition_schema/*expg*.gif,data/resources/product_property_representation_schema/*expg*.gif"/>
       <property name="RESSCHEMAXML44" value="data/resources/product_structure_schema/*schema.xml,data/resources/configuration_management_schema/*schema.xml"/>
       <property name="RESOURCESSCHEMAEXPGXMLS44" value="data/resources/product_structure_schema/*expg*.xml,data/resources/configuration_management_schema/*expg*.xml"/>
       <property name="RESOURCESEXP44" value="data/resources/product_structure_schema/*.exp,data/resources/configuration_management_schema/*.exp"/>
@@ -346,14 +346,6 @@
          <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
          <param name="menubar_file" expression="${ISOMENU}"/>
       </xslt>
-      <xslt includes="${RESDOCRESOURCESSCHEMAEXPGXMLS41}" style="${STEPMODSTYLES}/res_doc/imgfile.xsl" destdir="${PUBDIR}/iso10303_41" extension=".htm">
-         <param name="output_type" expression="HTM"/>
-         <param name="publication" expression="${PUBLICATION}"/>
-         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
-         <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
-         <param name="menubar_file" expression="${ISOMENU}"/>
-      </xslt>
       <copy todir="${PUBDIR}/iso10303_41">
          <fileset dir="." includes="${RESDOCGIFS41}"/>
       </copy>
@@ -555,14 +547,6 @@
          <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
          <param name="menubar_file" expression="${ISOMENU}"/>
       </xslt>
-      <xslt includes="${RESDOCRESOURCESSCHEMAEXPGXMLS44}" style="${STEPMODSTYLES}/res_doc/imgfile.xsl" destdir="${PUBDIR}/iso10303_44" extension=".htm">
-         <param name="output_type" expression="HTM"/>
-         <param name="publication" expression="${PUBLICATION}"/>
-         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
-         <param name="INLINE_ERRORS" expression="${INLINE_ERRORS}"/>
-         <param name="menubar_file" expression="${ISOMENU}"/>
-      </xslt>
       <copy todir="${PUBDIR}/iso10303_44">
          <fileset dir="." includes="${RESDOCGIFS44}"/>
       </copy>
@@ -572,6 +556,27 @@
    </target>
 	    
    <target name="isoresources" depends="init" description="generate HTML for all resources listed in the publication_index">
+      <dependset>
+         <srcfileset dir="${STEPMODDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+         <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
+         <targetfileset dir="${P1000DIR}" includes="/data/resources/**/*.htm"/>
+      </dependset>
+      <xslt includes="${RESSCHEMAXML41}" destdir="${PUBDIR}/iso10303_41" extension=".htm" style="${STEPMODSTYLES}/express.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_background" expression="${OUTPUT_RESOURCES_BACKGROUND}"/>
+         <param name="background_image" expression="greybackground.jpg"/>
+      </xslt>
+      <xslt includes="${RESOURCESSCHEMAEXPGXMLS41}" destdir="${PUBDIR}/iso10303_41" extension=".htm" style="${STEPMODSTYLES}/res_doc/imgfile.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </xslt>
+      <copy todir="${PUBDIR}/iso10303_41">
+         <fileset dir="." includes="${RESOURCESEXP41}"/>
+      </copy>
+      <copy todir="${PUBDIR}/iso10303_41">
+         <fileset dir="." includes="${RESOURCESSCHEMAEXPGGIFS41}"/>
+      </copy>
       <dependset>
          <srcfileset dir="${STEPMODDTDDIR}" includes="**/*.dtd, **/*.ent"/>
          <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
@@ -743,6 +748,13 @@
       <loadfile property="CVS_res_entry_basic_attribute_schema" srcfile="data/resources/basic_attribute_schema/CVS/Entries"/>
       <xslt in="data/resources/basic_attribute_schema/basic_attribute_schema.xml" out="${PUBDIR}/iso10303_41/data/resources/basic_attribute_schema/publication_record.xml" style="${STEPMODSTYLES}/publication/pub_record.xsl" destdir="${PUBDIR}/iso10303_41">
          <param name="CVS_dir_dot_entry" expression="${CVS_res_entry_basic_attribute_schema}"/>
+         <param name="CVS_tag" expression="${CVS_tag}"/>
+         <param name="PUBLICATION_DATE" expression="${PUB_DATE}"/>
+      </xslt>
+	    <!--Publish resource: measure_schema-->
+      <loadfile property="CVS_res_entry_measure_schema" srcfile="data/resources/measure_schema/CVS/Entries"/>
+      <xslt in="data/resources/measure_schema/measure_schema.xml" out="${PUBDIR}/iso10303_41/data/resources/measure_schema/publication_record.xml" style="${STEPMODSTYLES}/publication/pub_record.xsl" destdir="${PUBDIR}/iso10303_41">
+         <param name="CVS_dir_dot_entry" expression="${CVS_res_entry_measure_schema}"/>
          <param name="CVS_tag" expression="${CVS_tag}"/>
          <param name="PUBLICATION_DATE" expression="${PUB_DATE}"/>
       </xslt>

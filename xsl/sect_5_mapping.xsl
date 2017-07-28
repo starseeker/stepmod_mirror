@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.84 2013/10/25 15:52:58 thomasrthurman Exp $
+$Id: sect_5_mapping.xsl,v 1.85 2015/08/12 11:29:42 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -130,7 +130,9 @@ $Id: sect_5_mapping.xsl,v 1.84 2013/10/25 15:52:58 thomasrthurman Exp $
       <xsl:call-template name="mapping_syntax"/>
       <xsl:apply-templates select="." mode="output_mapping_issue"/>
       <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
-      <xsl:apply-templates select="./mapping_table/ae" mode="specification"/>
+      <xsl:apply-templates select="./mapping_table/ae" mode="specification">
+        <xsl:sort select="./@entity"/>
+      </xsl:apply-templates>
       <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>
     </xsl:when>
     <xsl:otherwise>
@@ -661,6 +663,8 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 
   <xsl:apply-templates select="aa" mode="specification">
     <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
+    <xsl:sort select="./@assertion_to"/>
+    <xsl:sort select="./@attribute"/>
   </xsl:apply-templates>
 </xsl:template>
 

@@ -1,14 +1,13 @@
 (*
-   $Id: arm.exp,v 1.7 2017/01/30 16:15:37 kevletu Exp $
+   $Id: arm.exp,v 1.8 2017/07/31 14:31:26 kevletu Exp $
    N - ISO/CD-TS - 10303- surface_visual_texture - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Surface_visual_texture_arm;
 
 USE FROM Tessellated_geometry_arm;
 USE FROM Support_resource_arm; -- to get label
 USE FROM Appearance_assignment_arm; -- to get ENTITIES styled_element and Appearance_assignment
 
--- EXTEND TYPE appearance_select with Texture_style_tessellation_specification
 TYPE svt_appearance_select = SELECT BASED_ON appearance_select WITH
 	(Texture_style_tessellation_specification);
 END_TYPE; 
@@ -17,11 +16,6 @@ TYPE tessellated_face_or_tessellated_surface_set = SELECT
     (Tessellated_face,
      Tessellated_surface_set);
 END_TYPE; 
-
--- DESCRIPTION: 
--- The tessellated_face_or_tessellated_surface_set type is either a Tessellated_face or a Tessellated_surface_set to which a visual texture is applied.
-
--- Same description P46 ? Yes, but change the upper case
 
 TYPE visual_texture_file_type = ENUMERATION OF
     (JPEG, 
@@ -34,28 +28,14 @@ TYPE visual_texture_file_type = ENUMERATION OF
     other);
 END_TYPE;
 
--- DESCRIPTION: 
--- The visual_texture_file_type type is an enumeration list of file formats that specifies the image format of a texture mapped to a Single_texture_style_tessellation_specification.
-
 TYPE non_negative_real = REAL;
   WHERE
       WR1: 0. <= SELF;
 END_TYPE;
 
--- DESCRIPTION: 
--- The non_negative_real type is a REAL and its value is restricted to be zero or positive.
-
 ENTITY Texture_style_tessellation_specification
    ABSTRACT SUPERTYPE;
 END_ENTITY;
-
-
--- FINAL DESCRIPTION:
--- A Texture_style_tessellation_specification is an abstract entity that defines a visual texture.
--- MAPPING:
---MIM element:	texture_style_tessellation_specification
--- Source:			ISO 10303-46
-
 
 ENTITY Single_texture_style_tessellation_specification
    SUBTYPE OF (Texture_style_tessellation_specification);
@@ -65,72 +45,16 @@ ENTITY Single_texture_style_tessellation_specification
    repeating_pattern: BOOLEAN;
 END_ENTITY;
 
-(*
---  DESCRIPTION:
-A Single_texture_style_tessellation_specification is a tybe of Texture_style_tessellation_specification that defines the visual texture.
-The texture_coordinates is an array, which its content is implicitly associated to coordinates in the tessellated geometry that is defined elsewhere.
-The texture is defined in an external file.
-
--- texture_image ATTRIBUTE DESCRIPTION: 
-the name of the external image file containing the texture to be mapped to a tessellated_face_or_tessellated_surface_set. 
-NOTE: the name should include the format extension corresponding to one of the formats enumerated in visual_texture_file_type.
-
--- texture_coordinates ATTRIBUTE DESCRIPTION:
-the list of (U,V) texture coordinates associated to the 3D coordinates of the points of the tessellated geometry.
-                     When the texture is mapped on a tessellated_face without pnindex, the first element of the list is the texture (U,V) value of the first point of the associated coordinates_list.
-                     When the texture is mapped on a tessellated_face with pnindex, the first element of the list is the texture (U,V) value of the first point of the pnindex.
-                     When the texture is mapped on a tessellated_surface_set, the first element of the list is the texture (U,V) value of the first point of the associated coordinates_list.
-                     When reppeating_pattern is FALSE, U and V value range shall be 0.0 to 1.0, where (0,0) is the bottom-left corner and (1,1) is the top-right corner of the texture image.
-                     When reppeating_pattern is TRUE, U and V values greater than 0.0 are permitted; in this case the integer part is substracted to obtain a number in a range of 1.0 for the texture mapping.
-			-- (0,0) is the bottom-left corner or top-left ? and (1,1) is the top-right or the bottom right corner? of the texture image 
-
--- texture_format ATTRIBUTE DESCRIPTION: 
-the name of the format extension of the external image file containing the texture to be mapped to the tessellated_face_or_tessellated_surface_set.
-
--- repeating_pattern ATTRIBUTE DESCRIPTION: 
-if TRUE, repeating pattern is applied to the texture and the texture_coordinates values may be higher than one. If FALSE, the pattern is not repeatted and the U and V value range shall be 0.0 to 1.0.
-
--- ENTITY MAPPING:
-MIM element:	single_texture_style_tessellation_specification
-Source:			ISO 10303-46
-
--- texture_image ATTRIBUTE MAPPING: 
-MIM element:	PATH
-REFERENCE PATH: 		single_texture_style_tessellation_specification
-										single_texture_style_tessellation_specification.texture_image	 			 
-
-*)
-
 ENTITY Tessellated_styled_element_with_texture
 	SUBTYPE OF (Styled_element);  
   		SELF\Styled_element.appearance : SET [1:1] OF Appearance_assignment; 
 	    SELF\Styled_element.element : tessellated_face_or_tessellated_surface_set;
     WHERE
      	WR1: SELF\styled_element.invisible = FALSE;
-  -- WR1 RULE DESCRIPTION: The Tessellated_styled_element_with_texture shall be visible.
         WR2: (SIZEOF(appearance) = 1) AND 
          (SIZEOF(appearance[1]\Appearance_assignment.appearance_components) = 1);
- -- WR2 RULE DESCRIPTION: It shall be exactly one Appearance_assignment and exactly one component in that assignment.
         WR3: 'SURFACE_VISUAL_TEXTURE_ARM.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN 
                TYPEOF(appearance[1]\Appearance_assignment.appearance_components[1]);
--- WR3 RULE DESCRIPTION: The component specifed by the Appearance_assignment shall be a Texture_style_tessellation_specification.
-  END_ENTITY;
-  
-  (*
-  -- ENTITY DESCRIPTION: 
-  A Tessellated_styled_element_with_texture is a type of Styled_element that assigns a visual texture to a tessellated geometry, 
-  which may be either a tessellated face or a collection of tessellated faces defined in a Tessellated_surface_set. 
-  NOTE: The interpreted resource part entity has additional constraints to ensure consistency of the sizes of the referenced list contained 
-  in the Single_texture_style_tessellation_specification specified by the appearance attribute and the list of coordinate values specified by the tessellated geometry.
+END_ENTITY;
 
-  -- Styled_element.appearance ATTRIBUTE DESCRIPTION:
-  specifies the Appearance_assignment that specifies the texture defined by a Texture_style_tessellation_specification.
-  NOTE: The actual appearance is realized in the model by the Appearance_assignment entity referenced by the appearance attribute
-  
-  -- Styled_element.element ATTRIBUTE DESCRIPTION: TBD
-  specifies the tessellated geometry to which the texture style is applied.
-
-  
-  *)
-  
 END_SCHEMA;

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date: 2017/06/23 11:41:21 $" rcs.revision="$Revision: 1.36 $" reference="ISO/TS 10303-1051">
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
    <application name="JSDAI" owner="LKSoft" source="geometric_tolerance_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Geometric_tolerance_mim">
       <interface kind="use" schema="Derived_shape_element_mim"/>
@@ -43,11 +41,13 @@
          <interfaced.item name="referenced_modified_datum"/>
          <interfaced.item name="simple_datum_reference_modifier"/>
          <interfaced.item name="shape_aspect_deriving_relationship"/>
+         <interfaced.item name="shape_representation_with_parameters"/>
          <interfaced.item name="symmetric_shape_aspect"/>
          <interfaced.item name="tangent"/>
       </interface>
       <interface kind="use" schema="shape_tolerance_schema">
          <interfaced.item name="dimension_related_tolerance_zone_element"/>
+         <interfaced.item name="directed_tolerance_zone"/>
          <interfaced.item name="geometric_tolerance"/>
          <interfaced.item name="geometric_tolerance_auxiliary_classification"/>
          <interfaced.item name="geometric_tolerance_relationship"/>
@@ -58,6 +58,7 @@
          <interfaced.item name="geometric_tolerance_with_modifiers"/>
          <interfaced.item name="modified_geometric_tolerance"/>
          <interfaced.item name="non_uniform_zone_definition"/>
+         <interfaced.item name="oriented_tolerance_zone"/>
          <interfaced.item name="projected_zone_definition"/>
          <interfaced.item name="projected_zone_definition_with_offset"/>
          <interfaced.item name="runout_zone_definition"/>
@@ -65,12 +66,15 @@
          <interfaced.item name="tolerance_zone"/>
          <interfaced.item name="tolerance_zone_definition"/>
          <interfaced.item name="tolerance_zone_form"/>
+         <interfaced.item name="tolerance_zone_with_datum"/>
          <interfaced.item name="cylindricity_tolerance"/>
+         <interfaced.item name="cylindrical_restricted_area"/>
          <interfaced.item name="flatness_tolerance"/>
          <interfaced.item name="line_profile_tolerance"/>
          <interfaced.item name="position_tolerance"/>
          <interfaced.item name="roundness_tolerance"/>
          <interfaced.item name="straightness_tolerance"/>
+         <interfaced.item name="spherical_restricted_area"/>
          <interfaced.item name="surface_profile_tolerance"/>
          <interfaced.item name="angularity_tolerance"/>
          <interfaced.item name="circular_runout_tolerance"/>
@@ -114,20 +118,13 @@
          <where expression="SIZEOF (QUERY (pdr &lt;* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1" label="WR2"/>
          <where expression="valid_datum_target_parameters(SELF)" label="WR3"/>
       </entity>
-      <rule
-        name="non_uniform_zone_definition_constraint"
-        appliesto="tolerance_zone_definition tolerance_zone tolerance_zone_form">
-        <algorithm>
-			LOCAL
-			tzf_set : SET OF tolerance_zone_form := QUERY(tzf &lt;* tolerance_zone_form | tzf\tolerance_zone_form.name = 'non uniform');
-			nuzd_set : SET OF tolerance_zone_definition := QUERY(tzd &lt;* tolerance_zone_definition | 'SHAPE_TOLERANCE_SCHEMA.NON_UNIFORM_ZONE_DEFINITION' IN TYPEOF(tzd));
-			END_LOCAL;
-        </algorithm>
-        <where
-          label="WR1"
-          expression="QUERY(tzd &lt;* nuzd_set |(tzd\tolerance_zone_definition.zone\tolerance_zone.form IN tzf_set)) = nuzd_set">
-        </where>
-      </rule>      
+      <rule appliesto="tolerance_zone_definition tolerance_zone tolerance_zone_form" name="non_uniform_zone_definition_constraint">
+         <algorithm>LOCAL
+   tzf_set  : SET OF tolerance_zone_form := QUERY( tzf &lt;* tolerance_zone_form | tzf\tolerance_zone_form.name = 'non uniform'); 
+   nuzd_set : SET OF tolerance_zone_definition := QUERY( tzd &lt;* tolerance_zone_definition | 'SHAPE_TOLERANCE_SCHEMA.NON_UNIFORM_ZONE_DEFINITION' IN TYPEOF(tzd)); 
+END_LOCAL;</algorithm>
+         <where expression="QUERY(tzd &lt;* nuzd_set |      &#10;           (tzd\tolerance_zone_definition.zone\tolerance_zone.form IN tzf_set)&#10;      ) = nuzd_set" label="WR1"/>
+      </rule>
       <rule appliesto="tolerance_zone_form" name="tolerance_zone_form_name_constraint">
          <algorithm>LOCAL
  names : SET OF STRING :=

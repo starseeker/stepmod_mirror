@@ -1,7 +1,8 @@
 (*
-   $Id: arm.exp,v 1.7 2017/07/10 16:38:09 thomasrthurman Exp $
-   N - ISO/CD-TS - 10303- vertex_colours_for_tessellated_geometry - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.8 2017/07/31 17:18:13 kevletu Exp $
+   ISO TC184/SC4/WG12 N - ISO/TS 10303-1836 vertex_colours_for_tessellated_geometry - EXPRESS ARM
+*)
+
 SCHEMA Vertex_colours_for_tessellated_geometry_arm;
 
 USE FROM Tessellated_geometry_arm;
@@ -12,19 +13,6 @@ TYPE colour_type_enum = ENUMERATION OF(
 	RGB8,
 	RGBT8);
 END_TYPE;
-
-(*
-TYPE DESCRIPTION:
-The colour_type_enum type is an enumeration of colour formats to be associated with vertices of tessellated geometry.
-
-RGB8: colour format, which specifies three 8bit for the ...
-
-add bibliography ref
-
-RGBT8: ...
-
-
-*)
   
 TYPE tessellated_surface_item = SELECT 
   (Tessellated_face, 
@@ -33,32 +21,18 @@ TYPE tessellated_surface_item = SELECT
    Tessellated_surface_set);
 END_TYPE;
 
-(*
-
-use the automatic description
-
-*)
-
 TYPE unsigned_8_bit_integer = INTEGER;
 	WHERE
 		WR1: { 0 <= SELF <= 255 };
 END_TYPE;
-(*
 
-DESCRIPTION: The unsigned_8_bit_integer type is an unsigned integer with binary representation of eight bits.
-
-*)
-
-ENTITY Styled_tessellated_item -- in the new P46 entity, styled_tessellated_item is a subtype of styled_item
+ENTITY Styled_tessellated_item
 	SUBTYPE OF (Styled_element);
 	 SELF\Styled_element.element : tessellated_surface_item;
      colour_type : colour_type_enum;
      colour_values : LIST[1:?] OF LIST[3:4] OF unsigned_8_bit_integer;
    DERIVE
      coloured_coordinate_values : Coordinates_list := get_coordinate_values(element);
-      -- styled_item doesn't exist in the ARM
-      -- require the function get_coordinate_values to deal with any differences in
-      -- syntax in the four types in tessellated_surface_item.
    WHERE
     WR1 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
            ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 4)))= 0));
@@ -66,30 +40,10 @@ ENTITY Styled_tessellated_item -- in the new P46 entity, styled_tessellated_item
     WR3 : NOT EXISTS(SELF\styled_element.appearance);
 	WR4 : SELF\styled_element.invisible = FALSE;
   END_ENTITY;
- (*
- ENTITY DESCRIPTION: The Styled_tessellated_item is a type of Styled_element that assigns colour values to tessellated geometry.
  
- colour_type attribute: specifies the colour formats used by the colour_values attribute
- 
- colour_values attribute: specifies an unlimited list of three or four integers representing a vertex colour.
- 
- *)
- 
- 
- (*
- WR1: If colour_type = RGB8 then colour_values shall be a List of 3 unsigned 8 bit integers, or, if colour_type = RGBT8 then colour_values shall be
-      a list of 4 unsigned 8 bit integers;  
- 
- WR2: The number of colour_values shall be equal to the number of points in the associated coordinates_list; 
-
- WR3: The inherited appearance attribute shall not exist;
- 
- WR4: The inherited invisible attribute shall have a value of FALSE.
-*)
  FUNCTION get_coordinate_values
 	(input : tessellated_surface_item) : Coordinates_list;
 	RETURN(?);
  END_FUNCTION;
---FUNCTION DESCRIPTION: returns the coordinates list for the tesselated_surface_item
--- NOTE: the fully elaborated function is provided in the the presentation_appearance_chema
+
 END_SCHEMA;

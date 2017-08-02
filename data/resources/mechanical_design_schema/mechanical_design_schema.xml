@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="mechanical_design_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="mechanical_design_schema">
+      <interface kind="reference" schema="draughting_element_schema">
+         <interfaced.item name="annotation_plane"/>
+         <interfaced.item name="draughting_callout"/>
+         <interfaced.item name="draughting_callout_element"/>
+         <interfaced.item name="draughting_model_item_association"/>
+         <interfaced.item name="draughting_model_item_definition"/>
+         <interfaced.item name="draughting_model"/>
+         <interfaced.item name="tessellated_annotation_occurrence"/>
+      </interface>
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="geometric_representation_item"/>
+         <interfaced.item name="placement"/>
+         <interfaced.item name="point"/>
+         <interfaced.item name="point_on_curve"/>
+         <interfaced.item name="point_on_surface"/>
+      </interface>
+      <interface kind="reference" schema="geometric_model_schema">
+         <interfaced.item name="geometric_set"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="positive_length_measure"/>
+      </interface>
+      <interface kind="reference" schema="presentation_appearance_schema">
+         <interfaced.item name="styled_item"/>
+      </interface>
+      <interface kind="reference" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_curve_occurrence"/>
+         <interfaced.item name="annotation_fill_area_occurrence"/>
+         <interfaced.item name="annotation_occurrence"/>
+         <interfaced.item name="annotation_point_occurrence"/>
+         <interfaced.item name="annotation_symbol_occurrence"/>
+         <interfaced.item name="annotation_text_occurrence"/>
+         <interfaced.item name="annotation_text"/>
+      </interface>
+      <interface kind="reference" schema="presentation_resource_schema">
+         <interfaced.item name="planar_box"/>
+      </interface>
+      <interface kind="reference" schema="product_definition_schema">
+         <interfaced.item name="product_definition"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_object"/>
+         <interfaced.item name="property_definition"/>
+         <interfaced.item name="product_definition_shape"/>
+         <interfaced.item name="shape_aspect"/>
+         <interfaced.item name="shape_aspect_relationship"/>
+      </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="item_identified_representation_usage"/>
+         <interfaced.item name="property_definition_representation"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="get_representations_for_items"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+      </interface>
+      <interface kind="reference" schema="shape_aspect_definition_schema">
+         <interfaced.item name="datum"/>
+         <interfaced.item name="datum_target"/>
+      </interface>
+      <interface kind="reference" schema="shape_dimension_schema">
+         <interfaced.item name="angular_location"/>
+         <interfaced.item name="dimensional_size"/>
+      </interface>
+      <interface kind="reference" schema="shape_tolerance_schema">
+         <interfaced.item name="angularity_tolerance"/>
+         <interfaced.item name="circular_runout_tolerance"/>
+         <interfaced.item name="coaxiality_tolerance"/>
+         <interfaced.item name="concentricity_tolerance"/>
+         <interfaced.item name="cylindricity_tolerance"/>
+         <interfaced.item name="flatness_tolerance"/>
+         <interfaced.item name="line_profile_tolerance"/>
+         <interfaced.item name="parallelism_tolerance"/>
+         <interfaced.item name="perpendicularity_tolerance"/>
+         <interfaced.item name="position_tolerance"/>
+         <interfaced.item name="roundness_tolerance"/>
+         <interfaced.item name="surface_profile_tolerance"/>
+         <interfaced.item name="straightness_tolerance"/>
+         <interfaced.item name="symmetry_tolerance"/>
+         <interfaced.item name="total_runout_tolerance"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="identifier"/>
+      </interface>
+      <interface kind="reference" schema="topology_schema">
+         <interfaced.item name="topological_representation_item"/>
+         <interfaced.item name="get_tri_in_representations"/>
+         <interfaced.item name="valid_tri_ids"/>
+      </interface>
+      <type name="annotation_placeholder_occurrence_role">
+         <enumeration items="annotation_text gps_data"/>
+      </type>
+      <type name="md_draughting_callout_element">
+         <select basedon="draughting_callout_element" extensible="YES" genericentity="YES" selectitems="annotation_placeholder_occurrence"/>
+      </type>
+      <entity name="annotation_placeholder_occurrence" supertypes="annotation_occurrence geometric_representation_item">
+         <explicit name="item">
+            <typename name="geometric_set"/>
+            <redeclaration entity-ref="styled_item"/>
+         </explicit>
+         <explicit name="role">
+            <typename name="annotation_placeholder_occurrence_role"/>
+         </explicit>
+         <explicit name="character_height">
+            <typename name="positive_length_measure"/>
+         </explicit>
+         <inverse attribute="contents" entity="draughting_callout" name="the_callout"/>
+         <inverse attribute="annotation_placeholder" entity="draughting_model_item_association_with_placeholder" name="the_draughting_model_item_association_with_placeholders">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
+         <where expression="md_valid_content_in_geometric_set_for_placeholder(item)" label="WR1"/>
+         <where expression="NOT (role = annotation_placeholder_occurrence_role.gps_data) OR&#10;           ((SIZEOF(the_draughting_model_item_association_with_placeholders) = 1) AND&#10;            md_pmi_name_and_type_correlation(SELF))" label="WR2"/>
+      </entity>
+      <entity name="draughting_model_item_association_with_placeholder" supertypes="draughting_model_item_association">
+         <explicit name="definition">
+            <typename name="draughting_model_item_definition"/>
+            <redeclaration entity-ref="draughting_model_item_association"/>
+         </explicit>
+         <explicit name="used_representation">
+            <typename name="draughting_model"/>
+            <redeclaration entity-ref="draughting_model_item_association"/>
+         </explicit>
+         <explicit name="identified_item">
+            <typename name="draughting_callout"/>
+            <redeclaration entity-ref="item_identified_representation_usage"/>
+         </explicit>
+         <explicit name="annotation_placeholder">
+            <typename name="annotation_placeholder_occurrence"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="annotation_occurrence" name="annotation_occurrence_subtypes" super.expression="ONEOF (annotation_curve_occurrence, annotation_fill_area_occurrence, annotation_placeholder_occurrence, annotation_plane, annotation_point_occurrence, annotation_symbol_occurrence, annotation_text_occurrence, tessellated_annotation_occurrence)"/>
+      <rule appliesto="product_definition topological_representation_item representation" name="tri_identification_within_product_definition">
+         <algorithm>LOCAL
+   associated_representations : SET [1:?] OF representation := [];
+   items          : SET [1:?] OF topological_representation_item := [];
+   pd_items       : SET [1:?] OF topological_representation_item := [];
+   pass : BOOLEAN := TRUE;
+  END_LOCAL;
+
+REPEAT i := LOINDEX(product_definition) TO HIINDEX(product_definition) WHILE pass;
+  pd_items := get_tri_for_pd(product_definition[i]);
+  associated_representations := get_representations_for_items(pd_items);
+  items := get_tri_in_representations(associated_representations) + pd_items;
+
+  IF (SIZEOF(items) &gt; 0) THEN
+        IF (SIZEOF(QUERY(ai &lt;* items | 
+         NOT(EXISTS(ai\topological_representation_item.permanent_id) OR
+          EXISTS(ai\topological_representation_item.permanent_aggregate_id)) 
+              )) &gt; 0 )
+        THEN
+         pass := valid_tri_ids(items);
+        END_IF;
+  END_IF;  
+END_REPEAT;</algorithm>
+         <where expression="pass" label="WR1"/>
+      </rule>
+      <function name="get_tri_for_pd">
+         <parameter name="def_instance">
+            <typename name="product_definition"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="topological_representation_item"/>
+         <algorithm>LOCAL
+      pd1_set  : SET OF property_definition := bag_to_set(USEDIN(def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+      pd2_set  : SET OF property_definition := [];
+      pdr_set : SET OF property_definition_representation := [];
+      pds_set  : SET OF product_definition_shape := [];
+       r_set   : SET OF representation := [];
+        sa_set : SET OF shape_aspect := [];
+       tri_set : SET OF topological_representation_item := [];
+    END_LOCAL;
+
+    IF (SIZEOF(pd1_set) &lt; 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(pd1_set) TO HIINDEX(pd1_set);
+      pdr_set := pdr_set + bag_to_set(USEDIN(pd1_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+      IF 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd1_set[i]) THEN
+        pds_set := pds_set + pd1_set[i];
+      END_IF;
+    END_REPEAT;
+
+    REPEAT i := LOINDEX(pds_set) TO HIINDEX(pds_set);
+      sa_set := sa_set + bag_to_set(USEDIN(pds_set[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT.OF_SHAPE'));
+    END_REPEAT;
+
+    REPEAT i := LOINDEX(sa_set) TO HIINDEX(sa_set);
+      pd2_set := pd2_set + bag_to_set(USEDIN(sa_set[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+    END_REPEAT;
+
+   IF (SIZEOF(pd2_set) &gt; 0) THEN
+     BEGIN
+      REPEAT i := LOINDEX(pd2_set) TO HIINDEX(pd2_set);
+        pdr_set := pdr_set + bag_to_set(USEDIN(pd2_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+      END_REPEAT;
+     END;
+   END_IF;
+    
+    IF (SIZEOF(pdr_set) &lt; 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(pdr_set) TO HIINDEX(pdr_set);
+      r_set := r_set + pdr_set[i]\property_definition_representation.used_representation;
+    END_REPEAT;
+    IF (SIZEOF(r_set) &lt; 1) THEN
+      RETURN (?);
+    END_IF;
+
+    REPEAT i := LOINDEX(r_set) TO HIINDEX(r_set);
+      REPEAT j := LOINDEX(r_set[i]\representation.items) to HIINDEX(r_set[i]\representation.items);
+       IF('TOPOLOGY_SCHEMA.TOPOLOGICAL_REPRESENTATION_ITEM' IN TYPEOF (r_set[i]\representation.items[j])) THEN
+         tri_set := tri_set + r_set[i]\representation.items[j];
+       END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    
+  RETURN (tri_set);</algorithm>
+      </function>
+      <function name="md_pmi_name_and_type_correlation">
+         <parameter name="input">
+            <typename name="annotation_placeholder_occurrence"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      pmi_role : STRING := input\annotation_placeholder_occurrence.item\representation_item.name;
+      dmiawps : SET OF draughting_model_item_association_with_placeholder := 
+                input\annotation_placeholder_occurrence.the_draughting_model_item_association_with_placeholders;
+      v : SET OF STRING := [];
+    END_LOCAL;
+      
+     IF (SIZEOF(dmiawps) = 1) THEN
+       v:= TYPEOF(dmiawps[1]\draughting_model_item_association_with_placeholder.definition);
+     ELSE
+       RETURN(FALSE);
+     END_IF;
+
+    CASE pmi_role OF
+      'angular dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.ANGULAR_LOCATION' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'angularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.ANGULARITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'circular runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.CIRCULAR_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'circularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'coaxiality'      : IF 'SHAPE_TOLERANCE_SCHEMA.COAXIALITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'concentricity'      : IF 'SHAPE_TOLERANCE_SCHEMA.CONCENTRICITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'curve dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'cylindricity'      : IF 'SHAPE_TOLERANCE_SCHEMA.CYLINDRICITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'datum'      : IF 'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'datum target'      : IF 'SHAPE_ASPECT_DEFINITION_SCHEMA.DATUM_TARGET' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'diameter dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'flatness'      : IF 'SHAPE_TOLERANCE_SCHEMA.FLATNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'linear dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'ordinate dimension'      : IF 'SHAPE_DIMENSION_SCHEMA.DIMENSIONAL_SIZE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'parallelism'      : IF 'SHAPE_TOLERANCE_SCHEMA.PARALLELISM_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'perpendicularity'      : IF 'SHAPE_TOLERANCE_SCHEMA.PERPENDICULARITY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'position'      : IF 'SHAPE_TOLERANCE_SCHEMA.POSITION_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'profile of line'      : IF 'SHAPE_TOLERANCE_SCHEMA.LINE_PROFILE_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'profile of surface'      : IF 'SHAPE_TOLERANCE_SCHEMA.SURFACE_PROFILE_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'roundness'      : IF 'SHAPE_TOLERANCE_SCHEMA.ROUNDNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'straightness'      : IF 'SHAPE_TOLERANCE_SCHEMA.STRAIGHTNESS_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'surface roughness'      : IF 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'symmetry'      : IF 'SHAPE_TOLERANCE_SCHEMA.SYMMETRY_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+      'total runout'      : IF 'SHAPE_TOLERANCE_SCHEMA.TOTAL_RUNOUT_TOLERANCE' IN v THEN
+                          RETURN(TRUE);
+                        END_IF;
+    OTHERWISE : RETURN(FALSE);
+  END_CASE;</algorithm>
+      </function>
+      <function name="md_valid_content_in_geometric_set_for_placeholder">
+         <parameter name="input">
+            <typename name="geometric_set"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+pass : BOOLEAN := TRUE;
+boxes : BAG OF planar_box := [];
+texts : BAG OF annotation_text := [];
+placements : BAG OF placement := [];
+points : BAG OF point := [];
+END_LOCAL;
+
+--Iterate over the input, ensuring the points that are in the set are the subtypes we want.
+REPEAT i := LOINDEX(input\geometric_set.elements) TO HIINDEX(input\geometric_set.elements);
+  IF ('GEOMETRY_SCHEMA.POINT' IN TYPEOF (input\geometric_set.elements[i])) AND NOT
+          (SIZEOF(['GEOMETRY_SCHEMA.CARTESIAN_POINT',
+                   'GEOMETRY_SCHEMA.POINT_ON_CURVE',
+                   'GEOMETRY_SCHEMA.POINT_ON_SURFACE'] * TYPEOF(input\geometric_set.elements[i])) = 1) THEN
+ pass := FALSE;
+ ELSE
+  points := points + input\geometric_set.elements[i];
+END_IF;
+ IF 'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      boxes := boxes + input\geometric_set.elements[i];
+  END_IF;
+ IF 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      texts := texts + input\geometric_set.elements[i];
+  END_IF;
+ IF 'GEOMETRY_SCHEMA.PLACEMENT' IN TYPEOF(input\geometric_set.elements[i]) THEN
+      placements := placements + input\geometric_set.elements[i];
+  END_IF;
+END_REPEAT;
+IF SIZEOF(boxes) &gt; 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(texts) &gt; 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(points) &lt; 1 THEN
+ Pass := FALSE;
+ END_IF;
+IF SIZEOF(placements) &lt;&gt; 1 THEN
+ Pass := FALSE;
+ END_IF;
+
+RETURN(pass);</algorithm>
+      </function>
+   </schema>
+</express>

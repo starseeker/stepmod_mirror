@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="counterbore_countersink_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="counterbore_countersink_schema">
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="length_measure_with_unit"/>
+         <interfaced.item name="positive_length_measure_with_unit"/>
+         <interfaced.item name="plane_angle_measure_with_unit"/>
+         <interfaced.item name="positive_plane_angle_measure_with_unit"/>
+      </interface>
+      <interface kind="reference" schema="product_definition_schema">
+         <interfaced.item name="product_definition"/>
+      </interface>
+      <interface kind="reference" schema="product_structure_schema">
+         <interfaced.item name="multi_level_reference_designator"/>
+      </interface>
+      <interface kind="reference" schema="product_property_definition_schema">
+         <interfaced.item name="characterized_object"/>
+         <interfaced.item name="property_definition"/>
+         <interfaced.item name="shape_aspect"/>
+      </interface>
+      <interface kind="reference" schema="shape_tolerance_schema">
+         <interfaced.item name="length_tolerance_value"/>
+         <interfaced.item name="limits_and_fits"/>
+         <interfaced.item name="plane_angle_tolerance_value"/>
+      </interface>
+      <type name="tolerance_value_or_limits_and_fits">
+         <select selectitems="length_tolerance_value limits_and_fits"/>
+      </type>
+      <entity name="counterbore_hole_definition" supertypes="characterized_object">
+         <explicit name="counterbore_diameter">
+            <typename name="hole_diameter"/>
+         </explicit>
+         <explicit name="drill_diameter">
+            <typename name="hole_diameter"/>
+         </explicit>
+         <explicit name="counterbore_depth">
+            <typename name="hole_depth"/>
+         </explicit>
+      </entity>
+      <entity name="counterbore_hole_occurrence" supertypes="shape_aspect">
+         <explicit name="definition">
+            <typename name="counterbore_hole_definition"/>
+         </explicit>
+         <where expression="'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition)" label="WR1"/>
+      </entity>
+      <entity name="counterbore_hole_occurrence_in_assembly" supertypes="counterbore_hole_occurrence">
+         <explicit name="modified_components">
+            <typename name="multi_level_reference_designator"/>
+         </explicit>
+      </entity>
+      <entity name="countersink_hole_definition" supertypes="characterized_object">
+         <explicit name="countersink_diameter">
+            <typename name="hole_diameter"/>
+         </explicit>
+         <explicit name="countersink_angle">
+            <typename name="positive_plane_angle_measure_with_unit"/>
+         </explicit>
+         <explicit name="countersink_angle_tolerance">
+            <typename name="plane_angle_tolerance_value"/>
+         </explicit>
+         <explicit name="drill_diameter">
+            <typename name="hole_diameter"/>
+         </explicit>
+         <explicit name="drill_depth">
+            <typename name="hole_depth"/>
+         </explicit>
+      </entity>
+      <entity name="countersink_hole_occurrence" supertypes="shape_aspect">
+         <explicit name="definition">
+            <typename name="countersink_hole_definition"/>
+         </explicit>
+         <where expression="'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition)" label="WR1"/>
+      </entity>
+      <entity name="countersink_hole_occurrence_in_assembly" supertypes="countersink_hole_occurrence">
+         <explicit name="modified_components">
+            <typename name="multi_level_reference_designator"/>
+         </explicit>
+      </entity>
+      <entity name="hole_depth">
+         <explicit name="depth">
+            <typename name="positive_length_measure_with_unit"/>
+         </explicit>
+         <explicit name="depth_tolerance" optional="YES">
+            <typename name="length_tolerance_value"/>
+         </explicit>
+         <where expression="NOT EXISTS(depth_tolerance) OR EXISTS(depth)" label="WR1"/>
+      </entity>
+      <entity name="hole_diameter">
+         <explicit name="diameter">
+            <typename name="positive_length_measure_with_unit"/>
+         </explicit>
+         <explicit name="diameter_tolerance" optional="YES">
+            <typename name="tolerance_value_or_limits_and_fits"/>
+         </explicit>
+         <where expression="NOT EXISTS(diameter_tolerance) OR EXISTS(diameter)" label="WR1"/>
+      </entity>
+      <entity name="spotface_definition" supertypes="counterbore_hole_definition">
+         <explicit name="spotface_radius">
+            <typename name="positive_length_measure_with_unit"/>
+         </explicit>
+         <explicit name="spotface_radius_tolerance" optional="YES">
+            <typename name="length_tolerance_value"/>
+         </explicit>
+         <where expression="NOT EXISTS(spotface_radius_tolerance) OR EXISTS(spotface_radius)" label="WR1"/>
+      </entity>
+      <entity name="spotface_occurrence" supertypes="counterbore_hole_occurrence">
+         <explicit name="definition">
+            <typename name="spotface_definition"/>
+            <redeclaration entity-ref="counterbore_hole_occurrence"/>
+         </explicit>
+      </entity>
+      <entity name="spotface_occurrence_in_assembly" supertypes="counterbore_hole_occurrence_in_assembly">
+         <explicit name="definition">
+            <typename name="spotface_definition"/>
+            <redeclaration entity-ref="counterbore_hole_occurrence"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

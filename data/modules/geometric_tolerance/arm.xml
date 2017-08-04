@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date: 2017/06/20 09:17:26 $" rcs.revision="$Revision: 1.56 $" reference="ISO/TS 10303-1051">
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1051">
    <application name="JSDAI" owner="LKSoft" source="geometric_tolerance_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Geometric_tolerance_arm">
       <interface kind="use" schema="Derived_shape_element_arm"/>
@@ -14,7 +12,7 @@
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
       <type name="area_unit_type">
-         <enumeration extensible="YES" items="circular square rectangular"/>
+         <enumeration extensible="YES" items="circular square rectangular cylindrical spherical"/>
       </type>
       <type name="collection_plane_orientation">
          <enumeration extensible="YES" items="perpendicular parallel"/>
@@ -33,7 +31,7 @@
          <enumeration extensible="YES" items="circular_or_cylindrical spherical distance projected"/>
       </type>
       <type name="directed_or_oriented_geometric_tolerance_select">
-         <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance"/>
+         <select selectitems="Line_profile_tolerance Parallelism_tolerance Perpendicularity_tolerance Position_tolerance Straightness_tolerance Symmetry_tolerance Geometric_tolerance_with_restricted_area"/>
       </type>
       <type name="directed_tolerance_zone_type">
          <enumeration items="perpendicular parallel including"/>
@@ -46,6 +44,9 @@
       </type>
       <type name="geometric_tolerance_target">
          <select extensible="YES" genericentity="YES" selectitems="Dimensional_location Dimensional_size Part_view_definition"/>
+      </type>
+      <type name="length_or_plane_angle_data_element_select">
+         <select selectitems="Length_data_element Angle_data_element"/>
       </type>
       <type name="oriented_tolerance_zone_type">
          <enumeration items="perpendicular parallel angular"/>
@@ -223,7 +224,7 @@
             <redeclaration entity-ref="Shape_element"/>
          </derived>
       </entity>
-      <entity abstract.supertype="YES" name="Geometric_tolerance" super.expression="ONEOF (Angularity_tolerance, Circular_runout_tolerance, Coaxiality_tolerance, Concentricity_tolerance, Cylindricity_tolerance, Flatness_tolerance, Line_profile_tolerance, Parallelism_tolerance, Perpendicularity_tolerance, Position_tolerance, Roundness_tolerance, Straightness_tolerance, Surface_profile_tolerance, Symmetry_tolerance, Total_runout_tolerance)">
+      <entity abstract.supertype="YES" name="Geometric_tolerance" super.expression="ONEOF (Angularity_tolerance, Circular_runout_tolerance, Coaxiality_tolerance, Concentricity_tolerance, Cylindricity_tolerance, Flatness_tolerance, Line_profile_tolerance, Parallelism_tolerance, Perpendicularity_tolerance, Position_tolerance, Roundness_tolerance, Straightness_tolerance, Surface_profile_tolerance, Symmetry_tolerance, Total_runout_tolerance) ANDOR Geometric_tolerance_with_restricted_area">
          <explicit name="id" optional="YES">
             <typename name="identifier"/>
          </explicit>
@@ -241,13 +242,13 @@
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="first_unit_size" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_or_plane_angle_data_element_select"/>
          </explicit>
          <explicit name="area_unit_type" optional="YES">
             <typename name="area_unit_type"/>
          </explicit>
          <explicit name="second_unit_size" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_or_plane_angle_data_element_select"/>
          </explicit>
          <explicit name="tolerance_value">
             <typename name="Value_with_unit"/>
@@ -278,6 +279,44 @@
          <explicit name="related">
             <typename name="Geometric_tolerance"/>
          </explicit>
+      </entity>
+      <entity name="Geometric_tolerance_with_cylindrical_restricted_area" supertypes="Geometric_tolerance_with_restricted_area">
+         <explicit name="first_unit_size">
+            <typename name="Length_data_element"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </explicit>
+         <explicit name="second_unit_size">
+            <typename name="Angle_data_element"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </explicit>
+         <derived expression="area_unit_type.cylindrical" name="area_unit_type">
+            <typename name="area_unit_type"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </derived>
+      </entity>
+      <entity abstract.supertype="YES" name="Geometric_tolerance_with_restricted_area" super.expression="ONEOF (Geometric_tolerance_with_cylindrical_restricted_area, Geometric_tolerance_with_spherical_restricted_area)" supertypes="Geometric_tolerance">
+         <explicit name="area_unit_type">
+            <typename name="area_unit_type"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </explicit>
+         <where expression="NOT (EXISTS(second_unit_size) XOR (area_unit_type IN [area_unit_type.rectangular, area_unit_type.cylindrical, area_unit_type.spherical]))" label="WR1"/>
+         <where expression="NOT(('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(first_unit_size)) AND ('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.Geometric_tolerance_with_spherical_restricted_area' IN TYPEOF(SELF))" label="WR2"/>
+         <where expression="NOT(('Value_with_unit_extension_arm.Length_data_element' IN TYPEOF(first_unit_size)) AND ('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.Geometric_tolerance_with_cylindrical_restricted_area' IN TYPEOF(SELF))" label="WR3"/>
+      </entity>
+      <entity name="Geometric_tolerance_with_spherical_restricted_area" supertypes="Geometric_tolerance_with_restricted_area">
+         <explicit name="first_unit_size">
+            <typename name="Angle_data_element"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </explicit>
+         <explicit name="second_unit_size">
+            <typename name="Angle_data_element"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </explicit>
+         <derived expression="area_unit_type.spherical" name="area_unit_type">
+            <typename name="area_unit_type"/>
+            <redeclaration entity-ref="Geometric_tolerance"/>
+         </derived>
+         <inverse attribute="zone_for" entity="Oriented_tolerance_zone" name="orientation_plane"/>
       </entity>
       <entity name="Line_profile_tolerance" supertypes="Geometric_tolerance">
          <explicit name="datum_system" optional="YES">

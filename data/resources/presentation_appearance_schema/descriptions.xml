@@ -4,7 +4,7 @@ type="text/xsl"
 href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
 <ext_descriptions module_directory="presentation_appearance_schema" schema_file="presentation_appearance_schema.xml"
-rcs.date="$Date: 2017/06/27 21:11:16 $" rcs.revision="$Revision: 1.22 $"
+rcs.date="$Date: 2017/08/03 10:12:24 $" rcs.revision="$Revision: 1.23 $"
 describe.selects="YES"
 describe.subtype_constraints="YES"
 >
@@ -78,8 +78,8 @@ TYPE: marker_type
 <ext_description linkend="presentation_appearance_schema.non_negative_real">
 	<p>The <b>non_negative_real</b> type is a real and its value is restricted to be zero or positive.</p>
 </ext_description>
-<ext_description linkend="presentation_appearance_schema.non_negative_real.wr:wr1">
-	<p>The value of the real shall be equal to zero or positive.</p>
+<ext_description linkend="presentation_appearance_schema.non_negative_real.wr:WR1">
+	<p>The value of the real shall be greater than or equal to zero.</p>
 </ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -320,6 +320,11 @@ Subobject: u_direction_count.wr:WR1
 
 <ext_description linkend="presentation_appearance_schema.unsigned_8_bit_integer">
 	<p>The <b>unsigned_8_bit_integer</b> type is an unsigned integer with binary representation of eight bits.
+	</p>
+</ext_description>
+
+<ext_description linkend="presentation_appearance_schema.unsigned_8_bit_integer.wr:WR1">
+	<p>The value of the integer shall be be in the range 0 to 255 inclusive.
 	</p>
 </ext_description>
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -788,17 +793,24 @@ Subobject: styled_item.wr:WR3
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item">
         <p>A <b>styled_tessellated_item</b> is a type of
-		<express_ref linkend="Appearance_assignment:arm:Appearance_assignment_arm.Styled_element"/> 
-		that assigns colour values to tessellated geometry.
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.styled_item"/> 
+		that assigns colour values to the vertices of tessellated surfaces.
         </p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item.item">
-	<p>specifies the tessellated geometry to which the colours are assigned. </p>
+	<p>the tessellated geometry to which the colours are assigned, this may be a  
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/>,  a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_shell"/>, a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_solid"/>, or a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>. 
+ </p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item.colour_type">
-	<p>specifies the colour formats used by the <b>colour_values</b> attribute</p>
+	<p>the colour formats used by the <b>colour_values</b> attribute.</p>
+	<p>
+	</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item.colour_values">
@@ -806,14 +818,16 @@ Subobject: styled_item.wr:WR3
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item.coloured_coordinate_values">
-		<p>the coordinates list of the 
-		<express_ref linkend="Vertex_colours_for_tessellated_geometry:arm:Vertex_colours_for_tessellated_geometry_arm.tessellated_surface_item"/> 
-		specified by the <b>element</b> attribute.</p>
+		<p>the <b>coordinates_list</b> of the 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.tessellated_surface_item"/> 
+		specified by the <b>item</b> attribute; this <b>coordinates_list</b> is populated by the 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.get_coordinate_values"/> 
+		 function.</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.styled_tessellated_item.wr:WR1">
 	<p>
-The inherited <b>styles</b> attribute shall not contain members.
+		The inherited <b>styles</b> attribute be an empty SET.
 	</p>
 </ext_description>
 
@@ -1077,9 +1091,9 @@ Subobject: presentation_style_by_context.style_context
 <ext_description linkend="presentation_appearance_schema.single_texture_style_tessellation_specification">
         <p>A <b>single_texture_style_tessellation_specification</b> is a type of
         <express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.texture_style_tessellation_specification" /> 
-         that defines the visual texture.
-		The <b>texture_coordinates</b> is an array, which its content is implicitly associated to coordinates 
-		in the tessellated geometry that is defined elsewhere.
+         that defines a visual texture.
+		The <b>texture_coordinates</b> is an array, whose elements are implicitly associated to 
+		coordinates in the tessellated geometry that is associated with this entity when it is used.
 		The texture is defined in an external file.</p>
 </ext_description>
 
@@ -1088,21 +1102,26 @@ Subobject: presentation_style_by_context.style_context
 	<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.tessellated_face_or_tessellated_surface_set"/>
 	. 
 	</p>
-<note>The name should include the format extension corresponding to one of the formats enumerated in texture_file_type.</note>
+<note>The name should include the format extension corresponding to one of the formats enumerated in 
+<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.texture_file_type"/>.</note>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.single_texture_style_tessellation_specification.texture_coordinates">
-	<p>the list of (U,V) texture coordinates associated to the 3D coordinates of the points of the tessellated geometry.
-		When the texture is mapped on a <express_ref linkend="tessellated_geometry:arm:Tessellated_geometry_arm.Tessellated_face"/> 
-		without pnindex, the first element of the list is the texture (U,V) value of the first point of the associated <b>coordinates_list</b>.
-		When the texture is mapped on a <express_ref linkend="tessellated_geometry:arm:Tessellated_geometry_arm.Tessellated_face"/> 
-		with pnindex, the first element of the list is the texture (U,V) value of the first point of the pnindex.
-		When the texture is mapped on a <express_ref linkend="tessellated_geometry:arm:Tessellated_geometry_arm.Tessellated_surface_set"/>, 
-		the first element of the list is the texture (U,V) value of the first point of the associated <b>coordinates_list</b>.
-		When <b>reppeating_pattern</b> is FALSE, U and V value range shall be 0.0 to 1.0, where (0,0) is the bottom-left corner and (1,1) 
-		is the top-right corner of the texture image.
-   		When <b>reppeating_pattern</b> is TRUE, U and V values greater than 0.0 are permitted; 
-   		in this case the integer part is substracted to obtain a number in a range of 1.0 for the texture mapping.
+	<p>
+   		the list of (U,V) texture coordinates associated to the 3D coordinates of the points of the associated tessellated geometry. 
+   		When the texture is mapped on a 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/> 
+		without 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face.pnindex"/>, 
+		the first element of the list is the texture (U,V) value of the first point of the associated 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/>. 
+		When the texture is mapped on a <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/> 
+		with <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face.pnindex"/> , 
+		the first element of the list is the texture (U,V) value of the first point indicated by 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face.pnindex"/>. 
+		When the texture is mapped on a <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>, 
+		the first element of the list is the texture (U,V) value of the first point of the associated 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/>. 
 	</p>
 </ext_description>
 
@@ -1113,8 +1132,11 @@ Subobject: presentation_style_by_context.style_context
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.single_texture_style_tessellation_specification.repeating_pattern">
-	<p>if TRUE, repeating pattern is applied to the texture and the <b>texture_coordinates</b> values may be higher than one. 
-	If FALSE, the pattern is not repeated and the U and V value range shall be 0.0 to 1.0.
+	<p>
+		when <b>repeating_pattern</b> is FALSE, U and V value range for <b>texture_coordinates</b> shall be 0.0 to 1.0, 
+		where (0,0) is the bottom-left corner and (1,1) is the top-right corner of the texture image. 
+		When <b>repeating_pattern</b> is TRUE, U and V values greater than 0.0 are permitted; 
+		in this case the integer part is subtracted to obtain a number in a range 0.0 to 1.0 for the texture mapping. 
 	</p>
 </ext_description>
 
@@ -1152,6 +1174,10 @@ ENTITY: point_style
 	<express_ref linkend="representation_schema:ir_express:representation_schema.founded_item"/>.
 	A <b>point_style</b> specifies the visual appearance of points.
 </ext_description>
+
+<ext_description linkend="presentation_appearance_schema.point_style.wr:WR1">
+		at least one of the OPTIONAL attributes <b>marker</b>, <b>marker_style</b> or <b>marker_colour</b> shall exist. 
+	</ext_description>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Subobject: point_style.name
@@ -2615,18 +2641,13 @@ Subobject: symbol_style.style_of_symbol
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture">
 		<p>A <b>tessellated_styled_item_with_texture</b> is a type of
         <express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.styled_item"/> 
-		that assigns a visual texture to a tessellated geometry, 
+		that assigns a visual texture to tessellated geometry, 
 		which may be either a 
-		<express_ref linkend="tessellated_geometry:arm:Tessellated_geometry_arm.Tessellated_face"/> 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/> 
 		or a collection of tessellated faces defined in a 
-		<express_ref linkend="tessellated_geometry:arm:Tessellated_geometry_arm.Tessellated_surface_set"/>
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>
 		. 
 		</p>
-		<note>The interpreted resource part entity has additional constraints to ensure consistency of the sizes of the referenced list contained 
-  		in the 
-  		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification"/> 
- 		specified by the appearance attribute and the list of coordinate values specified by the tessellated geometry.
-		</note>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.styles">
@@ -2634,7 +2655,7 @@ Subobject: symbol_style.style_of_symbol
 	specifies the 
 	<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.presentation_style_assignment"/> 
 	that specifies the texture defined by a 
-	<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.texture_style_tessellation_specification"/> .
+	<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.texture_style_tessellation_specification"/>.
 	</p>
 	<note>The actual appearance is realized in the model by the 
 	<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.presentation_style_assignment"/> 
@@ -2649,35 +2670,86 @@ Subobject: symbol_style.style_of_symbol
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.texture_style_specification">
 	<p>
-	  specifies the tessellated geometry to which the texture style is applied.
+	  specifies the visual texture to be applied.
 	</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.wr:WR1">
 	<p>
-		It shall be exactly one 
-	 <express_ref linkend="Appearance_assignment:arm:Appearance_assignment_arm.Appearance_assignment.appearance_components">style</express_ref> 
-	  in that assignment.
+		the SET of <b>styles</b> shall contain only one element.
 	</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.wr:WR2">
 		<p>
+		if the <b>item</b> styled is a 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face"/> 
+		then the size of the 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification.texture_coordinates"/> 
+		of the associated 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification"/> 
+		shall be equal to the number of points defining the  
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face"/>; 
+		this number is obtained from either the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face.pnindex"/> 
+		attribute of 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face"/> 
+		(if non zero), 
+		or from the
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list.npoints"/> 
+		attribute of the 
+		 <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/> 
+		 of the 
+		 <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.triangulated_face"/>.
 		</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.wr:WR3">
 	<p>
+		if the <b>item</b> styled is a 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.complex_triangulated_face"/> 
+		then the size of the 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification.texture_coordinates"/> 
+		of the associated 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification"/> 
+		shall be equal to the number of points defining the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.complex_triangulated_face"/>; 
+		this number is obtained from either the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.complex_triangulated_face.pnindex"/> 
+		attribute of 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.complex_triangulated_face"/> 
+		(if non zero),  or from the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list.npoints"/> 
+		attribute of the 
+		 <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/> 
+		of the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.complex_triangulated_face"/>.
 	</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.wr:WR4">
 	<p>
+		if the <b>item</b> styled is a 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/> 
+		then the size of the 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification.texture_coordinates"/> 
+		of the associated 
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification"/> 
+		shall be equal to the number of points defining the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>; 
+		this number is obtained from the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list.npoints"/> 
+		attribute of the 
+		 <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/> 
+		of the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>.
 	</p>
 </ext_description>
 
 <ext_description linkend="presentation_appearance_schema.tessellated_styled_item_with_texture.wr:WR5">
 	<p>
+		the derived <b>texture_style_specification</b> shall be of type  
+		<express_ref linkend="presentation_appearance_schema:ir_express:presentation_appearance_schema.single_texture_style_tessellation_specification"/>.
 	</p>
 </ext_description>
 
@@ -2989,14 +3061,21 @@ Subobject: acyclic_occlusion_precedence.set_of_lower
  
  <ext_description linkend="presentation_appearance_schema.get_coordinate_values">
 	<p>
-		returns the coordinates list for the 
-		<express_ref linkend="Vertex_colours_for_tessellated_geometry:arm:Vertex_colours_for_tessellated_geometry_arm.tessellated_surface_item"/> 
-		.
+		The get_coordinate_values function returns the <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/> for a 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/>,  a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_shell"/>, a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_solid"/>, or a 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>. 
 	</p>
 </ext_description>
 <ext_description linkend="presentation_appearance_schema.get_coordinate_values.source">
 	<p>
-		the tessellated geometry to which colour are assigned.
+		the 
+		<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_face"/>, 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_shell"/>, 
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_solid"/>, or  
+	<express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.tessellated_surface_set"/>, 
+		 for which the <express_ref linkend="geometric_model_schema:ir_express:geometric_model_schema.coordinates_list"/> is required.
 	</p>
 
 </ext_description>

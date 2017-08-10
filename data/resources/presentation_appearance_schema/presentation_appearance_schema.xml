@@ -548,7 +548,26 @@
          <where expression="NOT ('PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM' IN TYPEOF(item))" label="WR2"/>
          <where expression="('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(item)) OR&#10;           ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(item)) OR&#10;           ('PRESENTATION_APPEARANCE_SCHEMA.CONTEXT_DEPENDENT_OVER_RIDING_STYLED_ITEM' IN TYPEOF(SELF))" label="WR3"/>
       </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="styled_tessellated_item" supertypes="styled_item">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="styled_tessellated_face_or_surface_with_texture" supertypes="styled_item">
+         <explicit name="styles" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="1"/>
+            <typename name="presentation_style_assignment"/>
+            <redeclaration entity-ref="styled_item"/>
+         </explicit>
+         <explicit name="item" optional="NO">
+            <typename name="tessellated_face_or_tessellated_surface_set"/>
+            <redeclaration entity-ref="styled_item"/>
+         </explicit>
+         <derived expression="styles[LOINDEX(styles)]\presentation_style_assignment.styles[LOINDEX(styles)]" name="texture_style_specification">
+            <typename name="texture_style_tessellation_specification"/>
+         </derived>
+         <where expression="SIZEOF(styles[LOINDEX(styles)]\presentation_style_assignment.styles) = 1" label="WR1"/>
+         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.TRIANGULATED_FACE' IN TYPEOF(item))&#10;          OR&#10;          NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;          OR&#10;           ((&#10;            ((SIZEOF(item\triangulated_face.pnindex) &gt; 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\triangulated_face.pnindex))))&#10;            OR&#10;            ((SIZEOF(item\triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints)))" label="WR2"/>
+         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.COMPLEX_TRIANGULATED_FACE' IN TYPEOF(item))&#10;         OR&#10;         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;         OR&#10;            ((SIZEOF(item\complex_triangulated_face.pnindex) &gt; 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\complex_triangulated_face.pnindex)))&#10;            OR&#10;            ((SIZEOF(item\complex_triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints))" label="WR3"/>
+         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET' IN TYPEOF(item))&#10;         OR&#10;         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;         OR&#10;         (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_surface_set.coordinates\coordinates_list.npoints)" label="WR4"/>
+         <where expression="'PRESENTATION_APPEARANCE_SCHEMA.TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification)" label="WR5"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="styled_tessellated_item_with_colours" supertypes="styled_item">
          <explicit name="item" optional="NO">
             <typename name="tessellated_surface_item"/>
             <redeclaration entity-ref="styled_item"/>
@@ -687,25 +706,6 @@
          <explicit name="style_of_symbol" optional="NO">
             <typename name="symbol_style_select"/>
          </explicit>
-      </entity>
-      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_styled_item_with_texture" supertypes="styled_item">
-         <explicit name="styles" optional="NO">
-            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="1"/>
-            <typename name="presentation_style_assignment"/>
-            <redeclaration entity-ref="styled_item"/>
-         </explicit>
-         <explicit name="item" optional="NO">
-            <typename name="tessellated_face_or_tessellated_surface_set"/>
-            <redeclaration entity-ref="styled_item"/>
-         </explicit>
-         <derived expression="styles[LOINDEX(styles)]\presentation_style_assignment.styles[LOINDEX(styles)]" name="texture_style_specification">
-            <typename name="texture_style_tessellation_specification"/>
-         </derived>
-         <where expression="SIZEOF(styles[LOINDEX(styles)]\presentation_style_assignment.styles) = 1" label="WR1"/>
-         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.TRIANGULATED_FACE' IN TYPEOF(item))&#10;          OR&#10;          NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;          OR&#10;           ((&#10;            ((SIZEOF(item\triangulated_face.pnindex) &gt; 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\triangulated_face.pnindex))))&#10;            OR&#10;            ((SIZEOF(item\triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints)))" label="WR2"/>
-         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.COMPLEX_TRIANGULATED_FACE' IN TYPEOF(item))&#10;         OR&#10;         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;         OR&#10;            ((SIZEOF(item\complex_triangulated_face.pnindex) &gt; 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = SIZEOF(item\complex_triangulated_face.pnindex)))&#10;            OR&#10;            ((SIZEOF(item\complex_triangulated_face.pnindex) = 0) AND (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_face.coordinates\coordinates_list.npoints))" label="WR3"/>
-         <where expression="NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET' IN TYPEOF(item))&#10;         OR&#10;         NOT('PRESENTATION_APPEARANCE_SCHEMA.SINGLE_TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification))&#10;         OR&#10;         (SIZEOF(texture_style_specification\single_texture_style_tessellation_specification.texture_coordinates) = item\tessellated_surface_set.coordinates\coordinates_list.npoints)" label="WR4"/>
-         <where expression="'PRESENTATION_APPEARANCE_SCHEMA.TEXTURE_STYLE_TESSELLATION_SPECIFICATION' IN TYPEOF(texture_style_specification)" label="WR5"/>
       </entity>
       <entity abstract.entity="NO" abstract.supertype="NO" name="text_style" supertypes="founded_item">
          <explicit name="name" optional="NO">

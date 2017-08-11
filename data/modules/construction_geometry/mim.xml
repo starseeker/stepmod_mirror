@@ -1,66 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1131">
    <application name="JSDAI" owner="LKSoft" source="construction_geometry_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Construction_geometry_mim">
       <interface kind="use" schema="Basic_curve_mim"/>
       <interface kind="use" schema="aic_topologically_bounded_surface"/>
-      <interface kind="use" schema="geometry_schema">
-         <interfaced.item name="b_spline_curve"/>
-         <interfaced.item name="b_spline_surface"/>
-         <interfaced.item name="circle"/>
-         <interfaced.item name="composite_curve"/>
-         <interfaced.item name="conical_surface"/>
-         <interfaced.item name="curve"/>
-         <interfaced.item name="curve_bounded_surface"/>
-         <interfaced.item name="curve_replica"/>
-         <interfaced.item name="cylindrical_surface"/>
-         <interfaced.item name="degenerate_pcurve"/>
-         <interfaced.item name="ellipse"/>
-         <interfaced.item name="hyperbola"/>
-         <interfaced.item name="line"/>
-         <interfaced.item name="offset_curve_2d"/>
-         <interfaced.item name="offset_curve_3d"/>
-         <interfaced.item name="offset_surface"/>
-         <interfaced.item name="oriented_surface"/>
-         <interfaced.item name="parabola"/>
-         <interfaced.item name="pcurve"/>
-         <interfaced.item name="placement"/>
-         <interfaced.item name="plane"/>
-         <interfaced.item name="point_on_curve"/>
-         <interfaced.item name="point_on_surface"/>
-         <interfaced.item name="point_replica"/>
-         <interfaced.item name="polyline"/>
-         <interfaced.item name="rectangular_composite_surface"/>
-         <interfaced.item name="rectangular_trimmed_surface"/>
-         <interfaced.item name="spherical_surface"/>
-         <interfaced.item name="surface"/>
-         <interfaced.item name="surface_curve"/>
-         <interfaced.item name="surface_of_linear_extrusion"/>
-         <interfaced.item name="surface_of_revolution"/>
-         <interfaced.item name="surface_replica"/>
-         <interfaced.item name="toroidal_surface"/>
-         <interfaced.item name="trimmed_curve"/>
-      </interface>
+      <interface kind="use" schema="geometry_schema"/>
       <interface kind="use" schema="representation_schema">
          <interfaced.item name="mapped_item"/>
          <interfaced.item name="representation"/>
          <interfaced.item name="representation_map"/>
          <interfaced.item name="representation_relationship"/>
       </interface>
-      <interface kind="use" schema="topology_schema">
-         <interfaced.item name="edge_curve"/>
-         <interfaced.item name="face_surface"/>
-         <interfaced.item name="vertex_point"/>
-      </interface>
+      <interface kind="use" schema="topology_schema"/>
       <type name="constructive_geometry_representation_or_shape_representation">
          <select selectitems="constructive_geometry_representation shape_representation"/>
       </type>
       <entity name="constructive_geometry_representation" supertypes="representation">
-         <where expression="('CONSTRUCTION_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.context_of_items)) AND ({2 &lt;= SELF.context_of_items\geometric_representation_context. coordinate_space_dimension &lt;= 3})" label="WR1"/>
-         <where expression="SIZEOF( QUERY( cgr_i &lt;* SELF.items | SIZEOF(['CONSTRUCTION_GEOMETRY_MIM.PLACEMENT', 'CONSTRUCTION_GEOMETRY_MIM.CURVE', 'CONSTRUCTION_GEOMETRY_MIM.EDGE', 'CONSTRUCTION_GEOMETRY_MIM.FACE', 'CONSTRUCTION_GEOMETRY_MIM.POINT', 'CONSTRUCTION_GEOMETRY_MIM.SURFACE', 'CONSTRUCTION_GEOMETRY_MIM.FACE_SURFACE', 'CONSTRUCTION_GEOMETRY_MIM.VERTEX_POINT'] * TYPEOF(cgr_i)) &lt;&gt; 1 )) = 0" label="WR2"/>
+         <where expression="('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.context_of_items)) AND &#10;           ({2 &lt;= SELF.context_of_items\geometric_representation_context.coordinate_space_dimension &lt;= 3})" label="WR1"/>
+         <where expression="SIZEOF( QUERY( cgr_i &lt;* SELF.items | SIZEOF([&#10;      'GEOMETRY_SCHEMA.PLACEMENT', &#10;      'GEOMETRY_SCHEMA.CURVE', &#10;      'GEOMETRY_SCHEMA.EDGE', &#10;      'TOPOLOGY_SCHEMA.FACE', &#10;      'GEOMETRY_SCHEMA.POINT', &#10;      'GEOMETRY_SCHEMA.SURFACE',&#10;      'TOPOLOGY_SCHEMA.CONNECTED_FACE_SET',&#10;      'TOPOLOGY_SCHEMA.CONNECTED_EDGE_SET',&#10;      'TOPOLOGY_SCHEMA.VERTEX_POINT'&#10;      ] * TYPEOF(cgr_i)) &lt;&gt; 1 )) = 0" label="WR2"/>
          <where expression="SIZEOF( USEDIN( SELF, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.REP_2') ) &gt; 0" label="WR3"/>
          <where expression="SIZEOF( USEDIN( SELF, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_MAP.MAPPED_REPRESENTATION') ) = 0" label="WR4"/>
       </entity>
@@ -73,8 +31,8 @@
             <typename name="constructive_geometry_representation"/>
             <redeclaration entity-ref="representation_relationship"/>
          </explicit>
-         <where expression="(SELF.rep_1.context_of_items :=: SELF.rep_2.context_of_items) AND ('CONSTRUCTION_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.rep_1.context_of_items))" label="WR1"/>
-         <where expression="NOT('CONSTRUCTION_GEOMETRY_MIM.' + 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF))" label="WR2"/>
+         <where expression="(SELF.rep_1.context_of_items :=: SELF.rep_2.context_of_items) AND &#10;      ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.rep_1.context_of_items))" label="WR1"/>
+         <where expression="NOT('REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF))" label="WR2"/>
       </entity>
    </schema>
 </express>

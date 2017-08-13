@@ -20,7 +20,7 @@
 	<xsl:template match="/">
 
 
-<!--1) For a plain text listing of the parts in one line : 	
+<!--1) For a plain text listing of the parts in one line : 	-->
 	<xsl:for-each select="/part1000.publication_index/modules/module">
 		<xsl:value-of select="concat(@name, ' ')" />
 	</xsl:for-each>
@@ -30,7 +30,7 @@
 	<xsl:for-each select="/part1000.publication_index/resources/resource">
 		<xsl:value-of select="concat(@name, ' ')" />
 	</xsl:for-each>
--->
+
 	
 <!--2)  For a plain text listing of the parts with carriage return :
 	
@@ -50,17 +50,19 @@
 	<!--3) For WG N number table : 
 	 TO DO: 
 	 AP Modules, Resources and resource docs not supported yet
-	consider the case when ed = 1 and arm/mim changes = y , it can happen	 -->
+	consider the case when ed = 1 and arm/mim changes = y , it can happen	
 
 	<xsl:value-of
 		select="concat(/part1000.publication_index/@name, ' wg.number.publication_set')" />
 	<xsl:text>&#xa;</xsl:text>
+	<xsl:if test="/part1000.publication_index/modules/module">
 	<xsl:value-of
 		select="concat(/part1000.publication_index/@name, ' checklist.internal_review for updated modules')" />
 	<xsl:text>&#xa;</xsl:text>
 	<xsl:value-of
 		select="concat(/part1000.publication_index/@name, ' checklist.project_leader for updated modules')" />
 	<xsl:text>&#xa;</xsl:text>
+	</xsl:if>
 	<xsl:for-each select="/part1000.publication_index/modules/module">
 		<xsl:value-of
 			select="concat('ISO 10303-', @number, ' ed', @version, ' ', @name, ' Document')" />
@@ -106,7 +108,7 @@
 			select="concat('ISO 10303-', @number, ' ', @name, ' version ', @version, ' EXPRESS')" />
 		<xsl:text>&#xa;</xsl:text>
 	</xsl:for-each> 
-
+ -->
 
 </xsl:template>
 

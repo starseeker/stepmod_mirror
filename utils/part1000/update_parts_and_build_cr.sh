@@ -1,9 +1,11 @@
 #!/bin/bash
 #
 #
-#To be run from ./stepmod
+#Go to workspace directory where stepmod is checked out to run this script
 #
 #This script, update_parts_and_build_cr.sh, update parts included the publication index of a CR, then build it.
+#
+# This script does sequentially what scripts cvs_update_tagged_parts_of_a_cr.sh and build_cr.sh do
 #
 #One argument for the moment: the CR id, e.g. CR_210_1
 #
@@ -15,8 +17,7 @@
 #
 # uses /stepmod/utils/part1000/pub_index_to_parts_list_for_cvs_update.xsl
 #
-#
-# operational on my machine / environment, still work in progress
+# WARNING - UNDER DEVLOPMENT
 
 if [ -z $1 ]
 then

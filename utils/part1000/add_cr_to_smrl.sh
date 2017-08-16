@@ -1,17 +1,20 @@
 #!/bin/bash
 #
 #
+# WARNING - UNDER DEVLOPMENT - WORKING DRAFT
 #
 #
 # PURPOSE: Update last SMRL with new CR including updated modules and resources
 #
+# DOES NOT SUPPORT PARTS 1xx and 5xx series YET
+
 
 echo "Two arguments to be specified: 1) absolute path of workspace where stepmod is checked out (e.g.: /Users/klt/Projets/workspace) ---- 2) name of the CR (e.g.: CR_PDM_1)."
 
 if [ -z $1 ] || [ -z $2 ];
 then
-echo "Error: first, second or both arguments missing. "
-exit
+    echo "Error: first, second or both arguments missing. "
+    exit
 fi
 
 cd $1
@@ -41,7 +44,7 @@ then
         cd $2/part1000/data/ ; ls -d modules/* | xargs tar -cvf p1000_modules.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/part1000/data/p1000_modules.tar ; cd ../..
 
     else
-        echo "$2/part1000/data/modules doesn't exist."
+        echo "No modules are in this CR."
     fi
 
 #HARD CODED FOR P42, NOT TESTED , to BE CONTINUED FOR ALL IRs

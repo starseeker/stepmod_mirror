@@ -1,5 +1,5 @@
 (*
-$Id: counterbore_countersink_schema.exp,v 1.4 2017/08/02 16:41:21 thomasrthurman Exp $
+$Id: counterbore_countersink_schema.exp,v 1.5 2017/08/10 17:03:17 brandonus Exp $
 ISO 10303 TC184/SC4/WG12 N9785
 
 EXPRESS Source:
@@ -56,11 +56,18 @@ TYPE tolerance_value_or_limits_and_fits = SELECT (length_tolerance_value,
                limits_and_fits);
 END_TYPE;
 
-ENTITY counterbore_hole_definition
+ENTITY counterbore_definition
   SUBTYPE OF (characterized_object);
        counterbore_diameter   : hole_diameter;
-  	    drill_diameter       : hole_diameter;
-	    counterbore_depth    : hole_depth;
+	    counterbore_depth     : hole_depth;
+END_ENTITY;
+
+ENTITY counterbore_hole_definition
+  SUBTYPE OF (characterized_object);
+       counterbore_definition   : LIST [1:?] OF UNIQUE counterbore_definition;
+  	   drill_diameter           : hole_diameter;
+-- Informal proposition
+--- IP1:counterbore_definition shall in ascending order in the list organized according to hole_diameter 
 END_ENTITY;
 
 ENTITY counterbore_hole_occurrence
@@ -96,12 +103,30 @@ ENTITY countersink_hole_occurrence_in_assembly
   modified_components : multi_level_reference_designator;
 END_ENTITY;
 
+ENTITY counterdrill_hole_definition
+  SUBTYPE OF (countersink_hole_definition);
+     countersink_angle           : positive_plane_angle_measure_with_unit;
+     countersink_angle_tolerance : plane_angle_tolerance_value;
+     counterbore_definition   	 : counterbore_definition;
+  END_ENTITY;
+
+ENTITY counterdrill_hole_occurrence
+  SUBTYPE OF (shape_aspect);
+   definition                    : counterdrill_hole_definition;
+  WHERE
+   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition);
+END_ENTITY;
+
+ENTITY counterdrill_hole_occurrence_in_assembly
+  SUBTYPE OF (counterdrill_hole_occurrence);
+  modified_components : multi_level_reference_designator;
+END_ENTITY;
+
+
 ENTITY spotface_definition
   SUBTYPE OF (counterbore_hole_definition);
                   spotface_radius : positive_length_measure_with_unit;
         spotface_radius_tolerance : OPTIONAL length_tolerance_value;
-WHERE
- WR1 : NOT EXISTS(spotface_radius_tolerance) OR EXISTS(spotface_radius);
 END_ENTITY;
 
 ENTITY spotface_occurrence
@@ -117,15 +142,11 @@ END_ENTITY;
 ENTITY hole_depth;
        depth                     : positive_length_measure_with_unit;
        depth_tolerance           : OPTIONAL length_tolerance_value;
-WHERE
- WR1 : NOT EXISTS(depth_tolerance) OR EXISTS(depth);
 END_ENTITY;
 
 ENTITY hole_diameter;
        diameter                 : positive_length_measure_with_unit;
        diameter_tolerance       : OPTIONAL tolerance_value_or_limits_and_fits;
-WHERE
- WR1 : NOT EXISTS(diameter_tolerance) OR EXISTS(diameter);
 (*
 Informal proposition:
  IP1 : If a limits_and_fits is provided for the diameter_tolerance the limits_and_fits shall be for a hole.

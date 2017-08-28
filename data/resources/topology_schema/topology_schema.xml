@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/08/11 10:11:36 $" rcs.revision="$Revision: 1.13 $" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="topology_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="topology_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -45,258 +45,617 @@
       <type name="tri_id_attribute_select">
          <select basedon="id_attribute_select" selectitems="topological_representation_item"/>
       </type>
-      <entity name="closed_shell" supertypes="connected_face_set"/>
-      <entity name="connected_edge_set" supertypes="topological_representation_item">
-         <explicit name="ces_edges">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="edge"/>
-         </explicit>
-      </entity>
-      <entity name="connected_face_set" super.expression="ONEOF (closed_shell, open_shell)" supertypes="topological_representation_item">
-         <explicit name="cfs_faces">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="face"/>
-         </explicit>
-      </entity>
-      <entity name="connected_face_sub_set" supertypes="connected_face_set">
-         <explicit name="parent_face_set">
-            <typename name="connected_face_set"/>
-         </explicit>
-      </entity>
-      <entity name="connected_volume_set" supertypes="topological_representation_item">
-         <explicit name="cvs_volumes">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="volume_with_faces"/>
-         </explicit>
-      </entity>
-      <entity name="connected_volume_sub_set" supertypes="connected_volume_set">
-         <explicit name="parent_volume_set">
-            <typename name="connected_volume_set"/>
-         </explicit>
-      </entity>
-      <entity name="edge" super.expression="ONEOF (edge_curve, edge_with_length, oriented_edge, subedge)" supertypes="topological_representation_item">
-         <explicit name="edge_start">
-            <typename name="vertex"/>
-         </explicit>
-         <explicit name="edge_end">
-            <typename name="vertex"/>
-         </explicit>
-      </entity>
-      <entity name="edge_curve" supertypes="edge geometric_representation_item">
-         <explicit name="edge_geometry">
-            <typename name="curve"/>
-         </explicit>
-         <explicit name="same_sense">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-      </entity>
-      <entity name="edge_loop" supertypes="loop path">
-         <derived expression="SIZEOF(SELF\path.edge_list)" name="ne">
-            <builtintype type="INTEGER"/>
-         </derived>
-         <where expression="(SELF\path.edge_list[1].edge_start) :=:&#10;        (SELF\path.edge_list[ne].edge_end)" label="WR1"/>
-      </entity>
-      <entity name="edge_with_length" supertypes="edge">
-         <explicit name="edge_length">
-            <typename name="positive_length_measure"/>
-         </explicit>
-      </entity>
-      <entity name="face" super.expression="ONEOF (face_surface, subface, oriented_face)" supertypes="topological_representation_item">
-         <explicit name="bounds">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="face_bound"/>
-         </explicit>
-         <where expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF))))" label="WR1"/>
-         <where expression="SIZEOF(QUERY(temp &lt;* bounds | 'TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN&#10;                                               TYPEOF(temp))) &lt;= 1" label="WR2"/>
-      </entity>
-      <entity name="face_bound" supertypes="topological_representation_item">
-         <explicit name="bound">
-            <typename name="loop"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-      </entity>
-      <entity name="face_outer_bound" supertypes="face_bound"/>
-      <entity name="face_surface" supertypes="face geometric_representation_item">
-         <explicit name="face_geometry">
-            <typename name="surface"/>
-         </explicit>
-         <explicit name="same_sense">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <where expression="NOT ('GEOMETRY_SCHEMA.ORIENTED_SURFACE' IN TYPEOF(face_geometry))" label="WR1"/>
-      </entity>
-      <entity name="loop" super.expression="ONEOF (vertex_loop, edge_loop, poly_loop)" supertypes="topological_representation_item"/>
-      <entity name="open_path" supertypes="path">
-         <derived expression="SIZEOF(SELF\path.edge_list)" name="ne">
-            <builtintype type="INTEGER"/>
-         </derived>
-         <where expression="(SELF\path.edge_list[1].edge_element.edge_start) :&lt;&gt;:&#10;                       (SELF\path.edge_list[ne].edge_element.edge_end)" label="WR1"/>
-      </entity>
-      <entity name="open_shell" supertypes="connected_face_set"/>
-      <entity name="oriented_closed_shell" supertypes="closed_shell">
-         <explicit name="closed_shell_element">
-            <typename name="closed_shell"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <derived expression="conditional_reverse(SELF.orientation,&#10;                                   SELF.closed_shell_element.cfs_faces)" name="cfs_faces">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="face"/>
-            <redeclaration entity-ref="connected_face_set"/>
-         </derived>
-         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_CLOSED_SHELL' &#10;                IN TYPEOF (SELF.closed_shell_element))" label="WR1"/>
-      </entity>
-      <entity name="oriented_edge" supertypes="edge">
-         <explicit name="edge_element">
-            <typename name="edge"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_start,&#10;                                            SELF.edge_element.edge_end)" name="edge_start">
-            <typename name="vertex"/>
-            <redeclaration entity-ref="edge"/>
-         </derived>
-         <derived expression="boolean_choose (SELF.orientation,&#10;                                            SELF.edge_element.edge_end,&#10;                                            SELF.edge_element.edge_start)" name="edge_end">
-            <typename name="vertex"/>
-            <redeclaration entity-ref="edge"/>
-         </derived>
-         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (SELF.edge_element))" label="WR1"/>
-      </entity>
-      <entity name="oriented_face" supertypes="face">
-         <explicit name="face_element">
-            <typename name="face"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <derived expression="conditional_reverse(SELF.orientation,SELF.face_element.bounds)" name="bounds">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="face_bound"/>
-            <redeclaration entity-ref="face"/>
-         </derived>
-         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_FACE' IN TYPEOF (SELF.face_element))" label="WR1"/>
-      </entity>
-      <entity name="oriented_open_shell" supertypes="open_shell">
-         <explicit name="open_shell_element">
-            <typename name="open_shell"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <derived expression="conditional_reverse(SELF.orientation,&#10;                                      SELF.open_shell_element.cfs_faces)" name="cfs_faces">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="face"/>
-            <redeclaration entity-ref="connected_face_set"/>
-         </derived>
-         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_OPEN_SHELL' &#10;                IN TYPEOF (SELF.open_shell_element))" label="WR1"/>
-      </entity>
-      <entity name="oriented_path" supertypes="path">
-         <explicit name="path_element">
-            <typename name="path"/>
-         </explicit>
-         <explicit name="orientation">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-         <derived expression="conditional_reverse(SELF.orientation,&#10;                                         SELF.path_element.edge_list)" name="edge_list">
-            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
-            <typename name="oriented_edge"/>
-            <redeclaration entity-ref="path"/>
-         </derived>
-         <where expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_PATH' IN TYPEOF (SELF.path_element))" label="WR1"/>
-      </entity>
-      <entity name="path" super.expression="ONEOF (open_path, edge_loop, oriented_path)" supertypes="topological_representation_item">
-         <explicit name="edge_list">
-            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
-            <typename name="oriented_edge"/>
-         </explicit>
-         <where expression="path_head_to_tail(SELF)" label="WR1"/>
-      </entity>
-      <entity name="poly_loop" supertypes="loop geometric_representation_item">
-         <explicit name="polygon">
-            <aggregate lower="3" type="LIST" unique="YES" upper="?"/>
-            <typename name="cartesian_point"/>
-         </explicit>
-      </entity>
-      <entity name="seam_edge" supertypes="oriented_edge">
-         <explicit name="pcurve_reference">
-            <typename name="pcurve"/>
-         </explicit>
-         <where expression="( 'TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF (edge_element) )  AND&#10;                ('TOPOLOGY_SCHEMA.SEAM_CURVE' IN TYPEOF&#10;                       (edge_element\edge_curve.edge_geometry))" label="WR1"/>
-         <where expression="pcurve_reference IN edge_element\edge_curve.edge_geometry\&#10;                                 surface_curve.associated_geometry" label="WR2"/>
-      </entity>
-      <entity name="subedge" supertypes="edge">
-         <explicit name="parent_edge">
-            <typename name="edge"/>
-         </explicit>
-      </entity>
-      <entity name="subface" supertypes="face">
-         <explicit name="parent_face">
-            <typename name="face"/>
-         </explicit>
-         <where expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF)) +&#10;              list_to_set(list_face_loops(parent_face))))" label="WR1"/>
-      </entity>
       <entity name="topological_representation_item" super.expression="ONEOF (vertex, edge, face_bound, face, vertex_shell, wire_shell, connected_edge_set, connected_face_set, connected_volume_set, volume_with_faces, (loop ANDOR path))" supertypes="representation_item">
-         <derived expression="get_id_value(SELF)" name="permanent_id">
-            <typename name="identifier"/>
-         </derived>
-         <derived expression="get_aggregate_id_value(SELF)" name="permanent_aggregate_id">
-            <typename name="identifier"/>
-         </derived>
-         <where expression="SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
-         <where expression="SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.AGGREGATE_ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR2"/>
+               <derived expression="get_id_value(SELF)" name="permanent_id">
+                  <typename name="identifier"/>
+               </derived>
+               <derived expression="get_aggregate_id_value(SELF)" name="permanent_aggregate_id">
+                  <typename name="identifier"/>
+               </derived>
+               <where expression="SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
+               <where expression="SIZEOF(USEDIN(SELF,'BASIC_ATTRIBUTE_SCHEMA.AGGREGATE_ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR2"/>
+               <where  label="IP1"/>
       </entity>
-      <entity name="vertex" supertypes="topological_representation_item"/>
-      <entity name="vertex_loop" supertypes="loop">
-         <explicit name="loop_vertex">
-            <typename name="vertex"/>
-         </explicit>
-      </entity>
-      <entity name="vertex_on_edge" supertypes="vertex">
-         <explicit name="parent_edge">
-            <typename name="edge_with_length"/>
-         </explicit>
-         <explicit name="distance_from_start">
-            <typename name="positive_length_measure"/>
-         </explicit>
-         <where expression="distance_from_start &lt; parent_edge.edge_length" label="WR1"/>
-      </entity>
-      <entity name="vertex_point" supertypes="vertex geometric_representation_item">
-         <explicit name="vertex_geometry">
-            <typename name="point"/>
-         </explicit>
-      </entity>
-      <entity name="vertex_shell" supertypes="topological_representation_item">
-         <explicit name="vertex_shell_extent">
-            <typename name="vertex_loop"/>
-         </explicit>
-      </entity>
-      <entity abstract.supertype="YES" name="volume_with_faces" super.expression="ONEOF (volume_with_shell, volume_with_parametric_boundary)" supertypes="geometric_representation_item topological_representation_item">
-         <explicit name="volume_geometry">
-            <typename name="volume"/>
-         </explicit>
-      </entity>
-      <entity name="volume_with_parametric_boundary" supertypes="volume_with_faces">
-         <explicit name="outer_bound">
-            <aggregate lower="6" type="LIST" upper="6"/>
-            <typename name="face"/>
-         </explicit>
-      </entity>
-      <entity name="volume_with_shell" supertypes="volume_with_faces">
-         <explicit name="outer_bound">
-            <typename name="closed_shell"/>
-         </explicit>
-      </entity>
-      <entity name="wire_shell" supertypes="topological_representation_item">
-         <explicit name="wire_shell_extent">
-            <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="loop"/>
-         </explicit>
-         <where expression="NOT mixed_loop_type_set(wire_shell_extent)" label="WR1"/>
-      </entity>
+       <entity
+	              name="vertex"
+	              supertypes="topological_representation_item">
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+	          <entity
+	              name="vertex_on_edge"
+	              supertypes="vertex">
+	              <explicit
+	                name="parent_edge">
+	                <typename
+	                  name="edge_with_length"/>
+	              </explicit>
+	              <explicit
+	  	                  name="distance_from_start">
+	  	                  <typename
+	  	                    name="positive_length_measure"/>
+	              </explicit>
+
+	              <where  label="WR1"
+	              expression="distance_from_start &lt; parent_edge.edge_length">
+	               </where>
+	            </entity>
+	          <entity
+	              name="vertex_point"
+	              supertypes="vertex geometric_representation_item">
+	              <explicit
+	                name="vertex_geometry">
+	                <typename
+	                  name="point"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	            </entity>
+	          <entity
+	                     name="edge"
+	                     super.expression="ONEOF(edge_curve, edge_with_length, oriented_edge, subedge)"
+	                     supertypes="topological_representation_item">
+	                     <explicit
+	                       name="edge_start">
+	                       <typename
+	                         name="vertex"/>
+	                     </explicit>
+	                     <explicit
+	                       name="edge_end">
+	                       <typename
+	                         name="vertex"/>
+	                     </explicit>
+	                     <where  label="IP1"/>
+	                     <where  label="IP2"/>
+	            </entity>
+
+	          <entity
+	              name="edge_with_length"
+	              supertypes="edge">
+	              <explicit
+	                name="edge_length">
+	                <typename
+	                  name="positive_length_measure"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	          </entity>
+	         <entity
+	               name="edge_curve"
+	               supertypes="edge geometric_representation_item">
+	               <explicit
+	                 name="edge_geometry">
+	                 <typename
+	                   name="curve"/>
+	               </explicit>
+	               <explicit
+	                 name="same_sense">
+	                 <builtintype
+	                   type="BOOLEAN"/>
+	               </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	              <where  label="IP6"/>
+	              <where  label="IP7"/>
+	            </entity>
+	         <entity
+	              name="oriented_edge"
+	              supertypes="edge">
+	              <explicit
+	                name="edge_element">
+	                <typename
+	                  name="edge"/>
+	              </explicit>
+	              <explicit
+	                name="orientation">
+	                <builtintype
+	                  type="BOOLEAN"/>
+	              </explicit>
+	              <derived
+	                name="edge.edge_start"
+	                expression="boolean_choose (SELF.orientation, SELF.edge_element.edge_start, SELF.edge_element.edge_end)">
+	                <typename
+	                  name="vertex"/>
+	              </derived>
+	              <derived
+	                name="edge.edge_end"
+	                expression="boolean_choose (SELF.orientation, SELF.edge_element.edge_end, SELF.edge_element.edge_start)">
+	                <typename
+	                  name="vertex"/>
+	              </derived>
+	              <where
+	                label="WR1"
+	                expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (SELF.edge_element))">
+	              </where>
+	            </entity>
+	        <entity
+	              name="seam_edge"
+	              supertypes="oriented_edge">
+	              <explicit
+	                name="pcurve_reference">
+	                <typename
+	                  name="pcurve"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="('TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF (edge_element)) AND ('TOPOLOGY_SCHEMA.SEAM_CURVE' IN TYPEOF (edge_element\edge_curve.edge_geometry))">
+	              </where>
+	              <where
+	                label="WR2"
+	                expression="pcurve_reference IN edge_element\edge_curve.edge_geometry\ surface_curve.associated_geometry">
+	              </where>
+	            </entity>
+	         <entity
+	               name="subedge"
+	               supertypes="edge">
+	               <explicit
+	                 name="parent_edge">
+	                 <typename
+	                   name="edge"/>
+	               </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	             </entity>
+	        <entity
+	              name="path"
+	              super.expression="ONEOF(open_path, edge_loop, oriented_path)"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="edge_list">
+	                <aggregate
+	                  type="LIST"
+	                  lower="1"
+	                  upper="?"
+	                  unique="YES"/>
+	                <typename
+	                  name="oriented_edge"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="path_head_to_tail(SELF)">
+	              </where>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	            </entity>
+	        <entity
+	              name="oriented_path"
+	              supertypes="path">
+	              <explicit
+	                name="path_element">
+	                <typename
+	                  name="path"/>
+	              </explicit>
+	              <explicit
+	                name="orientation">
+	                <builtintype
+	                  type="BOOLEAN"/>
+	              </explicit>
+	              <derived
+	                name="path.edge_list"
+	                expression="conditional_reverse(SELF.orientation, SELF.path_element.edge_list)">
+	                <aggregate
+	                  type="LIST"
+	                  lower="1"
+	                  upper="?"
+	                  unique="YES"/>
+	                <typename
+	                  name="oriented_edge"/>
+	              </derived>
+	              <where
+	                label="WR1"
+	                expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_PATH' IN TYPEOF (SELF.path_element))">
+	              </where>
+	            </entity>
+	        <entity
+	              name="open_path"
+	              supertypes="path">
+	              <derived
+	                name="ne"
+	                expression="SIZEOF(path.edge_list)">
+	                <builtintype
+	                  type="INTEGER"/>
+	              </derived>
+	              <where
+	                label="WR1"
+	                expression="(path.edge_list[1].edge_element.edge_start) :&lt;&gt;: (SELF\path.edge_list[ne].edge_element.edge_end)">
+	              </where>
+	              <where  label="IP1"/>
+	           </entity>
+	        <entity
+	              name="loop"
+	              super.expression="ONEOF(vertex_loop, edge_loop, poly_loop)"
+	              supertypes="topological_representation_item">
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+	        <entity
+	              name="vertex_loop"
+	              supertypes="loop">
+	              <explicit
+	                name="loop_vertex">
+	                <typename
+	                  name="vertex"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	           </entity>
+	        <entity
+	              name="edge_loop"
+	              supertypes="loop path">
+	              <derived
+	                name="ne"
+	                expression="SIZEOF(path.edge_list)">
+	                <builtintype
+	                  type="INTEGER"/>
+	              </derived>
+	              <where
+	                label="WR1"
+	                expression="(path.edge_list[1].edge_start) :=: (SELF\path.edge_list[ne].edge_end)">
+	              </where>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+	         <entity
+	              name="poly_loop"
+	              supertypes="loop geometric_representation_item">
+	              <explicit
+	                name="polygon">
+	                <aggregate
+	                  type="LIST"
+	                  lower="3"
+	                  upper="?"
+	                  unique="YES"/>
+	                <typename
+	                  name="cartesian_point"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+
+	        <entity
+	              name="face_bound"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="bound">
+	                <typename
+	                  name="loop"/>
+	              </explicit>
+	              <explicit
+	                name="orientation">
+	                <builtintype
+	                  type="BOOLEAN"/>
+	              </explicit>
+	            </entity>
+	         <entity
+	              name="face_outer_bound"
+	              supertypes="face_bound">
+	            </entity>
+	         <entity
+	              name="face"
+	              super.expression="ONEOF(face_surface, subface, oriented_face)"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="bounds">
+	                <aggregate
+	                  type="SET"
+	                  lower="1"
+	                  upper="?"/>
+	                <typename
+	                  name="face_bound"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF))))">
+	              </where>
+	              <where
+	                label="WR2"
+	                expression="SIZEOF(QUERY(temp &lt;* bounds | 'TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN TYPEOF(temp))) &lt;= 1">
+	              </where>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	           </entity>
+	         <entity
+	              name="face_surface"
+	              supertypes="face geometric_representation_item">
+	              <explicit
+	                name="face_geometry">
+	                <typename
+	                  name="surface"/>
+	              </explicit>
+	              <explicit
+	                name="same_sense">
+	                <builtintype
+	                  type="BOOLEAN"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="NOT ('GEOMETRY_SCHEMA.ORIENTED_SURFACE' IN TYPEOF(face_geometry))">
+	              </where>
+	               <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	              <where  label="IP6"/>
+	              <where  label="IP7"/>
+	              <where  label="IP8"/>
+	            </entity>
+	         <entity
+	               name="oriented_face"
+	               supertypes="face">
+	               <explicit
+	                 name="face_element">
+	                 <typename
+	                   name="face"/>
+	               </explicit>
+	               <explicit
+	                 name="orientation">
+	                 <builtintype
+	                   type="BOOLEAN"/>
+	               </explicit>
+	               <derived
+	                 name="face.bounds"
+	                 expression="conditional_reverse(SELF.orientation,SELF.face_element.bounds)">
+	                 <aggregate
+	                   type="SET"
+	                   lower="1"
+	                   upper="?"/>
+	                 <typename
+	                   name="face_bound"/>
+	               </derived>
+	               <where
+	                 label="WR1"
+	                 expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_FACE' IN TYPEOF (SELF.face_element))">
+	               </where>
+	             </entity>
+	         <entity
+	              name="subface"
+	              supertypes="face">
+	              <explicit
+	                name="parent_face">
+	                <typename
+	                  name="face"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF)) + list_to_set(list_face_loops(parent_face))))">
+	              </where>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	           </entity>
+	         <entity
+	              name="connected_face_set"
+	              super.expression="ONEOF (closed_shell, open_shell)"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="cfs_faces">
+	                <aggregate
+	                  type="SET"
+	                  lower="1"
+	                  upper="?"/>
+	                <typename
+	                  name="face"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	           </entity>
+	        <entity
+	              name="subface"
+	              supertypes="face">
+	              <explicit
+	                name="parent_face">
+	                <typename
+	                  name="face"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF)) + list_to_set(list_face_loops(parent_face))))">
+	              </where>
+	               <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+	        <entity
+	              name="vertex_shell"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="vertex_shell_extent">
+	                <typename
+	                  name="vertex_loop"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	            </entity>
+	        <entity
+	              name="wire_shell"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="wire_shell_extent">
+	                <aggregate
+	                  type="SET"
+	                  lower="1"
+	                  upper="?"/>
+	                <typename
+	                  name="loop"/>
+	              </explicit>
+	              <where
+	                label="WR1"
+	                expression="NOT mixed_loop_type_set(wire_shell_extent)">
+	              </where>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	            </entity>
+	         <entity
+	               name="open_shell"
+	               supertypes="connected_face_set">
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	              <where  label="IP6"/>
+	              <where  label="IP7"/>
+	              <where  label="IP8"/>
+	              <where  label="IP9"/>
+	            </entity>
+	         <entity
+	               name="oriented_open_shell"
+	               supertypes="open_shell">
+	               <explicit
+	                 name="open_shell_element">
+	                 <typename
+	                   name="open_shell"/>
+	               </explicit>
+	               <explicit
+	                 name="orientation">
+	                 <builtintype
+	                   type="BOOLEAN"/>
+	               </explicit>
+	               <derived
+	                 name="connected_face_set.cfs_faces"
+	                 expression="conditional_reverse(SELF.orientation, SELF.open_shell_element.cfs_faces)">
+	                 <aggregate
+	                   type="SET"
+	                   lower="1"
+	                   upper="?"/>
+	                 <typename
+	                   name="face"/>
+	               </derived>
+	               <where
+	                 label="WR1"
+	                 expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_OPEN_SHELL' IN TYPEOF (SELF.open_shell_element))">
+	               </where>
+	             </entity>
+	        <entity
+	              name="closed_shell"
+	              supertypes="connected_face_set">
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	              <where  label="IP3"/>
+	              <where  label="IP4"/>
+	              <where  label="IP5"/>
+	              <where  label="IP6"/>
+	              <where  label="IP7"/>
+	              <where  label="IP8"/>
+	              <where  label="IP9"/>
+	              <where  label="IP10"/>
+	            </entity>
+	        <entity
+	              name="oriented_closed_shell"
+	              supertypes="closed_shell">
+	              <explicit
+	                name="closed_shell_element">
+	                <typename
+	                  name="closed_shell"/>
+	              </explicit>
+	              <explicit
+	                name="orientation">
+	                <builtintype
+	                  type="BOOLEAN"/>
+	              </explicit>
+	              <derived
+	                name="connected_face_set.cfs_faces"
+	                expression="conditional_reverse(SELF.orientation, SELF.closed_shell_element.cfs_faces)">
+	                <aggregate
+	                  type="SET"
+	                  lower="1"
+	                  upper="?"/>
+	                <typename
+	                  name="face"/>
+	              </derived>
+	              <where
+	                label="WR1"
+	                expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_CLOSED_SHELL' IN TYPEOF (SELF.closed_shell_element))">
+	              </where>
+	            </entity>
+	        <entity
+	              name="connected_face_sub_set"
+	              supertypes="connected_face_set">
+	              <explicit
+	                name="parent_face_set">
+	                <typename
+	                  name="connected_face_set"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	            </entity>
+	         <entity
+	              name="connected_edge_set"
+	              supertypes="topological_representation_item">
+	              <explicit
+	                name="ces_edges">
+	                <aggregate
+	                  type="SET"
+	                  lower="1"
+	                  upper="?"/>
+	                <typename
+	                  name="edge"/>
+	              </explicit>
+	              <where  label="IP1"/>
+	              <where  label="IP2"/>
+	      </entity>
+	          <entity
+	                  name="volume_with_faces"
+	                  supertypes="topological_representation_item geometric_representation_item" abstract.supertype="YES"
+	                  super.expression="ONEOF(volume_with_parametric_boundary, volume_with_shell)">
+	                  <explicit
+	                    name="volume_geometry">
+	                     <typename
+	                      name="volume"/>
+	                  </explicit>
+	                    </entity>
+	            <entity
+	                      name="volume_with_parametric_boundary"
+	                      supertypes="volume_with_faces">
+	                      <explicit
+	                        name="outer_bound">
+	                         <aggregate
+	  		               type="LIST"
+	  		               lower="6"
+	  		               upper="6"/>
+	  		            <typename name="face"/>
+	                      </explicit>
+	                    </entity>
+	              <entity
+	                      name="volume_with_shell"
+	                      supertypes="volume_with_faces">
+	                      <explicit
+	                        name="outer_bound">
+	                                <typename name="closed_shell"/>
+	                      </explicit>
+	                    </entity>
+	      <entity
+	                          name="connected_volume_set"
+	                          supertypes="topological_representation_item">
+	                          <explicit
+	                            name="cvs_volumes">
+	                             <aggregate
+	      		               type="SET"
+	      		               lower="1"
+	      		               upper="?"/>
+	      		            <typename name="volume_with_faces"/>
+	                          </explicit>
+	                         <where  label="IP1"/>
+	                         <where  label="IP2"/>
+	                        <where  label="IP3"/>
+	                        </entity>
+	                  <entity
+	                          name="connected_volume_sub_set"
+	                          supertypes="connected_volume_set">
+	                          <explicit
+	                            name="parent_volume_set">
+	                                    <typename name="connected_volume_set"/>
+	                          </explicit>
+	                          <where  label="IP1"/>
+                  </entity>
+
       <function name="boolean_choose">
          <parameter name="b">
             <builtintype type="BOOLEAN"/>
@@ -491,11 +850,11 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      loops : LIST[0:?] OF loop := [];
    END_LOCAL;
-   
+
    REPEAT i := 1 TO SIZEOF(f.bounds);
      loops := loops +(f.bounds[i].bound);
    END_REPEAT;
-      
+
    RETURN(loops);</algorithm>
       </function>
       <function name="list_loop_edges">
@@ -507,7 +866,7 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      edges : LIST[0:?] OF edge := [];
    END_LOCAL;
-      
+
    IF 'TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(l) THEN
      REPEAT i := 1 TO SIZEOF(l\path.edge_list);
        edges := edges + (l\path.edge_list[i].edge_element);
@@ -524,12 +883,12 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      the_reverse : list_of_reversible_topology_item;
    END_LOCAL;
-    
+
    the_reverse := [];
    REPEAT i := 1 TO SIZEOF (a_list);
      the_reverse := topology_reversed (a_list [i]) + the_reverse;
    END_REPEAT;
-  
+
    RETURN (the_reverse);</algorithm>
       </function>
       <function name="list_shell_edges">
@@ -541,11 +900,11 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      edges : LIST[0:?] OF edge := [];
    END_LOCAL;
-      
+
    REPEAT i := 1 TO SIZEOF(list_shell_loops(s));
      edges := edges + list_loop_edges(list_shell_loops(s)[i]);
    END_REPEAT;
-   
+
    RETURN(edges);</algorithm>
       </function>
       <function name="list_shell_faces">
@@ -557,14 +916,14 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      faces : LIST[0:?] OF face := [];
    END_LOCAL;
-   
-   IF ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF(s)) OR 
+
+   IF ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF(s)) OR
       ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF(s)) THEN
      REPEAT i := 1 TO SIZEOF(s\connected_face_set.cfs_faces);
        faces := faces + s\connected_face_set.cfs_faces[i];
      END_REPEAT;
    END_IF;
-      
+
    RETURN(faces);</algorithm>
       </function>
       <function name="list_shell_loops">
@@ -576,24 +935,24 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      loops : LIST[0:?] OF loop := [];
    END_LOCAL;
-      
+
    IF 'TOPOLOGY_SCHEMA.VERTEX_SHELL' IN TYPEOF(s) THEN
      loops := loops + s.vertex_shell_extent;
    END_IF;
-      
+
    IF 'TOPOLOGY_SCHEMA.WIRE_SHELL' IN TYPEOF(s) THEN
      REPEAT i := 1 TO SIZEOF(s.wire_shell_extent);
        loops := loops + s.wire_shell_extent[i];
      END_REPEAT;
    END_IF;
-      
-   IF ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF(s)) OR 
+
+   IF ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF(s)) OR
       ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF(s)) THEN
      REPEAT i := 1 TO SIZEOF(s.cfs_faces);
        loops := loops + list_face_loops(s.cfs_faces[i]);
      END_REPEAT;
    END_IF;
-      
+
    RETURN(loops);</algorithm>
       </function>
       <function name="list_to_set">
@@ -606,11 +965,11 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      s : SET OF GENERIC:T := [];
    END_LOCAL;
-      
+
    REPEAT i := 1 TO SIZEOF(l);
      s := s + l[i];
    END_REPEAT;
-   
+
    RETURN(s);</algorithm>
       </function>
       <function name="mixed_loop_type_set">
@@ -666,13 +1025,13 @@ RETURN(tri_set);</algorithm>
      n : INTEGER;
      p : LOGICAL := TRUE;
    END_LOCAL;
-     
+
      n := SIZEOF (a_path.edge_list);
      REPEAT i := 2 TO n;
        p := p AND (a_path.edge_list[i-1].edge_end :=:
                    a_path.edge_list[i].edge_start);
      END_REPEAT;
-     
+
      RETURN (p);</algorithm>
       </function>
       <function name="path_reversed">
@@ -704,12 +1063,12 @@ RETURN(tri_set);</algorithm>
          <algorithm>LOCAL
      the_reverse : set_of_reversible_topology_item;
    END_LOCAL;
-   
+
    the_reverse := [];
    REPEAT i := 1 TO SIZEOF (a_set);
      the_reverse := the_reverse + topology_reversed (a_set [i]);
    END_REPEAT;
-   
+
    RETURN (the_reverse);</algorithm>
       </function>
       <function name="shell_reversed">
@@ -743,7 +1102,7 @@ RETURN(tri_set);</algorithm>
    IF ('TOPOLOGY_SCHEMA.FACE_BOUND' IN TYPEOF (an_item)) THEN
      RETURN (face_bound_reversed (an_item));
    END_IF;
-  
+
    IF ('TOPOLOGY_SCHEMA.FACE' IN TYPEOF (an_item)) THEN
      RETURN (face_reversed (an_item));
    END_IF;
@@ -778,12 +1137,12 @@ END_LOCAL;
           EXISTS(objs[i]\topological_representation_item.permanent_aggregate_id)) THEN
     RETURN(FALSE);
    END_IF;
-   values := values + objs[i]\topological_representation_item.permanent_id 
+   values := values + objs[i]\topological_representation_item.permanent_id
                        + objs[i]\topological_representation_item.permanent_aggregate_id;
   END_REPEAT;
 
 --ids are unique across both types
- IF SIZEOF(bag_to_set(values)) &lt;&gt; SIZEOF(values) THEN 
+ IF SIZEOF(bag_to_set(values)) &lt;&gt; SIZEOF(values) THEN
    RETURN(FALSE);
  END_IF;
 

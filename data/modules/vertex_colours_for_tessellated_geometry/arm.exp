@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.11 2017/08/07 09:02:10 verodub Exp $
+   $Id: arm.exp,v 1.12 2017/08/09 18:07:10 kevletu Exp $
    ISO TC184/SC4/WG12 N9756 - ISO/TS 10303-1836 Vertex colours for tessellated geometry - EXPRESS ARM
 *)
 
@@ -34,10 +34,10 @@ ENTITY Styled_tessellated_element_with_colours
    DERIVE
      coloured_coordinate_values : Coordinates_list := get_coordinate_values(element);
    WHERE
-    WR1 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
+    WR1 : NOT EXISTS(SELF\styled_element.appearance);
+    WR2 : ((colour_type = RGB8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 3)))= 0)) OR
            ((colour_type = RGBT8) AND (SIZEOF(QUERY(clist <* SELF.colour_values | NOT (SIZEOF(clist) = 4)))= 0));
-    WR2 : SIZEOF(colour_values) = coloured_coordinate_values.npoints;
-    WR3 : NOT EXISTS(SELF\styled_element.appearance);
+    WR3 : SIZEOF(colour_values) = coloured_coordinate_values.npoints;
 	WR4 : SELF\styled_element.invisible = FALSE;
   END_ENTITY;
  

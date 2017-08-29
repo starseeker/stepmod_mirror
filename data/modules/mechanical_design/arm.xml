@@ -21,15 +21,21 @@
       <type name="md_tolerance_value_or_limits_and_fits">
          <select selectitems="Length_plus_minus_bounds Limits_and_fits"/>
       </type>
-      <entity name="Counterbore_hole_definition" supertypes="Characterizable_object">
+      <entity name="Counterbore_definition" supertypes="Characterizable_object">
          <explicit name="counterbore_diameter">
-            <typename name="Hole_diameter"/>
-         </explicit>
-         <explicit name="drill_diameter">
             <typename name="Hole_diameter"/>
          </explicit>
          <explicit name="counterbore_depth">
             <typename name="Hole_depth"/>
+         </explicit>
+      </entity>
+      <entity name="Counterbore_hole_definition" supertypes="Characterizable_object">
+         <explicit name="counterbore_definition">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="Counterbore_definition"/>
+         </explicit>
+         <explicit name="drill_diameter">
+            <typename name="Hole_diameter"/>
          </explicit>
       </entity>
       <entity name="Counterbore_hole_occurrence" supertypes="Shape_element">
@@ -39,6 +45,28 @@
          <where expression="'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\Shape_element.associated_definition)" label="WR1"/>
       </entity>
       <entity name="Counterbore_hole_occurrence_in_assembly" supertypes="Counterbore_hole_occurrence">
+         <explicit name="modified_components">
+            <typename name="Multi_level_reference_designator"/>
+         </explicit>
+      </entity>
+      <entity name="Counterdrill_hole_definition" supertypes="Countersink_hole_definition">
+         <explicit name="counterdrill_angle">
+            <typename name="Positive_angle_data_element"/>
+         </explicit>
+         <explicit name="counterdrill_angle_tolerance">
+            <typename name="Angle_plus_minus_bounds"/>
+         </explicit>
+         <explicit name="counterbore_definition">
+            <typename name="Counterbore_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Counterdrill_hole_occurrence" supertypes="Shape_element">
+         <explicit name="definition">
+            <typename name="Counterdrill_hole_definition"/>
+         </explicit>
+         <where expression="'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\Shape_element.associated_definition)" label="WR1"/>
+      </entity>
+      <entity name="Counterdrill_hole_occurrence_in_assembly" supertypes="Counterdrill_hole_occurrence">
          <explicit name="modified_components">
             <typename name="Multi_level_reference_designator"/>
          </explicit>
@@ -78,7 +106,6 @@
          <explicit name="depth_tolerance" optional="YES">
             <typename name="Length_plus_minus_bounds"/>
          </explicit>
-         <where expression="NOT EXISTS(depth_tolerance) OR EXISTS(depth)" label="WR1"/>
       </entity>
       <entity name="Hole_diameter">
          <explicit name="diameter">
@@ -87,7 +114,6 @@
          <explicit name="diameter_tolerance" optional="YES">
             <typename name="md_tolerance_value_or_limits_and_fits"/>
          </explicit>
-         <where expression="NOT EXISTS(diameter_tolerance) OR EXISTS(diameter)" label="WR1"/>
       </entity>
       <entity name="Pmi_requirement_item_association" supertypes="Item_identified_representation_usage">
          <explicit name="definition">
@@ -102,7 +128,6 @@
          <explicit name="spotface_radius_tolerance" optional="YES">
             <typename name="Length_plus_minus_bounds"/>
          </explicit>
-         <where expression="NOT EXISTS(spotface_radius_tolerance) OR EXISTS(spotface_radius)" label="WR1"/>
       </entity>
       <entity name="Spotface_occurrence" supertypes="Counterbore_hole_occurrence">
          <explicit name="definition">

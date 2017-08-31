@@ -1,37 +1,33 @@
 #!/bin/bash
 #
 #
-#Go to workspace directory where stepmod is checked out to run this script
 #
-#This script, update_parts_and_build_cr.sh, update parts included the publication index of a CR, then build it.
+#This script build a CR from its publication index and stepmod scripts.
 #
-# This script does sequentially what scripts cvs_update_tagged_parts_of_a_cr.sh and build_cr.sh do
-#
-#One argument for the moment: the CR id, e.g. CR_210_1
-#
-#To be run after configuring local stepmod with:
-#
-#cvs update
-#cvs update -RAr SMRLv6 -CdP stepmod/data
-#cvs update -RAr HEAD -CdP stepmod/data/basic/
-#
-# uses /stepmod/utils/part1000/pub_index_to_parts_list_for_cvs_update.xsl
 #
 # WARNING - UNDER DEVLOPMENT
 
-if [ -z $1 ]
+if [ -z $1 ] || [ -z $2 ];
 then
-echo "Specify CR name"
+    echo "Error: first, second or both arguments missing. Two arguments to be specified: 1) absolute path of workspace where stepmod is checked out (e.g.: /Users/klt/Projets/workspace); 2) name of the CR (e.g.: CR_PDM_1)."
 exit
 fi
 
-java -jar stepmod/etc/saxon6-5-5/saxon.jar stepmod/publication/part1000/$1/publication_index.xml stepmod/utils/part1000/pub_index_to_parts_list_for_cvs_update.xsl | xargs cvs update -RAdr $1
+cd $1
 
-cd stepmod/publication/part1000/$1/
+java -jar stepmod/etc/saxon6-5-5/saxon.jar stepmod/publication/part1000/$2/publication_index.xml stepmod/utils/part1000/pub_index_to_parts_list_for_cvs_update.xsl | xargs cvs update -RAdr $2 | tee $1/$2_cvs_update_log.txt
 
-ant -lib ../../../etc/saxon6-5-5/saxon.jar -lib ../../../etc/saxon6-5-5/saxon-xml-apis.jar -lib ../../../etc/saxon6-5-5/saxon-jdom.jar -f buildbuild.xml
+#tee creates log in workspace
 
-ant -lib ../../../etc/saxon6-5-5/saxon.jar -lib ../../../etc/saxon6-5-5/saxon-xml-apis.jar -lib ../../../etc/saxon6-5-5/saxon-jdom.jar all
+cvs update -RAr $2 -CdP stepmod/data/basic | tee $1/$2_data_basic_cvs_update_log.txt
+
+cd $1/stepmod/publication/part1000/$2/
+
+ant -lib $1/stepmod/etc/saxon6-5-5/saxon.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-jdom.jar -f buildbuild.xml | tee $1/$2_buildbuid_log.txt
+
+# tee used to output to get put to the screen as well as a log file
+
+ant -lib $1/stepmod/etc/saxon6-5-5/saxon.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-jdom.jar all | tee -a $1/$2_build_log.txt
 
 
 exit

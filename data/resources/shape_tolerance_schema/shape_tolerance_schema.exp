@@ -1,5 +1,5 @@
 (*
-$Id: shape_tolerance_schema.exp,v 1.54 2017/07/25 17:07:49 duchierp Exp $
+$Id: shape_tolerance_schema.exp,v 1.55 2017/07/26 22:31:08 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 Ntbd
 
 EXPRESS Source:
@@ -81,9 +81,7 @@ END_TYPE;
 TYPE area_unit_type = EXTENSIBLE ENUMERATION OF 
    (circular,
     square,
-    rectangular,
-    cylindrical,
-    spherical);
+    rectangular);
 END_TYPE; 
 
 TYPE datum_system_or_reference = SELECT
@@ -124,11 +122,6 @@ TYPE geometric_tolerance_target = SELECT
     dimensional_size, 
     product_definition_shape, 
     shape_aspect);
-END_TYPE;
-
-TYPE length_or_plane_angle_measure_with_unit_select = SELECT (
-  length_measure_with_unit,
-  plane_angle_measure_with_unit);
 END_TYPE; 
 
 TYPE oriented_tolerance_zone_type = ENUMERATION OF
@@ -170,14 +163,6 @@ END_ENTITY;
 
 ENTITY concentricity_tolerance
   SUBTYPE OF (geometric_tolerance_with_datum_reference);
-END_ENTITY;
-
-ENTITY cylindrical_restricted_area
- SUBTYPE OF (geometric_tolerance_with_defined_area_unit);
- SELF\geometric_tolerance_with_defined_unit.unit_size : length_measure_with_unit;
- SELF\geometric_tolerance_with_defined_area_unit.second_unit_size : plane_angle_measure_with_unit;
-DERIVE
- SELF\geometric_tolerance_with_defined_area_unit.area_type : area_unit_type := area_unit_type.cylindrical;
 END_ENTITY;
 
 ENTITY cylindricity_tolerance
@@ -263,21 +248,16 @@ WHERE
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_defined_area_unit
-  SUPERTYPE OF(
-  	ONEOF(cylindrical_restricted_area,
-  		spherical_restricted_area))
   SUBTYPE OF (geometric_tolerance_with_defined_unit);
   area_type : area_unit_type;
-  second_unit_size : OPTIONAL length_or_plane_angle_measure_with_unit_select;
+  second_unit_size : OPTIONAL length_measure_with_unit;
 WHERE
-  WR1: NOT (EXISTS(second_unit_size) XOR (area_type IN [area_unit_type.rectangular, area_unit_type.cylindrical, area_unit_type.spherical]));
-  WR2: NOT(('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(unit_size)) AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.SPHERICAL_RESTRICTED_AREA' IN TYPEOF(SELF)); 
-  WR3: NOT(('MEASURE_SCHEMA.LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(unit_size)) AND ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE_WITH_UNIT' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.CYLINDRICAL_RESTRICTED_AREA' IN TYPEOF(SELF)) ;
+  WR1: NOT (EXISTS(second_unit_size) XOR (area_type = area_unit_type.rectangular));
 END_ENTITY;
 
 ENTITY geometric_tolerance_with_defined_unit
   SUBTYPE OF (geometric_tolerance);
-  unit_size : length_or_plane_angle_measure_with_unit_select;
+  unit_size : length_measure_with_unit;
 WHERE
   WR1: ('NUMBER' IN TYPEOF (unit_size\measure_with_unit.value_component)) AND (unit_size\measure_with_unit.value_component > 0.0);
 END_ENTITY;
@@ -374,16 +354,6 @@ END_ENTITY;
 ENTITY runout_zone_orientation_reference_direction
   SUBTYPE OF (runout_zone_orientation);
   orientation_defining_relationship : shape_aspect_relationship;
-END_ENTITY;
-
-ENTITY spherical_restricted_area
- SUBTYPE OF (geometric_tolerance_with_defined_area_unit);
- SELF\geometric_tolerance_with_defined_unit.unit_size : plane_angle_measure_with_unit;
- SELF\geometric_tolerance_with_defined_area_unit.second_unit_size : plane_angle_measure_with_unit;
-DERIVE
- SELF\geometric_tolerance_with_defined_area_unit.area_type : area_unit_type := area_unit_type.spherical;
-INVERSE
- orientation_plane : oriented_tolerance_zone FOR defining_tolerance;
 END_ENTITY;
 
 ENTITY statistical_distribution_for_tolerance

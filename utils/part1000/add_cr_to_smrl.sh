@@ -6,21 +6,23 @@
 #
 # PURPOSE: Update last SMRL with new CR including updated modules and resources
 #
-# DOES NOT SUPPORT PARTS 1xx and 5xx series YET
 
 
-echo "Two arguments to be specified: 1) absolute path of workspace where stepmod is checked out (e.g.: /Users/klt/Projets/workspace) ---- 2) name of the CR (e.g.: CR_PDM_1)."
+exec > >(tee -i $1/$2_add_to_smrl_log.txt)
+exec 2>&1
 
 if [ -z $1 ] || [ -z $2 ];
 then
-    echo "Error: first, second or both arguments missing. "
-    exit
+    echo "Error: first, second or both arguments missing. Two arguments to be specified: 1) absolute path of workspace where stepmod is checked out (e.g.: /Users/klt/Projets/workspace); 2) name of the CR (e.g.: CR_PDM_1)."
+exit
 fi
 
 cd $1
 
 if [ -d stepmod -a -d SMRL ]
 then
+
+echo "======================== Copying CR build directory from STEPmod to workspace: ========================"
 
     cp -Riv $1/stepmod/publication/isopub/$2 $1
     cd $1
@@ -47,42 +49,44 @@ then
         echo "No modules are in this CR."
     fi
 
-#HARD CODED FOR P42, NOT TESTED , to BE CONTINUED FOR ALL IRs
-
     cd $1
 
-    if [ -d $2/iso10303_42 ]
+    if [ $(find $2/ -type d -name "iso10303_*" | wc -l ) != "0" ]
     then
-        echo "======================== Following $2/iso10303_xx/data/resource_docs and resources exist ========================"
-        ls -d $2/iso10303_42/data/*/*
+        for dir_iso10303 in $( ls -d $2/iso10303_* )
+        do
 
-        echo "======================== Deleting corresponding SMRL/data/resource_docs and resources ========================"
-        ls -d $2/iso10303_42/data/*/* | sed "s/$2\/iso10303_42/SMRL/g" > list1.txt ; xargs rm -rfv < list1.txt
+            echo "======================== Following $dir_iso10303/data/resource_docs exists ========================"
+            echo "cr: $dir_iso10303"
 
-#for i in $( ls $2/iso10303_4*/ )
-#do
-#	echo "resin cr: $i"
-#done
-        echo "======================== Copying from $2/iso10303_xx/data/resource_docs|resources to SMRL/data/resource_docs|resources exists ========================"
+            echo "======================== Deleting corresponding SMRL/data/resource_docs and resources ========================"
 
-#P42 res:
-        cd $2/iso10303_42/data/ ; ls -d resources/* | xargs tar -cvf p42_resources.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/iso10303_42/data/p42_resources.tar ; cd ../..
+            ls -d $dir_iso10303/data/*/* | sed "s/$dir_iso10303/SMRL/g" > list1.txt ; xargs rm -rfv < list1.txt
 
-#P42 res docs
-        cd $2/iso10303_42/data/ ; ls -d resource_docs/* | xargs tar -cvf p42_resource_docs.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/iso10303_42/data/p42_resource_docs.tar ; cd ../..
 
-#P43 res:
-#cd $2/iso10303_43/data/ ; ls -d resources/* | xargs tar -cvf p43_resources.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/iso10303_43/data/p43_resources.tar ; cd ../..
 
-#P43 res docs
-#cd $2/iso10303_43/data/ ; ls -d resource_docs/* | xargs tar -cvf p43_resource_docs.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/iso10303_43/data/p43_resource_docs.tar ; cd ../..
+            echo "======================== Copying from $dir_iso10303/data/resource_docs|resources to SMRL/data/resource_docs|resources exists ========================"
 
+            #res
+            cd $dir_iso10303/data/ ; ls -d resources/* | xargs tar -cvf resources.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$dir_iso10303/data/resources.tar ; cd ../..
+
+            #res docs
+            cd $dir_iso10303/data/ ; ls -d resource_docs/* | xargs tar -cvf resource_docs.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$dir_iso10303/data/resource_docs.tar ; cd ../..
+
+            #deleting intermediate tar
+            rm -rf $dir_iso10303/data/resources.tar
+            rm -rf $dir_iso10303/data/resource_docs.tar
+            #deleting list.txt
+            rm -rf list1.txt
+
+        done
     else
-        echo "No Resource docs in the CR."
+        echo "No ressources found in this CR."
     fi
-
 else
     pwd
 	echo "Error: stepmod directory and/or SMRL directory not found."
 	exit
 fi
+
+exit

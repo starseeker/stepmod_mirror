@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.64 2017/07/21 16:08:00 duchierp Exp $
+$Id: arm.exp,v 1.65 2017/08/02 15:48:25 duchierp Exp $
 ISO TC184/SC4/WG12 N9335 - ISO/TS 10303-1051 Geometric tolerance - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N8026
 *) 
@@ -29,16 +29,13 @@ TYPE directed_or_oriented_geometric_tolerance_select = SELECT
     Perpendicularity_tolerance, 
     Position_tolerance, 
     Straightness_tolerance, 
-    Symmetry_tolerance,
-    Geometric_tolerance_with_restricted_area);
+    Symmetry_tolerance);
 END_TYPE; 
 
 TYPE area_unit_type = EXTENSIBLE ENUMERATION OF 
    (circular,
     square,
-    rectangular,
- 	cylindrical,	
- 	spherical);
+    rectangular);
 END_TYPE; 
 
 TYPE collection_plane_orientation = EXTENSIBLE ENUMERATION OF
@@ -101,11 +98,6 @@ TYPE geometric_tolerance_target = EXTENSIBLE GENERIC_ENTITY SELECT
     Dimensional_size,
     Part_view_definition);
 END_TYPE; 
-
-TYPE length_or_plane_angle_data_element_select = SELECT (
- Length_data_element,
- Angle_data_element);
-END_TYPE;
 
 TYPE oriented_tolerance_zone_type = ENUMERATION OF
    (perpendicular, 
@@ -334,16 +326,15 @@ ENTITY Geometric_tolerance
                                 Straightness_tolerance,
                                 Surface_profile_tolerance,
                                 Symmetry_tolerance,
-                                Total_runout_tolerance)
-                            ANDOR (Geometric_tolerance_with_restricted_area));
+                                Total_runout_tolerance));
    id : OPTIONAL identifier;
    name : OPTIONAL label;
    applied_to : geometric_tolerance_target;
    modifiers : SET[1:?] OF geometric_tolerance_modifier;
    qualifying_note : OPTIONAL STRING;
-   first_unit_size : OPTIONAL length_or_plane_angle_data_element_select;
+   first_unit_size : OPTIONAL Length_data_element;
    area_unit_type : OPTIONAL area_unit_type;
-   second_unit_size : OPTIONAL length_or_plane_angle_data_element_select;
+   second_unit_size : OPTIONAL Length_data_element;
    tolerance_value : Value_with_unit;
    unequally_disposed_tolerance_zone_displacement : OPTIONAL Length_data_element;
 INVERSE
@@ -355,36 +346,6 @@ END_ENTITY;
 ENTITY Geometric_tolerance_auxiliary_classification;
    attribute_value : geometric_tolerance_auxiliary_classification_enum;
    described_item : Geometric_tolerance;
-END_ENTITY;
-
-ENTITY Geometric_tolerance_with_restricted_area
-  ABSTRACT SUPERTYPE OF(
-  	ONEOF(Geometric_tolerance_with_cylindrical_restricted_area,
-  		Geometric_tolerance_with_spherical_restricted_area))
-  SUBTYPE OF (Geometric_tolerance);
-  SELF\Geometric_tolerance.area_unit_type : area_unit_type;
-WHERE
-  WR1: NOT (EXISTS(second_unit_size) XOR (area_unit_type IN [area_unit_type.rectangular, area_unit_type.cylindrical, area_unit_type.spherical]));
-  WR2: NOT(('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(first_unit_size)) AND ('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.Geometric_tolerance_with_spherical_restricted_area' IN TYPEOF(SELF)); 
-  WR3: NOT(('Value_with_unit_extension_arm.Length_data_element' IN TYPEOF(first_unit_size)) AND ('Value_with_unit_extension_arm.Angle_data_element' IN TYPEOF(second_unit_size))) OR ('SHAPE_TOLERANCE_SCHEMA.Geometric_tolerance_with_cylindrical_restricted_area' IN TYPEOF(SELF)) ;
-END_ENTITY;
-
-ENTITY Geometric_tolerance_with_cylindrical_restricted_area
- SUBTYPE OF (Geometric_tolerance_with_restricted_area);
- SELF\Geometric_tolerance.first_unit_size : Length_data_element;
- SELF\Geometric_tolerance.second_unit_size : Angle_data_element;
-DERIVE
- SELF\Geometric_tolerance.area_unit_type : area_unit_type := area_unit_type.cylindrical;
-END_ENTITY;
-
-ENTITY Geometric_tolerance_with_spherical_restricted_area
- SUBTYPE OF (Geometric_tolerance_with_restricted_area);
- SELF\Geometric_tolerance.first_unit_size : Angle_data_element;
- SELF\Geometric_tolerance.second_unit_size : Angle_data_element;
-DERIVE
- SELF\Geometric_tolerance.area_unit_type : area_unit_type := area_unit_type.spherical;
-INVERSE
- orientation_plane : Oriented_tolerance_zone FOR zone_for;
 END_ENTITY;
 
 ENTITY Geometric_tolerance_relationship;

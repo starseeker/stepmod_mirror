@@ -13,9 +13,9 @@ then
 exit
 fi
 
-eengine --concat_schema -schema $1/stepmod/data/modules/$2/arm.exp -stepmod $1/stepmod/ -mode arm_shortform | tee $1/$2_arm_concat_ee_log.txt
+eengine --concat_schema -schema $1/stepmod/data/modules/$2/arm.exp -stepmod $1/stepmod/ -mode arm_shortform | tee $1/stepmod/data/modules/$2/arm_concat_ee_log.txt
 
-eengine --concat_schema -schema $1/stepmod/data/modules/$2/mim.exp -stepmod $1/stepmod/ -mode mim_shortform | tee $1/$2_mim_concat_ee_log.txt
+eengine --concat_schema -schema $1/stepmod/data/modules/$2/mim.exp -stepmod $1/stepmod/ -mode mim_shortform | tee $1/stepmod/data/modules/$2/mim_concat_ee_log.txt
 
 
 

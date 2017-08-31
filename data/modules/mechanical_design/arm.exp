@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2017/08/23 20:07:53 brandonus Exp $
+   $Id: arm.exp,v 1.6 2017/08/24 03:06:08 brandonus Exp $
    ISO TC184/SC4/WG12 N9658 - ISO/TS - 10303-1846 mechanical_design - EXPRESS ARM
 *)
 SCHEMA Mechanical_design_arm;
@@ -97,16 +97,16 @@ END_ENTITY;
 
 ENTITY Counterdrill_hole_definition
   SUBTYPE OF (Countersink_hole_definition);
-     counterdrill_angle           : Positive_plane_angle_measure_with_unit;
-     counterdrill_angle_tolerance : Plane_angle_tolerance_value;
-     counterbore_definition   	 : Counterbore_definition;
+     counterdrill_angle           : Positive_angle_data_element;
+     counterdrill_angle_tolerance : Angle_plus_minus_bounds;
+     counterbore_definition   	  : Counterbore_definition;
   END_ENTITY;
 
 ENTITY Counterdrill_hole_occurrence
-  SUBTYPE OF (shape_aspect);
+  SUBTYPE OF (Shape_element);
    definition                    : Counterdrill_hole_definition;
   WHERE
-   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\shape_aspect.of_shape\property_definition.definition);
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\Shape_element.associated_definition);
 END_ENTITY;
 
 ENTITY Counterdrill_hole_occurrence_in_assembly
@@ -142,11 +142,7 @@ ENTITY Hole_diameter;
 ---IP1 : If a limits_and_fits is provided for the diameter_tolerance the limits_and_fits shall be for a hole.
 END_ENTITY;
 
-
-
 ENTITY Pmi_requirement_item_association
   SUBTYPE OF ( Item_identified_representation_usage );
     SELF\Item_identified_representation_usage.definition : Requirement_assignment; 
 END_ENTITY;
-
-END_SCHEMA;

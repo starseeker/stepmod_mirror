@@ -26,13 +26,13 @@
 
 
 	<xsl:for-each select="/part1000.publication_index/modules/module">
-		<xsl:value-of select="concat('stepmod/data/modules/', @name, ' ')" />
+		<xsl:value-of select="concat('data/modules/', @name, ' ')" />
 	</xsl:for-each>
 	<xsl:for-each select="/part1000.publication_index/resource_docs/resource_doc">
-		<xsl:value-of select="concat('stepmod/data/resource_docs/', @name, ' ')" />
+		<xsl:value-of select="concat('data/resource_docs/', @name, ' ')" />
 	</xsl:for-each>
 	<xsl:for-each select="/part1000.publication_index/resources/resource">
-		<xsl:value-of select="concat('stepmod/data/resources/', @name, ' ')" />
+		<xsl:value-of select="concat('data/resources/', @name, ' ')" />
 	</xsl:for-each>
 
 	

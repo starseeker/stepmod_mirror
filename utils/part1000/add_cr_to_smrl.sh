@@ -8,7 +8,7 @@
 #
 
 
-exec > >(tee -i $1/$2_add_to_smrl_log.txt)
+exec > >(tee -i $1/../$2_add_to_smrl_log.txt)
 exec 2>&1
 
 if [ -z $1 ] || [ -z $2 ];
@@ -17,15 +17,15 @@ then
 exit
 fi
 
-cd $1
+cd $1/..
 
 if [ -d stepmod -a -d SMRL ]
 then
 
 echo "======================== Copying CR build directory from STEPmod to workspace: ========================"
 
-    cp -Riv $1/stepmod/publication/isopub/$2 $1
-    cd $1
+    cp -Riv $1/publication/isopub/$2 $1/..
+    cd $1/..
 
 # cp -i Cause mv to write a prompt to standard error before moving a file that would overwrite an existing file.
 # cp -R If source_file designates a directory, cp copies the directory and the entire subtree connected at that point.  If the source_file ends in a /, the contents of
@@ -40,7 +40,7 @@ echo "======================== Copying CR build directory from STEPmod to worksp
         ls $2/part1000/data/modules/
 
         echo "======================== Deleting corresponding SMRL/data/modules ========================"
-        ls -d $2/part1000/data/modules/* | sed "s/$2\/part1000/SMRL/g" > list1.txt ; xargs rm -rfv < list1.txt
+        ls -d $2/part1000/data/modules/* | sed "s/$2\/part1000/SMRL/g" > list.txt ; xargs rm -rfv < list.txt
 
         echo "======================== Copying modules from $2/part1000/data to SMRL/data ========================"
         cd $2/part1000/data/ ; ls -d modules/* | xargs tar -cvf p1000_modules.tar ; cd ../../../SMRL/data/ ; tar -xvf ../../$2/part1000/data/p1000_modules.tar ; cd ../..
@@ -49,7 +49,7 @@ echo "======================== Copying CR build directory from STEPmod to worksp
         echo "No modules are in this CR."
     fi
 
-    cd $1
+    cd $1/..
 
     if [ $(find $2/ -type d -name "iso10303_*" | wc -l ) != "0" ]
     then
@@ -61,7 +61,7 @@ echo "======================== Copying CR build directory from STEPmod to worksp
 
             echo "======================== Deleting corresponding SMRL/data/resource_docs and resources ========================"
 
-            ls -d $dir_iso10303/data/*/* | sed "s/$dir_iso10303/SMRL/g" > list1.txt ; xargs rm -rfv < list1.txt
+            ls -d $dir_iso10303/data/*/* | sed "s/$dir_iso10303/SMRL/g" > list.txt ; xargs rm -rfv < list.txt
 
 
 
@@ -77,7 +77,7 @@ echo "======================== Copying CR build directory from STEPmod to worksp
             rm -rf $dir_iso10303/data/resources.tar
             rm -rf $dir_iso10303/data/resource_docs.tar
             #deleting list.txt
-            rm -rf list1.txt
+            rm -rf list.txt
 
         done
     else

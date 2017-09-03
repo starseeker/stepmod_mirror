@@ -2,24 +2,25 @@
 #
 #
 #
-#This script build a CR from its publication index and stepmod scripts.
+#This script build a CR from its publication index xml file and stepmod xsl / ant scripts.
 #
 #
 # WARNING - UNDER DEVLOPMENT
 
+exec > >(tee -i $1/../$2_cr_build_log.txt)
+exec 2>&1
+
 if [ -z $1 ] || [ -z $2 ];
 then
-    echo "Error: first, second or both arguments missing. Two arguments to be specified: 1) absolute path of workspace where stepmod is checked out (e.g.: /Users/klt/Projets/workspace); 2) name of the CR (e.g.: CR_PDM_1)."
+    echo "Error: first, second or both arguments missing. Two arguments to be specified: 1) absolute path ending in 'stepmod', with no trailing slash, of checked-out stepmod repository (e.g.: /Users/klt/Projets/workspace/stepmod); 2) name of the CR (e.g.: CR_PDM_1)."
 exit
 fi
 
-cd $1/stepmod/publication/part1000/$2/
+cd $1/publication/part1000/$2/
 
-ant -lib $1/stepmod/etc/saxon6-5-5/saxon.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-jdom.jar -f buildbuild.xml | tee $1/$2_buildbuid_log.txt
+ant -lib $1/etc/saxon6-5-5/saxon.jar -lib $1/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/etc/saxon6-5-5/saxon-jdom.jar -f buildbuild.xml
 
-# tee used to output to get put to the screen as well as a log file
-
-ant -lib $1/stepmod/etc/saxon6-5-5/saxon.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/stepmod/etc/saxon6-5-5/saxon-jdom.jar all | tee -a $1/$2_build_log.txt
+ant -lib $1/etc/saxon6-5-5/saxon.jar -lib $1/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/etc/saxon6-5-5/saxon-jdom.jar all
 
 
 exit

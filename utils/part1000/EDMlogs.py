@@ -45,6 +45,7 @@
 
 import sys
 import pandas as pd
+import time
 import re
 import os
 
@@ -54,9 +55,14 @@ import os
 
 # In[ ]:
 
+version=1.2
 file= sys.argv[1]
 repo=os.getcwd()
-
+date=time.strftime("%y%m%d-%I%M%p")
+script=re.split('/',sys.argv[0])[-1].strip('.py')+' version '+version
+log=re.split('/',file)[-1]
+title=date+'-log.csv'
+header=log+' '+script
 
 data=list()
 with open(file) as f:
@@ -84,7 +90,7 @@ with open(file) as f:
             for i in range(l):
                 if re.match('WARNING:|ERROR\s*:',messages[i]):
                     data.append([messages[i],schema,messages[i+1]])
-df=pd.DataFrame(data,columns=['type','schema','message'])
+df=pd.DataFrame(data,columns=[header,'schema','message'])
 
 
 # ### For EDM validation checks only
@@ -93,7 +99,8 @@ df=pd.DataFrame(data,columns=['type','schema','message'])
 
 if len(sys.argv) == 3:
     lf=sys.argv[2]
-    df['line']=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line ')))
+    #df['line']=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line ')))
+    Line=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line '))) 
     h=open(lf)
     express=list()
     for line in iter(h):
@@ -101,13 +108,11 @@ if len(sys.argv) == 3:
     h.close()
     express=pd.DataFrame(express,columns=['text'])
     module=list()
-    for i in df.line:
+    for i in Line:
         line=i-1
         while re.search('\(\*\s*USED|\(\*\s*REFERENCED',express.text[line])==None:
             line=line-1
-        text=express.text[line].strip('(* REFERENCE FROM (')
-        text=express.text[line].strip('(* USED FROM (')
-        text=text.strip('); *)\n')
+        text=re.sub('\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n','',express.text[line])
         module.append(text)
     df['module']=module
 
@@ -121,8 +126,11 @@ df.drop_duplicates(['message'],inplace=True)
 splitted=df.message.apply(lambda x:re.split('(C\d+)',x))
 df['C']=splitted.apply(lambda x: x[1])
 df.message=df.message.apply(lambda x: re.sub('\s*C\d+:',' ',x))
-        
-writer=pd.ExcelWriter('log.xlsx')
-df.to_excel(writer,'Sheet1')
-writer.save()
+df.sort_values(by='C',inplace=True)
+
+# To CSV
+df.to_csv(title,sep=';',index=False)
+
+
+
 

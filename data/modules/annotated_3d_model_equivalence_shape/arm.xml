@@ -1,0 +1,1172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="annotated_3d_model_equivalence_shape_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Annotated_3d_model_equivalence_shape_arm">
+      <interface kind="use" schema="Annotated_3d_model_equivalence_inspection_result_arm"/>
+      <interface kind="use" schema="Advanced_boundary_representation_arm"/>
+      <interface kind="use" schema="External_representation_item_arm"/>
+      <interface kind="use" schema="Manifold_surface_arm"/>
+      <interface kind="use" schema="Scan_data_3d_shape_arm"/>
+      <interface kind="use" schema="Shell_based_wireframe_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="a3ms_accuracy_type_name">
+         <enumeration basedon="a3m_accuracy_type_name" extensible="YES" items="atns_length_measure atns_others"/>
+      </type>
+      <type name="a3ms_detected_difference_type_name">
+         <enumeration basedon="a3m_detected_difference_type_name" extensible="YES" items="ddns_area_measure ddns_cartesian_point ddns_connected_face_set ddns_count_measure ddns_edge ddns_face ddns_five_count_measure ddns_four_count_measure ddns_length_measure ddns_no_element ddns_others ddns_point_on_curve ddns_point_on_surface ddns_several_edges ddns_several_faces ddns_three_count_measure ddns_two_cartesian_points ddns_two_count_measure ddns_volume_measure"/>
+      </type>
+      <type name="a3ms_element_type_name">
+         <enumeration basedon="a3m_element_type_name" extensible="YES" items="etns_connected_edge_set etns_connected_face_set etns_external_representation_item etns_manifold_solid_brep etns_others etns_point_cloud_dataset etns_shell_based_surface_model etns_shell_based_wireframe_model etns_vertex_point"/>
+      </type>
+      <type name="a3ms_equivalence_detected_difference_select">
+         <select basedon="equivalence_detected_difference_select" extensible="YES" selectitems="area_measure Cartesian_point Connected_face_set count_measure Edge Face length_measure Point_on_curve Point_on_surface volume_measure"/>
+      </type>
+      <type name="a3ms_equivalence_measured_value_select">
+         <select basedon="equivalence_measured_value_select" extensible="YES" selectitems="area_measure length_measure plane_angle_measure volume_measure"/>
+      </type>
+      <type name="a3ms_inspected_equivalence_element_select">
+         <select basedon="inspected_equivalence_element_select" extensible="YES" genericentity="YES" selectitems="Connected_edge_set Connected_face_set External_representation_item Manifold_solid_brep Point_cloud_dataset Shell_based_surface_model Vertex_point"/>
+      </type>
+      <type name="a3ms_measured_data_type_name">
+         <enumeration basedon="a3m_measured_data_type_name" extensible="YES" items="mdns_area_measure mdns_boolean_value mdns_length_measure mdns_others mdns_plane_angle_measure mdns_volume_measure"/>
+      </type>
+      <type name="a3ms_target_annotated_3d_model_select">
+         <select basedon="target_annotated_3d_model_select" extensible="YES" genericentity="YES" selectitems="Representation_relationship"/>
+      </type>
+      <entity abstract.supertype="YES" name="A3m_equivalence_criterion_for_shape" super.expression="ONEOF (A3m_equivalence_criterion_of_detailed_shape_data_content, A3m_equivalence_criterion_of_representative_shape_property_value, A3m_equivalence_criterion_of_shape_data_structure)" supertypes="A3m_equivalence_criterion">
+         <explicit name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <where expression="a3ms_validate_accuracy_types(SELF,SELF)" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="A3m_equivalence_criterion_of_detailed_shape_data_content" super.expression="ONEOF (Different_surface_normal, Mismatch_of_arcwise_connected_curves, Mismatch_of_arcwise_connected_surfaces, Mismatch_of_arcwise_connected_surfaces_boundary, Mismatch_of_points, Mismatch_of_point_cloud_and_related_geometry, Mismatch_of_underlying_edge_geometry, Mismatch_of_underlying_face_geometry)" supertypes="A3m_equivalence_criterion_for_shape"/>
+      <entity abstract.supertype="YES" name="A3m_equivalence_criterion_of_representative_shape_property_value" super.expression="ONEOF (Different_bounding_box, Different_centroid, Different_curve_length, Different_number_of_closed_shell, Different_number_of_geometric_elements, Different_number_of_geometric_elements_wireframe_model, Different_number_of_topological_elements, Different_number_of_topological_elements_wireframe_model, Different_surface_area, Different_volume)" supertypes="A3m_equivalence_criterion_for_shape">
+         <derived expression="SELF\A3m_equivalence_criterion.compared_element_types" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="a3m_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity abstract.supertype="YES" name="A3m_equivalence_criterion_of_shape_data_structure" super.expression="ONEOF (Mismatch_of_edges, Mismatch_of_faces, Missing_edge, Missing_face)" supertypes="A3m_equivalence_criterion_for_shape">
+         <derived expression="SELF\A3m_equivalence_criterion.compared_element_types" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="a3m_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="A3ms_equivalence_criterion_with_specified_elements" supertypes="A3m_equivalence_criterion_for_shape A3m_equivalence_criterion_with_specified_elements">
+         <explicit name="comparing_specified_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="a3ms_inspected_equivalence_element_select"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion_with_specified_elements"/>
+         </explicit>
+         <explicit name="compared_specified_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="a3ms_inspected_equivalence_element_select"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion_with_specified_elements"/>
+         </explicit>
+         <where expression="(a3ms_get_element_type(SELF.comparing_specified_elements) = etns_external_representation_item) OR&#10;         (a3ms_get_element_type(SELF.comparing_specified_elements) IN SELF\A3m_equivalence_criterion_for_shape.comparing_element_types)" label="WR1"/>
+         <where expression="(a3ms_get_element_type(SELF.compared_specified_elements) = etns_external_representation_item )OR&#10;         (a3ms_get_element_type(SELF.compared_specified_elements) IN SELF\A3m_equivalence_criterion_for_shape.compared_element_types)" label="WR2"/>
+      </entity>
+      <entity name="A3ms_equivalence_inspection_result" supertypes="A3m_equivalence_inspection_result">
+         <explicit name="criterion_inspected">
+            <typename name="A3m_equivalence_criterion_for_shape"/>
+            <redeclaration entity-ref="A3m_equivalence_inspection_result"/>
+         </explicit>
+         <where expression="a3ms_validate_accuracy_types(SELF,&#10;           SELF\A3m_equivalence_inspection_result.criterion_inspected)" label="WR1"/>
+         <where expression="SIZEOF (QUERY(re &lt;* bag_to_set(USEDIN(SELF,&#10;           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.'+&#10;           'A3M_EQUIVALENCE_INSPECTION_REPORT.INSPECTION_RESULT')) |&#10;         NOT(a3ms_validate_element_types(re,&#10;             SELF\A3m_equivalence_inspection_result.criterion_inspected)))) = 0" label="WR2"/>
+         <where expression="SIZEOF (QUERY(re &lt;* bag_to_set(USEDIN(SELF,&#10;           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.'+&#10;           'A3M_EQUIVALENCE_INSPECTION_REPORT.INSPECTION_RESULT')) |&#10;         NOT(a3ms_validate_detected_difference_types(re,&#10;             SELF\A3m_equivalence_inspection_result.criterion_inspected)))) = 0" label="WR3"/>
+         <where expression="SIZEOF (QUERY(re &lt;* bag_to_set(USEDIN(SELF,&#10;           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.'+&#10;           'A3M_EQUIVALENCE_INSPECTION_REPORT.INSPECTION_RESULT')) |&#10;         NOT(a3ms_validate_measured_type(re,&#10;             SELF\A3m_equivalence_inspection_result.criterion_inspected)))) = 0" label="WR4"/>
+      </entity>
+      <entity name="Different_bounding_box" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="approximation_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep,etns_shell_based_surface_model,etns_shell_based_wireframe_model]" name="compared_element_types">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_two_cartesian_points]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Different_centroid" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="approximation_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep,etns_shell_based_surface_model,etns_shell_based_wireframe_model]" name="compared_element_types">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Different_curve_length" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="approximation_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_edge_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_length_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Different_number_of_closed_shell" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_count_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Different_number_of_geometric_elements" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep,etns_shell_based_surface_model]" name="compared_element_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_three_count_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Different_number_of_geometric_elements_wireframe_model" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_shell_based_wireframe_model]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_two_count_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Different_number_of_topological_elements" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep, etns_shell_based_surface_model]" name="compared_element_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_five_count_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Different_number_of_topological_elements_wireframe_model" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_shell_based_wireframe_model]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_four_count_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Different_surface_area" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="approximation_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_area_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_area_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Different_surface_normal" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="discretization_distance_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_plane_angle_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point,ddns_point_on_surface]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[atns_length_measure]" name="accuracy_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Different_volume" supertypes="A3m_equivalence_criterion_of_representative_shape_property_value">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="approximation_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_manifold_solid_brep]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_volume_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_volume_measure]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_arcwise_connected_curves" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="discretization_distance_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_edge_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_edge_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point,ddns_point_on_curve]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[atns_length_measure]" name="accuracy_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_arcwise_connected_surfaces" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="discretization_distance_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point,ddns_point_on_surface]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[atns_length_measure]" name="accuracy_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_arcwise_connected_surfaces_boundary" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <explicit name="discretization_distance_tolerance">
+            <typename name="length_measure"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point,ddns_point_on_curve]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[atns_length_measure]" name="accuracy_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_edges" supertypes="A3m_equivalence_criterion_of_shape_data_structure">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_edge_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_edge, ddns_several_edges]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Mismatch_of_faces" supertypes="A3m_equivalence_criterion_of_shape_data_structure">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_face, ddns_several_faces]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Mismatch_of_point_cloud_and_related_geometry" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_edge_set, etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_point_cloud_dataset]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_cartesian_point,ddns_point_on_curve,ddns_point_on_surface]" name="detected_difference_types">
+            <aggregate lower="3" type="LIST" upper="3"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[atns_length_measure]" name="accuracy_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_points" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_numerical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_vertex_point]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_vertex_point]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_length_measure" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_no_element]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <where expression="('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.' +&#10;             'A3M_EQUIVALENCE_LOWER_VALUE_LIMIT' &#10;              IN TYPEOF(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold))&#10;            AND&#10;            (a3ms_get_value_limit_type(SELF\A3m_equivalence_criterion.assessment_specification\A3m_equivalence_assessment_by_numerical_test.threshold)&#10;             = SELF.measured_data_type)" label="WR1"/>
+      </entity>
+      <entity name="Mismatch_of_underlying_edge_geometry" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_edge]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Mismatch_of_underlying_face_geometry" supertypes="A3m_equivalence_criterion_of_detailed_shape_data_content">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="comparing_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_face]" name="detected_difference_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Missing_edge" supertypes="A3m_equivalence_criterion_of_shape_data_structure">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_edge_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_no_element, ddns_edge]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <entity name="Missing_face" supertypes="A3m_equivalence_criterion_of_shape_data_structure">
+         <explicit name="assessment_specification">
+            <typename name="A3m_equivalence_assessment_by_logical_test"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </explicit>
+         <derived expression="[etns_connected_face_set]" name="compared_element_types">
+            <aggregate lower="1" type="LIST" upper="1"/>
+            <typename name="a3ms_element_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="mdns_boolean_value" name="measured_data_type">
+            <typename name="a3ms_measured_data_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[ddns_no_element, ddns_face]" name="detected_difference_types">
+            <aggregate lower="2" type="LIST" upper="2"/>
+            <typename name="a3ms_detected_difference_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+         <derived expression="[]" name="accuracy_types">
+            <aggregate lower="0" type="LIST" upper="0"/>
+            <typename name="a3ms_accuracy_type_name"/>
+            <redeclaration entity-ref="A3m_equivalence_criterion"/>
+         </derived>
+      </entity>
+      <function name="a3ms_get_accuracy_type">
+         <parameter name="ei">
+            <typename name="A3m_equivalence_inspection_accuracy"/>
+         </parameter>
+         <typename name="a3ms_accuracy_type_name"/>
+         <algorithm>IF(a3ms_get_value_limit_type(ei.range) = mdns_length_measure) THEN
+      RETURN(atns_length_measure);
+    END_IF;
+    RETURN(atns_others);</algorithm>
+      </function>
+      <function name="a3ms_get_detected_difference_type">
+         <parameter name="ei">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="equivalence_detected_difference_select"/>
+         </parameter>
+         <typename name="a3ms_detected_difference_type_name"/>
+         <algorithm>LOCAL
+      type_out : SET OF STRING;
+      sizeei : INTEGER;
+    END_LOCAL;
+    sizeei := SIZEOF(ei);
+    IF(sizeei = 0) THEN
+      RETURN(ddns_no_element);
+    ELSE
+      type_out := TYPEOF(ei[1]);
+	-- all Element types should be same.
+      REPEAT i := 2 TO sizeei;
+        IF(TYPEOF(ei[i]) &lt;&gt; type_out) THEN
+	       RETURN(ddns_others);
+	    END_IF;
+	  END_REPEAT;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.AREA_MEASURE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_area_measure);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.CARTESIAN_POINT' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_cartesian_point);
+		ELSE
+		  IF(sizeei = 2) THEN
+			RETURN(ddns_two_cartesian_points);
+		  ELSE
+			RETURN(ddns_others);
+		  END_IF;
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.CONNECTED_FACE_SET' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_connected_face_set);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.COUNT_MEASURE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_count_measure);
+		ELSE
+		  IF(sizeei = 2) THEN
+			RETURN(ddns_two_count_measure);
+		  ELSE
+			IF(sizeei = 3) THEN
+			  RETURN(ddns_three_count_measure);
+			ELSE
+			  IF(sizeei = 4) THEN
+				RETURN(ddns_four_count_measure);
+			  ELSE
+			    IF(sizeei = 5) THEN
+				  RETURN(ddns_five_count_measure);
+			    ELSE
+				  RETURN(ddns_others);
+			    END_IF;
+			  END_IF;
+			END_IF;
+		  END_IF;
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EDGE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_edge);
+		ELSE
+		  RETURN(ddns_several_edges);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.FACE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_face);
+		ELSE
+		  RETURN(ddns_several_faces);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.LENGTH_MEASURE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_length_measure);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.POINT_ON_CURVE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_point_on_curve);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.POINT_ON_SURFACE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_point_on_surface);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+	  
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.VOLUME_MEASURE' IN type_out) THEN
+		IF(sizeei = 1) THEN
+		  RETURN(ddns_volume_measure);
+		ELSE
+		  RETURN(ddns_others);
+		END_IF;
+	  END_IF;
+    END_IF;
+    RETURN(ddns_others);</algorithm>
+      </function>
+      <function name="a3ms_get_element_type">
+         <parameter name="ei">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_equivalence_element_select"/>
+         </parameter>
+         <typename name="a3ms_element_type_name"/>
+         <algorithm>LOCAL
+      type_out : SET OF STRING;
+      repset: SET OF Representation;
+    END_LOCAL;
+    type_out := TYPEOF(ei[1]);
+    -- etns_shell_based_wireframe_model
+	repset := bag_to_set(USEDIN(ei[1],'ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.REPRESENTATION.ITEMS'));
+    REPEAT i := 1 TO SIZEOF(repset);
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.SHELL_BASED_WIREFRAME_SHAPE_REPRESENTATION' IN TYPEOF(repset[i])) THEN
+	     RETURN(etns_shell_based_wireframe_model);
+	  END_IF;
+	END_REPEAT;
+	-- all Element types should be same.
+    IF(SIZEOF(ei) &gt; 1) THEN
+	  RETURN(etns_others);
+	END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.CONNECTED_EDGE_SET' IN type_out) THEN
+       RETURN(etns_connected_edge_set);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.CONNECTED_FACE_SET' IN type_out) THEN
+       RETURN(etns_connected_face_set);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.MANIFOLD_SOLID_BREP' IN type_out) THEN
+       RETURN(etns_manifold_solid_brep);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.POINT_CLOUD_DATASET' IN type_out) THEN
+       RETURN(etns_point_cloud_dataset);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.SHELL_BASED_SURFACE_MODEL' IN type_out) THEN
+       RETURN(etns_shell_based_surface_model);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.VERTEX_POINT' IN type_out) THEN
+       RETURN(etns_vertex_point);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EXTERNAL_REPRESENTATION_ITEM' IN type_out) THEN
+       RETURN(etns_external_representation_item);
+    END_IF;
+    RETURN(etns_others);</algorithm>
+      </function>
+      <function name="a3ms_get_measured_type">
+         <parameter name="ei">
+            <typename name="equivalence_measured_value_select"/>
+         </parameter>
+         <typename name="a3ms_measured_data_type_name"/>
+         <algorithm>LOCAL
+      type_out : SET OF STRING;
+    END_LOCAL;
+    type_out := TYPEOF(ei);
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.AREA_MEASURE' IN type_out) THEN
+       RETURN(mdns_area_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EQUIVALENCE_BOOLEAN_VALUE' IN type_out) THEN
+       RETURN(mdns_boolean_value);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.LENGTH_MEASURE' IN type_out) THEN
+       RETURN(mdns_length_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.PLANE_ANGLE_MEASURE' IN type_out) THEN
+       RETURN(mdns_plane_angle_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.VOLUME_MEASURE' IN type_out) THEN
+       RETURN(mdns_volume_measure);
+    END_IF;
+    RETURN(mdns_others);</algorithm>
+      </function>
+      <function name="a3ms_get_value_limit_type">
+         <parameter name="ei">
+            <typename name="a3m_equivalence_value_limit_type_select"/>
+         </parameter>
+         <typename name="a3ms_measured_data_type_name"/>
+         <algorithm>LOCAL
+      aevr : A3m_equivalence_value_range;
+      aevl : A3m_equivalence_value_limit;
+      type_out : SET OF STRING :=[];
+    END_LOCAL;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_VALUE_RANGE' IN TYPEOF(ei)) THEN
+      aevr := ei;
+      type_out := TYPEOF (aevr.lower_limit.value_component);
+    ELSE
+      IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_VALUE_LIMIT' IN TYPEOF(ei)) THEN
+        aevl := ei;
+        type_out := TYPEOF (aevl.value_component);
+      END_IF;
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.AREA_MEASURE' IN type_out) THEN
+       RETURN(mdns_area_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EQUIVALENCE_BOOLEAN_VALUE' IN type_out) THEN
+       RETURN(mdns_boolean_value);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.LENGTH_MEASURE' IN type_out) THEN
+       RETURN(mdns_length_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.PLANE_ANGLE_MEASURE' IN type_out) THEN
+       RETURN(mdns_plane_angle_measure);
+    END_IF;
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.VOLUME_MEASURE' IN type_out) THEN
+       RETURN(mdns_volume_measure);
+    END_IF;
+    RETURN(mdns_others);</algorithm>
+      </function>
+      <function name="a3ms_validate_accuracy_types">
+         <parameter name="aats">
+            <typename name="accuracy_associated_target_select"/>
+         </parameter>
+         <parameter name="cr">
+            <typename name="A3m_equivalence_criterion_for_shape"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+      aeaa : SET OF A3m_equivalence_accuracy_association;
+      rp :  SET OF Representation;
+    END_LOCAL;
+    IF(SIZEOF(cr.accuracy_types) = 0) THEN
+      RETURN(TRUE);
+    END_IF;
+     -- specific accuracy
+    aeaa := bag_to_set(USEDIN(aats,
+           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.A3M_EQUIVALENCE_ACCURACY_ASSOCIATION.EQUIVALENCE_TARGET'));
+    REPEAT i:= 1 TO SIZEOF(aeaa);
+      IF(a3ms_get_accuracy_type(aeaa[i].specific_accuracy) IN cr.accuracy_types) THEN
+		RETURN(TRUE);
+      END_IF;
+    END_REPEAT;
+     -- global accuracy
+    rp := bag_to_set(USEDIN(aats,
+           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.REPRESENTATION.ITEMS'));
+    REPEAT i:= 1 TO SIZEOF(rp);
+	  aeaa := bag_to_set(USEDIN(rp[i],
+           'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.A3M_EQUIVALENCE_ACCURACY_ASSOCIATION.EQUIVALENCE_TARGET'));
+	  REPEAT j:= 1 TO SIZEOF(aeaa);
+        IF(a3ms_get_accuracy_type(aeaa[j].specific_accuracy) IN cr.accuracy_types) THEN
+		  RETURN(TRUE);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    RETURN(FALSE);</algorithm>
+      </function>
+      <function name="a3ms_validate_detected_difference_types">
+         <parameter name="ei">
+            <typename name="A3m_equivalence_inspection_report"/>
+         </parameter>
+         <parameter name="cr">
+            <typename name="A3m_equivalence_criterion_for_shape"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+      aeiir : A3m_equivalence_inspection_instance_report;
+      eiriwei : Equivalence_instance_report_item_with_notable_instances;
+      addtn : a3ms_detected_difference_type_name;     
+    END_LOCAL;
+     -- A3m_equivalence_inspection_instance_report
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_INSTANCE_REPORT' IN TYPEOF(ei)) THEN
+      aeiir := ei;
+      REPEAT i := 1 TO SIZEOF(aeiir.inspected_instances);
+    --   &gt;     Equivalence_notable_instance
+        IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EQUIVALENCE_INSTANCE_REPORT_ITEM_WITH_NOTABLE_INSTANCES'
+           IN TYPEOF(aeiir.inspected_instances[i])) THEN
+           eiriwei := aeiir.inspected_instances[i];
+           REPEAT j := 1 TO SIZEOF(eiriwei.notable_instances);
+			-- Special for Mismatch_of_point_cloud_and_related_geometry
+			IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.MISMATCH_OF_POINT_CLOUD_AND_RELATED_GEOMETRY' IN TYPEOF(cr)) THEN
+			-- comparing_elements check
+			  addtn := a3ms_get_detected_difference_type(eiriwei.notable_instances[j].comparing_elements);
+			  IF(a3ms_get_element_type(eiriwei.inspected_element.comparing_elements) = etns_connected_edge_set) THEN
+                IF(addtn &lt;&gt; ddns_point_on_curve) THEN
+                  RETURN(FALSE);
+                END_IF;
+              ELSE
+			    IF(a3ms_get_element_type(eiriwei.inspected_element.comparing_elements) = etns_connected_face_set) THEN
+                  IF(addtn &lt;&gt; ddns_point_on_surface) THEN
+                    RETURN(FALSE);
+                  END_IF;
+                ELSE
+			      IF(a3ms_get_element_type(eiriwei.inspected_element.comparing_elements) &lt;&gt; etns_external_representation_item) THEN
+                 	RETURN(FALSE);
+	              END_IF;
+                END_IF;
+              END_IF;
+			-- compared_elements check
+              IF(NOT(a3ms_get_detected_difference_type(
+                       eiriwei.notable_instances[j].compared_elements)
+                    IN cr.detected_difference_types)) THEN
+			    RETURN(FALSE);
+			  END_IF;             
+            ELSE
+              IF(NOT(a3ms_get_detected_difference_type(
+                       eiriwei.notable_instances[j].comparing_elements)
+                    IN cr.detected_difference_types)) THEN
+			    RETURN(FALSE);
+			  END_IF;     
+              IF(NOT(a3ms_get_detected_difference_type(
+                       eiriwei.notable_instances[j].compared_elements)
+                    IN cr.detected_difference_types)) THEN
+			    RETURN(FALSE);
+			  END_IF;
+			END_IF;  
+           END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);</algorithm>
+      </function>
+      <function name="a3ms_validate_element_types">
+         <parameter name="ei">
+            <typename name="A3m_equivalence_inspection_report"/>
+         </parameter>
+         <parameter name="cr">
+            <typename name="A3m_equivalence_criterion_for_shape"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+      aeiir : A3m_equivalence_inspection_instance_report;
+      aeiiri : A3m_equivalence_inspection_instance_report_item;
+      aeiep : A3m_equivalence_inspected_element_pair;
+      compared_et:a3ms_element_type_name;
+      comparing_et:a3ms_element_type_name;
+    END_LOCAL;
+    -- A3m_equivalence_inspection_instance_report
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_INSTANCE_REPORT' IN TYPEOF(ei)) THEN
+      aeiir := ei;
+      REPEAT i := 1 TO SIZEOF(aeiir.inspected_instances);
+    --   &gt; A3m_equivalence_inspection_instance_report_item
+        IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_INSTANCE_REPORT_ITEM'
+           IN TYPEOF(aeiir.inspected_instances[i])) THEN
+           aeiiri := aeiir.inspected_instances[i];
+           aeiep := aeiiri.inspected_element;
+           compared_et := a3ms_get_element_type(aeiep.compared_elements);
+           comparing_et := a3ms_get_element_type(aeiep.comparing_elements);
+           IF((NOT(compared_et IN cr.compared_element_types) AND (compared_et &lt;&gt; etns_external_representation_item)) OR
+              (NOT(comparing_et IN cr.comparing_element_types) AND (comparing_et &lt;&gt; etns_external_representation_item))) THEN
+             RETURN(FALSE);
+           END_IF;
+           -- Special for MISMATCH_OF_POINT_CLOUD_AND_RELATED_GEOMETRY
+           IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.MISMATCH_OF_POINT_CLOUD_AND_RELATED_GEOMETRY' IN TYPEOF(cr)) THEN
+		   	 IF(((comparing_et &lt;&gt; etns_external_representation_item) AND (compared_et &lt;&gt; etns_external_representation_item)) AND
+		   	    (compared_et = comparing_et)) THEN
+               RETURN(FALSE);
+             END_IF;
+		   ELSE
+		   	 IF(((comparing_et &lt;&gt; etns_external_representation_item) AND (compared_et &lt;&gt; etns_external_representation_item)) AND
+		   	    (compared_et &lt;&gt; comparing_et)) THEN
+               RETURN(FALSE);
+             END_IF;
+           END_IF;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);</algorithm>
+      </function>
+      <function name="a3ms_validate_measured_type">
+         <parameter name="ei">
+            <typename name="A3m_equivalence_inspection_report"/>
+         </parameter>
+         <parameter name="cr">
+            <typename name="A3m_equivalence_criterion_for_shape"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
+      aeicr : A3m_equivalence_inspection_criterion_report;
+      aeiir : A3m_equivalence_inspection_instance_report;
+      aeiiri : A3m_equivalence_inspection_instance_report_item;
+      amdtn : a3ms_measured_data_type_name;
+      criwmv : Criterion_report_item_with_measured_value;
+      eiriwei : Equivalence_instance_report_item_with_notable_instances;
+    END_LOCAL;
+    amdtn := cr.measured_data_type;
+    -- A3m_equivalence_inspection_criterion_report
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_CRITERION_REPORT' IN TYPEOF(ei)) THEN
+      aeicr := ei;
+      REPEAT i := 1 TO SIZEOF(aeicr.statistical_values);
+    -- Criterion_report_item_with_measured_value.representative_measured_value
+        IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.CRITERION_REPORT_ITEM_WITH_MEASURED_VALUE'
+           IN TYPEOF(aeicr.statistical_values[i])) THEN
+           criwmv := aeicr.statistical_values[i];
+           IF(a3ms_get_measured_type(criwmv.representative_measured_value) &lt;&gt; amdtn) THEN
+             RETURN(FALSE);
+           END_IF;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    -- A3m_equivalence_inspection_instance_report
+    IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_INSTANCE_REPORT' IN TYPEOF(ei)) THEN
+      aeiir := ei;
+      REPEAT i := 1 TO SIZEOF(aeiir.inspected_instances);
+    --   &gt; A3m_equivalence_inspection_instance_report_item.measured_value_for_inspected_element
+        IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.A3M_EQUIVALENCE_INSPECTION_INSTANCE_REPORT_ITEM'
+           IN TYPEOF(aeiir.inspected_instances[i])) THEN
+           aeiiri := aeiir.inspected_instances[i];
+           IF(a3ms_get_measured_type(aeiiri.measured_value_for_inspected_element) &lt;&gt; amdtn) THEN
+             RETURN(FALSE);
+           END_IF;
+        END_IF;
+    --   &gt;     Equivalence_notable_instance.measured_value
+        IF('ANNOTATED_3D_MODEL_EQUIVALENCE_SHAPE_ARM.EQUIVALENCE_INSTANCE_REPORT_ITEM_WITH_NOTABLE_INSTANCES'
+           IN TYPEOF(aeiir.inspected_instances[i])) THEN
+           eiriwei := aeiir.inspected_instances[i];
+           REPEAT j := 1 TO SIZEOF(eiriwei.notable_instances);
+             IF(a3ms_get_measured_type(eiriwei.notable_instances[j].measured_value) &lt;&gt; amdtn) THEN
+               RETURN(FALSE);
+             END_IF;
+           END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);</algorithm>
+      </function>
+   </schema>
+</express>

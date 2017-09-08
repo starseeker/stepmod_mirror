@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
+   <application name="JSDAI" owner="LKSoft" source="annotated_3d_model_equivalence_inspection_result_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Annotated_3d_model_equivalence_inspection_result_arm">
+      <interface kind="use" schema="Annotated_3d_model_equivalence_criteria_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="a3mir_accuracy_associated_target_select">
+         <select basedon="accuracy_associated_target_select" extensible="YES" selectitems="A3m_equivalence_inspection_result_representation A3m_equivalence_inspection_result"/>
+      </type>
+      <type name="a3mir_used_equivalence_representation_select">
+         <select basedon="used_equivalence_representation_select" extensible="YES" genericentity="YES" selectitems="A3m_equivalence_inspection_result_representation"/>
+      </type>
+      <type name="equivalence_boolean_value">
+         <builtintype type="BOOLEAN"/>
+      </type>
+      <type name="equivalence_detected_difference_select">
+         <select extensible="YES"/>
+      </type>
+      <type name="equivalence_measured_value_select">
+         <select extensible="YES" selectitems="equivalence_boolean_value"/>
+      </type>
+      <type name="target_annotated_3d_model_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="A3m_equivalence_inspected_element_pair" supertypes="Representation_item">
+         <explicit name="comparing_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_equivalence_element_select"/>
+         </explicit>
+         <explicit name="compared_elements">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="inspected_equivalence_element_select"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+&#10;               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;               IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="A3m_equivalence_inspection_criterion_report" supertypes="A3m_equivalence_inspection_report">
+         <explicit name="statistical_values">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="A3m_equivalence_inspection_criterion_report_item"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="A3m_equivalence_inspection_criterion_report_item" super.expression="ONEOF (Criterion_report_item_with_measured_value, Criterion_report_item_with_number_of_instances, Criterion_report_item_with_value)" supertypes="Representation_item">
+         <inverse attribute="statistical_values" entity="A3m_equivalence_inspection_criterion_report" name="criterion_report"/>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+&#10;               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;               IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="A3m_equivalence_inspection_instance_report" supertypes="A3m_equivalence_inspection_report">
+         <explicit name="inspected_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="A3m_equivalence_inspection_instance_report_item"/>
+         </explicit>
+      </entity>
+      <entity name="A3m_equivalence_inspection_instance_report_item" supertypes="Representation_item">
+         <explicit name="inspected_element">
+            <typename name="A3m_equivalence_inspected_element_pair"/>
+         </explicit>
+         <explicit name="measured_value_for_inspected_element">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+&#10;               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;               IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity abstract.supertype="YES" name="A3m_equivalence_inspection_report" super.expression="ONEOF (A3m_equivalence_inspection_criterion_report, A3m_equivalence_inspection_instance_report)" supertypes="Representation_item">
+         <explicit name="inspection_result">
+            <typename name="A3m_equivalence_inspection_result"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+&#10;               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;               IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="A3m_equivalence_inspection_result" supertypes="Representation_item">
+         <explicit name="criterion_inspected">
+            <typename name="A3m_equivalence_criterion"/>
+         </explicit>
+         <where expression="SIZEOF(QUERY(q &lt;* bag_to_set( USEDIN(SELF,&#10;                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))&#10;              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+&#10;               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'&#10;               IN TYPEOF(q)))=0" label="WR1"/>
+      </entity>
+      <entity name="A3m_equivalence_inspection_result_representation" supertypes="Representation">
+         <explicit name="criteria_inspected">
+            <typename name="A3m_equivalence_criteria_representation"/>
+         </explicit>
+         <where expression="SIZEOF( QUERY( q &lt;* SELF\Representation.items|&#10;                                'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.' +&#10;                                'A3M_EQUIVALENCE_INSPECTION_RESULT' IN TYPEOF(q))) &gt; 0" label="WR1"/>
+      </entity>
+      <entity name="A3m_equivalence_inspection_result_with_judgement" supertypes="A3m_equivalence_inspection_result">
+         <explicit name="judgement">
+            <typename name="equivalence_boolean_value"/>
+         </explicit>
+      </entity>
+      <entity name="A3m_inspected_model_and_inspection_result_relationship">
+         <explicit name="inspected_model">
+            <typename name="target_annotated_3d_model_select"/>
+         </explicit>
+         <explicit name="equivalence_result">
+            <typename name="A3m_equivalence_inspection_result_representation"/>
+         </explicit>
+      </entity>
+      <entity name="Criterion_report_item_with_measured_value" supertypes="A3m_equivalence_inspection_criterion_report_item">
+         <explicit name="representative_measured_value">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="representative_value_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="Criterion_report_item_with_number_of_instances" supertypes="A3m_equivalence_inspection_criterion_report_item">
+         <explicit name="statistical_value">
+            <typename name="count_measure"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="summary_report_style_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="Criterion_report_item_with_value" supertypes="A3m_equivalence_inspection_criterion_report_item">
+         <explicit name="report_value">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="value_type">
+            <typename name="label"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report"/>
+            <unique.attribute attribute="value_type"/>
+         </unique>
+      </entity>
+      <entity name="Equivalence_instance_report_item_with_notable_instances" supertypes="A3m_equivalence_inspection_instance_report_item">
+         <explicit name="notable_instances">
+            <aggregate lower="1" type="LIST" upper="?"/>
+            <typename name="Equivalence_notable_instance"/>
+         </explicit>
+      </entity>
+      <entity name="Equivalence_notable_instance">
+         <explicit name="comparing_elements">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="equivalence_detected_difference_select"/>
+         </explicit>
+         <explicit name="compared_elements">
+            <aggregate lower="0" type="LIST" upper="?"/>
+            <typename name="equivalence_detected_difference_select"/>
+         </explicit>
+         <explicit name="measured_value">
+            <typename name="equivalence_measured_value_select"/>
+         </explicit>
+         <where expression="(SIZEOF(comparing_elements) &lt;&gt; 0) OR (SIZEOF(compared_elements) &lt;&gt; 0)" label="WR1"/>
+      </entity>
+   </schema>
+</express>

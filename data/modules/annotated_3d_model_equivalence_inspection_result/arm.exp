@@ -1,0 +1,180 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   ISO TC184/SC4/WG12 N9827 - ISO/CD-TS - 10303-1839 annotated_3d_model_equivalence_inspection_result - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Annotated_3d_model_equivalence_inspection_result_arm;
+
+  USE FROM Annotated_3d_model_equivalence_criteria_arm;
+  
+  USE FROM Foundation_representation_arm;
+  
+  REFERENCE FROM Support_resource_arm
+    (bag_to_set);
+
+  TYPE a3mir_used_equivalence_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT
+    BASED_ON used_equivalence_representation_select WITH
+    (A3m_equivalence_inspection_result_representation);
+  END_TYPE;
+
+  TYPE a3mir_accuracy_associated_target_select = EXTENSIBLE SELECT
+    BASED_ON accuracy_associated_target_select WITH
+    (A3m_equivalence_inspection_result_representation,
+     A3m_equivalence_inspection_result);
+  END_TYPE;
+
+  TYPE equivalence_boolean_value = BOOLEAN;
+  END_TYPE;
+
+  TYPE equivalence_detected_difference_select = EXTENSIBLE SELECT;
+  END_TYPE;
+
+  TYPE equivalence_measured_value_select = EXTENSIBLE SELECT
+    (equivalence_boolean_value);
+  END_TYPE;
+
+  TYPE target_annotated_3d_model_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+  ENTITY A3m_equivalence_inspected_element_pair
+    SUBTYPE OF(Representation_item);
+     comparing_elements : SET [1:?] OF inspected_equivalence_element_select;
+     compared_elements : SET [1:?] OF inspected_equivalence_element_select;
+    WHERE
+     WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+
+               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_criterion_report
+    SUBTYPE OF(A3m_equivalence_inspection_report);
+      statistical_values : SET [1:?] OF A3m_equivalence_inspection_criterion_report_item;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_criterion_report_item
+    ABSTRACT SUPERTYPE OF (ONEOF(Criterion_report_item_with_measured_value,
+    							 Criterion_report_item_with_number_of_instances,
+                                 Criterion_report_item_with_value))
+    SUBTYPE OF(Representation_item);
+    INVERSE
+      criterion_report : A3m_equivalence_inspection_criterion_report FOR statistical_values; 
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+
+               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_instance_report
+    SUBTYPE OF( A3m_equivalence_inspection_report);
+      inspected_instances : LIST [1:?] OF A3m_equivalence_inspection_instance_report_item;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_instance_report_item
+     SUBTYPE OF(Representation_item);
+      inspected_element : A3m_equivalence_inspected_element_pair;
+      measured_value_for_inspected_element  : equivalence_measured_value_select;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+
+               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_report
+    ABSTRACT SUPERTYPE OF (ONEOF(A3m_equivalence_inspection_criterion_report, A3m_equivalence_inspection_instance_report))
+    SUBTYPE OF(Representation_item);
+      inspection_result : A3m_equivalence_inspection_result;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+
+               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_result
+    SUBTYPE OF(Representation_item);
+      criterion_inspected : A3m_equivalence_criterion;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+                'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+              |'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.'+
+               'A3M_EQUIVALENCE_CRITERIA_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+(*
+  ENTITY A3m_equivalence_inspection_result_accuracy_association;
+      applied_specific_accuracy : A3m_equivalence_inspection_accuracy;
+      data_equivalence_result : A3m_equivalence_inspection_result;
+  END_ENTITY;
+*)
+
+  ENTITY A3m_equivalence_inspection_result_representation
+    SUBTYPE OF(Representation);
+      criteria_inspected: A3m_equivalence_criteria_representation;
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\Representation.items|
+                                'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.' +
+                                'A3M_EQUIVALENCE_INSPECTION_RESULT' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+  
+(*
+  ENTITY A3m_equivalence_inspection_result_representation_with_accuracy
+    SUBTYPE OF(A3m_equivalence_inspection_result_representation);
+      applied_general_accuracy : SET [1:?] OF A3m_equivalence_inspection_accuracy;
+  END_ENTITY;
+*)
+
+  ENTITY A3m_equivalence_inspection_result_with_judgement
+    SUBTYPE OF(A3m_equivalence_inspection_result);
+      judgement : equivalence_boolean_value;
+  END_ENTITY;
+  
+  ENTITY A3m_inspected_model_and_inspection_result_relationship;
+     inspected_model   : target_annotated_3d_model_select;
+     equivalence_result : A3m_equivalence_inspection_result_representation;
+  END_ENTITY;
+  
+  ENTITY Criterion_report_item_with_measured_value
+    SUBTYPE OF(A3m_equivalence_inspection_criterion_report_item);
+      representative_measured_value : equivalence_measured_value_select;
+      value_type : representative_value_type;
+    UNIQUE
+      UR1: SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report,value_type;
+  END_ENTITY;
+
+  ENTITY Criterion_report_item_with_number_of_instances
+    SUBTYPE OF(A3m_equivalence_inspection_criterion_report_item);
+      statistical_value : count_measure;
+      value_type        : summary_report_style_type;
+    UNIQUE
+      UR1: SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report,value_type;
+  END_ENTITY;
+
+  ENTITY Criterion_report_item_with_value
+    SUBTYPE OF(A3m_equivalence_inspection_criterion_report_item);
+      report_value : Value_with_unit;
+      value_type        : label;
+    UNIQUE
+      UR1: SELF\A3m_equivalence_inspection_criterion_report_item.criterion_report,value_type;
+  END_ENTITY;
+
+  ENTITY Equivalence_instance_report_item_with_notable_instances
+    SUBTYPE OF(A3m_equivalence_inspection_instance_report_item);
+      notable_instances : LIST [1:?] OF Equivalence_notable_instance;
+  END_ENTITY;
+  
+  ENTITY Equivalence_notable_instance;
+      comparing_elements : LIST [0:?] OF equivalence_detected_difference_select;
+      compared_elements : LIST [0:?] OF equivalence_detected_difference_select;
+      measured_value    : equivalence_measured_value_select;
+    WHERE
+      WR1: (SIZEOF(comparing_elements) <> 0) OR (SIZEOF(compared_elements) <> 0); 
+  END_ENTITY;
+
+END_SCHEMA;

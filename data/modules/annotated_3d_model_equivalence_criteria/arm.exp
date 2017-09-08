@@ -1,0 +1,208 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   ISO TC184/SC4/WG12 N9824 - ISO/CD-TS - 10303-1838 annotated_3d_model_equivalence_criteria - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Annotated_3d_model_equivalence_criteria_arm;
+ 
+  USE FROM Foundation_representation_arm;
+
+  USE FROM Product_data_equivalence_definition_arm;
+
+  USE FROM Qualified_measure_arm;
+  
+  REFERENCE FROM Support_resource_arm
+    (bag_to_set);
+
+  TYPE a3m_accuracy_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+  
+  TYPE a3m_detected_difference_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+
+  TYPE a3m_element_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+  
+  TYPE a3m_equivalence_assessment_specification_select = SELECT
+    (A3m_equivalence_assessment_by_logical_test,
+     A3m_equivalence_assessment_by_numerical_test);
+  END_TYPE;
+
+  TYPE a3m_equivalence_value_limit_type_select = SELECT
+    (A3m_equivalence_value_range,
+     A3m_equivalence_value_limit);
+  END_TYPE;
+
+  TYPE a3m_measured_data_type_name = EXTENSIBLE ENUMERATION;
+  END_TYPE;
+ 
+  TYPE a3mc_used_equivalence_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT
+    BASED_ON used_equivalence_representation_select WITH
+    (A3m_equivalence_criteria_representation);
+  END_TYPE;
+
+  TYPE accuracy_associated_target_select = EXTENSIBLE SELECT
+    (A3m_equivalence_criteria_representation,
+     A3m_equivalence_criterion);
+  END_TYPE;
+
+  TYPE detailed_report_style_type = ENUMERATION OF
+    (inspected_element,
+     defective_element);
+  END_TYPE;
+
+  TYPE inspected_equivalence_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+  TYPE preferred_report_ordering = ENUMERATION OF
+    (in_notable_order,
+     in_detected_order);
+  END_TYPE;
+
+  TYPE representative_value_type = ENUMERATION OF
+    (average_value,
+     max_value,
+     min_value,
+     min_max_value);
+  END_TYPE;
+
+  TYPE summary_report_style_type = ENUMERATION OF
+    (conclusion,
+     number_of_defects,
+     number_of_inspections);
+  END_TYPE;
+
+  ENTITY A3m_equivalence_accuracy_association;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      specific_accuracy   : A3m_equivalence_inspection_accuracy;
+      equivalence_target : accuracy_associated_target_select;
+  END_ENTITY;
+ 
+  ENTITY A3m_equivalence_assessment_by_logical_test;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_assessment_by_numerical_test;
+     threshold : a3m_equivalence_value_limit_type_select;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_criteria_representation
+    SUBTYPE OF(Representation);
+    WHERE
+      WR1 : SIZEOF( QUERY( q <* SELF\Representation.items|
+            'ANNOTATED_3D_MODEL_EQUIVALENCE_CRITERIA_ARM.' +
+            'A3M_EQUIVALENCE_CRITERION' IN TYPEOF(q))) > 0;
+  END_ENTITY;
+ 
+ (* New accuracy structure
+  ENTITY A3m_equivalence_criteria_representation_with_accuracy
+    SUBTYPE OF(A3m_equivalence_criteria_representation);
+      required_general_accuracy : SET [1:?] OF A3m_equivalence_inspection_accuracy;
+  END_ENTITY;
+ *)
+  
+  ENTITY A3m_equivalence_criterion
+    ABSTRACT SUPERTYPE OF (A3m_equivalence_criterion_with_specified_elements)
+    SUBTYPE OF(Representation_item);
+      assessment_specification : a3m_equivalence_assessment_specification_select;
+      comparing_element_types : LIST[1:?] OF a3m_element_type_name;
+      compared_element_types : LIST[1:?] OF a3m_element_type_name;
+      measured_data_type : a3m_measured_data_type_name;
+      detected_difference_types : LIST[0:?] OF a3m_detected_difference_type_name;
+      accuracy_types : LIST[0:?] OF a3m_accuracy_type_name;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+            |'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.'+
+             'A3M_EQUIVALENCE_INSPECTION_RESULT_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+  
+(* Using New accuracy structure
+  ENTITY A3m_equivalence_criterion_and_accuracy_association;
+      required_specific_accuracy   : A3m_equivalence_inspection_accuracy;
+      equivalence_criterion : A3m_equivalence_criterion;
+  END_ENTITY;
+*)
+
+  ENTITY A3m_equivalence_criterion_with_specified_elements
+    SUBTYPE OF(A3m_equivalence_criterion);
+      comparing_specified_elements : SET[1:?] OF inspected_equivalence_element_select; 
+      compared_specified_elements : SET[1:?] OF inspected_equivalence_element_select; 
+  END_ENTITY;
+
+   ENTITY A3m_equivalence_inspection_accuracy;
+      description : text;
+      range       : A3m_equivalence_value_limit_type_select;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_inspection_requirement_with_values
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF(Representation_item);
+      applied_values : SET[1:?] OF Numerical_item_with_unit;
+    WHERE
+      WR1 : SIZEOF(QUERY(q <* bag_to_set( USEDIN(SELF,
+            'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS'))
+            |'ANNOTATED_3D_MODEL_EQUIVALENCE_INSPECTION_RESULT_ARM.'+
+             'A3M_EQUIVALENCE_INSPECTION_RESULT_REPRESENTATION'
+               IN TYPEOF(q)))=0;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_lower_value_limit
+    SUBTYPE OF(A3m_equivalence_value_limit);
+    WHERE
+      WR1 : SELF\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'minimum';
+  END_ENTITY;
+  
+  ENTITY A3m_equivalence_report_request;
+      id : identifier;
+      name : label;
+      description : OPTIONAL text;
+      criterion_of_report_request : A3m_equivalence_criterion;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_upper_value_limit
+    SUBTYPE OF(A3m_equivalence_value_limit);
+    WHERE
+      WR1 : SELF\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'maximum';
+  END_ENTITY;
+  
+  ENTITY A3m_equivalence_value_range
+    SUBTYPE OF(Measure_item);
+      lower_limit : Numerical_item_with_unit;
+      upper_limit : Numerical_item_with_unit;
+  END_ENTITY;
+
+  ENTITY A3m_equivalence_value_limit
+    ABSTRACT SUPERTYPE OF (ONEOF(A3m_equivalence_upper_value_limit, A3m_equivalence_lower_value_limit))
+    SUBTYPE OF(Numerical_item_with_unit, Qualified_representation_item);
+      SELF\Qualified_representation_item.qualifiers : SET[1:1] OF Pre_defined_type_qualifier;
+  WHERE
+    WR1: SELF\Qualified_representation_item.qualifiers[1]\Type_qualifier.name IN ['minimum', 'maximum'];
+  END_ENTITY;
+
+  ENTITY Detailed_equivalence_report_request
+    SUBTYPE OF(A3m_equivalence_report_request);
+      report_request_type : detailed_report_style_type;
+      report_sequence     : preferred_report_ordering;
+  END_ENTITY;
+
+  ENTITY Detailed_equivalence_report_request_with_number_of_instances
+    SUBTYPE OF(Detailed_equivalence_report_request);
+      number_of_instances : INTEGER;
+    DERIVE
+      SELF\Detailed_equivalence_report_request.report_request_type:
+          detailed_report_style_type:= inspected_element;
+  END_ENTITY;
+
+  ENTITY Summary_report_request_with_number_of_instances
+    SUBTYPE OF(A3m_equivalence_report_request);
+      report_request_type : SET [1:3] OF summary_report_style_type;
+  END_ENTITY;
+
+  ENTITY Summary_report_request_with_representative_value
+    SUBTYPE OF(A3m_equivalence_report_request);
+      report_request_type : representative_value_type;
+  END_ENTITY;
+
+END_SCHEMA;

@@ -1,0 +1,58 @@
+(*
+   $Id: mkmodule.js,v 1.46 2010/02/04 16:48:02 robbod Exp $
+   ISO TC184/SC4/WG12 N9821 - ISO/CD-TS - 10303-1837 product_data_equivalence_definition - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Product_data_equivalence_definition_arm;
+
+  USE FROM Date_time_assignment_arm;
+
+  USE FROM Person_organization_assignment_arm;
+
+  USE FROM Product_view_definition_relationship_arm;
+
+  TYPE equivalence_product_data_select = SELECT
+   (as_product_view_definition_or_reference,
+    View_definition_relationship);
+  END_TYPE;
+
+  TYPE pde_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON Date_or_date_time_item WITH
+    (Data_equivalence_definition);
+  END_TYPE;
+
+  TYPE pde_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON Organization_or_person_in_organization_item WITH
+    (Data_equivalence_definition);
+  END_TYPE;
+  
+  TYPE used_equivalence_representation_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+  ENTITY Data_equivalence_definition;
+      description : STRING;
+  END_ENTITY;
+
+  ENTITY Data_equivalence_definition_relationship;
+      description                          : STRING;
+      relating_data_equivalence_definition : Data_equivalence_definition;
+      related_data_equivalence_definition  : Data_equivalence_definition;
+  END_ENTITY;
+
+  ENTITY Data_equivalence_definition_representation_relationship;
+      description         : STRING;
+      definition          : Data_equivalence_definition;
+      used_representation : Used_equivalence_representation_select;
+  END_ENTITY;
+
+  ENTITY Product_data_and_data_equivalence_relationship;
+      description  : STRING;
+      product_data : Equivalence_product_data_select;
+      data_equivalence : Data_equivalence_definition;
+  END_ENTITY;
+
+  ENTITY Software_for_data_equivalence_check;
+      description      : STRING;
+      software_name    : STRING;
+      software_version : STRING;
+      data_equivalence     : Data_equivalence_definition_representation_relationship;
+  END_ENTITY;
+
+END_SCHEMA;

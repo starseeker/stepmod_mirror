@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1362">
    <application name="JSDAI" owner="LKSoft" source="dimension_and_tolerance_callouts_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Dimension_and_tolerance_callouts_arm">
       <interface kind="use" schema="Associative_draughting_elements_arm"/>
@@ -13,10 +13,10 @@
       <interface kind="use" schema="Associative_text_arm"/>
       <interface kind="use" schema="Value_with_unit_arm"/>
       <type name="annotation_placeholder_occurrence_role">
-         <enumeration items="annotation_text gps_data"/>
+         <enumeration extensible="NO" items="annotation_text gps_data"/>
       </type>
       <type name="datc_draughting_callout_content_select">
-         <select basedon="draughting_callout_content_select" selectitems="Annotation_placeholder_occurrence"/>
+         <select basedon="draughting_callout_content_select" extensible="NO" genericentity="NO" selectitems="Annotation_placeholder_occurrence"/>
       </type>
       <type name="datc_draughting_model_item_definition">
          <select basedon="draughting_model_item_definition" extensible="YES" genericentity="YES" selectitems="Dimensional_location Dimensional_size Geometric_tolerance"/>
@@ -24,49 +24,51 @@
       <type name="geometric_placeholder_set_select">
          <select extensible="YES" genericentity="YES" selectitems="Cartesian_point Point_on_curve Point_on_surface Planar_box Annotation_text Axis_placement"/>
       </type>
-      <entity name="Annotation_placeholder_occurrence" supertypes="Annotation_element">
-         <explicit name="element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Annotation_placeholder_occurrence" supertypes="Annotation_element">
+         <explicit name="element" optional="NO">
             <typename name="geometric_placeholder_set_select"/>
             <redeclaration entity-ref="Styled_element"/>
          </explicit>
-         <explicit name="role">
+         <explicit name="role" optional="NO">
             <typename name="annotation_placeholder_occurrence_role"/>
          </explicit>
-         <explicit name="character_height">
+         <explicit name="character_height" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <inverse attribute="contents" entity="Draughting_callout" name="the_callout"/>
          <inverse attribute="annotation_placeholder" entity="Draughting_model_item_association_with_placeholder" name="the_draughting_model_item_association_with_placeholders">
             <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="Associated_dimension_text" supertypes="Dimension_text">
-         <explicit name="is_displaying">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Associated_dimension_text" supertypes="Dimension_text">
+         <explicit name="is_displaying" optional="NO">
             <typename name="Geometric_dimension"/>
          </explicit>
       </entity>
-      <entity name="Dimension_curve_terminator_to_projection_curve_associativity" supertypes="Annotation_occurrence_associativity">
-         <explicit name="relating_element">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Dimension_curve_terminator_to_projection_curve_associativity" supertypes="Annotation_occurrence_associativity">
+         <explicit name="relating_element" optional="NO">
             <typename name="Dimension_curve_terminator"/>
             <redeclaration entity-ref="Annotation_occurrence_associativity"/>
          </explicit>
-         <explicit name="related_element">
+         <explicit name="related_element" optional="NO">
             <typename name="Projection_curve"/>
             <redeclaration entity-ref="Annotation_occurrence_associativity"/>
          </explicit>
       </entity>
-      <entity name="Draughting_model_item_association_with_placeholder" supertypes="Draughting_model_item_association">
-         <explicit name="identified_item">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Draughting_model_item_association_with_placeholder" supertypes="Draughting_model_item_association">
+         <explicit name="identified_item" optional="NO">
             <typename name="Draughting_callout"/>
             <redeclaration entity-ref="Draughting_model_item_association"/>
          </explicit>
-         <explicit name="annotation_placeholder">
+         <explicit name="annotation_placeholder" optional="NO">
             <typename name="Annotation_placeholder_occurrence"/>
          </explicit>
       </entity>
-      <entity name="Geometric_placeholder_set" supertypes="Detailed_geometric_model_element">
-         <explicit name="elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="Geometric_placeholder_set" supertypes="Detailed_geometric_model_element">
+         <explicit name="elements" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="geometric_placeholder_set_select"/>
          </explicit>
       </entity>

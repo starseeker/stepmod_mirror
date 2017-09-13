@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.196 2016/08/22 14:31:39 mikeward Exp $
+$Id: common.xsl,v 1.197 2017/04/05 09:54:17 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -2114,6 +2114,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   
   
   <a href="{$href}" target="_self"><!-- @href replaced with $href here and throughout rest of template MWD 2017-04-05 -->
+    
   <xsl:variable name="link_name">
     <xsl:apply-templates/>
   </xsl:variable>
@@ -3835,15 +3836,25 @@ width="20" height="20"/>
     <xsl:variable name="href">
       <xsl:choose>
         <xsl:when test="$module='' or $arm_mim_ir=''">
-          
           <!--
                error do nothing as the error will be picked up after the
                href variable is set.
                -->
         </xsl:when>
 
-        <xsl:when test="$arm_mim_ir='ir_express'">
-          <xsl:value-of select="concat($baselink,'resources/',$module,'/', $module,$FILE_EXT,'#',$express_ref)"/>
+        <xsl:when test="$arm_mim_ir='ir_express'"><!-- MWD 2017-09-13 -->
+          <xsl:variable name="resource_number">
+            <xsl:value-of select="document('../repository_index.xml')//resource[@name=$module]/@part"/>
+          </xsl:variable>
+          
+          <xsl:variable name="resource_doc">
+            <xsl:value-of select="document('../repository_index.xml')//resource_doc[@part=$resource_number]/@name"/>
+          </xsl:variable>
+          
+          <xsl:value-of select="concat($baselink,'resource_docs/',$resource_doc,'/sys/4_schema',$FILE_EXT,'#',$express_ref)"/>
+          
+          
+          <!--<xsl:value-of select="concat($baselink,'resources/',$module,'/', $module,$FILE_EXT,'#',$express_ref)"/>-->
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='ir'">
@@ -5182,7 +5193,7 @@ width="20" height="20"/>
 
             </xsl:variable>
 
-            <a href="{$href}"><xsl:value-of select="$module_name"/></a>
+            <a href="{$href}"><xsl:value-of select="'FOO'"/><xsl:value-of select="$module_name"/></a>
 
           </xsl:otherwise>
 

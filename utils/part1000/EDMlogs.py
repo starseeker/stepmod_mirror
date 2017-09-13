@@ -55,7 +55,7 @@ import os
 
 # In[ ]:
 
-version=1.2
+version="1.2"
 file= sys.argv[1]
 repo=os.getcwd()
 date=time.strftime("%y%m%d-%I%M%p")

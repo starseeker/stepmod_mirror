@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.197 2017/04/05 09:54:17 mikeward Exp $
+$Id: common.xsl,v 1.198 2017/09/13 16:02:40 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -1393,6 +1393,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
   </xsl:variable>
 
+  <xsl:variable name="letter" select="@letter"/><!-- MWD 2017-09-14 -->
+  
 
 
     <xsl:variable name="aname">
@@ -1413,9 +1415,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
     <xsl:variable name="title">
 
-      <xsl:value-of select="concat('Figure ',$number,
+      <xsl:value-of select="concat('Figure ',$number, $letter,
 
-                            '&#160;&#8212;&#160;&#160;',./title)"/>
+                            '&#160;&#8212;&#160;&#160;',./title)"/><!-- MWD 2017-09-14 -->
 
     </xsl:variable>
 
@@ -1434,7 +1436,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <div align="center">
 
       <b>
-
+        
         <xsl:value-of select="$title"/>
 
       </b>

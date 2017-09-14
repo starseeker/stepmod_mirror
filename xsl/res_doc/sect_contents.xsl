@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.43 2016/08/05 11:25:37 mikeward Exp $
+$Id: sect_contents.xsl,v 1.44 2017/06/01 14:26:46 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -438,6 +438,10 @@ $Id: sect_contents.xsl,v 1.43 2016/08/05 11:25:37 mikeward Exp $
        </xsl:otherwise>
      </xsl:choose>
    </xsl:variable>
+   
+   <xsl:variable name="letter" select="@letter"/><!-- MWD 2017-09-14 -->
+     
+   
 
    <xsl:variable name="href">
      <xsl:call-template name="table_href">
@@ -456,7 +460,7 @@ $Id: sect_contents.xsl,v 1.43 2016/08/05 11:25:37 mikeward Exp $
   <xsl:choose>
     <xsl:when test="name(..) = 'ext_description' or name(../..) = 'ext_description'">
       <a href="{$clause_no}_schema{$FILE_EXT}{$href}">      
-        <xsl:value-of select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
+        <xsl:value-of select="concat($table_or_fig,' ',$number, $letter, ' &#8212; ', ./title, ./@caption)"/><!-- MWD 2017-09-14 -->
       </a>
       <br/>
     </xsl:when>
@@ -494,7 +498,8 @@ $Id: sect_contents.xsl,v 1.43 2016/08/05 11:25:37 mikeward Exp $
    <xsl:apply-templates select=".//figure" mode="toc"/>
    <xsl:apply-templates select="document($express_desc_xml)//figure" mode="toc">
          <xsl:with-param name="clause_no" select="$clause_no" />
-    <xsl:sort select="@number" data-type="number" />
+     <xsl:sort select="@number" data-type="number" />
+     <xsl:sort select="@letter" data-type="text" /><!-- MWD 2017-09-14 -->
    </xsl:apply-templates>
 
  </xsl:template>

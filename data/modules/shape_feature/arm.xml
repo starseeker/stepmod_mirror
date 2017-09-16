@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1764">
    <application name="JSDAI" owner="LKSoft" source="shape_feature_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Shape_feature_arm">
@@ -23,6 +21,12 @@
       <type name="sf_shapeable_item">
          <select basedon="shapeable_item" selectitems="Characterizable_object"/>
       </type>
+      <type name="shape_feature_definition_or_element">
+         <select selectitems="Shape_feature_definition Shape_feature_definition_element"/>
+      </type>
+      <type name="shape_feature_definition_or_element_relationship_select">
+         <select selectitems="Shape_feature_definition_relationship Shape_feature_definition_element_relationship"/>
+      </type>
       <entity name="General_feature" supertypes="Shape_feature_definition"/>
       <entity name="Instanced_feature" supertypes="Shape_element Shape_feature_definition"/>
       <entity name="Placed_feature" supertypes="Shape_element">
@@ -33,6 +37,62 @@
       <entity name="Shape_feature_definition" supertypes="Characterizable_object">
          <where expression="EXISTS(SELF\Characterizable_object.primary_shape_representation)" label="WR1"/>
       </entity>
-      <subtype.constraint entity="Shape_element" name="sf_shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature)"/>
+      <entity name="Shape_feature_definition_element" supertypes="Shape_element">
+         <explicit name="associated_definition">
+            <typename name="shape_feature_definition_or_element"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="SELF\Shape_element.element_name"/>
+            <unique.attribute attribute="associated_definition"/>
+         </unique>
+      </entity>
+      <entity name="Shape_feature_definition_element_relationship" supertypes="Shape_element_relationship">
+         <explicit name="relating">
+            <typename name="Shape_feature_definition_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Shape_feature_definition_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="parent_relationship" optional="YES">
+            <typename name="shape_feature_definition_or_element_relationship_select"/>
+         </explicit>
+         <where expression="((related.associated_definition :=: parent_relationship\Shape_feature_definition_relationship.related) OR (related.associated_definition :=: parent_relationship\Shape_feature_definition_element_relationship.related)) AND ((relating.associated_definition :=: parent_relationship\Shape_feature_definition_relationship.relating) OR (relating.associated_definition :=: parent_relationship\Shape_feature_definition_element_relationship.relating))" label="WR1"/>
+      </entity>
+      <entity name="Shape_feature_definition_occurrence_element" supertypes="Shape_feature_definition_element">
+         <explicit name="definition">
+            <typename name="shape_feature_definition_or_element"/>
+         </explicit>
+      </entity>
+      <entity name="Shape_feature_definition_occurrence_element_relationship" supertypes="Shape_feature_definition_element_relationship">
+         <explicit name="relating">
+            <typename name="Shape_feature_definition_occurrence_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Shape_feature_definition_occurrence_element"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="shape_feature_definition_or_element_relationship_select"/>
+         </explicit>
+      </entity>
+      <entity name="Shape_feature_definition_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Shape_feature_definition"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Shape_feature_definition"/>
+         </explicit>
+      </entity>
+      <subtype.constraint entity="Shape_element" name="sf_shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature, Shape_feature_definition_element)"/>
    </schema>
 </express>

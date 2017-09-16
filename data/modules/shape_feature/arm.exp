@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.24 2015/09/25 09:01:21 lothartklein Exp $
+   $Id: arm.exp,v 1.25 2016/10/20 12:09:25 kevletu Exp $
    ISO TC184/SC4/WG12 N9291 - ISO/TS 10303-1764 Shape feature - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8047
 *)
@@ -27,11 +27,19 @@ TYPE sf_represented_definition = SELECT BASED_ON represented_definition WITH (
   Characterizable_object);
 END_TYPE; 
 
-ENTITY Shape_feature_definition
-  SUBTYPE OF (Characterizable_object);
-WHERE
-  WR1: EXISTS(SELF\Characterizable_object.primary_shape_representation);
-END_ENTITY;
+TYPE shape_feature_definition_or_element = SELECT
+   (Shape_feature_definition, 
+    Shape_feature_definition_element);
+END_TYPE; 
+
+TYPE shape_feature_definition_or_element_relationship_select = SELECT
+   (Shape_feature_definition_relationship, 
+    Shape_feature_definition_element_relationship);
+END_TYPE; 
+
+ENTITY General_feature
+  SUBTYPE OF (Shape_feature_definition);
+END_ENTITY; 
 
 ENTITY Instanced_feature  
   SUBTYPE OF (Shape_element, Shape_feature_definition);
@@ -42,12 +50,49 @@ ENTITY Placed_feature
    definition : Shape_feature_definition;
 END_ENTITY;
 
-ENTITY General_feature
-  SUBTYPE OF (Shape_feature_definition);
-END_ENTITY; 
+ENTITY Shape_feature_definition
+  SUBTYPE OF (Characterizable_object);
+WHERE
+  WR1: EXISTS(SELF\Characterizable_object.primary_shape_representation);
+END_ENTITY;
+
+ENTITY Shape_feature_definition_element
+  SUBTYPE OF (Shape_element);
+  SELF\Shape_element.associated_definition : shape_feature_definition_or_element;
+UNIQUE
+  UR1: SELF\Shape_element.element_name, associated_definition;
+END_ENTITY;
+
+ENTITY Shape_feature_definition_element_relationship
+  SUBTYPE OF (Shape_element_relationship);
+  SELF\Shape_element_relationship.relating : Shape_feature_definition_element;
+  SELF\Shape_element_relationship.related : Shape_feature_definition_element;
+  parent_relationship : OPTIONAL shape_feature_definition_or_element_relationship_select;
+WHERE
+  WR1: ((related.associated_definition :=: parent_relationship\Shape_feature_definition_relationship.related) OR (related.associated_definition :=: parent_relationship\Shape_feature_definition_element_relationship.related)) AND ((relating.associated_definition :=: parent_relationship\Shape_feature_definition_relationship.relating) OR (relating.associated_definition :=: parent_relationship\Shape_feature_definition_element_relationship.relating));
+END_ENTITY;
+
+ENTITY Shape_feature_definition_occurrence_element
+  SUBTYPE OF (Shape_feature_definition_element);
+  definition : shape_feature_definition_or_element;
+END_ENTITY;
+
+ENTITY Shape_feature_definition_occurrence_element_relationship
+  SUBTYPE OF (Shape_feature_definition_element_relationship);
+  SELF\Shape_element_relationship.relating : Shape_feature_definition_occurrence_element;
+  SELF\Shape_element_relationship.related : Shape_feature_definition_occurrence_element;
+  definition : shape_feature_definition_or_element_relationship_select;
+END_ENTITY;
+
+ENTITY Shape_feature_definition_relationship;
+  name : label;
+  description : OPTIONAL text;
+  relating : Shape_feature_definition;
+  related : Shape_feature_definition;
+END_ENTITY;
 
 SUBTYPE_CONSTRAINT sf_shape_element FOR Shape_element;
-  ONEOF (Instanced_feature, Placed_feature);
+  ONEOF (Instanced_feature, Placed_feature, Shape_feature_definition_element);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

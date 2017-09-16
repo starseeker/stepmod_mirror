@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.39 2014/05/02 10:17:50 nigelshaw Exp $
+     $Id: sect_4_express.xsl,v 1.40 2017/06/02 09:45:32 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -25,7 +25,9 @@
   <!-- +++++++++++++++++++
          Global variables
        +++++++++++++++++++ -->
-
+  
+  
+  
   <xsl:variable name="resdoc_name">
     <xsl:choose>  
     <xsl:when test="/resource_clause">
@@ -42,6 +44,8 @@
       </xsl:when>
     </xsl:choose>
   </xsl:variable>
+  
+  <xsl:variable name="note_number" select="count(document(concat('../../data/resource_docs/', $resdoc_name, '/resource.xml'))//introduction//note)"/>
 
   <xsl:variable name="resdoc_dir">
     <xsl:choose>
@@ -356,7 +360,7 @@
   <xsl:param name="doctype"/>
     <p class="note">
       <small>
-        NOTE&#160;1&#160;&#160;
+        NOTE&#160;<xsl:value-of select="$note_number+1"/>&#160;&#160;
 	<xsl:variable name="used-count" select="count(used-schema[not(.=preceding-sibling::used-schema)])" />
 	<xsl:choose>
 		<xsl:when test="$used-count = 1" >
@@ -393,7 +397,7 @@
   </blockquote>
     <p class="note">
       <small>
-        NOTE&#160;2&#160;&#160;
+        NOTE&#160;<xsl:value-of select="$note_number+2"/>&#160;&#160;
         <xsl:variable name="resource_dir">
           <xsl:call-template name="resource_directory">
             <xsl:with-param name="resource" select="$schema_node/@name"/>
@@ -402,7 +406,7 @@
         <xsl:variable name="resource_file"
           select="concat($resource_dir,'/resource.xml')"/>
             See Annex <a href="d_expg{$FILE_EXT}">D</a>
-            for a graphical representation of this schema.
+        for a graphical representation of this schema.
       </small>
     </p>
 

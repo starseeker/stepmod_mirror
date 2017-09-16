@@ -20,11 +20,14 @@
       <type name="assembly_definition_or_assembly_shape_joint">
          <select selectitems="Assembly_definition Assembly_shape_joint"/>
       </type>
+      <type name="assembly_shape_constraint_or_joint_definition_select">
+         <select selectitems="Part_shape_element Part_shape_element_relationship Shape_feature_definition Shape_feature_definition_relationship Shape_feature_definition_element Shape_feature_definition_element_relationship"/>
+      </type>
       <type name="connected_terminal_select">
          <select selectitems="General_part_terminal Occurrence_terminal"/>
       </type>
-      <type name="gdc_shapeable_item">
-         <select basedon="shapeable_item" selectitems="Shape_element"/>
+      <type name="gdc_part_shape_element_definition_select">
+         <select basedon="part_shape_element_definition_select" selectitems="Shape_feature_definition_element"/>
       </type>
       <type name="general_assembly_joint_type_enumeration">
          <enumeration extensible="YES"/>
@@ -71,11 +74,14 @@
       <type name="part_contact_feature_associated_definition_select">
          <select selectitems="Part_view_definition Part_contact_feature"/>
       </type>
+      <type name="part_contact_feature_definition_select">
+         <select selectitems="Contact_feature_definition Shape_feature_definition_occurrence_element"/>
+      </type>
+      <type name="part_shape_element_relationship_with_definition_select">
+         <select selectitems="Contact_feature_definition_fit_relationship Shape_feature_definition_element_relationship"/>
+      </type>
       <type name="part_transport_feature_associated_definition_select">
          <select selectitems="Part_transport_feature Part_view_definition"/>
-      </type>
-      <type name="shape_feature_definition_or_relationship_select">
-         <select selectitems="Contact_feature_definition_fit_relationship Shape_feature_definition"/>
       </type>
       <type name="terminal_and_transport_domain_type">
          <enumeration extensible="YES" items="electrical thermal optical magnetic matter"/>
@@ -86,7 +92,7 @@
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="definition" optional="YES">
-            <typename name="shape_feature_definition_or_relationship_select"/>
+            <typename name="assembly_shape_constraint_or_joint_definition_select"/>
             <redeclaration entity-ref="Part_shape_element"/>
          </explicit>
          <explicit name="identified_item" optional="YES">
@@ -114,7 +120,7 @@
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="definition" optional="YES">
-            <typename name="shape_feature_definition_or_relationship_select"/>
+            <typename name="assembly_shape_constraint_or_joint_definition_select"/>
             <redeclaration entity-ref="Part_shape_element"/>
          </explicit>
          <explicit name="joint_type" optional="YES">
@@ -249,26 +255,26 @@
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="definition" optional="YES">
-            <typename name="Contact_feature_definition"/>
+            <typename name="part_contact_feature_definition_select"/>
             <redeclaration entity-ref="Part_shape_element"/>
          </explicit>
       </entity>
       <entity name="Part_contact_feature_fit_relationship" supertypes="Part_shape_element_relationship">
-         <explicit name="relating">
-            <typename name="Part_contact_feature"/>
-            <redeclaration entity-ref="Shape_element_relationship"/>
-         </explicit>
          <explicit name="related">
             <typename name="Part_contact_feature"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
-         <explicit name="definition" optional="YES">
-            <typename name="Contact_feature_definition_fit_relationship"/>
+         <explicit name="relating">
+            <typename name="Part_contact_feature"/>
+            <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
-         <explicit name="sub_relationships" optional="YES">
-            <aggregate lower="1" type="SET" upper="?"/>
+         <explicit name="definition" optional="YES">
+            <typename name="part_shape_element_relationship_with_definition_select"/>
+         </explicit>
+         <explicit name="parent_relationship" optional="YES">
             <typename name="Part_contact_feature_fit_relationship"/>
          </explicit>
+         <where expression="((related.definition :=: definition\Shape_feature_definition_relationship.related)&#10;&#9;   OR (related.definition :=: definition\Shape_feature_definition_element_relationship.related))&#10;&#9;AND  ((relating.definition :=: definition\Shape_feature_definition_relationship.relating)&#10;&#9;   OR (relating.definition :=: definition\Shape_feature_definition_element_relationship.relating))" label="WR1"/>
       </entity>
       <entity name="Part_transport_feature" supertypes="General_part_feature">
          <explicit name="associated_definition" optional="YES">
@@ -279,23 +285,9 @@
             <typename name="terminal_and_transport_domain_type"/>
          </explicit>
       </entity>
-      <entity name="Shape_feature_definition_relationship">
-         <explicit name="name">
-            <typename name="label"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <typename name="text"/>
-         </explicit>
-         <explicit name="relating">
-            <typename name="Shape_feature_definition"/>
-         </explicit>
-         <explicit name="related">
-            <typename name="Shape_feature_definition"/>
-         </explicit>
-      </entity>
       <subtype.constraint entity="General_part_feature" name="gdc_general_part_feature_subtypes" super.expression="ONEOF (Part_transport_feature, Part_contact_feature)"/>
       <subtype.constraint entity="Part_shape_element" name="gdc_part_shape_element_subtypes" super.expression="ONEOF (Assembly_shape_constraint, Assembly_shape_joint, Part_connectivity_definition)"/>
-      <subtype.constraint entity="Shape_element" name="gdc_shape_element_subtypes" super.expression="ONEOF (Part_shape_element, Occurrence_shape_element)"/>
+      <subtype.constraint entity="Shape_element" name="gdc_shape_element_subtypes" super.expression="ONEOF (Occurrence_shape_element, Part_shape_element, Shape_feature_definition_element)"/>
       <rule appliesto="Shape_element" name="shape_elements_are_acyclic">
          <where expression="SIZEOF(QUERY(se &lt;* Shape_element | NOT acyclic_shape_element(se, se.associated_definition) )) = 0" label="WR1"/>
       </rule>

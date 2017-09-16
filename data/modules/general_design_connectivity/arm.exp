@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2017/06/27 16:13:03 kevletu Exp $
+   $Id: arm.exp,v 1.13 2017/07/11 14:46:21 lothartklein Exp $
    ISO TC184/SC4/WG12 N9701 - ISO/TS 10303-1844 General design connectivity - EXPRESS ARM
  *)
 
@@ -45,11 +45,11 @@ TYPE connected_terminal_select = SELECT
     Occurrence_terminal);
 END_TYPE; 
 
-TYPE gdc_shapeable_item = SELECT BASED_ON shapeable_item WITH 
-   (Shape_element);
+TYPE general_assembly_joint_type_enumeration = EXTENSIBLE ENUMERATION ;
 END_TYPE; 
 
-TYPE general_assembly_joint_type_enumeration = EXTENSIBLE ENUMERATION ;
+TYPE gdc_part_shape_element_definition_select = SELECT BASED_ON part_shape_element_definition_select WITH
+   (Shape_feature_definition_element);
 END_TYPE; 
 
 TYPE general_part_terminal_associated_definition_select = SELECT (
@@ -129,9 +129,23 @@ TYPE part_transport_feature_associated_definition_select = SELECT (
 	Part_view_definition); -- terminus
 END_TYPE;
 
-TYPE shape_feature_definition_or_relationship_select = SELECT
-   (Contact_feature_definition_fit_relationship, 
-    Shape_feature_definition);
+TYPE part_contact_feature_definition_select = SELECT (
+    Contact_feature_definition,
+    Shape_feature_definition_occurrence_element);
+END_TYPE;
+
+TYPE part_shape_element_relationship_with_definition_select = SELECT (
+	Contact_feature_definition_fit_relationship,
+	Shape_feature_definition_element_relationship);
+END_TYPE;
+
+TYPE assembly_shape_constraint_or_joint_definition_select = SELECT
+   (Part_shape_element, 
+    Part_shape_element_relationship, 
+    Shape_feature_definition,
+    Shape_feature_definition_relationship,
+    Shape_feature_definition_element,
+    Shape_feature_definition_element_relationship);
 END_TYPE; 
 
 TYPE terminal_and_transport_domain_type = EXTENSIBLE ENUMERATION OF 
@@ -145,7 +159,7 @@ END_TYPE;
 ENTITY Assembly_shape_constraint
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_constraint;
-  SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
+  SELF\Part_shape_element.definition : OPTIONAL assembly_shape_constraint_or_joint_definition_select;
   SELF\Shape_element.identified_item : OPTIONAL assembly_constraint_select;
   constraint_type : OPTIONAL assembly_constraint_type_enumeration;
 END_ENTITY;
@@ -163,7 +177,7 @@ END_ENTITY;
 ENTITY Assembly_shape_joint
   SUBTYPE OF (Part_shape_element);
   SELF\Shape_element.associated_definition : assembly_definition_or_assembly_shape_joint;
-  SELF\Part_shape_element.definition : OPTIONAL shape_feature_definition_or_relationship_select;
+  SELF\Part_shape_element.definition : OPTIONAL assembly_shape_constraint_or_joint_definition_select;
   joint_type : OPTIONAL general_assembly_joint_type_enumeration;
 END_ENTITY;
 
@@ -254,28 +268,26 @@ END_ENTITY;
 ENTITY Part_contact_feature
   SUBTYPE OF (General_part_feature);
   SELF\Shape_element.associated_definition : part_contact_feature_associated_definition_select;
-  SELF\Part_shape_element.definition : OPTIONAL Contact_feature_definition;
+  SELF\Part_shape_element.definition : OPTIONAL part_contact_feature_definition_select;
 END_ENTITY;
 
 ENTITY Part_contact_feature_fit_relationship
   SUBTYPE OF (Part_shape_element_relationship);
-  SELF\Shape_element_relationship.relating : Part_contact_feature;
   SELF\Shape_element_relationship.related : Part_contact_feature;
-  definition : OPTIONAL Contact_feature_definition_fit_relationship;
-  sub_relationships : OPTIONAL SET[1:?] OF Part_contact_feature_fit_relationship;
+  SELF\Shape_element_relationship.relating : Part_contact_feature;
+  definition : OPTIONAL part_shape_element_relationship_with_definition_select;
+  parent_relationship : OPTIONAL Part_contact_feature_fit_relationship;
+WHERE
+	WR1: ((related.definition :=: definition\Shape_feature_definition_relationship.related)
+	   OR (related.definition :=: definition\Shape_feature_definition_element_relationship.related))
+	AND  ((relating.definition :=: definition\Shape_feature_definition_relationship.relating)
+	   OR (relating.definition :=: definition\Shape_feature_definition_element_relationship.relating));
 END_ENTITY;
 
 ENTITY Part_transport_feature
   SUBTYPE OF (General_part_feature);
   SELF\Shape_element.associated_definition : OPTIONAL part_transport_feature_associated_definition_select;
   domain_type : OPTIONAL terminal_and_transport_domain_type;
-END_ENTITY;
-
-ENTITY Shape_feature_definition_relationship;
-  name : label;
-  description : OPTIONAL text;
-  relating : Shape_feature_definition;
-  related : Shape_feature_definition;
 END_ENTITY;
 
 FUNCTION acyclic_occurrence_shape_element
@@ -354,8 +366,9 @@ SUBTYPE_CONSTRAINT gdc_part_shape_element_subtypes FOR Part_shape_element;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT gdc_shape_element_subtypes FOR Shape_element;
-  ONEOF (Part_shape_element,
-         Occurrence_shape_element);
+  ONEOF (Occurrence_shape_element,
+         Part_shape_element,
+         Shape_feature_definition_element);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- General_design_connectivity_arm

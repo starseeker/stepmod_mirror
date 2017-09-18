@@ -22,5 +22,14 @@ ant -lib $1/etc/saxon6-5-5/saxon.jar -lib $1/etc/saxon6-5-5/saxon-xml-apis.jar -
 
 ant -lib $1/etc/saxon6-5-5/saxon.jar -lib $1/etc/saxon6-5-5/saxon-xml-apis.jar -lib $1/etc/saxon6-5-5/saxon-jdom.jar all
 
+cd $1/..
+
+echo "============================ Copying build directory from stepmod/publication/isopub to workspace: ============================"
+
+cp -Riv stepmod/publication/isopub/$2 .
+
+echo "============================ Deleting build directory from stepmod/publication/isopub: ============================"
+
+rm -rfv stepmod/publication/isopub/$2
 
 exit

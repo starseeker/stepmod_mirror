@@ -110,9 +110,9 @@ if len(sys.argv) == 3:
     module=list()
     for i in Line:
         line=i-1
-        while re.search('\(\*\s*USED|\(\*\s*REFERENCED',express.text[line])==None:
+        while re.search('\(\*\s*USED|\(\*\s*REFERENCED|\(\*\s*Implicit',express.text[line])==None:
             line=line-1
-        text=re.sub('\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n','',express.text[line])
+        text=re.sub('\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n|\(\*\s*Implicit interfaced from:\s*|\s*\*\)','',express.text[line])
         module.append(text)
     df['module']=module
 

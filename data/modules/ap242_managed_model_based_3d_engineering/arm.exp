@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.58 2017/09/12 09:30:35 verodub Exp $
+   $Id: arm.exp,v 1.59 2017/09/19 20:40:49 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N9806 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N8590
 *)
@@ -406,7 +406,9 @@ END_TYPE;
 RULE styled_element_constraint FOR 
       (Styled_element);
     WHERE
-      WR1: ('VERTEX_COLOURS_FOR_TESSELLATED_GEOMETRY_ARM.STYLED_TESSELLATED_ELEMENT_WITH_COLOURS' IN TYPEOF(Styled_element)) OR EXISTS(Styled_element.appearance);
+      WR1: SIZEOF(QUERY(se <* Styled_element | NOT (
+             ('VERTEX_COLOURS_FOR_TESSELLATED_GEOMETRY_ARM.STYLED_TESSELLATED_ELEMENT_WITH_COLOURS' IN TYPEOF(se)) OR EXISTS(se\Styled_element.appearance)
+           ))) = 0;
 END_RULE;
   
   SUBTYPE_CONSTRAINT exclusive_products_242 FOR Product;

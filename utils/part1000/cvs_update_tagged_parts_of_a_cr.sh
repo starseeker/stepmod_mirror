@@ -23,6 +23,9 @@ fi
 
 cd $1
 
+#update publication_index.xml first
+cvs -q -z 3 update -dPr $2 publication/part1000/$2/publication_index.xml
+ 
 java -jar etc/saxon6-5-5/saxon.jar publication/part1000/$2/publication_index.xml utils/part1000/pub_index_to_parts_list_for_cvs_update.xsl | xargs cvs -q -z 3 update -dPr $2
 
 #tee creates log in workspace

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.12 2011/08/23 09:47:43 lothartklein Exp $
+   $Id: mim.exp,v 1.13 2012/10/11 05:49:13 liutkuviene Exp $
    ISO TC184/SC4/WG12 N8048 - ISO/TS 10303-1764 Shape feature - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N7464
 *)
@@ -7,17 +7,19 @@
 SCHEMA Shape_feature_mim;
 
 USE FROM Characterizable_object_mim;  -- ISO/TS 10303-1765
-USE FROM Contextual_shape_positioning_mim;
-USE FROM Property_assignment_mim;
+USE FROM Contextual_shape_positioning_mim;  -- ISO/TS 10303-1027
+USE FROM Property_assignment_mim;  --  ISO/TS 10303-1030
 USE FROM shape_aspect_definition_schema          -- ISO 10303-47
       (composite_shape_aspect,
        feature_definition,
        instanced_feature);
-REFERENCE FROM product_property_representation_schema (
-	get_property_definition_representations);       
-REFERENCE FROM product_property_definition_schema (
- 	get_shape_aspects);
 USE FROM aic_machining_feature (shape_defining_relationship, feature_component_relationship);	
+USE FROM product_property_definition_schema(characterized_object_relationship); -- ISO 10303-41
+
+REFERENCE FROM product_property_representation_schema ( -- ISO 10303-41
+	get_property_definition_representations);       
+REFERENCE FROM product_property_definition_schema (  -- ISO 10303-41
+ 	get_shape_aspects);                             
 
 ENTITY shape_feature_definition
   SUBTYPE OF (feature_definition);
@@ -80,5 +82,20 @@ WHERE
               )) <= 1 );   
 END_ENTITY;
 
+ENTITY shape_feature_definition_relationship
+  SUBTYPE OF (characterized_object_relationship, characterized_object);
+  SELF\characterized_object_relationship.relating_object : shape_feature_definition;
+  SELF\characterized_object_relationship.related_object : shape_feature_definition;
+DERIVE
+  SELF\characterized_object.name : label := characterized_object_relationship.name;
+  SELF\characterized_object.description : text := characterized_object_relationship.description;
+END_ENTITY;
+
+ENTITY shape_feature_definition_element_relationship
+  SUBTYPE OF (shape_aspect_relationship, characterized_object);
+DERIVE
+  SELF\characterized_object.name : label := shape_aspect_relationship.name;
+  SELF\characterized_object.description : text := shape_aspect_relationship.description;
+END_ENTITY;
 
 END_SCHEMA;

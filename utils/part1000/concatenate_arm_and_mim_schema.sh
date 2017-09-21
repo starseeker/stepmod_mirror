@@ -20,8 +20,8 @@ read -r -p "Do you want to generate concatenated files from STEPmod? [y/N] " res
 echo
 if [[ "$response_stepmod" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
-    eengine --concat_schema -schema $1/data/modules/$2/arm.exp -stepmod $1 -mode arm_shortform
-    eengine --concat_schema -schema $1/data/modules/$2/mim.exp -stepmod $1 -mode mim_shortform
+    eengine --concat_schema -schema $1/data/modules/$2/arm.exp -stepmod $1 -mode arm_shortform -stepmod_vcs online
+    eengine --concat_schema -schema $1/data/modules/$2/mim.exp -stepmod $1 -mode mim_shortform -stepmod_vcs online
     #do we need to specify  -stepmod_vcs option ?
 else
     echo "No concatenated files generated from STEPmod."
@@ -33,8 +33,8 @@ read -r -p "Do you want to generate concatenated files from SMRL? WARNING: If yo
 echo
 if [[ "$response_smrl" =~ ^([yY][eE][sS]|[yY])+$ ]]
 then
-    eengine --concat_schema -schema $1/../SMRL/data/modules/$2/arm.exp -stepmod $1/../SMRL -mode arm_shortform
-    eengine --concat_schema -schema $1/../SMRL/data/modules/$2/mim.exp -stepmod $1/../SMRL -mode mim_shortform
+    eengine --concat_schema -schema $1/../SMRL/data/modules/$2/arm.exp -stepmod $1/../SMRL -mode arm_shortform -stepmod_vcs offline
+    eengine --concat_schema -schema $1/../SMRL/data/modules/$2/mim.exp -stepmod $1/../SMRL -mode mim_shortform -stepmod_vcs offline
     #do we need to specify  -stepmod_vcs option ?
 else
 echo "No concatenated files generated from SMRL."

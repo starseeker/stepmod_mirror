@@ -336,7 +336,8 @@ This file is a copy of the file data/xsl/sect_g_changes.xsl for application modu
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
-            <xsl:value-of select="concat($object,' has been moved to the resource ',@moved-to-resource)"/>
+           
+            <xsl:value-of select="concat($object,' (which has been moved to the resource ',@moved-to-resource, ')')"/><!-- MWD 2017-09-26 -->
             <!--<xsl:value-of select="concat($object,' has been moved to the resource ')"/>
             <xsl:variable name="resource_href"
               select="concat('../../../resources/',@moved-to-resource,'/sys/',$arm_mim_clause,$FILE_EXT,'#',@moved-to-resource,$arm_mim_suffix,'.',@name)"/>
@@ -361,7 +362,8 @@ This file is a copy of the file data/xsl/sect_g_changes.xsl for application modu
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
-            <xsl:value-of select="concat($object,' has been moved to the resource ',@moved-to-resource )"/>
+            
+            <xsl:value-of select="concat($object,' (which has been moved to the resource ',@moved-to-resource, ')' )"/><!-- MWD 2017-09-26 -->
             <!--<xsl:variable name="resource_href"
               select="concat('../../../resources/',@moved-to-resource,'/',@moved-to-resource,$FILE_EXT,'#',@name)"/>
             <xsl:value-of select="concat($object,' has been moved to the resource ')"/>

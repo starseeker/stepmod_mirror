@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_g_change.xsl,v 1.15 2017/01/16 05:55:18 mikeward Exp $
+$Id: sect_g_change.xsl,v 1.16 2017/01/20 22:53:49 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -391,14 +391,16 @@ $Id: sect_g_change.xsl,v 1.15 2017/01/16 05:55:18 mikeward Exp $
       </xsl:choose>      
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="@moved-to-module"><xsl:variable name="module_ok">
+      <xsl:when test="@moved-to-module">
+        <xsl:variable name="module_ok">
           <xsl:call-template name="check_module_exists">
             <xsl:with-param name="module" select="@moved-to-module"/>
           </xsl:call-template>
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$module_ok='true'">
-            <xsl:value-of select="concat($object,' has been moved to the module ',@moved-to-module)"/>
+            
+            <xsl:value-of select="concat($object,' (which has been moved to the module ',@moved-to-module, ')')"/><!-- MWD 2017-09-26 -->
             <!--<xsl:value-of select="concat($object,' has been moved to the module ')"/>
             <xsl:variable name="module_href"
               select="concat('../../../modules/',@moved-to-module,'/sys/',$arm_mim_clause,$FILE_EXT,'#',@moved-to-module,$arm_mim_suffix,'.',@name)"/>
@@ -423,7 +425,8 @@ $Id: sect_g_change.xsl,v 1.15 2017/01/16 05:55:18 mikeward Exp $
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="$resource_ok='true'">
-            <xsl:value-of select="concat($object,' has been moved to the resource ',@moved-to-resource )"/>
+            
+            <xsl:value-of select="concat($object,' (which has been moved to the resource ',@moved-to-resource, ')')"/><!-- MWD 2017-09-26 -->
             <!--<xsl:variable name="resource_href"
               select="concat('../../../resources/',@moved-to-resource,'/',@moved-to-resource,$FILE_EXT,'#',@name)"/>
             <xsl:value-of select="concat($object,' has been moved to the resource ')"/>

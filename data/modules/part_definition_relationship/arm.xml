@@ -1,75 +1,72 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.5 2002/07/15 15:52:51 goset1 Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/07/15 15:52:51 $"
-  rcs.revision="$Revision: 1.5 $">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1055">
+   <application name="JSDAI" owner="LKSoft" source="part_definition_relationship_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
+   <schema name="Part_definition_relationship_arm">
+      <interface kind="use" schema="Product_view_definition_relationship_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <interface kind="reference" schema="Support_resource_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <entity name="Definitional_part_view_usage" supertypes="View_definition_usage">
+         <explicit name="relating_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <where expression="acyclic_definitional_part_view_usage (SELF, [related_view], &#10;            'PART_DEFINITION_RELATIONSHIP_ARM.DEFINITIONAL_PART_VIEW_USAGE')" label="WR1"/>
+      </entity>
+      <entity name="Make_from_relationship" supertypes="View_definition_usage">
+         <explicit name="relating_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="quantity" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="priority" optional="YES">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <where expression="SELF\View_definition_relationship.relating_view :&lt;&gt;: &#10;  SELF\View_definition_relationship.related_view" label="WR1"/>
+         <where expression="NOT(EXISTS(quantity)) XOR &#10;&#9;((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component &gt; 0))" label="WR2"/>
+      </entity>
+      <subtype.constraint entity="View_definition_usage" name="pdr_view_definition_usage_subtypes" super.expression="ONEOF (Definitional_part_view_usage, Make_from_relationship)"/>
+      <function name="acyclic_definitional_part_view_usage">
+         <parameter name="relation">
+            <typename name="Definitional_part_view_usage"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate lower="1" type="SET" upper="?"/>
+            <typename name="Part_view_definition"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+  x : SET OF Definitional_part_view_usage;
+END_LOCAL;
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.18"
-    source="../data/modules/part_definition_relationship/arm.exp"/>
-
-  <schema name="Part_definition_relationship_arm">
-    <interface
-      kind="use"
-      schema="Product_view_definition_relationship_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_view_definition_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Value_with_unit_arm">
-    </interface>
-
-    <entity
-      name="Make_from_relationship"
-      supertypes="View_definition_usage">
-      <explicit
-        name="relating_view">
-          <typename
-            name="Part_view_definition"/>
-        <redeclaration
-          entity-ref="View_definition_relationship"/>
-        </explicit>
-        <explicit
-          name="related_view">
-            <typename
-              name="Part_view_definition"/>
-          <redeclaration
-            entity-ref="View_definition_relationship"/>
-          </explicit>
-          <explicit
-            name="quantity"
-            optional="YES">
-            <typename
-              name="Value_with_unit"/>
-          </explicit>
-          <explicit
-            name="priority"
-            optional="YES">
-            <builtintype
-              type="INTEGER"/>
-          </explicit>
-          <where
-            label="WR1"
-            expression="SELF\View_definition_relationship.relating_view :&lt;&gt;:   SELF\View_definition_relationship.related_view ">
-          </where>
-          <where
-            label="WR2"
-            expression="NOT(EXISTS(quantity)) XOR 	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component &gt; 0))">
-          </where>
-        </entity>
-
-      </schema>
-
-    </express>
+  IF relation.relating_view IN relatives THEN
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.relating_view,
+       'PART_DEFINITION_RELATIONSHIP_ARM.DEFINITIONAL_PART_VIEW_USAGE.RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_definitional_part_view_usage(x[i], relatives +
+      relation.relating_view, specific_relation) THEN
+      RETURN  (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);</algorithm>
+      </function>
+   </schema>
+</express>

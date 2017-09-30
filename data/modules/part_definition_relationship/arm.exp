@@ -1,5 +1,5 @@
 (*
- $Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $
+ $Id: arm.exp,v 1.7 2004/10/22 14:34:57 darla Exp $
  ISO TC184/SC4/WG12 N1326 - ISO/TS 10303-1055 Part definition relationship - EXPRESS ARM
 *)
   
@@ -8,7 +8,17 @@ SCHEMA Part_definition_relationship_arm;
 USE FROM Product_view_definition_relationship_arm;
 USE FROM Part_view_definition_arm;
 USE FROM Value_with_unit_arm;
-      
+REFERENCE FROM Support_resource_arm(bag_to_set);  -- ISO/TS 10303-1800
+     
+ENTITY Definitional_part_view_usage
+  SUBTYPE OF (View_definition_usage);
+  SELF\View_definition_relationship.relating_view: Part_view_definition;
+  SELF\View_definition_relationship.related_view: Part_view_definition;
+WHERE
+  WR1: acyclic_definitional_part_view_usage (SELF, [related_view], 
+            'PART_DEFINITION_RELATIONSHIP_ARM.DEFINITIONAL_PART_VIEW_USAGE');
+END_ENTITY;
+
 ENTITY Make_from_relationship
   SUBTYPE OF (View_definition_usage);
   SELF\View_definition_relationship.relating_view: Part_view_definition;
@@ -21,5 +31,29 @@ WR1: SELF\View_definition_relationship.relating_view :<>:
 WR2: NOT(EXISTS(quantity)) XOR 
 	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
 END_ENTITY;
+
+FUNCTION acyclic_definitional_part_view_usage
+          (relation : Definitional_part_view_usage; relatives : SET [1:?] OF Part_view_definition; specific_relation : STRING) : BOOLEAN;
+LOCAL
+  x : SET OF Definitional_part_view_usage;
+END_LOCAL;
+
+  IF relation.relating_view IN relatives THEN
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_view,
+       'PART_DEFINITION_RELATIONSHIP_ARM.DEFINITIONAL_PART_VIEW_USAGE.RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_definitional_part_view_usage(x[i], relatives +
+      relation.relating_view, specific_relation) THEN
+      RETURN  (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION;
+
+SUBTYPE_CONSTRAINT pdr_view_definition_usage_subtypes FOR View_definition_usage;
+	ONEOF (Definitional_part_view_usage, Make_from_relationship);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;

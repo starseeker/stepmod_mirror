@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/08/11 10:05:16 $" rcs.revision="$Revision: 1.19 $" reference="ISO 10303-42">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-42">
    <application name="JSDAI" owner="LKSoft" source="geometric_model_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="geometric_model_schema">
       <interface kind="reference" schema="geometry_schema"/>
@@ -28,10 +28,10 @@
          <typename name="positive_plane_angle_measure"/>
       </type>
       <type name="boolean_operand">
-         <select selectitems="boolean_result csg_primitive half_space_2d half_space_solid solid_model"/>
+         <select extensible="NO" genericentity="NO" selectitems="boolean_result csg_primitive half_space_2d half_space_solid solid_model"/>
       </type>
       <type name="boolean_operator">
-         <enumeration items="union intersection difference"/>
+         <enumeration extensible="NO" items="union intersection difference"/>
       </type>
       <type name="bounded_primitive_2d">
          <select extensible="YES" genericentity="YES" selectitems="area_with_outer_boundary circular_area elliptic_area polygonal_area rectangular_area"/>
@@ -40,99 +40,96 @@
          <typename name="positive_length_measure"/>
       </type>
       <type name="csg_primitive">
-         <select selectitems="block bounded_primitive_2d cyclide_segment_solid eccentric_cone ellipsoid faceted_primitive rectangular_pyramid right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
+         <select extensible="NO" genericentity="NO" selectitems="block bounded_primitive_2d cyclide_segment_solid eccentric_cone ellipsoid faceted_primitive rectangular_pyramid right_angular_wedge right_circular_cone right_circular_cylinder sphere torus"/>
       </type>
       <type name="csg_select">
-         <select selectitems="boolean_result csg_primitive"/>
+         <select extensible="NO" genericentity="NO" selectitems="boolean_result csg_primitive"/>
       </type>
       <type name="edge_or_curve">
-         <select selectitems="curve edge"/>
+         <select extensible="NO" genericentity="NO" selectitems="curve edge"/>
       </type>
       <type name="face_or_surface">
-         <select selectitems="face surface"/>
+         <select extensible="NO" genericentity="NO" selectitems="face surface"/>
       </type>
       <type name="geometric_set_select">
-         <select selectitems="curve point surface"/>
-      </type>
-      <type name="length_to_height_ratio">
-         <typename name="ratio_measure"/>
+         <select extensible="YES" genericentity="YES" selectitems="curve point surface"/>
       </type>
       <type name="maximum_edge_length">
          <typename name="positive_length_measure"/>
       </type>
       <type name="path_or_composite_curve">
-         <select selectitems="composite_curve path"/>
+         <select extensible="NO" genericentity="NO" selectitems="composite_curve path"/>
       </type>
       <type name="surface_model">
-         <select selectitems="face_based_surface_model shell_based_surface_model"/>
+         <select extensible="NO" genericentity="NO" selectitems="face_based_surface_model shell_based_surface_model"/>
+      </type>
+      <type name="tessellated_aspect_ratio">
+         <typename name="ratio_measure"/>
       </type>
       <type name="tessellated_edge_or_vertex">
-         <select selectitems="tessellated_edge tessellated_vertex"/>
+         <select extensible="NO" genericentity="NO" selectitems="tessellated_edge tessellated_vertex"/>
       </type>
       <type name="tessellation_accuracy_parameter_item">
-         <select extensible="YES" selectitems="angular_deviation chordal_deviation length_to_height_ratio maximum_edge_length"/>
+         <select extensible="YES" genericentity="NO" selectitems="angular_deviation chordal_deviation maximum_edge_length tessellated_aspect_ratio"/>
       </type>
       <type name="wireframe_model">
-         <select selectitems="edge_based_wireframe_model shell_based_wireframe_model"/>
-      </type><entity name="solid_model" super.expression="ONEOF (csg_solid, manifold_solid_brep, swept_face_solid, swept_area_solid, swept_disk_solid, solid_replica, brep_2d, trimmed_volume)" supertypes="geometric_representation_item" /><entity name="manifold_solid_brep" supertypes="solid_model">
-         <explicit name="outer">
-            <typename name="closed_shell" />
-         </explicit>
-      </entity>
-      <entity name="area_with_outer_boundary" supertypes="half_space_2d">
-         <explicit name="base_curve">
+         <select extensible="NO" genericentity="NO" selectitems="edge_based_wireframe_model shell_based_wireframe_model"/>
+      </type>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="area_with_outer_boundary" supertypes="half_space_2d">
+         <explicit name="base_curve" optional="NO">
             <typename name="composite_curve"/>
             <redeclaration entity-ref="half_space_2d"/>
          </explicit>
          <where expression="base_curve\composite_curve.closed_curve = TRUE" label="WR1"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="block" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="block" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="x">
+         <explicit name="x" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="y">
+         <explicit name="y" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="z">
+         <explicit name="z" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="boolean_result" supertypes="geometric_representation_item">
-         <explicit name="operator">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="boolean_result" supertypes="geometric_representation_item">
+         <explicit name="operator" optional="NO">
             <typename name="boolean_operator"/>
          </explicit>
-         <explicit name="first_operand">
+         <explicit name="first_operand" optional="NO">
             <typename name="boolean_operand"/>
          </explicit>
-         <explicit name="second_operand">
+         <explicit name="second_operand" optional="NO">
             <typename name="boolean_operand"/>
          </explicit>
       </entity>
-      <entity name="box_domain" supertypes="founded_item">
-         <explicit name="corner">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="box_domain" supertypes="founded_item">
+         <explicit name="corner" optional="NO">
             <typename name="cartesian_point"/>
          </explicit>
-         <explicit name="xlength">
+         <explicit name="xlength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="ylength">
+         <explicit name="ylength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="zlength">
+         <explicit name="zlength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <where expression="SIZEOF(QUERY(item &lt;* USEDIN(SELF,'')| NOT ('GEOMETRIC_MODEL_SCHEMA.BOXED_HALF_SPACE' IN TYPEOF(item)))) = 0" label="WR1"/>
       </entity>
-      <entity name="boxed_half_space" supertypes="half_space_solid">
-         <explicit name="enclosure">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="boxed_half_space" supertypes="half_space_solid">
+         <explicit name="enclosure" optional="NO">
             <typename name="box_domain"/>
          </explicit>
       </entity>
-      <entity name="brep_2d" supertypes="solid_model">
-         <explicit name="extent">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="brep_2d" supertypes="solid_model">
+         <explicit name="extent" optional="NO">
             <typename name="face"/>
          </explicit>
          <where expression="SIZEOF (['TOPOLOGY_SCHEMA.FACE_SURFACE', 'TOPOLOGY_SCHEMA.SUBFACE', 'TOPOLOGY_SCHEMA.ORIENTED_FACE'] * TYPEOF (SELF.extent)) = 0" label="WR1"/>
@@ -140,59 +137,62 @@
          <where expression="SIZEOF (QUERY (bnds &lt;* extent.bounds | 'TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN TYPEOF(bnds))) = 1" label="WR3"/>
          <where expression="SIZEOF(QUERY (elp_fbnds &lt;* QUERY (bnds &lt;* extent.bounds | 'TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(bnds.bound)) | NOT (SIZEOF (QUERY (oe &lt;* elp_fbnds.bound\path.edge_list | NOT (('TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF(oe.edge_element)) AND (oe.edge_element\geometric_representation_item.dim = 2)))) = 0))) = 0" label="WR4"/>
       </entity>
-      <entity name="brep_with_voids" supertypes="manifold_solid_brep">
-         <explicit name="voids">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="brep_with_voids" supertypes="manifold_solid_brep">
+         <explicit name="voids" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="oriented_closed_shell"/>
          </explicit>
+      <where label="IP1"/>
+         <where label="IP3"/>
+         <where label="P2"/>
       </entity>
-      <entity name="circular_area" supertypes="primitive_2d">
-         <explicit name="centre">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="circular_area" supertypes="primitive_2d">
+         <explicit name="centre" optional="NO">
             <typename name="cartesian_point"/>
          </explicit>
-         <explicit name="radius">
+         <explicit name="radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="complex_triangulated_face" supertypes="tessellated_face">
-         <explicit name="pnindex">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="complex_triangulated_face" supertypes="tessellated_face">
+         <explicit name="pnindex" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangle_strips">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangle_strips" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangle_fans">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangle_fans" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="((SIZEOF(pnindex) = 0) OR (SIZEOF(pnindex) = SELF\tessellated_face.pnmax))" label="WR1"/>
          <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
          <where expression="NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0))" label="WR3"/>
       </entity>
-      <entity name="complex_triangulated_surface_set" supertypes="tessellated_surface_set">
-         <explicit name="pnindex">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="complex_triangulated_surface_set" supertypes="tessellated_surface_set">
+         <explicit name="pnindex" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangle_strips">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangle_strips" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangle_fans">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangle_fans" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="((SIZEOF(pnindex) = 0) OR (SIZEOF(pnindex) = SELF\tessellated_surface_set.pnmax))" label="WR1"/>
          <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_surface_set.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
          <where expression="NOT ((SIZEOF(triangle_strips) = 0) AND (SIZEOF(triangle_fans) = 0))" label="WR3"/>
       </entity>
-      <entity name="convex_hexahedron" supertypes="faceted_primitive">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="convex_hexahedron" supertypes="faceted_primitive">
          <where expression="SIZEOF(points) = 8" label="WR1"/>
          <where expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0" label="WR2"/>
          <where expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0" label="WR3"/>
@@ -207,632 +207,681 @@
          <where expression="same_side([points[3], points[7], points[6]], [points[1], points[4], points[8], points[5]])" label="WR12"/>
          <where expression="same_side([points[3], points[7], points[8]], [points[1], points[5], points[6], points[2]])" label="WR13"/>
       </entity>
-      <entity name="coordinates_list" supertypes="tessellated_item">
-         <explicit name="npoints">
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="coordinates_list" supertypes="tessellated_item">
+         <explicit name="npoints" optional="NO">
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="position_coords">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="3"/>
-            <builtintype type="REAL"/>
+         <explicit name="position_coords" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="3"/>
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
          <where expression="npoints = SIZEOF(position_coords)" label="WR1"/>
          <where expression="SIZEOF (['GEOMETRIC_MODEL_SCHEMA.REPOSITIONED_TESSELLATED_ITEM'] * TYPEOF(SELF)) = 0" label="WR2"/>
       </entity>
-      <entity name="csg_solid" supertypes="solid_model">
-         <explicit name="tree_root_expression">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="csg_solid" supertypes="solid_model">
+         <explicit name="tree_root_expression" optional="NO">
             <typename name="csg_select"/>
          </explicit>
       </entity>
-      <entity name="cubic_bezier_tessellated_edge" supertypes="tessellated_edge">
-         <explicit name="line_strip">
-            <aggregate lower="4" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="cubic_bezier_tessellated_edge" supertypes="tessellated_edge">
+         <explicit name="line_strip" optional="NO">
+            <aggregate lower="4" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
             <redeclaration entity-ref="tessellated_edge"/>
          </explicit>
       </entity>
-      <entity name="cubic_bezier_triangulated_face" supertypes="tessellated_face">
-         <explicit name="ctriangles">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="10" type="LIST" upper="10"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="cubic_bezier_triangulated_face" supertypes="tessellated_face">
+         <explicit name="ctriangles" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="10" optional="NO" type="LIST" unique="NO" upper="10"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="SIZEOF( SELF\tessellated_face.normals) = 0" label="WR1"/>
       </entity>
-      <entity name="cubic_tessellated_connecting_edge" supertypes="cubic_bezier_tessellated_edge">
-         <explicit name="smooth">
-            <builtintype type="LOGICAL"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="cubic_tessellated_connecting_edge" supertypes="cubic_bezier_tessellated_edge">
+         <explicit name="smooth" optional="NO">
+            <builtintype fixed="NO" type="LOGICAL"/>
          </explicit>
-         <explicit name="face1">
+         <explicit name="face1" optional="NO">
             <typename name="cubic_bezier_triangulated_face"/>
          </explicit>
-         <explicit name="face2">
+         <explicit name="face2" optional="NO">
             <typename name="cubic_bezier_triangulated_face"/>
          </explicit>
       </entity>
-      <entity name="cyclide_segment_solid" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="cyclide_segment_solid" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="radius1">
+         <explicit name="radius1" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="radius2">
+         <explicit name="radius2" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="cone_angle1">
+         <explicit name="cone_angle1" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="cone_angle2">
+         <explicit name="cone_angle2" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
-         <explicit name="turn_angle">
+         <explicit name="turn_angle" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="eccentric_cone" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="eccentric_cone" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="semi_axis_1">
+         <explicit name="semi_axis_1" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="semi_axis_2">
+         <explicit name="semi_axis_2" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="height">
+         <explicit name="height" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="x_offset">
+         <explicit name="x_offset" optional="NO">
             <typename name="length_measure"/>
          </explicit>
-         <explicit name="y_offset">
+         <explicit name="y_offset" optional="NO">
             <typename name="length_measure"/>
          </explicit>
-         <explicit name="ratio">
-            <builtintype type="REAL"/>
+         <explicit name="ratio" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
          <where expression="ratio &gt;= 0.0" label="WR1"/>
       </entity>
-      <entity name="edge_based_wireframe_model" supertypes="geometric_representation_item">
-         <explicit name="ebwm_boundary">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="edge_based_wireframe_model" supertypes="geometric_representation_item">
+         <explicit name="ebwm_boundary" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="connected_edge_set"/>
          </explicit>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="ellipsoid" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="ellipsoid" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="semi_axis_1">
+         <explicit name="semi_axis_1" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="semi_axis_2">
+         <explicit name="semi_axis_2" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="semi_axis_3">
+         <explicit name="semi_axis_3" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="elliptic_area" supertypes="primitive_2d">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="elliptic_area" supertypes="primitive_2d">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_2d"/>
          </explicit>
-         <explicit name="semi_axis_1">
+         <explicit name="semi_axis_1" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="semi_axis_2">
+         <explicit name="semi_axis_2" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="extruded_area_solid" supertypes="swept_area_solid">
-         <explicit name="extruded_direction">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="extruded_area_solid" supertypes="swept_area_solid">
+         <explicit name="extruded_direction" optional="NO">
             <typename name="direction"/>
          </explicit>
-         <explicit name="depth">
+         <explicit name="depth" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <where expression="dot_product( (SELF\swept_area_solid.swept_area.basis_surface\ elementary_surface.position.p[3]), extruded_direction) &lt;&gt; 0.0" label="WR1"/>
       </entity>
-      <entity name="extruded_face_solid" supertypes="swept_face_solid">
-         <explicit name="extruded_direction">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="extruded_face_solid" supertypes="swept_face_solid">
+         <explicit name="extruded_direction" optional="NO">
             <typename name="direction"/>
          </explicit>
-         <explicit name="depth">
+         <explicit name="depth" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <where expression="dot_product( (SELF\swept_face_solid.swept_face.face_geometry\ elementary_surface.position.p[3]), extruded_direction) &lt;&gt; 0.0" label="WR1"/>
       </entity>
-      <entity name="face_based_surface_model" supertypes="geometric_representation_item">
-         <explicit name="fbsm_faces">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="face_based_surface_model" supertypes="geometric_representation_item">
+         <explicit name="fbsm_faces" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="connected_face_set"/>
          </explicit>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="faceted_brep" supertypes="manifold_solid_brep"/>
-      <entity name="faceted_primitive" super.expression="ONEOF (tetrahedron, convex_hexahedron)" supertypes="geometric_representation_item">
-         <explicit name="points">
-            <aggregate lower="4" type="LIST" unique="YES" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="faceted_brep" supertypes="manifold_solid_brep">
+         <where label="IP1"/>
+         <where label="IP2"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="faceted_primitive" super.expression="ONEOF (tetrahedron, convex_hexahedron)" supertypes="geometric_representation_item">
+         <explicit name="points" optional="NO">
+            <aggregate lower="4" optional="NO" type="LIST" unique="YES" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
          <where expression="points[1].dim = 3" label="WR1"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="geometric_curve_set" supertypes="geometric_set">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_curve_set" supertypes="geometric_set">
          <where expression="SIZEOF(QUERY(temp &lt;* SELF\geometric_set.elements |NOT (('GEOMETRY_SCHEMA.CURVE' IN TYPEOF(temp)) OR  ('GEOMETRY_SCHEMA.POINT' IN &#10;TYPEOF(temp))) )) = 0" label="WR1"/>
       </entity>
-      <entity name="geometric_set" super.expression="ONEOF (geometric_curve_set, geometric_set_replica)" supertypes="geometric_representation_item">
-         <explicit name="elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_set" super.expression="ONEOF (geometric_curve_set, geometric_set_replica)" supertypes="geometric_representation_item">
+         <explicit name="elements" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="geometric_set_select"/>
          </explicit>
       </entity>
-      <entity name="geometric_set_replica" supertypes="geometric_set">
-         <explicit name="parent_set">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="geometric_set_replica" supertypes="geometric_set">
+         <explicit name="parent_set" optional="NO">
             <typename name="geometric_set"/>
          </explicit>
-         <explicit name="transformation">
+         <explicit name="transformation" optional="NO">
             <typename name="cartesian_transformation_operator"/>
          </explicit>
          <derived expression="build_transformed_set(transformation, parent_set)" name="elements">
-            <aggregate lower="1" type="SET" upper="?"/>
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="geometric_set_select"/>
             <redeclaration entity-ref="geometric_set"/>
          </derived>
          <where expression="acyclic_set_replica(SELF, parent_set)" label="WR1"/>
       </entity>
-      <entity name="half_space_2d" supertypes="primitive_2d">
-         <explicit name="base_curve">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="half_space_2d" supertypes="primitive_2d">
+         <explicit name="base_curve" optional="NO">
             <typename name="curve"/>
          </explicit>
-         <explicit name="agreement_flag">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="agreement_flag" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="half_space_solid" supertypes="geometric_representation_item">
-         <explicit name="base_surface">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="half_space_solid" supertypes="geometric_representation_item">
+         <explicit name="base_surface" optional="NO">
             <typename name="surface"/>
          </explicit>
-         <explicit name="agreement_flag">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="agreement_flag" optional="NO">
+            <builtintype fixed="NO" type="BOOLEAN"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      
-      <entity name="polygonal_area" supertypes="primitive_2d">
-         <explicit name="bounds">
-            <aggregate lower="3" type="LIST" unique="YES" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="manifold_solid_brep" supertypes="solid_model">
+         <explicit name="outer" optional="NO">
+            <typename name="closed_shell"/>
+         </explicit>
+      <where label="IP1"/>
+         <where label="IP10"/>
+         <where label="IP11"/>
+         <where label="IP12"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
+         <where label="IP4"/>
+         <where label="IP5"/>
+         <where label="IP6"/>
+         <where label="IP7"/>
+         <where label="IP8"/>
+         <where label="IP9"/>
+      </entity>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="polygonal_area" supertypes="primitive_2d">
+         <explicit name="bounds" optional="NO">
+            <aggregate lower="3" optional="NO" type="LIST" unique="YES" upper="?"/>
             <typename name="cartesian_point"/>
          </explicit>
+      <where label="IP1"/>
       </entity>
-      <entity name="primitive_2d" super.expression="ONEOF (circular_area, elliptic_area, rectangular_area, polygonal_area, half_space_2d)" supertypes="geometric_representation_item">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="primitive_2d" super.expression="ONEOF (circular_area, elliptic_area, rectangular_area, polygonal_area, half_space_2d)" supertypes="geometric_representation_item">
          <where expression="SELF\geometric_representation_item.dim = 2" label="WR1"/>
       </entity>
-      <entity name="rectangle_domain" supertypes="founded_item">
-         <explicit name="corner">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="rectangle_domain" supertypes="founded_item">
+         <explicit name="corner" optional="NO">
             <typename name="cartesian_point"/>
          </explicit>
-         <explicit name="xlength">
+         <explicit name="xlength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="ylength">
+         <explicit name="ylength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <where expression="SIZEOF(QUERY(item &lt;* USEDIN(SELF, '')| NOT ('GEOMETRIC_MODEL_SCHEMA.RECTANGLED_HALF_SPACE' IN TYPEOF(item)))) = 0" label="WR1"/>
       </entity>
-      <entity name="rectangled_half_space" supertypes="half_space_2d">
-         <explicit name="enclosure">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="rectangled_half_space" supertypes="half_space_2d">
+         <explicit name="enclosure" optional="NO">
             <typename name="rectangle_domain"/>
          </explicit>
       </entity>
-      <entity name="rectangular_area" supertypes="primitive_2d">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="rectangular_area" supertypes="primitive_2d">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_2d"/>
          </explicit>
-         <explicit name="x">
+         <explicit name="x" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="y">
+         <explicit name="y" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="rectangular_pyramid" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="rectangular_pyramid" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="xlength">
+         <explicit name="xlength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="ylength">
+         <explicit name="ylength" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="height">
+         <explicit name="height" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="repositioned_tessellated_item" supertypes="tessellated_item">
-         <explicit name="location">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="repositioned_tessellated_item" supertypes="tessellated_item">
+         <explicit name="location" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
          <where expression="NOT (SIZEOF (['GEOMETRIC_MODEL_SCHEMA.TESSELLATED_CURVE_SET', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_GEOMETRIC_SET', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_POINT_SET', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SURFACE_SET', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHELL', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SOLID', 'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_WIRE'] * TYPEOF(SELF)) = 0)" label="WR1"/>
       </entity>
-      <entity name="revolved_area_solid" supertypes="swept_area_solid">
-         <explicit name="axis">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="revolved_area_solid" supertypes="swept_area_solid">
+         <explicit name="axis" optional="NO">
             <typename name="axis1_placement"/>
          </explicit>
-         <explicit name="angle">
+         <explicit name="angle" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
          <derived expression="representation_item('')|| geometric_representation_item()|| curve()|| line(axis.location, representation_item('')|| geometric_representation_item()|| vector(axis.z, 1.0))" name="axis_line">
             <typename name="line"/>
          </derived>
+      <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
-      <entity name="revolved_face_solid" supertypes="swept_face_solid">
-         <explicit name="axis">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="revolved_face_solid" supertypes="swept_face_solid">
+         <explicit name="axis" optional="NO">
             <typename name="axis1_placement"/>
          </explicit>
-         <explicit name="angle">
+         <explicit name="angle" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
          <derived expression="representation_item('')|| geometric_representation_item()|| curve()|| line(axis.location, representation_item('')|| geometric_representation_item()|| vector(axis.z, 1.0))" name="axis_line">
             <typename name="line"/>
          </derived>
+      <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
-      <entity name="right_angular_wedge" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="right_angular_wedge" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis2_placement_3d"/>
          </explicit>
-         <explicit name="x">
+         <explicit name="x" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="y">
+         <explicit name="y" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="z">
+         <explicit name="z" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="ltx">
+         <explicit name="ltx" optional="NO">
             <typename name="length_measure"/>
          </explicit>
          <where expression="((0.0 &lt;= ltx) AND (ltx &lt; x))" label="WR1"/>
       </entity>
-      <entity name="right_circular_cone" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="right_circular_cone" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis1_placement"/>
          </explicit>
-         <explicit name="height">
+         <explicit name="height" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="radius">
+         <explicit name="radius" optional="NO">
             <typename name="length_measure"/>
          </explicit>
-         <explicit name="semi_angle">
+         <explicit name="semi_angle" optional="NO">
             <typename name="plane_angle_measure"/>
          </explicit>
          <where expression="radius &gt;= 0.0" label="WR1"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="right_circular_cylinder" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="right_circular_cylinder" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis1_placement"/>
          </explicit>
-         <explicit name="height">
+         <explicit name="height" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="radius">
+         <explicit name="radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
       </entity>
-      <entity name="sectioned_spine" supertypes="geometric_curve_set">
-         <explicit name="cross_sections">
-            <aggregate lower="2" type="LIST" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="sectioned_spine" supertypes="geometric_curve_set">
+         <explicit name="cross_sections" optional="NO">
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
             <typename name="curve"/>
          </explicit>
-         <explicit name="spine_points">
-            <aggregate lower="2" type="LIST" upper="?"/>
+         <explicit name="spine_points" optional="NO">
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
             <typename name="point"/>
          </explicit>
          <where expression="SIZEOF(SELF\geometric_set.elements) = 1" label="WR1"/>
          <where expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF(SELF\geometric_set.elements[1])" label="WR2"/>
          <where expression="SIZEOF(cross_sections) = SIZEOF(spine_points)" label="WR3"/>
          <where expression="SELF\geometric_representation_item.dim = 3" label="WR4"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="shell_based_surface_model" supertypes="geometric_representation_item">
-         <explicit name="sbsm_boundary">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="shell_based_surface_model" supertypes="geometric_representation_item">
+         <explicit name="sbsm_boundary" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="shell"/>
          </explicit>
          <where expression="constraints_geometry_shell_based_surface_model(SELF)" label="WR1"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="shell_based_wireframe_model" supertypes="geometric_representation_item">
-         <explicit name="sbwm_boundary">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="shell_based_wireframe_model" supertypes="geometric_representation_item">
+         <explicit name="sbwm_boundary" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="shell"/>
          </explicit>
          <where expression="constraints_geometry_shell_based_wireframe_model(SELF)" label="WR1"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
-      
-      <entity name="solid_replica" supertypes="solid_model">
-         <explicit name="parent_solid">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="solid_model" super.expression="ONEOF (csg_solid, manifold_solid_brep, swept_face_solid, swept_area_solid, swept_disk_solid, solid_replica, brep_2d, trimmed_volume)" supertypes="geometric_representation_item"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="solid_replica" supertypes="solid_model">
+         <explicit name="parent_solid" optional="NO">
             <typename name="solid_model"/>
          </explicit>
-         <explicit name="transformation">
+         <explicit name="transformation" optional="NO">
             <typename name="cartesian_transformation_operator_3d"/>
          </explicit>
          <where expression="acyclic_solid_replica(SELF, parent_solid)" label="WR1"/>
          <where expression="parent_solid\geometric_representation_item.dim = 3" label="WR2"/>
       </entity>
-      <entity name="sphere" supertypes="geometric_representation_item">
-         <explicit name="radius">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="sphere" supertypes="geometric_representation_item">
+         <explicit name="radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="centre">
+         <explicit name="centre" optional="NO">
             <typename name="point"/>
          </explicit>
       </entity>
-      <entity name="surface_curve_swept_area_solid" supertypes="swept_area_solid">
-         <explicit name="directrix">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="surface_curve_swept_area_solid" supertypes="swept_area_solid">
+         <explicit name="directrix" optional="NO">
             <typename name="curve"/>
          </explicit>
-         <explicit name="start_param">
-            <builtintype type="REAL"/>
+         <explicit name="start_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
-         <explicit name="end_param">
-            <builtintype type="REAL"/>
+         <explicit name="end_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
-         <explicit name="reference_surface">
+         <explicit name="reference_surface" optional="NO">
             <typename name="surface"/>
          </explicit>
          <where expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR (reference_surface IN (directrix\surface_curve.basis_surface))" label="WR1"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="surface_curve_swept_face_solid" supertypes="swept_face_solid">
-         <explicit name="directrix">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="surface_curve_swept_face_solid" supertypes="swept_face_solid">
+         <explicit name="directrix" optional="NO">
             <typename name="curve"/>
          </explicit>
-         <explicit name="start_param">
-            <builtintype type="REAL"/>
+         <explicit name="start_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
-         <explicit name="end_param">
-            <builtintype type="REAL"/>
+         <explicit name="end_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
-         <explicit name="reference_surface">
+         <explicit name="reference_surface" optional="NO">
             <typename name="surface"/>
          </explicit>
          <where expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR (reference_surface IN (directrix\surface_curve.basis_surface))" label="WR1"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="swept_area_solid" super.expression="ONEOF (revolved_area_solid, extruded_area_solid, surface_curve_swept_area_solid)" supertypes="solid_model">
-         <explicit name="swept_area">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="swept_area_solid" super.expression="ONEOF (revolved_area_solid, extruded_area_solid, surface_curve_swept_area_solid)" supertypes="solid_model">
+         <explicit name="swept_area" optional="NO">
             <typename name="curve_bounded_surface"/>
          </explicit>
          <where expression="'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(swept_area.basis_surface)" label="WR1"/>
       </entity>
-      <entity name="swept_disk_solid" supertypes="solid_model">
-         <explicit name="directrix">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="swept_disk_solid" supertypes="solid_model">
+         <explicit name="directrix" optional="NO">
             <typename name="curve"/>
          </explicit>
-         <explicit name="radius">
+         <explicit name="radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <explicit name="inner_radius" optional="YES">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="start_param">
-            <builtintype type="REAL"/>
+         <explicit name="start_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
-         <explicit name="end_param">
-            <builtintype type="REAL"/>
+         <explicit name="end_param" optional="NO">
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
          <where expression="directrix.dim = 3" label="WR1"/>
          <where expression="(NOT EXISTS(inner_radius)) OR (radius &gt; inner_radius)" label="WR2"/>
       </entity>
-      <entity name="swept_face_solid" super.expression="ONEOF (extruded_face_solid, revolved_face_solid, surface_curve_swept_face_solid)" supertypes="solid_model">
-         <explicit name="swept_face">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="swept_face_solid" super.expression="ONEOF (extruded_face_solid, revolved_face_solid, surface_curve_swept_face_solid)" supertypes="solid_model">
+         <explicit name="swept_face" optional="NO">
             <typename name="face_surface"/>
          </explicit>
          <where expression="'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(swept_face.face_geometry)" label="WR1"/>
       </entity>
-      <entity name="tessellated_connecting_edge" supertypes="tessellated_edge">
-         <explicit name="smooth">
-            <builtintype type="LOGICAL"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_connecting_edge" supertypes="tessellated_edge">
+         <explicit name="smooth" optional="NO">
+            <builtintype fixed="NO" type="LOGICAL"/>
          </explicit>
-         <explicit name="face1">
+         <explicit name="face1" optional="NO">
             <typename name="tessellated_face"/>
          </explicit>
-         <explicit name="face2">
+         <explicit name="face2" optional="NO">
             <typename name="tessellated_face"/>
          </explicit>
-         <explicit name="line_strip_face1">
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="line_strip_face1" optional="NO">
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="line_strip_face2">
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="line_strip_face2" optional="NO">
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="SIZEOF(line_strip_face1) = SIZEOF(line_strip_face2)" label="WR1"/>
          <where expression="SIZEOF(line_strip_face1) = SIZEOF(SELF\tessellated_edge.line_strip)" label="WR2"/>
          <where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face1))" label="WR3"/>
          <where expression="NOT(('GEOMETRIC_MODEL_SCHEMA.CUBIC_BEZIER_TRIANGULATED_FACE') IN TYPEOF(face2))" label="WR4"/>
       </entity>
-      <entity name="tessellated_curve_set" supertypes="tessellated_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_curve_set" supertypes="tessellated_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
-         <explicit name="line_strips">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="line_strips" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
       </entity>
-      <entity name="tessellated_edge" super.expression="ONEOF (tessellated_connecting_edge, cubic_bezier_tessellated_edge)" supertypes="tessellated_structured_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_edge" super.expression="ONEOF (tessellated_connecting_edge, cubic_bezier_tessellated_edge)" supertypes="tessellated_structured_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
          <explicit name="geometric_link" optional="YES">
             <typename name="edge_or_curve"/>
          </explicit>
-         <explicit name="line_strip">
-            <aggregate lower="2" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="line_strip" optional="NO">
+            <aggregate lower="2" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face, cubic_bezier_triangulated_face)" supertypes="tessellated_structured_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="tessellated_face" super.expression="ONEOF (triangulated_face, complex_triangulated_face, cubic_bezier_triangulated_face)" supertypes="tessellated_structured_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
-         <explicit name="pnmax">
-            <builtintype type="INTEGER"/>
+         <explicit name="pnmax" optional="NO">
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="normals">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="3"/>
-            <builtintype type="REAL"/>
+         <explicit name="normals" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="3"/>
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
          <explicit name="geometric_link" optional="YES">
             <typename name="face_or_surface"/>
          </explicit>
          <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
       </entity>
-      <entity name="tessellated_geometric_set" supertypes="tessellated_item">
-         <explicit name="children">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_geometric_set" supertypes="tessellated_item">
+         <explicit name="children" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="tessellated_item"/>
          </explicit>
       </entity>
-      <entity abstract.supertype="YES" name="tessellated_item" super.expression="ONEOF (coordinates_list, tessellated_solid, tessellated_shell, tessellated_wire, tessellated_geometric_set, tessellated_curve_set, tessellated_point_set, tessellated_surface_set, tessellated_structured_item)" supertypes="geometric_representation_item">
+      <entity abstract.entity="NO" abstract.supertype="YES" name="tessellated_item" super.expression="ONEOF (coordinates_list, tessellated_solid, tessellated_shell, tessellated_wire, tessellated_geometric_set, tessellated_curve_set, tessellated_point_set, tessellated_surface_set, tessellated_structured_item)" supertypes="geometric_representation_item">
          <where expression="SIZEOF (QUERY (using_rep &lt;* using_representations (SELF) | NOT ('GEOMETRIC_MODEL_SCHEMA.TESSELLATED_SHAPE_REPRESENTATION' IN TYPEOF(using_rep)))) = 0" label="WR1"/>
       </entity>
-      <entity name="tessellated_point_set" supertypes="tessellated_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_point_set" supertypes="tessellated_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
-         <explicit name="point_list">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="point_list" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
       </entity>
-      <entity name="tessellated_shape_representation" supertypes="shape_representation">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_shape_representation" supertypes="shape_representation">
          <where expression="'REPRESENTATION_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT' IN&#10;         TYPEOF(SELF\representation.context_of_items)" label="WR1"/>
          <where expression="NOT( SIZEOF(QUERY ( it &lt;* SELF.items|   &#10;       'GEOMETRIC_MODEL_SCHEMA.TESSELLATED_ITEM' IN TYPEOF (it))) = 0 )" label="WR2"/>
       </entity>
-      <entity name="tessellated_shape_representation_with_accuracy_parameters" supertypes="tessellated_shape_representation">
-         <explicit name="tessellation_accuracy_parameters">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_shape_representation_with_accuracy_parameters" supertypes="tessellated_shape_representation">
+         <explicit name="tessellation_accuracy_parameters" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="tessellation_accuracy_parameter_item"/>
          </explicit>
       </entity>
-      <entity name="tessellated_shell" supertypes="tessellated_item">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_shell" supertypes="tessellated_item">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="tessellated_structured_item"/>
          </explicit>
          <explicit name="topological_link" optional="YES">
             <typename name="connected_face_set"/>
          </explicit>
       </entity>
-      <entity name="tessellated_solid" supertypes="tessellated_item">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_solid" supertypes="tessellated_item">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="tessellated_structured_item"/>
          </explicit>
          <explicit name="geometric_link" optional="YES">
             <typename name="manifold_solid_brep"/>
          </explicit>
       </entity>
-      <entity name="tessellated_structured_item" super.expression="ONEOF (tessellated_face, tessellated_edge, tessellated_vertex)" supertypes="tessellated_item"/>
-      <entity abstract.supertype="YES" name="tessellated_surface_set" super.expression="ONEOF (triangulated_surface_set, complex_triangulated_surface_set)" supertypes="tessellated_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_structured_item" super.expression="ONEOF (tessellated_face, tessellated_edge, tessellated_vertex)" supertypes="tessellated_item"/>
+      <entity abstract.entity="NO" abstract.supertype="YES" name="tessellated_surface_set" super.expression="ONEOF (triangulated_surface_set, complex_triangulated_surface_set)" supertypes="tessellated_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
-         <explicit name="pnmax">
-            <builtintype type="INTEGER"/>
+         <explicit name="pnmax" optional="NO">
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="normals">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="3"/>
-            <builtintype type="REAL"/>
+         <explicit name="normals" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="3"/>
+            <builtintype fixed="NO" type="REAL"/>
          </explicit>
          <where expression="((SIZEOF(normals) = 0) OR (SIZEOF(normals) = 1) OR (SIZEOF(normals) = pnmax))" label="WR1"/>
       </entity>
-      <entity name="tessellated_vertex" supertypes="tessellated_structured_item">
-         <explicit name="coordinates">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_vertex" supertypes="tessellated_structured_item">
+         <explicit name="coordinates" optional="NO">
             <typename name="coordinates_list"/>
          </explicit>
          <explicit name="topological_link" optional="YES">
             <typename name="vertex_point"/>
          </explicit>
-         <explicit name="point_index">
-            <builtintype type="INTEGER"/>
+         <explicit name="point_index" optional="NO">
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
       </entity>
-      <entity name="tessellated_wire" supertypes="tessellated_item">
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="?"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tessellated_wire" supertypes="tessellated_item">
+         <explicit name="items" optional="NO">
+            <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
             <typename name="tessellated_edge_or_vertex"/>
          </explicit>
          <explicit name="geometric_model_link" optional="YES">
             <typename name="path_or_composite_curve"/>
          </explicit>
       </entity>
-      <entity name="tetrahedron" supertypes="faceted_primitive">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="tetrahedron" supertypes="faceted_primitive">
          <where expression="SIZEOF(points) = 4" label="WR1"/>
          <where expression="above_plane(points[1], points[2], points[3], points[4]) &lt;&gt; 0.0" label="WR2"/>
       </entity>
-      <entity name="torus" supertypes="geometric_representation_item">
-         <explicit name="position">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="torus" supertypes="geometric_representation_item">
+         <explicit name="position" optional="NO">
             <typename name="axis1_placement"/>
          </explicit>
-         <explicit name="major_radius">
+         <explicit name="major_radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
-         <explicit name="minor_radius">
+         <explicit name="minor_radius" optional="NO">
             <typename name="positive_length_measure"/>
          </explicit>
          <where expression="major_radius &gt; minor_radius" label="WR1"/>
       </entity>
-      <entity name="triangulated_face" supertypes="tessellated_face">
-         <explicit name="pnindex">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="triangulated_face" supertypes="tessellated_face">
+         <explicit name="pnindex" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangles">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="3"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangles" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="3"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="((SIZEOF(pnindex) = 0) OR (SIZEOF(pnindex) = SELF\tessellated_face.pnmax))" label="WR1"/>
          <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_face.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
       </entity>
-      <entity name="triangulated_surface_set" supertypes="tessellated_surface_set">
-         <explicit name="pnindex">
-            <aggregate lower="0" type="LIST" upper="?"/>
-            <builtintype type="INTEGER"/>
+      <entity abstract.entity="NO" abstract.supertype="NO" name="triangulated_surface_set" supertypes="tessellated_surface_set">
+         <explicit name="pnindex" optional="NO">
+            <aggregate lower="0" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
-         <explicit name="triangles">
-            <aggregate lower="1" type="LIST" upper="?"/>
-            <aggregate lower="3" type="LIST" upper="3"/>
-            <builtintype type="INTEGER"/>
+         <explicit name="triangles" optional="NO">
+            <aggregate lower="1" optional="NO" type="LIST" unique="NO" upper="?"/>
+            <aggregate lower="3" optional="NO" type="LIST" unique="NO" upper="3"/>
+            <builtintype fixed="NO" type="INTEGER"/>
          </explicit>
          <where expression="((SIZEOF(pnindex) = 0) OR (SIZEOF(pnindex) = SELF\tessellated_surface_set.pnmax))" label="WR1"/>
          <where expression="NOT((SIZEOF(pnindex) = 0) AND (SELF\tessellated_surface_set.pnmax &lt;&gt; coordinates.npoints))" label="WR2"/>
       </entity>
-      <entity name="trimmed_volume" supertypes="solid_model">
-         <explicit name="basis_volume">
+      <entity abstract.entity="NO" abstract.supertype="NO" name="trimmed_volume" supertypes="solid_model">
+         <explicit name="basis_volume" optional="NO">
             <typename name="volume"/>
          </explicit>
-         <explicit name="u1">
+         <explicit name="u1" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="u2">
+         <explicit name="u2" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="v1">
+         <explicit name="v1" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="v2">
+         <explicit name="v2" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="w1">
+         <explicit name="w1" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
-         <explicit name="w2">
+         <explicit name="w2" optional="NO">
             <typename name="parameter_value"/>
          </explicit>
          <where expression="u1 &lt;&gt; u2" label="WR1"/>
@@ -846,7 +895,7 @@
          <parameter name="parent">
             <typename name="geometric_set"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF NOT (('GEOMETRY_SCHEMA.GEOMETRIC_SET_REPLICA') IN TYPEOF(parent))
         THEN  RETURN (TRUE);
    END_IF;
@@ -866,7 +915,7 @@
          <parameter name="parent">
             <typename name="solid_model"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>IF NOT (('GEOMETRY_SCHEMA.SOLID_REPLICA') IN TYPEOF(parent)) THEN
       RETURN (TRUE);
    END_IF;
@@ -886,7 +935,7 @@
          <parameter name="gset">
             <typename name="geometric_set"/>
          </parameter>
-         <aggregate lower="0" type="SET" upper="?"/>
+         <aggregate lower="0" optional="NO" type="SET" unique="NO" upper="?"/>
          <typename name="geometric_set_select"/>
          <algorithm>LOCAL
    s          : SET [1:?] OF geometric_set_select := gset.elements;
@@ -911,7 +960,7 @@
          <parameter name="m">
             <typename name="shell_based_surface_model"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
      result : BOOLEAN := TRUE;
    END_LOCAL;
@@ -933,7 +982,7 @@
          <parameter name="m">
             <typename name="shell_based_wireframe_model"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype fixed="NO" type="BOOLEAN"/>
          <algorithm>LOCAL
      result : BOOLEAN := TRUE;
    END_LOCAL;
@@ -955,7 +1004,7 @@
          <parameter name="brep">
             <typename name="manifold_solid_brep"/>
          </parameter>
-         <aggregate lower="1" type="SET" upper="?"/>
+         <aggregate lower="1" optional="NO" type="SET" unique="NO" upper="?"/>
          <typename name="closed_shell"/>
          <algorithm>LOCAL   
       return_set: SET[1:?] OF closed_shell := [brep.outer];   

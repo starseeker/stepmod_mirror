@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.8 2017/09/05 16:00:30 duchierp Exp $
+   $Id: arm.exp,v 1.9 2017/10/04 12:56:53 duchierp Exp $
    ISO TC184/SC4/WG12 N9241 - ISO/TS 10303-1835 Additive_manufacturing_part_and_build_information - EXPRESS ARM
  *)
  
@@ -17,6 +17,10 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
     (Build_direction_representation,
     Additive_manufacturing_x_direction_representation);
  END_TYPE;
+ 
+ TYPE ampubi_initial_application_domain_enumeration = ENUMERATION BASED_ON initial_application_domain_enumeration WITH
+   (additive_manufacturing);
+ END_TYPE;
 
  ENTITY Additive_manufacturing_orientation_property
      SUBTYPE OF (Property_representation);
@@ -26,7 +30,10 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  
  ENTITY Additive_manufacturing_part_definition
      SUBTYPE OF (Part_view_definition);
-     SELF\Product_view_definition.initial_context : Additive_manufacturing_view_context ;
+     INVERSE
+       design_relationship : Geometrical_relationship FOR relating_view;
+     WHERE
+  		WR1: SELF\Product_view_definition.initial_context\Initial_view_definition_context.application_domain = ampubi_initial_application_domain_enumeration.additive_manufacturing;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_property_assignment
@@ -61,13 +68,8 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  
  ENTITY Additive_manufacturing_support_structure 
      SUBTYPE OF (Part_view_definition);
-     SELF\Product_view_definition.initial_context : Additive_manufacturing_view_context ;
- END_ENTITY;
-
- ENTITY Additive_manufacturing_view_context
-    SUBTYPE OF (Initial_part_view_definition_context);
-    DERIVE
-         SELF\Initial_view_definition_context.application_domain : application_domain_string := 'Additive manufacturing';
+     WHERE
+  		WR1: SELF\Product_view_definition.initial_context\Initial_view_definition_context.application_domain = ampubi_initial_application_domain_enumeration.additive_manufacturing;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_workpiece_setup

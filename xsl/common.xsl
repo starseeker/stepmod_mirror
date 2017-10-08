@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: common.xsl,v 1.198 2017/09/13 16:02:40 mikeward Exp $
+$Id: common.xsl,v 1.199 2017/09/14 07:38:53 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Templates that are common to most other stylesheets
@@ -5195,7 +5195,7 @@ width="20" height="20"/>
 
             </xsl:variable>
 
-            <a href="{$href}"><xsl:value-of select="'FOO'"/><xsl:value-of select="$module_name"/></a>
+            <a href="{$href}"><xsl:value-of select="$module_name"/></a>
 
           </xsl:otherwise>
 

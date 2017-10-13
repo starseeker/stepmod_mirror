@@ -1,6 +1,6 @@
-$Id: readme.txt,v 1.4 2002/08/18 17:28:52 robbod Exp $
+$Id: readme.txt,v 1.5 2004/07/07 14:27:01 rocc Exp $
 
-The module repository is organized as follows:
+The module repository is organized as follows::
 
 dtd/
 Contains the repository DTD files

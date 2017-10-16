@@ -64,6 +64,7 @@ log=re.split('/',file)[-1]
 title=date+'-log.csv'
 header=log+' '+script
 
+
 data=list()
 with open(file) as f:
     inside='n'
@@ -89,15 +90,16 @@ with open(file) as f:
             l=len(messages)
             for i in range(l):
                 if re.match('WARNING:|ERROR\s*:',messages[i]):
-                    data.append([messages[i],schema,messages[i+1]])
+                    data.append([messages[i],schema,messages[i+1].strip()])
 df=pd.DataFrame(data,columns=[header,'schema','message'])
-
 
 # ### For EDM validation checks only
 
 # In[ ]:
+ignore=None
+name=None
 
-if len(sys.argv) == 3:
+if len(sys.argv) == 5:
     lf=sys.argv[2]
     #df['line']=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line ')))
     Line=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line '))) 
@@ -109,12 +111,26 @@ if len(sys.argv) == 3:
     express=pd.DataFrame(express,columns=['text'])
     module=list()
     for i in Line:
+        #does not work with concatenated file as search files.
+        
         line=i-1
-        while re.search('\(\*\s*USED|\(\*\s*REFERENCED|\(\*\s*Implicit',express.text[line])==None:
+        while re.search('\(\*\s*USED|\(\*\s*REFERENCED|\(\*\s*Implicit|^SCHEMA ',express.text[line])==None:
             line=line-1
-        text=re.sub('\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n|\(\*\s*Implicit interfaced from:\s*|\s*\*\)','',express.text[line])
-        module.append(text)
+        text=re.sub("\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n|\(\*\s*Implicit interfaced from:\s*|\s*\*\)|SCHEMA |;|\'\{.*$","",express.text[line])
+        module.append(text.strip())
     df['module']=module
+    ### Errors to ignore
+    ignore=pd.read_csv(sys.argv[3],sep=';')
+    name=sys.argv[4]
+
+
+if len(sys.argv)==4:
+    ignore=pd.read_csv(sys.argv[2],sep=';')
+    name=sys.argv[3]
+
+ignore=ignore[ignore.loc[:,'in']==name]
+ignore=ignore.iloc[:,:2]
+col=list(set(ignore.type))
 
 
 # ### Last formatting and excel output
@@ -126,11 +142,12 @@ df.drop_duplicates(['message'],inplace=True)
 splitted=df.message.apply(lambda x:re.split('(C\d+)',x))
 df['C']=splitted.apply(lambda x: x[1])
 df.message=df.message.apply(lambda x: re.sub('\s*C\d+:',' ',x))
+df.message=df.message.apply(lambda x: x.strip())
 df.sort_values(by='C',inplace=True)
+print(df.head())
+df_left=pd.merge(df,ignore,how='outer',on='message',indicator=True)
+df_left=df_left[df_left._merge=='left_only']
+df_left=df_left.iloc[:,:-3]
 
 # To CSV
-df.to_csv(title,sep=';',index=False)
-
-
-
-
+df_left.to_csv(title,sep=';',index=False)

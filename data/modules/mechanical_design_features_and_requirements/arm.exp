@@ -62,6 +62,18 @@ ENTITY Counterbore_hole_definition
  --- IP1:counterbore_definition shall in ascending order in the list organized according to hole_diameter 
 END_ENTITY;
 
+ENTITY Implicit_counterbore_hole_definition
+	SUBTYPE OF (Counterbore_hole_definition);
+		position	:	Geometric_model;
+  WHERE
+    WR1: SIZEOF(position\Geometric_model.items) = 1;
+    --There shall be exactly one item in the representation.
+    WR2: SIZEOF(QUERY( ri <* position\Geometric_model.items | 
+               NOT ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT_3D' IN TYPEOF (ri))
+               )) = 0;
+    --The item in the representation shall be an axis_placement_3d
+END_ENTITY;
+
 ENTITY Counterbore_hole_occurrence
   SUBTYPE OF (Shape_element);
    definition : Counterbore_hole_definition;
@@ -83,6 +95,18 @@ ENTITY Countersink_hole_definition
      drill_depth                 : Hole_depth;
 END_ENTITY;
 
+ENTITY Implicit_countesink_hole_definition
+	SUBTYPE OF (countersink_hole_definition);
+		position	:	Geometric_model;
+  WHERE
+    WR1: SIZEOF(position\Geometric_model.items) = 1;
+    --There shall be exactly one item in the representation.
+    WR2: SIZEOF(QUERY( ri <* position\Geometric_model.items | 
+               NOT ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT_3D' IN TYPEOF (ri))
+               )) = 0;
+    --The item in the representation shall be an axis_placement_3d
+END_ENTITY;
+
 ENTITY Countersink_hole_occurrence
   SUBTYPE OF (Shape_element);
    definition                    : Countersink_hole_definition;
@@ -97,10 +121,12 @@ END_ENTITY;
 
 ENTITY Counterdrill_hole_definition
   SUBTYPE OF (Countersink_hole_definition);
-     counterdrill_angle           : Positive_angle_data_element;
-     counterdrill_angle_tolerance : Angle_plus_minus_bounds;
-     counterbore_definition   	  : Counterbore_definition;
+    counterbore_definition   	  : Counterbore_definition;
   END_ENTITY;
+  
+ENTITY Implicit_counterdrill_hole_definition
+	SUBTYPE OF (Counterdrill_hole_definition, Implicit_countersink_hole_definition);
+END_ENTITY;
 
 ENTITY Counterdrill_hole_occurrence
   SUBTYPE OF (Shape_element);
@@ -118,6 +144,10 @@ ENTITY Spotface_definition
   SUBTYPE OF (Counterbore_hole_definition);
                   spotface_radius : Positive_length_data_element;
         spotface_radius_tolerance : OPTIONAL Length_plus_minus_bounds;
+END_ENTITY;
+
+ENTITY Implicit_spotface_hole_definition
+	SUBTYPE OF (Spotface_hole_definition, Implicit_counterbore_hole_definition);
 END_ENTITY;
 
 ENTITY Spotface_occurrence

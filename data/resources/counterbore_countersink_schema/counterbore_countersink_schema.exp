@@ -1,5 +1,5 @@
 (*
-$Id: counterbore_countersink_schema.exp,v 1.10 2017/10/13 19:40:10 thomasrthurman Exp $
+$Id: counterbore_countersink_schema.exp,v 1.11 2017/10/17 22:57:19 brandonus Exp $
 ISO 10303 TC184/SC4/WG12 N9785
 
 EXPRESS Source:
@@ -29,8 +29,10 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 SCHEMA counterbore_countersink_schema '{iso standard 10303 part(113) version(1) object(1) counterbore_countersink_schema(2)}';
 
+REFERENCE FROM geometry_schema --ISO 10303-
+      (axis2_placement_3d);
 
-REFERENCE FROM measure_schema   -- ISO 10303-41
+REFERENCE FROM measure_schema   --ISO 10303-41
          (length_measure_with_unit,
           positive_length_measure_with_unit,
           plane_angle_measure_with_unit,
@@ -46,6 +48,9 @@ REFERENCE FROM product_property_definition_schema
          (characterized_object,
           property_definition,
           shape_aspect);
+          
+REFERENCE FROM product_property_representation_schema --ISO 10303-
+		(shape_representation);
              
 REFERENCE FROM shape_tolerance_schema   --ISO 10303-47
          (length_tolerance_value,
@@ -74,9 +79,9 @@ ENTITY implicit_counterbore_hole_definition
 	SUBTYPE OF (counterbore_hole_definition);
 		position	:	shape_representation;
   WHERE
-    WR1: SIZEOF(position\representation.items) = 1;
+    WR1: SIZEOF(position\shape_representation.items) = 1;
     --There shall be exactly one item in the representation.
-    WR2: SIZEOF(QUERY( ri <* position\representation.items | 
+    WR2: SIZEOF(QUERY( ri <* position\shape_representation.items | 
                NOT ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
                )) = 0;
     --The item in the representation shall be an axis2_placement_3d
@@ -103,13 +108,13 @@ ENTITY countersink_hole_definition
      drill_depth                 : hole_depth;
 END_ENTITY;
 
-ENTITY implicit_countesink_hole_definition
+ENTITY implicit_countersink_hole_definition
 	SUBTYPE OF (countersink_hole_definition);
 		position	:	shape_representation;
   WHERE
-    WR1: SIZEOF(position\representation.items) = 1;
+    WR1: SIZEOF(position\shape_representation.items) = 1;
     --There shall be exactly one item in the representation.
-    WR2: SIZEOF(QUERY( ri <* position\representation.items | 
+    WR2: SIZEOF(QUERY( ri <* position\shape_representation.items | 
                NOT ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
                )) = 0;
     --The item in the representation shall be an axis2_placement_3d
@@ -137,7 +142,7 @@ ENTITY counterdrill_hole_definition
 
   
 ENTITY implicit_counterdrill_hole_definition
-	SUBTYPE OF (counterdrill_hole_definition,implicit_countersink_hole_definition);
+	SUBTYPE OF (counterdrill_hole_definition, implicit_countersink_hole_definition);
 END_ENTITY;
 
 ENTITY counterdrill_hole_occurrence
@@ -159,8 +164,8 @@ ENTITY spotface_definition
         spotface_radius_tolerance : OPTIONAL length_tolerance_value;
 END_ENTITY;
 
-ENTITY implicit_spotface_hole_definition
-	SUBTYPE OF (spotface_hole_definition, implicit_counterbore_hole_definition);
+ENTITY implicit_spotface_definition
+	SUBTYPE OF (spotface_definition, implicit_counterbore_hole_definition);
 END_ENTITY;
 
 ENTITY spotface_occurrence

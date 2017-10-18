@@ -1,31 +1,38 @@
 (*
-   $Id: arm.exp,v 1.10 2017/10/04 15:30:25 duchierp Exp $
+   $Id: arm.exp,v 1.11 2017/10/04 16:08:40 duchierp Exp $
    ISO TC184/SC4/WG12 N9241 - ISO/TS 10303-1835 Additive_manufacturing_part_and_build_information - EXPRESS ARM
  *)
  
 SCHEMA Additive_manufacturing_part_and_build_information_arm;
 
+ USE FROM Construction_geometry_arm; --ISO/TS 10303-1131
  USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
  USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
  USE FROM Item_definition_structure_arm; -- ISO/TS 10303-1345
- USE FROM Process_plan_arm; -- ISO/TS 10303-1803
+ USE FROM Part_shape_arm; -- ISO/TS 10303-1807
  USE FROM Part_view_definition_arm; --ISO/TS 10303-1023
+ USE FROM Process_plan_arm; -- ISO/TS 10303-1803
  USE FROM Property_assignment_arm; -- ISO/TS 10303-1030
  USE FROM Value_with_unit_extension_arm; -- ISO/TS 10303-1753
 
- TYPE additive_manufacturing_orientation_representation_select= SELECT
-    (Build_direction_representation,
-    Additive_manufacturing_x_direction_representation);
+ TYPE ampubi_constructive_element_select = GENERIC_ENTITY SELECT BASED_ON constructive_element_select 
+   WITH(Direction);
  END_TYPE;
  
  TYPE ampubi_initial_application_domain_enumeration = ENUMERATION BASED_ON initial_application_domain_enumeration WITH
    (additive_manufacturing);
  END_TYPE;
 
- ENTITY Additive_manufacturing_orientation_property
-     SUBTYPE OF (Property_representation);
-     SELF\Property_definition_representation.definition: Additive_manufacturing_property_assignment;
-     SELF\Property_definition_representation.used_representation: additive_manufacturing_orientation_representation_select;
+ ENTITY Additive_manufacturing_build_direction_element
+     SUBTYPE OF (Additive_manufacturing_orientation_element);
+     SELF\Shape_element.identified_item : Direction;
+     DERIVE
+     SELF\Shape_element.element_name : STRING := 'build orientation z';
+ END_ENTITY;
+
+ ENTITY Additive_manufacturing_orientation_element
+     SUBTYPE OF (Part_shape_element);
+     SELF\Shape_element.associated_definition : Additive_manufacturing_part_definition;
  END_ENTITY;
  
  ENTITY Additive_manufacturing_part_definition
@@ -39,6 +46,13 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  ENTITY Additive_manufacturing_property_assignment
      SUBTYPE OF (Assigned_property);
      SELF\Assigned_property.described_element : Additive_manufacturing_part_definition;
+ END_ENTITY;
+
+ ENTITY Additive_manufacturing_x_direction_element
+     SUBTYPE OF (Additive_manufacturing_orientation_element);
+     SELF\Shape_element.identified_item : Direction;
+     DERIVE
+     SELF\Shape_element.element_name : STRING := 'build orientation x';
  END_ENTITY;
 
  ENTITY Additive_manufacturing_setup
@@ -83,18 +97,6 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  ENTITY Additive_manufacturing_workplan
       SUBTYPE OF (Executable);
       its_setup :Additive_manufacturing_setup;
- END_ENTITY;
-
- ENTITY Additive_manufacturing_x_direction_representation
-     SUBTYPE OF (Representation);
-     SELF\Representation.context_of_items : Geometric_coordinate_space;
-     SELF\Representation.items : SET [1:1] OF Direction;
- END_ENTITY;
-
- ENTITY Build_direction_representation
-     SUBTYPE OF (Representation);
-     SELF\Representation.context_of_items : Geometric_coordinate_space;
-     SELF\Representation.items RENAMED build_direction: SET [1:1] OF Direction;
  END_ENTITY;
 
  ENTITY Build_platform_definition

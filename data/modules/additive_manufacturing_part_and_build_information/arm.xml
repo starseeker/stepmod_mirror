@@ -3,27 +3,35 @@
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="">
    <application name="JSDAI" owner="LKSoft" source="additive_manufacturing_part_and_build_information_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Additive_manufacturing_part_and_build_information_arm">
+      <interface kind="use" schema="Construction_geometry_arm"/>
       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
       <interface kind="use" schema="Foundation_representation_arm"/>
       <interface kind="use" schema="Item_definition_structure_arm"/>
-      <interface kind="use" schema="Process_plan_arm"/>
+      <interface kind="use" schema="Part_shape_arm"/>
       <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Process_plan_arm"/>
       <interface kind="use" schema="Property_assignment_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
-      <type name="additive_manufacturing_orientation_representation_select">
-         <select selectitems="Build_direction_representation Additive_manufacturing_x_direction_representation"/>
+      <type name="ampubi_constructive_element_select">
+         <select basedon="constructive_element_select" genericentity="YES" selectitems="Direction"/>
       </type>
       <type name="ampubi_initial_application_domain_enumeration">
          <enumeration basedon="initial_application_domain_enumeration" items="additive_manufacturing"/>
       </type>
-      <entity name="Additive_manufacturing_orientation_property" supertypes="Property_representation">
-         <explicit name="definition">
-            <typename name="Additive_manufacturing_property_assignment"/>
-            <redeclaration entity-ref="Property_definition_representation"/>
+      <entity name="Additive_manufacturing_build_direction_element" supertypes="Additive_manufacturing_orientation_element">
+         <explicit name="identified_item">
+            <typename name="Direction"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
-         <explicit name="used_representation">
-            <typename name="additive_manufacturing_orientation_representation_select"/>
-            <redeclaration entity-ref="Property_definition_representation"/>
+         <derived expression="'build orientation z'" name="element_name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
+      <entity name="Additive_manufacturing_orientation_element" supertypes="Part_shape_element">
+         <explicit name="associated_definition">
+            <typename name="Additive_manufacturing_part_definition"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
       </entity>
       <entity name="Additive_manufacturing_part_definition" supertypes="Part_view_definition">
@@ -89,27 +97,15 @@
             <typename name="Additive_manufacturing_setup"/>
          </explicit>
       </entity>
-      <entity name="Additive_manufacturing_x_direction_representation" supertypes="Representation">
-         <explicit name="context_of_items">
-            <typename name="Geometric_coordinate_space"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate lower="1" type="SET" upper="1"/>
+      <entity name="Additive_manufacturing_x_direction_element" supertypes="Additive_manufacturing_orientation_element">
+         <explicit name="identified_item">
             <typename name="Direction"/>
-            <redeclaration entity-ref="Representation"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
-      </entity>
-      <entity name="Build_direction_representation" supertypes="Representation">
-         <explicit name="context_of_items">
-            <typename name="Geometric_coordinate_space"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-         <explicit name="build_direction">
-            <aggregate lower="1" type="SET" upper="1"/>
-            <typename name="Direction"/>
-            <redeclaration entity-ref="Representation" old_name="items"/>
-         </explicit>
+         <derived expression="'build orientation x'" name="element_name">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
       </entity>
       <entity name="Build_platform_definition" supertypes="Product_view_definition">
          <explicit name="build_volume_representation">

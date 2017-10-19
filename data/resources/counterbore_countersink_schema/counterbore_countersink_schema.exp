@@ -1,5 +1,5 @@
 (*
-$Id: counterbore_countersink_schema.exp,v 1.13 2017/10/18 16:56:59 brandonus Exp $
+$Id: counterbore_countersink_schema.exp,v 1.14 2017/10/18 22:42:19 brandonus Exp $
 ISO 10303 TC184/SC4/WG12 N9785
 
 EXPRESS Source:
@@ -71,7 +71,7 @@ ENTITY counterbore_hole_definition
   SUBTYPE OF (characterized_object);
        counterbore_definition   : LIST [1:?] OF UNIQUE counterbore_definition;
   	   drill_diameter           : hole_diameter;
-  	   drill_depth              : hole_depth;
+  	   drill_depth              : OPTIONAL hole_depth;
 -- Informal proposition
 --- IP1:counterbore_definition shall in ascending order in the list organized according to hole_diameter 
 END_ENTITY;
@@ -106,7 +106,7 @@ ENTITY countersink_hole_definition
      countersink_angle           : positive_plane_angle_measure_with_unit;
      countersink_angle_tolerance : plane_angle_tolerance_value;
      drill_diameter              : hole_diameter;
-     drill_depth                 : hole_depth;
+     drill_depth                 : OPTIONAL hole_depth;
 END_ENTITY;
 
 ENTITY implicit_countersink_hole_definition
@@ -139,7 +139,7 @@ ENTITY counterdrill_hole_definition
      counterdrill_angle           : positive_plane_angle_measure_with_unit;
      counterdrill_angle_tolerance : plane_angle_tolerance_value;
      drill_diameter               : hole_diameter;
-     drill_depth                  : hole_depth;
+     drill_depth                  : OPTIONAL hole_depth;
  END_ENTITY;
 
   
@@ -169,9 +169,16 @@ END_ENTITY;
 
 
 ENTITY spotface_definition
-  SUBTYPE OF (counterbore_hole_definition);
-                  spotface_radius : positive_length_measure_with_unit;
+  SUBTYPE OF (counterbore_definition);
+        spotface_radius : positive_length_measure_with_unit;
         spotface_radius_tolerance : OPTIONAL length_tolerance_value;
+END_ENTITY;
+
+ENTITY spotface_hole_definition
+	SUBTYPE OF (counterbore_hole_definition);
+	spotface_definition   : LIST [1:?] OF UNIQUE spotface_definition;
+-- Informal proposition
+--- IP1:spotface_definition shall in ascending order in the list organized according to hole_diameter 
 END_ENTITY;
 
 ENTITY implicit_spotface_definition
@@ -180,12 +187,12 @@ END_ENTITY;
 
 ENTITY spotface_occurrence
   SUBTYPE OF (counterbore_hole_occurrence);
-   SELF\counterbore_hole_occurrence.definition   : spotface_definition;
+   SELF\counterbore_hole_occurrence.definition   : spotface_hole_definition;
 END_ENTITY;
 
 ENTITY spotface_occurrence_in_assembly
   SUBTYPE OF (counterbore_hole_occurrence_in_assembly);
-   SELF\counterbore_hole_occurrence.definition   : spotface_definition;
+   SELF\counterbore_hole_occurrence.definition   : spotface_hole_definition;
 END_ENTITY;
 
 ENTITY hole_depth;

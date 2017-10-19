@@ -51,7 +51,7 @@
 		<xsl:text>&#xa;</xsl:text>
 	</xsl:for-each>	 -->
 	
-	<!--3) For WG N number table:
+	<!--3) For WG N number table:-->
 
 	<xsl:value-of
 		select="concat(/part1000.publication_index/@name, ' wg.number.publication_set')" />
@@ -108,9 +108,9 @@
 		<xsl:value-of
 			select="concat('ISO 10303-', @number, ' ', @name, ' version ', @version, ' EXPRESS')" />
 		<xsl:text>&#xa;</xsl:text>
-	</xsl:for-each>  -->
+	</xsl:for-each>  
 
-<!-- 4) get all parts with CR id and N numbers to a simple text line -->
+<!-- 4) get all parts with CR id and N numbers to a simple text line 
 
 	<xsl:for-each select="/part1000.publication_index/modules/module">
 		<xsl:value-of
@@ -146,7 +146,7 @@
 		<xsl:text>&#xa;</xsl:text>
 	</xsl:for-each> 
 
-</xsl:template>
+</xsl:template>-->
 
 
 

@@ -50,9 +50,13 @@
          <explicit name="drill_diameter">
             <typename name="hole_diameter"/>
          </explicit>
-         <explicit name="drill_depth">
+         <explicit name="drill_depth" optional="YES">
             <typename name="hole_depth"/>
          </explicit>
+         <explicit name="through_hole">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="through_hole XOR EXISTS(drill_depth)" label="WR1"/>
       </entity>
       <entity name="counterbore_hole_occurrence" supertypes="shape_aspect">
          <explicit name="definition">
@@ -78,9 +82,13 @@
          <explicit name="drill_diameter">
             <typename name="hole_diameter"/>
          </explicit>
-         <explicit name="drill_depth">
+         <explicit name="drill_depth" optional="YES">
             <typename name="hole_depth"/>
          </explicit>
+         <explicit name="through_hole">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="through_hole XOR EXISTS(drill_depth)" label="WR1"/>
       </entity>
       <entity name="counterdrill_hole_occurrence" supertypes="shape_aspect">
          <explicit name="definition">
@@ -106,9 +114,13 @@
          <explicit name="drill_diameter">
             <typename name="hole_diameter"/>
          </explicit>
-         <explicit name="drill_depth">
+         <explicit name="drill_depth" optional="YES">
             <typename name="hole_depth"/>
          </explicit>
+         <explicit name="through_hole">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where expression="through_hole XOR EXISTS(drill_depth)" label="WR1"/>
       </entity>
       <entity name="countersink_hole_occurrence" supertypes="shape_aspect">
          <explicit name="definition">
@@ -158,8 +170,8 @@
          <where expression="SIZEOF(position\shape_representation.items) = 1" label="WR1"/>
          <where expression="SIZEOF(QUERY( ri &lt;* position\shape_representation.items | &#10;               NOT ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))&#10;               )) = 0" label="WR2"/>
       </entity>
-      <entity name="implicit_spotface_definition" supertypes="spotface_definition implicit_counterbore_hole_definition"/>
-      <entity name="spotface_definition" supertypes="counterbore_hole_definition">
+      <entity name="implicit_spotface_definition" supertypes="spotface_hole_definition implicit_counterbore_hole_definition"/>
+      <entity name="spotface_definition" supertypes="counterbore_definition">
          <explicit name="spotface_radius">
             <typename name="positive_length_measure_with_unit"/>
          </explicit>
@@ -167,15 +179,21 @@
             <typename name="length_tolerance_value"/>
          </explicit>
       </entity>
+      <entity name="spotface_hole_definition" supertypes="counterbore_hole_definition">
+         <explicit name="spotface_definition">
+            <aggregate lower="1" type="LIST" unique="YES" upper="?"/>
+            <typename name="spotface_definition"/>
+         </explicit>
+      </entity>
       <entity name="spotface_occurrence" supertypes="counterbore_hole_occurrence">
          <explicit name="definition">
-            <typename name="spotface_definition"/>
+            <typename name="spotface_hole_definition"/>
             <redeclaration entity-ref="counterbore_hole_occurrence"/>
          </explicit>
       </entity>
       <entity name="spotface_occurrence_in_assembly" supertypes="counterbore_hole_occurrence_in_assembly">
          <explicit name="definition">
-            <typename name="spotface_definition"/>
+            <typename name="spotface_hole_definition"/>
             <redeclaration entity-ref="counterbore_hole_occurrence"/>
          </explicit>
       </entity>

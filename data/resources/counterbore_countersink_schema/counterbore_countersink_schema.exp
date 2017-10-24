@@ -1,5 +1,5 @@
 (*
-$Id: counterbore_countersink_schema.exp,v 1.16 2017/10/22 04:50:20 brandonus Exp $
+$Id: counterbore_countersink_schema.exp,v 1.17 2017/10/24 17:07:37 thomasrthurman Exp $
 ISO 10303 TC184/SC4/WG12 N9785
 
 EXPRESS Source:
@@ -69,14 +69,14 @@ END_ENTITY;
 
 ENTITY counterbore_hole_definition
   SUBTYPE OF (characterized_object);
-       counterbore_definition   : LIST [1:?] OF UNIQUE counterbore_definition;
+       counterbore              : LIST [1:?] OF UNIQUE counterbore_definition;
   	   drill_diameter           : hole_diameter;
   	   drill_depth              : OPTIONAL hole_depth;
   	   through_hole				: Boolean;
   	   geometric_model           : shape_representation;
 -- Informal proposition
---- IP1:counterbore_definition shall in ascending order in the list organized according to hole_diameter 
---- IP2: counterbore_definition[1] shall have a larger diameter than drill_diameter.
+--- IP1:counterbore members shall in ascending order in the list organized according to hole_diameter 
+--- IP2: counterbore[1] shall have a larger diameter than drill_diameter.
 --- IP3: The axis2_placement_3d in the geometric_model shall define the reference position and orientation for the counterbore_hole_definition.
 --- IP4: The z axis of the axis2_placement_3d shall point into the material of the item being bored.
 --- IP5: The placement of the axis2_placement_3d shall be on the surface of the item being bored.
@@ -172,7 +172,7 @@ END_ENTITY;
 
 ENTITY counterdrill_hole_definition
   SUBTYPE OF (characterized_object);
-     counterbore_definition       : counterbore_definition;
+     counterbore                  : counterbore_definition;
      counterdrill_angle           : positive_plane_angle_measure_with_unit;
      counterdrill_angle_tolerance : plane_angle_tolerance_value;
      drill_diameter               : hole_diameter;
@@ -180,7 +180,7 @@ ENTITY counterdrill_hole_definition
      geometric_model             : shape_representation;
      through_hole				 : Boolean;
 -- Informal proposition
---- IP1: counterbore_definition shall have a larger diameter than drill_diameter.
+--- IP1: The counterbore shall have a larger diameter than the drill_diameter.
 --- IP2: The axis2_placement_3d in the geometric_model shall define the reference position and orientation for the counterbore_hole_definition.
 --- IP3: The z axis of the axis2_placement_3d shall point into the material of the item being bored.
 --- IP4: The placement of the axis2_placement_3d shall be on the surface of the item being bored.
@@ -232,7 +232,7 @@ END_ENTITY;
 
 ENTITY spotface_hole_definition
   SUBTYPE OF (counterbore_hole_definition);
-  SELF\counterbore_hole_definition.counterbore_definition RENAMED spotface_definition : LIST [1:?] OF UNIQUE spotface_definition;
+  SELF\counterbore_hole_definition.counterbore RENAMED spotface : LIST [1:?] OF UNIQUE spotface_definition;
 (* no need for IP after the above change as sequence data is already controlled.
 -- Informal proposition
 --- IP1:spotface_definition shall in ascending order in the list organized according to hole_diameter 

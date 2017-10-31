@@ -1,5 +1,5 @@
 (*
-$Id: counterbore_countersink_schema.exp,v 1.21 2017/10/25 23:06:33 brandonus Exp $
+$Id: counterbore_countersink_schema.exp,v 1.22 2017/10/26 18:54:18 brandonus Exp $
 ISO 10303 TC184/SC4/WG12 N9785
 
 EXPRESS Source:
@@ -29,7 +29,7 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD
 *)
 SCHEMA counterbore_countersink_schema '{iso standard 10303 part(113) version(1) object(1) counterbore_countersink_schema(2)}';
 
-REFERENCE FROM geometry_schema --ISO 10303-
+REFERENCE FROM geometry_schema --ISO 10303-42
       (axis2_placement_3d);
 
 REFERENCE FROM measure_schema   --ISO 10303-41
@@ -38,21 +38,21 @@ REFERENCE FROM measure_schema   --ISO 10303-41
           plane_angle_measure_with_unit,
           positive_plane_angle_measure_with_unit); 
 
-REFERENCE FROM product_definition_schema 
+REFERENCE FROM product_definition_schema --ISO 10303-41
           (product_definition);
-       
-REFERENCE FROM product_structure_schema 
-          (multi_level_reference_designator);
-       
-REFERENCE FROM product_property_definition_schema
+          
+REFERENCE FROM product_property_definition_schema --ISO 1030-41
          (characterized_object,
           property_definition,
-          shape_aspect);
-          
-REFERENCE FROM product_property_representation_schema --ISO 10303-
+          shape_aspect);       
+
+REFERENCE FROM product_property_representation_schema --ISO 10303-41
 		(shape_representation);
-             
-REFERENCE FROM representation_schema --ISO 10303-
+
+REFERENCE FROM product_structure_schema --ISO 10303-44
+          (multi_level_reference_designator);
+
+REFERENCE FROM representation_schema --ISO 10303-43
 		(representation);
              
 REFERENCE FROM shape_tolerance_schema   --ISO 10303-47
@@ -99,12 +99,6 @@ ENTITY implicit_counterbore_hole_definition
   WHERE
     WR1: SIZEOF(position\representation.items) = 1;
     --There shall be exactly one item in the representation.
-(* No longer need WR2. subsumed by counterbore_hole_definition.WR2.
-    WR2: SIZEOF(QUERY( ri <* position\representation.items | 
-               NOT ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
-               )) = 0;
-    --The item in the representation shall be an axis2_placement_3d
-*)
 END_ENTITY;
 
 ENTITY counterbore_hole_occurrence
@@ -240,7 +234,7 @@ END_ENTITY;
 
 ENTITY counterdrill_hole_occurrence_in_assembly
   SUBTYPE OF (counterdrill_hole_occurrence);
-  modified_components : LIST [1:?] OF multi_level_reference_designator;
+  modified_components : LIST [1:?] OF UNIQUE multi_level_reference_designator;
 -- Informal proposition:
 --- IP1: The placement of the hole shall be on the surface of the first member of modified_components.  
 END_ENTITY;

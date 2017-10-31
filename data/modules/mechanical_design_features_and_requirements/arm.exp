@@ -11,6 +11,8 @@ USE FROM Assembly_structure_arm;
 USE FROM Characterizable_object_arm;
 
 USE FROM Dimension_tolerance_arm;
+
+USE FROM Elemental_geometric_shape_arm;
    
 USE FROM Geometric_tolerance_arm;
 
@@ -60,17 +62,17 @@ ENTITY Counterbore_hole_definition
   	   drill_diameter           : Hole_diameter;
   	   drill_depth				: OPTIONAL Hole_depth;
   	   through_hole				: Boolean;
-  	   geometric_model			: Shape_representation;
+  	   shape_model   			: Geometric_model;
   WHERE
     WR1: through_hole XOR EXISTS(drill_depth);
-    WR2: SIZEOF(QUERY( ri <* geometric_model\representation.items | 
-               ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
+    WR2: SIZEOF(QUERY( ri <* shape_model\Representation.items | 
+               ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT_3D' IN TYPEOF (ri))
                )) = 1;
 END_ENTITY;
 
 ENTITY Simplified_counterbore_hole_definition
 	SUBTYPE OF (Counterbore_hole_definition);
-	  SELF\Counterbore_hole_definition.geometric_model RENAMED position	:	Shape_representation;
+	  SELF\Counterbore_hole_definition.shape_model RENAMED position	:	Geometric_model;
   WHERE
     WR1: SIZEOF(position\Geometric_model.items) = 1;
 
@@ -80,9 +82,8 @@ ENTITY Counterbore_hole_occurrence
   SUBTYPE OF (Shape_element);
    definition : Counterbore_hole_definition;
   WHERE
-   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\Shape_element.of_shape\property_definition.definition);
-   WR2: 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF\Shape_element.of_shape);
-   WR3: SELF\Shape_element.product_definitional = TRUE;
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINTION' IN TYPEOF(SELF\Shape_element.associated_definition);
+   WR2: SELF\Shape_element.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY Counterbore_hole_occurrence_in_assembly
@@ -97,29 +98,28 @@ ENTITY Countersink_hole_definition
      countersink_angle_tolerance : Angle_plus_minus_bounds;
      drill_diameter              : Hole_diameter;
      drill_depth                 : OPTIONAL Hole_depth;
-     geometric_model			 : Shape_representation
      through_hole			     : Boolean;
+     shape_model			     : Geometric_model;
   WHERE
     WR1: through_hole XOR EXISTS(drill_depth);
-    WR2: SIZEOF(QUERY( ri <* geometric_model\representation.items | 
-               ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
+    WR2: SIZEOF(QUERY( ri <* shape_model\Representation.items | 
+               ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT_3D' IN TYPEOF (ri))
                )) = 1;
 END_ENTITY;
 
 ENTITY Simplified_countesink_hole_definition
 	SUBTYPE OF (Countersink_hole_definition);
-		SELF\Countersink_hole_definition.geometric_model RENAMED position : Shape_representation;
+		SELF\Countersink_hole_definition.shape_model RENAMED position : Geometric_model;
   WHERE
-    WR1: SIZEOF(position\representation.items) = 1;
+    WR1: SIZEOF(position\Geometric_model.items) = 1;
 END_ENTITY;
 
 ENTITY Countersink_hole_occurrence
   SUBTYPE OF (Shape_element);
    definition                    : Countersink_hole_definition;
   WHERE
-   WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\Shape_element.of_shape\property_definition.definition);
-   WR2: 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF\Shape_element.of_shape);
-   WR3: SELF\Shape_elemnet.product_definitional = TRUE;
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINTION' IN TYPEOF(SELF\Shape_element.associated_definition);
+   WR2: SELF\Shape_element.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY Countersink_hole_occurrence_in_assembly
@@ -134,18 +134,18 @@ ENTITY Counterdrill_hole_definition
     counterdrill_angle_tolerance  : Angle_plus_minus_bounds;
     drill_diameter                : Hole_diameter;
     drill_depth                   : OPTIONAL Hole_depth;
-    geometric_model				  : Shape_representation;
     through_hole				  : Boolean;
-  WHERE
+    shape_model				      : Geometric_model;
+  WHERE 
     WR1: through_hole XOR EXISTS(drill_depth); 
-    WR2: SIZEOF(QUERY( ri <* geometric_model\representation.items | 
-               ('GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN TYPEOF (ri))
+    WR2: SIZEOF(QUERY( ri <* shape_model\Representation.items | 
+               ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT_3D' IN TYPEOF (ri))
                )) = 1;  
 END_ENTITY;
   
 ENTITY Simplified_counterdrill_hole_definition
 	SUBTYPE OF (Counterdrill_hole_definition);
-	  SELF\Counterdrill_hole_definition.geometric_model RENAMED position : Shape_representation;
+	  SELF\Counterdrill_hole_definition.shape_model RENAMED position : Geometric_model;
  WHERE
     WR1: SIZEOF(position\Geometric_model.items) = 1;
     --There shall be exactly one item in the representation.
@@ -155,9 +155,8 @@ ENTITY Counterdrill_hole_occurrence
   SUBTYPE OF (Shape_element);
    definition                    : Counterdrill_hole_definition;
   WHERE
-      WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION' IN TYPEOF(SELF\Shape_elment.of_shape\property_definition.definition);
-   WR2: 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(SELF\Shape_elemnet.of_shape);
-   WR3: SELF\Shape_element.product_definitional = TRUE;
+   WR1: 'PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINTION' IN TYPEOF(SELF\Shape_element.associated_definition);
+   WR2: SELF\Shape_element.product_definitional = TRUE;
 END_ENTITY;
 
 ENTITY Counterdrill_hole_occurrence_in_assembly
@@ -171,9 +170,9 @@ ENTITY Spotface_definition
         spotface_radius_tolerance : OPTIONAL Length_plus_minus_bounds;
 END_ENTITY;
 
-ENTITY Spotface_hole_defintion
-  SUBTYPE OF (Counterbore_hole_defintion);
-    SELF\Counterbore_hole_definition.counterbore RENAMED spotface : LIST [1:?] OF UNIQUE Spotface_definition;
+ENTITY Spotface_hole_definition
+  SUBTYPE OF (Counterbore_hole_definition);
+    SELF\Counterbore_hole_definition.counterbore_definition RENAMED spotface : LIST [1:?] OF UNIQUE Spotface_definition;
 END_ENTITY;
 
 ENTITY Simplified_spotface_hole_definition
@@ -187,7 +186,7 @@ END_ENTITY;
 
 ENTITY Spotface_occurrence_in_assembly
   SUBTYPE OF (Counterbore_hole_occurrence_in_assembly);
-   SELF\counterbore_hole_occurrence.definition   : Spotface__hole_definition;
+   SELF\counterbore_hole_occurrence.definition   : Spotface_hole_definition;
 END_ENTITY;
 
 ENTITY Hole_depth;

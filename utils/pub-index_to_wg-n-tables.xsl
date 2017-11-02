@@ -144,9 +144,9 @@
 		<xsl:value-of
 			select="concat(/part1000.publication_index/@name, ' ', /part1000.publication_index/@date.iso_submission, ' ISO 10303-', @number, ' ', @name, ' version ', @version, ' EXPRESS N', @wg_number)" />
 		<xsl:text>&#xa;</xsl:text>
-	</xsl:for-each> 
+	</xsl:for-each> -->
 
-</xsl:template>-->
+</xsl:template>
 
 
 

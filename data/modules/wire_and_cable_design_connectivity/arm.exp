@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2017/08/22 15:13:04 lothartklein Exp $
+   $Id: arm.exp,v 1.8 2017/09/13 15:47:13 lothartklein Exp $
     ISO TC184/SC4/WG12 N9704 - ISO/TS 10303-1845 Wire and cable design connectivity - EXPRESS ARM
  *)
 
@@ -16,31 +16,30 @@ END_TYPE;
 ENTITY Cable_occurrence
   SUBTYPE OF (Product_occurrence_with_quantity);
 DERIVE
-  ends_a : SET [1:?] OF Cable_occurrence_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end a');
-  ends_b : SET [1:?] OF Cable_occurrence_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name = 'end b');
-  intermediates : SET [0:?] OF Cable_occurrence_terminal_location_group_identification := QUERY(lc <* terminal_location_groups | lc.element_name[1:13] = 'intermediate');
+  ends_a : SET [1:?] OF Cable_occurrence_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.element_name = 'end a');
+  ends_b : SET [1:?] OF Cable_occurrence_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.element_name = 'end b');
+  intermediates : SET [0:?] OF Cable_occurrence_terminal_location_group := QUERY(lc <* terminal_location_groups | lc.element_name[1:13] = 'intermediate');
 INVERSE
-  terminal_location_groups : SET [0:?] OF Cable_occurrence_terminal_location_group_identification FOR associated_definition;
+  terminal_location_groups : SET [0:?] OF Cable_occurrence_terminal_location_group FOR associated_definition;
 WHERE
   WR1: EXISTS(ends_a);
   WR2: EXISTS(ends_b);
-  WR3: SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group_identification.terminals);
+  WR3: SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group.terminals) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group.terminals);
   WR4: raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories;
   WR5: cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories;
 END_ENTITY;
 
-ENTITY Cable_occurrence_terminal_location_group_identification
-  SUBTYPE OF (Occurrence_shape_feature);
+ENTITY Cable_occurrence_terminal_location_group
+  SUBTYPE OF (Occurrence_terminal); 
   SELF\Shape_element.associated_definition : Cable_occurrence;
 INVERSE
-  terminals : SET[0:?] OF Cable_occurrence_terminal FOR location_group;
+  terminals : SET[0:?] OF Cable_occurrence_terminal FOR associated_definition;
 END_ENTITY;
 
 ENTITY Cable_occurrence_terminal
   SUBTYPE OF (Occurrence_terminal);
-   SELF\Shape_element.associated_definition : Cable_occurrence;
+   SELF\Shape_element.associated_definition : Cable_occurrence_terminal_location_group;
    SELF\Occurrence_terminal.associated_transport_feature : Wire_identification;
-   location_group : Cable_occurrence_terminal_location_group_identification;
 END_ENTITY;
 
 ENTITY Occurrence_marking_property
@@ -55,9 +54,8 @@ ENTITY Wire_colour_based_identification_code
 END_ENTITY;
 
 ENTITY Wire_identification
-  SUBTYPE OF (Occurrence_transport_feature);  -- WAS Part_transport_feature  
+  SUBTYPE OF (Occurrence_transport_feature);  
   code : OPTIONAL Wire_colour_based_identification_code;
---  crosssection : OPTIONAL ...
 END_ENTITY;
 
 ENTITY Wire_occurrence
@@ -84,7 +82,7 @@ ENTITY Wire_occurrence_terminal
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT wacdc_occurrence_terminal_subtypes FOR Occurrence_terminal;
-  ONEOF (Cable_occurrence_terminal, Wire_occurrence_terminal);
+  ONEOF (Cable_occurrence_terminal, Cable_occurrence_terminal_location_group, Wire_occurrence_terminal);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT wacdc_product_occurrence_with_quantity_subtypes FOR Product_occurrence_with_quantity;

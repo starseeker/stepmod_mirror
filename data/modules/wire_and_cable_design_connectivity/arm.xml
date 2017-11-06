@@ -10,44 +10,41 @@
       <entity name="Cable_occurrence" supertypes="Product_occurrence_with_quantity">
          <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name = 'end a')" name="ends_a">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+            <typename name="Cable_occurrence_terminal_location_group"/>
          </derived>
          <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name = 'end b')" name="ends_b">
             <aggregate lower="1" type="SET" upper="?"/>
-            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+            <typename name="Cable_occurrence_terminal_location_group"/>
          </derived>
          <derived expression="QUERY(lc &lt;* terminal_location_groups | lc.element_name[1:13] = 'intermediate')" name="intermediates">
             <aggregate lower="0" type="SET" upper="?"/>
-            <typename name="Cable_occurrence_terminal_location_group_identification"/>
+            <typename name="Cable_occurrence_terminal_location_group"/>
          </derived>
-         <inverse attribute="associated_definition" entity="Cable_occurrence_terminal_location_group_identification" name="terminal_location_groups">
+         <inverse attribute="associated_definition" entity="Cable_occurrence_terminal_location_group" name="terminal_location_groups">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
          <where expression="EXISTS(ends_a)" label="WR1"/>
          <where expression="EXISTS(ends_b)" label="WR2"/>
-         <where expression="SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group_identification.terminals) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group_identification.terminals)" label="WR3"/>
+         <where expression="SIZEOF(ends_a[1]\Cable_occurrence_terminal_location_group.terminals) = SIZEOF(ends_b[1]\Cable_occurrence_terminal_location_group.terminals)" label="WR3"/>
          <where expression="raw_material_by_length IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR4"/>
          <where expression="cable IN SELF\Definition_based_product_occurrence.derived_from.defined_version.of_product\Part_with_additional_categories.categories" label="WR5"/>
       </entity>
       <entity name="Cable_occurrence_terminal" supertypes="Occurrence_terminal">
          <explicit name="associated_definition">
-            <typename name="Cable_occurrence"/>
+            <typename name="Cable_occurrence_terminal_location_group"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <explicit name="associated_transport_feature">
             <typename name="Wire_identification"/>
             <redeclaration entity-ref="Occurrence_terminal"/>
          </explicit>
-         <explicit name="location_group">
-            <typename name="Cable_occurrence_terminal_location_group_identification"/>
-         </explicit>
       </entity>
-      <entity name="Cable_occurrence_terminal_location_group_identification" supertypes="Occurrence_shape_feature">
+      <entity name="Cable_occurrence_terminal_location_group" supertypes="Occurrence_terminal">
          <explicit name="associated_definition">
             <typename name="Cable_occurrence"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-         <inverse attribute="location_group" entity="Cable_occurrence_terminal" name="terminals">
+         <inverse attribute="associated_definition" entity="Cable_occurrence_terminal" name="terminals">
             <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
       </entity>
@@ -99,7 +96,7 @@
             <redeclaration entity-ref="Occurrence_terminal"/>
          </explicit>
       </entity>
-      <subtype.constraint entity="Occurrence_terminal" name="wacdc_occurrence_terminal_subtypes" super.expression="ONEOF (Cable_occurrence_terminal, Wire_occurrence_terminal)"/>
+      <subtype.constraint entity="Occurrence_terminal" name="wacdc_occurrence_terminal_subtypes" super.expression="ONEOF (Cable_occurrence_terminal, Cable_occurrence_terminal_location_group, Wire_occurrence_terminal)"/>
       <subtype.constraint entity="Product_occurrence_with_quantity" name="wacdc_product_occurrence_with_quantity_subtypes" super.expression="ONEOF (Cable_occurrence, Wire_occurrence)"/>
    </schema>
 </express>

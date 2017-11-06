@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO/TS 10303-1827">
    <application name="JSDAI" owner="LKSoft" source="extruded_structure_cross_section_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Extruded_structure_cross_section_arm">
@@ -9,6 +7,12 @@
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="cross_sectional_constituent_element">
          <select selectitems="Cross_sectional_part_shape_element Cross_sectional_occurrence_shape_element"/>
+      </type>
+      <type name="outer_or_inner_boundary_enum">
+         <enumeration items="outer_boundary inner_boundary"/>
+      </type>
+      <type name="part_view_definition_or_cross_sectional_part_shape_element_select">
+         <select selectitems="Cross_sectional_part_shape_element Part_view_definition"/>
       </type>
       <type name="twist_direction_enum">
          <enumeration items="clockwise counter_clockwise"/>
@@ -41,7 +45,11 @@
             <redeclaration entity-ref="Occurrence_shape_element"/>
          </explicit>
       </entity>
-      <entity name="Cross_sectional_part_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element, Cross_sectional_alternative_part_shape_element)" supertypes="Part_shape_element">
+      <entity name="Cross_sectional_part_shape_element" super.expression="ONEOF (Cross_sectional_group_shape_element, Cross_sectional_alternative_part_shape_element)" supertypes="General_part_feature">
+         <explicit name="associated_definition">
+            <typename name="part_view_definition_or_cross_sectional_part_shape_element_select"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
          <explicit name="max_cross_section_diameter" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
@@ -51,6 +59,10 @@
          <explicit name="minimum_bend_radius" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
+         <explicit name="outer_or_inner_boundary" optional="YES">
+            <typename name="outer_or_inner_boundary_enum"/>
+         </explicit>
+         <where expression="EXISTS(outer_or_inner_boundary) XOR ('PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(associated_definition))" label="WR1"/>
       </entity>
       <entity name="Twisted_cross_sectional_group_shape_element" supertypes="Cross_sectional_group_shape_element">
          <explicit name="twist_period" optional="YES">

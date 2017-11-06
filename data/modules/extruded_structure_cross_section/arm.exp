@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2017/06/20 13:44:24 lothartklein Exp $
+   $Id: arm.exp,v 1.10 2017/06/27 16:13:03 kevletu Exp $
    N9524 - ISO/TS 10303-1827 extruded_structure_cross_section - EXPRESS ARM
 *)
 
@@ -13,18 +13,32 @@ TYPE twist_direction_enum = ENUMERATION OF (
   counter_clockwise); 
 END_TYPE;
 
+TYPE outer_or_inner_boundary_enum = ENUMERATION OF (
+  outer_boundary, 
+  inner_boundary); 
+END_TYPE;
+
 TYPE cross_sectional_constituent_element = SELECT (
   Cross_sectional_part_shape_element,
   Cross_sectional_occurrence_shape_element);
 END_TYPE;
 
+TYPE part_view_definition_or_cross_sectional_part_shape_element_select = SELECT
+   (Cross_sectional_part_shape_element, 
+    Part_view_definition);
+END_TYPE;
+
 ENTITY Cross_sectional_part_shape_element
   SUPERTYPE OF (
     ONEOF( Cross_sectional_group_shape_element, Cross_sectional_alternative_part_shape_element))
-  SUBTYPE OF (Part_shape_element); -- or General_part_feature
+  SUBTYPE OF (General_part_feature); 
+  SELF\Shape_element.associated_definition : part_view_definition_or_cross_sectional_part_shape_element_select;
   max_cross_section_diameter : OPTIONAL Length_data_element;
   min_cross_section_diameter : OPTIONAL Length_data_element;
   minimum_bend_radius : OPTIONAL Length_data_element;
+  outer_or_inner_boundary : OPTIONAL outer_or_inner_boundary_enum;
+WHERE
+  WR1: NOT (EXISTS(outer_or_inner_boundary) AND ('PART_VIEW_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(associated_definition)));
 END_ENTITY;
 
 ENTITY Cross_sectional_occurrence_shape_element

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!--  $Id: build_CR.xsl,v 1.34 2017/07/19 20:26:28 mikeward Exp $
+<!--  $Id: build_CR.xsl,v 1.35 2017/07/20 16:01:21 mikeward Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the ANT build file from which a Change Request is produced. 
@@ -2618,22 +2618,47 @@ Purpose: To build the ANT build file from which a Change Request is produced.
         <xsl:for-each select="./resources/resource[not(preceding::resource/@number = @number)]">
             <xsl:variable name="resource_number" select="./@number"/>
 
-            <xsl:element name="property">
-                <xsl:attribute name="name">RESSCHEMAXML<xsl:value-of select="$resource_number"/></xsl:attribute>
-                <xsl:attribute name="value">
-                    <xsl:variable name="resource_list_w_commas">
-                        <xsl:for-each select="../../resources/resource[@number = $resource_number]">
-                            <xsl:variable name="prefix" select="'data/resources/'"/>
-                            <xsl:variable name="part_name" select="./@name"/>
-                            <xsl:variable name="suffix" select="'*schema.xml'"/>
-                            <xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"
-                            />,<xsl:text/>
-                        </xsl:for-each>
-                    </xsl:variable>
-                    <!-- strip final comma -->
-                    <xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas) - 1)"/>
-                </xsl:attribute>
-            </xsl:element>
+            <xsl:choose><!-- MWD 2017-11-07 -->
+                <xsl:when test="starts-with(./@name, 'aic_')">
+                    <xsl:element name="property">
+                        <xsl:attribute name="name">RESSCHEMAXML<xsl:value-of select="$resource_number"/></xsl:attribute>
+                        <xsl:attribute name="value">
+                            <xsl:variable name="resource_list_w_commas">
+                                <xsl:for-each select="../../resources/resource[@number = $resource_number]">
+                                    <xsl:variable name="prefix" select="'data/resources/'"/>
+                                    <xsl:variable name="part_name" select="./@name"/>
+                                    <xsl:variable name="suffix" select="'*.xml'"/>
+                                    <xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"
+                                    />,<xsl:text/>
+                                </xsl:for-each>
+                            </xsl:variable>
+                            <!-- strip final comma -->
+                            <xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas) - 1)"/>
+                        </xsl:attribute>
+                    </xsl:element>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:element name="property">
+                        <xsl:attribute name="name">RESSCHEMAXML<xsl:value-of select="$resource_number"/></xsl:attribute>
+                        <xsl:attribute name="value">
+                            <xsl:variable name="resource_list_w_commas">
+                                <xsl:for-each select="../../resources/resource[@number = $resource_number]">
+                                    <xsl:variable name="prefix" select="'data/resources/'"/>
+                                    <xsl:variable name="part_name" select="./@name"/>
+                                    <xsl:variable name="suffix" select="'*schema.xml'"/>
+                                    <xsl:value-of select="concat($prefix, $part_name, '/', $suffix)"
+                                    />,<xsl:text/>
+                                </xsl:for-each>
+                            </xsl:variable>
+                            <!-- strip final comma -->
+                            <xsl:value-of select="substring($resource_list_w_commas, 1, string-length($resource_list_w_commas) - 1)"/>
+                        </xsl:attribute>
+                    </xsl:element>
+                    
+                </xsl:otherwise>
+            </xsl:choose>
+            
+            
             
             <xsl:element name="property">
                 <xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS<xsl:value-of select="$resource_number"/></xsl:attribute>

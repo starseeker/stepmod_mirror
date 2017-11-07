@@ -1,5 +1,5 @@
 (*
-$Id: product_property_definition_schema.exp,v 1.24 2017/06/13 09:36:41 brandonus Exp $
+$Id: product_property_definition_schema.exp,v 1.25 2017/08/25 11:38:15 verodub Exp $
 ISO 10303 TC184/SC4/WG12 N9684
 
 EXPRESS Source:
@@ -78,11 +78,6 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     shape_aspect_relationship);
   END_TYPE;
   
-  TYPE product_definition_shape_or_shape_aspect = SELECT (
-    product_definition_shape,
-    shape_aspect);
-  END_TYPE;
-
   TYPE characterized_product_definition = SELECT (
     product_definition, 
     product_definition_occurrence, 
@@ -135,6 +130,13 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     UR1 : location, component_shape_aspect;
   END_ENTITY;
 
+  ENTITY constituent_shape_aspect
+    SUBTYPE OF (shape_aspect);
+    parent : shape_aspect;
+  DERIVE
+   SELF\shape_aspect.of_shape : product_definition_shape := get_root_shape_aspect(SELF);
+  END_ENTITY;
+  
   ENTITY general_property;
     id : identifier;
     name : label;
@@ -181,10 +183,11 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
   END_ENTITY;
 
   ENTITY shape_aspect
-    SUPERTYPE OF (ONEOF (shape_aspect_occurrence, component_path_shape_aspect));
+    SUPERTYPE OF (ONEOF (shape_aspect_occurrence, component_path_shape_aspect)
+                  ANDOR constituent_shape_aspect);
     name : label;
     description : OPTIONAL text;
-    of_shape : product_definition_shape_or_shape_aspect;
+    of_shape : product_definition_shape;
     product_definitional : LOGICAL;
   DERIVE
     id : identifier := get_id_value(SELF);
@@ -192,7 +195,6 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     UR1: id, of_shape;    
   WHERE
     WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
-    WR2: acyclic_shape_aspect(SELF,of_shape);
   END_ENTITY;
 
   ENTITY shape_aspect_occurrence
@@ -247,17 +249,6 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     RETURN (TRUE);
   END_FUNCTION;
 
-  FUNCTION acyclic_shape_aspect
-          (sa : shape_aspect; of_shape : product_definition_shape_or_shape_aspect) : BOOLEAN;
-    IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
-      RETURN  (TRUE);
-    END_IF;
-    IF  (of_shape :=: sa) THEN
-      RETURN  (FALSE);
-    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
-    END_IF;
-  END_FUNCTION; 
-
   FUNCTION acyclic_shape_aspect_occurrence
           (sao : shape_aspect_occurrence; definition : shape_aspect_or_characterized_object) : BOOLEAN;
     IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT_OCCURRENCE') IN TYPEOF(definition)) THEN
@@ -302,4 +293,12 @@ SCHEMA product_property_definition_schema '{iso standard 10303 part(41) version(
     RETURN (pdr_set);
   END_FUNCTION;
 
+  FUNCTION get_root_shape_aspect(current: shape_aspect) : product_definition_shape ;
+    REPEAT
+      WHILE ('PRODUCT_DEFINITION_SCHEMA.CONSTITUENT_SHAPE_ASPECT' IN TYPEOF(current));
+  	  current := current.parent;
+    END_REPEAT;
+    RETURN (current.of_shape);
+  END_FUNCTION;
+  
 END_SCHEMA;

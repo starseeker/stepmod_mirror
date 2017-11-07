@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-
-<express description.file="descriptions.xml" language_version="2" rcs.date="$Date: 2017/06/06 22:46:57 $" rcs.revision="$Revision: 1.20 $" reference="ISO 10303-41">
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express description.file="descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41">
    <application name="JSDAI" owner="LKSoft" source="product_property_definition_schema schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="product_property_definition_schema">
-     <interface kind="reference" schema="basic_attribute_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
          <interfaced.item name="get_id_value"/>
          <interfaced.item name="id_attribute"/>
          <interfaced.item name="id_attribute_select"/>
@@ -19,7 +17,7 @@
          <interfaced.item name="product_definition_relationship"/>
          <interfaced.item name="product_definition_relationship_relationship"/>
       </interface>
-            <interface kind="reference" schema="product_property_representation_schema">
+      <interface kind="reference" schema="product_property_representation_schema">
          <interfaced.item name="item_identified_representation_usage"/>
       </interface>
       <interface kind="reference" schema="product_structure_schema">
@@ -62,9 +60,6 @@
       <type name="ppds_id_attribute_select">
          <select basedon="id_attribute_select" selectitems="property_definition shape_aspect shape_aspect_relationship"/>
       </type>
-      <type name="product_definition_shape_or_shape_aspect">
-         <select selectitems="product_definition_shape shape_aspect"/>
-      </type>
       <type name="shape_aspect_or_characterized_object">
          <select selectitems="shape_aspect characterized_object"/>
       </type>
@@ -104,6 +99,15 @@
             <unique.attribute attribute="location"/>
             <unique.attribute attribute="component_shape_aspect"/>
          </unique>
+      </entity>
+      <entity name="constituent_shape_aspect" supertypes="shape_aspect">
+         <explicit name="parent">
+            <typename name="shape_aspect"/>
+         </explicit>
+         <derived expression="get_root_shape_aspect(SELF)" name="of_shape">
+            <typename name="product_definition_shape"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </derived>
       </entity>
       <entity name="general_property">
          <explicit name="id">
@@ -167,7 +171,7 @@
          </derived>
          <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
       </entity>
-      <entity name="shape_aspect" super.expression="ONEOF (shape_aspect_occurrence, component_path_shape_aspect)">
+      <entity name="shape_aspect" super.expression="ONEOF (shape_aspect_occurrence, component_path_shape_aspect) ANDOR constituent_shape_aspect">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -175,7 +179,7 @@
             <typename name="text"/>
          </explicit>
          <explicit name="of_shape">
-            <typename name="product_definition_shape_or_shape_aspect"/>
+            <typename name="product_definition_shape"/>
          </explicit>
          <explicit name="product_definitional">
             <builtintype type="LOGICAL"/>
@@ -188,7 +192,6 @@
             <unique.attribute attribute="of_shape"/>
          </unique>
          <where expression="SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1" label="WR1"/>
-         <where expression="acyclic_shape_aspect(SELF,of_shape)" label="WR2"/>
       </entity>
       <entity name="shape_aspect_occurrence" supertypes="shape_aspect">
          <explicit name="definition">
@@ -268,22 +271,6 @@
     END_REPEAT;
     RETURN (TRUE);</algorithm>
       </function>
-      <function name="acyclic_shape_aspect">
-         <parameter name="sa">
-            <typename name="shape_aspect"/>
-         </parameter>
-         <parameter name="of_shape">
-            <typename name="product_definition_shape_or_shape_aspect"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>IF NOT  (('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT') IN TYPEOF(of_shape)) THEN
-      RETURN  (TRUE);
-    END_IF;
-    IF  (of_shape :=: sa) THEN
-      RETURN  (FALSE);
-    ELSE RETURN(acyclic_shape_aspect(sa, of_shape\shape_aspect.of_shape));
-    END_IF;</algorithm>
-      </function>
       <function name="acyclic_shape_aspect_occurrence">
          <parameter name="sao">
             <typename name="shape_aspect_occurrence"/>
@@ -326,6 +313,17 @@
       END_IF;
     END_REPEAT;
     RETURN (TRUE);</algorithm>
+      </function>
+      <function name="get_root_shape_aspect">
+         <parameter name="current">
+            <typename name="shape_aspect"/>
+         </parameter>
+         <typename name="product_definition_shape"/>
+         <algorithm>REPEAT
+      WHILE ('PRODUCT_DEFINITION_SCHEMA.CONSTITUENT_SHAPE_ASPECT' IN TYPEOF(current));
+  	  current := current.parent;
+    END_REPEAT;
+    RETURN (current.of_shape);</algorithm>
       </function>
       <function name="get_shape_aspects">
          <parameter name="c_def_instance">

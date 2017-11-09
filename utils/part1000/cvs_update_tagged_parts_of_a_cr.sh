@@ -22,6 +22,7 @@ exit
 fi
 
 cd $1
+echo $1
 
 #update publication_index.xml first
 cvs -q -z 3 update -dPr $2 publication/part1000/$2/publication_index.xml

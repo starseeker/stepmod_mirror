@@ -1,61 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Aug 28 13:25:06 2017
 
-# coding: utf-8
+@author: aminatambengue
+"""
 
-# # EDM log scripts
 
-# ## Launch the script
-# 
-# * Position yourself in the repository where the output will be created.
-# * If the file you want to reformat is a shtolo log, then:
-#     * python PATH-TO-SCRIPT-EDM_logs.py PATH-TO-LOG-FILE
-# * If the file you want to reformat is the validation log, then:
-#     * python PATH-TO-SCRIPT-EDM_logs.py PATH-TO-LOG-FILE PATH-TO-LONGFORM
-# 
-## Python setup
-### For Windows users
-# 
-# 1. Download last release of python 3 here: 
-#     * For 32 bits: https://www.python.org/ftp/python/3.6.2/python-3.6.2-webinstall.exe
-#     * For 64 bits: https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64-webinstall.exe
-# 1. Execute the file that has been downloaded and follow the instructions.
-# 1. When the installation is finished, you can confirm it by opening up the command prompt and typing the following command: `python -V`
-# 1. You will now need to make sure you have the latest version by typing: *python -m pip install -U pip setuptools
-# *
-# 
-# ### For Mac and Linux users
-# 
-# 1. Download last release of python 3 here: 
-#     * For Macs: https://www.python.org/ftp/python/3.6.2/python-3.6.2-macosx10.6.pkg
-#     * For Linux: https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
-# 1. Execute the file that has been downloaded and follow the instructions.
-# 1. When the installation is finished, you can confirm it by opening up the command prompt and typing the following command: `python -V`
-# 1. You will now need to make sure you have the latest version by typing: `python -m pip install -U pip setuptools
-# `
-# 
-# ### Required package
-# 
-# 1. For each package type `pip install NAME-OF-THE-PACKAGE` in the command line. Here is the list of packages to install:
-#     * pandas
-# 
-# For example: `pip install pandas`.
-# ## Script
-# ### Librairies
-
-# In[ ]:
-
+# Libraries
 import sys
 import pandas as pd
 import time
 import re
 import os
 
-
-# ### For all EDM logs
-# Output a table with the type (Warning or error) , the name of the schema and the error
-
-# In[ ]:
-
-version="1.2"
+version='1.6'
 file= sys.argv[1]
 repo=os.getcwd()
 date=time.strftime("%y%m%d-%I%M%p")
@@ -95,11 +54,7 @@ df=pd.DataFrame(data,columns=[header,'schema','message'])
 
 # ### For EDM validation checks only
 
-# In[ ]:
-ignore=None
-name=None
-
-if len(sys.argv) == 5:
+if len(sys.argv) == 3:
     lf=sys.argv[2]
     #df['line']=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line ')))
     Line=df.message.apply(lambda x: int(re.findall('Line\s+\d+',x)[0].strip('Line '))) 
@@ -119,23 +74,7 @@ if len(sys.argv) == 5:
         text=re.sub("\(\* REFERENCE FROM \(|\(\* USED FROM \(|\); \*\)\n|\(\*\s*Implicit interfaced from:\s*|\s*\*\)|SCHEMA |;|\'\{.*$","",express.text[line])
         module.append(text.strip())
     df['module']=module
-    ### Errors to ignore
-    ignore=pd.read_csv(sys.argv[3],sep=';')
-    name=sys.argv[4]
 
-
-if len(sys.argv)==4:
-    ignore=pd.read_csv(sys.argv[2],sep=';')
-    name=sys.argv[3]
-
-ignore=ignore[ignore.loc[:,'in']==name]
-ignore=ignore.iloc[:,:2]
-col=list(set(ignore.type))
-
-
-# ### Last formatting and excel output
-
-# In[ ]:
 
 df.message=df.message.apply(lambda x: re.sub('Line\s+\d+:\s+','',x))
 df.drop_duplicates(['message'],inplace=True)
@@ -145,9 +84,6 @@ df.message=df.message.apply(lambda x: re.sub('\s*C\d+:',' ',x))
 df.message=df.message.apply(lambda x: x.strip())
 df.sort_values(by='C',inplace=True)
 print(df.head())
-df_left=pd.merge(df,ignore,how='outer',on='message',indicator=True)
-df_left=df_left[df_left._merge=='left_only']
-df_left=df_left.iloc[:,:-3]
 
 # To CSV
-df_left.to_csv(title,sep=';',index=False)
+df.to_csv(title,sep=';',index=False)

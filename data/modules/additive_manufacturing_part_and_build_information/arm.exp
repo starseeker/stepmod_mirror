@@ -1,10 +1,11 @@
 (*
-   $Id: arm.exp,v 1.12 2017/10/18 15:46:03 duchierp Exp $
+   $Id: arm.exp,v 1.13 2017/11/07 15:24:24 duchierp Exp $
    ISO TC184/SC4/WG12 N9241 - ISO/TS 10303-1835 Additive_manufacturing_part_and_build_information - EXPRESS ARM
  *)
  
 SCHEMA Additive_manufacturing_part_and_build_information_arm;
 
+ USE FROM Assembly_structure_arm;  --ISO/TS 10303-1026
  USE FROM Construction_geometry_arm; --ISO/TS 10303-1131
  USE FROM Elemental_geometric_shape_arm; -- ISO/TS 10303-1004
  USE FROM Foundation_representation_arm; -- ISO/TS 10303-1006
@@ -51,7 +52,7 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_setup
-     SUBTYPE OF (Product_occurrence);
+     SUBTYPE OF (Assembly_definition);
      its_origin: Axis_placement_3d;
      INVERSE
          its_workpiece_setup : SET [1 : ?] OF Additive_manufacturing_workpiece_setup FOR relating_view;
@@ -60,17 +61,17 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_setup_build_plate
-     SUBTYPE OF (Product_occurrence_definition_relationship); 
-     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_build_plate: Build_platform_definition;
-     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     SUBTYPE OF (Next_assembly_usage); 
+     SELF\Next_assembly_usage.related_view RENAMED its_build_plate: Build_platform_definition;
+     SELF\Next_assembly_usage.relating_view : Additive_manufacturing_setup;
      INVERSE
           placement : Contextual_shape_representation FOR product_context;
  END_ENTITY;
  
  ENTITY Additive_manufacturing_support_structure_setup
-     SUBTYPE OF (Product_occurrence_definition_relationship); 
-     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_support: Additive_manufacturing_support_structure;
-     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     SUBTYPE OF (Next_assembly_usage); 
+     SELF\Next_assembly_usage.related_view RENAMED its_support: Additive_manufacturing_support_structure;
+     SELF\Next_assembly_usage.relating_view : Additive_manufacturing_setup;
      INVERSE
           placement : Contextual_shape_representation FOR product_context;
  END_ENTITY;
@@ -82,9 +83,9 @@ SCHEMA Additive_manufacturing_part_and_build_information_arm;
  END_ENTITY;
 
  ENTITY Additive_manufacturing_workpiece_setup
-     SUBTYPE OF (Product_occurrence_definition_relationship); 
-     SELF\Product_occurrence_definition_relationship.related_view RENAMED its_workpiece: Additive_manufacturing_part_definition;
-     SELF\Product_occurrence_definition_relationship.relating_view : Additive_manufacturing_setup;
+     SUBTYPE OF (Next_assembly_usage); 
+     SELF\Next_assembly_usage.related_view RENAMED its_workpiece: Additive_manufacturing_part_definition;
+     SELF\Next_assembly_usage.relating_view : Additive_manufacturing_setup;
      INVERSE
           placement : Contextual_shape_representation FOR product_context;
  END_ENTITY;

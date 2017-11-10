@@ -17,7 +17,7 @@ title=date+'-log_with_ignored.csv'
 df=pd.read_csv(sys.argv[1],sep=';')
 ignore=pd.read_csv(sys.argv[2],sep=';')
 ignore=ignore.iloc[:,:2]
-col=list(set(ignore.type))
+col=list(set(ignore.iloc[:,1]))
 
 df_left=pd.merge(df,ignore,how='outer',on='message',indicator=True)
 df_left=df_left[df_left._merge=='left_only']

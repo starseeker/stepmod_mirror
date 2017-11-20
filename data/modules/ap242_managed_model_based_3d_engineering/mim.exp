@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.64 2017/11/16 09:56:00 fdarre Exp $
+   $Id: mim.exp,v 1.65 2017/11/17 16:39:09 fdarre Exp $
    ISO TC184/SC4/WG12 N9807 - ISO/TS 10303-442 AP242 managed model based 3d engineering - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N8323
 *)
@@ -7,6 +7,7 @@
 SCHEMA Ap242_managed_model_based_3d_engineering_mim;
    
    USE FROM Additive_manufacturing_part_and_build_information_mim; --ISO/TS 10303-1835
+   USE FROM Analysis_assignment_mim; --ISO/TS 10303-1474
    USE FROM application_context_schema   -- ISO 10303-41
             (application_context,
             application_protocol_definition,
@@ -26,6 +27,7 @@ SCHEMA Ap242_managed_model_based_3d_engineering_mim;
    USE FROM Constructive_solid_geometry_3d_mim; -- ISO/TS 10303-1068
    USE FROM Curve_swept_solid_mim; -- ISO/TS 10303-1659
    USE FROM Default_tolerance_mim; -- ISO/TS 10303-1052
+   USE FROM Description_assignment_mim; -- ISO/TS 10303-1473
    USE FROM Design_product_data_management_mim; -- ISO/TS 10303-1628
    USE FROM Dimension_and_tolerance_callouts_mim; -- ISO/TS 10303-1362
    USE FROM Dimension_tolerance_mim; -- ISO/TS 10303-1050
@@ -46,6 +48,8 @@ SCHEMA Ap242_managed_model_based_3d_engineering_mim;
    USE FROM Interface_component_mim;    -- ISO/TS 10303-1691
    USE FROM Interface_lifecycle_mim;    -- ISO/TS 10303-1294
    USE FROM Kinematic_analysis_control_and_result_mim;   -- ISO/TS 10303-1817
+   USE FROM Location_mim;    --  ISO/TS 10303-1276
+   USE FROM Location_assignment_mim;   -- ISO/TS 10303-1277
    USE FROM Machining_features_mim;   -- ISO/TS 10303-1814
    USE FROM Manifold_subsurface_mim; -- ISO/TS 10303-1702
    USE FROM Mating_structure_mim;   -- ISO/TS 10303-1815
@@ -55,6 +59,7 @@ SCHEMA Ap242_managed_model_based_3d_engineering_mim;
    USE FROM Model_based_3d_geometrical_dimensioning_and_tolerancing_representation_mim;   -- ISO/TS 10303-1816
    USE FROM Modified_swept_solid_mim; -- ISO/TS 10303-1322
    USE FROM Numerical_interface_mim; -- ISO/TS 10303-1344
+   USE FROM Organization_type_mim; -- ISO/TS 10303-1240
    USE FROM Part_and_zone_laminate_tables_mim;  -- ISO/TS 10303-1770
    USE FROM Physical_breakdown_mim; -- ISO/TS 10303-1215
    USE FROM Picture_representation_mim;  -- ISO/TS 10303-1308
@@ -875,66 +880,6 @@ TYPE ap242_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON r
     verification);
 END_TYPE; 
 
-TYPE ap242_dms_same_as_item = SELECT BASED_ON same_as_item WITH 
-   (address, 
-    applied_action_assignment, 
-    applied_action_method_assignment, 
-    applied_experience_assignment, 
-    applied_external_identification_assignment, 
-    applied_group_assignment, 
-    applied_location_representation_assignment, 
-    applied_position_in_organization_group_assignment, 
-    approval, 
-    approval_status, 
-    ascribable_state, 
-    attribute_language_assignment, 
-    breakdown_context, 
-    calendar_date, 
-    certification, 
-    configuration_effectivity, 
-    contract, 
-    coordinated_universal_time_offset, 
-    date_and_time, 
-    derived_unit, 
-    derived_unit_element, 
-    description_text, 
-    event_occurrence, 
-    evidence, 
-    general_property, 
-    local_time, 
-    measure_qualification, 
-    measure_with_unit, 
-    named_unit, 
-    organization, 
-    organization_type, 
-    person, 
-    person_type, 
-    person_type_definition, 
-    position_in_organization, 
-    position_in_organization_assignment, 
-    position_in_organization_type, 
-    position_in_organization_type_assignment, 
-    precision_qualifier, 
-    product, 
-    product_concept, 
-    product_concept_context, 
-    product_definition_context, 
-    product_group, 
-    qualification_type, 
-    representation, 
-    representation_context, 
-    resource_property, 
-    risk_level, 
-    security_classification, 
-    state_observed, 
-    state_observed_role, 
-    state_type, 
-    state_type_role, 
-    time_interval, 
-    type_qualifier, 
-    uncertainty_qualifier);
-END_TYPE;
-
   TYPE person_and_organization_item_242 = SELECT BASED_ON person_and_organization_item WITH 
     (alternate_product_relationship, 
     applied_action_assignment, 
@@ -971,10 +916,6 @@ END_TYPE;
     verification);
   END_TYPE; 
   
-  TYPE ap242_person_type_item = SELECT BASED_ON person_type_item WITH 
-   (analysis_assignment);
-END_TYPE; 
-
 TYPE ap242_product_definition_or_product_definition_relationship = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_definition_or_product_definition_relationship WITH 
    (interface_connector_occurrence,
    product_group);
@@ -1205,7 +1146,6 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     applied_document_usage_constraint_assignment, 
     applied_effectivity_assignment, 
     applied_event_occurrence_assignment, 
-    applied_experience_assignment, 
     applied_external_identification_assignment, 
     applied_group_assignment, 
     applied_identification_assignment, 
@@ -1216,10 +1156,6 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     applied_organization_type_assignment, 
     applied_organizational_project_assignment, 
     applied_person_and_organization_assignment, 
-    applied_person_type_assignment, 
-    applied_person_type_definition_assignment, 
-    applied_position_in_organization_group_assignment, 
-    applied_qualification_type_assignment, 
     applied_security_classification_assignment, 
     approval, 
     approval_person_organization, 
@@ -1256,8 +1192,6 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     general_property, 
     general_property_relationship, 
     geometric_item_specific_usage, 
-    identification_assignment_relationship, 
-    intersection, 
     item_defined_transformation, 
     local_time, 
     measure_qualification, 
@@ -1271,9 +1205,6 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     organizational_project_relationship, 
     person, 
     person_and_organization, 
-    person_type, 
-    person_type_definition, 
-    person_type_definition_relationship,  
     precision_qualifier, 
     product, 
     product_concept, 
@@ -1289,16 +1220,11 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     product_relationship, 
     property_definition, 
     property_definition_representation, 
-    qualification_type, 
-    qualification_type_relationship, 
     representation, 
     representation_context, 
     representation_item, 
     representation_relationship, 
-    same_as_external_item_assignment, 
-    same_membership, 
     security_classification, 
-    selected_item_assignment, 
     shape_aspect, 
     shape_aspect_relationship, 
     state_observed, 
@@ -1308,7 +1234,6 @@ TYPE ap242_collection_membership_groupable_item = SELECT BASED_ON collection_mem
     state_type, 
     state_type_assignment, 
     state_type_relationship, 
-    state_type_role, 
     time_interval, 
     time_interval_assignment, 
     time_interval_relationship, 
